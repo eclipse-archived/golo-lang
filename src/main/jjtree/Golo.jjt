@@ -11,11 +11,16 @@ PARSER_BEGIN(GoloParser)
 
 package gololang.compiler.parser;
 
+import java.util.List;
+import java.util.LinkedList;
+import java.util.Collections;
+
 public class GoloParser {
   
   public static void main(String[] args) throws Throwable {
-    GoloParser parser = new GoloParser(System.in);
-    ASTCompilationUnit unit = parser.CompilationUnit();
+    GoloParser parser = new GoloParser(System.in);    
+    // ASTCompilationUnit unit = parser.CompilationUnit();
+    ASTFunctionDeclaration unit = parser.FunctionDeclaration();
     unit.dump("% ");
   }
 }
@@ -38,12 +43,14 @@ TOKEN :
   < NEWLINE: "\n" >
 }
 
-// Module and import tokens
+// Keywords
 TOKEN :
 {
   < MODULE: "module" >
   |
   < IMPORT: "import" >
+  |
+  < FUNCTION: "function" >
 }
 
 // Identifiers
@@ -85,6 +92,30 @@ String QualifiedName() #void:
   }
 }
 
+List<String> ArgumentDeclarationList() #void:
+{
+  Token rootToken;
+  Token nextToken;
+  List<String> arguments = new LinkedList<String>();
+}
+{
+  "|"
+  rootToken=<IDENTIFIER>
+  {
+    arguments.add(rootToken.image);
+  }
+  (
+    "," (<NEWLINE>)? nextToken=<IDENTIFIER>
+    {
+      arguments.add(nextToken.image);
+    }
+  )*
+  "|"
+  {
+    return arguments;
+  }
+}
+
 // ............................................................................................. //
 
 ASTCompilationUnit CompilationUnit(): {}
@@ -116,6 +147,32 @@ void ImportDeclaration():
   <IMPORT> name=QualifiedName()
   {
     jjtThis.setName(name);
+  }
+}
+
+void Function():
+{
+  List<String> arguments = null;
+}
+{
+  (arguments=ArgumentDeclarationList())? "{" "}"
+  {
+    if (arguments == null) {
+      arguments = Collections.emptyList();
+    }
+    jjtThis.setArguments(arguments);
+  }
+}
+
+ASTFunctionDeclaration FunctionDeclaration():
+{
+  Token name;
+}
+{
+  <FUNCTION> name=<IDENTIFIER> "=" Function()
+  {
+    jjtThis.setName(name.image);
+    return jjtThis;
   }
 }
 
