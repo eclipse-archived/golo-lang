@@ -102,14 +102,19 @@ void ModuleDeclaration():
 {
   <MODULE> name=QualifiedName()
   {
-    System.out.println(">>> The module is " + name);
     jjtThis.setName(name);
   }
 }
 
-void ImportDeclaration(): {}
+void ImportDeclaration():
 {
-  <IMPORT> QualifiedName()
+  String name;
+}
+{
+  <IMPORT> name=QualifiedName()
+  {
+    jjtThis.setName(name);
+  }
 }
 
 // ............................................................................................. //
