@@ -60,11 +60,17 @@ TOKEN :
 
 ASTCompilationUnit CompilationUnit(): {}
 {
-  ( <NEWLINE> )*
-  ModuleDeclaration() ( <NEWLINE> )*
-  // ( ImportDeclaration() )*
+  BlankLines()
+  ModuleDeclaration()
+  BlankLines()
+  ( ImportDeclaration() BlankLines() )*
   <EOF>  
   { return jjtThis; }
+}
+
+void BlankLines() #void: {}
+{
+  ( <NEWLINE> )*
 }
 
 String QualifiedName() #void:
@@ -99,6 +105,11 @@ void ModuleDeclaration():
     System.out.println(">>> The module is " + name);
     jjtThis.setName(name);
   }
+}
+
+void ImportDeclaration(): {}
+{
+  <IMPORT> QualifiedName()
 }
 
 // ............................................................................................. //
