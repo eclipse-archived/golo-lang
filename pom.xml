@@ -10,6 +10,17 @@
 
   <packaging>jar</packaging>
 
+  <description>Golo: a minimalistic companion dynamic language for the JVM.</description>
+
+  <developers>
+    <developer>
+      <id>jponge</id>
+      <name>Julien Ponge</name>
+      <email>julien.ponge@insa-lyon.fr</email>
+      <url>http://julien.ponge.info/</url>
+    </developer>
+  </developers>
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
