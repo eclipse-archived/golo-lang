@@ -58,16 +58,6 @@ TOKEN :
 
 // ............................................................................................. //
 
-ASTCompilationUnit CompilationUnit(): {}
-{
-  BlankLines()
-  ModuleDeclaration()
-  BlankLines()
-  ( ImportDeclaration() BlankLines() )*
-  <EOF>  
-  { return jjtThis; }
-}
-
 void BlankLines() #void: {}
 {
   ( <NEWLINE> )*
@@ -93,6 +83,18 @@ String QualifiedName() #void:
   {
     return nameBuilder.toString();
   }
+}
+
+// ............................................................................................. //
+
+ASTCompilationUnit CompilationUnit(): {}
+{
+  BlankLines()
+  ModuleDeclaration()
+  BlankLines()
+  ( ImportDeclaration() BlankLines() )*
+  <EOF>  
+  { return jjtThis; }
 }
 
 void ModuleDeclaration():
