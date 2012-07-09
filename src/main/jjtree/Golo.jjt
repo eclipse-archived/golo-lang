@@ -1,0 +1,104 @@
+// ............................................................................................. //
+
+options {
+  MULTI=true;
+  VISITOR=true;
+}
+
+// ............................................................................................. //
+
+PARSER_BEGIN(GoloParser)
+
+package gololang.compiler.parser;
+
+public class GoloParser {
+  
+  public static void main(String[] args) throws Throwable {
+    GoloParser parser = new GoloParser(System.in);
+    ASTCompilationUnit unit = parser.CompilationUnit();
+    unit.dump("% ");
+  }
+}
+
+PARSER_END(GoloParser)
+
+// ............................................................................................. //
+
+// White space
+SKIP :
+{
+  " "
+  | "\t"
+  | "\r"
+  | "\f"
+}
+
+TOKEN :
+{
+  < NEWLINE: "\n" >
+}
+
+// Module and import tokens
+TOKEN :
+{
+  < MODULE: "module" >
+  |
+  < IMPORT: "import" >
+}
+
+// Identifiers
+TOKEN :
+{
+  < IDENTIFIER: <LETTER> (<ID_REST>)* >
+  |
+  < #LETTER: [ "A"-"Z", "a"-"z", "_" ] >
+  |
+  < #ID_REST: [ "A"-"Z", "a"-"z", "_", "0"-"9" ] >
+}
+
+// ............................................................................................. //
+
+ASTCompilationUnit CompilationUnit(): {}
+{
+  ( <NEWLINE> )*
+  ModuleDeclaration() ( <NEWLINE> )*
+  // ( ImportDeclaration() )*
+  <EOF>  
+  { return jjtThis; }
+}
+
+String QualifiedName() #void:
+{
+  Token rootToken;
+  Token nextToken;
+  StringBuilder nameBuilder;
+}
+{
+  rootToken=<IDENTIFIER>
+  {
+    nameBuilder = new StringBuilder(rootToken.image);
+  }
+  (
+    "." nextToken=<IDENTIFIER>
+    {
+      nameBuilder.append(".").append(nextToken.image);
+    }
+  )*
+  {
+    return nameBuilder.toString();
+  }
+}
+
+void ModuleDeclaration():
+{
+  String name;
+}
+{
+  <MODULE> name=QualifiedName()
+  {
+    System.out.println(">>> The module is " + name);
+    jjtThis.setName(name);
+  }
+}
+
+// ............................................................................................. //
