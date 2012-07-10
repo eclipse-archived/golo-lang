@@ -14,7 +14,7 @@ function bar = |a| {
 
 }
 
-function baz = |a, b, c|
+local function baz = |a, b, c|
 {
 
 }
