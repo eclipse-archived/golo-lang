@@ -125,6 +125,7 @@ ASTCompilationUnit CompilationUnit(): {}
   ModuleDeclaration()
   BlankLines()
   ( ImportDeclaration() BlankLines() )*
+  ( FunctionDeclaration() BlankLines() )*
   <EOF>  
   { return jjtThis; }
 }
