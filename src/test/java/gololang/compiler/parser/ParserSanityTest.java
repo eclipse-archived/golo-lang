@@ -42,6 +42,7 @@ public class ParserSanityTest {
 
   @Test
   public void check_parse() throws FileNotFoundException, ParseException {
+    System.out.println();
     System.out.println(">>> Parsing: " + goloFile);
 
     GoloParser parser = new GoloParser(new FileReader(goloFile));
@@ -49,5 +50,6 @@ public class ParserSanityTest {
 
     assertThat(compilationUnit, notNullValue());
     compilationUnit.dump("% ");
+    System.out.println();
   }
 }
