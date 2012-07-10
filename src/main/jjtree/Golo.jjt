@@ -54,7 +54,18 @@ TOKEN :
   < FUNCTION: "function" >
   |
   < LOCAL: "local" >
+  |
+  < RETURN: "return" >
 }
+
+// References
+TOKEN :
+{
+  < VAR: "var" >
+  |
+  < VAL: "val" >
+}
+
 
 // Identifiers
 TOKEN :
@@ -70,6 +81,14 @@ TOKEN :
 SPECIAL_TOKEN :
 {
   < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n")? >
+}
+
+// Literals
+TOKEN :
+{
+  < NUMBER: ["0"-"9"] (["0"-"9"])* >
+  |
+  < STRING: "\"" (~["\n"])* "\"" >
 }
 
 // ............................................................................................. //
@@ -122,6 +141,28 @@ List<String> ArgumentDeclarationList() #void:
   "|"
   {
     return arguments;
+  }
+}
+
+String StringLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<STRING>
+  {
+    return literal.image.replace("\"", "");
+  }
+}
+
+Integer IntegerLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<NUMBER>
+  {
+    return Integer.valueOf(literal.image);
   }
 }
 
@@ -193,9 +234,39 @@ ASTFunctionDeclaration FunctionDeclaration():
   }
 }
 
+void Literal():
+{
+  Object value;
+}
+{
+  (
+    value=StringLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=IntegerLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+  )
+}
+
+void ReturnStatement():{}
+{
+  <RETURN> (Literal())?
+}
+
+void Statement() #void:{}
+{
+  <NEWLINE> | ReturnStatement()
+}
+
 void Block(): {}
 {
-  "{" BlankLines() "}"
+  "{"
+    (Statement())*
+  "}"
 }
 
 // ............................................................................................. //
