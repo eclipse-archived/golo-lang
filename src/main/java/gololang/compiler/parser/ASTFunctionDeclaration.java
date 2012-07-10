@@ -3,6 +3,7 @@ package gololang.compiler.parser;
 public class ASTFunctionDeclaration extends SimpleNode {
 
   private String name;
+  private boolean local = false;
 
   public ASTFunctionDeclaration(int i) {
     super(i);
@@ -20,10 +21,19 @@ public class ASTFunctionDeclaration extends SimpleNode {
     this.name = name;
   }
 
+  public boolean isLocal() {
+    return local;
+  }
+
+  public void setLocal(boolean local) {
+    this.local = local;
+  }
+
   @Override
   public String toString() {
     return "ASTFunctionDeclaration{" +
         "name='" + name + '\'' +
+        ", local=" + local +
         '}';
   }
 

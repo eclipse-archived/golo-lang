@@ -52,6 +52,8 @@ TOKEN :
   < IMPORT: "import" >
   |
   < FUNCTION: "function" >
+  |
+  < LOCAL: "local" >
 }
 
 // Identifiers
@@ -175,8 +177,15 @@ void Function():
 ASTFunctionDeclaration FunctionDeclaration():
 {
   Token name;
+  Token local = null;
 }
 {
+  (local=<LOCAL>)?
+  {
+    if (local != null) {
+      jjtThis.setLocal(true);
+    }
+  }
   <FUNCTION> name=<IDENTIFIER> "=" Function()
   {
     jjtThis.setName(name.image);
