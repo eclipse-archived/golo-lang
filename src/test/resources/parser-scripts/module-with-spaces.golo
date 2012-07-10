@@ -10,6 +10,11 @@ import java.io.File
 
 function foo = { }
 
-function bar = |a| { }
+function bar = |a| {
 
-function baz = |a, b, c| { }
+}
+
+function baz = |a, b, c|
+{
+
+}

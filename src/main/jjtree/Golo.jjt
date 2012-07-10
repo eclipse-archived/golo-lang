@@ -157,7 +157,7 @@ void Function():
   List<String> arguments = null;
 }
 {
-  (arguments=ArgumentDeclarationList())? "{" "}"
+  (arguments=ArgumentDeclarationList())? (<NEWLINE>)? Block()
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
@@ -176,6 +176,11 @@ ASTFunctionDeclaration FunctionDeclaration():
     jjtThis.setName(name.image);
     return jjtThis;
   }
+}
+
+void Block(): {}
+{
+  "{" BlankLines() "}"
 }
 
 // ............................................................................................. //
