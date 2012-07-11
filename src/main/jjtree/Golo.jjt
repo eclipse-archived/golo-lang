@@ -121,7 +121,7 @@ String QualifiedName() #void:
   }
 }
 
-List<String> ArgumentDeclarationList() #void:
+List<String> Arguments() #void:
 {
   Token rootToken;
   Token nextToken;
@@ -205,7 +205,7 @@ void Function():
   List<String> arguments = null;
 }
 {
-  ("|" arguments=ArgumentDeclarationList() "|")? (<NEWLINE>)? Block()
+  ("|" arguments=Arguments() "|")? (<NEWLINE>)? Block()
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
