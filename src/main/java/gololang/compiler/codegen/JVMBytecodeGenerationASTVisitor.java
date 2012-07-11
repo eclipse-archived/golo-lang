@@ -47,7 +47,7 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
   public Object visit(ASTCompilationUnit node, Object data) {
     node.childrenAccept(this, new Context());
     classWriter.visitEnd();
-    return null;
+    return data;
   }
 
   @Override
@@ -117,7 +117,7 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
     Object value = node.getLiteralValue();
     context.currentMethodVisitor.visitLdcInsn(value);
     generateBoxing(context.currentMethodVisitor, value);
-    return null;
+    return data;
   }
 
   private void generateBoxing(MethodVisitor methodVisitor, Object value) {
@@ -135,7 +135,7 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
       context.currentMethodVisitor.visitInsn(ACONST_NULL);
     }
     context.currentMethodVisitor.visitInsn(ARETURN);
-    return null;
+    return data;
   }
 
   @Override
