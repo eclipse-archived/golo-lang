@@ -1,6 +1,6 @@
 package gololang.compiler.parser;
 
-public class ASTImportDeclaration extends SimpleNode {
+public class ASTImportDeclaration extends GoloASTNode {
 
   private String name;
 
@@ -27,6 +27,7 @@ public class ASTImportDeclaration extends SimpleNode {
         '}';
   }
 
+  @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

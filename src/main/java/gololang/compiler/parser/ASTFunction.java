@@ -2,7 +2,7 @@ package gololang.compiler.parser;
 
 import java.util.List;
 
-public class ASTFunction extends SimpleNode {
+public class ASTFunction extends GoloASTNode {
 
   private List<String> arguments;
 
@@ -29,6 +29,7 @@ public class ASTFunction extends SimpleNode {
         '}';
   }
 
+  @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

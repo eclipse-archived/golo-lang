@@ -1,6 +1,6 @@
 package gololang.compiler.parser;
 
-public class ASTBlock extends SimpleNode {
+public class ASTBlock extends GoloASTNode {
 
   public ASTBlock(int id) {
     super(id);
@@ -15,6 +15,7 @@ public class ASTBlock extends SimpleNode {
     return "ASTBlock{}";
   }
 
+  @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }

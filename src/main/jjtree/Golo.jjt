@@ -4,6 +4,7 @@ options {
   MULTI=true;
   VISITOR=true;
   STATIC=false;
+  NODE_CLASS="GoloASTNode";
 }
 
 // ............................................................................................. //

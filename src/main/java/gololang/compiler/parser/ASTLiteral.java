@@ -1,6 +1,6 @@
 package gololang.compiler.parser;
 
-public class ASTLiteral extends SimpleNode {
+public class ASTLiteral extends GoloASTNode {
 
   private Object literalValue;
 
@@ -27,6 +27,7 @@ public class ASTLiteral extends SimpleNode {
         '}';
   }
 
+  @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
