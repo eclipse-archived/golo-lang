@@ -3,7 +3,9 @@ package gololang.compiler.codegen;
 import gololang.compiler.GoloCompiler;
 import gololang.compiler.parser.ParseException;
 import gololang.internal.junit.TestUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.objectweb.asm.ClassReader;
@@ -26,6 +28,9 @@ public class JVMByteCodeGenerationVerifierTest {
 
   private final File goloFile;
 
+  @Rule
+  public TemporaryFolder compilerOutputDir = new TemporaryFolder();
+
   public JVMByteCodeGenerationVerifierTest(File goloFile) {
     this.goloFile = goloFile;
   }
@@ -39,7 +44,7 @@ public class JVMByteCodeGenerationVerifierTest {
     ClassReader reader = new ClassReader(bytecode);
     TraceClassVisitor tracer = new TraceClassVisitor(new PrintWriter(System.out));
     CheckClassAdapter checker = new CheckClassAdapter(tracer);
-    reader.accept(tracer, 0);
+    reader.accept(checker, 0);
   }
 
   @Test
@@ -48,10 +53,10 @@ public class JVMByteCodeGenerationVerifierTest {
     System.out.println(">>> Compiling and verifying the bytecode for: " + goloFile);
 
     GoloCompiler compiler = new GoloCompiler();
-    byte[] bytecode = compiler.compileFrom(goloFile.getName(), new FileInputStream(goloFile));
+    CodeGenerationResult result = compiler.compileFromStream(goloFile.getName(), new FileInputStream(goloFile));
 
-    assertThat(bytecode, notNullValue());
-    verify(bytecode);
+    assertThat(result.getBytecode(), notNullValue());
+    verify(result.getBytecode());
 
     System.out.println();
   }

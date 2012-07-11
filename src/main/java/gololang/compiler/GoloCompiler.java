@@ -1,5 +1,6 @@
 package gololang.compiler;
 
+import gololang.compiler.codegen.CodeGenerationResult;
 import gololang.compiler.codegen.JVMBytecodeGenerationASTVisitor;
 import gololang.compiler.parser.ASTCompilationUnit;
 import gololang.compiler.parser.GoloParser;
@@ -24,11 +25,17 @@ public class GoloCompiler {
     return parser;
   }
 
-  public byte[] compileFrom(String goloSourceFilename, InputStream sourceCodeInputStream) throws ParseException {
+  public CodeGenerationResult compileFromStream(String goloSourceFilename, InputStream sourceCodeInputStream) throws ParseException {
+
     ASTCompilationUnit compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
+
     JVMBytecodeGenerationASTVisitor bytecodeGenerationVisitor =
         new JVMBytecodeGenerationASTVisitor(goloSourceFilename, new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS));
     bytecodeGenerationVisitor.visit(compilationUnit, null);
-    return bytecodeGenerationVisitor.getBytecode();
+
+    return new CodeGenerationResult(
+        bytecodeGenerationVisitor.getBytecode(),
+        bytecodeGenerationVisitor.getTargetJavaPackage(),
+        bytecodeGenerationVisitor.getTargetJavaClass());
   }
 }

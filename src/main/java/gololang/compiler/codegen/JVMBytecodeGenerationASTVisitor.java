@@ -3,7 +3,7 @@ package gololang.compiler.codegen;
 import gololang.compiler.parser.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Type;
+import org.objectweb.asm.Opcodes;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -11,6 +11,9 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
 
   private final String goloSourceFilename;
   private final ClassWriter classWriter;
+
+  private String targetJavaPackage;
+  private String targetJavaClass;
 
   private static class Context {
     String currentMethodName;
@@ -24,8 +27,15 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
   }
 
   public byte[] getBytecode() {
-    classWriter.visitEnd();
     return classWriter.toByteArray();
+  }
+
+  public String getTargetJavaPackage() {
+    return targetJavaPackage;
+  }
+
+  public String getTargetJavaClass() {
+    return targetJavaClass;
   }
 
   @Override
@@ -35,15 +45,30 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTCompilationUnit node, Object data) {
-    return node.childrenAccept(this, new Context());
+    node.childrenAccept(this, new Context());
+    classWriter.visitEnd();
+    return null;
   }
 
   @Override
   public Object visit(ASTModuleDeclaration node, Object data) {
-    String targetClassType = node.getName().replaceAll("\\.", "/");
+    String moduleName = node.getName();
+    extractTargetJavaPackageAndClass(moduleName);
+    String targetClassType = moduleName.replaceAll("\\.", "/");
     classWriter.visit(V1_7, ACC_PUBLIC, targetClassType, null, "java/lang/Object", null);
     classWriter.visitSource(goloSourceFilename, null);
     return node.childrenAccept(this, data);
+  }
+
+  private void extractTargetJavaPackageAndClass(String moduleName) {
+    int packageClassSeparatorIndex = moduleName.lastIndexOf('.');
+    if (packageClassSeparatorIndex > 0) {
+      targetJavaPackage = moduleName.substring(0, packageClassSeparatorIndex);
+      targetJavaClass = moduleName.substring(packageClassSeparatorIndex + 1);
+    } else {
+      targetJavaPackage = "";
+      targetJavaClass = moduleName;
+    }
   }
 
   @Override
@@ -61,6 +86,8 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
         null, null);
     context.currentMethodVisitor.visitCode();
     node.childrenAccept(this, data);
+    context.currentMethodVisitor.visitInsn(ACONST_NULL);
+    context.currentMethodVisitor.visitInsn(ARETURN);
     context.currentMethodVisitor.visitMaxs(0, 0);
     context.currentMethodVisitor.visitEnd();
     return null;
@@ -86,8 +113,16 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTLiteral node, Object data) {
     Context context = (Context) data;
-    context.currentMethodVisitor.visitLdcInsn(node.getLiteralValue());
+    Object value = node.getLiteralValue();
+    context.currentMethodVisitor.visitLdcInsn(value);
+    generateBoxing(context.currentMethodVisitor, value);
     return null;
+  }
+
+  private void generateBoxing(MethodVisitor methodVisitor, Object value) {
+    if (Integer.class.equals(value.getClass())) {
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+    }
   }
 
   @Override
@@ -95,10 +130,10 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 0) {
       node.childrenAccept(this, data);
-      context.currentMethodVisitor.visitInsn(ARETURN);
     } else {
-      context.currentMethodVisitor.visitInsn(RETURN);
+      context.currentMethodVisitor.visitInsn(ACONST_NULL);
     }
+    context.currentMethodVisitor.visitInsn(ARETURN);
     return null;
   }
 
