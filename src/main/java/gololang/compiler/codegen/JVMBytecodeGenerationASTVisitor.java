@@ -91,7 +91,7 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
     context.currentMethodVisitor.visitInsn(ARETURN);
     context.currentMethodVisitor.visitMaxs(0, 0);
     context.currentMethodVisitor.visitEnd();
-    return null;
+    return data;
   }
 
   private String goloFunctionSignature(ASTFunction node) {
