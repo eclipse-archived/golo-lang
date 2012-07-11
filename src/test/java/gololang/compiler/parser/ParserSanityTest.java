@@ -1,5 +1,6 @@
 package gololang.compiler.parser;
 
+import gololang.internal.junit.TestUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -27,17 +28,7 @@ public class ParserSanityTest {
 
   @Parameters
   public static List<Object[]> data() {
-    List<Object[]> data = new LinkedList<>();
-    File[] files = new File("src/test/resources/parser-scripts").listFiles(new FilenameFilter() {
-      @Override
-      public boolean accept(File dir, String name) {
-        return name.endsWith(".golo");
-      }
-    });
-    for (File file : files) {
-      data.add(new Object[]{file});
-    }
-    return data;
+    return TestUtils.goloFilesIn("src/test/resources/parser-scripts");
   }
 
   @Test
