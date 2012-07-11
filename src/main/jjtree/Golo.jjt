@@ -128,7 +128,6 @@ List<String> ArgumentDeclarationList() #void:
   List<String> arguments = new LinkedList<String>();
 }
 {
-  "|"
   rootToken=<IDENTIFIER>
   {
     arguments.add(rootToken.image);
@@ -139,7 +138,6 @@ List<String> ArgumentDeclarationList() #void:
       arguments.add(nextToken.image);
     }
   )*
-  "|"
   {
     return arguments;
   }
@@ -207,7 +205,7 @@ void Function():
   List<String> arguments = null;
 }
 {
-  (arguments=ArgumentDeclarationList())? (<NEWLINE>)? Block()
+  ("|" arguments=ArgumentDeclarationList() "|")? (<NEWLINE>)? Block()
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
