@@ -24,10 +24,11 @@ public class GoloCompiler {
     return parser;
   }
 
-  public byte[] compileFrom(InputStream sourceCodeInputStream) throws ParseException {
+  public byte[] compileFrom(String goloSourceFilename, InputStream sourceCodeInputStream) throws ParseException {
     ASTCompilationUnit compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
     JVMBytecodeGenerationASTVisitor bytecodeGenerationVisitor =
-        new JVMBytecodeGenerationASTVisitor(new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS));
+        new JVMBytecodeGenerationASTVisitor(goloSourceFilename, new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS));
+    bytecodeGenerationVisitor.visit(compilationUnit, null);
     return bytecodeGenerationVisitor.getBytecode();
   }
 }
