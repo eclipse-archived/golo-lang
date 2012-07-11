@@ -86,6 +86,7 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
         null, null);
     context.currentMethodVisitor.visitCode();
     node.childrenAccept(this, data);
+    // TODO: get rid of this automatic null return frame by using a visitor to detect missing returns
     context.currentMethodVisitor.visitInsn(ACONST_NULL);
     context.currentMethodVisitor.visitInsn(ARETURN);
     context.currentMethodVisitor.visitMaxs(0, 0);
