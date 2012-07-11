@@ -8,14 +8,11 @@ import org.junit.runners.Parameterized;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.io.FilenameFilter;
-import java.util.LinkedList;
 import java.util.List;
 
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.runners.Parameterized.Parameters;
-
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
 
 @RunWith(Parameterized.class)
 public class ParserSanityTest {
