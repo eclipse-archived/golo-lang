@@ -7,7 +7,7 @@ import gololang.compiler.parser.GoloParser;
 import gololang.compiler.parser.ParseException;
 import org.objectweb.asm.ClassWriter;
 
-import java.io.InputStream;
+import java.io.*;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
@@ -37,5 +37,14 @@ public class GoloCompiler {
         bytecodeGenerationVisitor.getBytecode(),
         bytecodeGenerationVisitor.getTargetJavaPackage(),
         bytecodeGenerationVisitor.getTargetJavaClass());
+  }
+
+  public void compileFromStreamToFolder(String goloSourceFilename, InputStream sourceCodeInputStream, File outputDirectory) throws ParseException, IOException {
+    CodeGenerationResult result = compileFromStream(goloSourceFilename, sourceCodeInputStream);
+    File packageDir = new File(outputDirectory, result.getTargetJavaPackage().replaceAll("\\.", File.pathSeparator));
+    packageDir.mkdirs();
+    FileOutputStream out = new FileOutputStream(new File(packageDir, result.getTargetJavaClass() + ".class"));
+    out.write(result.getBytecode());
+    out.close();
   }
 }
