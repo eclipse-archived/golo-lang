@@ -3,7 +3,6 @@ package gololang.compiler.codegen;
 import gololang.compiler.parser.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import static org.objectweb.asm.Opcodes.*;
 
@@ -61,14 +60,28 @@ public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
   }
 
   private void extractTargetJavaPackageAndClass(String moduleName) {
-    int packageClassSeparatorIndex = moduleName.lastIndexOf('.');
+    targetJavaPackage = extractTargetJavaPackage(moduleName);
+    targetJavaClass = extractTargetJavaClass(moduleName);
+  }
+
+  private int packageClassSeparatorIndex(String moduleName) {
+    return moduleName.lastIndexOf('.');
+  }
+
+  private String extractTargetJavaPackage(String moduleName) {
+    int packageClassSeparatorIndex = packageClassSeparatorIndex(moduleName);
     if (packageClassSeparatorIndex > 0) {
-      targetJavaPackage = moduleName.substring(0, packageClassSeparatorIndex);
-      targetJavaClass = moduleName.substring(packageClassSeparatorIndex + 1);
-    } else {
-      targetJavaPackage = "";
-      targetJavaClass = moduleName;
+      return targetJavaPackage = moduleName.substring(0, packageClassSeparatorIndex);
     }
+    return "";
+  }
+
+  private String extractTargetJavaClass(String moduleName) {
+    int packageClassSeparatorIndex = packageClassSeparatorIndex(moduleName);
+    if (packageClassSeparatorIndex > 0) {
+      return moduleName.substring(packageClassSeparatorIndex + 1);
+    }
+    return moduleName;
   }
 
   @Override
