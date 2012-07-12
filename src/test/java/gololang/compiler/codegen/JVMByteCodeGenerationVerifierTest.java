@@ -3,6 +3,7 @@ package gololang.compiler.codegen;
 import gololang.compiler.GoloCompiler;
 import gololang.compiler.parser.ParseException;
 import gololang.internal.junit.TestUtils;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -46,6 +47,7 @@ public class JVMByteCodeGenerationVerifierTest {
   }
 
   @Test
+  @Ignore
   public void verify_bytecode_with_asm_analysis() throws FileNotFoundException, ParseException {
     System.out.println();
     System.out.println(">>> Compiling and verifying the bytecode with ASM for: " + goloFile);
@@ -60,6 +62,7 @@ public class JVMByteCodeGenerationVerifierTest {
   }
 
   @Test
+  @Ignore
   public void verify_bytecode_in_jvm() throws IOException, ParseException, ClassNotFoundException {
     System.out.println();
     System.out.println(">>> Compiling and verifying the bytecode in JVM for: " + goloFile);
