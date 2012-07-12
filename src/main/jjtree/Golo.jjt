@@ -180,42 +180,52 @@ ASTCompilationUnit CompilationUnit(): {}
 
 void ModuleDeclaration():
 {
+  Token token;
   String name;
 }
 {
-  <MODULE> name=QualifiedName()
+  token=<MODULE> name=QualifiedName()
   {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name);
   }
 }
 
 void ImportDeclaration():
 {
+  Token token;
   String name;
 }
 {
-  <IMPORT> name=QualifiedName()
+  token=<IMPORT> name=QualifiedName()
   {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name);
   }
 }
 
 void Function():
 {
+  Token token;
   List<String> arguments = null;
 }
 {
-  ("|" arguments=Arguments() "|")? (<NEWLINE>)? Block()
+  ("|" arguments=Arguments() "|")? (<NEWLINE>)? token="{" Block() "}"
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
     }
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setArguments(arguments);
   }
 }
 
 ASTFunctionDeclaration FunctionDeclaration():
 {
+  Token token;
   Token name;
   Token local = null;
 }
@@ -226,8 +236,10 @@ ASTFunctionDeclaration FunctionDeclaration():
       jjtThis.setLocal(true);
     }
   }
-  <FUNCTION> name=<IDENTIFIER> "=" Function()
+  token=<FUNCTION> name=<IDENTIFIER> "=" Function()
   {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name.image);
     return jjtThis;
   }
@@ -251,9 +263,16 @@ void Literal():
   )
 }
 
-void ReturnStatement():{}
+void ReturnStatement():
 {
-  <RETURN> (Literal())?
+  Token token;
+}
+{
+  token=<RETURN> (Literal())?
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
 }
 
 void Statement() #void:{}
@@ -263,9 +282,7 @@ void Statement() #void:{}
 
 void Block(): {}
 {
-  "{"
-    (Statement())*
-  "}"
+  (Statement())*
 }
 
 // ............................................................................................. //

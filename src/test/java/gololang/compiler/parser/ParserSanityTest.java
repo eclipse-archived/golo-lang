@@ -37,6 +37,7 @@ public class ParserSanityTest {
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
 
     assertThat(compilationUnit, notNullValue());
+
     compilationUnit.dump("% ");
     System.out.println();
   }
