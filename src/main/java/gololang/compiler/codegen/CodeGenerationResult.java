@@ -1,5 +1,6 @@
 package gololang.compiler.codegen;
 
+@Deprecated
 public class CodeGenerationResult {
 
   private final byte[] bytecode;

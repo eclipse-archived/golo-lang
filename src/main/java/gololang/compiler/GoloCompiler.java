@@ -28,6 +28,7 @@ public class GoloCompiler {
     return parser;
   }
 
+  @Deprecated
   public CodeGenerationResult compileFromStream(String goloSourceFilename, InputStream sourceCodeInputStream) throws ParseException {
     ASTCompilationUnit compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
     JVMBytecodeGenerationASTVisitor bytecodeGenerationVisitor =
@@ -41,6 +42,7 @@ public class GoloCompiler {
         bytecodeGenerationVisitor.getTargetJavaClass());
   }
 
+  @Deprecated
   public void compileFromStreamToFolder(String goloSourceFilename, InputStream sourceCodeInputStream, File outputDirectory) throws ParseException, IOException {
     CodeGenerationResult result = compileFromStream(goloSourceFilename, sourceCodeInputStream);
     File packageDir = new File(outputDirectory, result.getTargetJavaPackage().replaceAll("\\.", File.pathSeparator));

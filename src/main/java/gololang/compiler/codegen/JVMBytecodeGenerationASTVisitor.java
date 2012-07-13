@@ -6,6 +6,7 @@ import org.objectweb.asm.MethodVisitor;
 
 import static org.objectweb.asm.Opcodes.*;
 
+@Deprecated
 public class JVMBytecodeGenerationASTVisitor implements GoloParserVisitor {
 
   private final String goloSourceFilename;
