@@ -14,11 +14,11 @@ public final class GoloModule {
     this.packageAndClass = packageAndClass;
   }
 
-  public PackageAndClass packageAndClass() {
+  public PackageAndClass getPackageAndClass() {
     return packageAndClass;
   }
 
-  public Set<ModuleImport> imports() {
+  public Set<ModuleImport> getImports() {
     return unmodifiableSet(imports);
   }
 

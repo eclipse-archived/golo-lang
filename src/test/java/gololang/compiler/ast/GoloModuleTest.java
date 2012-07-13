@@ -9,9 +9,9 @@ import static org.junit.Assert.*;
 public class GoloModuleTest {
 
   @Test
-  public void verify_basic_behavior() {
+  public void basic_checks() {
     GoloModule module = new GoloModule(new PackageAndClass("sample", "Hello"));
-    assertThat(module.packageAndClass().toString(), is("sample.Hello"));
+    assertThat(module.getPackageAndClass().toString(), is("sample.Hello"));
 
     ModuleImport[] imports = {
         new ModuleImport(new PackageAndClass("java.util", "LinkedList"), 1, 1),
@@ -20,6 +20,6 @@ public class GoloModuleTest {
     for (ModuleImport moduleImport : imports) {
       module.addImport(moduleImport);
     }
-    assertThat(module.imports(), hasItems(imports));
+    assertThat(module.getImports(), hasItems(imports));
   }
 }

@@ -27,7 +27,7 @@ public final class ModuleImport {
   @Override
   public String toString() {
     return "ModuleImport{" +
-        "packageAndClass=" + packageAndClass +
+        "getPackageAndClass=" + packageAndClass +
         ", lineInSourceCode=" + lineInSourceCode +
         ", columnInSourceCode=" + columnInSourceCode +
         '}';
