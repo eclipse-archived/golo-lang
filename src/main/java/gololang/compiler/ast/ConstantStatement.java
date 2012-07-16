@@ -4,8 +4,8 @@ public class ConstantStatement extends ExpressionStatement {
 
   private final Object value;
 
-  public ConstantStatement(Object value, int lineInSourceCode, int columnInSourceCode) {
-    super(lineInSourceCode, columnInSourceCode);
+  public ConstantStatement(Object value, PositionInSourceCode positionInSourceCode) {
+    super(positionInSourceCode);
     this.value = value;
   }
 

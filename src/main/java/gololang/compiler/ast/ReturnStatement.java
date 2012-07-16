@@ -4,8 +4,8 @@ public class ReturnStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
 
-  public ReturnStatement(ExpressionStatement expressionStatement, int lineInSourceCode, int columnInSourceCode) {
-    super(lineInSourceCode, columnInSourceCode);
+  public ReturnStatement(ExpressionStatement expressionStatement, PositionInSourceCode positionInSourceCode) {
+    super(positionInSourceCode);
     this.expressionStatement = expressionStatement;
   }
 

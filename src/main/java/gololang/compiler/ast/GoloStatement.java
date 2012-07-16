@@ -2,19 +2,13 @@ package gololang.compiler.ast;
 
 public abstract class GoloStatement {
 
-  private final int lineInSourceCode;
-  private final int columnInSourceCode;
+  private final PositionInSourceCode positionInSourceCode;
 
-  public GoloStatement(int lineInSourceCode, int columnInSourceCode) {
-    this.lineInSourceCode = lineInSourceCode;
-    this.columnInSourceCode = columnInSourceCode;
+  public GoloStatement(PositionInSourceCode positionInSourceCode) {
+    this.positionInSourceCode = positionInSourceCode;
   }
 
-  public int getLineInSourceCode() {
-    return lineInSourceCode;
-  }
-
-  public int getColumnInSourceCode() {
-    return columnInSourceCode;
+  public PositionInSourceCode getPositionInSourceCode() {
+    return positionInSourceCode;
   }
 }

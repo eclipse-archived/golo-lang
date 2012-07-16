@@ -3,33 +3,26 @@ package gololang.compiler.ast;
 public final class ModuleImport {
 
   private final PackageAndClass packageAndClass;
-  private final int lineInSourceCode;
-  private final int columnInSourceCode;
+  private final PositionInSourceCode positionInSourceCode;
 
-  public ModuleImport(PackageAndClass packageAndClass, int lineInSourceCode, int columnInSourceCode) {
+  public ModuleImport(PackageAndClass packageAndClass, PositionInSourceCode positionInSourceCode) {
     this.packageAndClass = packageAndClass;
-    this.lineInSourceCode = lineInSourceCode;
-    this.columnInSourceCode = columnInSourceCode;
+    this.positionInSourceCode = positionInSourceCode;
   }
 
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
   }
 
-  public int getLineInSourceCode() {
-    return lineInSourceCode;
-  }
-
-  public int getColumnInSourceCode() {
-    return columnInSourceCode;
+  public PositionInSourceCode getPositionInSourceCode() {
+    return positionInSourceCode;
   }
 
   @Override
   public String toString() {
     return "ModuleImport{" +
-        "getPackageAndClass=" + packageAndClass +
-        ", lineInSourceCode=" + lineInSourceCode +
-        ", columnInSourceCode=" + columnInSourceCode +
+        "packageAndClass=" + packageAndClass +
+        ", positionInSourceCode=" + positionInSourceCode +
         '}';
   }
 
@@ -38,21 +31,18 @@ public final class ModuleImport {
     if (this == o) return true;
     if (o == null || getClass() != o.getClass()) return false;
 
-    ModuleImport anImport = (ModuleImport) o;
+    ModuleImport that = (ModuleImport) o;
 
-    if (columnInSourceCode != anImport.columnInSourceCode) return false;
-    if (lineInSourceCode != anImport.lineInSourceCode) return false;
-    if (packageAndClass != null ? !packageAndClass.equals(anImport.packageAndClass) : anImport.packageAndClass != null)
-      return false;
+    if (!packageAndClass.equals(that.packageAndClass)) return false;
+    if (!positionInSourceCode.equals(that.positionInSourceCode)) return false;
 
     return true;
   }
 
   @Override
   public int hashCode() {
-    int result = packageAndClass != null ? packageAndClass.hashCode() : 0;
-    result = 31 * result + lineInSourceCode;
-    result = 31 * result + columnInSourceCode;
+    int result = packageAndClass.hashCode();
+    result = 31 * result + positionInSourceCode.hashCode();
     return result;
   }
 }
