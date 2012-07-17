@@ -14,8 +14,8 @@ public class GoloModuleTest {
     assertThat(module.getPackageAndClass().toString(), is("sample.Hello"));
 
     ModuleImport[] imports = {
-        new ModuleImport(new PackageAndClass("java.util", "LinkedList"), 1, 1),
-        new ModuleImport(new PackageAndClass("java.util", "HashMap"), 2, 1)
+        new ModuleImport(new PackageAndClass("java.util", "LinkedList"), new PositionInSourceCode(1, 1)),
+        new ModuleImport(new PackageAndClass("java.util", "HashMap"), new PositionInSourceCode(2, 1))
     };
     for (ModuleImport moduleImport : imports) {
       module.addImport(moduleImport);

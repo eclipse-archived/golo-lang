@@ -10,9 +10,9 @@ public class ModuleImportTest {
 
   @Test
   public void verify() {
-    ModuleImport string = new ModuleImport(new PackageAndClass("java.lang", "String"), 3, 1);
-    ModuleImport stringAgain = new ModuleImport(new PackageAndClass("java.lang", "String"), 3, 1);
-    ModuleImport list = new ModuleImport(new PackageAndClass("java.util", "List"), 4, 1);
+    ModuleImport string = new ModuleImport(new PackageAndClass("java.lang", "String"), new PositionInSourceCode(3, 1));
+    ModuleImport stringAgain = new ModuleImport(new PackageAndClass("java.lang", "String"), new PositionInSourceCode(3, 1));
+    ModuleImport list = new ModuleImport(new PackageAndClass("java.util", "List"), new PositionInSourceCode(4, 1));
 
     assertThat(string, equalTo(stringAgain));
     assertThat(string, not(equalTo(list)));
