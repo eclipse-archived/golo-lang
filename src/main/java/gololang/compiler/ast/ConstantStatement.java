@@ -12,4 +12,10 @@ public class ConstantStatement extends ExpressionStatement {
   public Object getValue() {
     return value;
   }
+
+
+  @Override
+  public void accept(GoloStatementVisitor visitor) {
+    visitor.visitConstantStatement(this);
+  }
 }

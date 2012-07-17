@@ -16,4 +16,8 @@ public final class GoloBlock {
   public void addStatement(GoloStatement statement) {
     statements.add(statement);
   }
+
+  public void accept(GoloASTVisitor visitor) {
+    visitor.visitBlock(this);
+  }
 }

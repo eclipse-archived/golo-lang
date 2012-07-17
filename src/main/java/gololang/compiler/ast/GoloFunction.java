@@ -55,4 +55,8 @@ public final class GoloFunction {
   public void setBlock(GoloBlock block) {
     this.block = block;
   }
+
+  public void accept(GoloASTVisitor visitor) {
+    visitor.visitFunction(this);
+  }
 }

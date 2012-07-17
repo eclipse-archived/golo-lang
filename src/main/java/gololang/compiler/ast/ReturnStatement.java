@@ -12,4 +12,9 @@ public class ReturnStatement extends GoloStatement {
   public GoloStatement getExpressionStatement() {
     return expressionStatement;
   }
+
+  @Override
+  public void accept(GoloStatementVisitor visitor) {
+    visitor.visitReturnStatement(this);
+  }
 }

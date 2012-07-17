@@ -38,4 +38,8 @@ public final class GoloModule {
   public Map<String, GoloFunction> getFunctions() {
     return unmodifiableMap(functions);
   }
+
+  public void accept(GoloASTVisitor visitor) {
+    visitor.visitModule(this);
+  }
 }
