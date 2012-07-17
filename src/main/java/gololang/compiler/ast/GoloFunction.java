@@ -1,5 +1,11 @@
 package gololang.compiler.ast;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
+import static java.util.Collections.unmodifiableList;
+
 public final class GoloFunction {
 
   public static enum Visibility {
@@ -11,6 +17,8 @@ public final class GoloFunction {
   private final int arity;
   private final boolean varargs;
   private final PositionInSourceCode positionInSourceCode;
+
+  private GoloBlock block;
 
   public GoloFunction(String name, Visibility visibility, int arity, boolean varargs, PositionInSourceCode positionInSourceCode) {
     this.name = name;
@@ -38,5 +46,13 @@ public final class GoloFunction {
 
   public PositionInSourceCode getPositionInSourceCode() {
     return positionInSourceCode;
+  }
+
+  public GoloBlock getBlock() {
+    return block;
+  }
+
+  public void setBlock(GoloBlock block) {
+    this.block = block;
   }
 }

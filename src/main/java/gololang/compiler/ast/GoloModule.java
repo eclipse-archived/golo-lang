@@ -1,14 +1,15 @@
 package gololang.compiler.ast;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
+import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 public final class GoloModule {
 
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new HashSet<>();
+  private final Map<String, GoloFunction> functions = new HashMap<>();
 
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
@@ -24,5 +25,17 @@ public final class GoloModule {
 
   public void addImport(ModuleImport moduleImport) {
     imports.add(moduleImport);
+  }
+
+  public void addFunction(GoloFunction function) {
+    functions.put(function.getName(), function);
+  }
+
+  public GoloFunction getFunction(String name) {
+    return functions.get(name);
+  }
+
+  public Map<String, GoloFunction> getFunctions() {
+    return unmodifiableMap(functions);
   }
 }
