@@ -14,7 +14,7 @@ public class ReturnStatement extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloStatementVisitor visitor) {
+  public void accept(GoloASTVisitor visitor) {
     visitor.visitReturnStatement(this);
   }
 }

@@ -1,5 +1,10 @@
 package gololang.compiler.ast;
 
+import gololang.compiler.utils.NamingUtils;
+
+import static gololang.compiler.utils.NamingUtils.extractTargetJavaClass;
+import static gololang.compiler.utils.NamingUtils.extractTargetJavaPackage;
+
 public final class PackageAndClass {
 
   private final String packageName;
@@ -8,6 +13,10 @@ public final class PackageAndClass {
   public PackageAndClass(String packageName, String className) {
     this.packageName = packageName;
     this.className = className;
+  }
+
+  public static PackageAndClass fromString(String qualifiedName) {
+    return new PackageAndClass(extractTargetJavaPackage(qualifiedName), extractTargetJavaClass(qualifiedName));
   }
 
   public String packageName() {

@@ -7,4 +7,8 @@ public interface GoloASTVisitor {
   void visitFunction(GoloFunction function);
 
   void visitBlock(GoloBlock block);
+
+  void visitConstantStatement(ConstantStatement constantStatement);
+
+  void visitReturnStatement(ReturnStatement returnStatement);
 }

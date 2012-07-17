@@ -1,5 +1,7 @@
 module golotest.SimpleReturns
 
+import java.lang.System
+
 function nop = { }
 
 function voider = { return }
