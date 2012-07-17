@@ -32,6 +32,10 @@ public final class PackageAndClass {
     return packageName + "." + className;
   }
 
+  public String toJVMType() {
+    return packageName.replaceAll("\\.", "/") + "/" + className;
+  }
+
   @Override
   public boolean equals(Object o) {
     if (this == o) return true;
