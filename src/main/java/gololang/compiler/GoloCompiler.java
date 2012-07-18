@@ -56,7 +56,7 @@ public final class GoloCompiler {
       throw new IllegalArgumentException(targetFolder + " already exists and is a file.");
     }
     Result result = compile(goloSourceFilename, sourceCodeInputStream);
-    File outputFolder = new File(targetFolder, result.packageAndClass.packageName().replaceAll("\\.", File.pathSeparator));
+    File outputFolder = new File(targetFolder, result.packageAndClass.packageName().replaceAll("\\.", File.separator));
     if (!outputFolder.mkdirs()) {
       throw new IOException("mkdir() failed on " + outputFolder);
     }
