@@ -1,7 +1,6 @@
 package gololang.compiler;
 
 import gololang.compiler.ast.GoloModule;
-import gololang.compiler.ast.PackageAndClass;
 import gololang.compiler.parser.ASTCompilationUnit;
 import gololang.compiler.parser.GoloParser;
 import gololang.compiler.parser.ParseException;

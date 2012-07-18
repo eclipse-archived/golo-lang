@@ -1,5 +1,7 @@
 package gololang.compiler.ast;
 
+import gololang.compiler.PackageAndClass;
+
 public final class ModuleImport {
 
   private final PackageAndClass packageAndClass;

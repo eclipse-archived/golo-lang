@@ -1,5 +1,7 @@
 package gololang.compiler.ast;
 
+import gololang.compiler.PackageAndClass;
+
 import java.util.*;
 
 import static java.util.Collections.unmodifiableMap;
