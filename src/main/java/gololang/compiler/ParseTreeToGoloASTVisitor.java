@@ -139,4 +139,10 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
     // TODO: to be implemented
     return node.childrenAccept(this, data);
   }
+
+  @Override
+  public Object visit(ASTExpressionStatement node, Object data) {
+    // TODO: to be implemented
+    return node.childrenAccept(this, data);
+  }
 }

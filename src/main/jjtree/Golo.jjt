@@ -143,6 +143,28 @@ List<String> Arguments() #void:
   }
 }
 
+List<GoloASTNode> Expressions() #void:
+{
+  GoloASTNode firstExpression;
+  GoloASTNode nextExpression;
+  List<GoloASTNode> expressions = new LinkedList<GoloASTNode>();
+}
+{
+  firstExpression=ExpressionStatement()
+  {
+    expressions.add(firstExpression);
+  }
+  (
+    "," (<NEWLINE>)? nextExpression=ExpressionStatement()
+    {
+      expressions.add(nextExpression);
+    }
+  )*
+  {
+    return expressions;
+  }
+}
+
 String StringLiteral() #void:
 {
   Token literal;
@@ -239,11 +261,16 @@ void Statement() #void:{}
   FunctionInvocation()
 }
 
-void ExpressionStatement() #void:{}
+GoloASTNode ExpressionStatement(): {}
 {
-  Literal()
-  |
-  FunctionInvocation()
+  (
+    Literal()
+    |
+    FunctionInvocation()
+  )
+  {
+    return jjtThis;
+  }
 }
 
 void Block(): {}
@@ -304,7 +331,7 @@ void FunctionInvocation():
   Token token;
 }
 {
-  name=QualifiedName() token="(" ")"
+  name=QualifiedName() token="(" (Expressions())? ")"
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
