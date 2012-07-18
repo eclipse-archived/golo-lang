@@ -206,23 +206,6 @@ void ImportDeclaration():
   }
 }
 
-void Function():
-{
-  Token token;
-  List<String> arguments = null;
-}
-{
-  ("|" arguments=Arguments() "|")? (<NEWLINE>)? token="{" Block() "}"
-  {
-    if (arguments == null) {
-      arguments = Collections.emptyList();
-    }
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-    jjtThis.setArguments(arguments);
-  }
-}
-
 ASTFunctionDeclaration FunctionDeclaration():
 {
   Token token;
@@ -242,6 +225,46 @@ ASTFunctionDeclaration FunctionDeclaration():
     jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name.image);
     return jjtThis;
+  }
+}
+
+// ............................................................................................. //
+
+void Statement() #void:{}
+{
+  <NEWLINE> 
+  | 
+  ReturnStatement() 
+  | 
+  FunctionInvocation()
+}
+
+void ExpressionStatement() #void:{}
+{
+  Literal()
+  |
+  FunctionInvocation()
+}
+
+void Block(): {}
+{
+  (Statement())*
+}
+
+void Function():
+{
+  Token token;
+  List<String> arguments = null;
+}
+{
+  ("|" arguments=Arguments() "|")? (<NEWLINE>)? token="{" Block() "}"
+  {
+    if (arguments == null) {
+      arguments = Collections.emptyList();
+    }
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+    jjtThis.setArguments(arguments);
   }
 }
 
@@ -267,22 +290,25 @@ void ReturnStatement():
 {
   Token token;
 }
-{
-  token=<RETURN> (Literal())?
+{  
+  token=<RETURN> (LOOKAHEAD(2) ExpressionStatement())?
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }
 }
 
-void Statement() #void:{}
+void FunctionInvocation():
 {
-  <NEWLINE> | ReturnStatement()
+  String name;
+  Token token;
 }
-
-void Block(): {}
 {
-  (Statement())*
+  name=QualifiedName() token="(" ")"
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
 }
 
 // ............................................................................................. //
