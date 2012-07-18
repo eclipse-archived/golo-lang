@@ -29,7 +29,7 @@ public class ParseTreeToGoloASTVisitorTest {
 
   @Parameters
   public static List<Object[]> data() {
-    return TestUtils.goloFilesIn("src/test/resources/compiler-sanity-scripts");
+    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation");
   }
 
   @Test

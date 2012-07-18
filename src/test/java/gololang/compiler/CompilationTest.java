@@ -19,19 +19,18 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.*;
 import static org.junit.runners.Parameterized.Parameters;
 
-// TODO: make it more interesting+solid once we can call functions :-)
 @RunWith(Parameterized.class)
-public class GoloCompilerTest {
+public class CompilationTest {
 
   private final File goloFile;
 
-  public GoloCompilerTest(File goloFile) {
+  public CompilationTest(File goloFile) {
     this.goloFile = goloFile;
   }
 
   @Parameters
   public static List<Object[]> data() {
-    return TestUtils.goloFilesIn("src/test/resources/compiler-sanity-scripts");
+    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation");
   }
 
   @Test

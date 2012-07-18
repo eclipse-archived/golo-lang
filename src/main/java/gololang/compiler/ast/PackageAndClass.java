@@ -1,7 +1,5 @@
 package gololang.compiler.ast;
 
-import gololang.compiler.utils.NamingUtils;
-
 import static gololang.compiler.utils.NamingUtils.extractTargetJavaClass;
 import static gololang.compiler.utils.NamingUtils.extractTargetJavaPackage;
 
@@ -33,7 +31,11 @@ public final class PackageAndClass {
   }
 
   public String toJVMType() {
-    return packageName.replaceAll("\\.", "/") + "/" + className;
+    if (packageName.isEmpty()) {
+      return className;
+    } else {
+      return packageName.replaceAll("\\.", "/") + "/" + className;
+    }
   }
 
   @Override
