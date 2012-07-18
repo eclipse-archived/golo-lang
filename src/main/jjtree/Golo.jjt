@@ -64,7 +64,7 @@ TOKEN :
 {
   < VAR: "var" >
   |
-  < VAL: "val" >
+  < LET: "let" >
 }
 
 
