@@ -38,9 +38,13 @@ public class CompilationTest {
     GoloCompiler compiler = new GoloCompiler();
     GoloCompiler.Result result = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
 
+    System.out.println();
+    System.out.println(">>> Compiling: " + goloFile);
+
     assertThat(result.getBytecode().length > 0, is(true));
     assertThat(result.getPackageAndClass(), notNullValue());
     verify(result.getBytecode());
+    System.out.println();
   }
 
   private void verify(byte[] bytecode) {
