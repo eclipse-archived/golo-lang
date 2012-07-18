@@ -30,7 +30,7 @@ public class CompilationTest {
 
   @Parameters
   public static List<Object[]> data() {
-    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation");
+    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation".replaceAll("/", File.separator));
   }
 
   @Test

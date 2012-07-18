@@ -19,14 +19,14 @@ public class CompilerTest {
 
   @Test
   public void verify_compileTo() throws IOException, ParseException {
-    String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
+    String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo".replaceAll("/", File.separator);
     FileInputStream sourceInputStream = new FileInputStream(sourceFile);
     File targetFolder = temporaryFolder.getRoot();
 
     GoloCompiler compiler = new GoloCompiler();
     compiler.compileTo("simple-returns.golo", sourceInputStream, targetFolder);
 
-    File expectedOutputFile = new File(targetFolder, "golotest/SimpleReturns.class");
+    File expectedOutputFile = new File(targetFolder, "golotest/SimpleReturns.class".replaceAll("/", File.separator));
     assertThat(expectedOutputFile.exists(), is(true));
     assertThat(expectedOutputFile.length() > 0, is(true));
   }
