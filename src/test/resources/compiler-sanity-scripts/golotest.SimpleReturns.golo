@@ -6,6 +6,8 @@ function nop = { }
 
 function voider = { return }
 
+local function ignore_me = { }
+
 function chuck = { return 42 }
 
 function ignore_args = |a, b, c| {
