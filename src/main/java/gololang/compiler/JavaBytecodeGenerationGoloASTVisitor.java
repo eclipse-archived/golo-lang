@@ -55,7 +55,7 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
     for (int i = 0; i < function.getArity(); i++) {
       descriptorBuilder.append(TOBJECT);
     }
-    descriptorBuilder.append(")" + TOBJECT);
+    descriptorBuilder.append(")").append(TOBJECT);
     return descriptorBuilder.toString();
   }
 
