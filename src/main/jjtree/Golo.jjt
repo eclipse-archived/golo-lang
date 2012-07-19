@@ -311,6 +311,7 @@ void FunctionInvocation():
 {
   name=QualifiedName() token="(" (Expressions())? ")"
   {
+    jjtThis.setName(name);
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }

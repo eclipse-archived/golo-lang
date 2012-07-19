@@ -84,4 +84,9 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
     returnStatement.getExpressionStatement().accept(this);
     methodVisitor.visitInsn(ARETURN);
   }
+
+  @Override
+  public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
+    // TODO: implement :-)
+  }
 }

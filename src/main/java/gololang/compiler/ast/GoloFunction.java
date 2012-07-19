@@ -14,18 +14,28 @@ public final class GoloFunction {
 
   private final String name;
   private final Visibility visibility;
-  private final int arity;
-  private final boolean varargs;
   private final PositionInSourceCode positionInSourceCode;
 
+  private List<String> parameterNames = new LinkedList<>();
+  private boolean varargs;
   private GoloBlock block;
 
-  public GoloFunction(String name, Visibility visibility, int arity, boolean varargs, PositionInSourceCode positionInSourceCode) {
+  public GoloFunction(String name, Visibility visibility, PositionInSourceCode positionInSourceCode) {
     this.name = name;
     this.visibility = visibility;
-    this.arity = arity;
-    this.varargs = varargs;
     this.positionInSourceCode = positionInSourceCode;
+  }
+
+  public List<String> getParameterNames() {
+    return unmodifiableList(parameterNames);
+  }
+
+  public void setParameterNames(List<String> parameterNames) {
+    this.parameterNames.addAll(parameterNames);
+  }
+
+  public void setVarargs(boolean varargs) {
+    this.varargs = varargs;
   }
 
   public String getName() {
@@ -37,7 +47,7 @@ public final class GoloFunction {
   }
 
   public int getArity() {
-    return arity;
+    return parameterNames.size();
   }
 
   public boolean isVarargs() {

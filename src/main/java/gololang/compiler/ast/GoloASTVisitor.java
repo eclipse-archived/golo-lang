@@ -11,4 +11,6 @@ public interface GoloASTVisitor {
   void visitConstantStatement(ConstantStatement constantStatement);
 
   void visitReturnStatement(ReturnStatement returnStatement);
+
+  void visitFunctionInvocation(FunctionInvocation functionInvocation);
 }

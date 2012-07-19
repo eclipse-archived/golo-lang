@@ -3,6 +3,8 @@ package gololang.compiler;
 import gololang.compiler.ast.*;
 import gololang.compiler.parser.*;
 
+import java.util.Stack;
+
 import static gololang.compiler.ast.GoloFunction.Visibility.LOCAL;
 import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
 
@@ -10,11 +12,7 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
-    String nextFunctionName;
-    GoloFunction.Visibility nextFunctionVisibility;
-    GoloFunction currentFunction;
-    GoloBlock currentBlock;
-    ExpressionStatement nextExpressionStatement;
+    Stack<Object> stack = new Stack<>();
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
@@ -55,16 +53,10 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTFunction node, Object data) {
     Context context = (Context) data;
-    GoloFunction function = new GoloFunction(
-        context.nextFunctionName,
-        context.nextFunctionVisibility,
-        node.getArguments().size(),
-        false, // TODO: handle variable argument lists
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+    GoloFunction function = (GoloFunction) context.stack.peek();
+    function.setParameterNames(node.getArguments());
+    function.setVarargs(false);
     context.module.addFunction(function);
-    context.currentFunction = function;
     node.childrenAccept(this, data);
     insertMissingReturnStatement(function);
     return data;
@@ -92,33 +84,43 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTFunctionDeclaration node, Object data) {
     Context context = (Context) data;
-    context.nextFunctionName = node.getName();
-    context.nextFunctionVisibility = node.isLocal() ? LOCAL : PUBLIC;
-    return node.childrenAccept(this, data);
+    GoloFunction function = new GoloFunction(
+        node.getName(),
+        node.isLocal() ? LOCAL : PUBLIC,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    context.stack.push(function);
+    node.childrenAccept(this, data);
+    context.stack.pop();
+    return data;
   }
 
   @Override
   public Object visit(ASTLiteral node, Object data) {
     Context context = (Context) data;
-    context.nextExpressionStatement = new ConstantStatement(
-        node.getLiteralValue(),
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+    context.stack.push(
+        new ConstantStatement(
+            node.getLiteralValue(),
+            new PositionInSourceCode(
+                node.getLineInSourceCode(),
+                node.getColumnInSourceCode())));
     return data;
   }
 
   @Override
   public Object visit(ASTReturnStatement node, Object data) {
     Context context = (Context) data;
+    GoloBlock block = (GoloBlock) context.stack.peek();
     if (node.jjtGetNumChildren() > 0) {
       node.childrenAccept(this, data);
     } else {
-      context.nextExpressionStatement = new ConstantStatement(null, new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode()));
+      context.stack.push(new ConstantStatement(null, new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode())));
     }
-    context.currentBlock.addStatement(
+    ExpressionStatement statement = (ExpressionStatement) context.stack.pop();
+    block.addStatement(
         new ReturnStatement(
-            context.nextExpressionStatement,
+            statement,
             new PositionInSourceCode(
                 node.getLineInSourceCode(),
                 node.getColumnInSourceCode())));
@@ -129,14 +131,27 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
   public Object visit(ASTBlock node, Object data) {
     Context context = (Context) data;
     GoloBlock block = new GoloBlock();
-    context.currentFunction.setBlock(block);
-    context.currentBlock = block;
-    return node.childrenAccept(this, data);
+    ((GoloFunction) context.stack.peek()).setBlock(block);
+    context.stack.push(block);
+    node.childrenAccept(this, data);
+    context.stack.pop();
+    return data;
   }
 
   @Override
   public Object visit(ASTFunctionInvocation node, Object data) {
-    // TODO: to be implemented
-    return node.childrenAccept(this, data);
+    Context context = (Context) data;
+    FunctionInvocation functionInvocation = new FunctionInvocation(
+        node.getName(),
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    context.stack.push(functionInvocation);
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
+      argumentNode.jjtAccept(this, data);
+      functionInvocation.addArgument((ExpressionStatement) context.stack.pop());
+    }
+    return data;
   }
 }
