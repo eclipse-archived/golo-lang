@@ -57,7 +57,7 @@ public final class GoloCompiler {
     }
     Result result = compile(goloSourceFilename, sourceCodeInputStream);
     File outputFolder = new File(targetFolder, result.packageAndClass.packageName().replaceAll("\\.", File.separator));
-    if (!outputFolder.mkdirs()) {
+    if (!outputFolder.exists() && !outputFolder.mkdirs()) {
       throw new IOException("mkdir() failed on " + outputFolder);
     }
     File outputFile = new File(outputFolder, result.packageAndClass.className() + ".class");
