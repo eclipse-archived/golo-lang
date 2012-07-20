@@ -111,19 +111,17 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTReturnStatement node, Object data) {
     Context context = (Context) data;
-    GoloBlock block = (GoloBlock) context.stack.peek();
     if (node.jjtGetNumChildren() > 0) {
       node.childrenAccept(this, data);
     } else {
       context.stack.push(new ConstantStatement(null, new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode())));
     }
     ExpressionStatement statement = (ExpressionStatement) context.stack.pop();
-    block.addStatement(
-        new ReturnStatement(
-            statement,
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode())));
+    context.stack.push(new ReturnStatement(
+        statement,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode())));
     return data;
   }
 
@@ -133,7 +131,12 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
     GoloBlock block = new GoloBlock();
     ((GoloFunction) context.stack.peek()).setBlock(block);
     context.stack.push(block);
-    node.childrenAccept(this, data);
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      GoloASTNode child = (GoloASTNode) node.jjtGetChild(i);
+      child.jjtAccept(this, data);
+      GoloStatement statement = (GoloStatement) context.stack.pop();
+      block.addStatement(statement);
+    }
     context.stack.pop();
     return data;
   }
@@ -146,12 +149,12 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
         new PositionInSourceCode(
             node.getLineInSourceCode(),
             node.getColumnInSourceCode()));
-    context.stack.push(functionInvocation);
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
       argumentNode.jjtAccept(this, data);
       functionInvocation.addArgument((ExpressionStatement) context.stack.pop());
     }
+    context.stack.push(functionInvocation);
     return data;
   }
 }

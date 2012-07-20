@@ -16,6 +16,10 @@ public class FunctionInvocation extends ExpressionStatement {
     this.name = name;
   }
 
+  public String getName() {
+    return name;
+  }
+
   public void addArgument(ExpressionStatement argument) {
     arguments.add(argument);
   }
