@@ -73,9 +73,9 @@ TOKEN :
 {
   < IDENTIFIER: <LETTER> (<ID_REST>)* >
   |
-  < #LETTER: [ "A"-"Z", "a"-"z", "_" ] >
+  < #LETTER: [ "A"-"Z", "a"-"z", "_", "$" ] >
   |
-  < #ID_REST: [ "A"-"Z", "a"-"z", "_", "0"-"9" ] >
+  < #ID_REST: [ "A"-"Z", "a"-"z", "_", "$", "0"-"9" ] >
 }
 
 // Comments

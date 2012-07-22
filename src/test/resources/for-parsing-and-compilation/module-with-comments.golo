@@ -28,4 +28,7 @@ function bar = |a|
 
 local function baz = |a, b, c| { }
 
+# We love dollars too!
+local function $_jQuery = { }
+
 # ........................................................................... #
