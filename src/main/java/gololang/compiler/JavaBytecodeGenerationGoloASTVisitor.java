@@ -3,7 +3,10 @@ package gololang.compiler;
 import gololang.compiler.ast.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
+
+import java.util.Set;
 
 import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -38,10 +41,32 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
   public void visitModule(GoloModule module) {
     classWriter.visit(V1_7, ACC_PUBLIC, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
+    writeImportMetaData(module.getImports());
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
     }
     classWriter.visitEnd();
+  }
+
+  private void writeImportMetaData(Set<ModuleImport> imports) {
+    ModuleImport[] importsArray = imports.toArray(new ModuleImport[imports.size()]);
+    methodVisitor = classWriter.visitMethod(
+        ACC_PUBLIC | ACC_STATIC,
+        "$imports",
+        "()[Ljava/lang/String;",
+        null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitLdcInsn(importsArray.length);
+    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+    for (int i = 0; i < importsArray.length; i++) {
+      methodVisitor.visitInsn(DUP);
+      methodVisitor.visitLdcInsn(i);
+      methodVisitor.visitLdcInsn(importsArray[i].getPackageAndClass().toString());
+      methodVisitor.visitInsn(AASTORE);
+    }
+    methodVisitor.visitInsn(ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
   }
 
   @Override
