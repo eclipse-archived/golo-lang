@@ -26,11 +26,9 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
   private ClassWriter classWriter;
   private MethodVisitor methodVisitor;
   private String sourceFilename;
-  private GoloModule module;
 
   public byte[] toBytecode(GoloModule module, String sourceFilename) {
     this.sourceFilename = sourceFilename;
-    this.module = module;
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     module.accept(this);
     return classWriter.toByteArray();
