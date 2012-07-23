@@ -2,27 +2,35 @@ package gololang.compiler;
 
 import gololang.compiler.parser.ParseException;
 import gololang.internal.junit.TestUtils;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
 import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.CheckClassAdapter;
 import org.objectweb.asm.util.TraceClassVisitor;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.List;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static gololang.internal.junit.TestUtils.compileAndLoadGoloModule;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.junit.Assert.assertThat;
 import static org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
 public class CompilationTest {
 
+  public static final String SRC = "src/test/resources/for-parsing-and-compilation/".replaceAll("/", File.separator);
+
   private final File goloFile;
+
+  @Rule
+  public TemporaryFolder temporaryFolder = new TemporaryFolder();
 
   public CompilationTest(File goloFile) {
     this.goloFile = goloFile;
@@ -30,11 +38,11 @@ public class CompilationTest {
 
   @Parameters
   public static List<Object[]> data() {
-    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation".replaceAll("/", File.separator));
+    return TestUtils.goloFilesIn(SRC);
   }
 
   @Test
-  public void generate_bytecode() throws FileNotFoundException, ParseException {
+  public void generate_bytecode() throws IOException, ParseException, ClassNotFoundException {
     GoloCompiler compiler = new GoloCompiler();
     GoloCompiler.Result result = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
 
@@ -43,15 +51,23 @@ public class CompilationTest {
 
     assertThat(result.getBytecode().length > 0, is(true));
     assertThat(result.getPackageAndClass(), notNullValue());
-    verify(result.getBytecode());
+    visit(result.getBytecode());
+
+    /*
+     * We compile again to load the generated class into the JVM, and have it being verified by the
+     * JVM class verifier. The ASM verifier has issues with stack operands and invokedynamic instructions,
+     * so we will not be able to use it until it has been fixed.
+     */
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, goloFile.getName(), temporaryFolder, result.getPackageAndClass().toString());
+    assertThat(moduleClass, notNullValue());
+    assertThat(moduleClass.getName(), is(result.getPackageAndClass().toString()));
+
     System.out.println();
   }
 
-  private void verify(byte[] bytecode) {
+  private void visit(byte[] bytecode) {
     ClassReader reader = new ClassReader(bytecode);
     TraceClassVisitor tracer = new TraceClassVisitor(new PrintWriter(System.out));
-    // TODO: should we just loadGoloModule into a JVM instead? The checker may have issues on indy...
-    // CheckClassAdapter checker = new CheckClassAdapter(tracer);
     reader.accept(tracer, 0);
   }
 }

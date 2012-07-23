@@ -29,7 +29,7 @@ public class TestUtils {
     return data;
   }
 
-  public static Class<?> loadGoloModule(String sourceFolder, String goloFile, TemporaryFolder temporaryFolder, String moduleClass) throws IOException, ParseException, ClassNotFoundException {
+  public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, TemporaryFolder temporaryFolder, String moduleClass) throws IOException, ParseException, ClassNotFoundException {
     GoloCompiler compiler = new GoloCompiler();
     compiler.compileTo(goloFile, new FileInputStream(sourceFolder + goloFile), temporaryFolder.getRoot());
     try (URLClassLoader classLoader = new URLClassLoader(new URL[]{temporaryFolder.getRoot().toURI().toURL()})) {

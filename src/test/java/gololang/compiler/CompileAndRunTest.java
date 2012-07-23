@@ -1,7 +1,6 @@
 package gololang.compiler;
 
 import gololang.compiler.parser.ParseException;
-import gololang.internal.junit.TestUtils;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -11,7 +10,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
-import static gololang.internal.junit.TestUtils.loadGoloModule;
+import static gololang.internal.junit.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isPublic;
 import static java.lang.reflect.Modifier.isStatic;
@@ -28,7 +27,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_functions_with_returns() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = loadGoloModule(SRC, "returns.golo", temporaryFolder, "golotest.execution.FunctionsWithReturns");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "returns.golo", temporaryFolder, "golotest.execution.FunctionsWithReturns");
 
     Method emptyFunction = moduleClass.getMethod("empty");
     assertThat(isPublic(emptyFunction.getModifiers()), is(true));
@@ -55,7 +54,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_parameterless_function_calls() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = loadGoloModule(SRC, "parameterless-function-calls.golo", temporaryFolder, "golotest.execution.ParameterLessFunctionCalls");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "parameterless-function-calls.golo", temporaryFolder, "golotest.execution.ParameterLessFunctionCalls");
 
     Method call_hello = moduleClass.getMethod("call_hello");
     assertThat((String) call_hello.invoke(null), is("hello()"));
