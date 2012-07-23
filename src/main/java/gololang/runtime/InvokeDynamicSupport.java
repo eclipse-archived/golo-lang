@@ -13,7 +13,7 @@ public final class InvokeDynamicSupport {
   public static CallSite bootstrapFunctionInvocation(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
     String functionName = name.replaceAll("#", "\\.");
     Class<?> callerClass = caller.lookupClass();
-    MethodHandle handle = null;
+    MethodHandle handle;
     Method method = findStaticMethod(callerClass, functionName, type.parameterArray());
     if (method != null) {
       handle = caller.unreflect(method).asType(type);
