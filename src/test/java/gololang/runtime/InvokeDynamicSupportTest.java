@@ -34,7 +34,7 @@ public class InvokeDynamicSupportTest {
   public void check_bootstrapFunctionInvocation_on_class_static_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class);
-    String name = "gololang.runtime.InvokeDynamicSupportTest$Foo.someInt";
+    String name = "gololang#runtime#InvokeDynamicSupportTest$Foo#someInt";
     CallSite callSite = InvokeDynamicSupport.bootstrapFunctionInvocation(lookup, name, type);
     assertThat((Integer) callSite.dynamicInvoker().invokeWithArguments(), is(42));
   }

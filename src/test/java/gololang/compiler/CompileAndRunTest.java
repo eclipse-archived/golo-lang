@@ -61,4 +61,15 @@ public class CompileAndRunTest {
     Method helloWorld = moduleClass.getMethod("return_hello_world");
     assertThat((String) helloWorld.invoke(null), is("Hello, world!"));
   }
+
+  @Test
+  public void test_parameterless_function_calls() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class<?> moduleClass = load("parameterless-function-calls.golo", "golotest.execution.ParameterLessFunctionCalls");
+
+    Method call_hello = moduleClass.getMethod("call_hello");
+    assertThat((String) call_hello.invoke(null), is("hello()"));
+
+    Method call_now = moduleClass.getMethod("call_now");
+    assertThat(((Long) call_now.invoke(null)) > 0, is(true));
+  }
 }

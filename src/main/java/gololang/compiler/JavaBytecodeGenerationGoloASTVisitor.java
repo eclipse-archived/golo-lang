@@ -2,8 +2,8 @@ package gololang.compiler;
 
 import gololang.compiler.ast.*;
 import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.Handle;
 import org.objectweb.asm.MethodVisitor;
-import org.objectweb.asm.Opcodes;
 
 import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -14,13 +14,23 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
 
   private static final String JOBJECT = "java/lang/Object";
   private static final String TOBJECT = "Ljava/lang/Object;";
+  private static final Handle FUNCTION_INVOCATION_HANDLE;
+
+  static {
+    String bootstrapOwner = "gololang/runtime/InvokeDynamicSupport";
+    String bootstraper = "bootstrapFunctionInvocation";
+    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstraper, description);
+  }
 
   private ClassWriter classWriter;
   private MethodVisitor methodVisitor;
   private String sourceFilename;
+  private GoloModule module;
 
   public byte[] toBytecode(GoloModule module, String sourceFilename) {
     this.sourceFilename = sourceFilename;
+    this.module = module;
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     module.accept(this);
     return classWriter.toByteArray();
@@ -42,7 +52,7 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
     methodVisitor = classWriter.visitMethod(
         visibility | ACC_STATIC,
         function.getName(),
-        goloFunctionSignature(function),
+        goloFunctionSignature(function.getArity()),
         null, null);
     methodVisitor.visitCode();
     function.getBlock().accept(this);
@@ -50,9 +60,9 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
     methodVisitor.visitEnd();
   }
 
-  private String goloFunctionSignature(GoloFunction function) {
+  private String goloFunctionSignature(int arity) {
     StringBuilder descriptorBuilder = new StringBuilder("(");
-    for (int i = 0; i < function.getArity(); i++) {
+    for (int i = 0; i < arity; i++) {
       descriptorBuilder.append(TOBJECT);
     }
     descriptorBuilder.append(")").append(TOBJECT);
@@ -87,6 +97,9 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-    // TODO: implement :-)
+    methodVisitor.visitInvokeDynamicInsn(
+        functionInvocation.getName().replaceAll("\\.", "#"),
+        goloFunctionSignature(functionInvocation.getArity()),
+        FUNCTION_INVOCATION_HANDLE);
   }
 }

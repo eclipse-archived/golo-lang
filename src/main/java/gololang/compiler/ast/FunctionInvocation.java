@@ -28,6 +28,10 @@ public class FunctionInvocation extends ExpressionStatement {
     return Collections.unmodifiableList(arguments);
   }
 
+  public int getArity() {
+    return arguments.size();
+  }
+
   @Override
   public void accept(GoloASTVisitor visitor) {
     visitor.visitFunctionInvocation(this);

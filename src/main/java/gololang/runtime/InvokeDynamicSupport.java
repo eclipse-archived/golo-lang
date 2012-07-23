@@ -11,22 +11,23 @@ import static java.lang.invoke.MethodHandles.Lookup;
 public final class InvokeDynamicSupport {
 
   public static CallSite bootstrapFunctionInvocation(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
+    String functionName = name.replaceAll("#", "\\.");
     Class<?> callerClass = caller.lookupClass();
     MethodHandle handle = null;
-    Method method = findStaticMethod(callerClass, name, type.parameterArray());
+    Method method = findStaticMethod(callerClass, functionName, type.parameterArray());
     if (method != null) {
       handle = caller.unreflect(method).asType(type);
     } else {
-      int methodClassSeparatorIndex = name.lastIndexOf(".");
+      int methodClassSeparatorIndex = functionName.lastIndexOf(".");
       if (methodClassSeparatorIndex == -1) {
-        throw new NoSuchMethodError(name);
+        throw new NoSuchMethodError(functionName);
       }
-      String className = name.substring(0, methodClassSeparatorIndex);
-      String methodName = name.substring(methodClassSeparatorIndex + 1);
+      String className = functionName.substring(0, methodClassSeparatorIndex);
+      String methodName = functionName.substring(methodClassSeparatorIndex + 1);
       Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
       method = findStaticMethod(targetClass, methodName, type.parameterArray());
       if (method == null) {
-        throw new NoSuchMethodError(name);
+        throw new NoSuchMethodError(functionName);
       }
       handle = caller.unreflect(method).asType(type);
     }
