@@ -8,7 +8,7 @@ import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 
-public class InvokeDynamicSupport {
+public final class InvokeDynamicSupport {
 
   public static CallSite bootstrapFunctionInvocation(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
     Class<?> callerClass = caller.lookupClass();
