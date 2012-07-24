@@ -1,7 +1,5 @@
 package gololang.compiler.ast;
 
-import com.sun.servicetag.SystemEnvironment;
-
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -33,7 +31,7 @@ public class FunctionInvocation extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloASTVisitor visitor) {
+  public void accept(GoloAstVisitor visitor) {
     visitor.visitFunctionInvocation(this);
   }
 }

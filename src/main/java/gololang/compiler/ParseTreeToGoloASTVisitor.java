@@ -8,7 +8,7 @@ import java.util.Stack;
 import static gololang.compiler.ast.GoloFunction.Visibility.LOCAL;
 import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
 
-class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
+class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
@@ -128,7 +128,7 @@ class ParseTreeToGoloASTVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTBlock node, Object data) {
     Context context = (Context) data;
-    GoloBlock block = new GoloBlock();
+    Block block = new Block();
     ((GoloFunction) context.stack.peek()).setBlock(block);
     context.stack.push(block);
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {

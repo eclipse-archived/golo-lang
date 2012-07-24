@@ -12,5 +12,5 @@ public abstract class GoloStatement {
     return positionInSourceCode;
   }
 
-  public abstract void accept(GoloASTVisitor visitor);
+  public abstract void accept(GoloAstVisitor visitor);
 }

@@ -41,7 +41,7 @@ public final class GoloModule {
     return unmodifiableMap(functions);
   }
 
-  public void accept(GoloASTVisitor visitor) {
+  public void accept(GoloAstVisitor visitor) {
     visitor.visitModule(this);
   }
 }

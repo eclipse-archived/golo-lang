@@ -19,11 +19,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class ParseTreeToGoloASTVisitorTest {
+public class ParseTreeToGoloAstVisitorTest {
 
   private final File goloFile;
 
-  public ParseTreeToGoloASTVisitorTest(File goloFile) {
+  public ParseTreeToGoloAstVisitorTest(File goloFile) {
     this.goloFile = goloFile;
   }
 
@@ -36,7 +36,7 @@ public class ParseTreeToGoloASTVisitorTest {
   public void perform_conversion() throws FileNotFoundException, ParseException {
     GoloParser parser = new GoloParser(new FileInputStream(goloFile));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
-    ParseTreeToGoloASTVisitor visitor = new ParseTreeToGoloASTVisitor();
+    ParseTreeToGoloAstVisitor visitor = new ParseTreeToGoloAstVisitor();
     GoloModule module = visitor.transform(compilationUnit);
 
     assertThat(module, notNullValue());
@@ -48,7 +48,7 @@ public class ParseTreeToGoloASTVisitorTest {
   }
 
   private void dump(GoloModule module) {
-    module.accept(new GoloASTVisitor() {
+    module.accept(new GoloAstVisitor() {
       private int spacing = 0;
 
       private void space() {
@@ -85,7 +85,7 @@ public class ParseTreeToGoloASTVisitorTest {
       }
 
       @Override
-      public void visitBlock(GoloBlock block) {
+      public void visitBlock(Block block) {
         incr();
         space();
         System.out.println("Block");

@@ -44,9 +44,9 @@ public final class GoloCompiler {
 
   public Result compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws ParseException {
     ASTCompilationUnit compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
-    ParseTreeToGoloASTVisitor parseTreeToAST = new ParseTreeToGoloASTVisitor();
-    GoloModule goloModule = parseTreeToAST.transform(compilationUnit);
-    JavaBytecodeGenerationGoloASTVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloASTVisitor();
+    ParseTreeToGoloAstVisitor parseTreeToAst = new ParseTreeToGoloAstVisitor();
+    GoloModule goloModule = parseTreeToAst.transform(compilationUnit);
+    JavaBytecodeGenerationGoloAstVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloAstVisitor();
     byte[] bytes = bytecodeGenerator.toBytecode(goloModule, goloSourceFilename);
     return new Result(bytes, goloModule.getPackageAndClass());
   }

@@ -5,7 +5,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class GoloBlock {
+public final class Block {
 
   private final List<GoloStatement> statements = new LinkedList<>();
 
@@ -17,7 +17,7 @@ public final class GoloBlock {
     statements.add(statement);
   }
 
-  public void accept(GoloASTVisitor visitor) {
+  public void accept(GoloAstVisitor visitor) {
     visitor.visitBlock(this);
   }
 }

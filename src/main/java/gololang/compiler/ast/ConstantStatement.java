@@ -14,7 +14,7 @@ public class ConstantStatement extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloASTVisitor visitor) {
+  public void accept(GoloAstVisitor visitor) {
     visitor.visitConstantStatement(this);
   }
 }

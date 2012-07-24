@@ -1,6 +1,5 @@
 package gololang.compiler.ast;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -18,7 +17,7 @@ public final class GoloFunction {
 
   private List<String> parameterNames = new LinkedList<>();
   private boolean varargs;
-  private GoloBlock block;
+  private Block block;
 
   public GoloFunction(String name, Visibility visibility, PositionInSourceCode positionInSourceCode) {
     this.name = name;
@@ -58,15 +57,15 @@ public final class GoloFunction {
     return positionInSourceCode;
   }
 
-  public GoloBlock getBlock() {
+  public Block getBlock() {
     return block;
   }
 
-  public void setBlock(GoloBlock block) {
+  public void setBlock(Block block) {
     this.block = block;
   }
 
-  public void accept(GoloASTVisitor visitor) {
+  public void accept(GoloAstVisitor visitor) {
     visitor.visitFunction(this);
   }
 }

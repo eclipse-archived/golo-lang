@@ -3,7 +3,6 @@ package gololang.compiler;
 import gololang.compiler.ast.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.Set;
@@ -13,7 +12,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
-class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
+class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
 
   private static final String JOBJECT = "java/lang/Object";
   private static final String TOBJECT = "Ljava/lang/Object;";
@@ -93,7 +92,7 @@ class JavaBytecodeGenerationGoloASTVisitor implements GoloASTVisitor {
   }
 
   @Override
-  public void visitBlock(GoloBlock block) {
+  public void visitBlock(Block block) {
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }

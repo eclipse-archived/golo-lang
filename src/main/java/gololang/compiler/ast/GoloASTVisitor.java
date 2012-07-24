@@ -1,12 +1,12 @@
 package gololang.compiler.ast;
 
-public interface GoloASTVisitor {
+public interface GoloAstVisitor {
 
   void visitModule(GoloModule module);
 
   void visitFunction(GoloFunction function);
 
-  void visitBlock(GoloBlock block);
+  void visitBlock(Block block);
 
   void visitConstantStatement(ConstantStatement constantStatement);
 
