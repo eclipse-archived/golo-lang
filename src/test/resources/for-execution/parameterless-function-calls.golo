@@ -1,5 +1,11 @@
 module golotest.execution.ParameterLessFunctionCalls
 
+# Most imports are useless, on purpose!
+import java.util.List
+import java.lang.Class
+import java.lang.Object
+import java.lang.System
+
 function now = {
   return java.lang.System.nanoTime()
 }
@@ -14,4 +20,8 @@ function call_hello = {
 
 function call_now = {
   return now()
+}
+
+function call_nanoTime = {
+  return nanoTime()
 }

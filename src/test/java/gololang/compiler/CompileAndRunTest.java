@@ -77,5 +77,8 @@ public class CompileAndRunTest {
 
     Method call_now = moduleClass.getMethod("call_now");
     assertThat(((Long) call_now.invoke(null)) > 0, is(true));
+
+    Method call_nanoTime = moduleClass.getMethod("call_nanoTime");
+    assertThat(((Long) call_nanoTime.invoke(null)) > 0, is(true));
   }
 }
