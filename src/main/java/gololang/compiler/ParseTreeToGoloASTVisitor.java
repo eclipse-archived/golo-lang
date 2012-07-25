@@ -110,7 +110,10 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTLetOrVar node, Object data) {
-    throw new UnsupportedOperationException("visit(ASTLetOrVar)");
+    Context context = (Context) data;
+    // TODO: ...and don't push a dumb statement but an assignment statement!
+    context.stack.push(new ConstantStatement("Plop", null));
+    return data;
   }
 
   @Override
