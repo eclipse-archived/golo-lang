@@ -237,6 +237,8 @@ void Statement() #void:{}
   ReturnStatement() 
   | 
   FunctionInvocation()
+  |
+  LetOrVar()
 }
 
 void ExpressionStatement() #void: {}
@@ -284,6 +286,16 @@ void Literal():
       jjtThis.setLiteralValue(value);
     }
   )
+}
+
+void LetOrVar():
+{
+  
+}
+{
+  <LET> <IDENTIFIER> "=" ExpressionStatement()
+  |
+  <VAR> <IDENTIFIER> "=" ExpressionStatement()
 }
 
 void ReturnStatement():
