@@ -234,7 +234,7 @@ void Statement() #void:{}
 {
   <NEWLINE> 
   | 
-  ReturnStatement() 
+  Return() 
   | 
   FunctionInvocation()
   |
@@ -298,7 +298,7 @@ void LetOrVar():
   <VAR> <IDENTIFIER> "=" ExpressionStatement()
 }
 
-void ReturnStatement():
+void Return():
 {
   Token token;
 }

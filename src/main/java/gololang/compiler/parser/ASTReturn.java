@@ -1,18 +1,18 @@
 package gololang.compiler.parser;
 
-public class ASTReturnStatement extends GoloASTNode {
+public class ASTReturn extends GoloASTNode {
 
-  public ASTReturnStatement(int id) {
+  public ASTReturn(int id) {
     super(id);
   }
 
-  public ASTReturnStatement(GoloParser p, int id) {
+  public ASTReturn(GoloParser p, int id) {
     super(p, id);
   }
 
   @Override
   public String toString() {
-    return "ASTReturnStatement{}";
+    return "ASTReturn{}";
   }
 
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
