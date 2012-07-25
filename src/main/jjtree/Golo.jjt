@@ -290,12 +290,24 @@ void Literal():
 
 void LetOrVar():
 {
-  
+  Token idToken;
 }
 {
-  <LET> <IDENTIFIER> "=" ExpressionStatement()
+  <LET> idToken=<IDENTIFIER> "=" ExpressionStatement()
+  {
+    jjtThis.setType(ASTLetOrVar.Type.LET);
+    jjtThis.setName(idToken.image);
+    jjtThis.setLineInSourceCode(idToken.beginLine);
+    jjtThis.setColumnInSourceCode(idToken.beginColumn);
+  }
   |
-  <VAR> <IDENTIFIER> "=" ExpressionStatement()
+  <VAR> idToken=<IDENTIFIER> "=" ExpressionStatement()
+  {
+    jjtThis.setType(ASTLetOrVar.Type.VAR);
+    jjtThis.setName(idToken.image);
+    jjtThis.setLineInSourceCode(idToken.beginLine);
+    jjtThis.setColumnInSourceCode(idToken.beginColumn);
+  }
 }
 
 void Return():
