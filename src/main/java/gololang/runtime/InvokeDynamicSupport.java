@@ -17,38 +17,48 @@ public final class InvokeDynamicSupport {
     MethodHandle handle;
     Method method = findStaticMethod(callerClass, functionName, type.parameterArray());
     if (method == null) {
-      int methodClassSeparatorIndex = functionName.lastIndexOf(".");
-      if (methodClassSeparatorIndex >= 0) {
-        String className = functionName.substring(0, methodClassSeparatorIndex);
-        String methodName = functionName.substring(methodClassSeparatorIndex + 1);
-        Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
-        method = findStaticMethod(targetClass, methodName, type.parameterArray());
-      }
+      method = findClassWithStaticMethod(callerClass, functionName, type);
     }
     if (method == null) {
-      Method $imports = null;
-      String[] imports;
-      try {
-        $imports = callerClass.getMethod("$imports");
-        imports = (String[]) $imports.invoke(null);
-      } catch (NoSuchMethodException | InvocationTargetException e) {
-        // This can only happen as part of the unit tests, because the lookup does not originate from
-        // a Golo module class, hence it doesn't have a $imports() static method.
-        imports = new String[] { };
-      }
-      for (String importClassName : imports) {
-        Class<?> importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
-        method = findStaticMethod(importClass, functionName, type.parameterArray());
-        if (method != null) {
-          break;
-        }
-      }
+      method = findClassWithStaticMethodFromImports(callerClass, functionName, type);
     }
     if (method == null) {
       throw new NoSuchMethodError(functionName);
     }
     handle = caller.unreflect(method).asType(type);
     return new ConstantCallSite(handle);
+  }
+
+  private static Method findClassWithStaticMethodFromImports(Class<?> callerClass, String functionName, MethodType type) throws IllegalAccessException, ClassNotFoundException {
+    Method $imports;
+    String[] imports;
+    try {
+      $imports = callerClass.getMethod("$imports");
+      imports = (String[]) $imports.invoke(null);
+    } catch (NoSuchMethodException | InvocationTargetException e) {
+      // This can only happen as part of the unit tests, because the lookup does not originate from
+      // a Golo module class, hence it doesn't have a $imports() static method.
+      imports = new String[] { };
+    }
+    for (String importClassName : imports) {
+      Class<?> importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
+      Method method = findStaticMethod(importClass, functionName, type.parameterArray());
+      if (method != null) {
+        return method;
+      }
+    }
+    return null;
+  }
+
+  private static Method findClassWithStaticMethod(Class<?> callerClass, String functionName, MethodType type) throws ClassNotFoundException {
+    int methodClassSeparatorIndex = functionName.lastIndexOf(".");
+    if (methodClassSeparatorIndex >= 0) {
+      String className = functionName.substring(0, methodClassSeparatorIndex);
+      String methodName = functionName.substring(methodClassSeparatorIndex + 1);
+      Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
+      return findStaticMethod(targetClass, methodName, type.parameterArray());
+    }
+    return null;
   }
 
   private static Method findStaticMethod(Class<?> klass, String name, Class<?>[] argumentTypes) {
