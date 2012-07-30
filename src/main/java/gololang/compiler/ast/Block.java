@@ -8,6 +8,15 @@ import static java.util.Collections.unmodifiableList;
 public final class Block {
 
   private final List<GoloStatement> statements = new LinkedList<>();
+  private final ReferenceTable referenceTable;
+
+  public Block(ReferenceTable referenceTable) {
+    this.referenceTable = referenceTable;
+  }
+
+  public ReferenceTable getReferenceTable() {
+    return referenceTable;
+  }
 
   public List<GoloStatement> getStatements() {
     return unmodifiableList(statements);

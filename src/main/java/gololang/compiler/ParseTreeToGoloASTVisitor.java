@@ -12,7 +12,8 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
-    Stack<Object> stack = new Stack<>();
+    Stack<Object> objectStack = new Stack<>();
+    Stack<ReferenceTable> referenceTableStack = new Stack<>();
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
@@ -35,6 +36,7 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
   public Object visit(ASTModuleDeclaration node, Object data) {
     Context context = (Context) data;
     context.module = new GoloModule(PackageAndClass.fromString(node.getName()));
+    context.referenceTableStack.push(new ReferenceTable());
     return node.childrenAccept(this, data);
   }
 
@@ -53,7 +55,7 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTFunction node, Object data) {
     Context context = (Context) data;
-    GoloFunction function = (GoloFunction) context.stack.peek();
+    GoloFunction function = (GoloFunction) context.objectStack.peek();
     function.setParameterNames(node.getArguments());
     function.setVarargs(false);
     context.module.addFunction(function);
@@ -90,16 +92,16 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
         new PositionInSourceCode(
             node.getLineInSourceCode(),
             node.getColumnInSourceCode()));
-    context.stack.push(function);
+    context.objectStack.push(function);
     node.childrenAccept(this, data);
-    context.stack.pop();
+    context.objectStack.pop();
     return data;
   }
 
   @Override
   public Object visit(ASTLiteral node, Object data) {
     Context context = (Context) data;
-    context.stack.push(
+    context.objectStack.push(
         new ConstantStatement(
             node.getLiteralValue(),
             new PositionInSourceCode(
@@ -112,7 +114,7 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
   public Object visit(ASTLetOrVar node, Object data) {
     Context context = (Context) data;
     // TODO: ...and don't push a dumb statement but an assignment statement!
-    context.stack.push(new ConstantStatement("Plop", null));
+    context.objectStack.push(new ConstantStatement("Plop", null));
     return data;
   }
 
@@ -122,10 +124,10 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
     if (node.jjtGetNumChildren() > 0) {
       node.childrenAccept(this, data);
     } else {
-      context.stack.push(new ConstantStatement(null, new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode())));
+      context.objectStack.push(new ConstantStatement(null, new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode())));
     }
-    ExpressionStatement statement = (ExpressionStatement) context.stack.pop();
-    context.stack.push(new ReturnStatement(
+    ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
+    context.objectStack.push(new ReturnStatement(
         statement,
         new PositionInSourceCode(
             node.getLineInSourceCode(),
@@ -136,16 +138,19 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTBlock node, Object data) {
     Context context = (Context) data;
-    Block block = new Block();
-    ((GoloFunction) context.stack.peek()).setBlock(block);
-    context.stack.push(block);
+    ReferenceTable blockReferenceTable = context.referenceTableStack.peek().fork();
+    context.referenceTableStack.push(blockReferenceTable);
+    Block block = new Block(blockReferenceTable);
+    ((GoloFunction) context.objectStack.peek()).setBlock(block);
+    context.objectStack.push(block);
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode child = (GoloASTNode) node.jjtGetChild(i);
       child.jjtAccept(this, data);
-      GoloStatement statement = (GoloStatement) context.stack.pop();
+      GoloStatement statement = (GoloStatement) context.objectStack.pop();
       block.addStatement(statement);
     }
-    context.stack.pop();
+    context.objectStack.pop();
+    context.referenceTableStack.pop();
     return data;
   }
 
@@ -160,9 +165,9 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
       argumentNode.jjtAccept(this, data);
-      functionInvocation.addArgument((ExpressionStatement) context.stack.pop());
+      functionInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
     }
-    context.stack.push(functionInvocation);
+    context.objectStack.push(functionInvocation);
     return data;
   }
 }

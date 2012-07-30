@@ -55,7 +55,7 @@ public class CompilationTest {
 
     /*
      * We compile again to load the generated class into the JVM, and have it being verified by the
-     * JVM class verifier. The ASM verifier has issues with stack operands and invokedynamic instructions,
+     * JVM class verifier. The ASM verifier has issues with objectStack operands and invokedynamic instructions,
      * so we will not be able to use it until it has been fixed.
      */
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, goloFile.getName(), temporaryFolder, result.getPackageAndClass().toString());
