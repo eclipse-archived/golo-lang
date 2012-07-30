@@ -4,7 +4,16 @@ import java.util.*;
 
 public final class ReferenceTable {
 
+  private final ReferenceTable parent;
   private final Map<String, LocalReference> table = new HashMap<>();
+
+  public ReferenceTable() {
+    this(null);
+  }
+
+  private ReferenceTable(ReferenceTable parent) {
+    this.parent = parent;
+  }
 
   public ReferenceTable add(LocalReference reference) {
     table.put(reference.getName(), reference);
@@ -12,24 +21,37 @@ public final class ReferenceTable {
   }
 
   public boolean hasReferenceFor(String name) {
-    return table.containsKey(name);
+    return table.containsKey(name) || (parent != null && parent.hasReferenceFor(name));
   }
 
   public LocalReference get(String name) {
-    return table.get(name);
+    LocalReference reference = table.get(name);
+    if (reference != null) {
+      return reference;
+    }
+    if (parent != null) {
+      return parent.get(name);
+    }
+    return null;
   }
 
   public Set<String> symbols() {
-    return Collections.unmodifiableSet(table.keySet());
+    HashSet<String> localSymbols = new HashSet<>(table.keySet());
+    if (parent != null) {
+      localSymbols.addAll(parent.symbols());
+    }
+    return localSymbols;
   }
 
   public Collection<LocalReference> references() {
-    return Collections.unmodifiableCollection(table.values());
+    Collection<LocalReference> localReferences = new HashSet<>(table.values());
+    if (parent != null) {
+      localReferences.addAll(parent.references());
+    }
+    return localReferences;
   }
 
   public ReferenceTable fork() {
-    ReferenceTable fork = new ReferenceTable();
-    fork.table.putAll(table);
-    return fork;
+    return new ReferenceTable(this);
   }
 }

@@ -43,5 +43,9 @@ public class ReferenceTableTest {
 
     assertThat(child.symbols().size(), is(3));
     assertThat(child.symbols(), hasItem("baz"));
+
+    root.add(new LocalReference(VARIABLE, "mrbean"));
+    assertThat(child.references().size(), is(4));
+    assertThat(child.hasReferenceFor("mrbean"), is(true));
   }
 }
