@@ -46,6 +46,8 @@ public final class GoloCompiler {
     ASTCompilationUnit compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
     ParseTreeToGoloAstVisitor parseTreeToAst = new ParseTreeToGoloAstVisitor();
     GoloModule goloModule = parseTreeToAst.transform(compilationUnit);
+    LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
+    localReferenceVisitor.visitModule(goloModule);
     JavaBytecodeGenerationGoloAstVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloAstVisitor();
     byte[] bytes = bytecodeGenerator.toBytecode(goloModule, goloSourceFilename);
     return new Result(bytes, goloModule.getPackageAndClass());
