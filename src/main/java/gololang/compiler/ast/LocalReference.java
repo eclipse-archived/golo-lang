@@ -9,6 +9,8 @@ public final class LocalReference {
   private final Kind kind;
   private final String name;
 
+  private int index = -1;
+
   public LocalReference(Kind kind, String name) {
     this.kind = kind;
     this.name = name;
@@ -22,11 +24,20 @@ public final class LocalReference {
     return name;
   }
 
+  public int getIndex() {
+    return index;
+  }
+
+  public void setIndex(int index) {
+    this.index = index;
+  }
+
   @Override
   public String toString() {
     return "LocalReference{" +
         "kind=" + kind +
         ", name='" + name + '\'' +
+        ", index=" + index +
         '}';
   }
 

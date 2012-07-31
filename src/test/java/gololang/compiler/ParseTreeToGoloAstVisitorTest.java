@@ -90,9 +90,9 @@ public class ParseTreeToGoloAstVisitorTest {
         space();
         System.out.println("Block");
         incr();
-        for (String symbol : block.getReferenceTable().symbols()) {
+        for (LocalReference ref : block.getReferenceTable().references()) {
           space();
-          System.out.println(" - " + symbol);
+          System.out.println(" - " + ref);
         }
         decr();
         for (GoloStatement statement : block.getStatements()) {
