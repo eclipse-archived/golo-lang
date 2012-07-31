@@ -21,6 +21,6 @@ public class AssignmentStatement extends GoloStatement {
 
   @Override
   public void accept(GoloAstVisitor visitor) {
-
+    visitor.visitAssignmentStatement(this);
   }
 }

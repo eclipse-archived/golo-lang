@@ -124,4 +124,14 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
         goloFunctionSignature(functionInvocation.getArity()),
         FUNCTION_INVOCATION_HANDLE);
   }
+
+  @Override
+  public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+    // TODO: implement assignments
+  }
+
+  @Override
+  public void visitReferenceLookup(ReferenceLookup referenceLookup) {
+    // TODO: implement lookups
+  }
 }

@@ -89,6 +89,12 @@ public class ParseTreeToGoloAstVisitorTest {
         incr();
         space();
         System.out.println("Block");
+        incr();
+        for (String symbol : block.getReferenceTable().symbols()) {
+          space();
+          System.out.println(" - " + symbol);
+        }
+        decr();
         for (GoloStatement statement : block.getStatements()) {
           statement.accept(this);
         }
@@ -120,6 +126,23 @@ public class ParseTreeToGoloAstVisitorTest {
         for (ExpressionStatement argument : functionInvocation.getArguments()) {
           argument.accept(this);
         }
+        decr();
+      }
+
+      @Override
+      public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+        incr();
+        space();
+        System.out.println("Assignment: " + assignmentStatement.getLocalReference());
+        assignmentStatement.getExpressionStatement().accept(this);
+        decr();
+      }
+
+      @Override
+      public void visitReferenceLookup(ReferenceLookup referenceLookup) {
+        incr();
+        space();
+        System.out.println("Reference lookup: " + referenceLookup.getName());
         decr();
       }
     });

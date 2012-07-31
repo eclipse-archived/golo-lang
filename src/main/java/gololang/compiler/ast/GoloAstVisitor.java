@@ -13,4 +13,8 @@ public interface GoloAstVisitor {
   void visitReturnStatement(ReturnStatement returnStatement);
 
   void visitFunctionInvocation(FunctionInvocation functionInvocation);
+
+  void visitAssignmentStatement(AssignmentStatement assignmentStatement);
+
+  void visitReferenceLookup(ReferenceLookup referenceLookup);
 }

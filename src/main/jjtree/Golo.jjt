@@ -245,7 +245,9 @@ void ExpressionStatement() #void: {}
 {
   Literal()
   |
-  FunctionInvocation()
+  LOOKAHEAD(2) FunctionInvocation()
+  |
+  Reference()
 }
 
 void Block(): {}
@@ -286,6 +288,19 @@ void Literal():
       jjtThis.setLiteralValue(value);
     }
   )
+}
+
+void Reference():
+{
+  Token token;
+}
+{
+  token=<IDENTIFIER>
+  {
+    jjtThis.setName(token.image);
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
 }
 
 void LetOrVar():

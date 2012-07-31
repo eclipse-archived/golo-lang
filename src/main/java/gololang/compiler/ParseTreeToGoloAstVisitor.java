@@ -63,6 +63,11 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
     function.setVarargs(false);
     context.module.addFunction(function);
     node.childrenAccept(this, data);
+    Block functionBlock = function.getBlock();
+    ReferenceTable referenceTable = functionBlock.getReferenceTable();
+    for (String parameter : function.getParameterNames()) {
+      referenceTable.add(new LocalReference(CONSTANT, parameter));
+    }
     insertMissingReturnStatement(function);
     return data;
   }
@@ -107,6 +112,18 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
     context.objectStack.push(
         new ConstantStatement(
             node.getLiteralValue(),
+            new PositionInSourceCode(
+                node.getLineInSourceCode(),
+                node.getColumnInSourceCode())));
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTReference node, Object data) {
+    Context context = (Context) data;
+    context.objectStack.push(
+        new ReferenceLookup(
+            node.getName(),
             new PositionInSourceCode(
                 node.getLineInSourceCode(),
                 node.getColumnInSourceCode())));
