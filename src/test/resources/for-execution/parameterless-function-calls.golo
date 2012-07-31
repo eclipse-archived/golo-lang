@@ -25,3 +25,7 @@ function call_now = {
 function call_nanoTime = {
   return nanoTime()
 }
+
+function nil = {
+  return null
+}

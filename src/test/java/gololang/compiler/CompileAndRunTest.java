@@ -81,6 +81,9 @@ public class CompileAndRunTest {
 
     Method call_nanoTime = moduleClass.getMethod("call_nanoTime");
     assertThat(((Long) call_nanoTime.invoke(null)) > 0, is(true));
+
+    Method nil = moduleClass.getMethod("nil");
+    assertThat(nil.invoke(null), nullValue());
   }
 
   @Test

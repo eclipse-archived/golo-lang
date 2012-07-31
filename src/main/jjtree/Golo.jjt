@@ -67,6 +67,15 @@ TOKEN :
   < LET: "let" >
 }
 
+// Literals
+TOKEN :
+{
+  < NUMBER: ["0"-"9"] (["0"-"9"])* >
+  |
+  < STRING: "\"" (~["\n"])* "\"" >
+  |
+  < NULL: "null" >
+}
 
 // Identifiers
 TOKEN :
@@ -82,14 +91,6 @@ TOKEN :
 SPECIAL_TOKEN :
 {
   < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n")? >
-}
-
-// Literals
-TOKEN :
-{
-  < NUMBER: ["0"-"9"] (["0"-"9"])* >
-  |
-  < STRING: "\"" (~["\n"])* "\"" >
 }
 
 // ............................................................................................. //
@@ -286,6 +287,11 @@ void Literal():
     value=IntegerLiteral()
     {
       jjtThis.setLiteralValue(value);
+    }
+    |
+    <NULL>
+    {
+      jjtThis.setLiteralValue(null);
     }
   )
 }

@@ -6,6 +6,8 @@ function hello = {
 
 function universalAnswer = { return 42 }
 
+function nil = { return null }
+
 function nop = {
   return
 }
