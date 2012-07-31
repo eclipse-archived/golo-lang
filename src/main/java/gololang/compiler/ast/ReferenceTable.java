@@ -2,6 +2,9 @@ package gololang.compiler.ast;
 
 import java.util.*;
 
+import static java.util.Collections.unmodifiableCollection;
+import static java.util.Collections.unmodifiableSet;
+
 public final class ReferenceTable {
 
   private final ReferenceTable parent;
@@ -33,6 +36,14 @@ public final class ReferenceTable {
       return parent.get(name);
     }
     return null;
+  }
+
+  public Set<String> ownedSymbols() {
+    return unmodifiableSet(table.keySet());
+  }
+
+  public Collection<LocalReference> ownedReferences() {
+    return unmodifiableCollection(table.values());
   }
 
   public Set<String> symbols() {
