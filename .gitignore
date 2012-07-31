@@ -4,3 +4,4 @@ target/
 *.iws
 .idea/
 dependency-reduced-pom.xml
+*.swp

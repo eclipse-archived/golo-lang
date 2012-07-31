@@ -7,6 +7,9 @@ import java.util.Stack;
 
 import static gololang.compiler.ast.GoloFunction.Visibility.LOCAL;
 import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
+import static gololang.compiler.ast.LocalReference.Kind.CONSTANT;
+import static gololang.compiler.ast.LocalReference.Kind.VARIABLE;
+import static gololang.compiler.parser.ASTLetOrVar.Type.LET;
 
 class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
 
@@ -113,8 +116,15 @@ class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTLetOrVar node, Object data) {
     Context context = (Context) data;
-    // TODO: ...and don't push a dumb statement but an assignment statement!
-    context.objectStack.push(new ConstantStatement("Plop", null));
+    LocalReference localReference = new LocalReference(node.getType() == LET ? CONSTANT : VARIABLE, node.getName());
+    context.referenceTableStack.peek().add(localReference);
+    node.childrenAccept(this, data);
+    context.objectStack.push(new AssignmentStatement(
+        localReference,
+        (ExpressionStatement) context.objectStack.pop(),
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode())));
     return data;
   }
 
