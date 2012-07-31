@@ -3,9 +3,11 @@ package gololang.compiler;
 import gololang.compiler.ast.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import java.util.Set;
+import java.util.Stack;
 
 import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -28,10 +30,17 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
   private ClassWriter classWriter;
   private MethodVisitor methodVisitor;
   private String sourceFilename;
+  private Context context;
+
+  private static class Context {
+    private Stack<ReferenceTable> referenceTableStack = new Stack<>();
+    private Stack<Integer> methodArityStack = new Stack<>();
+  }
 
   public byte[] toBytecode(GoloModule module, String sourceFilename) {
     this.sourceFilename = sourceFilename;
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+    this.context = new Context();
     module.accept(this);
     return classWriter.toByteArray();
   }
@@ -71,6 +80,7 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
   @Override
   public void visitFunction(GoloFunction function) {
     int visibility = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
+    context.methodArityStack.push(function.getArity());
     methodVisitor = classWriter.visitMethod(
         visibility | ACC_STATIC,
         function.getName(),
@@ -80,6 +90,7 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
     function.getBlock().accept(this);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
+    context.methodArityStack.pop();
   }
 
   private String goloFunctionSignature(int arity) {
@@ -93,9 +104,23 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
 
   @Override
   public void visitBlock(Block block) {
+    ReferenceTable referenceTable = block.getReferenceTable();
+    context.referenceTableStack.push(referenceTable);
+    Label blockStart = new Label();
+    Label blockEnd = new Label();
+    methodVisitor.visitLabel(blockStart);
+    final int lastParameterIndex = context.methodArityStack.peek() - 1;
+    for (LocalReference localReference : referenceTable.ownedReferences()) {
+      if (localReference.getIndex() > lastParameterIndex) {
+        methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
+            blockStart, blockEnd, localReference.getIndex());
+      }
+    }
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
+    methodVisitor.visitLabel(blockEnd);
+    context.referenceTableStack.pop();
   }
 
   @Override
@@ -119,6 +144,9 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
+    for (ExpressionStatement statement : functionInvocation.getArguments()) {
+      statement.accept(this);
+    }
     methodVisitor.visitInvokeDynamicInsn(
         functionInvocation.getName().replaceAll("\\.", "#"),
         goloFunctionSignature(functionInvocation.getArity()),
@@ -127,11 +155,13 @@ class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
-    // TODO: implement assignments
+    assignmentStatement.getExpressionStatement().accept(this);
+    methodVisitor.visitVarInsn(ASTORE, assignmentStatement.getLocalReference().getIndex());
   }
 
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
-    // TODO: implement lookups
+    LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
+    methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
   }
 }

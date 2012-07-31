@@ -18,6 +18,7 @@ import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
 import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class CompileAndRunTest {
 
@@ -80,5 +81,19 @@ public class CompileAndRunTest {
 
     Method call_nanoTime = moduleClass.getMethod("call_nanoTime");
     assertThat(((Long) call_nanoTime.invoke(null)) > 0, is(true));
+  }
+
+  @Test
+  public void test_variable_assignments() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "variable-assignments.golo", temporaryFolder, "golotest.execution.VariableAssignments");
+
+    Method echo = moduleClass.getMethod("echo", Object.class);
+    assertThat((String) echo.invoke(null, "Plop!"), is("Plop!"));
+
+    Method echo_middleman = moduleClass.getMethod("echo_middleman", Object.class);
+    assertThat((String) echo_middleman.invoke(null, "Plop!"), is("Plop!"));
+
+    Method greet = moduleClass.getMethod("greet", Object.class);
+    assertThat((String) greet.invoke(null, "Mr Bean"), is("Hello Mr Bean!"));
   }
 }
