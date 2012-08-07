@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 import java.util.Collections;
 import java.util.LinkedList;
@@ -31,7 +31,7 @@ public class FunctionInvocation extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitFunctionInvocation(this);
   }
 }

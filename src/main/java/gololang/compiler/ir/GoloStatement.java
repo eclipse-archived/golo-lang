@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 public abstract class GoloStatement {
 
@@ -12,5 +12,5 @@ public abstract class GoloStatement {
     return positionInSourceCode;
   }
 
-  public abstract void accept(GoloAstVisitor visitor);
+  public abstract void accept(GoloIrVisitor visitor);
 }

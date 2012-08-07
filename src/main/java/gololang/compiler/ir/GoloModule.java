@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 import gololang.compiler.PackageAndClass;
 
@@ -41,7 +41,7 @@ public final class GoloModule {
     return unmodifiableMap(functions);
   }
 
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitModule(this);
   }
 }

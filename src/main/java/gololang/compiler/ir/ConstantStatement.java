@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 public class ConstantStatement extends ExpressionStatement {
 
@@ -14,7 +14,7 @@ public class ConstantStatement extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitConstantStatement(this);
   }
 }

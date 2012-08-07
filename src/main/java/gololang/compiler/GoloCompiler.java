@@ -1,6 +1,6 @@
 package gololang.compiler;
 
-import gololang.compiler.ast.GoloModule;
+import gololang.compiler.ir.GoloModule;
 import gololang.compiler.parser.ASTCompilationUnit;
 import gololang.compiler.parser.GoloParser;
 import gololang.compiler.parser.ParseException;
@@ -48,7 +48,7 @@ public final class GoloCompiler {
     GoloModule goloModule = parseTreeToAst.transform(compilationUnit);
     LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
     localReferenceVisitor.visitModule(goloModule);
-    JavaBytecodeGenerationGoloAstVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloAstVisitor();
+    JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
     byte[] bytes = bytecodeGenerator.toBytecode(goloModule, goloSourceFilename);
     return new Result(bytes, goloModule.getPackageAndClass());
   }

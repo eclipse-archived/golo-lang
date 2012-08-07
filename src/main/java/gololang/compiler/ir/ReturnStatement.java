@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 public class ReturnStatement extends GoloStatement {
 
@@ -14,7 +14,7 @@ public class ReturnStatement extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitReturnStatement(this);
   }
 }

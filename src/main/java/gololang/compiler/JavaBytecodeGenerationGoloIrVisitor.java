@@ -1,6 +1,6 @@
 package gololang.compiler;
 
-import gololang.compiler.ast.*;
+import gololang.compiler.ir.*;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -9,12 +9,12 @@ import org.objectweb.asm.MethodVisitor;
 import java.util.Set;
 import java.util.Stack;
 
-import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
+import static gololang.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
-class JavaBytecodeGenerationGoloAstVisitor implements GoloAstVisitor {
+class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private static final String JOBJECT = "java/lang/Object";
   private static final String TOBJECT = "Ljava/lang/Object;";

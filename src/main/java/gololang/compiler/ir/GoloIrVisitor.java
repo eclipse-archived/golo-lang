@@ -1,6 +1,6 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
-public interface GoloAstVisitor {
+public interface GoloIrVisitor {
 
   void visitModule(GoloModule module);
 

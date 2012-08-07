@@ -1,6 +1,6 @@
 package gololang.compiler;
 
-import gololang.compiler.ast.*;
+import gololang.compiler.ir.*;
 import gololang.compiler.parser.ASTCompilationUnit;
 import gololang.compiler.parser.GoloParser;
 import gololang.compiler.parser.ParseException;
@@ -48,7 +48,7 @@ public class ParseTreeToGoloAstVisitorTest {
   }
 
   private void dump(GoloModule module) {
-    module.accept(new GoloAstVisitor() {
+    module.accept(new GoloIrVisitor() {
       private int spacing = 0;
 
       private void space() {

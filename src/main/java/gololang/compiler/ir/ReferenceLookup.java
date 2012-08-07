@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 public class ReferenceLookup extends ExpressionStatement {
 
@@ -18,7 +18,7 @@ public class ReferenceLookup extends ExpressionStatement {
   }
 
   @Override
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitReferenceLookup(this);
   }
 }

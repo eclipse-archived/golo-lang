@@ -1,9 +1,9 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 import org.junit.Test;
 
-import static gololang.compiler.ast.LocalReference.Kind.CONSTANT;
-import static gololang.compiler.ast.LocalReference.Kind.VARIABLE;
+import static gololang.compiler.ir.LocalReference.Kind.CONSTANT;
+import static gololang.compiler.ir.LocalReference.Kind.VARIABLE;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;

@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 public class AssignmentStatement extends GoloStatement {
 
@@ -20,7 +20,7 @@ public class AssignmentStatement extends GoloStatement {
   }
 
   @Override
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitAssignmentStatement(this);
   }
 }

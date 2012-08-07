@@ -1,8 +1,8 @@
 package gololang.compiler;
 
-import gololang.compiler.ast.*;
+import gololang.compiler.ir.*;
 
-class LocalReferenceAssignmentAndVerificationVisitor implements GoloAstVisitor {
+class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private int indexAssignmentCounter = 0;
 

@@ -1,14 +1,14 @@
 package gololang.compiler;
 
-import gololang.compiler.ast.*;
+import gololang.compiler.ir.*;
 import gololang.compiler.parser.*;
 
 import java.util.Stack;
 
-import static gololang.compiler.ast.GoloFunction.Visibility.LOCAL;
-import static gololang.compiler.ast.GoloFunction.Visibility.PUBLIC;
-import static gololang.compiler.ast.LocalReference.Kind.CONSTANT;
-import static gololang.compiler.ast.LocalReference.Kind.VARIABLE;
+import static gololang.compiler.ir.GoloFunction.Visibility.LOCAL;
+import static gololang.compiler.ir.GoloFunction.Visibility.PUBLIC;
+import static gololang.compiler.ir.LocalReference.Kind.CONSTANT;
+import static gololang.compiler.ir.LocalReference.Kind.VARIABLE;
 import static gololang.compiler.parser.ASTLetOrVar.Type.LET;
 
 class ParseTreeToGoloAstVisitor implements GoloParserVisitor {

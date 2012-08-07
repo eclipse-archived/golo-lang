@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 public abstract class ExpressionStatement extends GoloStatement {
 

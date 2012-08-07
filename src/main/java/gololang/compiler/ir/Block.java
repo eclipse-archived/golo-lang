@@ -1,4 +1,4 @@
-package gololang.compiler.ast;
+package gololang.compiler.ir;
 
 import java.util.LinkedList;
 import java.util.List;
@@ -26,7 +26,7 @@ public final class Block {
     statements.add(statement);
   }
 
-  public void accept(GoloAstVisitor visitor) {
+  public void accept(GoloIrVisitor visitor) {
     visitor.visitBlock(this);
   }
 }
