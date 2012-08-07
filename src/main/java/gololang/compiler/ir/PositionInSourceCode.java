@@ -20,7 +20,7 @@ public final class PositionInSourceCode {
 
   @Override
   public String toString() {
-    return "PositionInSourceCode{" +
+    return "{" +
         "line=" + line +
         ", column=" + column +
         '}';

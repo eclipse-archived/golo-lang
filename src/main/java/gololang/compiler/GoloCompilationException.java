@@ -1,6 +1,5 @@
 package gololang.compiler;
 
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -16,10 +15,12 @@ public class GoloCompilationException extends RuntimeException {
 
     private final Type type;
     private final Object source;
+    private final String description;
 
-    public Problem(Type type, Object source) {
+    public Problem(Type type, Object source, String description) {
       this.type = type;
       this.source = source;
+      this.description = description;
     }
 
     public Type getType() {
@@ -43,8 +44,8 @@ public class GoloCompilationException extends RuntimeException {
 
     private GoloCompilationException exception = new GoloCompilationException();
 
-    public Builder report(Problem.Type type, Object source) {
-      exception.report(new Problem(type, source));
+    public Builder report(Problem.Type type, Object source, String description) {
+      exception.report(new Problem(type, source, description));
       return this;
     }
 

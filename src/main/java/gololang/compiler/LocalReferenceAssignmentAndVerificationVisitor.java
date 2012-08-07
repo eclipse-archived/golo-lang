@@ -88,7 +88,8 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     ReferenceTable table = tableStack.peek();
     if (!table.hasReferenceFor(referenceLookup.getName())) {
-      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup);
+      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup,
+          "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
     }
   }
 }
