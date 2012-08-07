@@ -1,5 +1,6 @@
 package gololang.internal.junit;
 
+import gololang.compiler.GoloCompilationException;
 import gololang.compiler.GoloCompiler;
 import gololang.compiler.parser.ParseException;
 import org.junit.rules.TemporaryFolder;

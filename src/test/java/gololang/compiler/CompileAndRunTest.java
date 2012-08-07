@@ -1,6 +1,11 @@
 package gololang.compiler;
 
+import gololang.compiler.ir.AssignmentStatement;
+import gololang.compiler.ir.LocalReference;
+import gololang.compiler.ir.PositionInSourceCode;
+import gololang.compiler.ir.ReferenceLookup;
 import gololang.compiler.parser.ParseException;
+import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -12,13 +17,16 @@ import java.lang.reflect.Method;
 import java.util.Arrays;
 import java.util.List;
 
+import static gololang.compiler.GoloCompilationException.Problem;
+import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static gololang.internal.junit.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
+import static org.hamcrest.CoreMatchers.instanceOf;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
-import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class CompileAndRunTest {
 
@@ -98,5 +106,40 @@ public class CompileAndRunTest {
 
     Method greet = moduleClass.getMethod("greet", Object.class);
     assertThat((String) greet.invoke(null, "Mr Bean"), is("Hello Mr Bean!"));
+  }
+
+  @Test(expected = GoloCompilationException.class)
+  public void test_undeclared_variables() throws ClassNotFoundException, IOException, ParseException {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-undeclared-parameter.golo", temporaryFolder, "golotest.execution.UndeclaredVariables");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      Problem problem = problems.get(0);
+      assertThat(problem.getType(), is(UNDECLARED_REFERENCE));
+      assertThat(problem.getSource(), instanceOf(ReferenceLookup.class));
+      ReferenceLookup lookup = (ReferenceLookup) problem.getSource();
+      assertThat(lookup.getName(), is("some_parameter"));
+      assertThat(lookup.getPositionInSourceCode(), is(new PositionInSourceCode(4, 13)));
+      throw expected;
+    }
+  }
+
+  @Test(expected = GoloCompilationException.class)
+  @Ignore("The parser needs to support variables assignments until this can be tested")
+  public void test_assign_to_undeclared_reference() throws ClassNotFoundException, IOException, ParseException {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-assign-to-undeclared-reference.golo", temporaryFolder, "golotest.execution.AssignToUndeclaredReference");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      Problem problem = problems.get(0);
+      assertThat(problem.getType(), is(UNDECLARED_REFERENCE));
+      assertThat(problem.getSource(), instanceOf(AssignmentStatement.class));
+      AssignmentStatement assignment = (AssignmentStatement) problem.getSource();
+      throw expected;
+    }
   }
 }

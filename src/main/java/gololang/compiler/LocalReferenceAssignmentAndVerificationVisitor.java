@@ -2,9 +2,15 @@ package gololang.compiler;
 
 import gololang.compiler.ir.*;
 
+import java.util.Stack;
+
+import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private int indexAssignmentCounter = 0;
+  private Stack<ReferenceTable> tableStack = new Stack<>();
+  private GoloCompilationException.Builder exceptionBuilder;
 
   private void resetIndexAssignmentCounter() {
     indexAssignmentCounter = 0;
@@ -16,10 +22,20 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     return value;
   }
 
+  private GoloCompilationException.Builder getExceptionBuilder() {
+    if (exceptionBuilder == null) {
+      exceptionBuilder = new GoloCompilationException.Builder();
+    }
+    return exceptionBuilder;
+  }
+
   @Override
   public void visitModule(GoloModule module) {
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
+    }
+    if (exceptionBuilder != null) {
+      exceptionBuilder.doThrow();
     }
   }
 
@@ -41,9 +57,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
         reference.setIndex(nextAssignmentIndex());
       }
     }
+    tableStack.push(table);
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
+    tableStack.pop();
   }
 
   @Override
@@ -63,11 +81,19 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+    ReferenceTable table = tableStack.peek();
+    LocalReference reference = assignmentStatement.getLocalReference();
+    if (!table.hasReferenceFor(reference.getName())) {
+      getExceptionBuilder().report(UNDECLARED_REFERENCE, reference);
+    }
     assignmentStatement.getExpressionStatement().accept(this);
   }
 
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
-
+    ReferenceTable table = tableStack.peek();
+    if (!table.hasReferenceFor(referenceLookup.getName())) {
+      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup);
+    }
   }
 }

@@ -42,8 +42,13 @@ public final class GoloCompiler {
     return parser;
   }
 
-  public Result compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws ParseException {
-    ASTCompilationUnit compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
+  public Result compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+    ASTCompilationUnit compilationUnit = null;
+    try {
+      compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
+    } catch (ParseException e) {
+      throw new GoloCompilationException(e);
+    }
     ParseTreeToGoloAstVisitor parseTreeToAst = new ParseTreeToGoloAstVisitor();
     GoloModule goloModule = parseTreeToAst.transform(compilationUnit);
     LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
@@ -53,7 +58,7 @@ public final class GoloCompiler {
     return new Result(bytes, goloModule.getPackageAndClass());
   }
 
-  public void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws ParseException, IOException {
+  public void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
     if (targetFolder.isFile()) {
       throw new IllegalArgumentException(targetFolder + " already exists and is a file.");
     }
