@@ -5,6 +5,7 @@ import gololang.compiler.parser.*;
 
 import java.util.Stack;
 
+import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static gololang.compiler.ir.GoloFunction.Visibility.LOCAL;
 import static gololang.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static gololang.compiler.ir.LocalReference.Kind.CONSTANT;
@@ -138,6 +139,25 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     context.objectStack.push(new AssignmentStatement(
         localReference,
+        (ExpressionStatement) context.objectStack.pop(),
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode())));
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTAssignment node, Object data) {
+    Context context = (Context) data;
+    LocalReference reference = context.referenceTableStack.peek().get(node.getName());
+    if (reference == null) {
+      new GoloCompilationException.Builder()
+          .report(UNDECLARED_REFERENCE, node)
+          .doThrow();
+    }
+    node.childrenAccept(this, data);
+    context.objectStack.push(new AssignmentStatement(
+        reference,
         (ExpressionStatement) context.objectStack.pop(),
         new PositionInSourceCode(
             node.getLineInSourceCode(),

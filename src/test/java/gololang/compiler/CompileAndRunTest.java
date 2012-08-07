@@ -1,11 +1,9 @@
 package gololang.compiler;
 
-import gololang.compiler.ir.AssignmentStatement;
-import gololang.compiler.ir.LocalReference;
 import gololang.compiler.ir.PositionInSourceCode;
 import gololang.compiler.ir.ReferenceLookup;
+import gololang.compiler.parser.ASTAssignment;
 import gololang.compiler.parser.ParseException;
-import org.junit.Ignore;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TemporaryFolder;
@@ -21,9 +19,7 @@ import static gololang.compiler.GoloCompilationException.Problem;
 import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static gololang.internal.junit.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
-import static org.hamcrest.CoreMatchers.instanceOf;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
@@ -127,7 +123,6 @@ public class CompileAndRunTest {
   }
 
   @Test(expected = GoloCompilationException.class)
-  @Ignore("The parser needs to support variables assignments until this can be tested")
   public void test_assign_to_undeclared_reference() throws ClassNotFoundException, IOException, ParseException {
     try {
       compileAndLoadGoloModule(SRC, "failure-assign-to-undeclared-reference.golo", temporaryFolder, "golotest.execution.AssignToUndeclaredReference");
@@ -137,8 +132,11 @@ public class CompileAndRunTest {
       assertThat(problems.size(), is(1));
       Problem problem = problems.get(0);
       assertThat(problem.getType(), is(UNDECLARED_REFERENCE));
-      assertThat(problem.getSource(), instanceOf(AssignmentStatement.class));
-      AssignmentStatement assignment = (AssignmentStatement) problem.getSource();
+      assertThat(problem.getSource(), instanceOf(ASTAssignment.class));
+      ASTAssignment assignment = (ASTAssignment) problem.getSource();
+      assertThat(assignment.getName(), is("bar"));
+      assertThat(assignment.getLineInSourceCode(), is(5));
+      assertThat(assignment.getColumnInSourceCode(), is(3));
       throw expected;
     }
   }

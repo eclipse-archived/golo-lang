@@ -237,7 +237,9 @@ void Statement() #void:{}
   | 
   Return() 
   | 
-  FunctionInvocation()
+  LOOKAHEAD(2) FunctionInvocation()
+  |
+  Assignment()
   |
   LetOrVar()
 }
@@ -325,6 +327,19 @@ void LetOrVar():
   <VAR> idToken=<IDENTIFIER> "=" ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
+    jjtThis.setName(idToken.image);
+    jjtThis.setLineInSourceCode(idToken.beginLine);
+    jjtThis.setColumnInSourceCode(idToken.beginColumn);
+  }
+}
+
+void Assignment():
+{
+  Token idToken;
+}
+{
+  idToken=<IDENTIFIER> "=" ExpressionStatement()
+  {
     jjtThis.setName(idToken.image);
     jjtThis.setLineInSourceCode(idToken.beginLine);
     jjtThis.setColumnInSourceCode(idToken.beginColumn);

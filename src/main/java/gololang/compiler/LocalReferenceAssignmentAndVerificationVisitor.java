@@ -81,11 +81,6 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
-    ReferenceTable table = tableStack.peek();
-    LocalReference reference = assignmentStatement.getLocalReference();
-    if (!table.hasReferenceFor(reference.getName())) {
-      getExceptionBuilder().report(UNDECLARED_REFERENCE, reference);
-    }
     assignmentStatement.getExpressionStatement().accept(this);
   }
 

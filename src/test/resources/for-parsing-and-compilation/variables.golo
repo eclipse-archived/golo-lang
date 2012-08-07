@@ -12,4 +12,5 @@ function now2 = |a, b| {
   var foo = "foo"
   var c = a
   var d = b
+  d = foo
 }
