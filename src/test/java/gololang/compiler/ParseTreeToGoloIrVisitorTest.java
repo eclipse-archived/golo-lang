@@ -19,11 +19,11 @@ import static org.junit.Assert.assertThat;
 import static org.junit.runners.Parameterized.Parameters;
 
 @RunWith(Parameterized.class)
-public class ParseTreeToGoloAstVisitorTest {
+public class ParseTreeToGoloIrVisitorTest {
 
   private final File goloFile;
 
-  public ParseTreeToGoloAstVisitorTest(File goloFile) {
+  public ParseTreeToGoloIrVisitorTest(File goloFile) {
     this.goloFile = goloFile;
   }
 
@@ -36,7 +36,7 @@ public class ParseTreeToGoloAstVisitorTest {
   public void perform_conversion() throws FileNotFoundException, ParseException {
     GoloParser parser = new GoloParser(new FileInputStream(goloFile));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
-    ParseTreeToGoloAstVisitor visitor = new ParseTreeToGoloAstVisitor();
+    ParseTreeToGoloIrVisitor visitor = new ParseTreeToGoloIrVisitor();
     GoloModule module = visitor.transform(compilationUnit);
 
     assertThat(module, notNullValue());

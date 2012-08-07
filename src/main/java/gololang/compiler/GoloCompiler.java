@@ -49,8 +49,8 @@ public final class GoloCompiler {
     } catch (ParseException e) {
       throw new GoloCompilationException(e);
     }
-    ParseTreeToGoloAstVisitor parseTreeToAst = new ParseTreeToGoloAstVisitor();
-    GoloModule goloModule = parseTreeToAst.transform(compilationUnit);
+    ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
+    GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
     LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
     localReferenceVisitor.visitModule(goloModule);
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();

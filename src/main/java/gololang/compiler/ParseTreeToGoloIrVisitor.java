@@ -11,7 +11,7 @@ import static gololang.compiler.ir.LocalReference.Kind.CONSTANT;
 import static gololang.compiler.ir.LocalReference.Kind.VARIABLE;
 import static gololang.compiler.parser.ASTLetOrVar.Type.LET;
 
-class ParseTreeToGoloAstVisitor implements GoloParserVisitor {
+class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
