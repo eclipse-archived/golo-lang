@@ -10,7 +10,7 @@ function return_42 = { return 42 }
 
 function return_hello_world = { return "Hello, world!" }
 
-function yes = { return true }
+function yes = { return ((true)) }
 
-function no = { return false }
+function no = { return (false) }
 

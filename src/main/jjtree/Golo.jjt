@@ -266,6 +266,8 @@ void Statement() #void:{}
 
 void ExpressionStatement() #void: {}
 {
+  "(" ExpressionStatement() ")"
+  |
   Literal()
   |
   LOOKAHEAD(2) FunctionInvocation()
@@ -410,7 +412,7 @@ void FunctionInvocation():
 void ConditionalBranching():
 { }
 {
-  <IF> ("(")? ExpressionStatement() (")")? "{" Block() "}"
+  <IF> ExpressionStatement() "{" Block() "}"
   ( LOOKAHEAD( <ELSE> )
     <ELSE>
     (

@@ -4,7 +4,7 @@ function hello = {
   return "Hello"
 }
 
-function universalAnswer = { return 42 }
+function universalAnswer = { return ((42)) }
 
 function nil = { return null }
 

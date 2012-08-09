@@ -1,7 +1,7 @@
 module Conditionals
 
 function simple_if = {
-  if true {
+  if ((true)) {
     return "ok"
   }
 }
