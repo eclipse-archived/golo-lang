@@ -410,12 +410,14 @@ void FunctionInvocation():
 void ConditionalBranching():
 { }
 {
-  <IF> ("(")? ExpressionStatement() ("(")? "{" Block() "}"
+  <IF> ("(")? ExpressionStatement() (")")? "{" Block() "}"
   ( LOOKAHEAD( <ELSE> )
     <ELSE>
-    ConditionalBranching()
-    |
-    ( "{" Block() "}" )
+    (
+      ConditionalBranching()
+     |
+      ( "{" Block() "}" )
+    )
   )?
 }
 

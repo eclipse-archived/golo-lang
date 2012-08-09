@@ -223,7 +223,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTConditionalBranching node, Object data) {
-    // TODO to be implemented
+    // TODO to be implemented, temporary insert a null constant
+    Context context = (Context) data;
+    context.objectStack.push(
+        new ConstantStatement(
+            null,
+            new PositionInSourceCode(
+                node.getLineInSourceCode(),
+                node.getColumnInSourceCode())));
     return data;
   }
 }
