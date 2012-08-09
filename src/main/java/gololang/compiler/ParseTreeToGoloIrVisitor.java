@@ -220,4 +220,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.objectStack.push(functionInvocation);
     return data;
   }
+
+  @Override
+  public Object visit(ASTConditionalBranching node, Object data) {
+    // TODO to be implemented
+    return data;
+  }
 }

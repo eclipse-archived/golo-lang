@@ -89,6 +89,10 @@ TOKEN :
   < STRING: "\"" (~["\n"])* "\"" >
   |
   < NULL: "null" >
+  |
+  < TRUE: "true" >
+  |
+  < FALSE: "false" >
 }
 
 // Identifiers
@@ -310,6 +314,16 @@ void Literal():
     <NULL>
     {
       jjtThis.setLiteralValue(null);
+    }
+    |
+    <TRUE>
+    {
+      jjtThis.setLiteralValue(Boolean.TRUE);
+    }
+    |
+    <FALSE>
+    {
+      jjtThis.setLiteralValue(Boolean.FALSE);
     }
   )
 }

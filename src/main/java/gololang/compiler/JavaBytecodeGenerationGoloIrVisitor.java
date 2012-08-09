@@ -133,6 +133,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitLdcInsn(value);
     if (value instanceof Integer) {
       methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+    } else if (value instanceof Boolean) {
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
     }
   }
 

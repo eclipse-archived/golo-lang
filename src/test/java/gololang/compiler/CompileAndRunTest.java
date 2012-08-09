@@ -71,6 +71,12 @@ public class CompileAndRunTest {
 
     Method helloWorld = moduleClass.getMethod("return_hello_world");
     assertThat((String) helloWorld.invoke(null), is("Hello, world!"));
+
+    Method yes = moduleClass.getMethod("yes");
+    assertThat((Boolean) yes.invoke(null), is(Boolean.TRUE));
+
+    Method no = moduleClass.getMethod("no");
+    assertThat((Boolean) no.invoke(null), is(Boolean.FALSE));
   }
 
   @Test

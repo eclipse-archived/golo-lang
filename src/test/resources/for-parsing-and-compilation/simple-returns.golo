@@ -14,6 +14,10 @@ function ignore_args = |a, b, c| {
   return 666
 }
 
+function yes = { return true }
+
+function no = { return false }
+
 function hello_world =
 {
   return "Hello, world!"
