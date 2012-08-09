@@ -145,6 +145,21 @@ public class ParseTreeToGoloIrVisitorTest {
         System.out.println("Reference lookup: " + referenceLookup.getName());
         decr();
       }
+
+      @Override
+      public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
+        incr();
+        space();
+        System.out.println("Conditional");
+        conditionalBranching.getCondition().accept(this);
+        conditionalBranching.getTrueBlock().accept(this);
+        if (conditionalBranching.hasFalseBlock()) {
+          conditionalBranching.getFalseBlock().accept(this);
+        } else if (conditionalBranching.hasElseConditionalBranching()) {
+          conditionalBranching.getElseConditionalBranching().accept(this);
+        }
+        decr();
+      }
     });
   }
 }

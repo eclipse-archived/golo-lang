@@ -166,4 +166,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
     methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
   }
+
+  @Override
+  public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
+    // TODO generate the bytecode
+  }
 }

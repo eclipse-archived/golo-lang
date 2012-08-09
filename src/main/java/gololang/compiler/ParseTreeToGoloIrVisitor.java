@@ -191,7 +191,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ReferenceTable blockReferenceTable = context.referenceTableStack.peek().fork();
     context.referenceTableStack.push(blockReferenceTable);
     Block block = new Block(blockReferenceTable);
-    ((GoloFunction) context.objectStack.peek()).setBlock(block);
+    if (context.objectStack.peek() instanceof GoloFunction) {
+      ((GoloFunction) context.objectStack.peek()).setBlock(block);
+    }
     context.objectStack.push(block);
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode child = (GoloASTNode) node.jjtGetChild(i);
@@ -199,7 +201,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       GoloStatement statement = (GoloStatement) context.objectStack.pop();
       block.addStatement(statement);
     }
-    context.objectStack.pop();
     context.referenceTableStack.pop();
     return data;
   }
@@ -223,14 +224,36 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTConditionalBranching node, Object data) {
-    // TODO to be implemented, temporary insert a null constant
     Context context = (Context) data;
-    context.objectStack.push(
-        new ConstantStatement(
-            null,
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode())));
+    node.jjtGetChild(0).jjtAccept(this, data);
+    ExpressionStatement condition = (ExpressionStatement) context.objectStack.pop();
+    node.jjtGetChild(1).jjtAccept(this, data);
+    Block trueBlock = (Block) context.objectStack.pop();
+    Object elseObject = null;
+    if (node.jjtGetNumChildren() > 2) {
+      Node elseNode = node.jjtGetChild(2);
+      elseNode.jjtAccept(this, data);
+      elseObject = context.objectStack.pop();
+    }
+    if (elseObject == null || elseObject instanceof Block) {
+      context.objectStack.push(
+          new ConditionalBranching(
+              condition,
+              trueBlock,
+              (Block) elseObject,
+              new PositionInSourceCode(
+                  node.getLineInSourceCode(),
+                  node.getColumnInSourceCode())));
+    } else {
+      context.objectStack.push(
+          new ConditionalBranching(
+              condition,
+              trueBlock,
+              (ConditionalBranching) elseObject,
+              new PositionInSourceCode(
+                  node.getLineInSourceCode(),
+                  node.getColumnInSourceCode())));
+    }
     return data;
   }
 }

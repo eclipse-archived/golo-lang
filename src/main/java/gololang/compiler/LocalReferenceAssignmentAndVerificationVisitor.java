@@ -92,4 +92,14 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
           "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
     }
   }
+
+  @Override
+  public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
+    conditionalBranching.getTrueBlock().accept(this);
+    if (conditionalBranching.hasFalseBlock()) {
+      conditionalBranching.getFalseBlock().accept(this);
+    } else if (conditionalBranching.hasElseConditionalBranching()) {
+      conditionalBranching.getElseConditionalBranching().accept(this);
+    }
+  }
 }
