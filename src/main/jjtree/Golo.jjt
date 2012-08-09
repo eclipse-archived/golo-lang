@@ -57,6 +57,10 @@ TOKEN :
   < LOCAL: "local" >
   |
   < RETURN: "return" >
+  |
+  < IF: "if" >
+  |
+  < ELSE: "else" >
 }
 
 // Logical operators
@@ -252,6 +256,8 @@ void Statement() #void:{}
   Assignment()
   |
   LetOrVar()
+  |
+  ConditionalBranching()
 }
 
 void ExpressionStatement() #void: {}
@@ -385,6 +391,18 @@ void FunctionInvocation():
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }
+}
+
+void ConditionalBranching():
+{ }
+{
+  <IF> ("(")? ExpressionStatement() ("(")? "{" Block() "}"
+  ( LOOKAHEAD( <ELSE> )
+    <ELSE>
+    ConditionalBranching()
+    |
+    ( "{" Block() "}" )
+  )?
 }
 
 // ............................................................................................. //
