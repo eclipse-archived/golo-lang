@@ -59,6 +59,16 @@ TOKEN :
   < RETURN: "return" >
 }
 
+// Logical operators
+TOKEN :
+{
+  < AND: "and" >
+  |
+  < OR: "or" >
+  |
+  < NOT: "not" >
+}
+
 // References
 TOKEN :
 {
