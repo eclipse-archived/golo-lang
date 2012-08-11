@@ -146,4 +146,18 @@ public class CompileAndRunTest {
       throw expected;
     }
   }
+
+  @Test
+  public void test_conditionals() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "conditionals.golo", temporaryFolder, "golotest.execution.Conditionals");
+
+    Method simple_if = moduleClass.getMethod("simple_if");
+    assertThat((String) simple_if.invoke(null), is("ok"));
+
+    Method simple_if_else = moduleClass.getMethod("simple_if_else");
+    assertThat((String) simple_if_else.invoke(null), is("ok"));
+
+    Method simple_if_elseif_else = moduleClass.getMethod("simple_if_elseif_else");
+    assertThat((String) simple_if_elseif_else.invoke(null), is("ok"));
+  }
 }

@@ -171,8 +171,27 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
   }
 
+  // TODO generate the bytecode
   @Override
   public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
-    // TODO generate the bytecode
+    Label trueStart = new Label();
+    Label trueEnd = new Label();
+    Label falseEnd = new Label();
+    conditionalBranching.getCondition().accept(this);
+    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+    methodVisitor.visitJumpInsn(IFEQ, trueEnd);
+    context.nextBlockStart = trueStart;
+    context.nextBlockEnd = trueEnd;
+    conditionalBranching.getTrueBlock().accept(this);
+    if (conditionalBranching.hasFalseBlock()) {
+      context.nextBlockStart = trueEnd;
+      context.nextBlockEnd = falseEnd;
+      conditionalBranching.getFalseBlock().accept(this);
+    } else if (conditionalBranching.hasElseConditionalBranching()) {
+      conditionalBranching.getElseConditionalBranching().accept(this);
+    } else {
+      methodVisitor.visitInsn(NOP);
+    }
   }
 }

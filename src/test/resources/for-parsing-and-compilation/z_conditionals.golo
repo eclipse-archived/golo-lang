@@ -1,4 +1,4 @@
-module Conditionals
+module golotest.execution.Conditionals
 
 function simple_if = {
   if ((true)) {
