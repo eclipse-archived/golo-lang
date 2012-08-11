@@ -35,6 +35,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static class Context {
     private Stack<ReferenceTable> referenceTableStack = new Stack<>();
     private Stack<Integer> methodArityStack = new Stack<>();
+    private Label nextBlockStart;
+    private Label nextBlockEnd;
   }
 
   public byte[] toBytecode(GoloModule module, String sourceFilename) {
@@ -87,6 +89,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         goloFunctionSignature(function.getArity()),
         null, null);
     methodVisitor.visitCode();
+    context.nextBlockStart = new Label();
+    context.nextBlockEnd = new Label();
     function.getBlock().accept(this);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
@@ -106,8 +110,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitBlock(Block block) {
     ReferenceTable referenceTable = block.getReferenceTable();
     context.referenceTableStack.push(referenceTable);
-    Label blockStart = new Label();
-    Label blockEnd = new Label();
+    Label blockStart = context.nextBlockStart;
+    Label blockEnd = context.nextBlockEnd;
     methodVisitor.visitLabel(blockStart);
     final int lastParameterIndex = context.methodArityStack.peek() - 1;
     for (LocalReference localReference : referenceTable.ownedReferences()) {
