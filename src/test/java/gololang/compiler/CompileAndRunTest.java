@@ -159,5 +159,9 @@ public class CompileAndRunTest {
 
     Method simple_if_elseif_else = moduleClass.getMethod("simple_if_elseif_else");
     assertThat((String) simple_if_elseif_else.invoke(null), is("ok"));
+
+    Method boolean_to_string = moduleClass.getMethod("boolean_to_string", Object.class);
+    assertThat((String) boolean_to_string.invoke(null, true), is("true"));
+    assertThat((String) boolean_to_string.invoke(null, false), is("false"));
   }
 }

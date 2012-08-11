@@ -1,4 +1,4 @@
-module golotest.execution.Conditionals
+module Conditionals
 
 function simple_if = {
   if ((true)) {
@@ -21,5 +21,13 @@ function simple_if_elseif_else = {
     return null
   } else {
     return "ok"
+  }
+}
+
+function boolean_to_string = | boolean | {
+  if boolean {
+    return "true"
+  } else {
+    return "false"
   }
 }
