@@ -47,6 +47,16 @@ public final class ConditionalBranching extends GoloStatement {
     return elseConditionalBranching != null;
   }
 
+  public boolean returnsFromBothBranches() {
+    if (hasFalseBlock()) {
+      return trueBlock.hasReturn() && falseBlock.hasReturn();
+    } else if (hasElseConditionalBranching()) {
+      return trueBlock.hasReturn() && elseConditionalBranching.returnsFromBothBranches();
+    } else {
+      return false;
+    }
+  }
+
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitConditionalBranching(this);

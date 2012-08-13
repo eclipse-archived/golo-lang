@@ -10,6 +10,8 @@ public final class Block {
   private final List<GoloStatement> statements = new LinkedList<>();
   private final ReferenceTable referenceTable;
 
+  private boolean hasReturn = false;
+
   public Block(ReferenceTable referenceTable) {
     this.referenceTable = referenceTable;
   }
@@ -24,6 +26,15 @@ public final class Block {
 
   public void addStatement(GoloStatement statement) {
     statements.add(statement);
+    if (statement instanceof ReturnStatement) {
+      hasReturn = true;
+    } else if (statement instanceof ConditionalBranching) {
+      hasReturn = hasReturn || ((ConditionalBranching) statement).returnsFromBothBranches();
+    }
+  }
+
+  public boolean hasReturn() {
+    return hasReturn;
   }
 
   public void accept(GoloIrVisitor visitor) {

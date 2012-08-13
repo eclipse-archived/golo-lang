@@ -74,22 +74,15 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   private void insertMissingReturnStatement(GoloFunction function) {
-    /*
-     * TODO: this method is fragile.
-     * It looks for any return in the block, which is not correct anyway.
-     * Fix it when nested blocks are available, e.g., conditional branches.
-     */
-    for (GoloStatement statement : function.getBlock().getStatements()) {
-      if (statement instanceof ReturnStatement) {
-        return;
-      }
+    Block block = function.getBlock();
+    if (!block.hasReturn()) {
+      block.addStatement(
+          new ReturnStatement(
+              new ConstantStatement(
+                  null,
+                  function.getPositionInSourceCode()),
+              function.getPositionInSourceCode()));
     }
-    function.getBlock().addStatement(
-        new ReturnStatement(
-            new ConstantStatement(
-                null,
-                function.getPositionInSourceCode()),
-            function.getPositionInSourceCode()));
   }
 
   @Override
