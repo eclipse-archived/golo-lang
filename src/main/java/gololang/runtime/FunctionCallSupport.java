@@ -9,7 +9,7 @@ import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 
-public final class InvokeDynamicFunctionCallSupport {
+public final class FunctionCallSupport {
 
   public static CallSite bootstrap(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
     String functionName = name.replaceAll("#", "\\.");

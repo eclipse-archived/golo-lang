@@ -21,10 +21,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final Handle FUNCTION_INVOCATION_HANDLE;
 
   static {
-    String functionCallBootstrapOwner = "gololang/runtime/InvokeDynamicFunctionCallSupport";
-    String functionCallBootstraper = "bootstrap";
+    String functionCallBootstrapOwner = "gololang/runtime/FunctionCallSupport";
+    String functionCallBootstrapMethod = "bootstrap";
     String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
-    FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, functionCallBootstrapOwner, functionCallBootstraper, description);
+    FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, functionCallBootstrapOwner, functionCallBootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
