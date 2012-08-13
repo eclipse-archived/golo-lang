@@ -278,25 +278,45 @@ void TerminalExpression() #void: {}
   Reference()
 }
 
-void CommutativeExpression(): {}
+void CommutativeExpression():
+{
+  Token token;
+}
 {
   AssociativeExpression()
   (
-    "+" AssociativeExpression()
-    |
-    "-" AssociativeExpression()
+    (
+      token="+" AssociativeExpression()
+      |
+      token="-" AssociativeExpression()
+    )
+    {
+      jjtThis.setOperator(token.image);
+      jjtThis.setLineInSourceCode(token.beginLine);
+      jjtThis.setColumnInSourceCode(token.beginColumn);
+    }
   )*
 }
 
-void AssociativeExpression(): {}
+void AssociativeExpression():
 {
-  "(" AssociativeExpression() ")"
+  Token token;
+}
+{
+  "(" ExpressionStatement() ")"
   |
   TerminalExpression()
   (
-    "*" TerminalExpression()
-    |
-    "/" TerminalExpression()
+    (
+      token="*" TerminalExpression()
+      |
+      token="/" TerminalExpression()
+    )
+    {
+      jjtThis.setOperator(token.image);
+      jjtThis.setLineInSourceCode(token.beginLine);
+      jjtThis.setColumnInSourceCode(token.beginColumn);
+    }
   )*
 }
 
