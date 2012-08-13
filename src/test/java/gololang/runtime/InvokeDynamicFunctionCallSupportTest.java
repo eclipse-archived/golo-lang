@@ -10,7 +10,7 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.hamcrest.CoreMatchers.is;
 import static org.junit.Assert.assertThat;
 
-public class InvokeDynamicSupportTest {
+public class InvokeDynamicFunctionCallSupportTest {
 
   static String echo(String str) {
     return str;
@@ -26,7 +26,7 @@ public class InvokeDynamicSupportTest {
   public void check_bootstrapFunctionInvocation_on_local_static_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class);
-    CallSite callSite = InvokeDynamicSupport.bootstrapFunctionInvocation(lookup, "echo", type);
+    CallSite callSite = InvokeDynamicFunctionCallSupport.bootstrap(lookup, "echo", type);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("Hey!"), is("Hey!"));
   }
 
@@ -34,8 +34,8 @@ public class InvokeDynamicSupportTest {
   public void check_bootstrapFunctionInvocation_on_class_static_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class);
-    String name = "gololang#runtime#InvokeDynamicSupportTest$Foo#someInt";
-    CallSite callSite = InvokeDynamicSupport.bootstrapFunctionInvocation(lookup, name, type);
+    String name = "gololang#runtime#InvokeDynamicFunctionCallSupportTest$Foo#someInt";
+    CallSite callSite = InvokeDynamicFunctionCallSupport.bootstrap(lookup, name, type);
     assertThat((Integer) callSite.dynamicInvoker().invokeWithArguments(), is(42));
   }
 
@@ -43,13 +43,13 @@ public class InvokeDynamicSupportTest {
   public void check_bootstrapFunctionInvocation_on_unexisting_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class);
-    CallSite callSite = InvokeDynamicSupport.bootstrapFunctionInvocation(lookup, "echoz", type);
+    CallSite callSite = InvokeDynamicFunctionCallSupport.bootstrap(lookup, "echoz", type);
   }
 
   @Test(expected = NoSuchMethodError.class)
   public void check_bootstrapFunctionInvocation_on_method_with_wrong_number_of_parameters() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class);
-    CallSite callSite = InvokeDynamicSupport.bootstrapFunctionInvocation(lookup, "echo", type);
+    CallSite callSite = InvokeDynamicFunctionCallSupport.bootstrap(lookup, "echo", type);
   }
 }
