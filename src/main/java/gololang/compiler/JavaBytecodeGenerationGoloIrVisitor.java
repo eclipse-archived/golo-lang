@@ -171,7 +171,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
   }
 
-  // TODO generate the bytecode
   @Override
   public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
     Label startLabel = new Label();
