@@ -266,13 +266,38 @@ void Statement() #void:{}
 
 void ExpressionStatement() #void: {}
 {
-  "(" ExpressionStatement() ")"
-  |
+  CommutativeExpression()
+}
+
+void TerminalExpression() #void: {}
+{
   Literal()
   |
   LOOKAHEAD(2) FunctionInvocation()
   |
   Reference()
+}
+
+void CommutativeExpression(): {}
+{
+  AssociativeExpression()
+  (
+    "+" AssociativeExpression()
+    |
+    "-" AssociativeExpression()
+  )*
+}
+
+void AssociativeExpression(): {}
+{
+  "(" AssociativeExpression() ")"
+  |
+  TerminalExpression()
+  (
+    "*" TerminalExpression()
+    |
+    "/" TerminalExpression()
+  )*
 }
 
 void Block(): {}

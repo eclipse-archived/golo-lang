@@ -101,6 +101,20 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTCommutativeExpression node, Object data) {
+    // TODO
+    node.childrenAccept(this, data);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTAssociativeExpression node, Object data) {
+    // TODO
+    node.childrenAccept(this, data);
+    return data;
+  }
+
+  @Override
   public Object visit(ASTLiteral node, Object data) {
     Context context = (Context) data;
     context.objectStack.push(
