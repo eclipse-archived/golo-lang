@@ -175,5 +175,12 @@ public class CompileAndRunTest {
 
     Method minus_one = moduleClass.getMethod("minus_one", Object.class);
     assertThat((Integer) minus_one.invoke(null, 5), is(4));
+
+    Method half = moduleClass.getMethod("half", Object.class);
+    assertThat((Integer) half.invoke(null, 12), is(6));
+
+    Method twice = moduleClass.getMethod("twice", Object.class);
+    assertThat((Integer) twice.invoke(null, 6), is(12));
+    assertThat((String) twice.invoke(null, "Plop"), is("PlopPlop"));
   }
 }

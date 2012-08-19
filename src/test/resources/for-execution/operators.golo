@@ -7,3 +7,11 @@ function plus_one = |a| {
 function minus_one = |a| {
   return a - 1
 }
+
+function half = |a| {
+  return a / 2
+}
+
+function twice = |a| {
+  return a * 2
+}
