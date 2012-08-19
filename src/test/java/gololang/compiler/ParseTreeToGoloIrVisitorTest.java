@@ -42,7 +42,7 @@ public class ParseTreeToGoloIrVisitorTest {
     assertThat(module, notNullValue());
 
     System.out.println();
-    System.out.println(">>> Building the Golo AST of " + goloFile);
+    System.out.println(">>> Building the Golo IR of " + goloFile);
     dump(module);
     System.out.println();
   }
