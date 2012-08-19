@@ -285,11 +285,7 @@ void CommutativeExpression():
 {
   AssociativeExpression()
   (
-    (
-      token="+" AssociativeExpression()
-      |
-      token="-" AssociativeExpression()
-    )
+    LOOKAHEAD(2) (token="+" | token="-") AssociativeExpression()
     {
       jjtThis.setOperator(token.image);
       jjtThis.setLineInSourceCode(token.beginLine);
@@ -303,15 +299,13 @@ void AssociativeExpression():
   Token token;
 }
 {
-  "(" ExpressionStatement() ")"
-  |
-  TerminalExpression()
   (
-    (
-      token="*" TerminalExpression()
-      |
-      token="/" TerminalExpression()
-    )
+    "(" CommutativeExpression() ")"
+    |
+    TerminalExpression()
+  )
+  (
+    LOOKAHEAD(2) (token="*" | token="/") AssociativeExpression()
     {
       jjtThis.setOperator(token.image);
       jjtThis.setLineInSourceCode(token.beginLine);

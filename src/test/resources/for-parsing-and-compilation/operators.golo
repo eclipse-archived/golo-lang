@@ -20,3 +20,11 @@ function d = {
 function e = {
   return (1 + 2) * (3 + 4)
 }
+
+function f = {
+  return (1 + 2) + (3 + 4) + (5 * 6)
+}
+
+function g = {
+  return ((1 + 2 + 3) * (5) * 6 + (10 / 2) - 1) / 2
+}

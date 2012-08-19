@@ -203,5 +203,8 @@ public class CompileAndRunTest {
     Method twice = moduleClass.getMethod("twice", Object.class);
     assertThat((Integer) twice.invoke(null, 6), is(12));
     assertThat((String) twice.invoke(null, "Plop"), is("PlopPlop"));
+
+    Method compute_92 = moduleClass.getMethod("compute_92");
+    assertThat((Integer) compute_92.invoke(null), is(92));
   }
 }
