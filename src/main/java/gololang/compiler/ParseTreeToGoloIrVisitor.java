@@ -2,6 +2,7 @@ package gololang.compiler;
 
 import gololang.compiler.ir.*;
 import gololang.compiler.parser.*;
+import gololang.runtime.BinaryOperationType;
 
 import java.util.Stack;
 
@@ -100,16 +101,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     return data;
   }
 
-  private BinaryOperation.Type operationFrom(String symbol) {
+  private BinaryOperationType operationFrom(String symbol) {
     switch (symbol) {
       case "+":
-        return BinaryOperation.Type.PLUS;
+        return BinaryOperationType.PLUS;
       case "-":
-        return BinaryOperation.Type.MINUS;
+        return BinaryOperationType.MINUS;
       case "*":
-        return BinaryOperation.Type.TIMES;
+        return BinaryOperationType.TIMES;
       case "/":
-        return BinaryOperation.Type.DIVIDE;
+        return BinaryOperationType.DIVIDE;
       default:
         throw new IllegalArgumentException(symbol);
     }
@@ -117,7 +118,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private void makeBinaryOperation(GoloASTNode node, String symbol, Context context) {
     Stack<ExpressionStatement> expressions = new Stack<>();
-    BinaryOperation.Type type = operationFrom(symbol);
+    BinaryOperationType type = operationFrom(symbol);
     PositionInSourceCode positionInSourceCode = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, context);
