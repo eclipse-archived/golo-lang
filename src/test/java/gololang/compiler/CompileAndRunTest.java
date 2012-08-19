@@ -172,5 +172,8 @@ public class CompileAndRunTest {
     Method plus_one = moduleClass.getMethod("plus_one", Object.class);
     assertThat((Integer) plus_one.invoke(null, 1), is(2));
     assertThat((String) plus_one.invoke(null, "x = "), is("x = 1"));
+
+    Method minus_one = moduleClass.getMethod("minus_one", Object.class);
+    assertThat((Integer) minus_one.invoke(null, 5), is(4));
   }
 }

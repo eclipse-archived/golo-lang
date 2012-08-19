@@ -55,4 +55,18 @@ public class OperatorSupportTest {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "plus", BINOP_TYPE).dynamicInvoker();
     handle.invokeWithArguments(1, new Object());
   }
+
+  @Test
+  public void check_minus() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "minus", BINOP_TYPE).dynamicInvoker();
+
+    Integer three = (Integer) handle.invokeWithArguments(5, 2);
+    assertThat(three, is(3));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void minus_cannot_substract_objects() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "minus", BINOP_TYPE).dynamicInvoker();
+    handle.invokeWithArguments(new Object(), new Object());
+  }
 }
