@@ -19,12 +19,18 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final String JOBJECT = "java/lang/Object";
   private static final String TOBJECT = "Ljava/lang/Object;";
   private static final Handle FUNCTION_INVOCATION_HANDLE;
+  private static final Handle OPERATOR_HANDLE;
 
   static {
-    String functionCallBootstrapOwner = "gololang/runtime/FunctionCallSupport";
-    String functionCallBootstrapMethod = "bootstrap";
+    String bootstrapOwner = "gololang/runtime/FunctionCallSupport";
+    String bootstrapMethod = "bootstrap";
     String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
-    FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, functionCallBootstrapOwner, functionCallBootstrapMethod, description);
+    FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+
+    bootstrapOwner = "gololang/runtime/OperatorSupport";
+    bootstrapMethod = "bootstrap";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    OPERATOR_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
@@ -193,6 +199,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
-    // TODO: generate some sweet bytecode!
+    binaryOperation.getLeftExpression().accept(this);
+    binaryOperation.getRightExpression().accept(this);
+    String name = binaryOperation.getType().name().toLowerCase();
+    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE);
   }
 }
