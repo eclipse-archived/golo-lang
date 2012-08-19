@@ -2,14 +2,18 @@ package gololang.compiler;
 
 import gololang.compiler.ir.*;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Stack;
 
+import static gololang.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
 import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private int indexAssignmentCounter = 0;
   private Stack<ReferenceTable> tableStack = new Stack<>();
+  private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
   private GoloCompilationException.Builder exceptionBuilder;
 
   private void resetIndexAssignmentCounter() {
@@ -58,10 +62,12 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       }
     }
     tableStack.push(table);
+    assignmentStack.push(new HashSet<LocalReference>());
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
     tableStack.pop();
+    assignmentStack.pop();
   }
 
   @Override
@@ -81,6 +87,18 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+    LocalReference reference = assignmentStatement.getLocalReference();
+    if (reference.getKind().equals(LocalReference.Kind.CONSTANT)) {
+      Set<LocalReference> assignedReferences = assignmentStack.peek();
+      if (assignedReferences.contains(reference)) {
+        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement,
+            "Assigning " + reference.getName() +
+                " at " + assignmentStatement.getPositionInSourceCode() +
+                " but it is a constant");
+      } else {
+        assignedReferences.add(reference);
+      }
+    }
     assignmentStatement.getExpressionStatement().accept(this);
   }
 

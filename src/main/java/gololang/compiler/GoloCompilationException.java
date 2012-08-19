@@ -10,7 +10,7 @@ public class GoloCompilationException extends RuntimeException {
   public static class Problem {
 
     public static enum Type {
-      UNDECLARED_REFERENCE
+      UNDECLARED_REFERENCE, ASSIGN_CONSTANT
     }
 
     private final Type type;

@@ -1,5 +1,6 @@
 package gololang.compiler;
 
+import gololang.compiler.ir.AssignmentStatement;
 import gololang.compiler.ir.PositionInSourceCode;
 import gololang.compiler.ir.ReferenceLookup;
 import gololang.compiler.parser.ASTAssignment;
@@ -16,6 +17,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static gololang.compiler.GoloCompilationException.Problem;
+import static gololang.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
 import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static gololang.internal.junit.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
@@ -143,6 +145,25 @@ public class CompileAndRunTest {
       assertThat(assignment.getName(), is("bar"));
       assertThat(assignment.getLineInSourceCode(), is(5));
       assertThat(assignment.getColumnInSourceCode(), is(3));
+      throw expected;
+    }
+  }
+
+  @Test(expected = GoloCompilationException.class)
+  public void test_assign_constant() throws Throwable {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-assign-constant.golo", temporaryFolder, "golotest.execution.AssignToConstant");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      Problem problem = problems.get(0);
+      assertThat(problem.getType(), is(ASSIGN_CONSTANT));
+      assertThat(problem.getSource(), instanceOf(AssignmentStatement.class));
+      AssignmentStatement statement = (AssignmentStatement) problem.getSource();
+      assertThat(statement.getLocalReference().getName(), is("foo"));
+      assertThat(statement.getPositionInSourceCode().getLine(), is(7));
+      assertThat(statement.getPositionInSourceCode().getColumn(), is(3));
       throw expected;
     }
   }
