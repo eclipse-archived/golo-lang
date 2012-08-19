@@ -190,4 +190,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       conditionalBranching.getElseConditionalBranching().accept(this);
     }
   }
+
+  @Override
+  public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+    // TODO: generate some sweet bytecode!
+  }
 }

@@ -19,4 +19,6 @@ public interface GoloIrVisitor {
   void visitReferenceLookup(ReferenceLookup referenceLookup);
 
   void visitConditionalBranching(ConditionalBranching conditionalBranching);
+
+  void acceptBinaryOperation(BinaryOperation binaryOperation);
 }

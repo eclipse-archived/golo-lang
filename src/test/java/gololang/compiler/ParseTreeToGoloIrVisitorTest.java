@@ -160,6 +160,16 @@ public class ParseTreeToGoloIrVisitorTest {
         }
         decr();
       }
+
+      @Override
+      public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+        incr();
+        space();
+        System.out.println("Binary operator: " + binaryOperation.getType());
+        binaryOperation.getLeftExpression().accept(this);
+        binaryOperation.getRightExpression().accept(this);
+        decr();
+      }
     });
   }
 }

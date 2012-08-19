@@ -100,17 +100,58 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     return data;
   }
 
+  private BinaryOperation.Type operationFrom(String symbol) {
+    switch (symbol) {
+      case "+":
+        return BinaryOperation.Type.PLUS;
+      case "-":
+        return BinaryOperation.Type.MINUS;
+      case "*":
+        return BinaryOperation.Type.TIMES;
+      case "/":
+        return BinaryOperation.Type.DIVIDE;
+      default:
+        throw new IllegalArgumentException(symbol);
+    }
+  }
+
+  private void makeBinaryOperation(GoloASTNode node, String symbol, Context context) {
+    Stack<ExpressionStatement> expressions = new Stack<>();
+    BinaryOperation.Type type = operationFrom(symbol);
+    PositionInSourceCode positionInSourceCode = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      node.jjtGetChild(i).jjtAccept(this, context);
+      expressions.push((ExpressionStatement) context.objectStack.pop());
+    }
+    ExpressionStatement right = expressions.pop();
+    ExpressionStatement left = expressions.pop();
+    BinaryOperation current = new BinaryOperation(type, left, right, positionInSourceCode);
+    while (!expressions.isEmpty()) {
+      right = expressions.pop();
+      current = new BinaryOperation(type, current, right, positionInSourceCode);
+    }
+    context.objectStack.push(current);
+  }
+
   @Override
   public Object visit(ASTCommutativeExpression node, Object data) {
-    // TODO
-    node.childrenAccept(this, data);
+    Context context = (Context) data;
+    if (node.jjtGetNumChildren() > 1) {
+      makeBinaryOperation(node, node.getOperator(), context);
+    } else {
+      node.childrenAccept(this, data);
+    }
     return data;
   }
 
   @Override
   public Object visit(ASTAssociativeExpression node, Object data) {
-    // TODO
-    node.childrenAccept(this, data);
+    Context context = (Context) data;
+    if (node.jjtGetNumChildren() > 1) {
+      makeBinaryOperation(node, node.getOperator(), context);
+    } else {
+      node.childrenAccept(this, data);
+    }
     return data;
   }
 

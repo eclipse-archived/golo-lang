@@ -102,4 +102,10 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       conditionalBranching.getElseConditionalBranching().accept(this);
     }
   }
+
+  @Override
+  public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+    binaryOperation.getLeftExpression().accept(this);
+    binaryOperation.getRightExpression().accept(this);
+  }
 }
