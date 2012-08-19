@@ -69,4 +69,50 @@ public class OperatorSupportTest {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "minus", BINOP_TYPE).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
   }
+
+  @Test
+  public void check_divide() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE).dynamicInvoker();
+
+    Integer two = (Integer) handle.invokeWithArguments(4, 2);
+    assertThat(two, is(2));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void cannot_divide_objects() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE).dynamicInvoker();
+    handle.invokeWithArguments(new Object(), new Object());
+  }
+
+  @Test
+  public void check_times() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "times", BINOP_TYPE).dynamicInvoker();
+
+    Integer four = (Integer) handle.invokeWithArguments(2, 2);
+    assertThat(four, is(4));
+
+    String str = (String) handle.invokeWithArguments(2, "a");
+    assertThat(str, is("aa"));
+
+    str = (String) handle.invokeWithArguments("a", 4);
+    assertThat(str, is("aaaa"));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void cannot_divide_object_and_object() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE).dynamicInvoker();
+    handle.invokeWithArguments(new Object(), new Object());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void cannot_divide_integer_and_object() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE).dynamicInvoker();
+    handle.invokeWithArguments(1, new Object());
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void cannot_divide_object_and_integer() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE).dynamicInvoker();
+    handle.invokeWithArguments(new Object(), 1);
+  }
 }

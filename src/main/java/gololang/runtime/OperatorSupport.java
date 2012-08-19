@@ -43,7 +43,7 @@ public class OperatorSupport {
 
   private static String repeat(String string, int n) {
     StringBuilder builder = new StringBuilder(string);
-    for (int i = 0; i < n; i++) {
+    for (int i = 1; i < n; i++) {
       builder.append(string);
     }
     return builder.toString();
