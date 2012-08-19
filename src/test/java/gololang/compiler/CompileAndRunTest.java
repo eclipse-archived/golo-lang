@@ -164,4 +164,13 @@ public class CompileAndRunTest {
     assertThat((String) boolean_to_string.invoke(null, true), is("true"));
     assertThat((String) boolean_to_string.invoke(null, false), is("false"));
   }
+
+  @Test
+  public void test_operators() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo", temporaryFolder, "golotest.execution.Operators");
+
+    Method plus_one = moduleClass.getMethod("plus_one", Object.class);
+    assertThat((Integer) plus_one.invoke(null, 1), is(2));
+    assertThat((String) plus_one.invoke(null, "x = "), is("x = 1"));
+  }
 }
