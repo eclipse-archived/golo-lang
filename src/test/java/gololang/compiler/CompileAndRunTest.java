@@ -206,5 +206,13 @@ public class CompileAndRunTest {
 
     Method compute_92 = moduleClass.getMethod("compute_92");
     assertThat((Integer) compute_92.invoke(null), is(92));
+
+    Method eq = moduleClass.getMethod("eq", Object.class, Object.class);
+    assertThat((Boolean) eq.invoke(null, 666, 666), is(true));
+    assertThat((Boolean) eq.invoke(null, 999, 666), is(false));
+
+    Method at_least_5 = moduleClass.getMethod("at_least_5", Object.class);
+    assertThat((Integer) at_least_5.invoke(null, 10), is(10));
+    assertThat((Integer) at_least_5.invoke(null, -10), is(5));
   }
 }

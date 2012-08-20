@@ -114,6 +114,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return BinaryOperationType.TIMES;
       case "/":
         return BinaryOperationType.DIVIDE;
+      case "<":
+        return BinaryOperationType.LESS;
+      case "<=":
+        return BinaryOperationType.LESSOREQUALS;
+      case "==":
+        return BinaryOperationType.EQUALS;
+      case "!=":
+        return BinaryOperationType.NOTEQUALS;
+      case ">":
+        return BinaryOperationType.MORE;
+      case ">=":
+        return BinaryOperationType.MOREOREQUALS;
       default:
         throw new IllegalArgumentException(symbol);
     }

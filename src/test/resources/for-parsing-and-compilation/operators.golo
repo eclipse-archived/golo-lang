@@ -28,3 +28,29 @@ function f = {
 function g = {
   return ((1 + 2 + 3) * (5) * 6 + (10 / 2) - 1) / 2
 }
+
+function h = |a, b| {
+  return (a < b)
+}
+
+function i = |a, b| {
+  return (a <= b)
+}
+
+function j = |a, b| {
+  return (a == b)
+}
+
+function k = |a, b| {
+  return (a != b)
+}
+
+function l = |a, b| {
+  return (a > b)
+}
+function m = |a, b| {
+  return (a >= b)
+}
+
+
+
