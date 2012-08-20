@@ -21,4 +21,6 @@ public interface GoloIrVisitor {
   void visitConditionalBranching(ConditionalBranching conditionalBranching);
 
   void acceptBinaryOperation(BinaryOperation binaryOperation);
+
+  void visitUnaryOperation(UnaryOperation unaryOperation);
 }

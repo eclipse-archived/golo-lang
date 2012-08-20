@@ -126,4 +126,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
   }
+
+  @Override
+  public void visitUnaryOperation(UnaryOperation unaryOperation) {
+    unaryOperation.getExpressionStatement().accept(this);
+  }
 }

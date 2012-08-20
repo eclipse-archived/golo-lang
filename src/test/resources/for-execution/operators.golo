@@ -39,3 +39,7 @@ function strictly_between_1_and_10 = |a| {
 function between_1_and_10_or_20_and_30 = |a| {
   return (a >=1 and a <= 10) or ((a >= 20) and (a <= 30))
 }
+
+function neq = |a, b| {
+  return not (a == b)
+}

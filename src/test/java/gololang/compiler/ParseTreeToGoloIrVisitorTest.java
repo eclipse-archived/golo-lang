@@ -170,6 +170,15 @@ public class ParseTreeToGoloIrVisitorTest {
         binaryOperation.getRightExpression().accept(this);
         decr();
       }
+
+      @Override
+      public void visitUnaryOperation(UnaryOperation unaryOperation) {
+        incr();
+        space();
+        System.out.println("Unary operator: " + unaryOperation.getType());
+        unaryOperation.getExpressionStatement().accept(this);
+        decr();
+      }
     });
   }
 }

@@ -1,6 +1,6 @@
 package gololang.runtime;
 
-public enum BinaryOperationType {
+public enum OperatorType {
 
   PLUS("+"),
   MINUS("-"),
@@ -15,12 +15,13 @@ public enum BinaryOperationType {
   MOREOREQUALS(">="),
 
   AND("and"),
-  OR("or")
+  OR("or"),
+  NOT("not")
   ;
 
   private final String symbol;
 
-  BinaryOperationType(String symbol) {
+  OperatorType(String symbol) {
     this.symbol = symbol;
   }
 

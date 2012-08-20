@@ -2,7 +2,7 @@ package gololang.compiler;
 
 import gololang.compiler.ir.*;
 import gololang.compiler.parser.*;
-import gololang.runtime.BinaryOperationType;
+import gololang.runtime.OperatorType;
 
 import java.util.Iterator;
 import java.util.List;
@@ -103,32 +103,48 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     return data;
   }
 
-  private BinaryOperationType operationFrom(String symbol) {
+  @Override
+  public Object visit(ASTUnaryExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    context.objectStack.push(
+        new UnaryOperation(
+            operationFrom(node.getOperator()),
+            (ExpressionStatement) context.objectStack.pop(),
+            new PositionInSourceCode(
+                node.getLineInSourceCode(),
+                node.getColumnInSourceCode())));
+    return data;
+  }
+
+  private OperatorType operationFrom(String symbol) {
     switch (symbol) {
       case "+":
-        return BinaryOperationType.PLUS;
+        return OperatorType.PLUS;
       case "-":
-        return BinaryOperationType.MINUS;
+        return OperatorType.MINUS;
       case "*":
-        return BinaryOperationType.TIMES;
+        return OperatorType.TIMES;
       case "/":
-        return BinaryOperationType.DIVIDE;
+        return OperatorType.DIVIDE;
       case "<":
-        return BinaryOperationType.LESS;
+        return OperatorType.LESS;
       case "<=":
-        return BinaryOperationType.LESSOREQUALS;
+        return OperatorType.LESSOREQUALS;
       case "==":
-        return BinaryOperationType.EQUALS;
+        return OperatorType.EQUALS;
       case "!=":
-        return BinaryOperationType.NOTEQUALS;
+        return OperatorType.NOTEQUALS;
       case ">":
-        return BinaryOperationType.MORE;
+        return OperatorType.MORE;
       case ">=":
-        return BinaryOperationType.MOREOREQUALS;
+        return OperatorType.MOREOREQUALS;
       case "and":
-        return BinaryOperationType.AND;
+        return OperatorType.AND;
       case "or":
-        return BinaryOperationType.OR;
+        return OperatorType.OR;
+      case "not":
+        return OperatorType.NOT;
       default:
         throw new IllegalArgumentException(symbol);
     }
@@ -136,7 +152,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private void makeBinaryOperation(GoloASTNode node, List<String> symbols, Stack<PositionInSourceCode> positions, Context context) {
     Stack<ExpressionStatement> expressions = new Stack<>();
-    Stack<BinaryOperationType> operators = new Stack<>();
+    Stack<OperatorType> operators = new Stack<>();
     PositionInSourceCode positionInSourceCode = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, context);

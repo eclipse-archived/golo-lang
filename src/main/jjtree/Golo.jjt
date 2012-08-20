@@ -71,6 +71,8 @@ TOKEN :
   |
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
                            "and" | "or") >
+  |
+  < UNARY_OPERATOR: "not" >
 }
 
 // References
@@ -278,6 +280,19 @@ void TerminalExpression() #void: {}
   Reference()
 }
 
+void UnaryExpression():
+{
+  Token token;
+}
+{
+  token=<UNARY_OPERATOR> CommutativeExpression()
+  {
+    jjtThis.setOperator(token.image);
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+}
+
 void CommutativeExpression():
 {
   Token token;
@@ -303,6 +318,8 @@ void AssociativeExpression():
     "(" CommutativeExpression() ")"
     |
     TerminalExpression()
+    |
+    UnaryExpression()
   )
   (
     LOOKAHEAD(2) token=<ASSOCIATIVE_OPERATOR> AssociativeExpression()

@@ -6,8 +6,13 @@ import static java.lang.invoke.MethodType.methodType;
 
 public class OperatorSupport {
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws NoSuchMethodException, IllegalAccessException {
-    MethodHandle handle = caller.findStatic(OperatorSupport.class, name, methodType(Object.class, Object.class, Object.class));
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
+    MethodHandle handle;
+    if (arity == 1) {
+      handle = caller.findStatic(OperatorSupport.class, name, methodType(Object.class, Object.class));
+    } else {
+      handle = caller.findStatic(OperatorSupport.class, name, methodType(Object.class, Object.class, Object.class));
+    }
     return new ConstantCallSite(handle);
   }
 
@@ -94,16 +99,27 @@ public class OperatorSupport {
 
   public static Object and(Object a, Object b) {
     if ((a instanceof Boolean) && (b instanceof Boolean)) {
-      return ((Boolean)a) && ((Boolean)b);
+      return ((Boolean) a) && ((Boolean) b);
     }
     return reject(a, b, "and");
   }
 
   public static Object or(Object a, Object b) {
     if ((a instanceof Boolean) && (b instanceof Boolean)) {
-      return ((Boolean)a) || ((Boolean)b);
+      return ((Boolean) a) || ((Boolean) b);
     }
     return reject(a, b, "or");
+  }
+
+  public static Object not(Object a) {
+    if (a instanceof Boolean) {
+      return !((Boolean) a);
+    }
+    return reject(a, "not");
+  }
+
+  private static Object reject(Object a, String symbol) throws IllegalArgumentException {
+    throw new IllegalArgumentException(String.format("Operator %s is not supported for type %s", symbol, a.getClass()));
   }
 
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {

@@ -225,6 +225,9 @@ public class CompileAndRunTest {
     assertThat((Boolean) between_1_and_10_or_20_and_30.invoke(null, 25), is(true));
     assertThat((Boolean) between_1_and_10_or_20_and_30.invoke(null, 15), is(false));
     assertThat((Boolean) between_1_and_10_or_20_and_30.invoke(null, 50), is(false));
+
+    Method neq = moduleClass.getMethod("neq", Object.class, Object.class);
+    assertThat((Boolean) neq.invoke(null, "foo", "bar"), is(true));
   }
 
   @Test

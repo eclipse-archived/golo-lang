@@ -29,7 +29,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     bootstrapOwner = "gololang/runtime/OperatorSupport";
     bootstrapMethod = "bootstrap";
-    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     OPERATOR_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
@@ -202,6 +202,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
     String name = binaryOperation.getType().name().toLowerCase();
-    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE);
+    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, 2);
+  }
+
+  @Override
+  public void visitUnaryOperation(UnaryOperation unaryOperation) {
+    String name = unaryOperation.getType().name().toLowerCase();
+    unaryOperation.getExpressionStatement().accept(this);
+    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, 1);
   }
 }

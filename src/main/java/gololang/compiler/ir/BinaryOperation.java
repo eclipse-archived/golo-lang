@@ -1,21 +1,21 @@
 package gololang.compiler.ir;
 
-import gololang.runtime.BinaryOperationType;
+import gololang.runtime.OperatorType;
 
 public class BinaryOperation extends ExpressionStatement {
 
-  private final BinaryOperationType type;
+  private final OperatorType type;
   private final ExpressionStatement leftExpression;
   private final ExpressionStatement rightExpression;
 
-  public BinaryOperation(BinaryOperationType type, ExpressionStatement leftExpression, ExpressionStatement rightExpression, PositionInSourceCode positionInSourceCode) {
+  public BinaryOperation(OperatorType type, ExpressionStatement leftExpression, ExpressionStatement rightExpression, PositionInSourceCode positionInSourceCode) {
     super(positionInSourceCode);
     this.type = type;
     this.leftExpression = leftExpression;
     this.rightExpression = rightExpression;
   }
 
-  public BinaryOperationType getType() {
+  public OperatorType getType() {
     return type;
   }
 

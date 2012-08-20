@@ -56,3 +56,7 @@ function m = |a, b| {
 function n = |a, b, c| {
   return (a and b) or c
 }
+
+function m = |a| {
+  return not a
+}
