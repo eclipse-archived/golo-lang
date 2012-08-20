@@ -215,6 +215,11 @@ public class CompileAndRunTest {
     assertThat((Integer) at_least_5.invoke(null, 10), is(10));
     assertThat((Integer) at_least_5.invoke(null, -10), is(5));
 
+    Method strictly_between_1_and_10 = moduleClass.getMethod("strictly_between_1_and_10", Object.class);
+    assertThat((Boolean) strictly_between_1_and_10.invoke(null, 5), is(true));
+    assertThat((Boolean) strictly_between_1_and_10.invoke(null, -5), is(false));
+    assertThat((Boolean) strictly_between_1_and_10.invoke(null, 15), is(false));
+
     Method between_1_and_10_or_20_and_30 = moduleClass.getMethod("between_1_and_10_or_20_and_30", Object.class);
     assertThat((Boolean) between_1_and_10_or_20_and_30.invoke(null, 5), is(true));
     assertThat((Boolean) between_1_and_10_or_20_and_30.invoke(null, 25), is(true));
