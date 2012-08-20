@@ -4,9 +4,13 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
+import static java.util.Collections.unmodifiableList;
+
 public class ASTCommutativeExpression extends GoloASTNode {
 
   private final List<String> operators = new LinkedList<>();
+  private final List<Integer> lines = new LinkedList<>();
+  private final List<Integer> columns = new LinkedList<>();
 
   public ASTCommutativeExpression(int id) {
     super(id);
@@ -21,7 +25,23 @@ public class ASTCommutativeExpression extends GoloASTNode {
   }
 
   public List<String> getOperators() {
-    return Collections.unmodifiableList(operators);
+    return unmodifiableList(operators);
+  }
+
+  public void addLine(int line) {
+    lines.add(line);
+  }
+
+  public void addColumn(int column) {
+    columns.add(column);
+  }
+
+  public List<Integer> getLines() {
+    return unmodifiableList(lines);
+  }
+
+  public List<Integer> getColumns() {
+    return unmodifiableList(columns);
   }
 
   @Override

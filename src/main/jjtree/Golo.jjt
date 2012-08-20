@@ -288,8 +288,8 @@ void CommutativeExpression():
     LOOKAHEAD(2) (token="+" | token="-") AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
-      jjtThis.setLineInSourceCode(token.beginLine);
-      jjtThis.setColumnInSourceCode(token.beginColumn);
+      jjtThis.addLine(token.beginLine);
+      jjtThis.addColumn(token.beginColumn);
     }
   )*
 }
@@ -308,8 +308,8 @@ void AssociativeExpression():
     LOOKAHEAD(2) (token="*" | token="/") AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
-      jjtThis.setLineInSourceCode(token.beginLine);
-      jjtThis.setColumnInSourceCode(token.beginColumn);
+      jjtThis.addLine(token.beginLine);
+      jjtThis.addColumn(token.beginColumn);
     }
   )*
 }
