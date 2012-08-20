@@ -63,6 +63,14 @@ TOKEN :
   < ELSE: "else" >
 }
 
+// Associative and commutative operators
+TOKEN :
+{
+  < ASSOCIATIVE_OPERATOR: ["*", "/"] >
+  |
+  < COMMUTATIVE_OPERATOR: ["+", "-"] >
+}
+
 // Logical operators
 TOKEN :
 {
@@ -285,7 +293,7 @@ void CommutativeExpression():
 {
   AssociativeExpression()
   (
-    LOOKAHEAD(2) (token="+" | token="-") AssociativeExpression()
+    LOOKAHEAD(2) token=<COMMUTATIVE_OPERATOR> AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
       jjtThis.addLine(token.beginLine);
@@ -305,7 +313,7 @@ void AssociativeExpression():
     TerminalExpression()
   )
   (
-    LOOKAHEAD(2) (token="*" | token="/") AssociativeExpression()
+    LOOKAHEAD(2) token=<ASSOCIATIVE_OPERATOR> AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
       jjtThis.addLine(token.beginLine);
