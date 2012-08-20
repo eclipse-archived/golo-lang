@@ -63,23 +63,15 @@ TOKEN :
   < ELSE: "else" >
 }
 
-// Associative and commutative operators
+// Operators
 TOKEN :
 {
   < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
-                           "<" | "<=" | "==" | "!=" | ">" | ">=") >
+                           "<" | "<=" | "==" | "!=" | ">" | ">=" |
+                          "and") >
   |
-  < COMMUTATIVE_OPERATOR: ("+" | "-") >
-}
-
-// Logical operators
-TOKEN :
-{
-  < AND: "and" >
-  |
-  < OR: "or" >
-  |
-  < NOT: "not" >
+  < COMMUTATIVE_OPERATOR: ("+" | "-" |
+                           "or") >
 }
 
 // References

@@ -12,7 +12,10 @@ public enum BinaryOperationType {
   LESS("<"),
   LESSOREQUALS("<="),
   MORE(">"),
-  MOREOREQUALS(">=")
+  MOREOREQUALS(">="),
+
+  AND("and"),
+  OR("or")
   ;
 
   private final String symbol;

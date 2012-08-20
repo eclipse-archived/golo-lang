@@ -31,3 +31,7 @@ function at_least_5 = |a| {
     return a
   }
 }
+
+function between_1_and_10_or_20_and_30 = |a| {
+  return ((a >=1) and (a <= 10)) or ((a >= 20) and (a <= 30))
+}

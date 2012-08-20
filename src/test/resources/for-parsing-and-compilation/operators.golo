@@ -48,9 +48,11 @@ function k = |a, b| {
 function l = |a, b| {
   return (a > b)
 }
+
 function m = |a, b| {
   return (a >= b)
 }
 
-
-
+function n = |a, b, c| {
+  return (a and b) or c
+}

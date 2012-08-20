@@ -92,6 +92,20 @@ public class OperatorSupport {
     return reject(a, b, ">=");
   }
 
+  public static Object and(Object a, Object b) {
+    if ((a instanceof Boolean) && (b instanceof Boolean)) {
+      return ((Boolean)a) && ((Boolean)b);
+    }
+    return reject(a, b, "and");
+  }
+
+  public static Object or(Object a, Object b) {
+    if ((a instanceof Boolean) && (b instanceof Boolean)) {
+      return ((Boolean)a) || ((Boolean)b);
+    }
+    return reject(a, b, "or");
+  }
+
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
   }

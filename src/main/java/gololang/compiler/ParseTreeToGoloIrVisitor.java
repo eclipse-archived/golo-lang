@@ -5,7 +5,6 @@ import gololang.compiler.parser.*;
 import gololang.runtime.BinaryOperationType;
 
 import java.util.Iterator;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Stack;
 
@@ -126,6 +125,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return BinaryOperationType.MORE;
       case ">=":
         return BinaryOperationType.MOREOREQUALS;
+      case "and":
+        return BinaryOperationType.AND;
+      case "or":
+        return BinaryOperationType.OR;
       default:
         throw new IllegalArgumentException(symbol);
     }
