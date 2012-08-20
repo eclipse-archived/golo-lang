@@ -67,11 +67,10 @@ TOKEN :
 TOKEN :
 {
   < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
-                           "<" | "<=" | "==" | "!=" | ">" | ">=" |
-                          "and") >
+                           "<" | "<=" | "==" | "!=" | ">" | ">=") >
   |
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
-                           "or") >
+                           "and" | "or") >
 }
 
 // References
