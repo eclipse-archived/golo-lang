@@ -66,9 +66,10 @@ TOKEN :
 // Associative and commutative operators
 TOKEN :
 {
-  < ASSOCIATIVE_OPERATOR: ["*", "/"] >
+  < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
+                           "<" | "<=" | "==" | "!=" | ">" | ">=") >
   |
-  < COMMUTATIVE_OPERATOR: ["+", "-"] >
+  < COMMUTATIVE_OPERATOR: ("+" | "-") >
 }
 
 // Logical operators
