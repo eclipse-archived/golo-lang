@@ -64,11 +64,32 @@ public class OperatorSupport {
     return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
-  public static Object lessThan(Object a, Object b) {
+  public static Object less(Object a, Object b) {
     if ((a instanceof Comparable) && (b instanceof Comparable)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
     return reject(a, b, "<");
+  }
+
+  public static Object lessOrEquals(Object a, Object b) {
+    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+      return ((Comparable) a).compareTo(b) <= 0;
+    }
+    return reject(a, b, "<=");
+  }
+
+  public static Object more(Object a, Object b) {
+    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+      return ((Comparable) a).compareTo(b) > 0;
+    }
+    return reject(a, b, ">");
+  }
+
+  public static Object moreOrEquals(Object a, Object b) {
+    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+      return ((Comparable) a).compareTo(b) >= 0;
+    }
+    return reject(a, b, ">=");
   }
 
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
