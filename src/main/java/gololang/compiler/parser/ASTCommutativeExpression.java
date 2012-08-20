@@ -1,8 +1,12 @@
 package gololang.compiler.parser;
 
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
+
 public class ASTCommutativeExpression extends GoloASTNode {
 
-  private String operator;
+  private final List<String> operators = new LinkedList<>();
 
   public ASTCommutativeExpression(int id) {
     super(id);
@@ -12,18 +16,18 @@ public class ASTCommutativeExpression extends GoloASTNode {
     super(p, id);
   }
 
-  public String getOperator() {
-    return operator;
+  public void addOperator(String symbol) {
+    operators.add(symbol);
   }
 
-  public void setOperator(String operator) {
-    this.operator = operator;
+  public List<String> getOperators() {
+    return Collections.unmodifiableList(operators);
   }
 
   @Override
   public String toString() {
     return "ASTCommutativeExpression{" +
-        "operator='" + operator + '\'' +
+        "operators=" + operators +
         '}';
   }
 

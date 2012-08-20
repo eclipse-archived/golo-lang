@@ -4,6 +4,7 @@ import gololang.compiler.ir.*;
 import gololang.compiler.parser.*;
 import gololang.runtime.BinaryOperationType;
 
+import java.util.List;
 import java.util.Stack;
 
 import static gololang.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
@@ -116,20 +117,23 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
   }
 
-  private void makeBinaryOperation(GoloASTNode node, String symbol, Context context) {
+  private void makeBinaryOperation(GoloASTNode node, List<String> symbols, Context context) {
     Stack<ExpressionStatement> expressions = new Stack<>();
-    BinaryOperationType type = operationFrom(symbol);
+    Stack<BinaryOperationType> operators = new Stack<>();
     PositionInSourceCode positionInSourceCode = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, context);
       expressions.push((ExpressionStatement) context.objectStack.pop());
     }
+    for (String operatorSymbol : symbols) {
+      operators.push(operationFrom(operatorSymbol));
+    }
     ExpressionStatement right = expressions.pop();
     ExpressionStatement left = expressions.pop();
-    BinaryOperation current = new BinaryOperation(type, left, right, positionInSourceCode);
+    BinaryOperation current = new BinaryOperation(operators.pop(), left, right, positionInSourceCode);
     while (!expressions.isEmpty()) {
       right = expressions.pop();
-      current = new BinaryOperation(type, current, right, positionInSourceCode);
+      current = new BinaryOperation(operators.pop(), current, right, positionInSourceCode);
     }
     context.objectStack.push(current);
   }
@@ -138,7 +142,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTCommutativeExpression node, Object data) {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 1) {
-      makeBinaryOperation(node, node.getOperator(), context);
+      makeBinaryOperation(node, node.getOperators(), context);
     } else {
       node.childrenAccept(this, data);
     }
@@ -149,7 +153,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTAssociativeExpression node, Object data) {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 1) {
-      makeBinaryOperation(node, node.getOperator(), context);
+      makeBinaryOperation(node, node.getOperators(), context);
     } else {
       node.childrenAccept(this, data);
     }

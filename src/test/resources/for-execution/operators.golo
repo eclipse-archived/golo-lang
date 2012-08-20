@@ -17,9 +17,5 @@ function twice = |a| {
 }
 
 function compute_92 = {
-  # Note: the parser is wrong on:
-  #   ((1 + 2 + 3) * (5) * 6 + (10 / 2) - 1) / 2
-  #                          ^
-  #                          not seen, the AST is all under the `-` symbol
-  return ((1 + 2 + 3) * (5) * 6 + ((10 / 2) - 1)) / 2
+  return ((1 + 2 + 3) * (5) * 6 + (10 / 2) - 1) / 2
 }

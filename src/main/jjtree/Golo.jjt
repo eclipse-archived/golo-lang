@@ -287,7 +287,7 @@ void CommutativeExpression():
   (
     LOOKAHEAD(2) (token="+" | token="-") AssociativeExpression()
     {
-      jjtThis.setOperator(token.image);
+      jjtThis.addOperator(token.image);
       jjtThis.setLineInSourceCode(token.beginLine);
       jjtThis.setColumnInSourceCode(token.beginColumn);
     }
@@ -307,7 +307,7 @@ void AssociativeExpression():
   (
     LOOKAHEAD(2) (token="*" | token="/") AssociativeExpression()
     {
-      jjtThis.setOperator(token.image);
+      jjtThis.addOperator(token.image);
       jjtThis.setLineInSourceCode(token.beginLine);
       jjtThis.setColumnInSourceCode(token.beginColumn);
     }
