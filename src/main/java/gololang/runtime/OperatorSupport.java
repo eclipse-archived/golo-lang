@@ -56,6 +56,21 @@ public class OperatorSupport {
     return reject(a, b, "/");
   }
 
+  public static Object equals(Object a, Object b) {
+    return (a == b) || ((a != null) && a.equals(b));
+  }
+
+  public static Object notEquals(Object a, Object b) {
+    return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
+  }
+
+  public static Object lessThan(Object a, Object b) {
+    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+      return ((Comparable) a).compareTo(b) < 0;
+    }
+    return reject(a, b, "<");
+  }
+
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
   }

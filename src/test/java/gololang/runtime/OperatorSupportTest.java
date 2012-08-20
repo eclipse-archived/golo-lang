@@ -115,4 +115,41 @@ public class OperatorSupportTest {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE).dynamicInvoker();
     handle.invokeWithArguments(new Object(), 1);
   }
+
+  @Test
+  public void check_equals() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "equals", BINOP_TYPE).dynamicInvoker();
+
+    assertThat((Boolean) handle.invokeWithArguments(null, null), is(true));
+    assertThat((Boolean) handle.invokeWithArguments(null, "foo"), is(false));
+    assertThat((Boolean) handle.invokeWithArguments("foo", null), is(false));
+    assertThat((Boolean) handle.invokeWithArguments("foo", "foo"), is(true));
+    assertThat((Boolean) handle.invokeWithArguments("foo", "bar"), is(false));
+  }
+
+  @Test
+  public void check_notEquals() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "notEquals", BINOP_TYPE).dynamicInvoker();
+
+    assertThat((Boolean) handle.invokeWithArguments(null, null), is(false));
+    assertThat((Boolean) handle.invokeWithArguments(null, "foo"), is(true));
+    assertThat((Boolean) handle.invokeWithArguments("foo", null), is(true));
+    assertThat((Boolean) handle.invokeWithArguments("foo", "foo"), is(false));
+    assertThat((Boolean) handle.invokeWithArguments("foo", "bar"), is(true));
+  }
+
+  @Test
+  public void check_lessThan() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessThan", BINOP_TYPE).dynamicInvoker();
+
+    assertThat((Boolean) handle.invokeWithArguments(1, 2), is(true));
+    assertThat((Boolean) handle.invokeWithArguments(1, 1), is(false));
+    assertThat((Boolean) handle.invokeWithArguments(2, 1), is(false));
+  }
+
+  @Test(expected = IllegalArgumentException.class)
+  public void check_lessThan_rejects_non_comparable() throws Throwable {
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessThan", BINOP_TYPE).dynamicInvoker();
+    handle.invokeWithArguments(new Object(), new Object());
+  }
 }
