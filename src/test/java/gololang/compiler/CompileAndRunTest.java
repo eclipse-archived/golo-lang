@@ -215,4 +215,19 @@ public class CompileAndRunTest {
     assertThat((Integer) at_least_5.invoke(null, 10), is(10));
     assertThat((Integer) at_least_5.invoke(null, -10), is(5));
   }
+
+  @Test
+  public void test_fibonacci() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "fibonacci-recursive.golo", temporaryFolder, "golotest.execution.Fibonacci");
+
+    Method fib = moduleClass.getMethod("fib", Object.class);
+    assertThat((Integer) fib.invoke(null, 0), is(0));
+    assertThat((Integer) fib.invoke(null, 1), is(1));
+    assertThat((Integer) fib.invoke(null, 2), is(1));
+    assertThat((Integer) fib.invoke(null, 3), is(2));
+    assertThat((Integer) fib.invoke(null, 4), is(3));
+    assertThat((Integer) fib.invoke(null, 5), is(5));
+    assertThat((Integer) fib.invoke(null, 6), is(8));
+    assertThat((Integer) fib.invoke(null, 7), is(13));
+  }
 }

@@ -60,7 +60,7 @@ public class OperatorSupport {
     return (a == b) || ((a != null) && a.equals(b));
   }
 
-  public static Object notEquals(Object a, Object b) {
+  public static Object notequals(Object a, Object b) {
     return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
@@ -71,7 +71,7 @@ public class OperatorSupport {
     return reject(a, b, "<");
   }
 
-  public static Object lessOrEquals(Object a, Object b) {
+  public static Object lessorequals(Object a, Object b) {
     if ((a instanceof Comparable) && (b instanceof Comparable)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
@@ -85,7 +85,7 @@ public class OperatorSupport {
     return reject(a, b, ">");
   }
 
-  public static Object moreOrEquals(Object a, Object b) {
+  public static Object moreorequals(Object a, Object b) {
     if ((a instanceof Comparable) && (b instanceof Comparable)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }

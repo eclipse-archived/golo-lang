@@ -129,7 +129,7 @@ public class OperatorSupportTest {
 
   @Test
   public void check_notEquals() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "notEquals", BINOP_TYPE).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "notequals", BINOP_TYPE).dynamicInvoker();
 
     assertThat((Boolean) handle.invokeWithArguments(null, null), is(false));
     assertThat((Boolean) handle.invokeWithArguments(null, "foo"), is(true));
@@ -155,7 +155,7 @@ public class OperatorSupportTest {
 
   @Test
   public void check_lessOrEquals() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessOrEquals", BINOP_TYPE).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessorequals", BINOP_TYPE).dynamicInvoker();
 
     assertThat((Boolean) handle.invokeWithArguments(1, 2), is(true));
     assertThat((Boolean) handle.invokeWithArguments(1, 1), is(true));
@@ -164,7 +164,7 @@ public class OperatorSupportTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void check_lessOrEquals_rejects_non_comparable() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessOrEquals", BINOP_TYPE).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessorequals", BINOP_TYPE).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
   }
 
@@ -185,7 +185,7 @@ public class OperatorSupportTest {
 
   @Test
   public void check_moreOrEquals() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "moreOrEquals", BINOP_TYPE).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "moreorequals", BINOP_TYPE).dynamicInvoker();
 
     assertThat((Boolean) handle.invokeWithArguments(1, 2), is(false));
     assertThat((Boolean) handle.invokeWithArguments(1, 1), is(true));
@@ -194,7 +194,7 @@ public class OperatorSupportTest {
 
   @Test(expected = IllegalArgumentException.class)
   public void check_moreOrEquals_rejects_non_comparable() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "moreOrEquals", BINOP_TYPE).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "moreorequals", BINOP_TYPE).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
   }
 }
