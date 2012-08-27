@@ -73,11 +73,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         "()[Ljava/lang/String;",
         null, null);
     methodVisitor.visitCode();
-    methodVisitor.visitLdcInsn(importsArray.length);
+    loadInteger(importsArray.length);
     methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
     for (int i = 0; i < importsArray.length; i++) {
       methodVisitor.visitInsn(DUP);
-      methodVisitor.visitLdcInsn(i);
+      loadInteger(i);
       methodVisitor.visitLdcInsn(importsArray[i].getPackageAndClass().toString());
       methodVisitor.visitInsn(AASTORE);
     }
