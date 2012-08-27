@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import static gololang.compiler.ir.GoloFunction.Visibility.PUBLIC;
+import static java.lang.Enum.valueOf;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -133,6 +134,28 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     context.referenceTableStack.pop();
   }
 
+  private static boolean between(int value, int lower, int upper) {
+    return (value >= lower) && (value <= upper);
+  }
+
+  private static final int[] ICONST = {ICONST_M1, ICONST_0, ICONST_1, ICONST_2, ICONST_3, ICONST_4, ICONST_5};
+
+  private void loadInteger(int value) {
+    if (between(value, Short.MIN_VALUE, Short.MAX_VALUE)) {
+      if (between(value, Byte.MIN_VALUE, Byte.MAX_VALUE)) {
+        if (between(value, -1, 5)) {
+          methodVisitor.visitInsn(ICONST[value + 1]);
+        } else {
+          methodVisitor.visitIntInsn(BIPUSH, value);
+        }
+      } else {
+        methodVisitor.visitIntInsn(SIPUSH, value);
+      }
+    } else {
+      methodVisitor.visitLdcInsn(value);
+    }
+  }
+
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     Object value = constantStatement.getValue();
@@ -140,12 +163,23 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInsn(ACONST_NULL);
       return;
     }
-    methodVisitor.visitLdcInsn(value);
     if (value instanceof Integer) {
+      int i = (Integer) value;
+      loadInteger(i);
       methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
-    } else if (value instanceof Boolean) {
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+      return;
     }
+    if (value instanceof Boolean) {
+      boolean b = (Boolean) value;
+      loadInteger(b ? 1 : 0);
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+      return;
+    }
+    if (value instanceof String) {
+      methodVisitor.visitLdcInsn(value);
+      return;
+    }
+    throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
   }
 
   @Override
