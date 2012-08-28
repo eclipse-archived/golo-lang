@@ -179,6 +179,19 @@ public class ParseTreeToGoloIrVisitorTest {
         unaryOperation.getExpressionStatement().accept(this);
         decr();
       }
+
+      @Override
+      public void visitLoopStatement(LoopStatement loopStatement) {
+        incr();
+        space();
+        System.out.println("Loop");
+        if (loopStatement.getInitStatement() != null) {
+          loopStatement.getInitStatement().accept(this);
+        }
+        loopStatement.getConditionStatement().accept(this);
+        loopStatement.getBlock().accept(this);
+        decr();
+      }
     });
   }
 }

@@ -23,4 +23,6 @@ public interface GoloIrVisitor {
   void acceptBinaryOperation(BinaryOperation binaryOperation);
 
   void visitUnaryOperation(UnaryOperation unaryOperation);
+
+  void visitLoopStatement(LoopStatement loopStatement);
 }

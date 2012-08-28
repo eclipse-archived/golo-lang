@@ -131,4 +131,13 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void visitUnaryOperation(UnaryOperation unaryOperation) {
     unaryOperation.getExpressionStatement().accept(this);
   }
+
+  @Override
+  public void visitLoopStatement(LoopStatement loopStatement) {
+    if (loopStatement.getInitStatement() != null) {
+      loopStatement.getInitStatement().accept(this);
+    }
+    loopStatement.getConditionStatement().accept(this);
+    loopStatement.getBlock().accept(this);
+  }
 }

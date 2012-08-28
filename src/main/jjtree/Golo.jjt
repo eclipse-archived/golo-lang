@@ -61,6 +61,8 @@ TOKEN :
   < IF: "if" >
   |
   < ELSE: "else" >
+  |
+  < WHILE: "while" >
 }
 
 // Operators
@@ -264,6 +266,20 @@ void Statement() #void:{}
   LetOrVar()
   |
   ConditionalBranching()
+  |
+  WhileLoop()
+}
+
+void WhileLoop():
+{
+  Token token;
+}
+{
+  token=<WHILE> ExpressionStatement() "{" Block() "}"
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
 }
 
 void ExpressionStatement() #void: {}

@@ -245,4 +245,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     unaryOperation.getExpressionStatement().accept(this);
     methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, 1);
   }
+
+  @Override
+  public void visitLoopStatement(LoopStatement loopStatement) {
+//    if (loopStatement.getInitStatement() != null) {
+//      loopStatement.getInitStatement().accept(this);
+//    }
+//    loopStatement.getConditionStatement().accept(this);
+//    loopStatement.getBlock().accept(this);
+  }
 }
