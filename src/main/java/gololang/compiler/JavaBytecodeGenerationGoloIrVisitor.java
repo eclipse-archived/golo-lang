@@ -232,6 +232,23 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void visitLoopStatement(LoopStatement loopStatement) {
+    // TODO handle init statement and potential reference scoping issues
+    Label loopStart = new Label();
+    Label loopEnd = new Label();
+    methodVisitor.visitLabel(loopStart);
+    loopStatement.getConditionStatement().accept(this);
+    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+    methodVisitor.visitJumpInsn(IFEQ, loopEnd);
+    context.nextBlockStart = new Label();
+    context.nextBlockEnd = new Label();
+    loopStatement.getBlock().accept(this);
+    methodVisitor.visitJumpInsn(GOTO, loopStart);
+    methodVisitor.visitLabel(loopEnd);
+  }
+
+  @Override
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
@@ -244,14 +261,5 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     String name = unaryOperation.getType().name().toLowerCase();
     unaryOperation.getExpressionStatement().accept(this);
     methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, 1);
-  }
-
-  @Override
-  public void visitLoopStatement(LoopStatement loopStatement) {
-//    if (loopStatement.getInitStatement() != null) {
-//      loopStatement.getInitStatement().accept(this);
-//    }
-//    loopStatement.getConditionStatement().accept(this);
-//    loopStatement.getBlock().accept(this);
   }
 }
