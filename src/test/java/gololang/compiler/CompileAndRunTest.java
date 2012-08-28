@@ -244,4 +244,14 @@ public class CompileAndRunTest {
     assertThat((Integer) fib.invoke(null, 6), is(8));
     assertThat((Integer) fib.invoke(null, 7), is(13));
   }
+
+  @Test
+  public void test_loopings() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "loopings.golo", temporaryFolder, "golotest.execution.Loopings");
+
+    Method times = moduleClass.getMethod("times", Object.class);
+    assertThat((Integer) times.invoke(null, 0), is(0));
+    assertThat((Integer) times.invoke(null, 1), is(1));
+    assertThat((Integer) times.invoke(null, 5), is(5));
+  }
 }
