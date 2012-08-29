@@ -2,18 +2,18 @@ package gololang.compiler.ir;
 
 public class LoopStatement extends GoloStatement {
 
-  private final GoloStatement initStatement;
+  private final AssignmentStatement initStatement;
   private final ExpressionStatement conditionStatement;
   private final Block block;
 
-  public LoopStatement(GoloStatement initStatement, ExpressionStatement conditionStatement, Block block, PositionInSourceCode positionInSourceCode) {
+  public LoopStatement(AssignmentStatement initStatement, ExpressionStatement conditionStatement, Block block, PositionInSourceCode positionInSourceCode) {
     super(positionInSourceCode);
     this.initStatement = initStatement;
     this.conditionStatement = conditionStatement;
     this.block = block;
   }
 
-  public GoloStatement getInitStatement() {
+  public AssignmentStatement getInitStatement() {
     return initStatement;
   }
 
