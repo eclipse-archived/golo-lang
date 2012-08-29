@@ -6,7 +6,7 @@
 
   <groupId>gololang</groupId>
   <artifactId>gololang</artifactId>
-  <version>0.1-SNAPSHOT</version>
+  <version>r0-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
