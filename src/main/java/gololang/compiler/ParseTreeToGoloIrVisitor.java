@@ -371,6 +371,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTForLoop node, Object data) {
     Context context = (Context) data;
+    ReferenceTable localTable = context.referenceTableStack.peek().fork();
+    context.referenceTableStack.push(localTable);
     node.jjtGetChild(0).jjtAccept(this, data);
     AssignmentStatement init = (AssignmentStatement) context.objectStack.pop();
     node.jjtGetChild(1).jjtAccept(this, data);
@@ -379,11 +381,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloStatement post = (GoloStatement) context.objectStack.pop();
     node.jjtGetChild(3).jjtAccept(this, data);
     Block block = (Block) context.objectStack.pop();
-    context.objectStack.push(
-        new LoopStatement(init, condition, block, post,
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode())));
+    LoopStatement loopStatement = new LoopStatement(init, condition, block, post,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    Block localBlock = new Block(localTable);
+    localBlock.addStatement(loopStatement);
+    context.objectStack.push(localBlock);
+    context.referenceTableStack.pop();
     return data;
   }
 }

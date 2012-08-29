@@ -253,5 +253,11 @@ public class CompileAndRunTest {
     assertThat((Integer) times.invoke(null, 0), is(0));
     assertThat((Integer) times.invoke(null, 1), is(1));
     assertThat((Integer) times.invoke(null, 5), is(5));
+
+    Method fact = moduleClass.getMethod("fact", Object.class, Object.class);
+    assertThat(fact.invoke(null, 10, -1), nullValue());
+    assertThat((Integer) fact.invoke(null, 10, 0), is(1));
+    assertThat((Integer) fact.invoke(null, 10, 1), is(10));
+    assertThat((Integer) fact.invoke(null, 10, 2), is(100));
   }
 }

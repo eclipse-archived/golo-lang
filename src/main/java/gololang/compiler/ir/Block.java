@@ -5,7 +5,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class Block {
+public final class Block extends GoloStatement {
 
   private final List<GoloStatement> statements = new LinkedList<>();
   private final ReferenceTable referenceTable;
@@ -13,6 +13,7 @@ public final class Block {
   private boolean hasReturn = false;
 
   public Block(ReferenceTable referenceTable) {
+    super(new PositionInSourceCode(-1, -1));
     this.referenceTable = referenceTable;
   }
 

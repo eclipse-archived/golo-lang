@@ -56,7 +56,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitBlock(Block block) {
     ReferenceTable table = block.getReferenceTable();
-    for (LocalReference reference : table.references()) {
+    for (LocalReference reference : table.ownedReferences()) {
       if (reference.getIndex() < 0) {
         reference.setIndex(nextAssignmentIndex());
       }

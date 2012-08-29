@@ -5,3 +5,14 @@ function times = |n| {
   while (times < n) { times = times + 1 }
   return times
 }
+
+function fact = |value, n| {
+  if n >= 0 {
+    var result = 1
+    for (var i = 0, i < n, i = i + 1) {
+      result = result * value
+    }
+    return result
+  }
+  return null
+}
