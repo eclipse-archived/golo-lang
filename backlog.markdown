@@ -8,6 +8,10 @@ Not everything is deemed to be implemented...
 
 * Invoke instance methods.
 
+* Throw exceptions.
+
+* Catch exceptions.
+
 * Support doubles, floats, longs, bigint, bigdec.
 
 * Allow underscores in number literals.
@@ -60,6 +64,8 @@ Not everything is deemed to be implemented...
 ## Runtime
 
 * Predefined functions: `print`, `println`, ...
+
+* Pre/post-conditions, invariants.
 
 ## Tooling
 
