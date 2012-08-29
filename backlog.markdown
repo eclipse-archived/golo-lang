@@ -6,6 +6,8 @@ Not everything is deemed to be implemented...
 
 * Instantiating objects with new.
 
+* instanceof-style operator with class literal support.
+
 * Invoke instance methods.
 
 * Throw exceptions.
