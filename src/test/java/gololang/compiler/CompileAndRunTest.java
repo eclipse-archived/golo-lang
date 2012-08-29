@@ -260,4 +260,16 @@ public class CompileAndRunTest {
     assertThat((Integer) fact.invoke(null, 10, 1), is(10));
     assertThat((Integer) fact.invoke(null, 10, 2), is(100));
   }
+
+  @Test(expected = GoloCompilationException.class)
+  public void test_wrong_scope() throws Throwable {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-wrong-scope.golo", temporaryFolder, "golotest.execution.WrongScope");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      throw expected;
+    }
+  }
 }

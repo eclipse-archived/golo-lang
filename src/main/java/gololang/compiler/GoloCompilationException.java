@@ -31,11 +31,16 @@ public class GoloCompilationException extends RuntimeException {
       return source;
     }
 
+    public String getDescription() {
+      return description;
+    }
+
     @Override
     public String toString() {
       return "Problem{" +
           "type=" + type +
           ", source=" + source +
+          ", description='" + description + '\'' +
           '}';
     }
   }
