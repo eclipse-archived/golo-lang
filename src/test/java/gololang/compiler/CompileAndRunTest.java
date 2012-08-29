@@ -11,6 +11,7 @@ import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
@@ -96,6 +97,9 @@ public class CompileAndRunTest {
 
     Method nil = moduleClass.getMethod("nil");
     assertThat(nil.invoke(null), nullValue());
+
+    Method sysOut = moduleClass.getMethod("sysOut");
+    assertThat(sysOut.invoke(null), sameInstance(((Object) System.out)));
   }
 
   @Test

@@ -29,3 +29,7 @@ function call_nanoTime = {
 function nil = {
   return null
 }
+
+function sysOut = {
+  return out()
+}

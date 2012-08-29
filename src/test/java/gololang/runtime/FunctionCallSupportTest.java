@@ -17,6 +17,8 @@ public class FunctionCallSupportTest {
   }
 
   static class Foo {
+    static final String FOO = "Foo";
+
     static int someInt() {
       return 42;
     }
@@ -38,6 +40,16 @@ public class FunctionCallSupportTest {
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
     assertThat((Integer) callSite.dynamicInvoker().invokeWithArguments(), is(42));
   }
+
+  @Test
+  public void check_bootstrapFunctionInvocation_on_static_field() throws Throwable {
+    Lookup lookup = lookup();
+    MethodType type = MethodType.methodType(Object.class);
+    String name = "gololang#runtime#FunctionCallSupportTest$Foo#FOO";
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments(), is("Foo"));
+  }
+
 
   @Test(expected = NoSuchMethodError.class)
   public void check_bootstrapFunctionInvocation_on_unexisting_method() throws Throwable {
