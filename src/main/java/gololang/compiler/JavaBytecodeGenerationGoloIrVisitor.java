@@ -236,6 +236,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     // TODO handle init and post statement and potential reference scoping issues
     Label loopStart = new Label();
     Label loopEnd = new Label();
+    if (loopStatement.hasInitStatement()) {
+      loopStatement.getInitStatement().accept(this);
+    }
     methodVisitor.visitLabel(loopStart);
     loopStatement.getConditionStatement().accept(this);
     methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
@@ -244,6 +247,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     context.nextBlockStart = new Label();
     context.nextBlockEnd = new Label();
     loopStatement.getBlock().accept(this);
+    if (loopStatement.hasPostStatement()) {
+      loopStatement.getPostStatement().accept(this);
+    }
     methodVisitor.visitJumpInsn(GOTO, loopStart);
     methodVisitor.visitLabel(loopEnd);
   }

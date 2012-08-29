@@ -11,3 +11,11 @@ function loop = |n| {
   }
   return times
 }
+
+function forLoop = {
+  var result = 0
+  for (var i = 0, i < 10, i = i + 1) {
+    result = 0 + i
+  }
+  return result
+}
