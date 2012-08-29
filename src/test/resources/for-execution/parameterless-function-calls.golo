@@ -33,3 +33,7 @@ function nil = {
 function sysOut = {
   return out()
 }
+
+function five = {
+  return java.lang.Integer.toString(5)
+}
