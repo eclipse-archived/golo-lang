@@ -67,6 +67,8 @@ Not everything is deemed to be implemented...
 
 * Pre/post-conditions, invariants.
 
+* Proper OSGi meta-data.
+
 ## Tooling
 
 * Compiler shell script.
