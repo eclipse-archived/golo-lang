@@ -35,5 +35,7 @@ function sysOut = {
 }
 
 function five = {
+  print(">>> ")
+  println(5)
   return java.lang.Integer.toString(5)
 }

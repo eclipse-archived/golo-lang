@@ -13,8 +13,13 @@ public final class GoloModule {
   private final Set<ModuleImport> imports = new HashSet<>();
   private final Map<String, GoloFunction> functions = new HashMap<>();
 
+  public static final ModuleImport PREDEF = new ModuleImport(
+      PackageAndClass.fromString("gololang.Predefined"),
+      new PositionInSourceCode(0, 0));
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
+    imports.add(PREDEF);
   }
 
   public PackageAndClass getPackageAndClass() {

@@ -43,7 +43,8 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = Arrays.asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(3));
+    assertThat(imports.size(), is(4));
+    assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("java.util.List"));
     assertThat(imports, hasItem("java.util.LinkedList"));
     assertThat(imports, hasItem("java.lang.System"));
