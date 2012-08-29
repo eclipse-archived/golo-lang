@@ -10,7 +10,6 @@ import java.util.Set;
 import java.util.Stack;
 
 import static gololang.compiler.ir.GoloFunction.Visibility.PUBLIC;
-import static java.lang.Enum.valueOf;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -40,10 +39,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private Context context;
 
   private static class Context {
-    private Stack<ReferenceTable> referenceTableStack = new Stack<>();
-    private Stack<Integer> methodArityStack = new Stack<>();
-    private Label nextBlockStart;
-    private Label nextBlockEnd;
+    private final Stack<ReferenceTable> referenceTableStack = new Stack<>();
+    private final Stack<Integer> methodArityStack = new Stack<>();
+    private final Stack<LabelRange> labelRangeStack = new Stack<>();
+  }
+
+  private static class LabelRange {
+    final Label begin;
+    final Label end;
+
+    private LabelRange(Label begin, Label end) {
+      this.begin = begin;
+      this.end = end;
+    }
   }
 
   public byte[] toBytecode(GoloModule module, String sourceFilename) {
@@ -96,8 +104,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         goloFunctionSignature(function.getArity()),
         null, null);
     methodVisitor.visitCode();
-    context.nextBlockStart = new Label();
-    context.nextBlockEnd = new Label();
+    context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     function.getBlock().accept(this);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
@@ -117,20 +124,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitBlock(Block block) {
     ReferenceTable referenceTable = block.getReferenceTable();
     context.referenceTableStack.push(referenceTable);
-    Label blockStart = context.nextBlockStart;
-    Label blockEnd = context.nextBlockEnd;
-    methodVisitor.visitLabel(blockStart);
+    LabelRange labelRange = context.labelRangeStack.pop();
+    methodVisitor.visitLabel(labelRange.begin);
     final int lastParameterIndex = context.methodArityStack.peek() - 1;
     for (LocalReference localReference : referenceTable.ownedReferences()) {
       if (localReference.getIndex() > lastParameterIndex) {
         methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
-            blockStart, blockEnd, localReference.getIndex());
+            labelRange.begin, labelRange.end, localReference.getIndex());
       }
     }
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
-    methodVisitor.visitLabel(blockEnd);
+    methodVisitor.visitLabel(labelRange.end);
     context.referenceTableStack.pop();
   }
 
@@ -219,12 +225,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
     methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
     methodVisitor.visitJumpInsn(IFEQ, endLabel);
-    context.nextBlockStart = startLabel;
-    context.nextBlockEnd = endLabel;
+    context.labelRangeStack.push(new LabelRange(startLabel, endLabel));
     conditionalBranching.getTrueBlock().accept(this);
     if (conditionalBranching.hasFalseBlock()) {
-      context.nextBlockStart = endLabel;
-      context.nextBlockEnd = new Label();
+      context.labelRangeStack.push(new LabelRange(endLabel, new Label()));
       conditionalBranching.getFalseBlock().accept(this);
     } else if (conditionalBranching.hasElseConditionalBranching()) {
       conditionalBranching.getElseConditionalBranching().accept(this);
@@ -244,8 +248,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
     methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
     methodVisitor.visitJumpInsn(IFEQ, loopEnd);
-    context.nextBlockStart = new Label();
-    context.nextBlockEnd = new Label();
+    context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     loopStatement.getBlock().accept(this);
     if (loopStatement.hasPostStatement()) {
       loopStatement.getPostStatement().accept(this);
