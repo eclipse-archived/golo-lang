@@ -185,11 +185,14 @@ public class ParseTreeToGoloIrVisitorTest {
         incr();
         space();
         System.out.println("Loop");
-        if (loopStatement.getInitStatement() != null) {
+        if (loopStatement.hasInitStatement()) {
           loopStatement.getInitStatement().accept(this);
         }
         loopStatement.getConditionStatement().accept(this);
         loopStatement.getBlock().accept(this);
+        if (loopStatement.hasPostStatement()) {
+          loopStatement.getPostStatement().accept(this);
+        }
         decr();
       }
     });

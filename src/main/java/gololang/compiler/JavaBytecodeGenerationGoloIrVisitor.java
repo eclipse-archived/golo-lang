@@ -233,7 +233,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitLoopStatement(LoopStatement loopStatement) {
-    // TODO handle init statement and potential reference scoping issues
+    // TODO handle init and post statement and potential reference scoping issues
     Label loopStart = new Label();
     Label loopEnd = new Label();
     methodVisitor.visitLabel(loopStart);

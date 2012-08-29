@@ -361,7 +361,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.jjtGetChild(1).jjtAccept(this, data);
     Block block = (Block) context.objectStack.pop();
     context.objectStack.push(
-        new LoopStatement(null, condition, block,
+        new LoopStatement(null, condition, block, null,
             new PositionInSourceCode(
                 node.getLineInSourceCode(),
                 node.getColumnInSourceCode())));
