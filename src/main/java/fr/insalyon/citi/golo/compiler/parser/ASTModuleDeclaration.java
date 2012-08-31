@@ -1,0 +1,34 @@
+package fr.insalyon.citi.golo.compiler.parser;
+
+public class ASTModuleDeclaration extends GoloASTNode {
+
+  private String name;
+
+  public ASTModuleDeclaration(int i) {
+    super(i);
+  }
+
+  public ASTModuleDeclaration(GoloParser p, int i) {
+    super(p, i);
+  }
+
+  public String getName() {
+    return name;
+  }
+
+  public void setName(String name) {
+    this.name = name;
+  }
+
+  @Override
+  public String toString() {
+    return "ASTModuleDeclaration{" +
+        "name='" + name + '\'' +
+        '}';
+  }
+
+  @Override
+  public Object jjtAccept(GoloParserVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
+}

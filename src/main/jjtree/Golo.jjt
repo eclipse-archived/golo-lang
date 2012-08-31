@@ -11,7 +11,7 @@ options {
 
 PARSER_BEGIN(GoloParser)
 
-package gololang.compiler.parser;
+package fr.insalyon.citi.golo.compiler.parser;
 
 import java.util.List;
 import java.util.LinkedList;

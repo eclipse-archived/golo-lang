@@ -1,6 +1,6 @@
 module golotest.execution.VariableAssignments
 
-import gololang.compiler.testing.support.GoloTestHelperFunctions
+import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFunctions
 
 function echo = |what| { return what }
 
