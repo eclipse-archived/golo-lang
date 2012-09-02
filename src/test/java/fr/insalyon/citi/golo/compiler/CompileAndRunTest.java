@@ -238,6 +238,14 @@ public class CompileAndRunTest {
 
     Method neq = moduleClass.getMethod("neq", Object.class, Object.class);
     assertThat((Boolean) neq.invoke(null, "foo", "bar"), is(true));
+
+    Method same_ref = moduleClass.getMethod("same_ref", Object.class, Object.class);
+    assertThat((Boolean) same_ref.invoke(null, "foo", "foo"), is(true));
+    assertThat((Boolean) same_ref.invoke(null, "foo", 1), is(false));
+
+    Method different_ref = moduleClass.getMethod("different_ref", Object.class, Object.class);
+    assertThat((Boolean) different_ref.invoke(null, "foo", "foo"), is(false));
+    assertThat((Boolean) different_ref.invoke(null, "foo", 1), is(true));
   }
 
   @Test

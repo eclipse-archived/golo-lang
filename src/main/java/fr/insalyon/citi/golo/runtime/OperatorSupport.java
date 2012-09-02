@@ -125,4 +125,12 @@ public class OperatorSupport {
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
   }
+
+  public static Object is(Object a, Object b) {
+    return a == b;
+  }
+
+  public static Object isnt(Object a, Object b) {
+    return a != b;
+  }
 }

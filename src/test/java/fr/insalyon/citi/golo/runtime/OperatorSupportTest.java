@@ -240,4 +240,18 @@ public class OperatorSupportTest {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", BINOP_TYPE, 1).dynamicInvoker();
     handle.invokeWithArguments("foo");
   }
+
+  @Test
+  public void check_is_and_isnt() throws Throwable {
+    Object a = new Object();
+    Object b = new Object();
+
+    MethodHandle is = OperatorSupport.bootstrap(lookup(), "is", BINOP_TYPE, 2).dynamicInvoker();
+    assertThat((Boolean) is.invokeWithArguments(a, a), is(true));
+    assertThat((Boolean) is.invokeWithArguments(a, b), is(false));
+
+    MethodHandle isnt = OperatorSupport.bootstrap(lookup(), "isnt", BINOP_TYPE, 2).dynamicInvoker();
+    assertThat((Boolean) isnt.invokeWithArguments(a, a), is(false));
+    assertThat((Boolean) isnt.invokeWithArguments(a, b), is(true));
+  }
 }

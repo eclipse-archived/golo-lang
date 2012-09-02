@@ -16,7 +16,10 @@ public enum OperatorType {
 
   AND("and"),
   OR("or"),
-  NOT("not")
+  NOT("not"),
+
+  IS("is"),
+  ISNT("isnt")
   ;
 
   private final String symbol;

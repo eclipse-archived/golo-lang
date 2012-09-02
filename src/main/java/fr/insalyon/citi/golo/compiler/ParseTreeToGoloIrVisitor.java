@@ -145,6 +145,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.OR;
       case "not":
         return OperatorType.NOT;
+      case "is":
+        return OperatorType.IS;
+      case "isnt":
+        return OperatorType.ISNT;
       default:
         throw new IllegalArgumentException(symbol);
     }

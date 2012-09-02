@@ -71,7 +71,8 @@ TOKEN :
 TOKEN :
 {
   < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
-                           "<" | "<=" | "==" | "!=" | ">" | ">=") >
+                           "<" | "<=" | "==" | "!=" | ">" | ">=" | 
+                           "is" | "isnt") >
   |
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
                            "and" | "or") >

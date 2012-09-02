@@ -43,3 +43,11 @@ function between_1_and_10_or_20_and_30 = |a| {
 function neq = |a, b| {
   return not (a == b)
 }
+
+function same_ref = |a, b| {
+  return a is b
+}
+
+function different_ref = |a, b| {
+  return a isnt b
+}

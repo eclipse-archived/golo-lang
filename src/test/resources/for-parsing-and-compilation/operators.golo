@@ -60,3 +60,7 @@ function n = |a, b, c| {
 function m = |a| {
   return not a
 }
+
+function n = |a, b| {
+  return (a is b) or (a isnt b)
+}
