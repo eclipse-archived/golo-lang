@@ -101,6 +101,9 @@ public class CompileAndRunTest {
     Method sysOut = moduleClass.getMethod("sysOut");
     assertThat(sysOut.invoke(null), sameInstance(((Object) System.out)));
 
+    Method System_Out = moduleClass.getMethod("System_Out");
+    assertThat(System_Out.invoke(null), sameInstance(((Object) System.out)));
+
     Method five = moduleClass.getMethod("five");
     assertThat((String) five.invoke(null), is("5"));
   }

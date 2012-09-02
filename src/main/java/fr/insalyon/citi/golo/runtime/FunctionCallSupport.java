@@ -37,7 +37,7 @@ public final class FunctionCallSupport {
     return new ConstantCallSite(handle);
   }
 
-  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) throws IllegalAccessException, ClassNotFoundException {
+  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) throws IllegalAccessException {
     Method $imports;
     String[] imports;
     try {
@@ -46,25 +46,44 @@ public final class FunctionCallSupport {
     } catch (NoSuchMethodException | InvocationTargetException e) {
       // This can only happen as part of the unit tests, because the lookup does not originate from
       // a Golo module class, hence it doesn't have a $imports() static method.
-      imports = new String[] { };
+      imports = new String[]{};
+    }
+    String[] classAndMethod = null;
+    final int classAndMethodSeparator = functionName.lastIndexOf(".");
+    if (classAndMethodSeparator > 0) {
+      classAndMethod = new String[]{
+          functionName.substring(0, classAndMethodSeparator),
+          functionName.substring(classAndMethodSeparator + 1)
+      };
     }
     for (String importClassName : imports) {
-      Class<?> importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
-      Object result = findStaticMethodOrField(importClass, functionName, type.parameterArray());
-      if (result != null) {
-        return result;
+      try {
+        Class<?> importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
+        String lookup = functionName;
+        if ((classAndMethod != null) && (importClassName.endsWith(classAndMethod[0]))) {
+          lookup = classAndMethod[1];
+        }
+        Object result = findStaticMethodOrField(importClass, lookup, type.parameterArray());
+        if (result != null) {
+          return result;
+        }
+      } catch (ClassNotFoundException ignored) {
       }
     }
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, MethodType type) throws ClassNotFoundException {
+  private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, MethodType type) {
     int methodClassSeparatorIndex = functionName.lastIndexOf(".");
     if (methodClassSeparatorIndex >= 0) {
       String className = functionName.substring(0, methodClassSeparatorIndex);
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
-      Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
-      return findStaticMethodOrField(targetClass, methodName, type.parameterArray());
+      Class<?> targetClass = null;
+      try {
+        targetClass = Class.forName(className, true, callerClass.getClassLoader());
+        return findStaticMethodOrField(targetClass, methodName, type.parameterArray());
+      } catch (ClassNotFoundException ignored) {
+      }
     }
     return null;
   }

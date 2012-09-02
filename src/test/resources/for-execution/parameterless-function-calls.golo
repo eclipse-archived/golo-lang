@@ -34,6 +34,10 @@ function sysOut = {
   return out()
 }
 
+function System_Out = {
+  return System.out()
+}
+
 function five = {
   print(">>> ")
   println(5)
