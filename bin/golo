@@ -1,5 +1,12 @@
 #!/bin/bash
 
+if [ -z "$1" ]
+then
+  echo "Usage: golo <some golo module with a main function>"
+  echo "(e.g., golo my.Module)"
+  exit 1
+fi
+
 if [ -z ${GOLO_CLASSPATH} ]
 then
   GOLO_CLASSPATH='.'
@@ -13,5 +20,5 @@ do
   GOLO_CLASSPATH=${GOLO_CLASSPATH}:${jar}
 done
 
-java ${JVM_FLAGS} -classpath ${GOLO_CLASSPATH} fr.insalyon.citi.golo.cli.MainGoloc $@
+java ${JVM_FLAGS} -classpath ${GOLO_CLASSPATH} $@
 
