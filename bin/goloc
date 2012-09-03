@@ -1,0 +1,8 @@
+#!/bin/bash
+cd `dirname $0`/..
+GOLO_CP='.'
+for jar in lib/*.jar
+do
+  GOLO_CP=${GOLO_CP}:${jar}
+done
+java ${JVM_FLAGS} -classpath ${GOLO_CP} fr.insalyon.citi.golo.cli.MainGoloc $@
