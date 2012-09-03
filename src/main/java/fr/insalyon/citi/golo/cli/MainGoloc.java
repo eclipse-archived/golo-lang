@@ -30,7 +30,7 @@ public class MainGoloc {
     }
 
     List<String> sources = new LinkedList<>();
-    String output = "";
+    String output = ".";
     int i = 0;
     try {
       while (i < args.length) {
