@@ -14,6 +14,7 @@ public class MainGoloc {
   private static enum Options {
     output("the compiled classes output directory"),
     version("prints the software version"),
+    fullversion("prints the software version and build number"),
     help("prints this message "),;
 
     final String description;
@@ -49,6 +50,9 @@ public class MainGoloc {
             case version:
               version();
               return;
+            case fullversion:
+              fullversion();
+              return;
             case help:
               help();
               return;
@@ -79,8 +83,12 @@ public class MainGoloc {
     System.out.println(Metadata.VERSION);
   }
 
+  private static void fullversion() {
+    System.out.println(versionAndBuild());
+  }
+
   private static void help() {
-    System.out.println("Golo compiler " + Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
+    System.out.println("Golo compiler " + versionAndBuild());
     System.out.println();
     System.out.println("Usage: goloc <options> file1.golo file2.golo (...)");
     System.out.println("where options include:");
@@ -88,5 +96,9 @@ public class MainGoloc {
       System.out.println("    -" + option.name());
       System.out.println("         " + option.description);
     }
+  }
+
+  private static String versionAndBuild() {
+    return Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")";
   }
 }
