@@ -35,3 +35,9 @@ function fact = |value, n| {
   return null
 }
 
+function loop_with_call = {
+  while true {
+    forever()
+  }
+}
+
