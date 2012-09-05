@@ -1,0 +1,28 @@
+#!/bin/bash
+
+if [ -z "$1" ] || [ -z "$2" ]
+then
+  echo "Usage: gologolo <.golo files> <some golo module with a main function>"
+  echo "(e.g., golo foo.golo bar.golo my.Module)"
+  echo ""
+  echo "Note that no arguments can be passed directly to the main function..."
+  exit 1
+fi
+
+BIN_DIR=`dirname $0`
+GOLO_DIR=`cd ${BIN_DIR}/..; pwd`
+
+if [ -z ${GOLO_CLASSPATH} ]
+then
+  GOLO_CLASSPATH='.'
+else
+  GOLO_CLASSPATH='.':${GOLO_CLASSPATH}
+fi
+
+for jar in ${GOLO_DIR}/lib/*.jar
+do
+  GOLO_CLASSPATH=${GOLO_CLASSPATH}:${jar}
+done
+
+java ${JVM_FLAGS} -classpath ${GOLO_CLASSPATH} fr.insalyon.citi.golo.cli.MainGoloGolo $@
+
