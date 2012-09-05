@@ -141,6 +141,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
+      if (statement instanceof FunctionInvocation) {
+        methodVisitor.visitInsn(POP);
+      }
     }
     methodVisitor.visitLabel(labelRange.end);
     context.referenceTableStack.pop();
