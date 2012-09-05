@@ -20,7 +20,7 @@ Not everything is deemed to be implemented...
 
 * String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
 
-* Arrays.
+* Arrays and accessors.
 
 * Common collections sugar (lists, maps, sets).
 
@@ -67,13 +67,13 @@ Not everything is deemed to be implemented...
 
 * Predefined functions: `print`, `println`, ...
 
+* Live patch (SwitchPoint helps).
+
 * Pre/post-conditions, invariants.
 
 * Proper OSGi meta-data.
 
 ## Tooling
-
-* Compiler shell script.
 
 * Runner shell script.
 
