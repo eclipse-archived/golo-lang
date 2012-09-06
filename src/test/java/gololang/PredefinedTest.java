@@ -30,4 +30,16 @@ public class PredefinedTest {
       fail("An IllegalArgumentException should have been thrown.");
     } catch (IllegalArgumentException ignored) { }
   }
+
+  @Test
+  public void test_array_manipulation() {
+    Object[] data = (Object[]) Predefined.array(1, 2, 3, "foo", "bar");
+    assertThat((Integer) Predefined.a_length(data), is(5));
+
+    assertThat((Integer) Predefined.a_get(data, 0), is(1));
+    assertThat((String) Predefined.a_get(data, 3), is("foo"));
+
+    Predefined.a_set(data, 0, "plop");
+    assertThat((String) Predefined.a_get(data, 0), is("plop"));
+  }
 }
