@@ -20,6 +20,15 @@ public class OperatorSupport {
     if ((a instanceof Integer) && (b instanceof Integer)) {
       return (Integer) a + (Integer) b;
     }
+    if ((a instanceof Long) && (b instanceof Long)) {
+      return (Long) a + (Long) b;
+    }
+    if ((a instanceof Long) && (b instanceof Integer)) {
+      return (Long) a + (long)((Integer) b);
+    }
+    if ((a instanceof Integer) && (b instanceof Long)) {
+      return (long)((Integer) a) + (Long) b;
+    }
     if ((a instanceof String) || (b instanceof String)) {
       return new StringBuilder().append(a).append(b).toString();
     }
@@ -30,12 +39,30 @@ public class OperatorSupport {
     if ((a instanceof Integer) && (b instanceof Integer)) {
       return (Integer) a - (Integer) b;
     }
+    if ((a instanceof Long) && (b instanceof Long)) {
+      return (Long) a - (Long) b;
+    }
+    if ((a instanceof Long) && (b instanceof Integer)) {
+      return (Long) a - (long)((Integer) b);
+    }
+    if ((a instanceof Integer) && (b instanceof Long)) {
+      return (long)((Integer) a) - (Long) b;
+    }
     return reject(a, b, "-");
   }
 
   public static Object times(Object a, Object b) {
     if ((a instanceof Integer) && (b instanceof Integer)) {
       return (Integer) a * (Integer) b;
+    }
+    if ((a instanceof Long) && (b instanceof Long)) {
+      return (Long) a * (Long) b;
+    }
+    if ((a instanceof Long) && (b instanceof Integer)) {
+      return (Long) a * (long)((Integer) b);
+    }
+    if ((a instanceof Integer) && (b instanceof Long)) {
+      return (long)((Integer) a) * (Long) b;
     }
     if ((a instanceof Integer) && (b instanceof String)) {
       return repeat((String) b, (Integer) a);
@@ -57,6 +84,15 @@ public class OperatorSupport {
   public static Object divide(Object a, Object b) {
     if ((a instanceof Integer) && (b instanceof Integer)) {
       return (Integer) a / (Integer) b;
+    }
+    if ((a instanceof Long) && (b instanceof Long)) {
+      return (Long) a / (Long) b;
+    }
+    if ((a instanceof Long) && (b instanceof Integer)) {
+      return (Long) a / (long)((Integer) b);
+    }
+    if ((a instanceof Integer) && (b instanceof Long)) {
+      return (long)((Integer) a) / (Long) b;
     }
     return reject(a, b, "/");
   }
