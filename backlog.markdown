@@ -20,6 +20,8 @@ Not everything is deemed to be implemented...
 
 * Support doubles, floats.
 
+* SAM methods conversion. (there is some indy support it seems)
+
 * Allow underscores in number literals.
 
 * String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
