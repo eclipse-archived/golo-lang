@@ -14,7 +14,7 @@ Not everything is deemed to be implemented...
 
 * Catch exceptions.
 
-* Support doubles, floats, longs, bigint, bigdec.
+* Support doubles, floats.
 
 * Allow underscores in number literals.
 

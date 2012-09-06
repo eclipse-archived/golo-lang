@@ -93,6 +93,8 @@ TOKEN :
 {
   < NUMBER: ("-")? ["0"-"9"] (["0"-"9"])* >
   |
+  < LONG_NUMBER: <NUMBER> "_L" >
+  |
   < STRING: "\"" (~["\n"])* "\"" >
   |
   < NULL: "null" >
@@ -177,6 +179,17 @@ String StringLiteral() #void:
   literal=<STRING>
   {
     return literal.image.replace("\"", "");
+  }
+}
+
+Long LongLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<LONG_NUMBER>
+  {
+    return Long.valueOf(literal.image.substring(0, literal.image.length() - 2));
   }
 }
 
@@ -393,6 +406,11 @@ void Literal():
 {
   (
     value=StringLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=LongLiteral()
     {
       jjtThis.setLiteralValue(value);
     }

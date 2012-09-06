@@ -171,6 +171,16 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
+  private void loadLong(long value) {
+    if (value == 0) {
+      methodVisitor.visitInsn(LCONST_0);
+    } else if (value == 1) {
+      methodVisitor.visitInsn(LCONST_1);
+    } else {
+      methodVisitor.visitLdcInsn(value);
+    }
+  }
+
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     Object value = constantStatement.getValue();
@@ -182,6 +192,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       int i = (Integer) value;
       loadInteger(i);
       methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+      return;
+    }
+    if (value instanceof Long) {
+      long l = (Long) value;
+      loadLong(l);
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
       return;
     }
     if (value instanceof Boolean) {

@@ -14,3 +14,7 @@ function now2 = |a, b| {
   var d = b
   d = foo
 }
+
+function long_number = {
+  return 100_L
+}
