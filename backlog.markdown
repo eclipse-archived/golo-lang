@@ -8,7 +8,11 @@ Not everything is deemed to be implemented...
 
 * instanceof-style operator with class literal support.
 
+* varargs golo functions.
+
 * Invoke instance methods.
+
+* Support varargs in instance method invocations.
 
 * Throw exceptions.
 
@@ -19,8 +23,6 @@ Not everything is deemed to be implemented...
 * Allow underscores in number literals.
 
 * String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
-
-* Arrays and accessors.
 
 * Common collections sugar (lists, maps, sets).
 
