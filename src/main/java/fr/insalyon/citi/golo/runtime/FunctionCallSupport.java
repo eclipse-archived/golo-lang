@@ -91,8 +91,12 @@ public final class FunctionCallSupport {
   private static Object findStaticMethodOrField(Class<?> klass, String name, Class<?>[] argumentTypes) {
     for (Method method : klass.getDeclaredMethods()) {
       Class<?>[] parameterTypes = method.getParameterTypes();
-      if (method.getName().equals(name) && parameterTypes.length == argumentTypes.length) {
-        return method;
+      if (method.getName().equals(name)) {
+        if (parameterTypes.length == argumentTypes.length) {
+          return method;
+        } else if (method.isVarArgs() && (argumentTypes.length >= parameterTypes.length)) {
+          return method;
+        }
       }
     }
     if (argumentTypes.length == 0) {

@@ -25,6 +25,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;
 import static org.junit.Assert.fail;
 import static org.junit.matchers.JUnitMatchers.hasItem;
+import static org.junit.matchers.JUnitMatchers.hasItems;
 
 public class CompileAndRunTest {
 
@@ -293,5 +294,29 @@ public class CompileAndRunTest {
       assertThat(problems.size(), is(1));
       throw expected;
     }
+  }
+
+  @Test
+  public void test_arrays() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo", temporaryFolder, "golotest.execution.Arrays");
+
+    Method make_123 = moduleClass.getMethod("make_123");
+    Object result = make_123.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    Object[] array = (Object[]) result;
+    assertThat(array.length, is(3));
+    assertThat((Integer) array[0], is(1));
+    assertThat((Integer) array[1], is(2));
+    assertThat((Integer) array[2], is(3));
+
+    Method get_123_at = moduleClass.getMethod("get_123_at", Object.class);
+    assertThat((Integer) get_123_at.invoke(null, 0), is(1));
+
+    Method array_of = moduleClass.getMethod("array_of", Object.class);
+    result = array_of.invoke(null, "foo");
+    assertThat(result, instanceOf(Object[].class));
+    array = (Object[]) result;
+    assertThat(array.length, is(1));
+    assertThat((String) array[0], is("foo"));
   }
 }
