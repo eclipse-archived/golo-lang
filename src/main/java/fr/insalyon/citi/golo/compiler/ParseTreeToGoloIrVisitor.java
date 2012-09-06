@@ -169,8 +169,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ExpressionStatement left = expressions.pop();
     BinaryOperation current = new BinaryOperation(operators.pop(), left, right, positionInSourceCode);
     while (!expressions.isEmpty()) {
-      right = expressions.pop();
-      current = new BinaryOperation(operators.pop(), current, right, positions.pop());
+      left = expressions.pop();
+      current = new BinaryOperation(operators.pop(), left, current, positions.pop());
     }
     context.objectStack.push(current);
   }

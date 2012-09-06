@@ -247,6 +247,9 @@ public class CompileAndRunTest {
     Method different_ref = moduleClass.getMethod("different_ref", Object.class, Object.class);
     assertThat((Boolean) different_ref.invoke(null, "foo", "foo"), is(false));
     assertThat((Boolean) different_ref.invoke(null, "foo", 1), is(true));
+
+    Method special_concat = moduleClass.getMethod("special_concat", Object.class, Object.class, Object.class, Object.class);
+    assertThat((String) special_concat.invoke(null, 1, "a", 2, "b"), is("[1:a:2:b]"));
   }
 
   @Test

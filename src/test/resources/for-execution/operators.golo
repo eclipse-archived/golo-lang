@@ -51,3 +51,7 @@ function same_ref = |a, b| {
 function different_ref = |a, b| {
   return a isnt b
 }
+
+function special_concat = |a, b, c, d| {
+  return "[" + a + ":" + b + ":" + c + ":" + d + "]"
+}

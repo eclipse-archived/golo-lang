@@ -95,7 +95,7 @@ TOKEN :
   |
   < LONG_NUMBER: <NUMBER> "_L" >
   |
-  < STRING: "\"" (~["\n"])* "\"" >
+  < STRING: "\"" (~["\n", "\r", "\""])* "\"" >
   |
   < NULL: "null" >
   |
