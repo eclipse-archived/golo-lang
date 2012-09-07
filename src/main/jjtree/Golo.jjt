@@ -386,9 +386,10 @@ void Function():
 {
   Token token;
   List<String> arguments = null;
+  Token varargsToken = null;
 }
 {
-  ("|" arguments=Arguments() "|")? (<NEWLINE>)? token="{" Block() "}"
+  ("|" arguments=Arguments() (varargsToken="...")? "|")? (<NEWLINE>)? token="{" Block() "}"
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
@@ -396,6 +397,7 @@ void Function():
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setArguments(arguments);
+    jjtThis.setVarargs(varargsToken != null);
   }
 }
 

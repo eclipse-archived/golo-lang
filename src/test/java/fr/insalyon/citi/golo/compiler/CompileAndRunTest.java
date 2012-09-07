@@ -319,4 +319,19 @@ public class CompileAndRunTest {
     assertThat(array.length, is(1));
     assertThat((String) array[0], is("foo"));
   }
+
+  @Test
+  public void test_varargs() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "varargs.golo", temporaryFolder, "golotest.execution.Varargs");
+
+    Method var_arg_ed = moduleClass.getMethod("var_arg_ed", Object.class, Object[].class);
+    assertThat(var_arg_ed.isVarArgs(), is(true));
+    assertThat((String) var_arg_ed.invoke(null, 0, new Object[]{"foo", "bar"}), is("foo"));
+
+    Method call_varargs = moduleClass.getMethod("call_varargs", Object.class);
+    assertThat((String) call_varargs.invoke(null, 0), is("foo"));
+
+    Method play_and_return_666 = moduleClass.getMethod("play_and_return_666");
+    assertThat((Integer) play_and_return_666.invoke(null), is(666));
+  }
 }

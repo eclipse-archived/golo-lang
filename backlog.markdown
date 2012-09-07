@@ -8,8 +8,6 @@ Not everything is deemed to be implemented...
 
 * instanceof-style operator with class literal support.
 
-* varargs golo functions.
-
 * Invoke instance methods.
 
 * Support varargs in instance method invocations.
@@ -76,6 +74,12 @@ Not everything is deemed to be implemented...
 * Pre/post-conditions, invariants.
 
 * Proper OSGi meta-data.
+
+## Internals
+
+* Concurrent compilation?
+
+* Look if thread locals could not be judiciously used in some places.
 
 ## Tooling
 

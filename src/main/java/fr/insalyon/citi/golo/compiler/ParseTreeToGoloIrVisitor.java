@@ -64,7 +64,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     GoloFunction function = (GoloFunction) context.objectStack.peek();
     function.setParameterNames(node.getArguments());
-    function.setVarargs(false);
+    function.setVarargs(node.isVarargs());
     context.module.addFunction(function);
     node.childrenAccept(this, data);
     Block functionBlock = function.getBlock();

@@ -78,9 +78,8 @@ public final class FunctionCallSupport {
     if (methodClassSeparatorIndex >= 0) {
       String className = functionName.substring(0, methodClassSeparatorIndex);
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
-      Class<?> targetClass = null;
       try {
-        targetClass = Class.forName(className, true, callerClass.getClassLoader());
+        Class<?> targetClass = targetClass = Class.forName(className, true, callerClass.getClassLoader());
         return findStaticMethodOrField(targetClass, methodName, type.parameterArray());
       } catch (ClassNotFoundException ignored) {
       }

@@ -5,6 +5,7 @@ import java.util.List;
 public class ASTFunction extends GoloASTNode {
 
   private List<String> arguments;
+  private boolean varargs = false;
 
   public ASTFunction(int i) {
     super(i);
@@ -22,10 +23,19 @@ public class ASTFunction extends GoloASTNode {
     this.arguments = arguments;
   }
 
+  public boolean isVarargs() {
+    return varargs;
+  }
+
+  public void setVarargs(boolean varargs) {
+    this.varargs = varargs;
+  }
+
   @Override
   public String toString() {
     return "ASTFunction{" +
         "arguments=" + arguments +
+        ", varargs=" + varargs +
         '}';
   }
 

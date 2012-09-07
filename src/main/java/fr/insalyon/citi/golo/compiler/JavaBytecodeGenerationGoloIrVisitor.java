@@ -96,12 +96,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
-    int visibility = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
+    int accessFlags = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
+    String signature;
+    if (function.isVarargs()) {
+      accessFlags = accessFlags | ACC_VARARGS;
+      signature = goloVarargsFunctionSignature(function.getArity());
+    } else {
+      signature = goloFunctionSignature(function.getArity());
+    }
     context.methodArityStack.push(function.getArity());
     methodVisitor = classWriter.visitMethod(
-        visibility | ACC_STATIC,
+        accessFlags | ACC_STATIC,
         function.getName(),
-        goloFunctionSignature(function.getArity()),
+        signature,
         null, null);
     methodVisitor.visitCode();
     context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
@@ -116,6 +123,16 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (int i = 0; i < arity; i++) {
       descriptorBuilder.append(TOBJECT);
     }
+    descriptorBuilder.append(")").append(TOBJECT);
+    return descriptorBuilder.toString();
+  }
+
+  private String goloVarargsFunctionSignature(int arity) {
+    StringBuilder descriptorBuilder = new StringBuilder("(");
+    for (int i = 0; i < arity - 1; i++) {
+      descriptorBuilder.append(TOBJECT);
+    }
+    descriptorBuilder.append("[Ljava/lang/Object;");
     descriptorBuilder.append(")").append(TOBJECT);
     return descriptorBuilder.toString();
   }
