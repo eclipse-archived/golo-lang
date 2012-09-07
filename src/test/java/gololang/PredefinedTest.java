@@ -33,7 +33,7 @@ public class PredefinedTest {
 
   @Test
   public void test_array_manipulation() {
-    Object[] data = (Object[]) Predefined.array(1, 2, 3, "foo", "bar");
+    Object[] data = (Object[]) Predefined.Array(1, 2, 3, "foo", "bar");
     assertThat((Integer) Predefined.alength(data), is(5));
 
     assertThat((Integer) Predefined.aget(data, 0), is(1));

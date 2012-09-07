@@ -1,7 +1,7 @@
 module golotest.execution.Arrays
 
 function make_123 = {
-  return array(1, 2, 3)
+  return Array(1, 2, 3)
 }
 
 function get_123_at = |index| {
@@ -9,5 +9,5 @@ function get_123_at = |index| {
 }
 
 function array_of = |value| {
-  return array(value)
+  return Array(value)
 }

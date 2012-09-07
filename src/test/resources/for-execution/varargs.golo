@@ -10,6 +10,6 @@ function call_varargs = |index| {
 }
 
 function play_and_return_666 = {
-  let data = array(0, 1, 2, 3, 4, 5, 666)
+  let data = Array(0, 1, 2, 3, 4, 5, 666)
   return var_arg_ed(1, aget(data, 5), aget(data, 6))
 }

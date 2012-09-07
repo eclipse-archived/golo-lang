@@ -37,26 +37,26 @@ public class Predefined {
     }
   }
 
-  public static Object array(Object... values) {
+  public static Object Array(Object... values) {
     return values;
   }
 
   public static Object aget(Object a, Object i) {
-    require(a instanceof Object[], "aget takes an array as first parameter");
+    require(a instanceof Object[], "aget takes an Array as first parameter");
     require(i instanceof Integer, "aget takes an index as second parameter");
     Object[] array = (Object[]) a;
     return array[(Integer) i];
   }
 
   public static void aset(Object a, Object i, Object value) {
-    require(a instanceof Object[], "aset takes an array as first parameter");
+    require(a instanceof Object[], "aset takes an Array as first parameter");
     require(i instanceof Integer, "aset takes an index as second parameter");
     Object[] array = (Object[]) a;
     array[(Integer) i] = value;
   }
 
   public static Object alength(Object a) {
-    require(a instanceof Object[], "alength takes an array as parameter");
+    require(a instanceof Object[], "alength takes an Array as parameter");
     Object[] array = (Object[]) a;
     return array.length;
   }
