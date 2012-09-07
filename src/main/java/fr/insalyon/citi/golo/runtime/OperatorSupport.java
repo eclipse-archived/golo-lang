@@ -16,59 +16,93 @@ public class OperatorSupport {
     return new ConstantCallSite(handle);
   }
 
+  private static boolean bothNotNull(Object a, Object b) {
+    return (a != null) && (b != null);
+  }
+
+  private static boolean isNotNullAndString(Object obj) {
+    return (obj != null) && (obj.getClass() == String.class);
+  }
+
+  private static boolean isString(Object obj) {
+    return obj.getClass() == String.class;
+  }
+
+  private static boolean isInteger(Object obj) {
+    return obj.getClass() == Integer.class;
+  }
+
+  private static boolean isLong(Object obj) {
+    return obj.getClass() == Long.class;
+  }
+
+  private static boolean isComparable(Object obj) {
+    return obj instanceof Comparable<?>;
+  }
+
+  private static boolean isBoolean(Object obj) {
+    return obj.getClass() == Boolean.class;
+  }
+
   public static Object plus(Object a, Object b) {
-    if ((a instanceof Integer) && (b instanceof Integer)) {
-      return (Integer) a + (Integer) b;
+    if (bothNotNull(a, b)) {
+      if (isInteger(a) && isInteger(b)) {
+        return (Integer) a + (Integer) b;
+      }
+      if (isLong(a) && isLong(b)) {
+        return (Long) a + (Long) b;
+      }
+      if (isLong(a) && isInteger(b)) {
+        return (Long) a + (long) ((Integer) b);
+      }
+      if (isInteger(a) && isLong(b)) {
+        return (long) ((Integer) a) + (Long) b;
+      }
     }
-    if ((a instanceof Long) && (b instanceof Long)) {
-      return (Long) a + (Long) b;
-    }
-    if ((a instanceof Long) && (b instanceof Integer)) {
-      return (Long) a + (long)((Integer) b);
-    }
-    if ((a instanceof Integer) && (b instanceof Long)) {
-      return (long)((Integer) a) + (Long) b;
-    }
-    if ((a instanceof String) || (b instanceof String)) {
+    if (isNotNullAndString(a) || isNotNullAndString(b)) {
       return new StringBuilder().append(a).append(b).toString();
     }
     return reject(a, b, "+");
   }
 
   public static Object minus(Object a, Object b) {
-    if ((a instanceof Integer) && (b instanceof Integer)) {
-      return (Integer) a - (Integer) b;
-    }
-    if ((a instanceof Long) && (b instanceof Long)) {
-      return (Long) a - (Long) b;
-    }
-    if ((a instanceof Long) && (b instanceof Integer)) {
-      return (Long) a - (long)((Integer) b);
-    }
-    if ((a instanceof Integer) && (b instanceof Long)) {
-      return (long)((Integer) a) - (Long) b;
+    if (bothNotNull(a, b)) {
+      if (isInteger(a) && isInteger(b)) {
+        return (Integer) a - (Integer) b;
+      }
+      if (isLong(a) && isLong(b)) {
+        return (Long) a - (Long) b;
+      }
+      if (isLong(a) && isInteger(b)) {
+        return (Long) a - (long) ((Integer) b);
+      }
+      if (isInteger(a) && isLong(b)) {
+        return (long) ((Integer) a) - (Long) b;
+      }
     }
     return reject(a, b, "-");
   }
 
   public static Object times(Object a, Object b) {
-    if ((a instanceof Integer) && (b instanceof Integer)) {
-      return (Integer) a * (Integer) b;
-    }
-    if ((a instanceof Long) && (b instanceof Long)) {
-      return (Long) a * (Long) b;
-    }
-    if ((a instanceof Long) && (b instanceof Integer)) {
-      return (Long) a * (long)((Integer) b);
-    }
-    if ((a instanceof Integer) && (b instanceof Long)) {
-      return (long)((Integer) a) * (Long) b;
-    }
-    if ((a instanceof Integer) && (b instanceof String)) {
-      return repeat((String) b, (Integer) a);
-    }
-    if ((a instanceof String) && (b instanceof Integer)) {
-      return repeat((String) a, (Integer) b);
+    if (bothNotNull(a, b)) {
+      if (isInteger(a) && isInteger(b)) {
+        return (Integer) a * (Integer) b;
+      }
+      if (isLong(a) && isLong(b)) {
+        return (Long) a * (Long) b;
+      }
+      if (isLong(a) && isInteger(b)) {
+        return (Long) a * (long) ((Integer) b);
+      }
+      if (isInteger(a) && isLong(b)) {
+        return (long) ((Integer) a) * (Long) b;
+      }
+      if (isInteger(a) && isString(b)) {
+        return repeat((String) b, (Integer) a);
+      }
+      if (isString(a) && isInteger(b)) {
+        return repeat((String) a, (Integer) b);
+      }
     }
     return reject(a, b, "*");
   }
@@ -82,17 +116,19 @@ public class OperatorSupport {
   }
 
   public static Object divide(Object a, Object b) {
-    if ((a instanceof Integer) && (b instanceof Integer)) {
-      return (Integer) a / (Integer) b;
-    }
-    if ((a instanceof Long) && (b instanceof Long)) {
-      return (Long) a / (Long) b;
-    }
-    if ((a instanceof Long) && (b instanceof Integer)) {
-      return (Long) a / (long)((Integer) b);
-    }
-    if ((a instanceof Integer) && (b instanceof Long)) {
-      return (long)((Integer) a) / (Long) b;
+    if (bothNotNull(a, b)) {
+      if (isInteger(a) && isInteger(b)) {
+        return (Integer) a / (Integer) b;
+      }
+      if (isLong(a) && isLong(b)) {
+        return (Long) a / (Long) b;
+      }
+      if (isLong(a) && isInteger(b)) {
+        return (Long) a / (long) ((Integer) b);
+      }
+      if (isInteger(a) && isLong(b)) {
+        return (long) ((Integer) a) / (Long) b;
+      }
     }
     return reject(a, b, "/");
   }
@@ -106,49 +142,49 @@ public class OperatorSupport {
   }
 
   public static Object less(Object a, Object b) {
-    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+    if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
     return reject(a, b, "<");
   }
 
   public static Object lessorequals(Object a, Object b) {
-    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+    if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
     return reject(a, b, "<=");
   }
 
   public static Object more(Object a, Object b) {
-    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+    if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
     }
     return reject(a, b, ">");
   }
 
   public static Object moreorequals(Object a, Object b) {
-    if ((a instanceof Comparable) && (b instanceof Comparable)) {
+    if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }
     return reject(a, b, ">=");
   }
 
   public static Object and(Object a, Object b) {
-    if ((a instanceof Boolean) && (b instanceof Boolean)) {
+    if (bothNotNull(a, b) && isBoolean(a) && isBoolean(b)) {
       return ((Boolean) a) && ((Boolean) b);
     }
     return reject(a, b, "and");
   }
 
   public static Object or(Object a, Object b) {
-    if ((a instanceof Boolean) && (b instanceof Boolean)) {
+    if (bothNotNull(a, b) && isBoolean(a) && isBoolean(b)) {
       return ((Boolean) a) || ((Boolean) b);
     }
     return reject(a, b, "or");
   }
 
   public static Object not(Object a) {
-    if (a instanceof Boolean) {
+    if (a != null && isBoolean(a)) {
       return !((Boolean) a);
     }
     return reject(a, "not");
