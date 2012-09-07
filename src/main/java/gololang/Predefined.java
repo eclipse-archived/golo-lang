@@ -10,7 +10,7 @@ public class Predefined {
     System.out.println(obj);
   }
 
-  public static void require_not_null(Object obj) throws AssertionError {
+  public static void requireNotNull(Object obj) throws AssertionError {
     if (obj != null) {
       return;
     }
@@ -18,8 +18,8 @@ public class Predefined {
   }
 
   public static void require(Object condition, Object errorMessage) throws IllegalArgumentException, AssertionError {
-    require_not_null(condition);
-    require_not_null(errorMessage);
+    requireNotNull(condition);
+    requireNotNull(errorMessage);
     if ((condition instanceof Boolean) && (errorMessage instanceof String)) {
       if ((Boolean) condition) {
         return;
@@ -41,22 +41,22 @@ public class Predefined {
     return values;
   }
 
-  public static Object a_get(Object a, Object i) {
-    require(a instanceof Object[], "a_get takes an array as first parameter");
-    require(i instanceof Integer, "a_get takes an index as second parameter");
+  public static Object aget(Object a, Object i) {
+    require(a instanceof Object[], "aget takes an array as first parameter");
+    require(i instanceof Integer, "aget takes an index as second parameter");
     Object[] array = (Object[]) a;
     return array[(Integer) i];
   }
 
-  public static void a_set(Object a, Object i, Object value) {
-    require(a instanceof Object[], "a_set takes an array as first parameter");
-    require(i instanceof Integer, "a_set takes an index as second parameter");
+  public static void aset(Object a, Object i, Object value) {
+    require(a instanceof Object[], "aset takes an array as first parameter");
+    require(i instanceof Integer, "aset takes an index as second parameter");
     Object[] array = (Object[]) a;
     array[(Integer) i] = value;
   }
 
-  public static Object a_length(Object a) {
-    require(a instanceof Object[], "a_length takes an array as parameter");
+  public static Object alength(Object a) {
+    require(a instanceof Object[], "alength takes an array as parameter");
     Object[] array = (Object[]) a;
     return array.length;
   }

@@ -5,7 +5,7 @@ function make_123 = {
 }
 
 function get_123_at = |index| {
-  return a_get(make_123(), index)
+  return aget(make_123(), index)
 }
 
 function array_of = |value| {

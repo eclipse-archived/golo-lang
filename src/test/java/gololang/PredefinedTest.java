@@ -34,22 +34,22 @@ public class PredefinedTest {
   @Test
   public void test_array_manipulation() {
     Object[] data = (Object[]) Predefined.array(1, 2, 3, "foo", "bar");
-    assertThat((Integer) Predefined.a_length(data), is(5));
+    assertThat((Integer) Predefined.alength(data), is(5));
 
-    assertThat((Integer) Predefined.a_get(data, 0), is(1));
-    assertThat((String) Predefined.a_get(data, 3), is("foo"));
+    assertThat((Integer) Predefined.aget(data, 0), is(1));
+    assertThat((String) Predefined.aget(data, 3), is("foo"));
 
-    Predefined.a_set(data, 0, "plop");
-    assertThat((String) Predefined.a_get(data, 0), is("plop"));
+    Predefined.aset(data, 0, "plop");
+    assertThat((String) Predefined.aget(data, 0), is("plop"));
   }
 
   @Test
   public void test_require_not_null_ok() {
-    Predefined.require_not_null("foo");
+    Predefined.requireNotNull("foo");
   }
 
   @Test(expected = AssertionError.class)
   public void test_require_not_null_fail() {
-    Predefined.require_not_null(null);
+    Predefined.requireNotNull(null);
   }
 }
