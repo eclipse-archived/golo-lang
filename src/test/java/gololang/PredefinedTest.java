@@ -42,4 +42,14 @@ public class PredefinedTest {
     Predefined.a_set(data, 0, "plop");
     assertThat((String) Predefined.a_get(data, 0), is("plop"));
   }
+
+  @Test
+  public void test_require_not_null_ok() {
+    Predefined.require_not_null("foo");
+  }
+
+  @Test(expected = AssertionError.class)
+  public void test_require_not_null_fail() {
+    Predefined.require_not_null(null);
+  }
 }

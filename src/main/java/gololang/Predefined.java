@@ -10,7 +10,16 @@ public class Predefined {
     System.out.println(obj);
   }
 
+  public static void require_not_null(Object obj) throws AssertionError {
+    if (obj != null) {
+      return;
+    }
+    throw new AssertionError("null reference encountered");
+  }
+
   public static void require(Object condition, Object errorMessage) throws IllegalArgumentException, AssertionError {
+    require_not_null(condition);
+    require_not_null(errorMessage);
     if ((condition instanceof Boolean) && (errorMessage instanceof String)) {
       if ((Boolean) condition) {
         return;
