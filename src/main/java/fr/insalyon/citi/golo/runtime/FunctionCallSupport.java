@@ -30,7 +30,7 @@ public final class FunctionCallSupport {
     if (result instanceof Method) {
       Method method = (Method) result;
       handle = caller.unreflect(method).asType(type);
-    } else if (result instanceof Field) {
+    } else {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
