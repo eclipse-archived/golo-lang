@@ -19,7 +19,7 @@ import java.util.List;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
-import static fr.insalyon.citi.golo.internal.junit.TestUtils.compileAndLoadGoloModule;
+import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertThat;

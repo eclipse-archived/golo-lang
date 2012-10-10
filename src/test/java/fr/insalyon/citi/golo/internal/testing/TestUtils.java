@@ -1,4 +1,4 @@
-package fr.insalyon.citi.golo.internal.junit;
+package fr.insalyon.citi.golo.internal.testing;
 
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
@@ -30,10 +30,10 @@ public class TestUtils {
     return data.iterator();
   }
 
-  public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, TemporaryFolder temporaryFolder, String moduleClass) throws IOException, ParseException, ClassNotFoundException {
+  public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, File temporaryFolder, String moduleClass) throws IOException, ParseException, ClassNotFoundException {
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compileTo(goloFile, new FileInputStream(sourceFolder + goloFile), temporaryFolder.getRoot());
-    try (URLClassLoader classLoader = new URLClassLoader(new URL[]{temporaryFolder.getRoot().toURI().toURL()})) {
+    compiler.compileTo(goloFile, new FileInputStream(sourceFolder + goloFile), temporaryFolder);
+    try (URLClassLoader classLoader = new URLClassLoader(new URL[]{temporaryFolder.toURI().toURL()})) {
       return classLoader.loadClass(moduleClass);
     }
   }

@@ -1,49 +1,44 @@
 package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.internal.junit.TestUtils;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import fr.insalyon.citi.golo.internal.testing.TestUtils;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.util.TraceClassVisitor;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.file.Files;
 import java.util.Iterator;
-import java.util.List;
 
-import static fr.insalyon.citi.golo.internal.junit.TestUtils.compileAndLoadGoloModule;
+import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.Parameterized.Parameters;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(Parameterized.class)
+@Test
 public class CompilationTest {
 
   public static final String SRC = "src/test/resources/for-parsing-and-compilation/".replaceAll("/", File.separator);
 
-  private final File goloFile;
+  private File temporaryFolder;
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
-
-  public CompilationTest(File goloFile) {
-    this.goloFile = goloFile;
+  @BeforeTest
+  public void setup() throws IOException {
+    temporaryFolder = Files.createTempDirectory("golocomp").toFile();
   }
 
-  @Parameters
+  @DataProvider(name = "golo-files")
   public static Iterator<Object[]> data() {
     return TestUtils.goloFilesIn(SRC);
   }
 
-  @Test
-  public void generate_bytecode() throws IOException, ParseException, ClassNotFoundException {
+  @Test(dataProvider = "golo-files")
+  public void generate_bytecode(File goloFile) throws IOException, ParseException, ClassNotFoundException {
     GoloCompiler compiler = new GoloCompiler();
     GoloCompiler.Result result = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
 

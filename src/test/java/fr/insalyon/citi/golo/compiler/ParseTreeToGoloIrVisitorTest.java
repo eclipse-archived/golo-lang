@@ -4,7 +4,7 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.internal.junit.TestUtils;
+import fr.insalyon.citi.golo.internal.testing.TestUtils;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.Parameterized;
@@ -13,7 +13,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
-import java.util.List;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
