@@ -62,12 +62,12 @@
       <artifactId>testng</artifactId>
       <version>6.7</version>
       <scope>test</scope>
-      <!--<exclusions>-->
-        <!--<exclusion>-->
-          <!--<groupId>junit</groupId>-->
-          <!--<artifactId>junit</artifactId>-->
-        <!--</exclusion>-->
-      <!--</exclusions>-->
+      <exclusions>
+        <exclusion>
+          <groupId>junit</groupId>
+          <artifactId>junit</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
