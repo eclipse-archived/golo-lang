@@ -25,7 +25,7 @@ import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.testng.Assert.fail;
 
-@Test
+@Test(groups = "execution", dependsOnGroups = "compiler")
 public class CompileAndRunTest {
 
   private static final String SRC = "src/test/resources/for-execution/".replaceAll("/", File.separator);

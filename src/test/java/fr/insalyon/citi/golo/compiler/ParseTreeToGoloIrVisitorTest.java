@@ -16,7 +16,7 @@ import java.util.Iterator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
-@Test
+@Test(groups = "parser")
 public class ParseTreeToGoloIrVisitorTest {
 
   @DataProvider(name = "golo-files")

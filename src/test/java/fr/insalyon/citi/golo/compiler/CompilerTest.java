@@ -12,7 +12,7 @@ import java.nio.file.Files;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Test
+@Test(groups = "compiler", dependsOnGroups = "parser")
 public class CompilerTest {
 
   private File temporaryFolder;
