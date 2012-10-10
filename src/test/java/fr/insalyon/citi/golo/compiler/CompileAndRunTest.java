@@ -5,14 +5,14 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
 import java.util.Arrays;
 import java.util.List;
 
@@ -22,17 +22,20 @@ import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Ty
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
-import static org.junit.matchers.JUnitMatchers.hasItem;
-import static org.junit.matchers.JUnitMatchers.hasItems;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.testng.Assert.fail;
 
+@Test
 public class CompileAndRunTest {
 
   private static final String SRC = "src/test/resources/for-execution/".replaceAll("/", File.separator);
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private File temporaryFolder;
+
+  @BeforeTest
+  public void setup() throws IOException {
+    temporaryFolder = Files.createTempDirectory("golocomp").toFile();
+  }
 
   @Test
   public void check_generation_of_$imports_method() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -123,7 +126,7 @@ public class CompileAndRunTest {
     assertThat((String) greet.invoke(null, "Mr Bean"), is("Hello Mr Bean!"));
   }
 
-  @Test(expected = GoloCompilationException.class)
+  @Test(expectedExceptions = GoloCompilationException.class)
   public void test_undeclared_variables() throws ClassNotFoundException, IOException, ParseException {
     try {
       compileAndLoadGoloModule(SRC, "failure-undeclared-parameter.golo", temporaryFolder, "golotest.execution.UndeclaredVariables");
@@ -141,7 +144,7 @@ public class CompileAndRunTest {
     }
   }
 
-  @Test(expected = GoloCompilationException.class)
+  @Test(expectedExceptions = GoloCompilationException.class)
   public void test_assign_to_undeclared_reference() throws ClassNotFoundException, IOException, ParseException {
     try {
       compileAndLoadGoloModule(SRC, "failure-assign-to-undeclared-reference.golo", temporaryFolder, "golotest.execution.AssignToUndeclaredReference");
@@ -160,7 +163,7 @@ public class CompileAndRunTest {
     }
   }
 
-  @Test(expected = GoloCompilationException.class)
+  @Test(expectedExceptions = GoloCompilationException.class)
   public void test_assign_constant() throws Throwable {
     try {
       compileAndLoadGoloModule(SRC, "failure-assign-constant.golo", temporaryFolder, "golotest.execution.AssignToConstant");
@@ -284,7 +287,7 @@ public class CompileAndRunTest {
     assertThat((Integer) fact.invoke(null, 10, 2), is(100));
   }
 
-  @Test(expected = GoloCompilationException.class)
+  @Test(expectedExceptions = GoloCompilationException.class)
   public void test_wrong_scope() throws Throwable {
     try {
       compileAndLoadGoloModule(SRC, "failure-wrong-scope.golo", temporaryFolder, "golotest.execution.WrongScope");
