@@ -4,36 +4,28 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.internal.junit.TestUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import fr.insalyon.citi.golo.internal.testing.TestUtils;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
-import java.util.List;
+import java.util.Iterator;
 
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.Parameterized.Parameters;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.notNullValue;
 
-@RunWith(Parameterized.class)
+@Test(groups = "parser")
 public class ParseTreeToGoloIrVisitorTest {
 
-  private final File goloFile;
-
-  public ParseTreeToGoloIrVisitorTest(File goloFile) {
-    this.goloFile = goloFile;
-  }
-
-  @Parameters
-  public static List<Object[]> data() {
+  @DataProvider(name = "golo-files")
+  public static Iterator<Object[]> data() {
     return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation".replaceAll("/", File.separator));
   }
 
-  @Test
-  public void perform_conversion() throws FileNotFoundException, ParseException {
+  @Test(dataProvider = "golo-files")
+  public void perform_conversion(File goloFile) throws FileNotFoundException, ParseException {
     GoloParser parser = new GoloParser(new FileInputStream(goloFile));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ParseTreeToGoloIrVisitor visitor = new ParseTreeToGoloIrVisitor();

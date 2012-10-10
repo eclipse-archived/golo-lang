@@ -1,15 +1,16 @@
 package fr.insalyon.citi.golo.runtime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodType;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
+@Test
 public class FunctionCallSupportTest {
 
   static String echo(String str) {
@@ -51,14 +52,14 @@ public class FunctionCallSupportTest {
   }
 
 
-  @Test(expected = NoSuchMethodError.class)
+  @Test(expectedExceptions = NoSuchMethodError.class)
   public void check_bootstrapFunctionInvocation_on_unexisting_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class);
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echoz", type);
   }
 
-  @Test(expected = NoSuchMethodError.class)
+  @Test(expectedExceptions = NoSuchMethodError.class)
   public void check_bootstrapFunctionInvocation_on_method_with_wrong_number_of_parameters() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class);

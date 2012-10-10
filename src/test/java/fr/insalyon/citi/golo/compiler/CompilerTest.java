@@ -1,32 +1,36 @@
 package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
+import org.testng.annotations.BeforeTest;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@Test(groups = "compiler", dependsOnGroups = "parser")
 public class CompilerTest {
 
-  @Rule
-  public TemporaryFolder temporaryFolder = new TemporaryFolder();
+  private File temporaryFolder;
+
+  @BeforeTest
+  public void setup() throws IOException {
+    temporaryFolder = Files.createTempDirectory("golocomp").toFile();
+  }
 
   @Test
   public void verify_compileTo() throws IOException, ParseException {
     String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo".replaceAll("/", File.separator);
     FileInputStream sourceInputStream = new FileInputStream(sourceFile);
-    File targetFolder = temporaryFolder.getRoot();
 
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compileTo("simple-returns.golo", sourceInputStream, targetFolder);
+    compiler.compileTo("simple-returns.golo", sourceInputStream, temporaryFolder);
 
-    File expectedOutputFile = new File(targetFolder, "golotest/SimpleReturns.class".replaceAll("/", File.separator));
+    File expectedOutputFile = new File(temporaryFolder, "golotest/SimpleReturns.class".replaceAll("/", File.separator));
     assertThat(expectedOutputFile.exists(), is(true));
     assertThat(expectedOutputFile.length() > 0, is(true));
   }

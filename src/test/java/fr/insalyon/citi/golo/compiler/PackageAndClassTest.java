@@ -1,10 +1,11 @@
 package fr.insalyon.citi.golo.compiler;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
 
+@Test
 public class PackageAndClassTest {
 
   @Test
