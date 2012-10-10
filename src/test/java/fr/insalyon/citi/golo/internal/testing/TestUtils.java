@@ -2,7 +2,6 @@ package fr.insalyon.citi.golo.internal.testing;
 
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import org.junit.rules.TemporaryFolder;
 
 import java.io.File;
 import java.io.FileInputStream;

@@ -1,14 +1,15 @@
 package fr.insalyon.citi.golo.runtime;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static org.hamcrest.CoreMatchers.is;
-import static org.junit.Assert.assertThat;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.*;
 
+@Test
 public class OperatorSupportTest {
 
   private static final MethodType BINOP_TYPE = MethodType.methodType(Object.class, Object.class, Object.class);
@@ -38,19 +39,19 @@ public class OperatorSupportTest {
     assertThat(str, is("=> Mr Bean"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions= IllegalArgumentException.class)
   public void plus_cannot_add_object_and_object() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "plus", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void plus_cannot_add_object_and_integer() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "plus", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), 1);
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void plus_cannot_add_integer_and_object() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "plus", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(1, new Object());
@@ -64,7 +65,7 @@ public class OperatorSupportTest {
     assertThat(three, is(3));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void minus_cannot_substract_objects() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "minus", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
@@ -78,7 +79,7 @@ public class OperatorSupportTest {
     assertThat(two, is(2));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void cannot_divide_objects() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
@@ -98,19 +99,19 @@ public class OperatorSupportTest {
     assertThat(str, is("aaaa"));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void cannot_divide_object_and_object() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void cannot_divide_integer_and_object() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(1, new Object());
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void cannot_divide_object_and_integer() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "divide", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), 1);
@@ -147,7 +148,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(2, 1), is(false));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_less_rejects_non_comparable() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "less", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
@@ -162,7 +163,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(2, 1), is(false));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_lessOrEquals_rejects_non_comparable() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "lessorequals", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
@@ -177,7 +178,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(2, 1), is(true));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_more_rejects_non_comparable() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "more", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
@@ -192,7 +193,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(2, 1), is(true));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_moreOrEquals_rejects_non_comparable() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "moreorequals", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());
@@ -207,7 +208,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(false, false), is(false));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_and_rejects_non_booleans() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "and", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments("foo", "bar");
@@ -222,7 +223,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(false, false), is(false));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_or_rejects_non_booleans() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "or", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments("foo", "bar");
@@ -235,7 +236,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) handle.invokeWithArguments(false), is(true));
   }
 
-  @Test(expected = IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_not_rejects_non_booleans() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", BINOP_TYPE, 1).dynamicInvoker();
     handle.invokeWithArguments("foo");

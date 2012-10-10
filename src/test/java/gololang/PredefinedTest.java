@@ -1,10 +1,12 @@
 package gololang;
 
-import org.junit.Test;
+import org.testng.annotations.Test;
 
-import static org.hamcrest.CoreMatchers.*;
-import static org.junit.Assert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
+import static org.testng.Assert.fail;
 
+@Test
 public class PredefinedTest {
 
   @Test
@@ -48,7 +50,7 @@ public class PredefinedTest {
     Predefined.requireNotNull("foo");
   }
 
-  @Test(expected = AssertionError.class)
+  @Test(expectedExceptions = AssertionError.class)
   public void test_require_not_null_fail() {
     Predefined.requireNotNull(null);
   }
