@@ -4,33 +4,28 @@ import org.testng.annotations.Test;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
-import static org.testng.Assert.fail;
 
 @Test
 public class PredefinedTest {
 
   @Test
-  public void test_require() {
+  public void require_1_is_1() {
     Predefined.require(1 == 1, "1 should be 1");
+  }
 
-    try {
-      Predefined.require(1 == 2, "1 should be 2");
-      fail("An AssertionError should have been thrown.");
-    } catch (AssertionError e) {
-      assertThat(e.getMessage(), is("1 should be 2"));
-    }
+  @Test(expectedExceptions = AssertionError.class, expectedExceptionsMessageRegExp = "1 should be 2")
+  public void require_1_is_2() {
+    Predefined.require(1 == 2, "1 should be 2");
+  }
 
-    try {
-      Predefined.require("foo", "bar");
-      fail("An IllegalArgumentException should have been thrown.");
-    } catch (IllegalArgumentException e) {
-      assertThat(e.getMessage(), is("Wrong parameters for require: expected (Boolean, String) but got (java.lang.String, java.lang.String)"));
-    }
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void require_non_boolean_condition() {
+    Predefined.require("foo", "bar");
+  }
 
-    try {
-      Predefined.require(1 == 1, 666);
-      fail("An IllegalArgumentException should have been thrown.");
-    } catch (IllegalArgumentException ignored) { }
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void test_require_non_string_message() {
+    Predefined.require(1 == 1, 666);
   }
 
   @Test
