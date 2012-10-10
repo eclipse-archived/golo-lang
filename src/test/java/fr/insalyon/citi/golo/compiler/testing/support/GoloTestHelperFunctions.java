@@ -1,4 +1,4 @@
-  package fr.insalyon.citi.golo.compiler.testing.support;
+package fr.insalyon.citi.golo.compiler.testing.support;
 
 public class GoloTestHelperFunctions {
 
