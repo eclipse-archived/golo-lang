@@ -1,35 +1,27 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 import fr.insalyon.citi.golo.internal.junit.TestUtils;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.junit.runners.Parameterized;
+import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
-import java.util.List;
+import java.util.Iterator;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.junit.Assert.assertThat;
-import static org.junit.runners.Parameterized.Parameters;
+import static org.hamcrest.MatcherAssert.assertThat;
 
-@RunWith(Parameterized.class)
+@Test(groups = "parser")
 public class ParserSanityTest {
 
-  private final File goloFile;
-
-  public ParserSanityTest(File goloFile) {
-    this.goloFile = goloFile;
-  }
-
-  @Parameters
-  public static List<Object[]> data() {
+  @DataProvider(name = "golo-files")
+  public static Iterator<Object[]> data() {
     return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation".replaceAll("/", File.separator));
   }
 
-  @Test
-  public void check_parse() throws FileNotFoundException, ParseException {
+  @Test(dataProvider = "golo-files")
+  public void check_parse(File goloFile) throws FileNotFoundException, ParseException {
     System.out.println();
     System.out.println(">>> Parsing: " + goloFile);
 

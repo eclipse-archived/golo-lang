@@ -10,12 +10,13 @@ import java.io.FilenameFilter;
 import java.io.IOException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 
 public class TestUtils {
 
-  public static List<Object[]> goloFilesIn(String path) {
+  public static Iterator<Object[]> goloFilesIn(String path) {
     List<Object[]> data = new LinkedList<>();
     File[] files = new File(path).listFiles(new FilenameFilter() {
       @Override
@@ -26,7 +27,7 @@ public class TestUtils {
     for (File file : files) {
       data.add(new Object[]{file});
     }
-    return data;
+    return data.iterator();
   }
 
   public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, TemporaryFolder temporaryFolder, String moduleClass) throws IOException, ParseException, ClassNotFoundException {

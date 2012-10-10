@@ -14,6 +14,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.util.Iterator;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.internal.junit.TestUtils.compileAndLoadGoloModule;
@@ -37,7 +38,7 @@ public class CompilationTest {
   }
 
   @Parameters
-  public static List<Object[]> data() {
+  public static Iterator<Object[]> data() {
     return TestUtils.goloFilesIn(SRC);
   }
 

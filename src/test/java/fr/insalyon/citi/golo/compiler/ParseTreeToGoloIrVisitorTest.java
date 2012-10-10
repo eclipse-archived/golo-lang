@@ -12,6 +12,7 @@ import org.junit.runners.Parameterized;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import java.util.Iterator;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.notNullValue;
@@ -28,7 +29,7 @@ public class ParseTreeToGoloIrVisitorTest {
   }
 
   @Parameters
-  public static List<Object[]> data() {
+  public static Iterator<Object[]> data() {
     return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation".replaceAll("/", File.separator));
   }
 
