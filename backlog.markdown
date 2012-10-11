@@ -10,7 +10,8 @@ Not everything is deemed to be implemented...
 
 * Support varargs in instance method invocations.
 
-* Check that method resolution skips methods with primitive types (`Class::isPrimitive()`).
+* Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
+  `import java.util` does not resolve `Arrays.asList(...)`.
 
 * Throw exceptions.
 

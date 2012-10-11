@@ -347,5 +347,10 @@ public class CompileAndRunTest {
 
     Method new_integer_from_imports = moduleClass.getMethod("new_integer_from_imports");
     assertThat((Integer) new_integer_from_imports.invoke(null), is(666));
+
+    Method make_a_list = moduleClass.getMethod("make_a_list");
+    @SuppressWarnings("unchecked") List<Integer> resultList = (List<Integer>) make_a_list.invoke(null);
+    assertThat(resultList.size(), is(3));
+    assertThat(resultList, hasItems(1, 2, 3));
   }
 }
