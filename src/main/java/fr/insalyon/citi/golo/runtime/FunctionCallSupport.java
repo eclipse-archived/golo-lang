@@ -8,10 +8,8 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.Lookup;
-import static java.lang.reflect.Modifier.PRIVATE;
 import static java.lang.reflect.Modifier.isStatic;
 
 public final class FunctionCallSupport {
@@ -62,7 +60,7 @@ public final class FunctionCallSupport {
 
   private static Object findClassWithConstructor(Class<?> callerClass, String classname, MethodType type) {
     try {
-      Class<?> targetClass = targetClass = Class.forName(classname, true, callerClass.getClassLoader());
+      Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
         if (containsPrimitiveTypes(parameterTypes)) {
@@ -144,7 +142,7 @@ public final class FunctionCallSupport {
       String className = functionName.substring(0, methodClassSeparatorIndex);
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
       try {
-        Class<?> targetClass = targetClass = Class.forName(className, true, callerClass.getClassLoader());
+        Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
         return findStaticMethodOrField(targetClass, methodName, type.parameterArray());
       } catch (ClassNotFoundException ignored) {
       }
