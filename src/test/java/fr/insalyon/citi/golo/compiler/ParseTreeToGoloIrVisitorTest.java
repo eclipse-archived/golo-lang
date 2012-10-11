@@ -13,6 +13,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.Iterator;
 
+import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
+import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
@@ -33,10 +35,12 @@ public class ParseTreeToGoloIrVisitorTest {
 
     assertThat(module, notNullValue());
 
-    System.out.println();
-    System.out.println(">>> Building the Golo IR of " + goloFile);
-    dump(module);
-    System.out.println();
+    if (shouldTrace) {
+      println();
+      println(">>> Building the Golo IR of " + goloFile);
+      dump(module);
+      println();
+    }
   }
 
   private void dump(GoloModule module) {

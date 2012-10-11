@@ -16,6 +16,8 @@ import java.nio.file.Files;
 import java.util.Iterator;
 
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
+import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
+import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -42,12 +44,17 @@ public class CompilationTest {
     GoloCompiler compiler = new GoloCompiler();
     GoloCompiler.Result result = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
 
-    System.out.println();
-    System.out.println(">>> Compiling: " + goloFile);
+    if (shouldTrace) {
+      println();
+      println(">>> Compiling: " + goloFile);
+    }
 
     assertThat(result.getBytecode().length > 0, is(true));
     assertThat(result.getPackageAndClass(), notNullValue());
-    visit(result.getBytecode());
+
+    if (shouldTrace) {
+      visit(result.getBytecode());
+    }
 
     /*
      * We compile again to load the generated class into the JVM, and have it being verified by the
@@ -58,7 +65,9 @@ public class CompilationTest {
     assertThat(moduleClass, notNullValue());
     assertThat(moduleClass.getName(), is(result.getPackageAndClass().toString()));
 
-    System.out.println();
+    if (shouldTrace) {
+      println();
+    }
   }
 
   private void visit(byte[] bytecode) {
