@@ -343,6 +343,9 @@ public class CompileAndRunTest {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "call-java-objects.golo", temporaryFolder, "golotest.execution.CallJavaObjects");
 
     Method new_integer = moduleClass.getMethod("new_integer");
-    assertThat((Integer)new_integer.invoke(null), is(666));
+    assertThat((Integer) new_integer.invoke(null), is(666));
+
+    Method new_integer_from_imports = moduleClass.getMethod("new_integer_from_imports");
+    assertThat((Integer) new_integer_from_imports.invoke(null), is(666));
   }
 }

@@ -10,6 +10,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.Lookup;
+import static java.lang.reflect.Modifier.PRIVATE;
 import static java.lang.reflect.Modifier.isStatic;
 
 public final class FunctionCallSupport {
@@ -19,6 +20,7 @@ public final class FunctionCallSupport {
     Class<?> callerClass = caller.lookupClass();
     MethodHandle handle = null;
     Object result = findStaticMethodOrField(callerClass, functionName, type.parameterArray());
+    // TODO: add else branching to speed up...
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, type);
     }
@@ -27,6 +29,9 @@ public final class FunctionCallSupport {
     }
     if (result == null) {
       result = findClassWithConstructor(callerClass, functionName, type);
+    }
+    if (result == null) {
+      result = findClassWithConstructorFromImports(callerClass, functionName, type);
     }
     if (result == null) {
       throw new NoSuchMethodError(functionName);
@@ -42,6 +47,17 @@ public final class FunctionCallSupport {
       handle = caller.unreflectGetter(field).asType(type);
     }
     return new ConstantCallSite(handle);
+  }
+
+  private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, MethodType type) {
+    String[] imports = imports(callerClass);
+    for (String imported : imports) {
+      Object result = findClassWithConstructor(callerClass, imported + "." + classname, type);
+      if (result != null) {
+        return result;
+      }
+    }
+    return null;
   }
 
   private static Object findClassWithConstructor(Class<?> callerClass, String classname, MethodType type) {
@@ -82,17 +98,8 @@ public final class FunctionCallSupport {
     return false;
   }
 
-  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) throws IllegalAccessException {
-    Method $imports;
-    String[] imports;
-    try {
-      $imports = callerClass.getMethod("$imports");
-      imports = (String[]) $imports.invoke(null);
-    } catch (NoSuchMethodException | InvocationTargetException e) {
-      // This can only happen as part of the unit tests, because the lookup does not originate from
-      // a Golo module class, hence it doesn't have a $imports() static method.
-      imports = new String[]{};
-    }
+  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) {
+    String[] imports = imports(callerClass);
     String[] classAndMethod = null;
     final int classAndMethodSeparator = functionName.lastIndexOf(".");
     if (classAndMethodSeparator > 0) {
@@ -116,6 +123,19 @@ public final class FunctionCallSupport {
       }
     }
     return null;
+  }
+
+  private static String[] imports(Class<?> callerClass) {
+    String[] imports;
+    try {
+      Method $imports = callerClass.getMethod("$imports");
+      imports = (String[]) $imports.invoke(null);
+    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+      // This can only happen as part of the unit tests, because the lookup does not originate from
+      // a Golo module class, hence it doesn't have a $imports() static method.
+      imports = new String[]{};
+    }
+    return imports;
   }
 
   private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, MethodType type) {
