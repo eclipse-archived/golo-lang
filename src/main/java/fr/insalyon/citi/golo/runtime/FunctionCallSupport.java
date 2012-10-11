@@ -20,7 +20,6 @@ public final class FunctionCallSupport {
     Class<?> callerClass = caller.lookupClass();
     MethodHandle handle = null;
     Object result = findStaticMethodOrField(callerClass, functionName, type.parameterArray());
-    // TODO: add else branching to speed up...
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, type);
     }
