@@ -4,8 +4,6 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* Instantiating objects with function-less application, aka no 'new'.
-
 * instanceof-style operator with class literal support.
 
 * Invoke instance methods.
