@@ -4,6 +4,7 @@ import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -25,16 +26,60 @@ public final class FunctionCallSupport {
       result = findClassWithStaticMethodOrFieldFromImports(callerClass, functionName, type);
     }
     if (result == null) {
+      result = findClassWithConstructor(callerClass, functionName, type);
+    }
+    if (result == null) {
       throw new NoSuchMethodError(functionName);
     }
     if (result instanceof Method) {
       Method method = (Method) result;
       handle = caller.unreflect(method).asType(type);
-    } else {
+    } else if (result instanceof Constructor) {
+      Constructor constructor = (Constructor) result;
+      handle = caller.unreflectConstructor(constructor).asType(type);
+    } else if (result instanceof Field) {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
     return new ConstantCallSite(handle);
+  }
+
+  private static Object findClassWithConstructor(Class<?> callerClass, String classname, MethodType type) {
+    try {
+      Class<?> targetClass = targetClass = Class.forName(classname, true, callerClass.getClassLoader());
+      for (Constructor<?> constructor : targetClass.getConstructors()) {
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
+        if (containsPrimitiveTypes(parameterTypes)) {
+          continue;
+        }
+        int requiredParameterCount = type.parameterCount();
+        if (parameterTypes.length == requiredParameterCount) {
+          return constructor;
+        } else if (constructor.isVarArgs() && (requiredParameterCount >= parameterTypes.length)) {
+          return constructor;
+        }
+      }
+    } catch (ClassNotFoundException ignored) {
+    }
+    return null;
+  }
+
+  private static boolean containsPrimitiveTypes(Class<?>[] types) {
+    for (Class<?> type : types) {
+      if (isPrimitive(type)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  private static boolean isPrimitive(Class<?> type) {
+    if (type.isPrimitive()) {
+      return true;
+    } else if (type.isArray()) {
+      return isPrimitive(type.getComponentType());
+    }
+    return false;
   }
 
   private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) throws IllegalAccessException {
@@ -89,8 +134,8 @@ public final class FunctionCallSupport {
 
   private static Object findStaticMethodOrField(Class<?> klass, String name, Class<?>[] argumentTypes) {
     for (Method method : klass.getDeclaredMethods()) {
-      Class<?>[] parameterTypes = method.getParameterTypes();
       if (method.getName().equals(name)) {
+        Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == argumentTypes.length) {
           return method;
         } else if (method.isVarArgs() && (argumentTypes.length >= parameterTypes.length)) {

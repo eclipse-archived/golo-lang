@@ -337,4 +337,12 @@ public class CompileAndRunTest {
     Method play_and_return_666 = moduleClass.getMethod("play_and_return_666");
     assertThat((Integer) play_and_return_666.invoke(null), is(666));
   }
+
+  @Test
+  public void test_call_java_objects() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "call-java-objects.golo", temporaryFolder, "golotest.execution.CallJavaObjects");
+
+    Method new_integer = moduleClass.getMethod("new_integer");
+    assertThat((Integer)new_integer.invoke(null), is(666));
+  }
 }
