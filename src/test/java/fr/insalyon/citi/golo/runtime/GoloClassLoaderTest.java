@@ -9,7 +9,6 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
-@Test
 public class GoloClassLoaderTest {
 
   private static final String SRC = "src/test/resources/for-execution/".replaceAll("/", File.separator);

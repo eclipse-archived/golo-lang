@@ -10,7 +10,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@Test
 public class FunctionCallSupportTest {
 
   static String echo(String str) {

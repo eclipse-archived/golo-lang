@@ -5,7 +5,6 @@ import org.testng.annotations.Test;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-@Test
 public class PredefinedTest {
 
   @Test

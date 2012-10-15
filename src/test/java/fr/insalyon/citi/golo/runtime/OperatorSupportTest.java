@@ -9,7 +9,6 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-@Test
 public class OperatorSupportTest {
 
   private static final MethodType BINOP_TYPE = MethodType.methodType(Object.class, Object.class, Object.class);

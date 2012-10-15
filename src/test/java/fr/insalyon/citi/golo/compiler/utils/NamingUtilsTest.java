@@ -6,7 +6,6 @@ import static fr.insalyon.citi.golo.compiler.utils.NamingUtils.*;
 import static org.hamcrest.Matchers.*;
 import static org.hamcrest.MatcherAssert.*;
 
-@Test
 public class NamingUtilsTest {
 
   @Test

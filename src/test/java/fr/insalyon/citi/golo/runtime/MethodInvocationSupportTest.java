@@ -17,7 +17,6 @@ import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.notNullValue;
 
 
-@Test
 public class MethodInvocationSupportTest {
 
   public static class Person {
