@@ -6,7 +6,9 @@ Not everything is deemed to be implemented...
 
 * instanceof-style operator with class literal support.
 
-* Invoke instance methods.
+* Invoke instance methods:
+  `list: add(3)`
+  `MapMaker(): concurrencyLevel(4): weakKeys(): makeMap()`
 
 * Support varargs in instance method invocations.
 
