@@ -324,9 +324,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTMethodInvocation node, Object data) {
-    // TODO implement
     Context context = (Context) data;
-    context.objectStack.push(new ConstantStatement("WTF", new PositionInSourceCode(-1, -1)));
+    MethodInvocation invocation = new MethodInvocation(
+        node.getName(),
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
+      argumentNode.jjtAccept(this, data);
+      invocation.addArgument((ExpressionStatement) context.objectStack.pop());
+    }
+    context.objectStack.push(invocation);
     return data;
   }
 

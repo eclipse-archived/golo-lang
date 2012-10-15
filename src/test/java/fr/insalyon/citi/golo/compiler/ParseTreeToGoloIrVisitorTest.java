@@ -191,6 +191,17 @@ public class ParseTreeToGoloIrVisitorTest {
         }
         decr();
       }
+
+      @Override
+      public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+        incr();
+        space();
+        System.out.println("Method invocation: " + methodInvocation.getName());
+        for (ExpressionStatement argument : methodInvocation.getArguments()) {
+          argument.accept(this);
+        }
+        decr();
+      }
     });
   }
 }

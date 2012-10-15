@@ -25,4 +25,6 @@ public interface GoloIrVisitor {
   void visitUnaryOperation(UnaryOperation unaryOperation);
 
   void visitLoopStatement(LoopStatement loopStatement);
+
+  void acceptMethodInvocation(MethodInvocation methodInvocation);
 }

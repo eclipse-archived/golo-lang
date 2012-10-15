@@ -143,4 +143,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       loopStatement.getPostStatement().accept(this);
     }
   }
+
+  @Override
+  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+
+  }
 }

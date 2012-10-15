@@ -300,6 +300,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+    // TODO generate some bytecode
+  }
+
+  @Override
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
