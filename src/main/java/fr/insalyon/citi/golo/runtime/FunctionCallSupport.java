@@ -63,7 +63,7 @@ public final class FunctionCallSupport {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        if (containsPrimitiveTypes(parameterTypes)) {
+        if (BootstrapHelpers.containsPrimitiveTypes(parameterTypes)) {
           continue;
         }
         int requiredParameterCount = type.parameterCount();
@@ -76,24 +76,6 @@ public final class FunctionCallSupport {
     } catch (ClassNotFoundException ignored) {
     }
     return null;
-  }
-
-  private static boolean containsPrimitiveTypes(Class<?>[] types) {
-    for (Class<?> type : types) {
-      if (isPrimitive(type)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  private static boolean isPrimitive(Class<?> type) {
-    if (type.isPrimitive()) {
-      return true;
-    } else if (type.isArray()) {
-      return isPrimitive(type.getComponentType());
-    }
-    return false;
   }
 
   private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) {
