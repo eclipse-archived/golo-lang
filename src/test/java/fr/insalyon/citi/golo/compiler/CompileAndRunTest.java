@@ -14,6 +14,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
@@ -352,5 +353,15 @@ public class CompileAndRunTest {
     @SuppressWarnings("unchecked") List<Integer> resultList = (List<Integer>) make_a_list.invoke(null);
     assertThat(resultList.size(), is(3));
     assertThat(resultList, hasItems(1, 2, 3));
+  }
+
+  @Test
+  public void test_method_invocations() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "method-invocations.golo", temporaryFolder, "golotest.execution.MethodInvocations");
+
+    Method a_list = moduleClass.getMethod("a_list", Object.class, Object.class);
+    Object result = a_list.invoke(null, "foo", "bar");
+    assertThat(result, instanceOf(LinkedList.class));
+    @SuppressWarnings("unchecked") assertThat((LinkedList<String>) result, hasItems("foo", "bar"));
   }
 }

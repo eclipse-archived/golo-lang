@@ -73,7 +73,7 @@ public class MethodInvocationSupport {
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray());
     if (searchResult == null) {
-      throw new NoSuchMethodError(inlineCache.name);
+      throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
     }
     if (searchResult.getClass() == Method.class) {
       target = inlineCache.callerLookup.unreflect((Method) searchResult).asType(type);
