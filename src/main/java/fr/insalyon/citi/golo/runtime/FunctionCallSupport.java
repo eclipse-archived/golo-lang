@@ -10,7 +10,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.Lookup;
-import static java.lang.reflect.Modifier.isStatic;
 
 public final class FunctionCallSupport {
 
@@ -18,7 +17,7 @@ public final class FunctionCallSupport {
     String functionName = name.replaceAll("#", "\\.");
     Class<?> callerClass = caller.lookupClass();
     MethodHandle handle = null;
-    Object result = findStaticMethodOrField(callerClass, functionName, type.parameterArray());
+    Object result = BootstrapHelpers.findStaticMethodOrField(callerClass, functionName, type.parameterArray());
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, type);
     }
@@ -95,7 +94,7 @@ public final class FunctionCallSupport {
         if ((classAndMethod != null) && (importClassName.endsWith(classAndMethod[0]))) {
           lookup = classAndMethod[1];
         }
-        Object result = findStaticMethodOrField(importClass, lookup, type.parameterArray());
+        Object result = BootstrapHelpers.findStaticMethodOrField(importClass, lookup, type.parameterArray());
         if (result != null) {
           return result;
         }
@@ -125,29 +124,8 @@ public final class FunctionCallSupport {
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
       try {
         Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
-        return findStaticMethodOrField(targetClass, methodName, type.parameterArray());
+        return BootstrapHelpers.findStaticMethodOrField(targetClass, methodName, type.parameterArray());
       } catch (ClassNotFoundException ignored) {
-      }
-    }
-    return null;
-  }
-
-  private static Object findStaticMethodOrField(Class<?> klass, String name, Class<?>[] argumentTypes) {
-    for (Method method : klass.getDeclaredMethods()) {
-      if (method.getName().equals(name)) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length == argumentTypes.length) {
-          return method;
-        } else if (method.isVarArgs() && (argumentTypes.length >= parameterTypes.length)) {
-          return method;
-        }
-      }
-    }
-    if (argumentTypes.length == 0) {
-      for (Field field : klass.getDeclaredFields()) {
-        if (field.getName().equals(name) && isStatic(field.getModifiers())) {
-          return field;
-        }
       }
     }
     return null;
