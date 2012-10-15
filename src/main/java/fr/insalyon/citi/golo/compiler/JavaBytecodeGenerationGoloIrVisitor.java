@@ -6,6 +6,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.invoke.MethodHandle;
 import java.util.Set;
 import java.util.Stack;
 
@@ -20,6 +21,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final String TOBJECT = "Ljava/lang/Object;";
   private static final Handle FUNCTION_INVOCATION_HANDLE;
   private static final Handle OPERATOR_HANDLE;
+  private static final Handle METHOD_INVOCATION_HANDLE;
 
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
@@ -31,6 +33,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapMethod = "bootstrap";
     description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     OPERATOR_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+
+    bootstrapOwner = "fr/insalyon/citi/golo/runtime/MethodInvocationSupport";
+    bootstrapMethod = "bootstrap";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
+    METHOD_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
@@ -236,15 +243,24 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ARETURN);
   }
 
-  @Override
-  public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-    for (ExpressionStatement statement : functionInvocation.getArguments()) {
+  private void invocation(AbstractInvocation invocation, Handle boostrap) {
+    for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
     }
     methodVisitor.visitInvokeDynamicInsn(
-        functionInvocation.getName().replaceAll("\\.", "#"),
-        goloFunctionSignature(functionInvocation.getArity()),
-        FUNCTION_INVOCATION_HANDLE);
+        invocation.getName().replaceAll("\\.", "#"),
+        goloFunctionSignature(invocation.getArity()),
+        boostrap);
+  }
+
+  @Override
+  public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
+    invocation(functionInvocation, FUNCTION_INVOCATION_HANDLE);
+  }
+
+  @Override
+  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+    invocation(methodInvocation, METHOD_INVOCATION_HANDLE);
   }
 
   @Override
@@ -297,11 +313,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     methodVisitor.visitJumpInsn(GOTO, loopStart);
     methodVisitor.visitLabel(loopEnd);
-  }
-
-  @Override
-  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
-    // TODO generate some bytecode
   }
 
   @Override
