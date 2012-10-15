@@ -18,7 +18,7 @@ import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.notNullValue;
 
-@Test(groups = "parser")
+@Test(groups = "parser", dependsOnGroups = "parser-sanity")
 public class ParseTreeToGoloIrVisitorTest {
 
   @DataProvider(name = "golo-files")

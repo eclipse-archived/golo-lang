@@ -272,12 +272,14 @@ ASTFunctionDeclaration FunctionDeclaration():
 void Statement() #void:{}
 {
   <NEWLINE> 
+  |
+  LOOKAHEAD(2) FunctionInvocation() (MethodInvocation())*
+  |
+  LOOKAHEAD(2) Assignment()
+  |
+  ExpressionStatement()
   | 
   Return() 
-  | 
-  LOOKAHEAD(2) FunctionInvocation()
-  |
-  Assignment()
   |
   LetOrVar()
   |
@@ -314,7 +316,7 @@ void ForLoop():
 
 void ExpressionStatement() #void: {}
 {
-  CommutativeExpression()
+  CommutativeExpression() (MethodInvocation())*
 }
 
 void TerminalExpression() #void: {}
@@ -513,6 +515,19 @@ void FunctionInvocation():
   name=QualifiedName() token="(" (Expressions())? ")"
   {
     jjtThis.setName(name);
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+}
+
+void MethodInvocation():
+{
+  Token token;
+}
+{
+  ":" (<NEWLINE>)? token=<IDENTIFIER> "(" (Expressions())? ")"
+  {
+    jjtThis.setName(token.image);
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }

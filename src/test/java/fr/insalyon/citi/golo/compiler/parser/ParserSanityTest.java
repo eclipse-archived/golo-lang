@@ -15,7 +15,7 @@ import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 
-@Test(groups = "parser")
+@Test(groups = {"parser", "parser-sanity"})
 public class ParserSanityTest {
 
   @DataProvider(name = "golo-files")

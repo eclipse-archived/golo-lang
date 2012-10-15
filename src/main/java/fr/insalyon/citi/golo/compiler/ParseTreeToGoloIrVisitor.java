@@ -323,6 +323,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTMethodInvocation node, Object data) {
+    // TODO implement
+    Context context = (Context) data;
+    context.objectStack.push(new ConstantStatement("WTF", new PositionInSourceCode(-1, -1)));
+    return data;
+  }
+
+  @Override
   public Object visit(ASTConditionalBranching node, Object data) {
     Context context = (Context) data;
     node.jjtGetChild(0).jjtAccept(this, data);
