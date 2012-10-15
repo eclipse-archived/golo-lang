@@ -1,15 +1,12 @@
 package fr.insalyon.citi.golo.runtime;
 
-import com.sun.servicetag.SystemEnvironment;
-
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 
+import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isPublic;
-import static java.lang.reflect.Modifier.methodModifiers;
 
 public class MethodInvocationSupport {
 
@@ -22,11 +19,16 @@ public class MethodInvocationSupport {
 
     final MethodHandles.Lookup callerLookup;
     final String name;
+    int depth = 0;
 
     InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
+    }
+
+    boolean isMegaMorphic() {
+      return depth >= 5;
     }
   }
 
@@ -64,10 +66,11 @@ public class MethodInvocationSupport {
   }
 
   public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
-    // TODO temporarily, we always fallback
+
     MethodHandle target;
     MethodType type = inlineCache.type();
     Class<?> receiverClass = args[0].getClass();
+
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray());
     if (searchResult == null) {
       throw new NoSuchMethodError(inlineCache.name);
@@ -77,6 +80,15 @@ public class MethodInvocationSupport {
     } else {
       target = inlineCache.callerLookup.unreflectGetter((Field) searchResult).asType(type);
     }
+
+    if (inlineCache.isMegaMorphic()) {
+      return target.invokeWithArguments(args);
+    }
+
+    MethodHandle guard = GUARD.bindTo(receiverClass);
+    MethodHandle root = guardWithTest(guard, target, inlineCache.getTarget());
+    inlineCache.setTarget(root);
+    inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
   }
 

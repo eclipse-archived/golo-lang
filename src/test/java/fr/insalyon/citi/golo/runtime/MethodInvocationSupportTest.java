@@ -5,8 +5,10 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.math.BigInteger;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -100,5 +102,36 @@ public class MethodInvocationSupportTest {
   public void check_bogus() throws Throwable {
     CallSite bogus = MethodInvocationSupport.bootstrap(lookup(), "bogus", methodType(Object.class, Object.class));
     bogus.dynamicInvoker().invokeWithArguments(julien());
+  }
+
+  @Test
+  public void check_many_to_string() throws Throwable {
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class));
+    MethodHandle toStringMH = toString.dynamicInvoker();
+
+    String result = (String) toStringMH.invokeWithArguments(julien());
+    assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr'}"));
+
+    result = (String) toStringMH.invokeWithArguments("foo");
+    assertThat(result, is("foo"));
+
+    result = (String) toStringMH.invokeWithArguments(666);
+    assertThat(result, is("666"));
+
+    result = (String) toStringMH.invokeWithArguments(666L);
+    assertThat(result, is("666"));
+
+    result = (String) toStringMH.invokeWithArguments("foo");
+    assertThat(result, is("foo"));
+
+    result = (String) toStringMH.invokeWithArguments(new BigInteger("1234"));
+    assertThat(result, is("1234"));
+
+    result = (String) toStringMH.invokeWithArguments(new Object() {
+      @Override public String toString() {
+        return "Hey!";
+      }
+    });
+    assertThat(result, is("Hey!"));
   }
 }
