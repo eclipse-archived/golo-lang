@@ -1,11 +1,15 @@
 package fr.insalyon.citi.golo.runtime;
 
+import com.sun.servicetag.SystemEnvironment;
+
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isPublic;
+import static java.lang.reflect.Modifier.methodModifiers;
 
 public class MethodInvocationSupport {
 
@@ -63,21 +67,21 @@ public class MethodInvocationSupport {
     // TODO temporarily, we always fallback
     MethodHandle target;
     MethodType type = inlineCache.type();
-    Class<?> receiverClass = type.parameterType(0);
+    Class<?> receiverClass = args[0].getClass();
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray());
     if (searchResult == null) {
       throw new NoSuchMethodError(inlineCache.name);
     }
     if (searchResult.getClass() == Method.class) {
-      target = inlineCache.callerLookup.unreflect((Method) searchResult);
+      target = inlineCache.callerLookup.unreflect((Method) searchResult).asType(type);
     } else {
-      target = inlineCache.callerLookup.unreflectGetter((Field) searchResult);
+      target = inlineCache.callerLookup.unreflectGetter((Field) searchResult).asType(type);
     }
     return target.invokeWithArguments(args);
   }
 
   private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes) {
-    for (Method method : receiverClass.getDeclaredMethods()) {
+    for (Method method : receiverClass.getMethods()) {
       if (method.getName().equals(name) && (isPublic(method.getModifiers()))) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (parameterTypes.length == (argumentTypes.length - 1)) {
@@ -87,7 +91,7 @@ public class MethodInvocationSupport {
         }
       }
     }
-    if (argumentTypes.length == 0) {
+    if (argumentTypes.length == 1) {
       for (Field field : receiverClass.getDeclaredFields()) {
         if (field.getName().equals(name)) {
           return field;

@@ -1,5 +1,6 @@
 package fr.insalyon.citi.golo.runtime;
 
+import org.objectweb.asm.tree.MethodNode;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -17,11 +18,11 @@ import static org.hamcrest.Matchers.notNullValue;
 @Test
 public class MethodInvocationSupportTest {
 
-  static class Person {
+  public static class Person {
     String name;
     String email;
 
-    Person(String name, String email) {
+    public Person(String name, String email) {
       this.name = name;
       this.email = email;
     }
@@ -42,6 +43,14 @@ public class MethodInvocationSupportTest {
       this.email = email;
     }
 
+    public String greet(Person... people) {
+      StringBuilder builder = new StringBuilder("Hello");
+      for (Person p : people) {
+        builder.append(" ").append(p.name).append("!");
+      }
+      return builder.toString();
+    }
+
     @Override
     public String toString() {
       return "Person{" +
@@ -51,31 +60,45 @@ public class MethodInvocationSupportTest {
     }
   }
 
-  @DataProvider(name = "julien")
   public Person julien() {
     return new Person("Julien", "julien.ponge@insa-lyon.fr");
   }
 
-  @Test(dataProvider = "julien")
-  public void check_to_string(Person person) throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class));
-    String result = (String) toString.dynamicInvoker().invokeWithArguments(person);
+  @Test
+  public void check_to_string() throws Throwable {
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class));
+    String result = (String) toString.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
     assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr'}"));
   }
 
-  @Test(dataProvider = "julien")
-  public void check_set_name(Person person) throws Throwable {
-    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "setName", methodType(Object.class, Object.class));
-    setName.dynamicInvoker().invokeWithArguments(person, "Julien Ponge");
-    assertThat(person.name, is("Julien Ponge"));
+  @Test
+  public void check_set_name() throws Throwable {
+    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "setName", methodType(Object.class, Object.class, Object.class));
+    Person julien = julien();
+    setName.dynamicInvoker().invokeWithArguments(julien, "Julien Ponge");
+    assertThat(julien.name, is("Julien Ponge"));
   }
 
-  @Test(dataProvider = "julien")
-  public void check_field_read(Person person) throws Throwable {
-    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class));
-    String result = (String) name.dynamicInvoker().invokeWithArguments(person);
+  @Test
+  public void check_equals() throws Throwable {
+    CallSite equals = MethodInvocationSupport.bootstrap(lookup(), "equals", methodType(Object.class, Object.class, Object.class));
+    Person julien = julien();
+    Boolean result = (Boolean) equals.dynamicInvoker().invokeWithArguments(julien, julien);
+    assertThat(result, is(true));
+  }
+
+  @Test
+  public void check_field_read() throws Throwable {
+    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class));
+    String result = (String) name.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
     assertThat(result, is("Julien"));
+  }
+
+  @Test(expectedExceptions = NoSuchMethodError.class)
+  public void check_bogus() throws Throwable {
+    CallSite bogus = MethodInvocationSupport.bootstrap(lookup(), "bogus", methodType(Object.class, Object.class));
+    bogus.dynamicInvoker().invokeWithArguments(julien());
   }
 }
