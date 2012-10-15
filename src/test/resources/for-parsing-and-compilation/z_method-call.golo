@@ -16,3 +16,7 @@ function b = {
   let bar = Bar()
   foo: foo(): bar(): baz(bar: baz())
 }
+
+function c = {
+  return "Hello": toString()
+}

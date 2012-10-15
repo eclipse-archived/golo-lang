@@ -354,14 +354,17 @@ public class CompileAndRunTest {
     assertThat(resultList, hasItems(1, 2, 3));
   }
 
-  @Test(enabled = false)
+  @Test
   public void test_method_invocations() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "method-invocations.golo", temporaryFolder, "golotest.execution.MethodInvocations");
 
-    Method a_list = moduleClass.getMethod("a_list", Object.class, Object.class);
-    Object result = a_list.invoke(null, "foo", "bar");
-    assertThat(result, instanceOf(LinkedList.class));
-    List<String> strings = (List<String>) result;
-    assertThat(strings, hasItems("foo", "bar"));
+    Method hello = moduleClass.getMethod("hello");
+    assertThat((String) hello.invoke(null), is("Hello"));
+
+//    Method a_list = moduleClass.getMethod("a_list", Object.class, Object.class);
+//    Object result = a_list.invoke(null, "foo", "bar");
+//    assertThat(result, instanceOf(LinkedList.class));
+//    List<String> strings = (List<String>) result;
+//    assertThat(strings, hasItems("foo", "bar"));
   }
 }

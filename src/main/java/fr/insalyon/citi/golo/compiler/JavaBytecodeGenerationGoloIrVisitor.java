@@ -243,24 +243,24 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ARETURN);
   }
 
-  private void invocation(AbstractInvocation invocation, Handle boostrap) {
+  private void invocation(AbstractInvocation invocation, Handle boostrap, int arity) {
     for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
     }
     methodVisitor.visitInvokeDynamicInsn(
         invocation.getName().replaceAll("\\.", "#"),
-        goloFunctionSignature(invocation.getArity()),
+        goloFunctionSignature(arity),
         boostrap);
   }
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-    invocation(functionInvocation, FUNCTION_INVOCATION_HANDLE);
+    invocation(functionInvocation, FUNCTION_INVOCATION_HANDLE, functionInvocation.getArity());
   }
 
   @Override
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
-    invocation(methodInvocation, METHOD_INVOCATION_HANDLE);
+    invocation(methodInvocation, METHOD_INVOCATION_HANDLE, methodInvocation.getArity() + 1);
   }
 
   @Override
