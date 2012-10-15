@@ -141,6 +141,7 @@ public class OperatorSupport {
     return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
+  @SuppressWarnings("unchecked")
   public static Object less(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
@@ -148,6 +149,7 @@ public class OperatorSupport {
     return reject(a, b, "<");
   }
 
+  @SuppressWarnings("unchecked")
   public static Object lessorequals(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
@@ -155,6 +157,7 @@ public class OperatorSupport {
     return reject(a, b, "<=");
   }
 
+  @SuppressWarnings("unchecked")
   public static Object more(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
@@ -162,6 +165,7 @@ public class OperatorSupport {
     return reject(a, b, ">");
   }
 
+  @SuppressWarnings("unchecked")
   public static Object moreorequals(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
