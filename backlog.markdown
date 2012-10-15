@@ -12,6 +12,8 @@ Not everything is deemed to be implemented...
 
 * Support varargs in instance method invocations.
 
+* Make sure varargs work in all cases for functions and methods.
+
 * Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
   `import java.util` does not resolve `Arrays.asList(...)`.
 
