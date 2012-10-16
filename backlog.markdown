@@ -95,3 +95,5 @@ Not everything is deemed to be implemented...
 
 * Netbeans support (they love JavaCC it seems).
 
+* Generate the image with [AppAssembler](http://mojo.codehaus.org/appassembler/appassembler-maven-plugin/usage-program.html)?
+
