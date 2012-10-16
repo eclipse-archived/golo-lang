@@ -19,7 +19,9 @@ public enum OperatorType {
   NOT("not"),
 
   IS("is"),
-  ISNT("isnt")
+  ISNT("isnt"),
+
+  METHOD_CALL(":")
   ;
 
   private final String symbol;
