@@ -11,6 +11,8 @@ Not everything is deemed to be implemented...
 
 * Make sure varargs work in all cases for functions and methods.
 
+* Support invocations with either () or {}? Could be fun for DSL-style constructs.
+
 * instanceof-style operator with class literal support.
 
 * Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
