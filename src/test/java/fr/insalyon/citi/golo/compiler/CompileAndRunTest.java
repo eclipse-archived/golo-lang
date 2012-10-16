@@ -361,10 +361,10 @@ public class CompileAndRunTest {
     Method hello = moduleClass.getMethod("hello");
     assertThat((String) hello.invoke(null), is("Hello"));
 
-//    Method a_list = moduleClass.getMethod("a_list", Object.class, Object.class);
-//    Object result = a_list.invoke(null, "foo", "bar");
-//    assertThat(result, instanceOf(LinkedList.class));
-//    List<String> strings = (List<String>) result;
-//    assertThat(strings, hasItems("foo", "bar"));
+    Method a_list = moduleClass.getMethod("a_list", Object.class, Object.class);
+    Object result = a_list.invoke(null, "foo", "bar");
+    assertThat(result, instanceOf(LinkedList.class));
+    List<String> strings = (List<String>) result;
+    assertThat(strings, hasItems("foo", "bar"));
   }
 }
