@@ -4,15 +4,14 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* instanceof-style operator with class literal support.
-
-* Invoke instance methods:
-  `list: add(3)`
-  `MapMaker(): concurrencyLevel(4): weakKeys(): makeMap()`
+* On function and method resolution, propagate argument values to check for applicability.
+  This should make the target selection more accurate w.r.t. nasty overloading.
 
 * Support varargs in instance method invocations.
 
 * Make sure varargs work in all cases for functions and methods.
+
+* instanceof-style operator with class literal support.
 
 * Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
   `import java.util` does not resolve `Arrays.asList(...)`.
