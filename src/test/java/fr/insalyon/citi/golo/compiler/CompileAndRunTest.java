@@ -366,5 +366,10 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(LinkedList.class));
     List<String> strings = (List<String>) result;
     assertThat(strings, hasItems("foo", "bar"));
+
+    Method str_build = moduleClass.getMethod("str_build");
+    result = str_build.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("hello"));
   }
 }

@@ -20,3 +20,12 @@ function b = {
 function c = {
   return "Hello": toString()
 }
+
+function d = {
+  return java.lang.StringBuilder("h"):
+    append("e"):
+    append("l"):
+    append("l"):
+    append("o"):
+    toString()
+}

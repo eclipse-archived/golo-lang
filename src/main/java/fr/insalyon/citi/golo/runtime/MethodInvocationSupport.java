@@ -96,6 +96,9 @@ public class MethodInvocationSupport {
     for (Method method : receiverClass.getMethods()) {
       if (method.getName().equals(name) && (isPublic(method.getModifiers()))) {
         Class<?>[] parameterTypes = method.getParameterTypes();
+        if (BootstrapHelpers.containsPrimitiveTypes(parameterTypes)) {
+          continue;
+        }
         if (parameterTypes.length == (argumentTypes.length - 1)) {
           return method;
         } else if (method.isVarArgs() && (argumentTypes.length > parameterTypes.length)) {

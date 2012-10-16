@@ -10,3 +10,12 @@ function a_list = |a, b| {
   list: add(b)
   return list
 }
+
+function str_build = {
+  return java.lang.StringBuilder("h"):
+    append("e"):
+    append("l"):
+    append("l"):
+    append("o"):
+    toString()
+}
