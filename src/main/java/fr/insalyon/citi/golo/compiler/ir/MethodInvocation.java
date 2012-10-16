@@ -2,8 +2,15 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 public class MethodInvocation extends AbstractInvocation {
 
-  public MethodInvocation(String name, PositionInSourceCode positionInSourceCode) {
+  private final ExpressionStatement target;
+
+  public MethodInvocation(ExpressionStatement target, String name, PositionInSourceCode positionInSourceCode) {
     super(name, positionInSourceCode);
+    this.target = target;
+  }
+
+  public ExpressionStatement getTarget() {
+    return target;
   }
 
   @Override
