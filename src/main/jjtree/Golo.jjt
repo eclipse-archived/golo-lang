@@ -72,7 +72,7 @@ TOKEN :
 {
   < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
                            "<" | "<=" | "==" | "!=" | ">" | ">=" | 
-                           "is" | "isnt") >
+                           "is" | "isnt" ) >
   |
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
                            "and" | "or") >
@@ -273,8 +273,8 @@ void Statement() #void:{}
 {
   <NEWLINE> 
   |
-  LOOKAHEAD(2) FunctionInvocation() (MethodInvocation())*
-  |
+  //LOOKAHEAD(2) FunctionInvocation() 
+  //|
   LOOKAHEAD(2) Assignment()
   |
   ExpressionStatement()
@@ -316,7 +316,7 @@ void ForLoop():
 
 void ExpressionStatement() #void: {}
 {
-  CommutativeExpression() (MethodInvocation())*
+  CommutativeExpression() 
 }
 
 void TerminalExpression() #void: {}
@@ -370,14 +370,38 @@ void AssociativeExpression():
     UnaryExpression()
   )
   (
-    LOOKAHEAD(2) token=<ASSOCIATIVE_OPERATOR> AssociativeExpression()
-    {
-      jjtThis.addOperator(token.image);
-      jjtThis.addLine(token.beginLine);
-      jjtThis.addColumn(token.beginColumn);
-    }
+    LOOKAHEAD(2)
+    (
+      token=<ASSOCIATIVE_OPERATOR> AssociativeExpression()
+      {
+        jjtThis.addOperator(token.image);
+        jjtThis.addLine(token.beginLine);
+        jjtThis.addColumn(token.beginColumn);
+      }
+    |
+      token=":" (<NEWLINE>)? MethodInvocation()
+      {
+        jjtThis.addOperator(token.image);
+        jjtThis.addLine(token.beginLine);
+        jjtThis.addColumn(token.beginColumn);
+      }
+    )
   )*
 }
+
+void MethodInvocation():
+{
+  Token token;
+}
+{
+  token=<IDENTIFIER> "(" (Expressions())? ")"
+  {
+    jjtThis.setName(token.image);
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+}
+
 
 void Block(): {}
 {
@@ -515,19 +539,6 @@ void FunctionInvocation():
   name=QualifiedName() token="(" (Expressions())? ")"
   {
     jjtThis.setName(name);
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
-}
-
-void MethodInvocation():
-{
-  Token token;
-}
-{
-  ":" (<NEWLINE>)? token=<IDENTIFIER> "(" (Expressions())? ")"
-  {
-    jjtThis.setName(token.image);
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }
