@@ -6,11 +6,11 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Set;
 import java.util.Stack;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
+import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -319,8 +319,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
-    String name = binaryOperation.getType().name().toLowerCase();
-    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, 2);
+    if (!binaryOperation.getType().equals(METHOD_CALL)) {
+      String name = binaryOperation.getType().name().toLowerCase();
+      methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, 2);
+    }
   }
 
   @Override
