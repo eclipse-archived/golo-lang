@@ -6,6 +6,20 @@ Not everything is deemed to be implemented...
 
 * On function and method resolution, propagate argument values to check for applicability.
   This should make the target selection more accurate w.r.t. nasty overloading.
+  Another issue is dealing with primitives. The following code doesn't work because `get`
+  cannot be resolved:
+
+    ```
+    module foo
+
+    function main = |args| {
+      let list = java.util.LinkedList()
+      list: add(1)
+      list: add(2)
+      println(list)
+      println(list: get(0))
+    }
+    ```
 
 * Support varargs in instance method invocations.
 
