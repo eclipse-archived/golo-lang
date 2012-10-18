@@ -3,6 +3,8 @@ package fr.insalyon.citi.golo.runtime;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.LinkedList;
+import java.util.List;
 
 import static fr.insalyon.citi.golo.runtime.BootstrapHelpers.havePrimitiveArray;
 import static java.lang.invoke.MethodHandles.guardWithTest;
@@ -82,6 +84,7 @@ public class MethodInvocationSupport {
       if (makeAccessible) {
         method.setAccessible(true);
       }
+      System.out.println(">>> Binding " + inlineCache.name + " :: " + method);
       target = inlineCache.callerLookup.unreflect(method).asType(type);
     } else {
       Field field = (Field) searchResult;
@@ -103,8 +106,20 @@ public class MethodInvocationSupport {
   }
 
   private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes) {
+
+    List<Method> candidates = new LinkedList<>();
     for (Method method : receiverClass.getMethods()) {
       if (method.getName().equals(name) && (isPublic(method.getModifiers()))) {
+        candidates.add(method);
+      }
+    }
+
+    if (candidates.size() == 1) {
+      return candidates.get(0);
+    }
+
+    if (!candidates.isEmpty()) {
+      for (Method method : candidates) {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (havePrimitiveArray(parameterTypes)) {
           continue;
@@ -116,6 +131,7 @@ public class MethodInvocationSupport {
         }
       }
     }
+
     if (argumentTypes.length == 1) {
       for (Field field : receiverClass.getDeclaredFields()) {
         if (field.getName().equals(name)) {
