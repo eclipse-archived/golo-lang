@@ -4,6 +4,7 @@ import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import static fr.insalyon.citi.golo.runtime.BootstrapHelpers.havePrimitiveArray;
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isPublic;
@@ -70,15 +71,24 @@ public class MethodInvocationSupport {
     MethodHandle target;
     MethodType type = inlineCache.type();
     Class<?> receiverClass = args[0].getClass();
+    boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray());
     if (searchResult == null) {
       throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
     }
     if (searchResult.getClass() == Method.class) {
-      target = inlineCache.callerLookup.unreflect((Method) searchResult).asType(type);
+      Method method = (Method) searchResult;
+      if (makeAccessible) {
+        method.setAccessible(true);
+      }
+      target = inlineCache.callerLookup.unreflect(method).asType(type);
     } else {
-      target = inlineCache.callerLookup.unreflectGetter((Field) searchResult).asType(type);
+      Field field = (Field) searchResult;
+      if (makeAccessible) {
+        field.setAccessible(true);
+      }
+      target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
     }
 
     if (inlineCache.isMegaMorphic()) {
@@ -96,7 +106,7 @@ public class MethodInvocationSupport {
     for (Method method : receiverClass.getMethods()) {
       if (method.getName().equals(name) && (isPublic(method.getModifiers()))) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (BootstrapHelpers.containsPrimitiveTypes(parameterTypes)) {
+        if (havePrimitiveArray(parameterTypes)) {
           continue;
         }
         if (parameterTypes.length == (argumentTypes.length - 1)) {

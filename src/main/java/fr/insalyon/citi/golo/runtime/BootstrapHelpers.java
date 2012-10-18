@@ -1,11 +1,15 @@
 package fr.insalyon.citi.golo.runtime;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-
-import static java.lang.reflect.Modifier.isStatic;
-
 class BootstrapHelpers {
+
+  static boolean havePrimitiveArray(Class<?>[] types) {
+    for (Class<?> type : types) {
+      if (type.isArray() && type.getComponentType().isPrimitive()) {
+        return true;
+      }
+    }
+    return false;
+  }
 
   static boolean containsPrimitiveTypes(Class<?>[] types) {
     for (Class<?> type : types) {

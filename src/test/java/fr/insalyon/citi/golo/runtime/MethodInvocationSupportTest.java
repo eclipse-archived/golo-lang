@@ -9,6 +9,8 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.math.BigInteger;
+import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -127,10 +129,22 @@ public class MethodInvocationSupportTest {
     assertThat(result, is("1234"));
 
     result = (String) toStringMH.invokeWithArguments(new Object() {
-      @Override public String toString() {
+      @Override
+      public String toString() {
         return "Hey!";
       }
     });
     assertThat(result, is("Hey!"));
+  }
+
+  @Test
+  public void check_primitive_argument_allowance() throws Throwable {
+    List<String> list = Arrays.asList("a", "b", "c");
+    CallSite get = MethodInvocationSupport.bootstrap(lookup(), "get", methodType(Object.class, Object.class, Object.class));
+
+    MethodHandle handle = get.dynamicInvoker();
+    assertThat(((String) handle.invokeWithArguments(list, 0)), is("a"));
+    assertThat(((String) handle.invokeWithArguments(list, 1)), is("b"));
+    assertThat(((String) handle.invokeWithArguments(list, 2)), is("c"));
   }
 }
