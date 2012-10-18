@@ -41,10 +41,12 @@ public class MethodInvocationSupport {
   static {
     try {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
+
       GUARD = lookup.findStatic(
           MethodInvocationSupport.class,
           "guard",
           methodType(boolean.class, Class.class, Object.class));
+
       FALLBACK = lookup.findStatic(
           MethodInvocationSupport.class,
           "fallback",
@@ -70,9 +72,22 @@ public class MethodInvocationSupport {
 
   public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
 
-    MethodHandle target;
-    MethodType type = inlineCache.type();
     Class<?> receiverClass = args[0].getClass();
+    MethodHandle target = findTarget(receiverClass, inlineCache, args);
+
+    if (inlineCache.isMegaMorphic()) {
+      return target.invokeWithArguments(args);
+    }
+
+    MethodHandle guard = GUARD.bindTo(receiverClass);
+    MethodHandle root = guardWithTest(guard, target, inlineCache.getTarget());
+    inlineCache.setTarget(root);
+    inlineCache.depth = inlineCache.depth + 1;
+    return target.invokeWithArguments(args);
+  }
+
+  private static MethodHandle findTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) throws IllegalAccessException {
+    MethodHandle target;MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
@@ -92,16 +107,7 @@ public class MethodInvocationSupport {
       }
       target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
     }
-
-    if (inlineCache.isMegaMorphic()) {
-      return target.invokeWithArguments(args);
-    }
-
-    MethodHandle guard = GUARD.bindTo(receiverClass);
-    MethodHandle root = guardWithTest(guard, target, inlineCache.getTarget());
-    inlineCache.setTarget(root);
-    inlineCache.depth = inlineCache.depth + 1;
-    return target.invokeWithArguments(args);
+    return target;
   }
 
   private static int argumentsScore(Class<?>[] types, Object[] args) {
@@ -109,15 +115,13 @@ public class MethodInvocationSupport {
     if (args.length == types.length + 1) {
       score = 10;
     }
-    for (int i = 0; i < types.length; i++) {
-      Class<?> type = types[i];
+    for (Class<?> type : types) {
       if (type == Object.class) {
         score = score + 10;
       } else if (type.isArray() && type.getComponentType().isPrimitive()) {
         score = score - 10;
       }
     }
-
     return score;
   }
 
@@ -125,7 +129,7 @@ public class MethodInvocationSupport {
 
     List<Method> candidates = new LinkedList<>();
     for (Method method : receiverClass.getMethods()) {
-      if (method.getName().equals(name) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers())) {
+      if (isCandidate(name, method)) {
         candidates.add(method);
       }
     }
@@ -139,7 +143,7 @@ public class MethodInvocationSupport {
       int bestScore = 0;
       for (Method method : candidates) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if ((parameterTypes.length == (argumentTypes.length - 1)) || (parameterTypes.length == (argumentTypes.length - 1))) {
+        if (couldMatch(argumentTypes, parameterTypes)) {
           int score = argumentsScore(parameterTypes, args);
           if (score > bestScore) {
             chosen = method;
@@ -160,5 +164,13 @@ public class MethodInvocationSupport {
       }
     }
     return null;
+  }
+
+  private static boolean couldMatch(Class<?>[] argumentTypes, Class<?>[] parameterTypes) {
+    return (parameterTypes.length == (argumentTypes.length - 1)) || (parameterTypes.length == (argumentTypes.length - 1));
+  }
+
+  private static boolean isCandidate(String name, Method method) {
+    return method.getName().equals(name) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers());
   }
 }
