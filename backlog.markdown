@@ -4,23 +4,6 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* On function and method resolution, propagate argument values to check for applicability.
-  This should make the target selection more accurate w.r.t. nasty overloading.
-  Another issue is dealing with primitives. The following code doesn't work because `get`
-  cannot be resolved:
-
-    ```
-    module foo
-
-    function main = |args| {
-      let list = java.util.LinkedList()
-      list: add(1)
-      list: add(2)
-      println(list)
-      println(list: get(0))
-    }
-    ```
-
 * Support varargs in instance method invocations.
 
 * Make sure varargs work in all cases for functions and methods.
@@ -28,6 +11,9 @@ Not everything is deemed to be implemented...
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
 * instanceof-style operator with class literal support.
+
+* Do not make all operators parser tokens, as it forbids some refs / functions / methods to
+  have otherwise meaningful names such as `is` or `not`.
 
 * Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
   `import java.util` does not resolve `Arrays.asList(...)`.
