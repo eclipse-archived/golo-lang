@@ -19,3 +19,7 @@ function str_build = {
     append("o"):
     toString()
 }
+
+function element_at = |list, index| {
+  return list: get(index)
+}

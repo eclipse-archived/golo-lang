@@ -22,6 +22,7 @@ import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Ty
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.testng.Assert.fail;
@@ -45,7 +46,7 @@ public class CompileAndRunTest {
     assertThat(isPublic($imports.getModifiers()), is(true));
     assertThat(isStatic($imports.getModifiers()), is(true));
 
-    List<String> imports = Arrays.asList((String[]) $imports.invoke(null));
+    List<String> imports = asList((String[]) $imports.invoke(null));
     assertThat(imports.size(), is(4));
     assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("java.util.List"));
@@ -371,5 +372,8 @@ public class CompileAndRunTest {
     result = str_build.invoke(null);
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("hello"));
+
+    Method element_at = moduleClass.getMethod("element_at", Object.class, Object.class);
+    assertThat(((String) element_at.invoke(null, asList("a", "b"), 0)), is("a"));
   }
 }
