@@ -6,9 +6,9 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-import static fr.insalyon.citi.golo.runtime.BootstrapHelpers.havePrimitiveArray;
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
+import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isPublic;
 
 public class MethodInvocationSupport {
@@ -75,7 +75,7 @@ public class MethodInvocationSupport {
     Class<?> receiverClass = args[0].getClass();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
-    Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray());
+    Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
     if (searchResult == null) {
       throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
     }
@@ -84,7 +84,6 @@ public class MethodInvocationSupport {
       if (makeAccessible) {
         method.setAccessible(true);
       }
-      System.out.println(">>> Binding " + inlineCache.name + " :: " + method);
       target = inlineCache.callerLookup.unreflect(method).asType(type);
     } else {
       Field field = (Field) searchResult;
@@ -105,11 +104,28 @@ public class MethodInvocationSupport {
     return target.invokeWithArguments(args);
   }
 
-  private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes) {
+  private static int argumentsScore(Class<?>[] types, Object[] args) {
+    int score = 0;
+    if (args.length == types.length + 1) {
+      score = 10;
+    }
+    for (int i = 0; i < types.length; i++) {
+      Class<?> type = types[i];
+      if (type == Object.class) {
+        score = score + 10;
+      } else if (type.isArray() && type.getComponentType().isPrimitive()) {
+        score = score - 10;
+      }
+    }
+
+    return score;
+  }
+
+  private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes, Object[] args) {
 
     List<Method> candidates = new LinkedList<>();
     for (Method method : receiverClass.getMethods()) {
-      if (method.getName().equals(name) && (isPublic(method.getModifiers()))) {
+      if (method.getName().equals(name) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers())) {
         candidates.add(method);
       }
     }
@@ -119,16 +135,20 @@ public class MethodInvocationSupport {
     }
 
     if (!candidates.isEmpty()) {
+      Method chosen = null;
+      int bestScore = 0;
       for (Method method : candidates) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (havePrimitiveArray(parameterTypes)) {
-          continue;
+        if ((parameterTypes.length == (argumentTypes.length - 1)) || (parameterTypes.length == (argumentTypes.length - 1))) {
+          int score = argumentsScore(parameterTypes, args);
+          if (score > bestScore) {
+            chosen = method;
+            bestScore = score;
+          }
         }
-        if (parameterTypes.length == (argumentTypes.length - 1)) {
-          return method;
-        } else if (method.isVarArgs() && (argumentTypes.length > parameterTypes.length)) {
-          return method;
-        }
+      }
+      if (chosen != null) {
+        return chosen;
       }
     }
 
