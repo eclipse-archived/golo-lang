@@ -18,8 +18,6 @@ Not everything is deemed to be implemented...
 * Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
   `import java.util` does not resolve `Arrays.asList(...)`.
 
-* Throw exceptions.
-
 * Catch exceptions.
 
 * Support doubles, floats.
