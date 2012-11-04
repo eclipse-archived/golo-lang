@@ -376,4 +376,19 @@ public class CompileAndRunTest {
     Method element_at = moduleClass.getMethod("element_at", Object.class, Object.class);
     assertThat(((String) element_at.invoke(null, asList("a", "b"), 0)), is("a"));
   }
+
+  @Test
+  public void test_exception_throwing() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "exceptions.golo", temporaryFolder, "golotest.execution.Exceptions");
+    Method runtimeException = moduleClass.getMethod("runtimeException");
+    try {
+      runtimeException.invoke(null);
+      fail("An should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(RuntimeException.class));
+      RuntimeException exception = (RuntimeException) cause;
+      assertThat(exception.getMessage(), is("w00t"));
+    }
+  }
 }

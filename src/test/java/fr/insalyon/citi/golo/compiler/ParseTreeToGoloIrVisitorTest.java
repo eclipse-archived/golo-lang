@@ -201,6 +201,15 @@ public class ParseTreeToGoloIrVisitorTest {
         }
         decr();
       }
+
+      @Override
+      public void visitThrowStatement(ThrowStatement throwStatement) {
+        incr();
+        space();
+        System.out.println("Throw");
+        throwStatement.getExpressionStatement().accept(this);
+        decr();
+      }
     });
   }
 }

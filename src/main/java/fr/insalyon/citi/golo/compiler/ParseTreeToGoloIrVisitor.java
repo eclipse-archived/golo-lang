@@ -288,6 +288,19 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTThrow node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
+    context.objectStack.push(new ThrowStatement(
+        statement,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode())));
+    return data;
+  }
+
+  @Override
   public Object visit(ASTBlock node, Object data) {
     Context context = (Context) data;
     ReferenceTable blockReferenceTable = context.referenceTableStack.peek().fork();

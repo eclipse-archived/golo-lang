@@ -148,4 +148,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
 
   }
+
+  @Override
+  public void visitThrowStatement(ThrowStatement throwStatement) {
+    throwStatement.getExpressionStatement().accept(this);
+  }
 }

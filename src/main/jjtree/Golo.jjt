@@ -65,6 +65,8 @@ TOKEN :
   < WHILE: "while" >
   |
   < FOR: "for" >
+  |
+  < THROW: "throw" >
 }
 
 // Operators
@@ -288,6 +290,20 @@ void Statement() #void:{}
   WhileLoop()
   |
   ForLoop()
+  |
+  Throw()
+}
+
+void Throw():
+{
+  Token token;
+}
+{
+  token=<THROW> ExpressionStatement()
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
 }
 
 void WhileLoop():

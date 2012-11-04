@@ -243,6 +243,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ARETURN);
   }
 
+  @Override
+  public void visitThrowStatement(ThrowStatement throwStatement) {
+    throwStatement.getExpressionStatement().accept(this);
+    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
+    methodVisitor.visitInsn(ATHROW);
+  }
+
   private void invocation(AbstractInvocation invocation, Handle boostrap, int arity) {
     for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
