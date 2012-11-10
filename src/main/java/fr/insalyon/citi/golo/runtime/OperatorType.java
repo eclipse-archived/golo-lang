@@ -21,6 +21,8 @@ public enum OperatorType {
   IS("is"),
   ISNT("isnt"),
 
+  OFTYPE("oftype"),
+
   METHOD_CALL(":")
   ;
 

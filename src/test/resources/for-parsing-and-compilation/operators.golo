@@ -57,10 +57,14 @@ function n = |a, b, c| {
   return (a and b) or c
 }
 
-function m = |a| {
+function o = |a| {
   return not a
 }
 
-function n = |a, b| {
+function p = |a, b| {
   return (a is b) or (a isnt b)
+}
+
+function q = |a| {
+  return (a isnt null) and (a oftype String.class)
 }

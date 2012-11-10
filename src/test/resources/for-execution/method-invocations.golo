@@ -23,3 +23,7 @@ function str_build = {
 function element_at = |list, index| {
   return list: get(index)
 }
+
+function toString_by_reflection = |obj| {
+  return obj: getClass(): getMethod("toString"): invoke(obj)
+}

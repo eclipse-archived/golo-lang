@@ -44,6 +44,10 @@ public class OperatorSupport {
     return obj.getClass() == Boolean.class;
   }
 
+  private static boolean isClass(Object obj) {
+    return (obj != null) && (obj.getClass() == Class.class);
+  }
+
   public static Object plus(Object a, Object b) {
     if (bothNotNull(a, b)) {
       if (isInteger(a) && isInteger(b)) {
@@ -192,6 +196,13 @@ public class OperatorSupport {
       return !((Boolean) a);
     }
     return reject(a, "not");
+  }
+
+  public static Object oftype(Object a, Object b) {
+    if (isClass(b)) {
+      return ((Class<?>) b).isInstance(a);
+    }
+    return reject(a, b, "oftype");
   }
 
   private static Object reject(Object a, String symbol) throws IllegalArgumentException {

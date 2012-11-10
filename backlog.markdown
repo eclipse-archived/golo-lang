@@ -10,8 +10,6 @@ Not everything is deemed to be implemented...
 
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
-* instanceof-style operator with class literal support.
-
 * Do not make all operators parser tokens, as it forbids some refs / functions / methods to
   have otherwise meaningful names such as `is` or `not`.
 
@@ -37,10 +35,10 @@ Not everything is deemed to be implemented...
   
     ```
     let result = match {
-      when (n instanceof Integer) and (n < 100) return "An integer below 100"
-      when (n instanceof Integer)               return "An integer"
-      when n instanceof String                  return "A string: #{n}"
-      otherwise                                 return "I have no idea"
+      when (n oftype Integer) and (n < 100) return "An integer below 100"
+      when (n oftype Integer)               return "An integer"
+      when n oftype String                  return "A string: #{n}"
+      otherwise                             return "I have no idea"
     }
     ```
 

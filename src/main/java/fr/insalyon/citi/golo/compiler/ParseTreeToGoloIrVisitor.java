@@ -149,6 +149,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.IS;
       case "isnt":
         return OperatorType.ISNT;
+      case "oftype":
+        return OperatorType.OFTYPE;
       case ":":
         return OperatorType.METHOD_CALL;
       default:

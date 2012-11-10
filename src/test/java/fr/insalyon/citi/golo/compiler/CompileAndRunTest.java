@@ -265,6 +265,10 @@ public class CompileAndRunTest {
 
     Method special_concat = moduleClass.getMethod("special_concat", Object.class, Object.class, Object.class, Object.class);
     assertThat((String) special_concat.invoke(null, 1, "a", 2, "b"), is("[1:a:2:b]"));
+
+    Method oftype_string = moduleClass.getMethod("oftype_string", Object.class);
+    assertThat((Boolean) oftype_string.invoke(null, "Hello"), is(true));
+    assertThat((Boolean) oftype_string.invoke(null, 666), is(false));
   }
 
   @Test
@@ -385,6 +389,10 @@ public class CompileAndRunTest {
 
     Method element_at = moduleClass.getMethod("element_at", Object.class, Object.class);
     assertThat(((String) element_at.invoke(null, asList("a", "b"), 0)), is("a"));
+
+    Method toString_by_reflection = moduleClass.getMethod("toString_by_reflection", Object.class);
+    assertThat((String) toString_by_reflection.invoke(null, "abc"), is("abc"));
+    assertThat((String) toString_by_reflection.invoke(null, 666), is("666"));
   }
 
   @Test

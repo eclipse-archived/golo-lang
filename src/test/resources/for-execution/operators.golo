@@ -55,3 +55,7 @@ function different_ref = |a, b| {
 function special_concat = |a, b, c, d| {
   return "[" + a + ":" + b + ":" + c + ":" + d + "]"
 }
+
+function oftype_string = |a| {
+  return a oftype java.lang.String.class
+}

@@ -254,4 +254,13 @@ public class OperatorSupportTest {
     assertThat((Boolean) isnt.invokeWithArguments(a, a), is(false));
     assertThat((Boolean) isnt.invokeWithArguments(a, b), is(true));
   }
+
+  public void check_oftype() throws Throwable {
+    String str = "abc";
+    MethodHandle oftype = OperatorSupport.bootstrap(lookup(), "oftype", BINOP_TYPE, 2).dynamicInvoker();
+    assertThat((Boolean) oftype.invokeWithArguments(str, String.class), is(true));
+    assertThat((Boolean) oftype.invokeWithArguments(str, Object.class), is(true));
+    assertThat((Boolean) oftype.invokeWithArguments(str, Integer.class), is(false));
+    assertThat((Boolean) oftype.invokeWithArguments(str, Exception.class), is(false));
+  }
 }

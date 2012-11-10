@@ -88,7 +88,8 @@ TOKEN :
 {
   < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
                            "<" | "<=" | "==" | "!=" | ">" | ">=" | 
-                           "is" | "isnt" ) >
+                           "is" | "isnt" |
+                           "oftype" ) >
   |
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
                            "and" | "or") >
