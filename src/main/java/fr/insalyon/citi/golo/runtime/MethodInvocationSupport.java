@@ -31,7 +31,9 @@ public class MethodInvocationSupport {
     }
 
     boolean isMegaMorphic() {
-      return depth >= 5;
+      return true;
+      // TODO: check megamorphic fallback strategies
+      // return depth >= 5;
     }
   }
 
