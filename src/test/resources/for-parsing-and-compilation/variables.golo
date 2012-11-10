@@ -18,3 +18,5 @@ function now2 = |a, b| {
 function long_number = {
   return 100_L
 }
+
+function string_class = { return String.class }

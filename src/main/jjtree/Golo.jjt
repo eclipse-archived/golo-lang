@@ -18,6 +18,20 @@ import java.util.LinkedList;
 import java.util.Collections;
 
 public class GoloParser {
+
+  public static class ParserClassRef {
+
+    public String name;
+
+    public ParserClassRef(String name) {
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return "Class<" + name + ">";
+    }
+  }
   
   public static void main(String[] args) throws Throwable {
     GoloParser parser = new GoloParser(System.in);    
@@ -104,6 +118,8 @@ TOKEN :
   < TRUE: "true" >
   |
   < FALSE: "false" >
+  |
+  < CLASSREF: <IDENTIFIER> ("." <IDENTIFIER>)* ".class" >
 }
 
 // Identifiers
@@ -205,6 +221,19 @@ Integer IntegerLiteral() #void:
     return Integer.valueOf(literal.image);
   }
 }
+
+GoloParser.ParserClassRef ClassLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<CLASSREF>
+  {
+    String image = literal.image;
+    return new GoloParser.ParserClassRef(image.substring(0, image.length() - 6));
+  }
+}
+
 
 // ............................................................................................. //
 
@@ -337,11 +366,11 @@ void ExpressionStatement() #void: {}
 
 void TerminalExpression() #void: {}
 {
-  Literal()
-  |
   LOOKAHEAD(2) FunctionInvocation()
   |
-  Reference()
+  LOOKAHEAD(2) Reference()
+  |
+  Literal()
 }
 
 void UnaryExpression():
@@ -449,6 +478,11 @@ void Literal():
 }
 {
   (
+    value=ClassLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
     value=StringLiteral()
     {
       jjtThis.setLiteralValue(value);
@@ -477,7 +511,7 @@ void Literal():
     <FALSE>
     {
       jjtThis.setLiteralValue(Boolean.FALSE);
-    }
+    }    
   )
 }
 

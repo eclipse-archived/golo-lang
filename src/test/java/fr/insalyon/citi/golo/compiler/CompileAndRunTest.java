@@ -5,6 +5,8 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import org.hamcrest.CoreMatchers;
+import org.hamcrest.Matcher;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -125,6 +127,14 @@ public class CompileAndRunTest {
 
     Method greet = moduleClass.getMethod("greet", Object.class);
     assertThat((String) greet.invoke(null, "Mr Bean"), is("Hello Mr Bean!"));
+
+    Method string_class = moduleClass.getMethod("string_class");
+    assertThat(string_class.invoke(null), instanceOf(Class.class));
+    assertThat((Class<String>) string_class.invoke(null), sameInstance(String.class));
+
+    Method string_class_from_package_import = moduleClass.getMethod("string_class_from_package_import");
+    assertThat(string_class_from_package_import.invoke(null), instanceOf(Class.class));
+    assertThat((Class<String>) string_class_from_package_import.invoke(null), sameInstance(String.class));
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)

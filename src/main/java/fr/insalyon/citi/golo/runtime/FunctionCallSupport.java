@@ -6,7 +6,6 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.Lookup;
@@ -48,7 +47,7 @@ public final class FunctionCallSupport {
   }
 
   private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, MethodType type) {
-    String[] imports = imports(callerClass);
+    String[] imports = Module.imports(callerClass);
     for (String imported : imports) {
       Object result = findClassWithConstructor(callerClass, imported + "." + classname, type);
       if (result != null) {
@@ -79,7 +78,7 @@ public final class FunctionCallSupport {
   }
 
   private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) {
-    String[] imports = imports(callerClass);
+    String[] imports = Module.imports(callerClass);
     String[] classAndMethod = null;
     final int classAndMethodSeparator = functionName.lastIndexOf(".");
     if (classAndMethodSeparator > 0) {
@@ -103,19 +102,6 @@ public final class FunctionCallSupport {
       }
     }
     return null;
-  }
-
-  private static String[] imports(Class<?> callerClass) {
-    String[] imports;
-    try {
-      Method $imports = callerClass.getMethod("$imports");
-      imports = (String[]) $imports.invoke(null);
-    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-      // This can only happen as part of the unit tests, because the lookup does not originate from
-      // a Golo module class, hence it doesn't have a $imports() static method.
-      imports = new String[]{};
-    }
-    return imports;
   }
 
   private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, MethodType type) {

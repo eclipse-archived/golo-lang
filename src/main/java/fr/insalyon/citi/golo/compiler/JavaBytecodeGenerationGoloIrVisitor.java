@@ -1,6 +1,7 @@
 package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
+import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -22,6 +23,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final Handle FUNCTION_INVOCATION_HANDLE;
   private static final Handle OPERATOR_HANDLE;
   private static final Handle METHOD_INVOCATION_HANDLE;
+  private static final Handle CLASSREF_HANDLE;
 
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
@@ -38,6 +40,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapMethod = "bootstrap";
     description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
     METHOD_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+
+    bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClassReferenceSupport";
+    bootstrapMethod = "bootstrap";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    CLASSREF_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
@@ -232,6 +239,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     if (value instanceof String) {
       methodVisitor.visitLdcInsn(value);
+      return;
+    }
+    if (value instanceof GoloParser.ParserClassRef) {
+      GoloParser.ParserClassRef ref = (GoloParser.ParserClassRef) value;
+      methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
       return;
     }
     throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");

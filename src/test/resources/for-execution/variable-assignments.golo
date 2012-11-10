@@ -1,5 +1,6 @@
 module golotest.execution.VariableAssignments
 
+import java.lang
 import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFunctions
 
 function echo = |what| { return what }
@@ -14,4 +15,12 @@ function echo_middleman = |what| {
 function greet = |someone| {
   let exclamation = "!"
   return concatenate(concatenate("Hello ", someone), exclamation)
+}
+
+function string_class = {
+  return java.lang.String.class
+}
+
+function string_class_from_package_import = {
+  return String.class
 }
