@@ -263,4 +263,10 @@ public class OperatorSupportTest {
     assertThat((Boolean) oftype.invokeWithArguments(str, Integer.class), is(false));
     assertThat((Boolean) oftype.invokeWithArguments(str, Exception.class), is(false));
   }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void check_oftype_not_a_class_param() throws Throwable {
+    MethodHandle oftype = OperatorSupport.bootstrap(lookup(), "oftype", BINOP_TYPE, 2).dynamicInvoker();
+    oftype.invokeWithArguments("abc", 123);
+  }
 }
