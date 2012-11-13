@@ -4,7 +4,6 @@ import java.lang.invoke.*;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.insertArguments;
-import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
 
 public class OperatorSupport {
@@ -87,6 +86,8 @@ public class OperatorSupport {
     return callSite;
   }
 
+  // plus .............................................................................................................
+
   public static Object plus(Integer a, Integer b) {
     return a + b;
   }
@@ -114,26 +115,27 @@ public class OperatorSupport {
     return reject(a, b, "plus");
   }
 
-  public static Object plus(Object a, Object b) {
-    if (bothNotNull(a, b)) {
-      if (isInteger(a) && isInteger(b)) {
-        return (Integer) a + (Integer) b;
-      }
-      if (isLong(a) && isLong(b)) {
-        return (Long) a + (Long) b;
-      }
-      if (isLong(a) && isInteger(b)) {
-        return (Long) a + (long) ((Integer) b);
-      }
-      if (isInteger(a) && isLong(b)) {
-        return (long) ((Integer) a) + (Long) b;
-      }
-    }
-    if (isNotNullAndString(a) || isNotNullAndString(b)) {
-      return new StringBuilder().append(a).append(b).toString();
-    }
-    return reject(a, b, "+");
+  // divide ...........................................................................................................
+
+  public static Object divide(Integer a, Integer b) {
+    return a / b;
   }
+
+  public static Object divide(Long a, Long b) {
+    return a / b;
+  }
+
+  public static Object divide(Long a, Integer b) {
+    return ((long) a) / b;
+  }
+
+  public static Object divide(Integer a, Long b) {
+    return a / ((long) b);
+  }
+
+
+
+
 
   private static boolean bothNotNull(Object a, Object b) {
     return (a != null) && (b != null);
@@ -215,24 +217,6 @@ public class OperatorSupport {
       builder.append(string);
     }
     return builder.toString();
-  }
-
-  public static Object divide(Object a, Object b) {
-    if (bothNotNull(a, b)) {
-      if (isInteger(a) && isInteger(b)) {
-        return (Integer) a / (Integer) b;
-      }
-      if (isLong(a) && isLong(b)) {
-        return (Long) a / (Long) b;
-      }
-      if (isLong(a) && isInteger(b)) {
-        return (Long) a / (long) ((Integer) b);
-      }
-      if (isInteger(a) && isLong(b)) {
-        return (long) ((Integer) a) / (Long) b;
-      }
-    }
-    return reject(a, b, "/");
   }
 
   public static Object equals(Object a, Object b) {
