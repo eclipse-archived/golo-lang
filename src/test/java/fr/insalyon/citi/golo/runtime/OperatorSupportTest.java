@@ -255,6 +255,7 @@ public class OperatorSupportTest {
     assertThat((Boolean) isnt.invokeWithArguments(a, b), is(true));
   }
 
+  @Test
   public void check_oftype() throws Throwable {
     String str = "abc";
     MethodHandle oftype = OperatorSupport.bootstrap(lookup(), "oftype", BINOP_TYPE, 2).dynamicInvoker();

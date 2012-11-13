@@ -241,6 +241,13 @@ public class OperatorSupport {
     return a || b;
   }
 
+  public static Object oftype_fallback(Object a, Object b) {
+    if (isClass(b)) {
+      return ((Class<?>) b).isInstance(a);
+    }
+    return reject(a, b, "oftype");
+  }
+
 
 
   private static boolean bothNotNull(Object a, Object b) {
@@ -289,12 +296,7 @@ public class OperatorSupport {
     return reject(a, "not");
   }
 
-  public static Object oftype(Object a, Object b) {
-    if (isClass(b)) {
-      return ((Class<?>) b).isInstance(a);
-    }
-    return reject(a, b, "oftype");
-  }
+
 
   private static Object reject(Object a, String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for type %s", symbol, a.getClass()));
