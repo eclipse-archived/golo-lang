@@ -246,6 +246,18 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
       return;
     }
+    if (value instanceof Double) {
+      double d = (Double) value;
+      methodVisitor.visitLdcInsn(d);
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+      return;
+    }
+    if (value instanceof Float) {
+      float f = (Float) value;
+      methodVisitor.visitLdcInsn(f);
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+      return;
+    }
     throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
   }
 

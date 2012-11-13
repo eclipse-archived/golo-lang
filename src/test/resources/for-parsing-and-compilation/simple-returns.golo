@@ -22,3 +22,15 @@ function hello_world =
 {
   return "Hello, world!"
 }
+
+function doubles = {
+  let a = 123.45
+  let b = -123.45
+  let c = 123.4e5
+}
+
+function floats = {
+  let a = 123.45_F
+  let b = -123.45_F
+  let c = 123.4e5_F
+}

@@ -336,6 +336,28 @@ public class CompileAndRunTest {
     array = (Object[]) result;
     assertThat(array.length, is(1));
     assertThat((String) array[0], is("foo"));
+
+    Method array_of_doubles = moduleClass.getMethod("array_of_doubles");
+    result = array_of_doubles.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    array = (Object[]) result;
+    assertThat(array.length, is(4));
+    assertThat(array[0],instanceOf(Double.class));
+    assertThat(array[0], is((Object) Double.valueOf("123.0")));
+    assertThat(array[1], is((Object) Double.valueOf("-123.0")));
+    assertThat(array[2], is((Object) Double.valueOf("123.456")));
+    assertThat(array[3], is((Object) Double.valueOf("123.0e3")));
+
+    Method array_of_floats = moduleClass.getMethod("array_of_floats");
+    result = array_of_floats.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    array = (Object[]) result;
+    assertThat(array.length, is(4));
+    assertThat(array[0],instanceOf(Float.class));
+    assertThat(array[0], is((Object) Float.valueOf("123.0")));
+    assertThat(array[1], is((Object) Float.valueOf("-123.0")));
+    assertThat(array[2], is((Object) Float.valueOf("123.456")));
+    assertThat(array[3], is((Object) Float.valueOf("123.0e3")));
   }
 
   @Test

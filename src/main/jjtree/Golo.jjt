@@ -112,6 +112,10 @@ TOKEN :
   |
   < LONG_NUMBER: <NUMBER> "_L" >
   |
+  < FLOATING_NUMBER: ("-")? (["0"-"9"])+ ("." (["0"-"9"])+)? ("e" (["0"-"9"])+)? >
+  |
+  < FLOAT: <FLOATING_NUMBER> "_F" >
+  |
   < STRING: "\"" (~["\n", "\r", "\""])* "\"" >
   |
   < NULL: "null" >
@@ -235,6 +239,27 @@ GoloParser.ParserClassRef ClassLiteral() #void:
   }
 }
 
+Double DoubleLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<FLOATING_NUMBER>
+  {
+    return Double.valueOf(literal.image);
+  }
+}
+
+Float FloatLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<FLOAT>
+  {
+    return Float.valueOf(literal.image.substring(0, literal.image.length() - 2));
+  }
+}
 
 // ............................................................................................. //
 
@@ -485,6 +510,16 @@ void Literal():
     }
     |
     value=StringLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=FloatLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=DoubleLiteral()
     {
       jjtThis.setLiteralValue(value);
     }
