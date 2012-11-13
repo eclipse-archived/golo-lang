@@ -177,7 +177,69 @@ public class OperatorSupport {
     return reject(a, b, "moreorequals");
   }
 
+  // minus ............................................................................................................
 
+  public static Object minus(Integer a, Integer b) {
+    return a - b;
+  }
+
+  public static Object minus(Long a, Long b) {
+    return a - b;
+  }
+
+  public static Object minus(Integer a, Long b) {
+    return ((long) a) - b;
+  }
+
+  public static Object minus(Long a, Integer b) {
+    return a - ((long) b);
+  }
+
+  // times ............................................................................................................
+
+  public static Object times (Integer a, Integer b) {
+    return a * b;
+  }
+
+  public static Object times (Long a, Long b) {
+    return a * b;
+  }
+
+  public static Object times (Long a, Integer b) {
+    return a * ((long) b);
+  }
+
+  public static Object times (Integer a, Long b) {
+    return ((long) a) * b;
+  }
+
+  public static Object times_fallback(Object a, Object b) {
+    if (isInteger(a) && isString(b)) {
+      return repeat((String) b, (Integer) a);
+    }
+    if (isString(a) && isInteger(b)) {
+      return repeat((String) a, (Integer) b);
+    }
+    return reject(a, b, "times");
+  }
+
+  private static String repeat(String string, int n) {
+    StringBuilder builder = new StringBuilder(string);
+    for (int i = 1; i < n; i++) {
+      builder.append(string);
+    }
+    return builder.toString();
+  }
+
+  // logic ............................................................................................................
+
+  public static Object and(Boolean a, Boolean b) {
+    return a && b;
+  }
+
+  public static Object or(Boolean a, Boolean b) {
+    return a || b;
+  }
 
 
 
@@ -213,70 +275,12 @@ public class OperatorSupport {
     return (obj != null) && (obj.getClass() == Class.class);
   }
 
-  public static Object minus(Object a, Object b) {
-    if (bothNotNull(a, b)) {
-      if (isInteger(a) && isInteger(b)) {
-        return (Integer) a - (Integer) b;
-      }
-      if (isLong(a) && isLong(b)) {
-        return (Long) a - (Long) b;
-      }
-      if (isLong(a) && isInteger(b)) {
-        return (Long) a - (long) ((Integer) b);
-      }
-      if (isInteger(a) && isLong(b)) {
-        return (long) ((Integer) a) - (Long) b;
-      }
-    }
-    return reject(a, b, "-");
-  }
-
-  public static Object times(Object a, Object b) {
-    if (bothNotNull(a, b)) {
-      if (isInteger(a) && isInteger(b)) {
-        return (Integer) a * (Integer) b;
-      }
-      if (isLong(a) && isLong(b)) {
-        return (Long) a * (Long) b;
-      }
-      if (isLong(a) && isInteger(b)) {
-        return (Long) a * (long) ((Integer) b);
-      }
-      if (isInteger(a) && isLong(b)) {
-        return (long) ((Integer) a) * (Long) b;
-      }
-      if (isInteger(a) && isString(b)) {
-        return repeat((String) b, (Integer) a);
-      }
-      if (isString(a) && isInteger(b)) {
-        return repeat((String) a, (Integer) b);
-      }
-    }
-    return reject(a, b, "*");
-  }
-
-  private static String repeat(String string, int n) {
-    StringBuilder builder = new StringBuilder(string);
-    for (int i = 1; i < n; i++) {
-      builder.append(string);
-    }
-    return builder.toString();
-  }
 
 
-  public static Object and(Object a, Object b) {
-    if (bothNotNull(a, b) && isBoolean(a) && isBoolean(b)) {
-      return ((Boolean) a) && ((Boolean) b);
-    }
-    return reject(a, b, "and");
-  }
 
-  public static Object or(Object a, Object b) {
-    if (bothNotNull(a, b) && isBoolean(a) && isBoolean(b)) {
-      return ((Boolean) a) || ((Boolean) b);
-    }
-    return reject(a, b, "or");
-  }
+
+
+
 
   public static Object not(Object a) {
     if (a != null && isBoolean(a)) {
