@@ -138,7 +138,7 @@ public class OperatorSupport {
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
 
     if (NO_GUARD_OPERATORS.contains(name)) {
-      MethodHandle target = caller.findStatic(OperatorSupport.class, name + "_fallback",
+      MethodHandle target = caller.findStatic(OperatorSupport.class, name + "_noguard",
           methodType(Object.class, Object.class, Object.class));
       return new ConstantCallSite(target);
     }
@@ -208,16 +208,16 @@ public class OperatorSupport {
 
   // comparisons ......................................................................................................
 
-  public static Object equals_fallback(Object a, Object b) {
+  public static Object equals_noguard(Object a, Object b) {
     return (a == b) || ((a != null) && a.equals(b));
   }
 
-  public static Object notequals_fallback(Object a, Object b) {
+  public static Object notequals_noguard(Object a, Object b) {
     return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
   @SuppressWarnings("unchecked")
-  public static Object less_fallback(Object a, Object b) {
+  public static Object less_noguard(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
@@ -225,7 +225,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object lessorequals_fallback(Object a, Object b) {
+  public static Object lessorequals_noguard(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
@@ -233,7 +233,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object more_fallback(Object a, Object b) {
+  public static Object more_noguard(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
     }
@@ -241,7 +241,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object moreorequals_fallback(Object a, Object b) {
+  public static Object moreorequals_noguard(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }
@@ -316,18 +316,18 @@ public class OperatorSupport {
     return !a;
   }
 
-  public static Object oftype_fallback(Object a, Object b) {
+  public static Object oftype_noguard(Object a, Object b) {
     if (isClass(b)) {
       return ((Class<?>) b).isInstance(a);
     }
     return reject(a, b, "oftype");
   }
 
-  public static Object is_fallback(Object a, Object b) {
+  public static Object is_noguard(Object a, Object b) {
     return a == b;
   }
 
-  public static Object isnt_fallback(Object a, Object b) {
+  public static Object isnt_noguard(Object a, Object b) {
     return a != b;
   }
 
