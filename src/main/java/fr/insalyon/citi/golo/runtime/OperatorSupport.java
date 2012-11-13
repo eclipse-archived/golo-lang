@@ -20,12 +20,25 @@ public class OperatorSupport {
     }
   }
 
+  private static final MethodHandle GUARD_1;
+  private static final MethodHandle FALLBACK_1;
+
   private static final MethodHandle GUARD_2;
   private static final MethodHandle FALLBACK_2;
 
   static {
     try {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
+
+      GUARD_1 = lookup.findStatic(
+          OperatorSupport.class,
+          "guard_1",
+          methodType(boolean.class, Class.class, Object.class));
+
+      FALLBACK_1 = lookup.findStatic(
+          OperatorSupport.class,
+          "fallback_1",
+          methodType(Object.class, InlineCache.class, Object[].class));
 
       GUARD_2 = lookup.findStatic(
           OperatorSupport.class,
@@ -41,21 +54,51 @@ public class OperatorSupport {
     }
   }
 
-  public static boolean guard_2(Class<?> expected1, Class<?> expected2, Object receiver1, Object receiver2) {
-    Class<?> t1 = (receiver1 == null) ? Object.class : receiver1.getClass();
-    Class<?> t2 = (receiver2 == null) ? Object.class : receiver2.getClass();
+  public static boolean guard_1(Class<?> expected, Object arg) {
+    Class<?> t = (arg == null) ? Object.class : arg.getClass();
+    return (t == expected);
+  }
+
+  public static boolean guard_2(Class<?> expected1, Class<?> expected2, Object arg1, Object arg2) {
+    Class<?> t1 = (arg1 == null) ? Object.class : arg1.getClass();
+    Class<?> t2 = (arg2 == null) ? Object.class : arg2.getClass();
     return (t1 == expected1) && (t2 == expected2);
   }
 
-  public static Object fallback_2(InlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback_1(InlineCache inlineCache, Object[] args) throws Throwable {
 
-    Class<?> receiverClass1 = (args[0] == null) ? Object.class : args[0].getClass();
-    Class<?> receiverClass2 = (args[1] == null) ? Object.class : args[1].getClass();
+    Class<?> argClass = (args[0] == null) ? Object.class : args[0].getClass();
     MethodHandle target;
 
     try {
       target = inlineCache.callerLookup.findStatic(
-          OperatorSupport.class, inlineCache.name, methodType(Object.class, receiverClass1, receiverClass2));
+          OperatorSupport.class, inlineCache.name, methodType(Object.class, argClass));
+    } catch (Throwable t1) {
+      try {
+        target = inlineCache.callerLookup.findStatic(
+            OperatorSupport.class, inlineCache.name + "_fallback", methodType(Object.class, Object.class));
+      } catch (Throwable t2) {
+        return reject(args[0], inlineCache.name);
+      }
+    }
+    target = target.asType(methodType(Object.class, Object.class));
+
+    MethodHandle guard = GUARD_1.bindTo(argClass);
+
+    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.getTarget());
+    inlineCache.setTarget(guardedTarget);
+    return target.invokeWithArguments(args);
+  }
+
+  public static Object fallback_2(InlineCache inlineCache, Object[] args) throws Throwable {
+
+    Class<?> arg1Class = (args[0] == null) ? Object.class : args[0].getClass();
+    Class<?> arg2Class = (args[1] == null) ? Object.class : args[1].getClass();
+    MethodHandle target;
+
+    try {
+      target = inlineCache.callerLookup.findStatic(
+          OperatorSupport.class, inlineCache.name, methodType(Object.class, arg1Class, arg2Class));
     } catch (Throwable t1) {
       try {
         target = inlineCache.callerLookup.findStatic(
@@ -66,7 +109,7 @@ public class OperatorSupport {
     }
     target = target.asType(methodType(Object.class, Object.class, Object.class));
 
-    MethodHandle guard = insertArguments(GUARD_2, 0, receiverClass1, receiverClass2);
+    MethodHandle guard = insertArguments(GUARD_2, 0, arg1Class, arg2Class);
 
     MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.getTarget());
     inlineCache.setTarget(guardedTarget);
@@ -75,15 +118,16 @@ public class OperatorSupport {
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
     InlineCache callSite = new InlineCache(caller, name, type);
-    MethodHandle fallbackHandle;
+    MethodHandle fallback;
     if (arity == 2) {
-      fallbackHandle = FALLBACK_2
-          .bindTo(callSite)
-          .asCollector(Object[].class, type.parameterCount())
-          .asType(type);
+      fallback = FALLBACK_2;
     } else {
-      throw new UnsupportedOperationException("no fallback for unary operators yet");
+      fallback = FALLBACK_1;
     }
+    MethodHandle fallbackHandle = fallback
+        .bindTo(callSite)
+        .asCollector(Object[].class, type.parameterCount())
+        .asType(type);
     callSite.setTarget(fallbackHandle);
     return callSite;
   }
@@ -241,6 +285,10 @@ public class OperatorSupport {
     return a || b;
   }
 
+  public static Object not(Boolean a) {
+    return !a;
+  }
+
   public static Object oftype_fallback(Object a, Object b) {
     if (isClass(b)) {
       return ((Class<?>) b).isInstance(a);
@@ -289,12 +337,7 @@ public class OperatorSupport {
 
 
 
-  public static Object not(Object a) {
-    if (a != null && isBoolean(a)) {
-      return !((Boolean) a);
-    }
-    return reject(a, "not");
-  }
+
 
 
 

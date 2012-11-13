@@ -11,6 +11,7 @@ import static org.hamcrest.Matchers.*;
 
 public class OperatorSupportTest {
 
+  private static final MethodType UNOP_TYPE = MethodType.methodType(Object.class, Object.class);
   private static final MethodType BINOP_TYPE = MethodType.methodType(Object.class, Object.class, Object.class);
 
   @Test
@@ -230,14 +231,14 @@ public class OperatorSupportTest {
 
   @Test
   public void check_not() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", BINOP_TYPE, 1).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", UNOP_TYPE, 1).dynamicInvoker();
     assertThat((Boolean) handle.invokeWithArguments(true), is(false));
     assertThat((Boolean) handle.invokeWithArguments(false), is(true));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_not_rejects_non_booleans() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", BINOP_TYPE, 1).dynamicInvoker();
+    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", UNOP_TYPE, 1).dynamicInvoker();
     handle.invokeWithArguments("foo");
   }
 
