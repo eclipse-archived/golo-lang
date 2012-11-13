@@ -42,13 +42,15 @@ public class OperatorSupport {
   }
 
   public static boolean guard_2(Class<?> expected1, Class<?> expected2, Object receiver1, Object receiver2) {
-    return (receiver1.getClass() == expected1) && (receiver2.getClass() == expected2);
+    Class<?> t1 = (receiver1 == null) ? Object.class : receiver1.getClass();
+    Class<?> t2 = (receiver2 == null) ? Object.class : receiver2.getClass();
+    return (t1 == expected1) && (t2 == expected2);
   }
 
   public static Object fallback_2(InlineCache inlineCache, Object[] args) throws Throwable {
 
-    Class<?> receiverClass1 = args[0].getClass();
-    Class<?> receiverClass2 = args[1].getClass();
+    Class<?> receiverClass1 = (args[0] == null) ? Object.class : args[0].getClass();
+    Class<?> receiverClass2 = (args[1] == null) ? Object.class : args[1].getClass();
     MethodHandle target;
 
     try {
@@ -132,6 +134,17 @@ public class OperatorSupport {
   public static Object divide(Integer a, Long b) {
     return a / ((long) b);
   }
+
+  // comparisons ......................................................................................................
+
+  public static Object equals_fallback(Object a, Object b) {
+    return (a == b) || ((a != null) && a.equals(b));
+  }
+
+  public static Object notequals_fallback(Object a, Object b) {
+    return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
+  }
+
 
 
 
@@ -217,14 +230,6 @@ public class OperatorSupport {
       builder.append(string);
     }
     return builder.toString();
-  }
-
-  public static Object equals(Object a, Object b) {
-    return (a == b) || ((a != null) && a.equals(b));
-  }
-
-  public static Object notequals(Object a, Object b) {
-    return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
   @SuppressWarnings("unchecked")
