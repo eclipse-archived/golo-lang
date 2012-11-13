@@ -296,14 +296,22 @@ public class OperatorSupport {
     return reject(a, b, "oftype");
   }
 
-
-
-  private static boolean bothNotNull(Object a, Object b) {
-    return (a != null) && (b != null);
+  public static Object is_fallback(Object a, Object b) {
+    return a == b;
   }
+
+  public static Object isnt_fallback(Object a, Object b) {
+    return a != b;
+  }
+
+  // helpers ..........................................................................................................
 
   private static boolean isNotNullAndString(Object obj) {
     return (obj != null) && (obj.getClass() == String.class);
+  }
+
+  private static boolean bothNotNull(Object a, Object b) {
+    return (a != null) && (b != null);
   }
 
   private static boolean isString(Object obj) {
@@ -314,32 +322,13 @@ public class OperatorSupport {
     return obj.getClass() == Integer.class;
   }
 
-  private static boolean isLong(Object obj) {
-    return obj.getClass() == Long.class;
-  }
-
   private static boolean isComparable(Object obj) {
     return obj instanceof Comparable<?>;
-  }
-
-  private static boolean isBoolean(Object obj) {
-    return obj.getClass() == Boolean.class;
   }
 
   private static boolean isClass(Object obj) {
     return (obj != null) && (obj.getClass() == Class.class);
   }
-
-
-
-
-
-
-
-
-
-
-
 
   private static Object reject(Object a, String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for type %s", symbol, a.getClass()));
@@ -347,13 +336,5 @@ public class OperatorSupport {
 
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
     throw new IllegalArgumentException(String.format("Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
-  }
-
-  public static Object is(Object a, Object b) {
-    return a == b;
-  }
-
-  public static Object isnt(Object a, Object b) {
-    return a != b;
   }
 }
