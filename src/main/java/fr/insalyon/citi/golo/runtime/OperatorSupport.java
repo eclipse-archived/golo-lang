@@ -1,6 +1,8 @@
 package fr.insalyon.citi.golo.runtime;
 
 import java.lang.invoke.*;
+import java.util.HashSet;
+import java.util.Set;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.insertArguments;
@@ -8,12 +10,13 @@ import static java.lang.invoke.MethodType.methodType;
 
 public class OperatorSupport {
 
-  static class InlineCache extends MutableCallSite {
+  static class MonomorphicInlineCache extends MutableCallSite {
 
     final MethodHandles.Lookup callerLookup;
     final String name;
+    MethodHandle fallback;
 
-    InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    MonomorphicInlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -25,6 +28,22 @@ public class OperatorSupport {
 
   private static final MethodHandle GUARD_2;
   private static final MethodHandle FALLBACK_2;
+
+  private static final Set<String> NO_GUARD_OPERATORS = new HashSet<String>() {
+    {
+      add("is");
+      add("isnt");
+      add("oftype");
+
+      add("equals");
+      add("notequals");
+
+      add("more");
+      add("less");
+      add("moreorequals");
+      add("lessorequals");
+    }
+  };
 
   static {
     try {
@@ -38,7 +57,7 @@ public class OperatorSupport {
       FALLBACK_1 = lookup.findStatic(
           OperatorSupport.class,
           "fallback_1",
-          methodType(Object.class, InlineCache.class, Object[].class));
+          methodType(Object.class, MonomorphicInlineCache.class, Object[].class));
 
       GUARD_2 = lookup.findStatic(
           OperatorSupport.class,
@@ -48,7 +67,7 @@ public class OperatorSupport {
       FALLBACK_2 = lookup.findStatic(
           OperatorSupport.class,
           "fallback_2",
-          methodType(Object.class, InlineCache.class, Object[].class));
+          methodType(Object.class, MonomorphicInlineCache.class, Object[].class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
@@ -65,7 +84,7 @@ public class OperatorSupport {
     return (t1 == expected1) && (t2 == expected2);
   }
 
-  public static Object fallback_1(InlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback_1(MonomorphicInlineCache inlineCache, Object[] args) throws Throwable {
 
     Class<?> argClass = (args[0] == null) ? Object.class : args[0].getClass();
     MethodHandle target;
@@ -85,12 +104,12 @@ public class OperatorSupport {
 
     MethodHandle guard = GUARD_1.bindTo(argClass);
 
-    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.getTarget());
+    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.fallback);
     inlineCache.setTarget(guardedTarget);
     return target.invokeWithArguments(args);
   }
 
-  public static Object fallback_2(InlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback_2(MonomorphicInlineCache inlineCache, Object[] args) throws Throwable {
 
     Class<?> arg1Class = (args[0] == null) ? Object.class : args[0].getClass();
     Class<?> arg2Class = (args[1] == null) ? Object.class : args[1].getClass();
@@ -111,13 +130,20 @@ public class OperatorSupport {
 
     MethodHandle guard = insertArguments(GUARD_2, 0, arg1Class, arg2Class);
 
-    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.getTarget());
+    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.fallback);
     inlineCache.setTarget(guardedTarget);
     return target.invokeWithArguments(args);
   }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
-    InlineCache callSite = new InlineCache(caller, name, type);
+
+    if (NO_GUARD_OPERATORS.contains(name)) {
+      MethodHandle target = caller.findStatic(OperatorSupport.class, name + "_fallback",
+          methodType(Object.class, Object.class, Object.class));
+      return new ConstantCallSite(target);
+    }
+
+    MonomorphicInlineCache callSite = new MonomorphicInlineCache(caller, name, type);
     MethodHandle fallback;
     if (arity == 2) {
       fallback = FALLBACK_2;
@@ -128,6 +154,7 @@ public class OperatorSupport {
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
         .asType(type);
+    callSite.fallback = fallbackHandle;
     callSite.setTarget(fallbackHandle);
     return callSite;
   }
@@ -241,19 +268,19 @@ public class OperatorSupport {
 
   // times ............................................................................................................
 
-  public static Object times (Integer a, Integer b) {
+  public static Object times(Integer a, Integer b) {
     return a * b;
   }
 
-  public static Object times (Long a, Long b) {
+  public static Object times(Long a, Long b) {
     return a * b;
   }
 
-  public static Object times (Long a, Integer b) {
+  public static Object times(Long a, Integer b) {
     return a * ((long) b);
   }
 
-  public static Object times (Integer a, Long b) {
+  public static Object times(Integer a, Long b) {
     return ((long) a) * b;
   }
 
