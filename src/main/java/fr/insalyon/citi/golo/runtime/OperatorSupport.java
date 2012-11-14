@@ -159,23 +159,265 @@ public class OperatorSupport {
     return callSite;
   }
 
-  // plus .............................................................................................................
+  // arithmetic (generated) ...........................................................................................
 
   public static Object plus(Integer a, Integer b) {
     return a + b;
+  }
+
+  public static Object minus(Integer a, Integer b) {
+    return a - b;
+  }
+
+  public static Object divide(Integer a, Integer b) {
+    return a / b;
+  }
+
+  public static Object times(Integer a, Integer b) {
+    return a * b;
   }
 
   public static Object plus(Long a, Long b) {
     return a + b;
   }
 
+  public static Object minus(Long a, Long b) {
+    return a - b;
+  }
+
+  public static Object divide(Long a, Long b) {
+    return a / b;
+  }
+
+  public static Object times(Long a, Long b) {
+    return a * b;
+  }
+
+  public static Object plus(Double a, Double b) {
+    return a + b;
+  }
+
+  public static Object minus(Double a, Double b) {
+    return a - b;
+  }
+
+  public static Object divide(Double a, Double b) {
+    return a / b;
+  }
+
+  public static Object times(Double a, Double b) {
+    return a * b;
+  }
+
+  public static Object plus(Float a, Float b) {
+    return a + b;
+  }
+
+  public static Object minus(Float a, Float b) {
+    return a - b;
+  }
+
+  public static Object divide(Float a, Float b) {
+    return a / b;
+  }
+
+  public static Object times(Float a, Float b) {
+    return a * b;
+  }
+
   public static Object plus(Integer a, Long b) {
     return ((long) a) + b;
+  }
+
+  public static Object minus(Integer a, Long b) {
+    return ((long) a) - b;
+  }
+
+  public static Object divide(Integer a, Long b) {
+    return ((long) a) / b;
+  }
+
+  public static Object times(Integer a, Long b) {
+    return ((long) a) * b;
+  }
+
+  public static Object plus(Integer a, Double b) {
+    return ((double) a) + b;
+  }
+
+  public static Object minus(Integer a, Double b) {
+    return ((double) a) - b;
+  }
+
+  public static Object divide(Integer a, Double b) {
+    return ((double) a) / b;
+  }
+
+  public static Object times(Integer a, Double b) {
+    return ((double) a) * b;
+  }
+
+  public static Object plus(Integer a, Float b) {
+    return ((float) a) + b;
+  }
+
+  public static Object minus(Integer a, Float b) {
+    return ((float) a) - b;
+  }
+
+  public static Object divide(Integer a, Float b) {
+    return ((float) a) / b;
+  }
+
+  public static Object times(Integer a, Float b) {
+    return ((float) a) * b;
+  }
+
+  public static Object plus(Long a, Double b) {
+    return ((double) a) + b;
+  }
+
+  public static Object minus(Long a, Double b) {
+    return ((double) a) - b;
+  }
+
+  public static Object divide(Long a, Double b) {
+    return ((double) a) / b;
+  }
+
+  public static Object times(Long a, Double b) {
+    return ((double) a) * b;
+  }
+
+  public static Object plus(Long a, Float b) {
+    return ((float) a) + b;
+  }
+
+  public static Object minus(Long a, Float b) {
+    return ((float) a) - b;
+  }
+
+  public static Object divide(Long a, Float b) {
+    return ((float) a) / b;
+  }
+
+  public static Object times(Long a, Float b) {
+    return ((float) a) * b;
+  }
+
+  public static Object plus(Double a, Float b) {
+    return a + ((double) b);
+  }
+
+  public static Object minus(Double a, Float b) {
+    return a - ((double) b);
+  }
+
+  public static Object divide(Double a, Float b) {
+    return a / ((double) b);
+  }
+
+  public static Object times(Double a, Float b) {
+    return a * ((double) b);
   }
 
   public static Object plus(Long a, Integer b) {
     return a + ((long) b);
   }
+
+  public static Object minus(Long a, Integer b) {
+    return a - ((long) b);
+  }
+
+  public static Object divide(Long a, Integer b) {
+    return a / ((long) b);
+  }
+
+  public static Object times(Long a, Integer b) {
+    return a * ((long) b);
+  }
+
+  public static Object plus(Double a, Integer b) {
+    return a + ((double) b);
+  }
+
+  public static Object minus(Double a, Integer b) {
+    return a - ((double) b);
+  }
+
+  public static Object divide(Double a, Integer b) {
+    return a / ((double) b);
+  }
+
+  public static Object times(Double a, Integer b) {
+    return a * ((double) b);
+  }
+
+  public static Object plus(Float a, Integer b) {
+    return a + ((float) b);
+  }
+
+  public static Object minus(Float a, Integer b) {
+    return a - ((float) b);
+  }
+
+  public static Object divide(Float a, Integer b) {
+    return a / ((float) b);
+  }
+
+  public static Object times(Float a, Integer b) {
+    return a * ((float) b);
+  }
+
+  public static Object plus(Double a, Long b) {
+    return a + ((double) b);
+  }
+
+  public static Object minus(Double a, Long b) {
+    return a - ((double) b);
+  }
+
+  public static Object divide(Double a, Long b) {
+    return a / ((double) b);
+  }
+
+  public static Object times(Double a, Long b) {
+    return a * ((double) b);
+  }
+
+  public static Object plus(Float a, Long b) {
+    return a + ((float) b);
+  }
+
+  public static Object minus(Float a, Long b) {
+    return a - ((float) b);
+  }
+
+  public static Object divide(Float a, Long b) {
+    return a / ((float) b);
+  }
+
+  public static Object times(Float a, Long b) {
+    return a * ((float) b);
+  }
+
+  public static Object plus(Float a, Double b) {
+    return ((double) a) + b;
+  }
+
+  public static Object minus(Float a, Double b) {
+    return ((double) a) - b;
+  }
+
+  public static Object divide(Float a, Double b) {
+    return ((double) a) / b;
+  }
+
+  public static Object times(Float a, Double b) {
+    return ((double) a) * b;
+  }
+
+  // arithmetic fallbacks .............................................................................................
 
   public static Object plus(String a, String b) {
     return a + b;
@@ -188,22 +430,22 @@ public class OperatorSupport {
     return reject(a, b, "plus");
   }
 
-  // divide ...........................................................................................................
-
-  public static Object divide(Integer a, Integer b) {
-    return a / b;
+  public static Object times_fallback(Object a, Object b) {
+    if (isInteger(a) && isString(b)) {
+      return repeat((String) b, (Integer) a);
+    }
+    if (isString(a) && isInteger(b)) {
+      return repeat((String) a, (Integer) b);
+    }
+    return reject(a, b, "times");
   }
 
-  public static Object divide(Long a, Long b) {
-    return a / b;
-  }
-
-  public static Object divide(Long a, Integer b) {
-    return ((long) a) / b;
-  }
-
-  public static Object divide(Integer a, Long b) {
-    return a / ((long) b);
+  private static String repeat(String string, int n) {
+    StringBuilder builder = new StringBuilder(string);
+    for (int i = 1; i < n; i++) {
+      builder.append(string);
+    }
+    return builder.toString();
   }
 
   // comparisons ......................................................................................................
@@ -246,60 +488,6 @@ public class OperatorSupport {
       return ((Comparable) a).compareTo(b) >= 0;
     }
     return reject(a, b, "moreorequals");
-  }
-
-  // minus ............................................................................................................
-
-  public static Object minus(Integer a, Integer b) {
-    return a - b;
-  }
-
-  public static Object minus(Long a, Long b) {
-    return a - b;
-  }
-
-  public static Object minus(Integer a, Long b) {
-    return ((long) a) - b;
-  }
-
-  public static Object minus(Long a, Integer b) {
-    return a - ((long) b);
-  }
-
-  // times ............................................................................................................
-
-  public static Object times(Integer a, Integer b) {
-    return a * b;
-  }
-
-  public static Object times(Long a, Long b) {
-    return a * b;
-  }
-
-  public static Object times(Long a, Integer b) {
-    return a * ((long) b);
-  }
-
-  public static Object times(Integer a, Long b) {
-    return ((long) a) * b;
-  }
-
-  public static Object times_fallback(Object a, Object b) {
-    if (isInteger(a) && isString(b)) {
-      return repeat((String) b, (Integer) a);
-    }
-    if (isString(a) && isInteger(b)) {
-      return repeat((String) a, (Integer) b);
-    }
-    return reject(a, b, "times");
-  }
-
-  private static String repeat(String string, int n) {
-    StringBuilder builder = new StringBuilder(string);
-    for (int i = 1; i < n; i++) {
-      builder.append(string);
-    }
-    return builder.toString();
   }
 
   // logic ............................................................................................................
