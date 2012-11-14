@@ -59,3 +59,12 @@ function special_concat = |a, b, c, d| {
 function oftype_string = |a| {
   return a oftype java.lang.String.class
 }
+
+function average = | zero, items... | {
+  let count = alength(items)
+  var sum = zero
+  for (var i = 0, i < count, i = i + 1) {
+    sum = sum + aget(items, i)
+  }
+  return sum / count
+}

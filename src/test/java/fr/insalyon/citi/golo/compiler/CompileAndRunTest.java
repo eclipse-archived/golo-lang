@@ -5,8 +5,7 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.Matcher;
+import org.hamcrest.Matchers;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -15,7 +14,6 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -27,6 +25,7 @@ import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.closeTo;
 import static org.testng.Assert.fail;
 
 public class CompileAndRunTest {
@@ -269,6 +268,11 @@ public class CompileAndRunTest {
     Method oftype_string = moduleClass.getMethod("oftype_string", Object.class);
     assertThat((Boolean) oftype_string.invoke(null, "Hello"), is(true));
     assertThat((Boolean) oftype_string.invoke(null, 666), is(false));
+
+    Method average = moduleClass.getMethod("average", Object.class, Object[].class);
+    assertThat((Integer) average.invoke(null, 1, new Object[]{1, 2, 3}), is(2));
+    assertThat((Long) average.invoke(null, 1, new Object[]{1, 2L, 3}), is(2L));
+    assertThat((Double) average.invoke(null, 1, new Object[]{1, 2L, 3.0}), closeTo(2.0, 0.5));
   }
 
   @Test
@@ -342,7 +346,7 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(Object[].class));
     array = (Object[]) result;
     assertThat(array.length, is(4));
-    assertThat(array[0],instanceOf(Double.class));
+    assertThat(array[0], instanceOf(Double.class));
     assertThat(array[0], is((Object) Double.valueOf("123.0")));
     assertThat(array[1], is((Object) Double.valueOf("-123.0")));
     assertThat(array[2], is((Object) Double.valueOf("123.456")));
@@ -353,7 +357,7 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(Object[].class));
     array = (Object[]) result;
     assertThat(array.length, is(4));
-    assertThat(array[0],instanceOf(Float.class));
+    assertThat(array[0], instanceOf(Float.class));
     assertThat(array[0], is((Object) Float.valueOf("123.0")));
     assertThat(array[1], is((Object) Float.valueOf("-123.0")));
     assertThat(array[2], is((Object) Float.valueOf("123.456")));
