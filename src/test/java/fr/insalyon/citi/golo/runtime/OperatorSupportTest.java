@@ -271,4 +271,16 @@ public class OperatorSupportTest {
     MethodHandle oftype = OperatorSupport.bootstrap(lookup(), "oftype", BINOP_TYPE, 2).dynamicInvoker();
     oftype.invokeWithArguments("abc", 123);
   }
+
+  @Test
+  public void check_add_double_and_float() throws Throwable {
+    Double a = 2.5;
+    Float b = 2.5f;
+    MethodHandle plus = OperatorSupport.bootstrap(lookup(), "plus", BINOP_TYPE, 2).dynamicInvoker();
+    Object result = plus.invokeWithArguments(a, b);
+
+    assertThat(result, instanceOf(Double.class));
+    Double r = (Double) result;
+    assertThat(r, is(a + ((double) b)));
+  }
 }
