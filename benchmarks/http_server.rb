@@ -1,3 +1,4 @@
+#!/usr/bin/env ruby
 require 'webrick'
 
  server = WEBrick::HTTPServer.new(:Port => 1981)
