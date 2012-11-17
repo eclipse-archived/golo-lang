@@ -3,16 +3,17 @@ package fr.citilab.gololang.benchmarks;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 import groovy.lang.GroovyClassLoader;
+import org.jruby.embed.EmbedEvalUnit;
+import org.jruby.embed.ScriptingContainer;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 
 public class GoloBenchmark extends AbstractBenchmark {
 
   private static String GOLO_SRC_DIR = "src/main/golo/".replace('/', File.separatorChar);
   private static String GROOVY_SRC_DIR = "src/main/groovy/".replace('/', File.separatorChar);
   private static String CLOJURE_SRC_DIR = "src/main/clojure/".replace('/', File.separatorChar);
+  private static String RUBY_SRC_DIR = "src/main/ruby/".replace('/', File.separatorChar);
 
   private static GoloClassLoader goloClassLoader;
   private static GroovyClassLoader groovyClassLoader;
@@ -51,6 +52,14 @@ public class GoloBenchmark extends AbstractBenchmark {
     try {
       clojure.lang.Compiler.loadFile(CLOJURE_SRC_DIR + clojureSourceFilename);
       return clojure.lang.RT.var(namespace, referenceName);
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static EmbedEvalUnit jrubyEvalUnit(ScriptingContainer scriptingContainer, String rubySourceFilename) {
+    try (InputStream in = new FileInputStream(RUBY_SRC_DIR + rubySourceFilename)) {
+      return scriptingContainer.parse(in, rubySourceFilename);
     } catch (IOException e) {
       throw new RuntimeException(e);
     }
