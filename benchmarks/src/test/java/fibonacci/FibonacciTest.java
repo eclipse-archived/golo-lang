@@ -41,8 +41,8 @@ public class FibonacciTest extends GoloBenchmark {
   }
 
   @Test
-  public void java_object_boxing_reference_35() {
-    JavaFibonacciBoxingReference.fib(35);
+  public void java_object_boxing_reference_38() {
+    JavaFibonacciBoxingReference.fib(38);
   }
 
   @Test
@@ -56,8 +56,8 @@ public class FibonacciTest extends GoloBenchmark {
   }
 
   @Test
-  public void golo_fibonacci_35() throws Throwable {
-    goloFibonacci(35);
+  public void golo_fibonacci_38() throws Throwable {
+    goloFibonacci(38);
   }
 
   @Test
@@ -71,8 +71,8 @@ public class FibonacciTest extends GoloBenchmark {
   }
 
   @Test
-  public void groovy_fibonacci_35() throws Throwable {
-    groovyFibonacci(35);
+  public void groovy_fibonacci_38() throws Throwable {
+    groovyFibonacci(38);
   }
 
   @Test
@@ -86,8 +86,8 @@ public class FibonacciTest extends GoloBenchmark {
   }
 
   @Test
-  public void clojure_fibonacci_35() throws Throwable {
-    ClojureFibonacci.invoke(35);
+  public void clojure_fibonacci_38() throws Throwable {
+    ClojureFibonacci.invoke(38);
   }
 
   @Test
@@ -102,8 +102,8 @@ public class FibonacciTest extends GoloBenchmark {
   }
 
   @Test
-  public void jruby_fibonacci_35() throws Throwable {
-    JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 35));
+  public void jruby_fibonacci_38() throws Throwable {
+    JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 38));
     JRubyFibonacci.run();
   }
 
