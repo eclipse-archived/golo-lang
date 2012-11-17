@@ -7,9 +7,9 @@ import com.carrotsearch.junitbenchmarks.annotation.LabelType;
 import fr.citilab.gololang.benchmarks.GoloBenchmark;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
-import org.jruby.javasupport.JavaEmbedUtils;
-import org.jruby.runtime.builtin.IRubyObject;
 import org.junit.Test;
+
+import static org.jruby.javasupport.JavaEmbedUtils.javaToRuby;
 
 @BenchmarkMethodChart(filePrefix = "fibonacci")
 @BenchmarkHistoryChart(filePrefix = "fibonacci-history", labelWith = LabelType.TIMESTAMP)
@@ -67,13 +67,13 @@ public class FibonacciTest extends GoloBenchmark {
 
   @Test
   public void jruby_fibonacci_30() throws Throwable {
-    JRubyContainer.put("@goal", JavaEmbedUtils.javaToRuby(JRubyContainer.getProvider().getRuntime(), 30));
+    JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 30));
     JRubyFibonacci.run();
   }
 
   @Test
   public void jruby_fibonacci_40() throws Throwable {
-    JRubyContainer.put("@goal", JavaEmbedUtils.javaToRuby(JRubyContainer.getProvider().getRuntime(), 40));
+    JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 40));
     JRubyFibonacci.run();
   }
 }
