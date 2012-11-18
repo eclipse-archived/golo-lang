@@ -18,6 +18,8 @@ Not everything is deemed to be implemented...
 
 * Catch exceptions.
 
+* Modulo operator.
+
 * SAM methods conversion. (there is some indy support it seems)
 
 * Allow underscores in number literals.
@@ -33,10 +35,10 @@ Not everything is deemed to be implemented...
   
     ```
     let result = match {
-      when (n oftype Integer) and (n < 100) return "An integer below 100"
-      when (n oftype Integer)               return "An integer"
-      when n oftype String                  return "A string: #{n}"
-      otherwise                             return "I have no idea"
+      when (n oftype Integer.class) and (n < 100) return "An integer below 100"
+      when (n oftype Integer.class)               return "An integer"
+      when n oftype String.class                  return "A string: #{n}"
+      otherwise                                   return "I have no idea"
     }
     ```
 
