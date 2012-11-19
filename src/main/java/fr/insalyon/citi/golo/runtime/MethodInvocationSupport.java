@@ -170,7 +170,7 @@ public class MethodInvocationSupport {
   }
 
   private static boolean couldMatch(Class<?>[] argumentTypes, Class<?>[] parameterTypes) {
-    return (parameterTypes.length == (argumentTypes.length - 1)) || (parameterTypes.length == (argumentTypes.length - 1));
+    return (parameterTypes.length == (argumentTypes.length - 1));
   }
 
   private static boolean isCandidate(String name, Method method) {
