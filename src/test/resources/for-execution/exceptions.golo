@@ -1,5 +1,7 @@
 module golotest.execution.Exceptions
 
+import java.lang.RuntimeException
+
 function runtimeException = {
-  throw java.lang.RuntimeException("w00t", null)
+  throw RuntimeException("w00t", null)
 }

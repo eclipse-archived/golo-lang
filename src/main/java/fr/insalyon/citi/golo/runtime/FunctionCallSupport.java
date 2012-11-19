@@ -53,6 +53,12 @@ public final class FunctionCallSupport {
       if (result != null) {
         return result;
       }
+      if (imported.endsWith(classname)) {
+        result = findClassWithConstructor(callerClass, imported, type);
+        if (result != null) {
+          return result;
+        }
+      }
     }
     return null;
   }
