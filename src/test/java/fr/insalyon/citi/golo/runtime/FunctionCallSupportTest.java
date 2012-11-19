@@ -22,6 +22,21 @@ public class FunctionCallSupportTest {
     static int someInt() {
       return 42;
     }
+
+    static String concat(String separator, String... values) {
+      if (values.length == 0) {
+        return "";
+      }
+      String result = values[0];
+      for (int i = 1; i < values.length; i++) {
+        result = result + separator + values[i];
+      }
+      return result;
+    }
+
+    static String defaultConcat(String... values) {
+      return concat("-", values);
+    }
   }
 
   @Test
@@ -63,5 +78,23 @@ public class FunctionCallSupportTest {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class);
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echo", type);
+  }
+
+  @Test
+  public void check_varargs() throws Throwable {
+    Lookup lookup = lookup();
+    String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#concat";
+    MethodType type = MethodType.methodType(Object.class, Object.class, Object.class, Object.class, Object.class);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments("-", "a", "b", "c"), is("a-b-c"));
+  }
+
+  @Test
+  public void check_varargs_only() throws Throwable {
+    Lookup lookup = lookup();
+    String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#defaultConcat";
+    MethodType type = MethodType.methodType(Object.class, Object.class, Object.class, Object.class);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments("a", "b", "c"), is("a-b-c"));
   }
 }
