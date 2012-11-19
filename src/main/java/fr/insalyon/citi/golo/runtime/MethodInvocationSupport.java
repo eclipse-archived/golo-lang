@@ -89,7 +89,8 @@ public class MethodInvocationSupport {
   }
 
   private static MethodHandle findTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) throws IllegalAccessException {
-    MethodHandle target;MethodType type = inlineCache.type();
+    MethodHandle target;
+    MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
