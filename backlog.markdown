@@ -4,17 +4,10 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* Support varargs in instance method invocations.
-
-* Make sure varargs work in all cases for functions and methods.
-
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
 * Do not make all operators parser tokens, as it forbids some refs / functions / methods to
   have otherwise meaningful names such as `is` or `not`.
-
-* Fix import resolution: `import java.util.Arrays` resolves `asList(...)` while
-  `import java.util` does not resolve `Arrays.asList(...)`.
 
 * Catch exceptions.
 
