@@ -19,6 +19,8 @@ Not everything is deemed to be implemented...
 
 * Allow underscores in number literals.
 
+* Classes and value types. Provide polymorphism through dynamic casts in an IAdapter style.
+
 * String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
 
 * Common collections sugar (lists, maps, sets).
