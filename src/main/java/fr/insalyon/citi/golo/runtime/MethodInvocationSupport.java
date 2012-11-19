@@ -146,8 +146,11 @@ public class MethodInvocationSupport {
       int bestScore = 0;
       for (Method method : candidates) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (couldMatch(argumentTypes, parameterTypes)) {
+        if (couldMatch(method, argumentTypes, parameterTypes)) {
           int score = argumentsScore(parameterTypes, args);
+          if (method.isVarArgs()) {
+            score = score + 5;
+          }
           if (score > bestScore) {
             chosen = method;
             bestScore = score;
@@ -169,8 +172,9 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static boolean couldMatch(Class<?>[] argumentTypes, Class<?>[] parameterTypes) {
-    return (parameterTypes.length == (argumentTypes.length - 1));
+  private static boolean couldMatch(Method method, Class<?>[] argumentTypes, Class<?>[] parameterTypes) {
+    return (parameterTypes.length == (argumentTypes.length - 1)) ||
+        (method.isVarArgs() && (argumentTypes.length - 1 > parameterTypes.length));
   }
 
   private static boolean isCandidate(String name, Method method) {

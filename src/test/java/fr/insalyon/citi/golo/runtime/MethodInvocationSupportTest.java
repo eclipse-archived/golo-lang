@@ -11,8 +11,7 @@ import java.util.List;
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 
 public class MethodInvocationSupportTest {
@@ -59,8 +58,30 @@ public class MethodInvocationSupportTest {
     }
   }
 
+  public static class VarargsChecking {
+
+    public String concat(String separator, String... values) {
+      if (values.length == 0) {
+        return "";
+      }
+      String result = values[0];
+      for (int i = 1; i < values.length; i++) {
+        result = result + separator + values[i];
+      }
+      return result;
+    }
+
+    public String defaultConcat(String... values) {
+      return concat("-", values);
+    }
+  }
+
   public Person julien() {
     return new Person("Julien", "julien.ponge@insa-lyon.fr");
+  }
+
+  public VarargsChecking varargsChecking() {
+    return new VarargsChecking();
   }
 
   @Test
@@ -144,5 +165,27 @@ public class MethodInvocationSupportTest {
     assertThat(((String) handle.invokeWithArguments(list, 0)), is("a"));
     assertThat(((String) handle.invokeWithArguments(list, 1)), is("b"));
     assertThat(((String) handle.invokeWithArguments(list, 2)), is("c"));
+  }
+
+  @Test
+  public void check_varags() throws Throwable {
+    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "concat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
+    VarargsChecking receiver = varargsChecking();
+
+    Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "-", "a", "b", "c");
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("a-b-c"));
+  }
+
+  @Test
+  public void check_varags_only() throws Throwable {
+    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class));
+    VarargsChecking receiver = varargsChecking();
+
+    Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "a", "b", "c");
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("a-b-c"));
   }
 }
