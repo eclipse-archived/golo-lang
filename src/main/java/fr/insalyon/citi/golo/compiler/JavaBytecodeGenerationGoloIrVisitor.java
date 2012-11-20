@@ -172,12 +172,22 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
-      if (statement instanceof FunctionInvocation) {
-        methodVisitor.visitInsn(POP);
-      }
+      insertMissingPop(statement);
     }
     methodVisitor.visitLabel(labelRange.end);
     context.referenceTableStack.pop();
+  }
+
+  private void insertMissingPop(GoloStatement statement) {
+    Class<? extends GoloStatement> statementClass = statement.getClass();
+    if (statementClass == FunctionInvocation.class) {
+      methodVisitor.visitInsn(POP);
+    } else if (statementClass == BinaryOperation.class) {
+      BinaryOperation operation = (BinaryOperation) statement;
+      if (operation.getType() == METHOD_CALL) {
+        methodVisitor.visitInsn(POP);
+      }
+    }
   }
 
   private static boolean between(int value, int lower, int upper) {

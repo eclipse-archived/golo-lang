@@ -41,3 +41,11 @@ function loop_with_call = {
   }
 }
 
+function z_list_with_ids = {
+  let list = java.util.LinkedList()
+  for (var i = 0, i < 10000, i = i + 1) {
+    list: add("#" + i)
+  }
+  return list
+}
+
