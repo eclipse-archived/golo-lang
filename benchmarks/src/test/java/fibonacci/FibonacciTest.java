@@ -1,6 +1,8 @@
 package fibonacci;
 
 import clojure.lang.Var;
+import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
+import com.carrotsearch.junitbenchmarks.Clock;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkMethodChart;
 import com.carrotsearch.junitbenchmarks.annotation.LabelType;
@@ -11,9 +13,9 @@ import org.junit.Test;
 
 import static org.jruby.javasupport.JavaEmbedUtils.javaToRuby;
 
+@BenchmarkOptions(clock = Clock.NANO_TIME)
 @BenchmarkMethodChart(filePrefix = "fibonacci")
 @BenchmarkHistoryChart(filePrefix = "fibonacci-history", labelWith = LabelType.TIMESTAMP)
-
 public class FibonacciTest extends GoloBenchmark {
 
   private static final Class<?> FibonacciModule = loadGoloModule("Fibonacci.golo");
