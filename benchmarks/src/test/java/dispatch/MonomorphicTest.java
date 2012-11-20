@@ -13,7 +13,6 @@ import org.junit.Test;
 @BenchmarkOptions(clock = Clock.NANO_TIME)
 @BenchmarkMethodChart(filePrefix = "monomorphic-dispatch")
 @BenchmarkHistoryChart(filePrefix = "monomorphic-dispatch-history", labelWith = LabelType.TIMESTAMP)
-
 public class MonomorphicTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("Monomorphic.golo");
