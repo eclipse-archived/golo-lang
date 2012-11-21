@@ -14,6 +14,7 @@ import org.junit.Test;
 public class PolymorphicTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("Polymorphic.golo");
+  private static final Class<?> GroovyClass = loadGroovyClass("Polymorphic.groovy");
 
   @Test
   public void java() {
@@ -23,5 +24,10 @@ public class PolymorphicTest extends GoloBenchmark {
   @Test
   public void golo() throws Throwable {
     GoloModule.getMethod("run").invoke(null);
+  }
+
+  @Test
+  public void groovy() throws Throwable {
+    GroovyClass.getMethod("run").invoke(null);
   }
 }
