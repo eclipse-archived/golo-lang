@@ -39,17 +39,32 @@ public class FibonacciTest extends GoloBenchmark {
 
   @Test
   public void java_object_boxing_reference_30() {
-    JavaFibonacciBoxingReference.fib(30);
+    Fibonacci.fib_boxed(30);
   }
 
   @Test
   public void java_object_boxing_reference_38() {
-    JavaFibonacciBoxingReference.fib(38);
+    Fibonacci.fib_boxed(38);
   }
 
   @Test
   public void java_object_boxing_reference_40() {
-    JavaFibonacciBoxingReference.fib(40);
+    Fibonacci.fib_boxed(40);
+  }
+
+  @Test
+  public void java_unboxed_reference_30() {
+    Fibonacci.fib_unboxed(30);
+  }
+
+  @Test
+  public void java_unboxed_reference_38() {
+    Fibonacci.fib_unboxed(38);
+  }
+
+  @Test
+  public void java_unboxed_reference_40() {
+    Fibonacci.fib_unboxed(40);
   }
 
   @Test
