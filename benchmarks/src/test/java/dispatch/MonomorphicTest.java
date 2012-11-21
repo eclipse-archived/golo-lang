@@ -10,7 +10,7 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 import org.junit.Test;
 
-@BenchmarkOptions(clock = Clock.NANO_TIME)
+@BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 10)
 @BenchmarkMethodChart(filePrefix = "monomorphic-dispatch")
 @BenchmarkHistoryChart(filePrefix = "monomorphic-dispatch-history", labelWith = LabelType.TIMESTAMP)
 public class MonomorphicTest extends GoloBenchmark {
@@ -36,8 +36,13 @@ public class MonomorphicTest extends GoloBenchmark {
   }
 
   @Test
-  public void java() throws Throwable {
-    Monomorphic.run();
+  public void java_boxed() throws Throwable {
+    Monomorphic.run_boxed();
+  }
+
+  @Test
+  public void java_unboxed() throws Throwable {
+    Monomorphic.run_unboxed();
   }
 
   @Test
