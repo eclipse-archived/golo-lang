@@ -432,7 +432,40 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTTryCatchFinally node, Object data) {
-    // TODO
+    Context context = (Context) data;
+
+    ReferenceTable localTable = context.referenceTableStack.peek().fork();
+    context.referenceTableStack.push(localTable);
+    node.jjtGetChild(0).jjtAccept(this, data);
+    Block tryBlock = (Block) context.objectStack.pop();
+    context.referenceTableStack.pop();
+
+    localTable = context.referenceTableStack.peek().fork();
+    String exceptionId = node.getExceptionId();
+    localTable.add(new LocalReference(CONSTANT, exceptionId));
+    context.referenceTableStack.push(localTable);
+    node.jjtGetChild(1).jjtAccept(this, data);
+    Block catchBlock = (Block) context.objectStack.pop();
+    context.referenceTableStack.pop();
+
+    Block finallyBlock = null;
+    if (node.jjtGetNumChildren() > 2) {
+      localTable = context.referenceTableStack.peek().fork();
+      context.referenceTableStack.push(localTable);
+      node.jjtGetChild(2).jjtAccept(this, data);
+      finallyBlock = (Block) context.objectStack.pop();
+      context.referenceTableStack.pop();
+    }
+
+    TryCatchFinally tryCatchFinally = new TryCatchFinally(
+        exceptionId,
+        tryBlock,
+        catchBlock,
+        finallyBlock,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    context.objectStack.push(tryCatchFinally);
     return data;
   }
 }

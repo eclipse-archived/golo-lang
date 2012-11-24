@@ -29,4 +29,6 @@ public interface GoloIrVisitor {
   void acceptMethodInvocation(MethodInvocation methodInvocation);
 
   void visitThrowStatement(ThrowStatement throwStatement);
+
+  void visitTryCatchFinally(TryCatchFinally tryCatchFinally);
 }

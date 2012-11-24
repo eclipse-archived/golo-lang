@@ -210,6 +210,23 @@ public class ParseTreeToGoloIrVisitorTest {
         throwStatement.getExpressionStatement().accept(this);
         decr();
       }
+
+      @Override
+      public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+        incr();
+        space();
+        System.out.println("Try");
+        tryCatchFinally.getTryBlock().accept(this);
+        space();
+        System.out.println("Catch: " + tryCatchFinally.getExceptionId());
+        tryCatchFinally.getCatchBlock().accept(this);
+        if (tryCatchFinally.hasFinallyBlock()) {
+          space();
+          System.out.println("Finally");
+          tryCatchFinally.getFinallyBlock().accept(this);
+        }
+        decr();
+      }
     });
   }
 }

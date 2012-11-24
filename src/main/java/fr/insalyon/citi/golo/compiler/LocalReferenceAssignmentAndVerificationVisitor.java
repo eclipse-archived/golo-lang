@@ -153,4 +153,13 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void visitThrowStatement(ThrowStatement throwStatement) {
     throwStatement.getExpressionStatement().accept(this);
   }
+
+  @Override
+  public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+    tryCatchFinally.getTryBlock().accept(this);
+    tryCatchFinally.getCatchBlock().accept(this);
+    if (tryCatchFinally.hasFinallyBlock()) {
+      tryCatchFinally.getFinallyBlock().accept(this);
+    }
+  }
 }

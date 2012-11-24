@@ -395,14 +395,17 @@ void ForLoop():
 
 void TryCatchFinally():
 {
+  Token token;
   Token exceptionId;
 }
 {
-  <TRY> "{" Block() "}" 
+  token=<TRY> "{" Block() "}" 
   <CATCH> "(" exceptionId=<IDENTIFIER> ")" "{" Block() "}"
   (<FINALLY> "{" Block() "}")?
   {
     jjtThis.setExceptionId(exceptionId.image);
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
   }
 }
 
