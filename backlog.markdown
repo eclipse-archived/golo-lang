@@ -9,8 +9,6 @@ Not everything is deemed to be implemented...
 * Do not make all operators parser tokens, as it forbids some refs / functions / methods to
   have otherwise meaningful names such as `is` or `not`.
 
-* Catch exceptions.
-
 * Modulo operator.
 
 * Annotations.
