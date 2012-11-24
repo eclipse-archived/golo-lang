@@ -14,3 +14,20 @@ function catch_exception = {
   }
   return "woops"
 }
+
+function finally_no_exception = {
+  var a = null
+  try {
+    a = "ok"
+  } catch (e) { return "woops" } finally { return a }
+}
+
+function finally_with_exception = {
+  try {
+    runtimeException()
+  } catch (e) {
+    throw e
+  } finally {
+    throw RuntimeException("ok", null)
+  }
+}
