@@ -284,11 +284,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ATHROW);
   }
 
-  @Override
-  public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
-    // TODO
-  }
-
   private void invocation(AbstractInvocation invocation, Handle boostrap, int arity) {
     for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
@@ -359,6 +354,51 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     methodVisitor.visitJumpInsn(GOTO, loopStart);
     methodVisitor.visitLabel(loopEnd);
+  }
+
+  @Override
+  public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+    Label tryStart = new Label();
+    Label tryEnd = new Label();
+    Label catchStart = new Label();
+    Label catchEnd = new Label();
+    methodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
+
+    methodVisitor.visitLabel(tryStart);
+    tryCatchFinally.getTryBlock().accept(this);
+    if (tryCatchFinally.hasFinallyBlock()) {
+      tryCatchFinally.getFinallyBlock().accept(this);
+    }
+    methodVisitor.visitJumpInsn(GOTO, catchEnd);
+    methodVisitor.visitLabel(tryEnd);
+
+    Label finallyStart = null;
+    Label finallyEnd = null;
+    Label finallyThrow = null;
+
+    methodVisitor.visitLabel(catchStart);
+    Block catchBlock = tryCatchFinally.getCatchBlock();
+    int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
+    methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
+
+    if (tryCatchFinally.hasFinallyBlock()) {
+      finallyStart = new Label();
+      finallyEnd = new Label();
+      finallyThrow = new Label();
+      methodVisitor.visitTryCatchBlock(finallyStart, finallyEnd, finallyThrow, null);
+      methodVisitor.visitLabel(finallyStart);
+    }
+    catchBlock.accept(this);
+    if (tryCatchFinally.hasFinallyBlock()) {
+      tryCatchFinally.getFinallyBlock().accept(this);
+      methodVisitor.visitLabel(finallyEnd);
+      methodVisitor.visitLabel(finallyThrow);
+      methodVisitor.visitVarInsn(ALOAD, exceptionRefIndex);
+      methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
+      methodVisitor.visitInsn(ATHROW);
+    }
+
+    methodVisitor.visitLabel(catchEnd);
   }
 
   @Override

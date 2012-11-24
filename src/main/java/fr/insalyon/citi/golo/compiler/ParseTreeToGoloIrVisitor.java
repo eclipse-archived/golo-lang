@@ -433,6 +433,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTTryCatchFinally node, Object data) {
     Context context = (Context) data;
+    String exceptionId = node.getExceptionId();
 
     ReferenceTable localTable = context.referenceTableStack.peek().fork();
     context.referenceTableStack.push(localTable);
@@ -441,11 +442,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.referenceTableStack.pop();
 
     localTable = context.referenceTableStack.peek().fork();
-    String exceptionId = node.getExceptionId();
-    localTable.add(new LocalReference(CONSTANT, exceptionId));
     context.referenceTableStack.push(localTable);
     node.jjtGetChild(1).jjtAccept(this, data);
     Block catchBlock = (Block) context.objectStack.pop();
+    catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
     context.referenceTableStack.pop();
 
     Block finallyBlock = null;
