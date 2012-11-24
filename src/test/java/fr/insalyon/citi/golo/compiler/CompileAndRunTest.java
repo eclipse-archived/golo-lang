@@ -5,7 +5,6 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import org.hamcrest.Matchers;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -424,6 +423,7 @@ public class CompileAndRunTest {
   @Test
   public void test_exception_throwing() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "exceptions.golo", temporaryFolder, "golotest.execution.Exceptions");
+
     Method runtimeException = moduleClass.getMethod("runtimeException");
     try {
       runtimeException.invoke(null);
@@ -434,5 +434,8 @@ public class CompileAndRunTest {
       RuntimeException exception = (RuntimeException) cause;
       assertThat(exception.getMessage(), is("w00t"));
     }
+
+    Method catch_exception = moduleClass.getMethod("catch_exception");
+    assertThat((String) catch_exception.invoke(null), is("ok"));
   }
 }
