@@ -81,6 +81,12 @@ TOKEN :
   < FOR: "for" >
   |
   < THROW: "throw" >
+  |
+  < TRY: "try" >
+  |
+  < CATCH: "catch" >
+  |
+  < FINALLY: "finally" >
 }
 
 // Operators
@@ -347,6 +353,8 @@ void Statement() #void:{}
   ForLoop()
   |
   Throw()
+  |
+  TryCatchFinally()
 }
 
 void Throw():
@@ -382,6 +390,19 @@ void ForLoop():
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+}
+
+void TryCatchFinally():
+{
+  Token exceptionId;
+}
+{
+  <TRY> "{" Block() "}" 
+  <CATCH> "(" exceptionId=<IDENTIFIER> ")" "{" Block() "}"
+  (<FINALLY> "{" Block() "}")?
+  {
+    jjtThis.setExceptionId(exceptionId.image);
   }
 }
 

@@ -429,4 +429,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.referenceTableStack.pop();
     return data;
   }
+
+  @Override
+  public Object visit(ASTTryCatchFinally node, Object data) {
+    // TODO
+    return data;
+  }
 }
