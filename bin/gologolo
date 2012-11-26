@@ -1,11 +1,15 @@
 #!/bin/bash
 
-if [ -z "$1" ] || [ -z "$2" ]
+if [ -z "$1" ] 
 then
-  echo "Usage: gologolo <.golo files> <some golo module with a main function>"
-  echo "(e.g., golo foo.golo bar.golo my.Module)"
   echo ""
-  echo "Note that no arguments can be passed directly to the main function..."
+  echo "Usage: gologolo <.golo files> [--args arg1 arg2 ...]"
+  echo "(the last .golo file has a main function)"
+  echo ""
+  echo "Examples:"
+  echo "  golo foo.golo bar.golo"
+  echo "  golo foo.golo bar.golo --args hello world"
+  echo ""
   exit 1
 fi
 
