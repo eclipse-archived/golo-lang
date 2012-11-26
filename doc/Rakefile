@@ -1,0 +1,20 @@
+OUTPUT = 'output'
+
+def extract_name(markdown_file)
+  markdown_file[0..-10]
+end
+
+task :prepare do
+  mkdir_p OUTPUT
+end
+
+task :clean do
+  rm_rf OUTPUT
+end
+
+task :html => [:prepare] do
+  Dir['*.markdown'].each do |src|
+    name = extract_name(src)
+    sh "pandoc --standalone --smart -t html5 -o #{OUTPUT}/#{name}.html #{src}"
+  end
+end
