@@ -26,7 +26,76 @@ function main = |args| {
 `println` is a predefined function that outputs a value to the standard console. As you can
 easily guess, here we output `Hello, world!` and that is an awesome achievement.
 
-ADD HOW TO COMPILE / INVOKE
+## Running *"Hello world"* with `gologolo`
+
+Of course, we need to run this incredibly complex application.
+
+Golo comes with a `gologolo` script found in the distribution `bin/` folder. Provided that it is
+available from your current `$PATH`, you may simply invoke it as follows:
+
+    $ gologolo samples/helloworld.golo
+    Hello world!
+    $
+
+`gologolo` takes several Golo source files as input. It expects the last one to have a `main`
+function to call. The Golo code is compiled on the fly and executed straight into a JVM.
+
+You may also pass arguments to the `main` function by appending `--args` on the command line
+invocation. Suppose that we have a module `EchoArgs` as follows:
+
+```golo
+module EchoArgs
+
+function main = |args| {
+  for (var i = 0, i < alength(args), i = i + 1) {
+    println("#" + i + " -> " + aget(args, i))
+  }
+}
+```
+
+We may invoke it as follows:
+
+    $ gologolo samples/echo-args.golo --args plop da plop
+    #0 -> plop
+    #1 -> da
+    #2 -> plop
+    $
+
+Note that `args` is expected to be an array, and we can use built-in functions to deal with it:
+`alength` gives the length of an array while `aget` gives the value of an element at a given
+index.
+
+## Compiling Golo source code
+
+Golo comes with a `goloc` compiler that generates JVM bytecode in `.class` files. We will give
+more details in the chapter on interoperability with Java.
+
+Compiling Golo files is straightforward:
+
+    $ goloc -output classes samples/helloworld.golo
+    $
+
+This compiles the code found in `samples/helloworld.golo` and outputs the generated classes to
+a `classes` folder (it will be created if needed):
+
+    $ tree classes/
+    classes/
+    └── hello
+        └── World.class
+
+    1 directory, 1 file
+    $
+
+## Running compiled Golo code
+
+Golo provides a `golo` command for running compiled Golo code:
+
+    $ cd classes
+    $ golo hello.World
+    Hello world!
+    $
+
+Simple, isn't it?
 
 ## Variables and constants
 
