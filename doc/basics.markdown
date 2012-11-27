@@ -123,4 +123,36 @@ truth = 666
 var foo
 ```
 
+## Data literals
+
+`null`
+  ~ `null`
+Boolean
+  ~ `true`
+  ~ `false`
+String
+  ~ `"hello world"`
+  ~ ...
+Integer
+  ~ `123`
+  ~ `-123`
+  ~ ...
+Long
+  ~ `123_L`
+  ~ `-123_L`
+  ~ ...  
+Double
+  ~ `1.234`
+  ~ `-1.234`
+  ~ `1.234e9`
+  ~ ...
+Float
+  ~ `1.234_F`
+  ~ `-1.234_F`
+  ~ `1.234e9_F`
+  ~ ...
+Class
+  ~ `String.class`
+  ~ `java.lang.String.class`
+  ~ ...
 
