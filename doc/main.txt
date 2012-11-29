@@ -1,0 +1,11 @@
+The Golo Programming Language
+=============================
+Julien Ponge <julien.ponge@insa-lyon.fr>
+
+This is the documentation for the Golo programming language.
+
+WARNING: This is a work in progress.
+
+include::basics.txt[]
+include::functions.txt[]
+

@@ -1,5 +1,9 @@
 OUTPUT = 'output'
 
+task :asciidoc_html => [:prepare] do
+  sh "asciidoc -b html5 -a icons -a toc2 -a theme=flask -o output/index.html main.txt"
+end
+
 def extract_name(markdown_file)
   markdown_file[0..-10]
 end
