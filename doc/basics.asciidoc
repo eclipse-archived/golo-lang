@@ -155,48 +155,29 @@ var foo
 
 === Data literals ===
 
-`null`::
-  `null`
-Boolean::
-  `true`
-  +
-  `false`
-String::
-  `"hello world"`
-  +
-  ...
-Integer::
-  `123`
-  +
-  `-123`
-  +
-  ...
-Long::
-  `123_L`
-  +
-  `-123_L`
-  +
-  ... +
-Double::
-  `1.234`
-  +
-  `-1.234`
-  +
-  `1.234e9`
-  +
-  ...
-Float::
-  `1.234_F`
-  +
-  `-1.234_F`
-  +
-  `1.234e9_F`
-  +
-  ...
-Class::
-  `String.class`
-  +
-  `java.lang.String.class`
-  +
-  ...
+Golo supports a set of data literals. They directly map to their counterparts from the Java Standard
+API. We give them along with examples in <<data-literals,the data literals table>> below.
+
+[options="header",id="data-literals"]
+|============================
+|Java type | Golo literals
+
+|`null` | `null`
+
+|`java.lang.Boolean` | `true` or `false`
+
+|`java.lang.String` | `"hello world"`
+
+|`java.lang.Integer` | `123`, `-123`, ...
+
+|`java.lang.Long` | `123_L`, `-123_L`, ...
+
+|`java.lang.Double` | `1.234`, `-1.234`, `1.234e9`, ...
+
+|`java.lang.Float` | `1.234_F`, `-1.234_F`, `1.234e9_F`, ...
+
+|`java.lang.Class` | `String.class`, `java.lang.String.class`, ...
+
+|===========================
+
 
