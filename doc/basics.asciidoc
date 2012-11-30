@@ -1,18 +1,17 @@
-Basics
-------
+== Basics ==
 
-Hello world
-~~~~~~~~~~~
+=== Hello world ===
 
 Golo source code need to be placed in _modules_. Module names are
 separated with dots, as in:
 
------------
+[source,text]
+-------------
 Foo
 foo.Bar
 foo.bar.Baz
 (...)
------------
+-------------
 
 It is suggested yet not enforced that the first elements in a module
 name are in lowercase, and that the last one have an uppercase first
@@ -21,6 +20,7 @@ letter.
 A Golo module can be executable if it has a _function_ named `main` and
 that takes an argument for the JVM program arguments:
 
+[source,text]
 ------------------------- 
 module hello.World
 
@@ -33,8 +33,7 @@ function main = |args| {
 console. As you can easily guess, here we output `Hello, world!` and
 that is an awesome achievement.
 
-Running _"Hello world"_ with `gologolo`
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Running _"Hello world"_ with `gologolo` ===
 
 Of course, we need to run this incredibly complex application.
 
@@ -42,6 +41,7 @@ Golo comes with a `gologolo` script found in the distribution `bin/`
 folder. Provided that it is available from your current `$PATH`, you may
 simply invoke it as follows:
 
+[source,console]
 ----------------------------------
 $ gologolo samples/helloworld.golo
 Hello world!
@@ -56,6 +56,7 @@ You may also pass arguments to the `main` function by appending `--args`
 on the command line invocation. Suppose that we have a module `EchoArgs`
 as follows:
 
+[source,text]
 ------------------------------------------------- 
 module EchoArgs
 
@@ -68,6 +69,7 @@ function main = |args| {
 
 We may invoke it as follows:
 
+[source,console]
 -----------------------------------------------------
 $ gologolo samples/echo-args.golo --args plop da plop
 #0 -> plop
@@ -80,8 +82,7 @@ Note that `args` is expected to be an array, and we can use built-in
 functions to deal with it: `alength` gives the length of an array while
 `aget` gives the value of an element at a given index.
 
-Compiling Golo source code
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Compiling Golo source code ===
 
 Golo comes with a `goloc` compiler that generates JVM bytecode in
 `.class` files. We will give more details in the chapter on
@@ -89,6 +90,7 @@ interoperability with Java.
 
 Compiling Golo files is straightforward:
 
+[source,console]
 -----------------------------------------------
 $ goloc -output classes samples/helloworld.golo
 $
@@ -98,6 +100,7 @@ This compiles the code found in `samples/helloworld.golo` and outputs
 the generated classes to a `classes` folder (it will be created if
 needed):
 
+[source,console]
 -------------------
 $ tree classes/
 classes/
@@ -108,11 +111,11 @@ classes/
 $
 -------------------
 
-Running compiled Golo code
-~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Running compiled Golo code ===
 
 Golo provides a `golo` command for running compiled Golo code:
 
+[source,console]
 ------------------
 $ cd classes
 $ golo hello.World
@@ -122,8 +125,7 @@ $
 
 Simple, isn't it?
 
-Variables and constants
-~~~~~~~~~~~~~~~~~~~~~~~
+=== Variables and constants ===
 
 Golo does not check for types at compile time, and they are not
 declared. Everything happens at runtime in Golo.
@@ -137,7 +139,8 @@ do so results in a compilation error.
 
 Here are a few examples:
 
------------------------------------------------------------------
+[source,text]
+-------------
 # Ok
 var i = 3
 i = i + 1
@@ -148,10 +151,9 @@ truth = 666
 
 # Invalid statement, variables / constants have to be initialized
 var foo
--------------------------------------------------------------------------
+-------------
 
-Data literals
-~~~~~~~~~~~~~
+=== Data literals ===
 
 `null`::
   `null`

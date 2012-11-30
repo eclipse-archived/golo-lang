@@ -1,24 +1,16 @@
 OUTPUT = 'output'
 
-task :asciidoc_html => [:prepare] do
-  sh "asciidoc -b html5 -a icons -a toc2 -a iconsdir=`brew --prefix asciidoc`/etc/asciidoc/images/icons -a data-uri -a theme=flask -o output/index.html main.txt"
-end
-
-def extract_name(markdown_file)
-  markdown_file[0..-10]
-end
-
 task :prepare do
   mkdir_p OUTPUT
 end
 
+desc "generates the HTML documentation"
+task :html => [:prepare] do
+  sh "asciidoc -b html5 -a icons -a toc2 -a iconsdir=`brew --prefix asciidoc`/etc/asciidoc/images/icons -a data-uri -a theme=flask -a source-highlighter=pygments -o output/index.html main.asciidoc"
+end
+
+desc "cleanup"
 task :clean do
   rm_rf OUTPUT
 end
 
-task :html => [:prepare] do
-  Dir['*.markdown'].each do |src|
-    name = extract_name(src)
-    sh "pandoc --standalone --smart -t html5 -o #{OUTPUT}/#{name}.html #{src}"
-  end
-end

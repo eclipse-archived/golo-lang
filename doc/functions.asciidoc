@@ -1,14 +1,13 @@
-Functions
----------
+== Functions ==
 
 Functions are first-class citizen in Golo. Here is how to define and
 call some.
 
-Parameter-less functions
-~~~~~~~~~~~~~~~~~~~~~~~~
+=== Parameter-less functions ===
 
 Golo modules can define functions as follows:
 
+[source,text]
 ------------------ 
 module sample
 
@@ -19,6 +18,7 @@ function hello = {
 
 In turn, you may invoke a function with a familiar notation:
 
+[source,text]
 ----------------- 
 let str = hello()
 -----------------
@@ -31,6 +31,7 @@ and that a few keystrokes in favour of readability is still a good deal.
 Still, you may omit `return` statements if your function does not return
 a value:
 
+[source,text]
 --------------------- 
 function printer = { 
   println("Hey!")
@@ -40,16 +41,17 @@ function printer = {
 If you do so, the function will actually return `null`, hence `result`
 in the next statement is `null`:
 
+[source,text]
 ---------------------- 
 # result will be null
 let result = printer()
 ----------------------
 
-Functions with parameters
-~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Functions with parameters ===
 
 Of course functions may take some parameters, as in:
 
+[source,text]
 ---------------------------- 
 function addition = |a, b| {
   return a + b
@@ -58,17 +60,18 @@ function addition = |a, b| {
 
 Invoking functions that take parameters is straightforward, too:
 
+[source,text]
 ---------------------------------------------- 
 let three = addition(1, 2)
 let hello_world = addition("hello ", "world!")
 ----------------------------------------------
 
-Variable-arity functions
-~~~~~~~~~~~~~~~~~~~~~~~~
+=== Variable-arity functions ===
 
 Functions may take a varying number of parameters. To define one, just
 add `...` to the last parameter name:
 
+[source,text]
 ----------------------------- 
 function foo = |a, b, c...| {
   # ...
@@ -83,6 +86,7 @@ Calling variable-arity functions does not requiring wrapping the last
 arguments in an array. While invoking the `foo` function above, the
 following examples are legit:
 
+[source,text]
 ------------------- 
 # a=1, b=2, c=[]
 foo(1, 2)
@@ -97,6 +101,7 @@ foo(1, 2, 3, 4)
 Because the parameter that catches the last arguments is an array, you
 may call the array functions. Given:
 
+[source,text]
 --------------------------------------- 
 function elementAt = |index, args...| {
   return aget(args, index)
@@ -105,16 +110,17 @@ function elementAt = |index, args...| {
 
 then:
 
+[source,text]
 ------------------------------ 
 # prints "2"
 println(elementAt(1, 1, 2, 3))
 ------------------------------
 
-Functions from other modules
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+=== Functions from other modules ===
 
 Suppose that we have a module `Foo.Bar`:
 
+[source,text]
 -------------- 
 module Foo.Bar
 
@@ -126,12 +132,14 @@ function f = {
 We can invoke `f` from another module by prefixing it with its module
 name:
 
+[source,text]
 ------------------- 
 let r = Foo.Bar.f()
 -------------------
 
 Of course, we may also take advantage of an `import` statement:
 
+[source,text]
 --------------------- 
 module Somewhere.Else
 
@@ -142,12 +150,12 @@ function plop = {
 }
 ---------------------
 
-Local functions
-~~~~~~~~~~~~~~~
+=== Local functions ===
 
 By default, functions are visible outside of their module. You may
 restrict the visibility of a function by using the `local` keyword:
 
+[source,text]
 -------------------- 
 module Foo
 
@@ -164,6 +172,7 @@ Here, `b` is visible while `a` can only be invoked from within the `Foo`
 module. Given another module called `Bogus`, the following would fail at
 runtime:
 
+[source,text]
 ------------------------- 
 module Bogus
 

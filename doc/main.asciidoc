@@ -6,6 +6,6 @@ This is the documentation for the Golo programming language.
 
 WARNING: This is a work in progress.
 
-include::basics.txt[]
-include::functions.txt[]
+include::basics.asciidoc[]
+include::functions.asciidoc[]
 
