@@ -11,7 +11,7 @@ end
 
 desc "generates the PDF documentation"
 task :pdf => [:prepare] do
-  sh "a2x -L -f pdf --fop -D output --icons --icons-dir=`brew --prefix asciidoc`/etc/asciidoc/images/icons main.asciidoc"
+  sh "a2x --verbose -L -f pdf --fop -D output --icons --icons-dir=`brew --prefix asciidoc`/etc/asciidoc/images/icons main.asciidoc"
 end
 
 desc "cleanup"
