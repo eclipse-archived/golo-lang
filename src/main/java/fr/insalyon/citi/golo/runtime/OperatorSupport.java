@@ -159,7 +159,7 @@ public class OperatorSupport {
     return callSite;
   }
 
-  // arithmetic (generated) ...........................................................................................
+  // arithmetic (generated, use generate_math.rb) ......................................................................
 
   public static Object plus(Integer a, Integer b) {
     return a + b;
@@ -175,6 +175,10 @@ public class OperatorSupport {
 
   public static Object times(Integer a, Integer b) {
     return a * b;
+  }
+
+  public static Object modulo(Integer a, Integer b) {
+    return a % b;
   }
 
   public static Object plus(Long a, Long b) {
@@ -193,6 +197,10 @@ public class OperatorSupport {
     return a * b;
   }
 
+  public static Object modulo(Long a, Long b) {
+    return a % b;
+  }
+
   public static Object plus(Double a, Double b) {
     return a + b;
   }
@@ -207,6 +215,10 @@ public class OperatorSupport {
 
   public static Object times(Double a, Double b) {
     return a * b;
+  }
+
+  public static Object modulo(Double a, Double b) {
+    return a % b;
   }
 
   public static Object plus(Float a, Float b) {
@@ -225,6 +237,10 @@ public class OperatorSupport {
     return a * b;
   }
 
+  public static Object modulo(Float a, Float b) {
+    return a % b;
+  }
+
   public static Object plus(Integer a, Long b) {
     return ((long) a) + b;
   }
@@ -239,6 +255,10 @@ public class OperatorSupport {
 
   public static Object times(Integer a, Long b) {
     return ((long) a) * b;
+  }
+
+  public static Object modulo(Integer a, Long b) {
+    return ((long) a) % b;
   }
 
   public static Object plus(Integer a, Double b) {
@@ -257,6 +277,10 @@ public class OperatorSupport {
     return ((double) a) * b;
   }
 
+  public static Object modulo(Integer a, Double b) {
+    return ((double) a) % b;
+  }
+
   public static Object plus(Integer a, Float b) {
     return ((float) a) + b;
   }
@@ -271,6 +295,10 @@ public class OperatorSupport {
 
   public static Object times(Integer a, Float b) {
     return ((float) a) * b;
+  }
+
+  public static Object modulo(Integer a, Float b) {
+    return ((float) a) % b;
   }
 
   public static Object plus(Long a, Double b) {
@@ -289,6 +317,10 @@ public class OperatorSupport {
     return ((double) a) * b;
   }
 
+  public static Object modulo(Long a, Double b) {
+    return ((double) a) % b;
+  }
+
   public static Object plus(Long a, Float b) {
     return ((float) a) + b;
   }
@@ -303,6 +335,10 @@ public class OperatorSupport {
 
   public static Object times(Long a, Float b) {
     return ((float) a) * b;
+  }
+
+  public static Object modulo(Long a, Float b) {
+    return ((float) a) % b;
   }
 
   public static Object plus(Double a, Float b) {
@@ -321,6 +357,10 @@ public class OperatorSupport {
     return a * ((double) b);
   }
 
+  public static Object modulo(Double a, Float b) {
+    return a % ((double) b);
+  }
+
   public static Object plus(Long a, Integer b) {
     return a + ((long) b);
   }
@@ -335,6 +375,10 @@ public class OperatorSupport {
 
   public static Object times(Long a, Integer b) {
     return a * ((long) b);
+  }
+
+  public static Object modulo(Long a, Integer b) {
+    return a % ((long) b);
   }
 
   public static Object plus(Double a, Integer b) {
@@ -353,6 +397,10 @@ public class OperatorSupport {
     return a * ((double) b);
   }
 
+  public static Object modulo(Double a, Integer b) {
+    return a % ((double) b);
+  }
+
   public static Object plus(Float a, Integer b) {
     return a + ((float) b);
   }
@@ -367,6 +415,10 @@ public class OperatorSupport {
 
   public static Object times(Float a, Integer b) {
     return a * ((float) b);
+  }
+
+  public static Object modulo(Float a, Integer b) {
+    return a % ((float) b);
   }
 
   public static Object plus(Double a, Long b) {
@@ -385,6 +437,10 @@ public class OperatorSupport {
     return a * ((double) b);
   }
 
+  public static Object modulo(Double a, Long b) {
+    return a % ((double) b);
+  }
+
   public static Object plus(Float a, Long b) {
     return a + ((float) b);
   }
@@ -399,6 +455,10 @@ public class OperatorSupport {
 
   public static Object times(Float a, Long b) {
     return a * ((float) b);
+  }
+
+  public static Object modulo(Float a, Long b) {
+    return a % ((float) b);
   }
 
   public static Object plus(Float a, Double b) {
@@ -416,6 +476,11 @@ public class OperatorSupport {
   public static Object times(Float a, Double b) {
     return ((double) a) * b;
   }
+
+  public static Object modulo(Float a, Double b) {
+    return ((double) a) % b;
+  }
+
 
   // arithmetic fallbacks .............................................................................................
 

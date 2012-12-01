@@ -127,6 +127,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.TIMES;
       case "/":
         return OperatorType.DIVIDE;
+      case "%":
+        return OperatorType.MODULO;
       case "<":
         return OperatorType.LESS;
       case "<=":

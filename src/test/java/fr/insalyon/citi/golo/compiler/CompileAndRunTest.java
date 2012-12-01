@@ -273,6 +273,10 @@ public class CompileAndRunTest {
     assertThat((Integer) average.invoke(null, 1, new Object[]{1, 2, 3}), is(2));
     assertThat((Long) average.invoke(null, 1, new Object[]{1, 2L, 3}), is(2L));
     assertThat((Double) average.invoke(null, 1, new Object[]{1, 2L, 3.0}), closeTo(2.0, 0.5));
+
+    Method is_even = moduleClass.getMethod("is_even", Object.class);
+    assertThat((Boolean) is_even.invoke(null, 2), is(true));
+    assertThat((Boolean) is_even.invoke(null, 3), is(false));
   }
 
   @Test

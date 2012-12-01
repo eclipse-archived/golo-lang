@@ -6,6 +6,7 @@ public enum OperatorType {
   MINUS("-"),
   TIMES("*"),
   DIVIDE("/"),
+  MODULO("%"),
 
   EQUALS("=="),
   NOTEQUALS("!="),

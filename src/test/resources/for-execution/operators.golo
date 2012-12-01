@@ -68,3 +68,7 @@ function average = | zero, items... | {
   }
   return sum / count
 }
+
+function is_even = |value| {
+  return (value % 2) == 0
+}

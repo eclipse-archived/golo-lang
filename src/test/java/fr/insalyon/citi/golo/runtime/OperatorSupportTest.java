@@ -283,4 +283,15 @@ public class OperatorSupportTest {
     Double r = (Double) result;
     assertThat(r, is(a + ((double) b)));
   }
+
+  @Test
+  public void check_modulo() throws Throwable {
+    Integer two = 2;
+    Integer four = 4;
+    Long three_l = 3L;
+    MethodHandle modulo = OperatorSupport.bootstrap(lookup(), "modulo", BINOP_TYPE, 2).dynamicInvoker();
+
+    assertThat((Integer) modulo.invokeWithArguments(four, two), is(0));
+    assertThat((Long) modulo.invokeWithArguments(three_l, two), is(1L));
+  }
 }

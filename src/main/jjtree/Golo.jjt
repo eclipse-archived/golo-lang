@@ -92,7 +92,7 @@ TOKEN :
 // Operators
 TOKEN :
 {
-  < ASSOCIATIVE_OPERATOR: ("*" | "/" | 
+  < ASSOCIATIVE_OPERATOR: ("*" | "/" | "%" |
                            "<" | "<=" | "==" | "!=" | ">" | ">=" | 
                            "is" | "isnt" |
                            "oftype" ) >

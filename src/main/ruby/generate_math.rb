@@ -2,13 +2,14 @@
 
 TYPES = [ :Integer, :Long, :Double, :Float ]
 
-OPS = [ :plus, :minus, :divide, :times ]
+OPS = [ :plus, :minus, :divide, :times, :modulo ]
 
 OPS_SYMB = {
   :plus => '+',
   :minus => '-',
   :times => '*',
-  :divide => '/'
+  :divide => '/',
+  :modulo => '%'
 }
 
 PRIM = {
