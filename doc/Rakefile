@@ -1,5 +1,7 @@
 OUTPUT = 'output'
 
+task :default => [:all]
+
 task :prepare do
   mkdir_p OUTPUT
 end
@@ -13,6 +15,9 @@ desc "generates the PDF documentation"
 task :pdf => [:prepare] do
   sh "a2x --verbose -L -f pdf --fop -D output --icons --icons-dir=`brew --prefix asciidoc`/etc/asciidoc/images/icons main.asciidoc"
 end
+
+desc "generate all formats"
+task :all => [:html, :pdf]
 
 desc "cleanup"
 task :clean do
