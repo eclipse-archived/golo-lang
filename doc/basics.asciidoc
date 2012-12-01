@@ -153,6 +153,18 @@ truth = 666
 var foo
 -------------
 
+Valid names contain upper and lower case letters within the `[a..z]` range, underscores (`_`),
+dollar symbols (`$`) and numbers. In any case, an identifier must not start with a number.
+
+[source,text]
+---------------------------------------------
+# Ok, but not necessarily great for humans...
+let _$_f_o_$$666 = 666
+
+# Wrong!
+let 666_club = 666
+---------------------------------------------
+
 === Data literals ===
 
 Golo supports a set of data literals. They directly map to their counterparts from the Java Standard
