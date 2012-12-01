@@ -125,6 +125,23 @@ $
 
 Simple, isn't it?
 
+=== Passing JVM-specific flags ===
+
+Both `golo` and `gologolo` can be given JVM-specific flags using the `JVM_FLAGS` environment
+variable. 
+
+As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
+
+[source,console]
+------------------------------------------------------------------
+# Exporting an environment variable
+$ export JVM_FLAGS=-XX:+PrintCompilation
+$ gologolo samples/fibonacci.golo
+
+# ...or you may use this one-liner
+$ JVM_FLAGS=-XX:+PrintCompilation gologolo samples/fibonacci.golo
+------------------------------------------------------------------
+
 === Variables and constants ===
 
 Golo does not check for types at compile time, and they are not
