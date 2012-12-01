@@ -4,6 +4,8 @@ Not everything is deemed to be implemented...
 
 ## Language
 
+* try/finally with no catch clause.
+
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
 * Do not make all operators parser tokens, as it forbids some refs / functions / methods to
