@@ -116,7 +116,7 @@ then:
 println(elementAt(1, 1, 2, 3))
 ------------------------------
 
-=== Functions from other modules ===
+=== Functions from other modules (`import` statement) ===
 
 Suppose that we have a module `Foo.Bar`:
 
@@ -149,6 +149,32 @@ function plop = {
   return f()
 }
 ---------------------
+
+NOTE: Imports in Golo do not work as in Java.
+Golo is a dynamic language where symbols are being resolved at runtime. Module imports are
+**not** checked at compilation time, and their sole purpose is to help in dynamic resolution. Back
+to the previous example, `f` cannot be resolved from the current module, and the Golo runtime
+subsequently tries to resolve `f` from each `import` statement. Also, note that the order of
+`import` statements is important, as the resolution stops at the first module having the `f`
+function.
+
+Last but not least, you may prepend the last piece of the module name. The following invocations are
+equivalent:
+
+[source,text]
+--------------------- 
+module Somewhere.Else
+
+import Foo.Bar
+
+function plop = {
+  let result = f()
+  let result_bis = Bar.f()
+  let result_full = Foo.Bar.f()
+  return result
+}
+---------------------
+
 
 === Local functions ===
 
