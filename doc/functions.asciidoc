@@ -116,7 +116,7 @@ then:
 println(elementAt(1, 1, 2, 3))
 ------------------------------
 
-=== Functions from other modules (`import` statement) ===
+=== Functions from other modules and imports ===
 
 Suppose that we have a module `Foo.Bar`:
 

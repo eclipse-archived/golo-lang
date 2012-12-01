@@ -9,6 +9,11 @@ task :html => [:prepare] do
   sh "asciidoc -b html5 -a icons -a toc2 -a iconsdir=`brew --prefix asciidoc`/etc/asciidoc/images/icons -a data-uri -a theme=flask -a source-highlighter=pygments -o output/index.html main.asciidoc"
 end
 
+desc "generates the PDF documentation"
+task :pdf => [:prepare] do
+  sh "a2x -L -f pdf --fop -D output --icons --icons-dir=`brew --prefix asciidoc`/etc/asciidoc/images/icons main.asciidoc"
+end
+
 desc "cleanup"
 task :clean do
   rm_rf OUTPUT
