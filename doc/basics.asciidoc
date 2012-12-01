@@ -180,4 +180,60 @@ API. We give them along with examples in <<data-literals,the data literals table
 
 |===========================
 
+=== Operators ===
+
+Golo supports the following <<operators,set of operators>>.
+
+[options="header",id="operators"]
+|=============================================================================
+|Symbol(s) |Description |Examples
+
+|`+`|
+Addition on numbers and strings.|
+`1 + 2` gives 3.
+
+`"foo" + "bar"` gives `"foobar"`.
+
+`"foo" + something` where `something` is any object instance is equivalent to
+`"foo" + something.toString()` in Java.
+
+|`-`|
+Subtraction on numbers.|
+`4 - 1` gives `3`.
+
+|`*`|
+Multiplication on numbers and strings.|
+`2 * 2` gives `4`.
+
+`"a" * 3` gives `"aaa"`.
+
+|`/`|
+Division on numbers.|
+`4 / 2` gives `2`.
+
+|'%'|
+Modulo on numbers.|
+`4 % 2` gives `0`, `3 % 2` gives `1`.
+
+|`"<"`, `"<="`, `"=="`, `"!="`, `">"`, `">="`|
+Comparison between numbers and objects that implement `java.lang.Comparable`.
+`==` is equivalent to calling `Object#equals(Object)` in Java.|
+`1 < 2` gives `true`.
+
+|`is`, `isnt`|
+Comparison of reference equality.|
+`a is b` gives `true` only if `a` and `b` reference the same object instance.
+
+|`and`, `or`, `not`|
+Boolean operators. `not` is of course a unary operator.|
+`true and true` gives `true`, `not(true)` gives `false`.
+
+|`oftype`|
+Checks the type of an object instance, equivalent to the `instanceof` operator
+in Java.|
+`("plop" oftype String.class)` gives `true`.
+
+|=============================================================================
+
+
 
