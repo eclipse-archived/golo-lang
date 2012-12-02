@@ -455,10 +455,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
     } else {
       exceptionId = "$$__$$__ignored_exception__$$__$$";
-      PositionInSourceCode dummy = new PositionInSourceCode(-1, -1);
+//      PositionInSourceCode dummy = new PositionInSourceCode(-1, -1);
       catchBlock = new Block(localTable);
       catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
-      catchBlock.addStatement(new ThrowStatement(new ReferenceLookup(exceptionId, dummy), dummy));
+//      catchBlock.addStatement(new ThrowStatement(new ReferenceLookup(exceptionId, dummy), dummy));
       finallyBlock = (Block) context.objectStack.pop();
     }
     context.referenceTableStack.pop();
@@ -476,6 +476,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         tryBlock,
         catchBlock,
         finallyBlock,
+        !hasCatchBlock,
         new PositionInSourceCode(
             node.getLineInSourceCode(),
             node.getColumnInSourceCode()));
