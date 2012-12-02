@@ -436,6 +436,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTTryCatchFinally node, Object data) {
     Context context = (Context) data;
     String exceptionId = node.getExceptionId();
+    boolean hasCatchBlock = (exceptionId != null);
 
     ReferenceTable localTable = context.referenceTableStack.peek().fork();
     context.referenceTableStack.push(localTable);
@@ -443,15 +444,26 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Block tryBlock = (Block) context.objectStack.pop();
     context.referenceTableStack.pop();
 
+    Block catchBlock;
+    Block finallyBlock = null;
+
     localTable = context.referenceTableStack.peek().fork();
     context.referenceTableStack.push(localTable);
     node.jjtGetChild(1).jjtAccept(this, data);
-    Block catchBlock = (Block) context.objectStack.pop();
-    catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
+    if (hasCatchBlock) {
+      catchBlock = (Block) context.objectStack.pop();
+      catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
+    } else {
+      exceptionId = "$$__$$__ignored_exception__$$__$$";
+      PositionInSourceCode dummy = new PositionInSourceCode(-1, -1);
+      catchBlock = new Block(localTable);
+      catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
+      catchBlock.addStatement(new ThrowStatement(new ReferenceLookup(exceptionId, dummy), dummy));
+      finallyBlock = (Block) context.objectStack.pop();
+    }
     context.referenceTableStack.pop();
 
-    Block finallyBlock = null;
-    if (node.jjtGetNumChildren() > 2) {
+    if (hasCatchBlock && (node.jjtGetNumChildren() > 2)) {
       localTable = context.referenceTableStack.peek().fork();
       context.referenceTableStack.push(localTable);
       node.jjtGetChild(2).jjtAccept(this, data);

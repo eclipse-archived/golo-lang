@@ -448,7 +448,7 @@ public class CompileAndRunTest {
 
     Method finally_with_exception = moduleClass.getMethod("finally_with_exception");
     try {
-      finally_no_exception.invoke(null);
+      finally_with_exception.invoke(null);
     } catch (RuntimeException expected) {
       assertThat(expected.getMessage(), is("ok"));
     }

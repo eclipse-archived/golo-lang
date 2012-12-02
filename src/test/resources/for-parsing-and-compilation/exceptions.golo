@@ -21,3 +21,11 @@ function try_catch_finally = {
     println("Finally!")
   }
 }
+
+function try_finally = {
+  try {
+    throwing()
+  } finally {
+    println("Finally!")
+  }
+}

@@ -31,3 +31,11 @@ function finally_with_exception = {
     throw RuntimeException("ok", null)
   }
 }
+
+function try_finally = {
+  try {
+    runtimeException()
+  } finally {
+    throw RuntimeException("ok", null)
+  }
+}

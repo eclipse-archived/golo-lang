@@ -400,13 +400,26 @@ void TryCatchFinally():
 }
 {
   token=<TRY> "{" Block() "}" 
-  <CATCH> "(" exceptionId=<IDENTIFIER> ")" "{" Block() "}"
-  (<FINALLY> "{" Block() "}")?
-  {
-    jjtThis.setExceptionId(exceptionId.image);
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
+  (
+    (
+      <FINALLY> "{" Block() "}"
+      {
+        jjtThis.setExceptionId(null);
+        jjtThis.setLineInSourceCode(token.beginLine);
+        jjtThis.setColumnInSourceCode(token.beginColumn);
+      }
+    )
+    |
+    (
+      <CATCH> "(" exceptionId=<IDENTIFIER> ")" "{" Block() "}"
+      (<FINALLY> "{" Block() "}")?
+      {
+        jjtThis.setExceptionId(exceptionId.image);
+        jjtThis.setLineInSourceCode(token.beginLine);
+        jjtThis.setColumnInSourceCode(token.beginColumn);
+      }
+    )
+  )
 }
 
 void ExpressionStatement() #void: {}
