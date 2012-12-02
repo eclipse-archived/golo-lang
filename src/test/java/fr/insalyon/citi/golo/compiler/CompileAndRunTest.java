@@ -25,6 +25,7 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.closeTo;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.nullValue;
 import static org.testng.Assert.fail;
 
@@ -449,15 +450,17 @@ public class CompileAndRunTest {
     Method finally_with_exception = moduleClass.getMethod("finally_with_exception");
     try {
       finally_with_exception.invoke(null);
-    } catch (RuntimeException expected) {
-      assertThat(expected.getMessage(), is("ok"));
+    } catch (InvocationTargetException expected) {
+      assertThat(expected.getCause(), instanceOf(RuntimeException.class));
+      assertThat(expected.getCause().getMessage(), is("ok"));
     }
 
     Method try_finally = moduleClass.getMethod("try_finally");
     try {
       try_finally.invoke(null);
-    } catch (RuntimeException expected) {
-      assertThat(expected.getMessage(), is("ok"));
+    } catch (InvocationTargetException expected) {
+      assertThat(expected.getCause(), instanceOf(RuntimeException.class));
+      assertThat(expected.getCause().getMessage(), is("ok"));
     }
   }
 }

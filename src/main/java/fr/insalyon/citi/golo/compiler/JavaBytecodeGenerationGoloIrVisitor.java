@@ -362,43 +362,43 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label tryEnd = new Label();
     Label catchStart = new Label();
     Label catchEnd = new Label();
+    Label catchHandler = new Label();
+    Label tryCatchEnd = new Label();
+
     methodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
+    methodVisitor.visitTryCatchBlock(catchStart, catchEnd, catchHandler, null);
 
     methodVisitor.visitLabel(tryStart);
     tryCatchFinally.getTryBlock().accept(this);
     if (tryCatchFinally.hasFinallyBlock()) {
       tryCatchFinally.getFinallyBlock().accept(this);
     }
-    methodVisitor.visitJumpInsn(GOTO, catchEnd);
+    methodVisitor.visitJumpInsn(GOTO, tryCatchEnd);
     methodVisitor.visitLabel(tryEnd);
 
-    Label finallyStart = null;
-    Label finallyEnd = null;
-    Label finallyThrow = null;
-
-    methodVisitor.visitLabel(catchStart);
     Block catchBlock = tryCatchFinally.getCatchBlock();
     int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
-    methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
 
-    if (tryCatchFinally.hasFinallyBlock()) {
-      finallyStart = new Label();
-      finallyEnd = new Label();
-      finallyThrow = new Label();
-      methodVisitor.visitTryCatchBlock(finallyStart, finallyEnd, finallyThrow, null);
-      methodVisitor.visitLabel(finallyStart);
-    }
-    catchBlock.accept(this);
+    methodVisitor.visitLabel(catchStart);
+    methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
+    tryCatchFinally.getCatchBlock().accept(this);
+    methodVisitor.visitLabel(catchEnd);
+
     if (tryCatchFinally.hasFinallyBlock()) {
       tryCatchFinally.getFinallyBlock().accept(this);
-      methodVisitor.visitLabel(finallyEnd);
-      methodVisitor.visitLabel(finallyThrow);
-      methodVisitor.visitVarInsn(ALOAD, exceptionRefIndex);
-      methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
-      methodVisitor.visitInsn(ATHROW);
     }
+    methodVisitor.visitJumpInsn(GOTO, tryCatchEnd);
 
-    methodVisitor.visitLabel(catchEnd);
+    methodVisitor.visitLabel(catchHandler);
+    methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex); // TODO handle suppressed exception
+    if (tryCatchFinally.hasFinallyBlock()) {
+      tryCatchFinally.getFinallyBlock().accept(this);
+    }
+    methodVisitor.visitVarInsn(ALOAD, exceptionRefIndex);
+    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
+    methodVisitor.visitInsn(ATHROW);
+
+    methodVisitor.visitLabel(tryCatchEnd);
   }
 
   @Override
