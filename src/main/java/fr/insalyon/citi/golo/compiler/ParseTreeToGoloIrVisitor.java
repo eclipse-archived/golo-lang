@@ -454,6 +454,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       catchBlock = (Block) context.objectStack.pop();
       catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
     } else {
+      // TODO make it incremental
       exceptionId = "$$__$$__ignored_exception__$$__$$";
 //      PositionInSourceCode dummy = new PositionInSourceCode(-1, -1);
       catchBlock = new Block(localTable);
