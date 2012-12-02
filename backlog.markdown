@@ -4,7 +4,7 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* try/finally with no catch clause.
+* Handle suppressed exceptions in try/catch/finally.
 
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
