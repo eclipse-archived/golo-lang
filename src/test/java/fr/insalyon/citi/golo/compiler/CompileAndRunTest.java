@@ -452,5 +452,12 @@ public class CompileAndRunTest {
     } catch (RuntimeException expected) {
       assertThat(expected.getMessage(), is("ok"));
     }
+
+    Method try_finally = moduleClass.getMethod("try_finally");
+    try {
+      try_finally.invoke(null);
+    } catch (RuntimeException expected) {
+      assertThat(expected.getMessage(), is("ok"));
+    }
   }
 }
