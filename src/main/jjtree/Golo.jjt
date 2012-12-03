@@ -80,6 +80,10 @@ TOKEN :
   |
   < FOR: "for" >
   |
+  < FOREACH: "foreach">
+  |
+  < IN: "in" >
+  |
   < THROW: "throw" >
   |
   < TRY: "try" >
@@ -352,6 +356,8 @@ void Statement() #void:{}
   |
   ForLoop()
   |
+  ForEachLoop()
+  |
   Throw()
   |
   TryCatchFinally()
@@ -390,6 +396,20 @@ void ForLoop():
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+}
+
+void ForEachLoop():
+{
+  Token token;
+  Token elementId;
+}
+{
+  token=<FOREACH> "(" elementId=<IDENTIFIER> <IN> ExpressionStatement() ")" "{" Block() "}"
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+    jjtThis.setElementIdentifier(elementId.image);
   }
 }
 

@@ -49,3 +49,8 @@ function z_list_with_ids = {
   return list
 }
 
+function for_each = |iterable| {
+  foreach (elem in iterable) {
+    println(elem)
+  }
+}

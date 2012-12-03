@@ -433,6 +433,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTForEachLoop node, Object data) {
+    // TODO
+    return data;
+  }
+
+  @Override
   public Object visit(ASTTryCatchFinally node, Object data) {
     Context context = (Context) data;
     String exceptionId = node.getExceptionId();
