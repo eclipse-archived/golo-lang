@@ -363,6 +363,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label catchStart = new Label();
     Label catchEnd = new Label();
 
+    Label rethrowStart = null;
+    Label rethrowEnd = null;
+    if (tryCatchFinally.isTryCatchFinally()) {
+      rethrowStart = new Label();
+      rethrowEnd = new Label();
+    }
+
     methodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
     methodVisitor.visitLabel(tryStart);
     tryCatchFinally.getTryBlock().accept(this);
@@ -374,6 +381,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (tryCatchFinally.isTryFinally()) {
       tryCatchFinally.getFinallyBlock().accept(this);
       methodVisitor.visitJumpInsn(GOTO, catchEnd);
+    }
+
+    if (tryCatchFinally.isTryCatchFinally()) {
+      methodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
     }
 
     methodVisitor.visitLabel(catchStart);
@@ -390,44 +401,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     if (tryCatchFinally.isTryCatchFinally()) {
       tryCatchFinally.getFinallyBlock().accept(this);
+      methodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+      methodVisitor.visitLabel(rethrowStart);
+      tryCatchFinally.getFinallyBlock().accept(this);
+      methodVisitor.visitInsn(ATHROW);
+      methodVisitor.visitLabel(rethrowEnd);
     }
-
-//
-//    Label catchHandler = new Label();
-//    Label tryCatchEnd = new Label();
-//
-//    methodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
-//    methodVisitor.visitTryCatchBlock(catchStart, catchEnd, catchHandler, null);
-//
-//    methodVisitor.visitLabel(tryStart);
-//    tryCatchFinally.getTryBlock().accept(this);
-//    if (tryCatchFinally.hasFinallyBlock()) {
-//      tryCatchFinally.getFinallyBlock().accept(this);
-//    }
-//    methodVisitor.visitJumpInsn(GOTO, tryCatchEnd);
-//    methodVisitor.visitLabel(tryEnd);
-//
-//    Block catchBlock = tryCatchFinally.getCatchBlock();
-//    int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
-//
-//    methodVisitor.visitLabel(catchStart);
-//    methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
-//    tryCatchFinally.getCatchBlock().accept(this);
-//    methodVisitor.visitLabel(catchEnd);
-//
-//    if (tryCatchFinally.hasFinallyBlock()) {
-//      tryCatchFinally.getFinallyBlock().accept(this);
-//    }
-//    methodVisitor.visitJumpInsn(GOTO, tryCatchEnd);
-//
-//    methodVisitor.visitLabel(catchHandler);
-//    // TODO handle suppressed exception if not the same as previously stored
-//    if (tryCatchFinally.hasFinallyBlock()) {
-//      tryCatchFinally.getFinallyBlock().accept(this);
-//    }
-//    methodVisitor.visitInsn(ATHROW);
-//
-//    methodVisitor.visitLabel(tryCatchEnd);
   }
 
   @Override
