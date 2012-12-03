@@ -37,10 +37,6 @@ public class TryCatchFinally extends GoloStatement {
     return finallyBlock != null;
   }
 
-  public boolean isTryFinally() {
-    return tryFinally;
-  }
-
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitTryCatchFinally(this);
