@@ -13,6 +13,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -309,6 +310,9 @@ public class CompileAndRunTest {
     assertThat((Integer) fact.invoke(null, 10, 0), is(1));
     assertThat((Integer) fact.invoke(null, 10, 1), is(10));
     assertThat((Integer) fact.invoke(null, 10, 2), is(100));
+
+    Method concat_to_string = moduleClass.getMethod("concat_to_string", Object.class);
+    assertThat((String) concat_to_string.invoke(null, asList("a", "b", "c")), is("abc"));
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)

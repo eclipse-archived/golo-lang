@@ -16,3 +16,11 @@ function fact = |value, n| {
   }
   return null
 }
+
+function concat_to_string = |iterable| {
+  var result = ""
+  foreach (item in iterable) {
+    result = result + item
+  }
+  return result
+}
