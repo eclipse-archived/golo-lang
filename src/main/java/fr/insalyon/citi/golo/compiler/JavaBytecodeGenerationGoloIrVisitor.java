@@ -391,12 +391,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     methodVisitor.visitLabel(catchHandler);
     // TODO handle suppressed exception if not the same as previously stored
-    methodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
     if (tryCatchFinally.hasFinallyBlock()) {
       tryCatchFinally.getFinallyBlock().accept(this);
     }
-    methodVisitor.visitVarInsn(ALOAD, exceptionRefIndex);
-    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
     methodVisitor.visitInsn(ATHROW);
 
     methodVisitor.visitLabel(tryCatchEnd);
