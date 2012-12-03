@@ -444,7 +444,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Block tryBlock = (Block) context.objectStack.pop();
     context.referenceTableStack.pop();
 
-    Block catchBlock;
+    Block catchBlock = null;
     Block finallyBlock = null;
 
     localTable = context.referenceTableStack.peek().fork();
@@ -454,9 +454,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       catchBlock = (Block) context.objectStack.pop();
       catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
     } else {
-      exceptionId = "$$__$$__ignored_exception__$$__$$_" + System.currentTimeMillis();
-      catchBlock = new Block(localTable);
-      catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
       finallyBlock = (Block) context.objectStack.pop();
     }
     context.referenceTableStack.pop();

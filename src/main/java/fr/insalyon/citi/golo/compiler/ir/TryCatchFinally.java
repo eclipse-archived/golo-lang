@@ -35,6 +35,22 @@ public class TryCatchFinally extends GoloStatement {
     return finallyBlock != null;
   }
 
+  public boolean hasCatchBlock() {
+    return catchBlock != null;
+  }
+
+  public boolean isTryCatchFinally() {
+    return hasCatchBlock() && hasFinallyBlock();
+  }
+
+  public boolean isTryCatch() {
+    return hasCatchBlock() && !hasFinallyBlock();
+  }
+
+  public boolean isTryFinally() {
+    return !hasCatchBlock() && hasFinallyBlock();
+  }
+
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitTryCatchFinally(this);
