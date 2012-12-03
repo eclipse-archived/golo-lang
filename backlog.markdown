@@ -37,18 +37,6 @@ Not everything is deemed to be implemented...
     }
     ```
 
-* Foreach-style iterations, e.g.:
-
-    ```
-    foreach value in iterable {
-      println(value)
-    }
-
-    foreach index, value in array {
-      println("#{index} => #{value}")
-    }
-    ```
-
 * First-class functions and closures, e.g.:
 
     ```
