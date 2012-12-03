@@ -474,7 +474,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         tryBlock,
         catchBlock,
         finallyBlock,
-        !hasCatchBlock,
         new PositionInSourceCode(
             node.getLineInSourceCode(),
             node.getColumnInSourceCode()));

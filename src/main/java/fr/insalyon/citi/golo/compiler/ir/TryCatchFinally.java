@@ -6,15 +6,13 @@ public class TryCatchFinally extends GoloStatement {
   private final Block tryBlock;
   private final Block catchBlock;
   private final Block finallyBlock;
-  private final boolean tryFinally;
 
-  public TryCatchFinally(String exceptionId, Block tryBlock, Block catchBlock, Block finallyBlock, boolean tryFinally, PositionInSourceCode positionInSourceCode) {
+  public TryCatchFinally(String exceptionId, Block tryBlock, Block catchBlock, Block finallyBlock, PositionInSourceCode positionInSourceCode) {
     super(positionInSourceCode);
     this.exceptionId = exceptionId;
     this.tryBlock = tryBlock;
     this.catchBlock = catchBlock;
     this.finallyBlock = finallyBlock;
-    this.tryFinally = tryFinally;
   }
 
   public String getExceptionId() {
