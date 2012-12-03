@@ -434,7 +434,60 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTForEachLoop node, Object data) {
-    // TODO
+    Context context = (Context) data;
+    ReferenceTable localTable = context.referenceTableStack.peek().fork();
+
+    LocalReference elementReference = new LocalReference(VARIABLE, node.getElementIdentifier());
+    localTable.add(elementReference);
+
+    String iteratorId = "$$__iterator__$$__" + System.currentTimeMillis();
+    LocalReference iteratorReference = new LocalReference(VARIABLE, iteratorId);
+    localTable.add(iteratorReference);
+
+    context.referenceTableStack.push(localTable);
+    node.jjtGetChild(0).jjtAccept(this, data);
+    ExpressionStatement iterableExpressionStatement = (ExpressionStatement) context.objectStack.pop();
+    node.jjtGetChild(1).jjtAccept(this, data);
+    Block block = (Block) context.objectStack.pop();
+
+    PositionInSourceCode dummy = new PositionInSourceCode(-1, -1);
+
+    AssignmentStatement init =
+        new AssignmentStatement(
+            iteratorReference,
+            new BinaryOperation(
+                OperatorType.METHOD_CALL,
+                iterableExpressionStatement,
+                new MethodInvocation("iterator", dummy),
+                dummy),
+            dummy);
+
+    ExpressionStatement condition =
+        new BinaryOperation(
+            OperatorType.METHOD_CALL,
+            new ReferenceLookup(iteratorId, dummy),
+            new MethodInvocation("hasNext", dummy),
+            dummy);
+
+    block.prependStatement(
+        new AssignmentStatement(
+            elementReference,
+            new BinaryOperation(
+                OperatorType.METHOD_CALL,
+                new ReferenceLookup(iteratorId, dummy),
+                new MethodInvocation("next", dummy),
+                dummy),
+            dummy));
+
+    LoopStatement loopStatement = new LoopStatement(init, condition, block, null,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    Block localBlock = new Block(localTable);
+    localBlock.addStatement(loopStatement);
+    context.objectStack.push(localBlock);
+
+    context.referenceTableStack.pop();
     return data;
   }
 

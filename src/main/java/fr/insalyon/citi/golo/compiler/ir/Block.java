@@ -27,6 +27,15 @@ public final class Block extends GoloStatement {
 
   public void addStatement(GoloStatement statement) {
     statements.add(statement);
+    checkForReturns(statement);
+  }
+
+  public void prependStatement(GoloStatement statement) {
+    statements.add(0, statement);
+    checkForReturns(statement);
+  }
+
+  private void checkForReturns(GoloStatement statement) {
     if ((statement instanceof ReturnStatement) || (statement instanceof ThrowStatement)) {
       hasReturn = true;
     } else if (statement instanceof ConditionalBranching) {
