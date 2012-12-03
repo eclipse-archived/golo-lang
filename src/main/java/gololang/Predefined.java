@@ -1,6 +1,11 @@
 package gololang;
 
+import java.util.Arrays;
+import java.util.LinkedList;
+
 public class Predefined {
+
+  // ...................................................................................................................
 
   public static void print(Object obj) {
     System.out.print(obj);
@@ -9,6 +14,8 @@ public class Predefined {
   public static void println(Object obj) {
     System.out.println(obj);
   }
+
+  // ...................................................................................................................
 
   public static void requireNotNull(Object obj) throws AssertionError {
     if (obj != null) {
@@ -37,8 +44,14 @@ public class Predefined {
     }
   }
 
+  // ...................................................................................................................
+
   public static Object Array(Object... values) {
     return values;
+  }
+
+  public static Object asList(Object[] values) {
+    return Arrays.asList(values);
   }
 
   public static Object aget(Object a, Object i) {
@@ -60,4 +73,6 @@ public class Predefined {
     Object[] array = (Object[]) a;
     return array.length;
   }
+
+  // ...................................................................................................................
 }

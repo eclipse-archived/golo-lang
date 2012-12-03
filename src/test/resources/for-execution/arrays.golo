@@ -19,3 +19,7 @@ function array_of_doubles = {
 function array_of_floats = {
   return Array(123.0_F, -123.0_F, 123.456_F, 123.0e3_F)
 }
+
+function as_list = {
+  return asList(Array(1, 2, 3))
+}

@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.Arrays;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -23,11 +23,8 @@ import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Ty
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
-import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.closeTo;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 
 public class CompileAndRunTest {
@@ -371,6 +368,11 @@ public class CompileAndRunTest {
     assertThat(array[1], is((Object) Float.valueOf("-123.0")));
     assertThat(array[2], is((Object) Float.valueOf("123.456")));
     assertThat(array[3], is((Object) Float.valueOf("123.0e3")));
+
+    Method as_list = moduleClass.getMethod("as_list");
+    result = as_list.invoke(null);
+    assertThat(result, instanceOf(Collection.class));
+    assertThat(((Collection) result).size(), is(3));
   }
 
   @Test
