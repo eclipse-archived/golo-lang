@@ -50,7 +50,7 @@ public class Predefined {
     return values;
   }
 
-  public static Object asList(Object[] values) {
+  public static Object toCollection(Object[] values) {
     return Arrays.asList(values);
   }
 

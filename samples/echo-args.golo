@@ -8,7 +8,7 @@ function main = |args| {
   }
 
   println("With a foreach loop:")
-  foreach (arg in asList(args)) {
+  foreach (arg in toCollection(args)) {
     println("   " + arg)
   }
 }

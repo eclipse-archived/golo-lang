@@ -21,5 +21,5 @@ function array_of_floats = {
 }
 
 function as_list = {
-  return asList(Array(1, 2, 3))
+  return toCollection(Array(1, 2, 3))
 }
