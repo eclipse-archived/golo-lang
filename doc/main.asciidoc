@@ -8,4 +8,5 @@ WARNING: This is a work in progress.
 
 include::basics.asciidoc[]
 include::functions.asciidoc[]
+include::control-flow.asciidoc[]
 

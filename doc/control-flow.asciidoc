@@ -1,0 +1,129 @@
+== Control flow ==
+
+Control flow in Golo is imperative and has the usual constructions found in upstream languages.
+
+=== Conditional branching ===
+
+Golo supports the traditional `if` / `else` constructions, as in:
+
+[source,text]
+-------------------------------
+if goloIsGreat() {
+  println("Golo Golo")
+}
+
+if (someCondition) {
+  doThis()
+} else if someOtherCondition {
+  doThat()
+} else {
+  doThatThing()
+}
+-------------------------------
+
+The condition of an `if` statement does not need parenthesis. You may add some to clarify a more
+elaborated expression, though.
+
+=== `while` loops ===
+
+While loops in Golo are straightforward:
+
+[source,text]
+-----------------------------------------
+function times = |n| {
+  var times = 0
+  while (times < n) { times = times + 1 }
+  return times
+}
+-----------------------------------------
+
+The parenthesis in the `while` condition may be omitted like it is the case for `if` statements.
+
+=== `for` loops ===
+
+This is the most versatile loop construction, as it features:
+
+1. a variable declaration and initialization (a Golo variable is always initialized anyway), and
+2. a loop progress condition, and
+3. a loop progress statement.
+
+The following function shows a `for` loop:
+
+[source,text]
+----------------------------------------
+function fact = |value, n| {
+  var result = 1
+  for (var i = 0, i < n, i = i + 1) {
+    result = result * value
+  }
+  return result
+}
+----------------------------------------
+
+As you can see, it is very much like a `for` loop in Java, except that:
+
+* the `for` loop elements are separated by `','` instead of `';'`, and
+* there cannot be multiple variables in the loop, and
+* there cannot be multiple loop progress statements.
+
+Again, this choice is dictated by the pursue of simplicity. 
+
+=== `foreach` loops ===
+
+Golo provides a "for each" style of iteration over iterable elements. Any object that is an instance
+of `java.lang.Iterable` can be used in `foreach` loops, as in:
+
+[source,text]
+----------------------------------------
+function concat_to_string = |iterable| {
+  var result = ""
+  foreach (item in iterable) {
+    result = result + item
+  }
+  return result
+}
+----------------------------------------
+
+In this example, `item` is a variable within the `foreach` loop scope, and `iterable` is an object
+that is expected to be iterable.
+
+[IMPORTANT]
+.Arrays and `foreach` loops
+==================================================================================================
+`foreach` loops do not work with Java arrays, instances of `Object[]`.
+
+If you need to do so, then you can take advantage of the predefined `toCollection` function that
+turns an array into a collection (internally, it uses `java.util.Arrays#asList`).
+
+Here is how you could process the arguments of a `main` function with a `foreach` loop:
+
+[source,text]
+----------------------------------------
+function main = |args| {
+  foreach (arg in toCollection(args)) {
+    println(arg)
+  }
+}
+----------------------------------------
+==================================================================================================
+
+=== Why no value from most control flow constructions? ===
+
+Some programming languages return values from selected control flow constructions, with the returned
+value being the evaluation of the last statement in a block. This can be handy in some situations
+such as the following code snippet in Scala:
+
+[source,scala]
+------------------------------------------
+println(if (4 % 2 == 0) "even" else "odd")
+------------------------------------------
+
+The Golo original author recognizes and appreciates the expressiveness of such construct. However,
+he often finds it harder to spot the returned values with such constructs, and he thought that
+trading a few keystrokes for *explicitness* was better than shorter construct based in
+*implicitness*.
+
+Therefore, most Golo control flow constructions do not return values, and programmers are instead
+required to extract a variable or provide an explicit `return` statement.
+
+
