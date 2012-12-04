@@ -11,7 +11,7 @@ import static org.hamcrest.Matchers.notNullValue;
 
 public class GoloClassLoaderTest {
 
-  private static final String SRC = "src/test/resources/for-execution/".replaceAll("/", File.separator);
+  private static final String SRC = "src/test/resources/for-execution/";
 
   @Test
   public void check_load() throws Throwable {

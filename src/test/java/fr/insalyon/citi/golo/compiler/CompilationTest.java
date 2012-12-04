@@ -24,7 +24,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CompilationTest {
 
-  public static final String SRC = "src/test/resources/for-parsing-and-compilation/".replaceAll("/", File.separator);
+  public static final String SRC = "src/test/resources/for-parsing-and-compilation/";
 
   private File temporaryFolder;
 

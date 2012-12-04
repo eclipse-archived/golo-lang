@@ -23,13 +23,13 @@ public class CompilerTest {
 
   @Test
   public void verify_compileTo() throws IOException, ParseException {
-    String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo".replaceAll("/", File.separator);
+    String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
     FileInputStream sourceInputStream = new FileInputStream(sourceFile);
 
     GoloCompiler compiler = new GoloCompiler();
     compiler.compileTo("simple-returns.golo", sourceInputStream, temporaryFolder);
 
-    File expectedOutputFile = new File(temporaryFolder, "golotest/SimpleReturns.class".replaceAll("/", File.separator));
+    File expectedOutputFile = new File(temporaryFolder, "golotest/SimpleReturns.class");
     assertThat(expectedOutputFile.exists(), is(true));
     assertThat(expectedOutputFile.length() > 0, is(true));
   }

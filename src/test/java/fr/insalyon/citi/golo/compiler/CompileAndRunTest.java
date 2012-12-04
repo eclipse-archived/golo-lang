@@ -29,7 +29,7 @@ import static org.testng.Assert.fail;
 
 public class CompileAndRunTest {
 
-  private static final String SRC = "src/test/resources/for-execution/".replaceAll("/", File.separator);
+  private static final String SRC = "src/test/resources/for-execution/";
 
   private File temporaryFolder;
 
