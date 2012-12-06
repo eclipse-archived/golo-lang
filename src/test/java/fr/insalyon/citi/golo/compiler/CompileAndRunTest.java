@@ -468,5 +468,12 @@ public class CompileAndRunTest {
       assertThat(expected.getCause(), instanceOf(RuntimeException.class));
       assertThat(expected.getCause().getMessage(), is("ok"));
     }
+
+    Method raising = moduleClass.getMethod("raising");
+    try {
+      raising.invoke(null);
+    } catch (InvocationTargetException expected) {
+      assertThat(expected.getCause().getMessage(), is("Hello"));
+    }
   }
 }

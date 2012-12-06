@@ -2,8 +2,13 @@ package gololang;
 
 import org.testng.annotations.Test;
 
+import java.io.IOError;
+import java.io.IOException;
+
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.instanceOf;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.notNullValue;
 
 public class PredefinedTest {
 
@@ -47,5 +52,21 @@ public class PredefinedTest {
   @Test(expectedExceptions = AssertionError.class)
   public void test_require_not_null_fail() {
     Predefined.requireNotNull(null);
+  }
+
+  @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "ok")
+  public void test_raise() {
+    Predefined.raise("ok");
+  }
+
+  @Test(expectedExceptions = RuntimeException.class)
+  public void test_raise_with_cause() {
+    try {
+      Predefined.raise("ok", new IOException());
+    } catch (RuntimeException expected) {
+      assertThat(expected.getCause(), notNullValue());
+      assertThat(expected.getCause(), instanceOf(IOException.class));
+      throw expected;
+    }
   }
 }

@@ -39,3 +39,7 @@ function try_finally = {
     throw RuntimeException("ok", null)
   }
 }
+
+function raising = {
+  raise("Hello")
+}

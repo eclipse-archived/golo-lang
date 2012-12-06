@@ -7,6 +7,19 @@ public class Predefined {
 
   // ...................................................................................................................
 
+  public static void raise(Object message) {
+    require(message instanceof String, "raise requires a message as a String");
+    throw new RuntimeException((String) message);
+  }
+
+  public static void raise(Object message, Object cause) {
+    require(message instanceof String, "raise requires a message as a String");
+    require(cause instanceof Throwable, "raise requires a cause as a Throwable");
+    throw new RuntimeException((String) message, (Throwable) cause);
+  }
+
+  // ...................................................................................................................
+
   public static void print(Object obj) {
     System.out.print(obj);
   }
