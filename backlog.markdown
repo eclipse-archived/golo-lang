@@ -52,8 +52,6 @@ Not everything is deemed to be implemented...
 
 ## Runtime
 
-* Predefined function to throw exceptions.
-
 * The inline-cache is slow at the terminal node since every call can yield a new method handle.
 
 * MethodType.genericType may simplify some code...
