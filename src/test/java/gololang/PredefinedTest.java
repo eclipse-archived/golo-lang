@@ -59,7 +59,7 @@ public class PredefinedTest {
     Predefined.raise("ok");
   }
 
-  @Test(expectedExceptions = RuntimeException.class)
+  @Test(expectedExceptions = RuntimeException.class, expectedExceptionsMessageRegExp = "ok")
   public void test_raise_with_cause() {
     try {
       Predefined.raise("ok", new IOException());
