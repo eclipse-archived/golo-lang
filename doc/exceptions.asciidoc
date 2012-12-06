@@ -1,0 +1,85 @@
+== Exceptions ==
+
+Exception handling in Golo is simple. There is no distinction between *checked* and *unchecked*
+exceptions.
+
+=== Raising exceptions ===
+
+Golo provides 2 predefined functions for raising exceptions:
+
+- `raise(message)` throws a `java.lang.RuntimeException` with a message given as a string, and
+- `raise(message, cause)` does the same and specifies a cause which must be an instance of
+  `java.lang.Throwable`.
+
+Throwing an exception is thus as easy as:
+
+[source,text]
+-----------------------
+if somethingIsWrong() {
+  raise("Woops!")
+}
+-----------------------
+
+=== Raising specialized exceptions ===
+
+Of course not every exception shall be an instance of `java.lang.RuntimeException`. When a more
+specialized type is required, you may simply instantiate a Java exception and throw it using the
+`throw` keyword as in the following example:
+
+[source,text]
+---------------------------------------
+module golotest.execution.Exceptions
+
+import java.lang.RuntimeException
+
+function runtimeException = {
+  throw RuntimeException("w00t", null)
+}
+---------------------------------------
+
+NOTE: Always prefer the exception constructors with at least a message and a cause parameter. The
+runtime resolution of constructors in Golo *may* indeed have a hard time in choosing between
+`SomeException(String)` and `SomeException(Throwable)`.
+
+=== Exception handling ===
+
+Exception handling uses the familiar `try / catch`, `try / catch / finally` and `try / finally`
+constructions. Their semantics are the same as found in other languages such as Java, especially
+regarding the handling of `finally` blocks.
+
+The following snippets show each exception handling form.
+
+[source,text]
+--------------------------------------
+# Good old try / catch
+try {
+  something()
+} catch (e) {
+  e: printStackTrace()
+}
+
+# A try / finally
+try {
+  doSomething()
+} finally {
+  cleanup()
+}
+
+# Full try / catch / finally construct
+try {
+  doSomething()
+} catch (e) {
+  if e oftype IOException.class {
+    println("Oh, an I/O exception")
+  }
+  e: printStackTrace()
+  throw e
+} finally {
+  cleanup()
+}
+--------------------------------------
+
+TIP: Because Golo is a weakly typed dynamic language, you need to check for the exception type
+with the `oftype` operator. In a statically typed language like Java, you would instead have several
+`catch` clauses with the exception reference given a specific type.
+
