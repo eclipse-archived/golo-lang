@@ -37,6 +37,22 @@ Not everything is deemed to be implemented...
     }
     ```
 
+* Case, e.g.:
+
+    ```
+    case {
+      when a > b {
+        println("a > b")
+      }
+      when a isa String.class {
+        println("String")
+      }
+      otherwise {
+        raise("WTF is that?")
+      }
+    }
+    ```
+
 * First-class functions and closures, e.g.:
 
     ```
