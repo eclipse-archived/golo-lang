@@ -203,7 +203,7 @@ runtime:
 module Bogus
 
 function i_will_crash = {
-  return Foo.b()
+  return Foo.a()
 }
 -------------------------
 
