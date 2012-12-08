@@ -9,6 +9,8 @@ Not everything is deemed to be implemented...
 * Do not make all operators parser tokens, as it forbids some refs / functions / methods to
   have otherwise meaningful names such as `is` or `not`.
 
+* Character literal: `'a'`, etc.
+
 * Annotations.
 
 * Dealing with Java enums types.
