@@ -5,6 +5,8 @@ options {
   VISITOR=true;
   STATIC=false;
   NODE_CLASS="GoloASTNode";
+  JAVA_UNICODE_ESCAPE = true;
+  UNICODE_INPUT = true;
 }
 
 // ............................................................................................. //
