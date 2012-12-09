@@ -75,6 +75,53 @@ function main = |args| {
 NOTE: Given than most static fields are used as constants in Java, Golo does not provide support to
 change their values. This may change in the future if compelling general-interest use-cases emerge.
 
+=== Inner classes and enumerations ===
+
+We will illustrate both how to deal with public static inner classes and enumerations at once.
+
+The rules to deal with them in Golo are as follows.
+
+1. Inner classes are identified by their real name in the JVM, with nested classes being separated
+   by a `$` sign. Hence, `Thread.State` in Java is written `Thread$State` in Golo.
+2. Enumerations are just normal objects. They expose each entry as a static field, and each entry is
+   an instance of the enumeration class.
+
+Let us consider the following example:
+
+[source,text]
+--------------------------------------------------------------------------
+module sample.EnumsThreadState
+
+import java.lang.Thread$State
+
+function main = |args| {
+
+  # Call the enum entry like a function
+  let new = Thread$State.NEW()
+  println("name=" + new: name() + ", ordinal=" + new: ordinal())
+
+  # Walk through all enum entries
+  foreach (element in toCollection(Thread$State.values())) {
+    println("name=" + element: name() + ", ordinal=" + element: ordinal())
+  }
+}
+--------------------------------------------------------------------------
+
+Running it yields the following console output:
+
+[source,console]
+------------------------------------------
+$ gologolo samples/enums-thread-state.golo 
+name=NEW, ordinal=0
+name=NEW, ordinal=0
+name=RUNNABLE, ordinal=1
+name=BLOCKED, ordinal=2
+name=WAITING, ordinal=3
+name=TIMED_WAITING, ordinal=4
+name=TERMINATED, ordinal=5
+$
+------------------------------------------
+
 === Clashes with Golo operators and escaping ===
 
 Because Golo provides a few named operators such as `is`, `and` or `not`, they are recognized as
