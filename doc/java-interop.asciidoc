@@ -1,0 +1,36 @@
+== Java interoperability ==
+
+Golo aims at providing a seamless 2-way interoperability with the Java programming language.
+
+=== Clashes with Golo operators and escaping ===
+
+Because Golo provides a few named operators such as `is`, `and` or `not`, they are recognized as
+operator tokens.
+
+However, you may find yourself in a situation where you need to invoke a Java method whose name is
+a Golo operator, such as:
+
+[source,text]
+-------------------------------------
+# Function call
+is()
+
+# Method call
+someObject: foo(): is(): not(): bar()
+-------------------------------------
+
+This results in a parsing error, as `is` and `not` will be matched as operators instead of method
+identifiers.
+
+The solution is to use *escaping*, by prefixing identifiers with a backtick, as in:
+
+[source,text]
+---------------------------------------
+# Function call
+`is()
+
+# Method call
+someObject: foo(): `is(): `not(): bar()
+---------------------------------------
+
+
