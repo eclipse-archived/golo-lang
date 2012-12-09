@@ -24,3 +24,7 @@ function string_class = {
 function string_class_from_package_import = {
   return String.class
 }
+
+function is_same_ref = |a, b| {
+  return `is(a, b)
+}

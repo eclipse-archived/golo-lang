@@ -133,6 +133,10 @@ public class CompileAndRunTest {
     Method string_class_from_package_import = moduleClass.getMethod("string_class_from_package_import");
     assertThat(string_class_from_package_import.invoke(null), instanceOf(Class.class));
     assertThat((Class<String>) string_class_from_package_import.invoke(null), sameInstance(String.class));
+
+    Method is_same_ref = moduleClass.getMethod("is_same_ref", Object.class, Object.class);
+    assertThat((Boolean) is_same_ref.invoke(null, moduleClass, moduleClass), is(true));
+    assertThat((Boolean) is_same_ref.invoke(null, moduleClass, "plop"), is(false));
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)
@@ -430,6 +434,10 @@ public class CompileAndRunTest {
     Method toString_by_reflection = moduleClass.getMethod("toString_by_reflection", Object.class);
     assertThat((String) toString_by_reflection.invoke(null, "abc"), is("abc"));
     assertThat((String) toString_by_reflection.invoke(null, 666), is("666"));
+
+    Method escaped = moduleClass.getMethod("escaped", Object.class, Object.class);
+    assertThat((Boolean) escaped.invoke(null, moduleClass, moduleClass), is(false));
+    assertThat((Boolean) escaped.invoke(null, moduleClass, "plop"), is(true));
   }
 
   @Test

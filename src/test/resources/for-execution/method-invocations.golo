@@ -1,5 +1,7 @@
 module golotest.execution.MethodInvocations
 
+import fr.insalyon.citi.golo.compiler.testing.support
+
 function hello = {
   return "Hello": toString()
 }
@@ -26,4 +28,9 @@ function element_at = |list, index| {
 
 function toString_by_reflection = |obj| {
   return obj: getClass(): getMethod("toString"): invoke(obj)
+}
+
+function escaped = |a, b| {
+  let helper = GoloTestHelperMethods()
+  return helper: `not(helper: `is(a, b))
 }
