@@ -17,8 +17,13 @@ task :pdf => [:prepare] do
   sh "a2x --verbose -L -f pdf --fop -D output --icons --icons-dir=`brew --prefix asciidoc`/etc/asciidoc/images/icons #{MAIN}"
 end
 
+desc "generates the HTML chunked documentation"
+task :html_chunked => [:prepare] do
+  sh "a2x --verbose -L -f chunked -D output #{MAIN}"
+end
+
 desc "generate all formats"
-task :all => [:html, :pdf]
+task :all => [:html, :pdf, :html_chunked]
 
 desc "cleanup"
 task :clean do
