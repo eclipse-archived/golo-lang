@@ -34,6 +34,14 @@ public class GoloParser {
       return "Class<" + name + ">";
     }
   }
+
+  private static String unescapeId(String id) {
+    if (id.startsWith("`")) {
+      return id.substring(1);
+    } else {
+      return id;
+    }
+  }
   
   public static void main(String[] args) throws Throwable {
     GoloParser parser = new GoloParser(System.in);    
@@ -142,7 +150,7 @@ TOKEN :
 // Identifiers
 TOKEN :
 {
-  < IDENTIFIER: <LETTER> (<ID_REST>)* >
+  < IDENTIFIER: ("`")? <LETTER> (<ID_REST>)* >
   |
   < #LETTER: [ "A"-"Z", "a"-"z", "_", "$" ] >
   |
@@ -526,7 +534,7 @@ void MethodInvocation():
 {
   token=<IDENTIFIER> "(" (Expressions())? ")"
   {
-    jjtThis.setName(token.image);
+    jjtThis.setName(unescapeId(token.image));
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }
@@ -683,7 +691,7 @@ void FunctionInvocation():
 {
   name=QualifiedName() token="(" (Expressions())? ")"
   {
-    jjtThis.setName(name);
+    jjtThis.setName(unescapeId(name));
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }

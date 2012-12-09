@@ -29,3 +29,7 @@ function d = {
     append("o"):
     toString()
 }
+
+function escaped = {
+  return Foo(): `is(): `not(): bad()
+}

@@ -13,6 +13,9 @@ local function go = {
 
 function someKindOfMain = |args| {
   go()
+  `is()
+  `isnt()
+  `not()
 }
 
 function var_arg_ed = |index, args...| {
