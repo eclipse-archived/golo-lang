@@ -61,6 +61,7 @@ TOKEN :
   < NEWLINE: "\n" >
 }
 
+// Escaping
 SKIP :
 {
   < ESCAPE: "`" > : ESCAPED
