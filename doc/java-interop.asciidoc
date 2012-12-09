@@ -2,6 +2,79 @@
 
 Golo aims at providing a seamless 2-way interoperability with the Java programming language.
 
+=== Calling static methods ===
+
+Golo can invoke public Java static methods by treating them as functions:
+
+[source,text]
+------------------------
+module sample
+
+import java.util.Arrays
+
+function oneTwoThree = {
+  return asList(1, 2, 3)
+}
+------------------------
+
+In this example, `asList` is resolved from the `java.util.Arrays` import and called as a function.
+Note that we could equivalently have written a qualified invocation as `Arrays.asList(1, 2, 3)`.
+
+=== Creating objects ===
+
+Golo doesn't have an instantiation operator like `new` in Java. Instead, creating an object and
+calling its constructor is done as if it was just another function.
+
+As an example, we may allocate a `java.util.LinkedList` as follows:
+
+[source,text]
+---------------------
+module sample
+
+import java.util
+
+function aList = {
+  return LinkedList()
+}
+---------------------
+
+Another example would be using a `java.lang.StringBuilder`.
+
+[source,text]
+--------------------------------------
+function str_build = {
+  return java.lang.StringBuilder("h"):
+    append("e"):
+    append("l"):
+    append("l"):
+    append("o"):
+    toString()
+}
+--------------------------------------
+
+As one would expect, the `str_build` function above gives the `"hello"` string.
+
+=== Static fields ===
+
+Golo treats public static fields as function, so one could get the maximum value for an `Integer` as
+follows:
+
+[source,text]
+--------------------------------------
+module samples.MaxInt
+
+local function max_int = {
+  return java.lang.Integer.MAX_VALUE()
+}
+
+function main = |args| {
+  println(max_int())
+}
+--------------------------------------
+
+NOTE: Given than most static fields are used as constants in Java, Golo does not provide support to
+change their values. This may change in the future if compelling general-interest use-cases emerge.
+
 === Clashes with Golo operators and escaping ===
 
 Because Golo provides a few named operators such as `is`, `and` or `not`, they are recognized as
