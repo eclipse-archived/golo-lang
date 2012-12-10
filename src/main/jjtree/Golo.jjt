@@ -136,6 +136,8 @@ TOKEN :
   |
   < STRING: "\"" (~["\n", "\r", "\""])* "\"" >
   |
+  < CHAR: "'" (~["\n", "\r", "\""]) "'" >
+  |
   < NULL: "null" >
   |
   < TRUE: "true" >
@@ -221,6 +223,17 @@ String StringLiteral() #void:
   literal=<STRING>
   {
     return literal.image.replace("\"", "");
+  }
+}
+
+Character CharLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<CHAR>
+  {
+    return Character.valueOf(literal.image.charAt(1));
   }
 }
 
@@ -576,6 +589,11 @@ void Literal():
     }
     |
     value=StringLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=CharLiteral()
     {
       jjtThis.setLiteralValue(value);
     }

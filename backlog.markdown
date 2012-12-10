@@ -6,8 +6,6 @@ Not everything is deemed to be implemented...
 
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
-* Character literal: `'a'`, etc.
-
 * Annotations.
 
 * SAM methods conversion. (there is some indy support it seems)

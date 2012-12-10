@@ -251,6 +251,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitLdcInsn(value);
       return;
     }
+    if (value instanceof Character) {
+      loadInteger((Character) value);
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+      return;
+    }
     if (value instanceof GoloParser.ParserClassRef) {
       GoloParser.ParserClassRef ref = (GoloParser.ParserClassRef) value;
       methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);

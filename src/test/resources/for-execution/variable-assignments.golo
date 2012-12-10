@@ -28,3 +28,7 @@ function string_class_from_package_import = {
 function is_same_ref = |a, b| {
   return `is(a, b)
 }
+
+function a_char = {
+  return 'a'
+}

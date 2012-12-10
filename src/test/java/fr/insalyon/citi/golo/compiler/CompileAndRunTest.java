@@ -137,6 +137,9 @@ public class CompileAndRunTest {
     Method is_same_ref = moduleClass.getMethod("is_same_ref", Object.class, Object.class);
     assertThat((Boolean) is_same_ref.invoke(null, moduleClass, moduleClass), is(true));
     assertThat((Boolean) is_same_ref.invoke(null, moduleClass, "plop"), is(false));
+
+    Method a_char = moduleClass.getMethod("a_char");
+    assertThat((Character) a_char.invoke(null), is('a'));
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)

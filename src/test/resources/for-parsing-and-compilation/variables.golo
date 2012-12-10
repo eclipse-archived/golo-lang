@@ -20,3 +20,7 @@ function long_number = {
 }
 
 function string_class = { return String.class }
+
+function a_char = {
+  return 'a'
+}
