@@ -14,9 +14,10 @@ Not everything is deemed to be implemented...
 
 * Classes and value types. Provide polymorphism through dynamic casts in an IAdapter style.
 
-* String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
+* Ability to define classes and / or data objects.
+  Must be lightweight, and complex use-cases should be done in POJOs.
 
-* Common collections sugar (lists, maps, sets).
+* String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
 
 * Pimps / categories, e.g.:
 
@@ -49,9 +50,6 @@ Not everything is deemed to be implemented...
     }
 
     ```
-
-* Ability to define classes and / or data objects.
-  Must be lightweight, and complex use-cases should be done in POJOs.
 
 * Matching, e.g.:
   
@@ -94,6 +92,8 @@ Not everything is deemed to be implemented...
     ```
 
 ## Runtime
+
+* Common collection sugar functions (lists, maps, sets, ...)
 
 * The inline-cache is slow at the terminal node since every call can yield a new method handle.
 
