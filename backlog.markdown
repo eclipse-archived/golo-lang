@@ -6,9 +6,6 @@ Not everything is deemed to be implemented...
 
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
-* Do not make all operators parser tokens, as it forbids some refs / functions / methods to
-  have otherwise meaningful names such as `is` or `not`.
-
 * Character literal: `'a'`, etc.
 
 * Annotations.
