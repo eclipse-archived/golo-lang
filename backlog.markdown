@@ -23,6 +23,38 @@ Not everything is deemed to be implemented...
 
 * Common collections sugar (lists, maps, sets).
 
+* Pimps / categories, e.g.:
+
+    ```
+    module foo
+
+    pimp String.class {
+      
+      method toURL = {
+        return URL(this)
+      }
+
+      method toFile = {
+        return File(this)
+      }
+
+      method toFile = |dir| = {
+        return File(dir, this)
+      }
+    }
+
+    (...)
+
+    module bar
+
+    apply pimp from foo on String.class
+
+    function plop = {
+      "sample.txt": toFile("/tmp")
+    }
+
+    ```
+
 * Ability to define classes and / or data objects.
   Must be lightweight, and complex use-cases should be done in POJOs.
 
