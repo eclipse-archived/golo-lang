@@ -438,6 +438,9 @@ public class CompileAndRunTest {
     Method escaped = moduleClass.getMethod("escaped", Object.class, Object.class);
     assertThat((Boolean) escaped.invoke(null, moduleClass, moduleClass), is(false));
     assertThat((Boolean) escaped.invoke(null, moduleClass, "plop"), is(true));
+
+    Method sum_one_to_ten = moduleClass.getMethod("sum_one_to_ten");
+    assertThat((Integer) sum_one_to_ten.invoke(null), is(55));
   }
 
   @Test

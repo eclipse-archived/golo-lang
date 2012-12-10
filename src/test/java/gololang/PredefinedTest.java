@@ -69,4 +69,12 @@ public class PredefinedTest {
       throw expected;
     }
   }
+
+  @Test
+  public void test_range() {
+    assertThat(Predefined.range(1, 10), instanceOf(IntRange.class));
+    assertThat(Predefined.range(1, 10L), instanceOf(LongRange.class));
+    assertThat(Predefined.range(1L, 10), instanceOf(LongRange.class));
+    assertThat(Predefined.range(1L, 10L), instanceOf(LongRange.class));
+  }
 }

@@ -9,7 +9,12 @@ function main = |args| {
 
   println("With a foreach loop:")
   foreach (arg in toCollection(args)) {
-    println("   " + arg)
+    println("  " + arg)
+  }
+
+  println("With a foreach over a range:")
+  foreach (i in range(0, alength(args) - 1)) {
+    println("  #" + i + " -> " + aget(args, i))
   }
 }
 

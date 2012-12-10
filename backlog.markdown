@@ -102,8 +102,6 @@ Not everything is deemed to be implemented...
 
 * The inline-cache is slow at the terminal node since every call can yield a new method handle.
 
-* Range function that returns an iterable.
-
 * MethodType.genericType may simplify some code...
 
 * Proper OSGi meta-data.
