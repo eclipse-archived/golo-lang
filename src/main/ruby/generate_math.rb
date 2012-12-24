@@ -1,6 +1,6 @@
 # Quick and dirty script to generate the arithmetic operation methods
 
-TYPES = [ :Integer, :Long, :Double, :Float ]
+TYPES = [ :Character, :Integer, :Long, :Double, :Float ]
 
 OPS = [ :plus, :minus, :divide, :times, :modulo ]
 
@@ -13,6 +13,7 @@ OPS_SYMB = {
 }
 
 PRIM = {
+  :Character => :char,
   :Integer => :int,
   :Long => :long,
   :Float => :float,
@@ -20,10 +21,11 @@ PRIM = {
 }
 
 WEIGHT = {
-  :Integer => 1,
-  :Long => 2,
-  :Float => 3,
-  :Double => 4
+  :Character => 1,
+  :Integer => 2,
+  :Long => 3,
+  :Float => 4,
+  :Double => 5
 }
 
 TYPES.each do |type|
