@@ -22,5 +22,5 @@ do
   GOLO_CLASSPATH=${GOLO_CLASSPATH}:${jar}
 done
 
-java ${JVM_FLAGS} -classpath ${GOLO_CLASSPATH} fr.insalyon.citi.golo.cli.MainGolo $@
+java ${JVM_FLAGS} -server -XX:-TieredCompilation -classpath ${GOLO_CLASSPATH} fr.insalyon.citi.golo.cli.MainGolo $@
 
