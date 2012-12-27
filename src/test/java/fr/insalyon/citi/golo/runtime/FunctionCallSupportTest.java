@@ -71,6 +71,7 @@ public class FunctionCallSupportTest {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class);
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echoz", type);
+    callSite.dynamicInvoker().invokeWithArguments("foo");
   }
 
   @Test(expectedExceptions = NoSuchMethodError.class)
@@ -78,6 +79,7 @@ public class FunctionCallSupportTest {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class);
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echo", type);
+    callSite.dynamicInvoker().invokeWithArguments("foo", "foo");
   }
 
   @Test

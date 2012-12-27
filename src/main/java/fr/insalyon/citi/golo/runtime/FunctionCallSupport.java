@@ -1,19 +1,52 @@
 package fr.insalyon.citi.golo.runtime;
 
-import java.lang.invoke.CallSite;
-import java.lang.invoke.ConstantCallSite;
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.Lookup;
+import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isStatic;
 
 public final class FunctionCallSupport {
 
+  static class FunctionCallSite extends MutableCallSite {
+
+    final Lookup callerLookup;
+    final String name;
+
+    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+      super(type);
+      this.callerLookup = callerLookup;
+      this.name = name;
+    }
+  }
+
+  private static final MethodHandle FALLBACK;
+
+  static {
+    try {
+      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      FALLBACK = lookup.findStatic(
+          FunctionCallSupport.class,
+          "fallback",
+          methodType(Object.class, FunctionCallSite.class, Object[].class));
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new Error("Could not bootstrap the required method handles", e);
+    }
+  }
+
   public static CallSite bootstrap(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
+    FunctionCallSite callSite = new FunctionCallSite(caller, name.replaceAll("#", "\\."), type);
+    MethodHandle fallbackHandle = FALLBACK
+        .bindTo(callSite)
+        .asCollector(Object[].class, type.parameterCount())
+        .asType(type);
+    callSite.setTarget(fallbackHandle);
+    return callSite;
+
+    /*
     String functionName = name.replaceAll("#", "\\.");
     Class<?> callerClass = caller.lookupClass();
     MethodHandle handle = null;
@@ -43,7 +76,46 @@ public final class FunctionCallSupport {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
-    return new ConstantCallSite(handle);
+    return new MutableCallSite(handle);
+    */
+  }
+
+  public static Object fallback(FunctionCallSite callSite, Object[] args) throws Throwable {
+    String functionName = callSite.name;
+    MethodType type = callSite.type();
+    Lookup caller = callSite.callerLookup;
+    Class<?> callerClass = caller.lookupClass();
+
+    MethodHandle handle = null;
+    Object result = findStaticMethodOrField(callerClass, functionName, type.parameterArray());
+    if (result == null) {
+      result = findClassWithStaticMethodOrField(callerClass, functionName, type);
+    }
+    if (result == null) {
+      result = findClassWithStaticMethodOrFieldFromImports(callerClass, functionName, type);
+    }
+    if (result == null) {
+      result = findClassWithConstructor(callerClass, functionName, type);
+    }
+    if (result == null) {
+      result = findClassWithConstructorFromImports(callerClass, functionName, type);
+    }
+    if (result == null) {
+      throw new NoSuchMethodError(functionName);
+    }
+    if (result instanceof Method) {
+      Method method = (Method) result;
+      handle = caller.unreflect(method).asType(type);
+    } else if (result instanceof Constructor) {
+      Constructor constructor = (Constructor) result;
+      handle = caller.unreflectConstructor(constructor).asType(type);
+    } else if (result instanceof Field) {
+      Field field = (Field) result;
+      handle = caller.unreflectGetter(field).asType(type);
+    }
+
+    callSite.setTarget(handle);
+    return handle.invokeWithArguments(args);
   }
 
   private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, MethodType type) {
