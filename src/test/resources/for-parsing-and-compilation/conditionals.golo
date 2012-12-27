@@ -31,3 +31,17 @@ function boolean_to_string = | boolean | {
     return "false"
   }
 }
+
+function dans_la_case = | obj | {
+  case {
+    when obj oftype String.class {
+      return "String"
+    }
+    when obj oftype Integer.class {
+      return "Integer"
+    }
+    otherwise {
+      return "alien"
+    }
+  }
+}

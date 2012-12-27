@@ -395,7 +395,31 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTCase node, Object data) {
-    // TODO
+    Context context = (Context) data;
+    final int lastWhen = node.jjtGetNumChildren() - 1;
+    Stack<Object> stack = new Stack<>();
+
+    for (int i = 0; i < lastWhen; i = i + 2) {
+      node.jjtGetChild(i).jjtAccept(this, data);
+      stack.push(context.objectStack.pop());
+      node.jjtGetChild(i + 1).jjtAccept(this, data);
+      stack.push(context.objectStack.pop());
+    }
+    node.jjtGetChild(node.jjtGetNumChildren() - 1).jjtAccept(this, data);
+    stack.push(context.objectStack.pop());
+
+    Block otherwise = (Block) stack.pop();
+    Block lastWhenBlock = (Block) stack.pop();
+    ExpressionStatement lastWhenCondition = (ExpressionStatement) stack.pop();
+    PositionInSourceCode position = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
+    ConditionalBranching branching = new ConditionalBranching(lastWhenCondition, lastWhenBlock, otherwise, position);
+    while (!stack.isEmpty()) {
+      lastWhenBlock = (Block) stack.pop();
+      lastWhenCondition = (ExpressionStatement) stack.pop();
+      branching = new ConditionalBranching(lastWhenCondition, lastWhenBlock, branching, position);
+    }
+
+    context.objectStack.push(branching);
     return data;
   }
 

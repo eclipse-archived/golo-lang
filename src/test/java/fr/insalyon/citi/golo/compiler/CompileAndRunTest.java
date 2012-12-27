@@ -214,6 +214,11 @@ public class CompileAndRunTest {
     Method boolean_to_string = moduleClass.getMethod("boolean_to_string", Object.class);
     assertThat((String) boolean_to_string.invoke(null, true), is("true"));
     assertThat((String) boolean_to_string.invoke(null, false), is("false"));
+
+    Method what = moduleClass.getMethod("what", Object.class);
+    assertThat((String) what.invoke(null, "foo"), is("String"));
+    assertThat((String) what.invoke(null, 666), is("Integer"));
+    assertThat((String) what.invoke(null, true), is("alien"));
   }
 
   @Test
