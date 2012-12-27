@@ -10,7 +10,7 @@ function main = |args| {
   println("-----------")
 
   # Walk through all enum entries
-  foreach (element in toCollection(Thread$State.values())) {
+  foreach (element in atoList(Thread$State.values())) {
     println("name=" + element: name() + ", ordinal=" + element: ordinal())
   }
 }

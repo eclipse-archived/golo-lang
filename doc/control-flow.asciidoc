@@ -92,7 +92,7 @@ that is expected to be iterable.
 ==================================================================================================
 `foreach` loops do not work with Java arrays, instances of `Object[]`.
 
-If you need to do so, then you can take advantage of the predefined `toCollection` function that
+If you need to do so, then you can take advantage of the predefined `atoList` function that
 turns an array into a collection (internally, it uses `java.util.Arrays#asList`).
 
 Here is how you could process the arguments of a `main` function with a `foreach` loop:
@@ -100,7 +100,7 @@ Here is how you could process the arguments of a `main` function with a `foreach
 [source,text]
 ----------------------------------------
 function main = |args| {
-  foreach (arg in toCollection(args)) {
+  foreach (arg in atoList(args)) {
     println(arg)
   }
 }

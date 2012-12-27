@@ -62,7 +62,7 @@ public class Predefined {
     return values;
   }
 
-  public static Object toCollection(Object[] values) {
+  public static Object atoList(Object[] values) {
     return Arrays.asList(values);
   }
 
