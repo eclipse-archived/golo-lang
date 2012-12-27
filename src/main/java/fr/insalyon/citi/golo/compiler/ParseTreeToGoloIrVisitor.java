@@ -394,6 +394,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTCase node, Object data) {
+    // TODO
+    return data;
+  }
+
+  @Override
   public Object visit(ASTWhileLoop node, Object data) {
     Context context = (Context) data;
     node.jjtGetChild(0).jjtAccept(this, data);

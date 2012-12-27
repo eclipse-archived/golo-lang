@@ -99,6 +99,12 @@ TOKEN :
   < CATCH: "catch" >
   |
   < FINALLY: "finally" >
+  |
+  < CASE: "case" >
+  |
+  < WHEN: "when" >
+  |
+  < OTHERWISE: "otherwise" >
 }
 
 // Operators
@@ -383,6 +389,8 @@ void Statement() #void:{}
   Throw()
   |
   TryCatchFinally()
+  |
+  Case()
 }
 
 void Throw():
@@ -715,9 +723,11 @@ void FunctionInvocation():
 }
 
 void ConditionalBranching():
-{ }
 {
-  <IF> ExpressionStatement() "{" Block() "}"
+  Token token;
+}
+{
+  token=<IF> ExpressionStatement() "{" Block() "}"
   ( LOOKAHEAD( <ELSE> )
     <ELSE>
     (
@@ -726,6 +736,26 @@ void ConditionalBranching():
       ( "{" Block() "}" )
     )
   )?
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+}
+
+void Case():
+{ 
+  Token token;
+}
+{
+  token=<CASE> "{" (<NEWLINE>)?
+    ( <WHEN> ExpressionStatement() "{" Block() "}" (<NEWLINE>)? )+
+    <OTHERWISE> "{" Block() "}" (<NEWLINE>)?
+  "}"
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
+
 }
 
 // ............................................................................................. //
