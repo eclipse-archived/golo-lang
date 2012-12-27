@@ -8,8 +8,6 @@ Not everything is deemed to be implemented...
 
 * Annotations.
 
-* SAM methods conversion. (there is some indy support it seems)
-
 * Allow underscores in number literals.
 
 * Classes and value types. Provide polymorphism through dynamic casts in an IAdapter style.
@@ -62,22 +60,6 @@ Not everything is deemed to be implemented...
     }
     ```
 
-* Case, e.g.:
-
-    ```
-    case {
-      when a > b {
-        println("a > b")
-      }
-      when a isa String.class {
-        println("String")
-      }
-      otherwise {
-        raise("WTF is that?")
-      }
-    }
-    ```
-
 * First-class functions and closures, e.g.:
 
     ```
@@ -90,6 +72,8 @@ Not everything is deemed to be implemented...
     let m = { return "s = #{s}" }
     println(m())
     ```
+
+* Function / closure will be compiled as method handles, provide an implicit SAM interface conversion.
 
 ## Runtime
 
