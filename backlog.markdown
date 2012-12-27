@@ -55,10 +55,10 @@ Not everything is deemed to be implemented...
   
     ```
     let result = match {
-      when (n oftype Integer.class) and (n < 100) return "An integer below 100"
-      when (n oftype Integer.class)               return "An integer"
-      when n oftype String.class                  return "A string: #{n}"
-      otherwise                                   return "I have no idea"
+      when (n oftype Integer.class) and (n < 100) then "An integer below 100"
+      when (n oftype Integer.class)               then "An integer"
+      when n oftype String.class                  then "A string: #{n}"
+      otherwise                                        "I have no idea"
     }
     ```
 
