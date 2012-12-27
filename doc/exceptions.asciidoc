@@ -33,13 +33,9 @@ module golotest.execution.Exceptions
 import java.lang.RuntimeException
 
 function runtimeException = {
-  throw RuntimeException("w00t", null)
+  throw RuntimeException("w00t")
 }
 ---------------------------------------
-
-NOTE: Always prefer the exception constructors with at least a message and a cause parameter. The
-runtime resolution of constructors in Golo *may* indeed have a hard time in choosing between
-`SomeException(String)` and `SomeException(Throwable)`.
 
 === Exception handling ===
 
