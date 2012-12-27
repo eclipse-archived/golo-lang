@@ -7,6 +7,7 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.invoke.MethodType;
 import java.util.Set;
 import java.util.Stack;
 
@@ -133,22 +134,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private String goloFunctionSignature(int arity) {
-    StringBuilder descriptorBuilder = new StringBuilder("(");
-    for (int i = 0; i < arity; i++) {
-      descriptorBuilder.append(TOBJECT);
-    }
-    descriptorBuilder.append(")").append(TOBJECT);
-    return descriptorBuilder.toString();
+    return MethodType.genericMethodType(arity).toMethodDescriptorString();
   }
 
   private String goloVarargsFunctionSignature(int arity) {
-    StringBuilder descriptorBuilder = new StringBuilder("(");
-    for (int i = 0; i < arity - 1; i++) {
-      descriptorBuilder.append(TOBJECT);
-    }
-    descriptorBuilder.append("[Ljava/lang/Object;");
-    descriptorBuilder.append(")").append(TOBJECT);
-    return descriptorBuilder.toString();
+    return MethodType.genericMethodType(arity - 1, true).toMethodDescriptorString();
   }
 
   @Override

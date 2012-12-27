@@ -97,8 +97,6 @@ Not everything is deemed to be implemented...
 
 * The inline-cache is slow at the terminal node since every call can yield a new method handle.
 
-* MethodType.genericType may simplify some code...
-
 * Proper OSGi meta-data.
 
 ## Internals
