@@ -368,8 +368,6 @@ void Statement() #void:{}
 {
   <NEWLINE> 
   |
-  //LOOKAHEAD(2) FunctionInvocation() 
-  //|
   LOOKAHEAD(2) Assignment()
   |
   ExpressionStatement()
@@ -484,6 +482,8 @@ void TerminalExpression() #void: {}
   LOOKAHEAD(2) Reference()
   |
   Literal()
+  |
+  Function()
 }
 
 void UnaryExpression():
@@ -573,7 +573,7 @@ void Function():
   Token varargsToken = null;
 }
 {
-  ("|" arguments=Arguments() (varargsToken="...")? "|")? (<NEWLINE>)? token="{" Block() "}"
+  ("|" arguments=Arguments() (varargsToken="...")? "|")? token="{" Block() "}"
   {
     if (arguments == null) {
       arguments = Collections.emptyList();

@@ -21,8 +21,7 @@ import java.io.File         # ...even less this last one!
 function foo = {
 
 }
-function bar = |a|
-{
+function bar = |a| {
 
 }
 

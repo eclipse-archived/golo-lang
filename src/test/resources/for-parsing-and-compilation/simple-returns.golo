@@ -18,8 +18,7 @@ function yes = { return true }
 
 function no = { return false }
 
-function hello_world =
-{
+function hello_world = {
   return "Hello, world!"
 }
 
