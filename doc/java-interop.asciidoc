@@ -20,6 +20,21 @@ function oneTwoThree = {
 In this example, `asList` is resolved from the `java.util.Arrays` import and called as a function.
 Note that we could equivalently have written a qualified invocation as `Arrays.asList(1, 2, 3)`.
 
+=== Calling instance methods ===
+
+When you have an object, you may invoke its methods using the `:` operator.
+
+The following would call the `toString` method of any kind, then print it:
+
+[source,text]
+----------------------------------------
+println(">>> " + someObject: toString())
+----------------------------------------
+
+Of course, you may chain calls as long as a method is not of a `void` return type. Golo converts
+Java `void` methods by making them return `null`. This is neither a bug or a feature: the
+*invokedynamic* support on the JVM simply does so.
+
 === Creating objects ===
 
 Golo doesn't have an instantiation operator like `new` in Java. Instead, creating an object and
