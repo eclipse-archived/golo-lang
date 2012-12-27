@@ -1,12 +1,16 @@
 package fr.insalyon.citi.golo.runtime;
 
 import java.lang.invoke.*;
+import java.lang.reflect.AccessibleObject;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashMap;
+import java.util.Map;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodType.methodType;
+import static java.lang.reflect.Modifier.interfaceModifiers;
 import static java.lang.reflect.Modifier.isStatic;
 
 public final class FunctionCallSupport {
@@ -45,39 +49,6 @@ public final class FunctionCallSupport {
         .asType(type);
     callSite.setTarget(fallbackHandle);
     return callSite;
-
-    /*
-    String functionName = name.replaceAll("#", "\\.");
-    Class<?> callerClass = caller.lookupClass();
-    MethodHandle handle = null;
-    Object result = findStaticMethodOrField(callerClass, functionName, type.parameterArray());
-    if (result == null) {
-      result = findClassWithStaticMethodOrField(callerClass, functionName, type);
-    }
-    if (result == null) {
-      result = findClassWithStaticMethodOrFieldFromImports(callerClass, functionName, type);
-    }
-    if (result == null) {
-      result = findClassWithConstructor(callerClass, functionName, type);
-    }
-    if (result == null) {
-      result = findClassWithConstructorFromImports(callerClass, functionName, type);
-    }
-    if (result == null) {
-      throw new NoSuchMethodError(functionName);
-    }
-    if (result instanceof Method) {
-      Method method = (Method) result;
-      handle = caller.unreflect(method).asType(type);
-    } else if (result instanceof Constructor) {
-      Constructor constructor = (Constructor) result;
-      handle = caller.unreflectConstructor(constructor).asType(type);
-    } else if (result instanceof Field) {
-      Field field = (Field) result;
-      handle = caller.unreflectGetter(field).asType(type);
-    }
-    return new MutableCallSite(handle);
-    */
   }
 
   public static Object fallback(FunctionCallSite callSite, Object[] args) throws Throwable {
@@ -87,18 +58,18 @@ public final class FunctionCallSupport {
     Class<?> callerClass = caller.lookupClass();
 
     MethodHandle handle = null;
-    Object result = findStaticMethodOrField(callerClass, functionName, type.parameterArray());
+    Object result = findStaticMethodOrField(callerClass, functionName, args);
     if (result == null) {
-      result = findClassWithStaticMethodOrField(callerClass, functionName, type);
+      result = findClassWithStaticMethodOrField(callerClass, functionName, args);
     }
     if (result == null) {
-      result = findClassWithStaticMethodOrFieldFromImports(callerClass, functionName, type);
+      result = findClassWithStaticMethodOrFieldFromImports(callerClass, functionName, args);
     }
     if (result == null) {
-      result = findClassWithConstructor(callerClass, functionName, type);
+      result = findClassWithConstructor(callerClass, functionName, args);
     }
     if (result == null) {
-      result = findClassWithConstructorFromImports(callerClass, functionName, type);
+      result = findClassWithConstructorFromImports(callerClass, functionName, args);
     }
     if (result == null) {
       throw new NoSuchMethodError(functionName);
@@ -118,15 +89,15 @@ public final class FunctionCallSupport {
     return handle.invokeWithArguments(args);
   }
 
-  private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, MethodType type) {
+  private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, Object[] args) {
     String[] imports = Module.imports(callerClass);
     for (String imported : imports) {
-      Object result = findClassWithConstructor(callerClass, imported + "." + classname, type);
+      Object result = findClassWithConstructor(callerClass, imported + "." + classname, args);
       if (result != null) {
         return result;
       }
       if (imported.endsWith(classname)) {
-        result = findClassWithConstructor(callerClass, imported, type);
+        result = findClassWithConstructor(callerClass, imported, args);
         if (result != null) {
           return result;
         }
@@ -135,19 +106,15 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithConstructor(Class<?> callerClass, String classname, MethodType type) {
+  private static Object findClassWithConstructor(Class<?> callerClass, String classname, Object[] args) {
     try {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        if (containsPrimitiveTypes(parameterTypes)) {
-          continue;
-        }
-        int requiredParameterCount = type.parameterCount();
-        if (parameterTypes.length == requiredParameterCount) {
-          return constructor;
-        } else if (constructor.isVarArgs() && (requiredParameterCount >= parameterTypes.length)) {
-          return constructor;
+        if (haveSameNumberOfArguments(args, parameterTypes) || haveEnoughArgumentsForVarargs(args, constructor, parameterTypes)) {
+          if (canAssign(parameterTypes, args, constructor.isVarArgs())) {
+            return constructor;
+          }
         }
       }
     } catch (ClassNotFoundException ignored) {
@@ -155,7 +122,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, MethodType type) {
+  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, Object[] args) {
     String[] imports = Module.imports(callerClass);
     String[] classAndMethod = null;
     final int classAndMethodSeparator = functionName.lastIndexOf(".");
@@ -172,7 +139,7 @@ public final class FunctionCallSupport {
         if ((classAndMethod != null) && (importClassName.endsWith(classAndMethod[0]))) {
           lookup = classAndMethod[1];
         }
-        Object result = findStaticMethodOrField(importClass, lookup, type.parameterArray());
+        Object result = findStaticMethodOrField(importClass, lookup, args);
         if (result != null) {
           return result;
         }
@@ -182,32 +149,32 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, MethodType type) {
+  private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, Object[] args) {
     int methodClassSeparatorIndex = functionName.lastIndexOf(".");
     if (methodClassSeparatorIndex >= 0) {
       String className = functionName.substring(0, methodClassSeparatorIndex);
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
       try {
         Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
-        return findStaticMethodOrField(targetClass, methodName, type.parameterArray());
+        return findStaticMethodOrField(targetClass, methodName, args);
       } catch (ClassNotFoundException ignored) {
       }
     }
     return null;
   }
 
-  private static Object findStaticMethodOrField(Class<?> klass, String name, Class<?>[] argumentTypes) {
+  private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
       if (method.getName().equals(name) && isStatic(method.getModifiers())) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (parameterTypes.length == argumentTypes.length) {
-          return method;
-        } else if (method.isVarArgs() && (argumentTypes.length >= parameterTypes.length)) {
-          return method;
+        if (haveSameNumberOfArguments(arguments, parameterTypes) || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
+          if (canAssign(parameterTypes, arguments, method.isVarArgs())) {
+            return method;
+          }
         }
       }
     }
-    if (argumentTypes.length == 0) {
+    if (arguments.length == 0) {
       for (Field field : klass.getDeclaredFields()) {
         if (field.getName().equals(name) && isStatic(field.getModifiers())) {
           return field;
@@ -217,21 +184,54 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static boolean containsPrimitiveTypes(Class<?>[] types) {
-    for (Class<?> type : types) {
-      if (isPrimitive(type)) {
-        return true;
-      }
-    }
-    return false;
+  private static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Method method, Class<?>[] parameterTypes) {
+    return method.isVarArgs() && (arguments.length >= parameterTypes.length);
   }
 
-  private static boolean isPrimitive(Class<?> type) {
-    if (type.isPrimitive()) {
+  private static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor constructor, Class<?>[] parameterTypes) {
+    return constructor.isVarArgs() && (arguments.length >= parameterTypes.length);
+  }
+
+  private static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
+    return parameterTypes.length == arguments.length;
+  }
+
+  private static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
+    if (types.length == 0) {
       return true;
-    } else if (type.isArray()) {
-      return isPrimitive(type.getComponentType());
     }
-    return false;
+    for (int i = 0; i < types.length - 1; i++) {
+      if (!valueAndTypeMatch(types[i], arguments[i])) {
+        return false;
+      }
+    }
+    final int last = types.length - 1;
+    if (varArgs) {
+      return valueAndTypeMatch(types[last].getComponentType(), arguments[last]);
+    }
+    return valueAndTypeMatch(types[last], arguments[last]);
+  }
+
+  private static boolean valueAndTypeMatch(Class<?> type, Object value) {
+    return primitiveCompatible(type, value) || (type.isInstance(value) || value == null);
+  }
+
+  private static final Map<Class, Class> PRIMITIVE_MAP = new HashMap<Class, Class>() {
+    {
+      put(byte.class, Byte.class);
+      put(short.class, Short.class);
+      put(char.class, Character.class);
+      put(int.class, Integer.class);
+      put(long.class, Long.class);
+      put(float.class, Float.class);
+      put(double.class, Double.class);
+    }
+  };
+
+  private static boolean primitiveCompatible(Class<?> type, Object value) {
+    if (!type.isPrimitive() || value == null) {
+      return false;
+    }
+    return PRIMITIVE_MAP.get(type) == value.getClass();
   }
 }

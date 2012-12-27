@@ -3,7 +3,7 @@ module golotest.execution.Exceptions
 import java.lang.RuntimeException
 
 function runtimeException = {
-  throw RuntimeException("w00t", null)
+  throw RuntimeException("w00t")
 }
 
 function catch_exception = {
