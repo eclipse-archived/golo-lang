@@ -24,6 +24,48 @@ if (someCondition) {
 The condition of an `if` statement does not need parenthesis. You may add some to clarify a more
 elaborated expression, though.
 
+=== `case` branching ===
+
+Golo offers a versatile `case` construction for conditional branching. It may be used in place of
+multiple nested `if` / `else` statements, as in:
+
+[source,text]
+-------------------------------------
+function what = |obj| {
+  case {
+    when obj oftype String.class {
+      return "String"
+    }
+    when obj oftype Integer.class {
+      return "Integer"
+    }
+    otherwise {
+      return "alien"
+    }
+  }
+}
+-------------------------------------
+
+A `case` statement requires at least 1 `when` clause and a mandatory `otherwise` clause. Each clause
+is being associated with a block. It is semantically equivalent to the corresponding `if` / `else`
+chain:
+
+[source,text]
+---------------------------------------
+function what = |obj| {
+  if obj oftype String.class {
+    return "String"
+  } else if obj oftype Integer.class {
+    return "Integer"
+  } else {
+    return "alien"
+  }
+}
+---------------------------------------
+
+IMPORTANT: `when` clauses are being evaluated in the declaration order, and only the first satisfied
+one is being executed.
+
 === `while` loops ===
 
 While loops in Golo are straightforward:

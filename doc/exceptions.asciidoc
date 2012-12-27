@@ -65,11 +65,19 @@ try {
 try {
   doSomething()
 } catch (e) {
-  if e oftype IOException.class {
-    println("Oh, an I/O exception")
-  }
   e: printStackTrace()
-  throw e
+  case {
+    when e oftype IOException.class {
+      println("Oh, an I/O exception that I was expecting!")
+    }
+    when e oftype SecurityException.class {
+      println("Damn, I didn't expect a security problem...")
+      throw e
+    }
+    otherwise {
+      throw e
+    }
+  }
 } finally {
   cleanup()
 }
@@ -77,5 +85,6 @@ try {
 
 TIP: Because Golo is a weakly typed dynamic language, you need to check for the exception type
 with the `oftype` operator. In a statically typed language like Java, you would instead have several
-`catch` clauses with the exception reference given a specific type.
+`catch` clauses with the exception reference given a specific type. We suggest that you take
+advantage of the `case` branching statement.
 
