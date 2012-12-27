@@ -25,6 +25,14 @@
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
     <fileSet>
+      <directory>doc/output</directory>
+      <outputDirectory>/doc</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
       <directory>target</directory>
       <outputDirectory>/lib</outputDirectory>
       <includes>
