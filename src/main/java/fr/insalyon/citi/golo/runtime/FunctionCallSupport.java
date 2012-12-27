@@ -5,6 +5,9 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
+import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveSameNumberOfArguments;
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isStatic;
@@ -107,8 +110,8 @@ public final class FunctionCallSupport {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
         Class<?>[] parameterTypes = constructor.getParameterTypes();
-        if (TypeMatching.haveSameNumberOfArguments(args, parameterTypes) || TypeMatching.haveEnoughArgumentsForVarargs(args, constructor, parameterTypes)) {
-          if (TypeMatching.canAssign(parameterTypes, args, constructor.isVarArgs())) {
+        if (haveSameNumberOfArguments(args, parameterTypes) || haveEnoughArgumentsForVarargs(args, constructor, parameterTypes)) {
+          if (canAssign(parameterTypes, args, constructor.isVarArgs())) {
             return constructor;
           }
         }
@@ -163,8 +166,8 @@ public final class FunctionCallSupport {
     for (Method method : klass.getDeclaredMethods()) {
       if (method.getName().equals(name) && isStatic(method.getModifiers())) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (TypeMatching.haveSameNumberOfArguments(arguments, parameterTypes) || TypeMatching.haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
-          if (TypeMatching.canAssign(parameterTypes, arguments, method.isVarArgs())) {
+        if (haveSameNumberOfArguments(arguments, parameterTypes) || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
+          if (canAssign(parameterTypes, arguments, method.isVarArgs())) {
             return method;
           }
         }

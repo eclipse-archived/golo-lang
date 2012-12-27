@@ -3,6 +3,7 @@ package fr.insalyon.citi.golo.runtime;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,6 +11,8 @@ import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isPublic;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import static java.util.Arrays.copyOfRange;
 
 public class MethodInvocationSupport {
 
@@ -113,21 +116,6 @@ public class MethodInvocationSupport {
     return target;
   }
 
-  private static int argumentsScore(Class<?>[] types, Object[] args) {
-    int score = 0;
-    if (args.length == types.length + 1) {
-      score = 10;
-    }
-    for (Class<?> type : types) {
-      if (type == Object.class) {
-        score = score + 10;
-      } else if (type.isArray() && type.getComponentType().isPrimitive()) {
-        score = score - 10;
-      }
-    }
-    return score;
-  }
-
   private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes, Object[] args) {
 
     List<Method> candidates = new LinkedList<>();
@@ -142,23 +130,14 @@ public class MethodInvocationSupport {
     }
 
     if (!candidates.isEmpty()) {
-      Method chosen = null;
-      int bestScore = 0;
       for (Method method : candidates) {
         Class<?>[] parameterTypes = method.getParameterTypes();
-        if (couldMatch(method, argumentTypes, parameterTypes)) {
-          int score = argumentsScore(parameterTypes, args);
-          if (method.isVarArgs()) {
-            score = score + 5;
-          }
-          if (score > bestScore) {
-            chosen = method;
-            bestScore = score;
+        Object[] argsWithoutReceiver = copyOfRange(args, 1, args.length);
+        if (haveSameNumberOfArguments(argsWithoutReceiver, parameterTypes) || haveEnoughArgumentsForVarargs(argsWithoutReceiver, method, parameterTypes)) {
+          if (canAssign(parameterTypes, argsWithoutReceiver, method.isVarArgs())) {
+            return method;
           }
         }
-      }
-      if (chosen != null) {
-        return chosen;
       }
     }
 
@@ -170,11 +149,6 @@ public class MethodInvocationSupport {
       }
     }
     return null;
-  }
-
-  private static boolean couldMatch(Method method, Class<?>[] argumentTypes, Class<?>[] parameterTypes) {
-    return (parameterTypes.length == (argumentTypes.length - 1)) ||
-        (method.isVarArgs() && (argumentTypes.length - 1 > parameterTypes.length));
   }
 
   private static boolean isCandidate(String name, Method method) {
