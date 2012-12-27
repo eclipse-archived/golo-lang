@@ -17,6 +17,6 @@ public class ASTCase extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTBlock{}";
+    return "ASTCase{}";
   }
 }
