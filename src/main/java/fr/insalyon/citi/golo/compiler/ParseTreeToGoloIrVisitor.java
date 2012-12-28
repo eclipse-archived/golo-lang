@@ -21,6 +21,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloModule module;
     Stack<Object> objectStack = new Stack<>();
     Stack<ReferenceTable> referenceTableStack = new Stack<>();
+    int nextClosureId = 0;
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
@@ -62,7 +63,19 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTFunction node, Object data) {
     Context context = (Context) data;
-    GoloFunction function = (GoloFunction) context.objectStack.peek();
+    boolean isSynthetic = !(context.objectStack.peek() instanceof GoloFunction);
+    GoloFunction function;
+    if (isSynthetic) {
+      function = new GoloFunction(
+          "__$$_closure_" + context.nextClosureId++,
+          PUBLIC,
+          new PositionInSourceCode(
+              node.getLineInSourceCode(),
+              node.getColumnInSourceCode()));
+      context.objectStack.push(function);
+    } else {
+      function = (GoloFunction) context.objectStack.peek();
+    }
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
     context.module.addFunction(function);
@@ -73,6 +86,15 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       referenceTable.add(new LocalReference(CONSTANT, parameter));
     }
     insertMissingReturnStatement(function);
+    if (isSynthetic) {
+      context.objectStack.pop();
+      context.objectStack.push(
+          new ClosureReference(
+              function,
+              new PositionInSourceCode(
+                  node.getLineInSourceCode(),
+                  node.getColumnInSourceCode())));
+    }
     return data;
   }
 

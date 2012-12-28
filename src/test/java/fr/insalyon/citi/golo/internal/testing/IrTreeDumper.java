@@ -1,139 +1,145 @@
-package fr.insalyon.citi.golo.compiler;
+package fr.insalyon.citi.golo.internal.testing;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+public class IrTreeDumper implements GoloIrVisitor {
 
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+  private int spacing = 0;
 
-class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
-
-  private int indexAssignmentCounter = 0;
-  private Stack<ReferenceTable> tableStack = new Stack<>();
-  private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
-  private GoloCompilationException.Builder exceptionBuilder;
-
-  private void resetIndexAssignmentCounter() {
-    indexAssignmentCounter = 0;
-  }
-
-  private int nextAssignmentIndex() {
-    int value = indexAssignmentCounter;
-    indexAssignmentCounter = indexAssignmentCounter + 1;
-    return value;
-  }
-
-  private GoloCompilationException.Builder getExceptionBuilder() {
-    if (exceptionBuilder == null) {
-      exceptionBuilder = new GoloCompilationException.Builder();
+  private void space() {
+    System.out.print("# ");
+    for (int i = 0; i < spacing; i++) {
+      System.out.print(" ");
     }
-    return exceptionBuilder;
+  }
+
+  private void incr() {
+    spacing = spacing + 2;
+  }
+
+  private void decr() {
+    spacing = spacing - 2;
   }
 
   @Override
   public void visitModule(GoloModule module) {
+    space();
+    System.out.println(module.getPackageAndClass());
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
-    }
-    if (exceptionBuilder != null) {
-      exceptionBuilder.doThrow();
     }
   }
 
   @Override
   public void visitFunction(GoloFunction function) {
-    resetIndexAssignmentCounter();
-    ReferenceTable table = function.getBlock().getReferenceTable();
-    for (String parameterName : function.getParameterNames()) {
-      table.get(parameterName).setIndex(nextAssignmentIndex());
-    }
+    incr();
+    space();
+    System.out.println("Function " + function.getName());
     function.getBlock().accept(this);
+    decr();
   }
 
   @Override
   public void visitBlock(Block block) {
-    ReferenceTable table = block.getReferenceTable();
-    for (LocalReference reference : table.ownedReferences()) {
-      if (reference.getIndex() < 0) {
-        reference.setIndex(nextAssignmentIndex());
-      }
+    incr();
+    space();
+    System.out.println("Block");
+    incr();
+    for (LocalReference ref : block.getReferenceTable().references()) {
+      space();
+      System.out.println(" - " + ref);
     }
-    tableStack.push(table);
-    assignmentStack.push(new HashSet<LocalReference>());
+    decr();
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
-    tableStack.pop();
-    assignmentStack.pop();
+    decr();
   }
 
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
-
+    incr();
+    space();
+    System.out.println("Constant = " + constantStatement.getValue());
+    decr();
   }
 
   @Override
   public void visitReturnStatement(ReturnStatement returnStatement) {
+    incr();
+    space();
+    System.out.println("Return");
     returnStatement.getExpressionStatement().accept(this);
+    decr();
   }
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-
+    incr();
+    space();
+    System.out.println("Function call: " + functionInvocation.getName());
+    for (ExpressionStatement argument : functionInvocation.getArguments()) {
+      argument.accept(this);
+    }
+    decr();
   }
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
-    LocalReference reference = assignmentStatement.getLocalReference();
-    if (reference.getKind().equals(LocalReference.Kind.CONSTANT)) {
-      Set<LocalReference> assignedReferences = assignmentStack.peek();
-      if (assignedReferences.contains(reference)) {
-        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement,
-            "Assigning " + reference.getName() +
-                " at " + assignmentStatement.getPositionInSourceCode() +
-                " but it is a constant");
-      } else {
-        assignedReferences.add(reference);
-      }
-    }
+    incr();
+    space();
+    System.out.println("Assignment: " + assignmentStatement.getLocalReference());
     assignmentStatement.getExpressionStatement().accept(this);
+    decr();
   }
 
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
-    ReferenceTable table = tableStack.peek();
-    if (!table.hasReferenceFor(referenceLookup.getName())) {
-      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup,
-          "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
-    }
+    incr();
+    space();
+    System.out.println("Reference lookup: " + referenceLookup.getName());
+    decr();
   }
 
   @Override
   public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
+    incr();
+    space();
+    System.out.println("Conditional");
+    conditionalBranching.getCondition().accept(this);
     conditionalBranching.getTrueBlock().accept(this);
     if (conditionalBranching.hasFalseBlock()) {
       conditionalBranching.getFalseBlock().accept(this);
     } else if (conditionalBranching.hasElseConditionalBranching()) {
       conditionalBranching.getElseConditionalBranching().accept(this);
     }
+    decr();
   }
 
   @Override
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+    incr();
+    space();
+    System.out.println("Binary operator: " + binaryOperation.getType());
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
+    decr();
   }
 
   @Override
   public void visitUnaryOperation(UnaryOperation unaryOperation) {
+    incr();
+    space();
+    System.out.println("Unary operator: " + unaryOperation.getType());
     unaryOperation.getExpressionStatement().accept(this);
+    decr();
   }
 
   @Override
   public void visitLoopStatement(LoopStatement loopStatement) {
+    incr();
+    space();
+    System.out.println("Loop");
     if (loopStatement.hasInitStatement()) {
       loopStatement.getInitStatement().accept(this);
     }
@@ -142,31 +148,59 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (loopStatement.hasPostStatement()) {
       loopStatement.getPostStatement().accept(this);
     }
+    decr();
   }
 
   @Override
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
-
+    incr();
+    space();
+    System.out.println("Method invocation: " + methodInvocation.getName());
+    for (ExpressionStatement argument : methodInvocation.getArguments()) {
+      argument.accept(this);
+    }
+    decr();
   }
 
   @Override
   public void visitThrowStatement(ThrowStatement throwStatement) {
+    incr();
+    space();
+    System.out.println("Throw");
     throwStatement.getExpressionStatement().accept(this);
+    decr();
   }
 
   @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+    incr();
+    space();
+    System.out.println("Try");
     tryCatchFinally.getTryBlock().accept(this);
     if (tryCatchFinally.hasCatchBlock()) {
+      space();
+      System.out.println("Catch: " + tryCatchFinally.getExceptionId());
       tryCatchFinally.getCatchBlock().accept(this);
     }
     if (tryCatchFinally.hasFinallyBlock()) {
+      space();
+      System.out.println("Finally");
       tryCatchFinally.getFinallyBlock().accept(this);
     }
+    decr();
   }
 
   @Override
   public void acceptClosureReference(ClosureReference closureReference) {
-    // TODO
+    incr();
+    space();
+    System.out.println("Closure reference: " + closureReference.getTarget().getName());
+    incr();
+    for (String refName : closureReference.getCapturedReferenceNames()) {
+      space();
+      System.out.println("- capture: " + refName);
+    }
+    decr();
+    decr();
   }
 }

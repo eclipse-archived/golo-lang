@@ -31,4 +31,6 @@ public interface GoloIrVisitor {
   void visitThrowStatement(ThrowStatement throwStatement);
 
   void visitTryCatchFinally(TryCatchFinally tryCatchFinally);
+
+  void acceptClosureReference(ClosureReference closureReference);
 }

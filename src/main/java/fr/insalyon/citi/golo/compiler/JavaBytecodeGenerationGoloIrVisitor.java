@@ -405,6 +405,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void acceptClosureReference(ClosureReference closureReference) {
+    // TODO
+  }
+
+  @Override
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
