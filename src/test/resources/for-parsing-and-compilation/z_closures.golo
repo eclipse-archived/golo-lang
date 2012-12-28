@@ -1,8 +1,8 @@
 module Closures
 
 function a = {
-  let f = |a| {
-    let x = a
+  let f = |value| {
+    let x = value
     println(x)
   }
 }

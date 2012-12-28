@@ -160,6 +160,9 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
     String name = assignmentStatement.getLocalReference().getName();
+    if (!stack.isEmpty()) {
+      assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(name));
+    }
     if (assignmentStatement.getLocalReference().getKind() == CONSTANT) {
       locallyAssigned(name);
     } else {

@@ -2,7 +2,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 public class AssignmentStatement extends GoloStatement {
 
-  private final LocalReference localReference;
+  private LocalReference localReference;
   private final ExpressionStatement expressionStatement;
 
   public AssignmentStatement(LocalReference localReference, ExpressionStatement expressionStatement, PositionInSourceCode positionInSourceCode) {
@@ -13,6 +13,10 @@ public class AssignmentStatement extends GoloStatement {
 
   public LocalReference getLocalReference() {
     return localReference;
+  }
+
+  public void setLocalReference(LocalReference localReference) {
+    this.localReference = localReference;
   }
 
   public ExpressionStatement getExpressionStatement() {

@@ -415,11 +415,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void acceptClosureReference(ClosureReference closureReference) {
     // TODO
+    GoloFunction target = closureReference.getTarget();
     methodVisitor.visitInvokeDynamicInsn(
-        closureReference.getTarget().getName(),
+        target.getName(),
         methodType(MethodHandle.class).toMethodDescriptorString(),
         CLOSUREREF_HANDLE,
-        closureReference.getTarget().getArity());
+        target.getArity());
+//    methodVisitor.visitInsn(DUP);
+//    loadInteger(closureReference.getSyntheticArgumentsIndexStart());
+//    methodVisitor.visitMethodInsn(
+//        INVOKESTATIC,
+//        "java/lang/invoke/MethodHandles",
+//        "insertArguments",
+//        "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;");
   }
 
   @Override

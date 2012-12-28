@@ -51,6 +51,8 @@ public final class GoloCompiler {
     }
     ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
     GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
+    ClosureCaptureGoloIrVisitor closureCaptureVisitor = new ClosureCaptureGoloIrVisitor();
+    closureCaptureVisitor.visitModule(goloModule);
     LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
     localReferenceVisitor.visitModule(goloModule);
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
