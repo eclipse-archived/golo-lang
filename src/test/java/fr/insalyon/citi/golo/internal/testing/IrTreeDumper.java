@@ -34,7 +34,18 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void visitFunction(GoloFunction function) {
     incr();
     space();
-    System.out.println("Function " + function.getName());
+    System.out.print("Function " + function.getName());
+    System.out.print(" = |");
+    boolean first = true;
+    for (String param : function.getParameterNames()) {
+      if (first) {
+        first = false;
+      } else {
+        System.out.print(", ");
+      }
+      System.out.print(param);
+    }
+    System.out.println("|");
     function.getBlock().accept(this);
     decr();
   }
