@@ -35,6 +35,9 @@ public class ParseTreeToGoloIrAndVisitorsTest {
 
     assertThat(module, notNullValue());
 
+    ClosureCaptureGoloIrVisitor closureCaptureVisitor = new ClosureCaptureGoloIrVisitor();
+    closureCaptureVisitor.visitModule(module);
+
     LocalReferenceAssignmentAndVerificationVisitor verificationVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
     verificationVisitor.visitModule(module);
 
