@@ -2,7 +2,53 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 
+import java.util.HashSet;
+import java.util.Set;
+import java.util.Stack;
+
+import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
+
 class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
+
+  static class Context {
+    final Set<String> allReferences = new HashSet<>();
+    final Set<String> localReferences = new HashSet<>();
+    final Set<String> accessedReferences = new HashSet<>();
+  }
+
+  private final Stack<Context> stack = new Stack<>();
+
+  private Context context() {
+    return stack.peek();
+  }
+
+  private void newContext() {
+    stack.push(new Context());
+  }
+
+  private void dropContext() {
+    stack.pop();
+  }
+
+  private void locallyAssigned(String name) {
+    if (!stack.isEmpty()) {
+      context().localReferences.add(name);
+      context().allReferences.add(name);
+    }
+  }
+
+  private void accessed(String name) {
+    if (!stack.isEmpty()) {
+      context().accessedReferences.add(name);
+      context().allReferences.add(name);
+    }
+  }
+
+  private void definedInBlock(Set<String> references) {
+    if (!stack.isEmpty()) {
+      context().allReferences.addAll(references);
+    }
+  }
 
   @Override
   public void visitModule(GoloModule module) {
@@ -13,11 +59,22 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
-    function.getBlock().accept(this);
+    if (function.isSynthetic()) {
+      newContext();
+      function.getBlock().accept(this);
+      System.out.println(">>> " + function.getName());
+      System.out.println("    - all: " + context().allReferences);
+      System.out.println("    - local: " + context().localReferences);
+      System.out.println("    - accessed: " + context().accessedReferences);
+      dropContext();
+    } else {
+      function.getBlock().accept(this);
+    }
   }
 
   @Override
   public void visitBlock(Block block) {
+    definedInBlock(block.getReferenceTable().ownedSymbols());
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
@@ -42,12 +99,15 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+    if (assignmentStatement.getLocalReference().getKind() == CONSTANT) {
+      locallyAssigned(assignmentStatement.getLocalReference().getName());
+    }
     assignmentStatement.getExpressionStatement().accept(this);
   }
 
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
-    // TODO I guess...
+    accessed(referenceLookup.getName());
   }
 
   @Override
