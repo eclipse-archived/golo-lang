@@ -68,7 +68,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     if (isSynthetic) {
       function = new GoloFunction(
           "__$$_closure_" + context.nextClosureId++,
-          PUBLIC,
+          LOCAL,
           new PositionInSourceCode(
               node.getLineInSourceCode(),
               node.getColumnInSourceCode()));
