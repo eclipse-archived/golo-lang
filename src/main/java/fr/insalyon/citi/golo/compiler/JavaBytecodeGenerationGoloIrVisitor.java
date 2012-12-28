@@ -7,12 +7,14 @@ import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.util.Set;
 import java.util.Stack;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
+import static java.lang.invoke.MethodType.methodType;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -25,6 +27,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final Handle OPERATOR_HANDLE;
   private static final Handle METHOD_INVOCATION_HANDLE;
   private static final Handle CLASSREF_HANDLE;
+  private static final Handle CLOSUREREF_HANDLE;
 
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
@@ -46,6 +49,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapMethod = "bootstrap";
     description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
     CLASSREF_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+
+    bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClosureReferenceSupport";
+    bootstrapMethod = "bootstrap";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
+    CLOSUREREF_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
@@ -407,6 +415,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void acceptClosureReference(ClosureReference closureReference) {
     // TODO
+    methodVisitor.visitInvokeDynamicInsn(
+        closureReference.getTarget().getName(),
+        methodType(MethodHandle.class).toMethodDescriptorString(),
+        CLOSUREREF_HANDLE,
+        closureReference.getTarget().getArity());
   }
 
   @Override

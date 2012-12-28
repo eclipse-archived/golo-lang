@@ -10,6 +10,8 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
@@ -21,6 +23,7 @@ import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
+import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -494,5 +497,19 @@ public class CompileAndRunTest {
     } catch (InvocationTargetException expected) {
       assertThat(expected.getCause().getMessage(), is("Hello"));
     }
+  }
+
+  @Test
+  public void test_method_closures() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "closures.golo", temporaryFolder, "golotest.execution.Closures");
+    Object result;
+    MethodHandle handle;
+
+    Method raw_handle = moduleClass.getMethod("raw_handle");
+    result = raw_handle.invoke(null);
+    assertThat(result, instanceOf(MethodHandle.class));
+    handle = (MethodHandle) result;
+    assertThat(handle.type(), is(genericMethodType(1)));
+    assertThat((String) handle.invoke(123), is("123"));
   }
 }
