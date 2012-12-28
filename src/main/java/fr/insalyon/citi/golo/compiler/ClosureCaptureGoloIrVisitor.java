@@ -2,9 +2,7 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 
-import java.util.HashSet;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 
@@ -14,6 +12,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     final Set<String> allReferences = new HashSet<>();
     final Set<String> localReferences = new HashSet<>();
     final Set<String> accessedReferences = new HashSet<>();
+    final Map<String, Block> definingBlock = new HashMap<>();
 
     Set<String> shouldBeArguments() {
       Set<String> result = new HashSet<>();
@@ -63,8 +62,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void definedInBlock(Set<String> references) {
+  private void definedInBlock(Set<String> references, Block block) {
     if (!stack.isEmpty()) {
+      for (String ref : references) {
+        context().definingBlock.put(ref, block);
+      }
       context().allReferences.addAll(references);
     }
   }
@@ -87,15 +89,33 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       System.out.println("    - all: " + context().allReferences);
       System.out.println("    - local: " + context().localReferences);
       System.out.println("    - accessed: " + context().accessedReferences);
+      System.out.println("    - definedInBlock: " + context().definingBlock);
+      makeArguments(function, context().shouldBeArguments());
+      dropUnused(context().shouldBeRemoved());
       dropContext();
     } else {
       function.getBlock().accept(this);
     }
   }
 
+  private void dropUnused(Set<String> refs) {
+    for (String ref : refs) {
+      context().definingBlock.get(ref).getReferenceTable().remove(ref);
+    }
+  }
+
+  private void makeArguments(GoloFunction function, Set<String> refs) {
+    Set<String> existing = new HashSet<>(function.getParameterNames());
+    for (String ref : refs) {
+      if (!existing.contains(ref)) {
+        function.addSyntheticParameter(ref);
+      }
+    }
+  }
+
   @Override
   public void visitBlock(Block block) {
-    definedInBlock(block.getReferenceTable().symbols());
+    definedInBlock(block.getReferenceTable().symbols(), block);
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }

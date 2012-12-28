@@ -65,4 +65,8 @@ public final class ReferenceTable {
   public ReferenceTable fork() {
     return new ReferenceTable(this);
   }
+
+  public void remove(String name) {
+    table.remove(name);
+  }
 }

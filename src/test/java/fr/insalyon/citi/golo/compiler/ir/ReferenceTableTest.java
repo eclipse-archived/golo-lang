@@ -51,5 +51,8 @@ public class ReferenceTableTest {
 
     assertThat(child.ownedReferences().size(), is(1));
     assertThat(child.ownedSymbols().size(), is(1));
+
+    child.remove("baz");
+    assertThat(child.ownedReferences().size(), is(0));
   }
 }

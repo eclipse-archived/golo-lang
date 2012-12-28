@@ -16,6 +16,7 @@ public final class GoloFunction {
   private final PositionInSourceCode positionInSourceCode;
 
   private List<String> parameterNames = new LinkedList<>();
+  private int syntheticParameterCount = 0;
   private boolean varargs;
   private Block block;
   private boolean synthetic = false;
@@ -26,12 +27,21 @@ public final class GoloFunction {
     this.positionInSourceCode = positionInSourceCode;
   }
 
+  public int getSyntheticParameterCount() {
+    return syntheticParameterCount;
+  }
+
   public List<String> getParameterNames() {
     return unmodifiableList(parameterNames);
   }
 
   public void setParameterNames(List<String> parameterNames) {
     this.parameterNames.addAll(parameterNames);
+  }
+
+  public void addSyntheticParameter(String name) {
+    this.parameterNames.add(name);
+    this.syntheticParameterCount = this.syntheticParameterCount + 1;
   }
 
   public void setVarargs(boolean varargs) {
