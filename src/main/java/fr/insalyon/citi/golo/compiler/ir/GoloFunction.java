@@ -18,6 +18,7 @@ public final class GoloFunction {
   private List<String> parameterNames = new LinkedList<>();
   private boolean varargs;
   private Block block;
+  private boolean synthetic = false;
 
   public GoloFunction(String name, Visibility visibility, PositionInSourceCode positionInSourceCode) {
     this.name = name;
@@ -39,6 +40,14 @@ public final class GoloFunction {
 
   public String getName() {
     return name;
+  }
+
+  public boolean isSynthetic() {
+    return synthetic;
+  }
+
+  public void setSynthetic(boolean synthetic) {
+    this.synthetic = synthetic;
   }
 
   public Visibility getVisibility() {

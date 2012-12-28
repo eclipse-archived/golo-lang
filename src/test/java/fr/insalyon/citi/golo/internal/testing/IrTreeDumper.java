@@ -45,7 +45,12 @@ public class IrTreeDumper implements GoloIrVisitor {
       }
       System.out.print(param);
     }
-    System.out.println("|");
+    System.out.print("|");
+    if (function.isSynthetic()) {
+      System.out.println(" (synthetic)");
+    } else {
+      System.out.println();
+    }
     function.getBlock().accept(this);
     decr();
   }

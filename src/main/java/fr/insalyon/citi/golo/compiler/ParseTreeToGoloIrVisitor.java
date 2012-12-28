@@ -72,6 +72,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
           new PositionInSourceCode(
               node.getLineInSourceCode(),
               node.getColumnInSourceCode()));
+      function.setSynthetic(true);
       context.objectStack.push(function);
     } else {
       function = (GoloFunction) context.objectStack.peek();
