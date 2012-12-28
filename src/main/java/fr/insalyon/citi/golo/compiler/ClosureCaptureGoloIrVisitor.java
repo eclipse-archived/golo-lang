@@ -13,6 +13,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     final Set<String> localReferences = new HashSet<>();
     final Set<String> accessedReferences = new HashSet<>();
     final Map<String, Block> definingBlock = new HashMap<>();
+    final Stack<ReferenceTable> referenceTableStack = new Stack<>();
 
     Set<String> shouldBeArguments() {
       Set<String> result = new HashSet<>();
@@ -45,6 +46,21 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   private void dropContext() {
     stack.pop();
+  }
+
+  private void dropBlockTable() {
+    if (!stack.isEmpty()) {
+      context().referenceTableStack.pop();
+    }
+  }
+
+  private void pushBlockTable(Block block) {
+    if (!stack.isEmpty()) {
+      if (!context().referenceTableStack.isEmpty()) {
+        block.getReferenceTable().relink(context().referenceTableStack.peek());
+      }
+      context().referenceTableStack.push(block.getReferenceTable());
+    }
   }
 
   private void locallyAssigned(String name) {
@@ -82,6 +98,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void visitFunction(GoloFunction function) {
     if (function.isSynthetic()) {
       newContext();
+      function.getBlock().internReferenceTable();
       function.getBlock().accept(this);
       System.out.println(">>> " + function.getName());
       System.out.println("    - shouldBeArguments: " + context().shouldBeArguments());
@@ -115,10 +132,12 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitBlock(Block block) {
+    pushBlockTable(block);
     definedInBlock(block.getReferenceTable().symbols(), block);
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
+    dropBlockTable();
   }
 
   @Override

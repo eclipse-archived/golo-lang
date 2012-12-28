@@ -8,7 +8,7 @@ import static java.util.Collections.unmodifiableList;
 public final class Block extends GoloStatement {
 
   private final List<GoloStatement> statements = new LinkedList<>();
-  private final ReferenceTable referenceTable;
+  private ReferenceTable referenceTable;
 
   private boolean hasReturn = false;
 
@@ -19,6 +19,10 @@ public final class Block extends GoloStatement {
 
   public ReferenceTable getReferenceTable() {
     return referenceTable;
+  }
+
+  public void internReferenceTable() {
+    this.referenceTable = referenceTable.flatDeepCopy();
   }
 
   public List<GoloStatement> getStatements() {

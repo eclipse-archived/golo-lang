@@ -8,7 +8,7 @@ import static java.util.Collections.unmodifiableSet;
 
 public final class ReferenceTable {
 
-  private final ReferenceTable parent;
+  private ReferenceTable parent;
   private final Map<String, LocalReference> table = new HashMap<>();
 
   public ReferenceTable() {
@@ -45,6 +45,10 @@ public final class ReferenceTable {
 
   public Collection<LocalReference> ownedReferences() {
     return unmodifiableCollection(table.values());
+  }
+
+  public void relink(ReferenceTable parent) {
+    this.parent = parent;
   }
 
   public Set<String> symbols() {
