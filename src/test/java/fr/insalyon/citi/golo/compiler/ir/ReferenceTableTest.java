@@ -5,6 +5,7 @@ import org.testng.annotations.Test;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.VARIABLE;
 import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.not;
 import static org.hamcrest.CoreMatchers.nullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
@@ -54,5 +55,11 @@ public class ReferenceTableTest {
 
     child.remove("baz");
     assertThat(child.ownedReferences().size(), is(0));
+
+    child.add(new LocalReference(VARIABLE, "plop"));
+    ReferenceTable flatCopy = child.flatDeepCopy();
+    assertThat(flatCopy.references().size(), is(child.references().size()));
+    child.get("plop").setIndex(666);
+    assertThat(flatCopy.get("plop").getIndex(), not(is(child.get("plop").getIndex())));
   }
 }

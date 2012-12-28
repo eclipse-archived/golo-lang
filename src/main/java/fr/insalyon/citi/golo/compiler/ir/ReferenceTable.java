@@ -2,6 +2,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import java.util.*;
 
+import static java.util.Collections.frequency;
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableSet;
 
@@ -64,6 +65,14 @@ public final class ReferenceTable {
 
   public ReferenceTable fork() {
     return new ReferenceTable(this);
+  }
+
+  public ReferenceTable flatDeepCopy() {
+    ReferenceTable referenceTable = new ReferenceTable();
+    for (LocalReference reference : references()) {
+      referenceTable.add(new LocalReference(reference.getKind(), reference.getName()));
+    }
+    return referenceTable;
   }
 
   public void remove(String name) {
