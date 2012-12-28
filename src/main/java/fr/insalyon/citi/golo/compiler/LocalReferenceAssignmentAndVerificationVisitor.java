@@ -167,6 +167,16 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptClosureReference(ClosureReference closureReference) {
-    // TODO
+    GoloFunction target = closureReference.getTarget();
+    int totalArgsCount = target.getParameterNames().size();
+    int startIndex = totalArgsCount - target.getSyntheticParameterCount();
+    closureReference.setSyntheticArgumentsIndexStart(startIndex);
+    int currentIndex = 0;
+    for (String name : target.getParameterNames()) {
+      if (currentIndex >= startIndex) {
+        closureReference.addCapturedReferenceName(name);
+      }
+      currentIndex = currentIndex + 1;
+    }
   }
 }

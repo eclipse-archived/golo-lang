@@ -7,6 +7,7 @@ public class ClosureReference extends ExpressionStatement {
 
   private final GoloFunction target;
   private final Set<String> capturedReferenceNames = new HashSet<>();
+  private int syntheticArgumentsIndexStart;
 
   public ClosureReference(GoloFunction target, PositionInSourceCode positionInSourceCode) {
     super(positionInSourceCode);
@@ -28,5 +29,13 @@ public class ClosureReference extends ExpressionStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.acceptClosureReference(this);
+  }
+
+  public void setSyntheticArgumentsIndexStart(int syntheticArgumentsIndexStart) {
+    this.syntheticArgumentsIndexStart = syntheticArgumentsIndexStart;
+  }
+
+  public int getSyntheticArgumentsIndexStart() {
+    return syntheticArgumentsIndexStart;
   }
 }
