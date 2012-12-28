@@ -14,6 +14,24 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     final Set<String> allReferences = new HashSet<>();
     final Set<String> localReferences = new HashSet<>();
     final Set<String> accessedReferences = new HashSet<>();
+
+    Set<String> shouldBeArguments() {
+      Set<String> result = new HashSet<>();
+      for (String ref : accessedReferences) {
+        if (!localReferences.contains(ref)) {
+          result.add(ref);
+        }
+      }
+      return result;
+    }
+
+    Set<String> shouldBeRemoved() {
+      Set<String> result = new HashSet<>(allReferences);
+      for (String ref : accessedReferences) {
+        result.remove(ref);
+      }
+      return result;
+    }
   }
 
   private final Stack<Context> stack = new Stack<>();
@@ -33,6 +51,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   private void locallyAssigned(String name) {
     if (!stack.isEmpty()) {
       context().localReferences.add(name);
+      context().accessedReferences.add(name);
       context().allReferences.add(name);
     }
   }
@@ -63,6 +82,8 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       newContext();
       function.getBlock().accept(this);
       System.out.println(">>> " + function.getName());
+      System.out.println("    - shouldBeArguments: " + context().shouldBeArguments());
+      System.out.println("    - shouldBeRemoved: " + context().shouldBeRemoved());
       System.out.println("    - all: " + context().allReferences);
       System.out.println("    - local: " + context().localReferences);
       System.out.println("    - accessed: " + context().accessedReferences);
@@ -74,7 +95,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitBlock(Block block) {
-    definedInBlock(block.getReferenceTable().ownedSymbols());
+    definedInBlock(block.getReferenceTable().symbols());
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
@@ -99,8 +120,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
+    String name = assignmentStatement.getLocalReference().getName();
     if (assignmentStatement.getLocalReference().getKind() == CONSTANT) {
-      locallyAssigned(assignmentStatement.getLocalReference().getName());
+      locallyAssigned(name);
+    } else {
+      accessed(name);
     }
     assignmentStatement.getExpressionStatement().accept(this);
   }
