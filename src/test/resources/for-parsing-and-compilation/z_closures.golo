@@ -4,8 +4,8 @@ function a = {
   let f = |a| { println(a) }
 }
 
-function b = {
-  return |i| { return i * 2 }
+function b = |factor| {
+  return |i| { return i * factor }
 }
 
 function c = {
