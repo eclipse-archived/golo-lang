@@ -5,3 +5,9 @@ function raw_handle = {
     return obj: toString()
   }
 }
+
+function handle_with_capture = |a, b| {
+  return |factor| {
+    return (a + b) * factor
+  }
+}

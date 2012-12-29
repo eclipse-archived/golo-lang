@@ -511,5 +511,13 @@ public class CompileAndRunTest {
     handle = (MethodHandle) result;
     assertThat(handle.type(), is(genericMethodType(1)));
     assertThat((String) handle.invoke(123), is("123"));
+
+    Method handle_with_capture = moduleClass.getMethod("handle_with_capture", Object.class, Object.class);
+    result = handle_with_capture.invoke(null, 1, 2);
+    assertThat(result, instanceOf(MethodHandle.class));
+    handle = (MethodHandle) result;
+    assertThat(handle.type(), is(genericMethodType(1)));
+    assertThat((Integer) handle.invoke(100), is(300));
+    assertThat((Integer) handle.invoke(10), is(30));
   }
 }
