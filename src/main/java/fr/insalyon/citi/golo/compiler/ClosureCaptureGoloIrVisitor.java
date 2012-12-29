@@ -235,6 +235,6 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptClosureReference(ClosureReference closureReference) {
-    // TODO I guess...
+
   }
 }
