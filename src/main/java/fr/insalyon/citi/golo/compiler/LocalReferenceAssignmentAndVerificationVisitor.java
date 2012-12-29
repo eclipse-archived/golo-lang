@@ -82,7 +82,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-
+    if (tableStack.peek().hasReferenceFor(functionInvocation.getName())) {
+      functionInvocation.setOnReference(true);
+    }
   }
 
   @Override

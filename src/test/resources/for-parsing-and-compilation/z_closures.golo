@@ -1,10 +1,11 @@
 module Closures
 
 function a = {
-  let f = |value| {
+  let g = |value| {
     let x = value
     println(x)
   }
+  return g(2)
 }
 
 function b = |factor| {
