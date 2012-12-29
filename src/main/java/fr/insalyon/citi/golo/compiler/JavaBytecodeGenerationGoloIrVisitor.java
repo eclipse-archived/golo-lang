@@ -99,7 +99,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private void writeImportMetaData(Set<ModuleImport> imports) {
     ModuleImport[] importsArray = imports.toArray(new ModuleImport[imports.size()]);
     methodVisitor = classWriter.visitMethod(
-        ACC_PUBLIC | ACC_STATIC,
+        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
         "$imports",
         "()[Ljava/lang/String;",
         null, null);
@@ -126,6 +126,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       signature = goloVarargsFunctionSignature(function.getArity());
     } else {
       signature = goloFunctionSignature(function.getArity());
+    }
+    if (function.isSynthetic()) {
+      accessFlags = accessFlags | ACC_SYNTHETIC;
     }
     context.methodArityStack.push(function.getArity());
     methodVisitor = classWriter.visitMethod(
