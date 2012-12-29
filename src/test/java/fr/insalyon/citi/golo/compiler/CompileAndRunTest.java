@@ -519,5 +519,8 @@ public class CompileAndRunTest {
     assertThat(handle.type(), is(genericMethodType(1)));
     assertThat((Integer) handle.invoke(100), is(300));
     assertThat((Integer) handle.invoke(10), is(30));
+
+    Method call_with_invoke = moduleClass.getMethod("call_with_invoke");
+    assertThat((Integer) call_with_invoke.invoke(null), is(90));
   }
 }

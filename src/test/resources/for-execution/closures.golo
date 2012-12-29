@@ -11,3 +11,8 @@ function handle_with_capture = |a, b| {
     return (a + b) * factor
   }
 }
+
+function call_with_invoke = {
+  let f = handle_with_capture(5, 4)
+  return f: invokeWithArguments(10)
+}
