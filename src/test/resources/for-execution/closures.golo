@@ -16,3 +16,8 @@ function call_with_invoke = {
   let f = handle_with_capture(5, 4)
   return f: invokeWithArguments(10)
 }
+
+function call_with_ref = {
+  let f = handle_with_capture(1, 2)
+  return f(10)
+}

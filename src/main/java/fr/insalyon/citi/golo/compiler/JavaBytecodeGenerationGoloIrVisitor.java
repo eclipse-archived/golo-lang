@@ -14,6 +14,7 @@ import java.util.Stack;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
+import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
@@ -28,6 +29,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final Handle METHOD_INVOCATION_HANDLE;
   private static final Handle CLASSREF_HANDLE;
   private static final Handle CLOSUREREF_HANDLE;
+  private static final Handle CLOSURE_INVOCATION_HANDLE;
 
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
@@ -54,6 +56,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapMethod = "bootstrap";
     description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     CLOSUREREF_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+
+    bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClosureCallSupport";
+    bootstrapMethod = "bootstrap";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    CLOSURE_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
   private ClassWriter classWriter;
@@ -291,18 +298,30 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void invocation(AbstractInvocation invocation, Handle boostrap, int arity) {
+    invocation(invocation, boostrap, goloFunctionSignature(arity));
+  }
+
+  private void invocation(AbstractInvocation invocation, Handle boostrap, String signature) {
     for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
     }
     methodVisitor.visitInvokeDynamicInsn(
         invocation.getName().replaceAll("\\.", "#"),
-        goloFunctionSignature(arity),
+        signature,
         boostrap);
   }
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-    invocation(functionInvocation, FUNCTION_INVOCATION_HANDLE, functionInvocation.getArity());
+    if (functionInvocation.isOnReference()) {
+      ReferenceTable table = context.referenceTableStack.peek();
+      methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
+      methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/invoke/MethodHandle");
+      MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, MethodHandle.class);
+      invocation(functionInvocation, CLOSURE_INVOCATION_HANDLE, type.toMethodDescriptorString());
+    } else {
+      invocation(functionInvocation, FUNCTION_INVOCATION_HANDLE, functionInvocation.getArity());
+    }
   }
 
   @Override

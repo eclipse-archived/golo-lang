@@ -522,5 +522,9 @@ public class CompileAndRunTest {
 
     Method call_with_invoke = moduleClass.getMethod("call_with_invoke");
     assertThat((Integer) call_with_invoke.invoke(null), is(90));
+
+    Method call_with_ref = moduleClass.getMethod("call_with_ref");
+    assertThat((Integer) call_with_ref.invoke(10), is(30));
+    assertThat((Integer) call_with_ref.invoke(100), is(30));
   }
 }
