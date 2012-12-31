@@ -334,7 +334,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.referenceTableStack.push(blockReferenceTable);
     Block block = new Block(blockReferenceTable);
     if (context.objectStack.peek() instanceof GoloFunction) {
-      ((GoloFunction) context.objectStack.peek()).setBlock(block);
+      GoloFunction function = (GoloFunction) context.objectStack.peek();
+      function.setBlock(block);
+      if (function.isSynthetic()) {
+        context.objectStack.pop();
+      }
     }
     context.objectStack.push(block);
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
