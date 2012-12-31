@@ -17,3 +17,12 @@ function c = {
     return 123
   }
 }
+
+function d = {
+  let foo = |plop| {
+    return plop + "!"
+  }
+  for (var i = 0, i < 10, i = i + 1) {
+    foo(i)
+  }
+}
