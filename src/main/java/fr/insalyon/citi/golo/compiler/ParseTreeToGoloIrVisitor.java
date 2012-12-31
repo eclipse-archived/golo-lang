@@ -81,6 +81,29 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     function.setVarargs(node.isVarargs());
     context.module.addFunction(function);
     node.childrenAccept(this, data);
+    if (node.isCompactForm()) {
+      Block block = new Block(context.referenceTableStack.peek().fork());
+      Object child = context.objectStack.pop();
+      if (child instanceof GoloFunction) {
+        // TODO handle function f = |a| -> |x| -> a + x
+//        GoloFunction closure = (GoloFunction) child;
+//        if (closure.isSynthetic()) {
+//          block.addStatement(
+//              new ClosureReference(
+//                  closure,
+//                  new PositionInSourceCode(
+//                      node.getLineInSourceCode(),
+//                      node.getColumnInSourceCode())));
+//        }
+      } else {
+        block.addStatement(new ReturnStatement(
+            (ExpressionStatement) child,
+            new PositionInSourceCode(
+                node.getLineInSourceCode(),
+                node.getColumnInSourceCode())));
+      }
+      function.setBlock(block);
+    }
     Block functionBlock = function.getBlock();
     ReferenceTable referenceTable = functionBlock.getReferenceTable();
     for (String parameter : function.getParameterNames()) {

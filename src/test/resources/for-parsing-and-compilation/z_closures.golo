@@ -26,3 +26,16 @@ function d = {
     foo(i)
   }
 }
+
+function compact = |a| -> a
+
+function e = {
+  let foo = 3
+  return |x| -> x + foo
+}
+
+function f = |a| {
+  return |x| -> a + x
+}
+
+function g = |a, b| -> a + b

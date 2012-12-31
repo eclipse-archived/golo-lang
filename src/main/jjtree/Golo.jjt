@@ -571,15 +571,25 @@ void Function():
   Token token;
   List<String> arguments = null;
   Token varargsToken = null;
+  boolean compactForm = false;
 }
 {
-  ("|" arguments=Arguments() (varargsToken="...")? "|")? token="{" Block() "}"
+  ("|" arguments=Arguments() (varargsToken="...")? "|")? 
+  (
+    (token="{" Block() "}")
+    |
+    (token="->" ExpressionStatement())
+    {
+      compactForm = true;
+    }
+  )
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
     }
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
+    jjtThis.setCompactForm(compactForm);
     jjtThis.setArguments(arguments);
     jjtThis.setVarargs(varargsToken != null);
   }

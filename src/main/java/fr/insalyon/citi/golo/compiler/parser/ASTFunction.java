@@ -6,6 +6,7 @@ public class ASTFunction extends GoloASTNode {
 
   private List<String> arguments;
   private boolean varargs = false;
+  private boolean compactForm = false;
 
   public ASTFunction(int i) {
     super(i);
@@ -31,11 +32,20 @@ public class ASTFunction extends GoloASTNode {
     this.varargs = varargs;
   }
 
+  public boolean isCompactForm() {
+    return compactForm;
+  }
+
+  public void setCompactForm(boolean compactForm) {
+    this.compactForm = compactForm;
+  }
+
   @Override
   public String toString() {
     return "ASTFunction{" +
         "arguments=" + arguments +
         ", varargs=" + varargs +
+        ", compactForm=" + compactForm +
         '}';
   }
 

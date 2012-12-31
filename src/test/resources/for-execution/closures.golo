@@ -21,3 +21,9 @@ function call_with_ref = {
   let f = handle_with_capture(1, 2)
   return f(10)
 }
+
+function adder = |a, b| -> a + b
+
+function add_to = |a| {
+  return |x| -> a + x
+}

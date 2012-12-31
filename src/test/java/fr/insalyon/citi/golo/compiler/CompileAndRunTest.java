@@ -526,5 +526,14 @@ public class CompileAndRunTest {
     Method call_with_ref = moduleClass.getMethod("call_with_ref");
     assertThat((Integer) call_with_ref.invoke(10), is(30));
     assertThat((Integer) call_with_ref.invoke(100), is(30));
+
+    Method adder = moduleClass.getMethod("adder", Object.class, Object.class);
+    assertThat((Integer) adder.invoke(null, 1, 2), is(3));
+
+    Method add_to = moduleClass.getMethod("add_to", Object.class);
+    result = add_to.invoke(null, 1);
+    assertThat(result, instanceOf(MethodHandle.class));
+    handle = (MethodHandle) result;
+    assertThat((Integer) handle.invoke(2), is(3));
   }
 }
