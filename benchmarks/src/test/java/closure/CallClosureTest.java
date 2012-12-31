@@ -12,7 +12,7 @@ import org.junit.Test;
 
 @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 10, benchmarkRounds = 5)
 @BenchmarkMethodChart(filePrefix = "call-closure")
-@BenchmarkHistoryChart(filePrefix = "call-closure", labelWith = LabelType.TIMESTAMP)
+@BenchmarkHistoryChart(filePrefix = "call-closure-history", labelWith = LabelType.TIMESTAMP)
 public class CallClosureTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("CallClosure.golo");
