@@ -100,6 +100,13 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       newContext();
       function.getBlock().internReferenceTable();
       function.getBlock().accept(this);
+      System.out.println(">>> " + function.getName());
+      System.out.println("    - shouldBeArguments: " + context().shouldBeArguments());
+      System.out.println("    - shouldBeRemoved: " + context().shouldBeRemoved());
+      System.out.println("    - all: " + context().allReferences);
+      System.out.println("    - local: " + context().localReferences);
+      System.out.println("    - accessed: " + context().accessedReferences);
+      System.out.println("    - definedInBlock: " + context().definingBlock);
       makeArguments(function, context().shouldBeArguments());
       dropUnused(context().shouldBeRemoved());
       dropContext();
