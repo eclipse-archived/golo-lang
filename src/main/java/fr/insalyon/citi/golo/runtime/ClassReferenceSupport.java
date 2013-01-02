@@ -21,6 +21,13 @@ public class ClassReferenceSupport {
         classRef = tryLoading(importClassName + "." + className, classLoader);
         if (classRef != null) {
           break;
+        } else {
+          if (importClassName.endsWith(className)) {
+            classRef = tryLoading(importClassName, classLoader);
+            if (classRef != null) {
+              break;
+            }
+          }
         }
       }
     }

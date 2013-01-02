@@ -538,5 +538,8 @@ public class CompileAndRunTest {
 
     Method as_explicit_interface = moduleClass.getMethod("as_explicit_interface");
     assertThat((String) as_explicit_interface.invoke(null), is("Plop -> da plop"));
+
+    Method executor_and_callable = moduleClass.getMethod("executor_and_callable");
+    assertThat((String) executor_and_callable.invoke(null), is("hey!"));
   }
 }

@@ -1,6 +1,8 @@
 module golotest.execution.Closures
 
 import java.awt.event
+import java.util.concurrent.Callable
+import java.util.concurrent.Executors
 
 function raw_handle = {
   return |obj| {
@@ -38,4 +40,12 @@ function as_explicit_interface = {
   let listener = asInterfaceInstance(ActionListener.class, handler)
   listener: actionPerformed(ActionEvent("Plop", 666, "da plop"))
   return aget(array, 0)
+}
+
+function executor_and_callable = {
+  let executor = Executors.newSingleThreadExecutor()
+  let future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
+  let result = future: get()
+  executor: shutdown()
+  return result
 }
