@@ -1,5 +1,7 @@
 module golotest.execution.Closures
 
+import java.awt.event
+
 function raw_handle = {
   return |obj| {
     return obj: toString()
@@ -26,4 +28,14 @@ function adder = |a, b| -> a + b
 
 function add_to = |a| {
   return |x| -> a + x
+}
+
+function as_explicit_interface = {
+  let array = Array("boo")
+  let handler = |event| {
+    aset(array, 0, event: getSource() + " -> " + event: getActionCommand())
+  }
+  let listener = asInterfaceInstance(ActionListener.class, handler)
+  listener: actionPerformed(ActionEvent("Plop", 666, "da plop"))
+  return aget(array, 0)
 }

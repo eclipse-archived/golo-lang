@@ -535,5 +535,8 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(MethodHandle.class));
     handle = (MethodHandle) result;
     assertThat((Integer) handle.invoke(2), is(3));
+
+    Method as_explicit_interface = moduleClass.getMethod("as_explicit_interface");
+    assertThat((String) as_explicit_interface.invoke(null), is("Plop -> da plop"));
   }
 }
