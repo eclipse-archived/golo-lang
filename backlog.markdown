@@ -60,21 +60,6 @@ Not everything is deemed to be implemented...
     }
     ```
 
-* First-class functions and closures, e.g.:
-
-    ```
-    # Anonymous function
-    let decorate = |str| { return ">> #{str} <<" }
-    let plop = decorate
-    plop("Mr Bean")
-
-    let s = "plop"
-    let m = { return "s = #{s}" }
-    println(m())
-    ```
-
-* Function / closure will be compiled as method handles, provide an implicit SAM interface conversion.
-
 ## Runtime
 
 * Common collection sugar functions (lists, maps, sets, ...)
