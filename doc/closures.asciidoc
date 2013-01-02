@@ -1,0 +1,160 @@
+== Closures ==
+
+Golo supports *closures*, which means that functions can be treated as first-class citizen.
+
+=== Defining and using a closure ===
+
+Defining a closure is straightforward as it derives from the way a function can be defined:
+
+[source,text]
+----
+let adder = |a, b| {
+  return a + b
+}
+----
+
+At runtime, a closure is an instance of `java.lang.invoke.MethodHandle`. This means that you can do
+all the operations that method handles support, such as invoking them or inserting arguments as
+illustrated in the following example:
+
+[source,text]
+----
+let adder = |a, b| {
+  return a + b
+}
+println(adder: invokeWithArguments(1, 2))
+
+let addToTen = adder: bindTo(10)
+println(addToTen: invokeWithArguments(2))
+----
+
+As one would expect, this prints `3` and `12`.
+
+=== Compact closures ===
+
+Golo supports a compact form of closures for the cases where their body consists of a single
+expression. The example above can be simplified as:
+
+[source,text]
+----
+let adder = |a, b| -> a + b
+----
+
+You may also use this compact form when defining regular functions, as in:
+
+[source,text]
+----
+module Foo
+
+local function sayHello = |who| -> "Hello " + who + "!"
+
+# Prints "Hello Julien!"
+function main = |args| {
+  println(sayHello("Julien"))
+}
+----
+
+=== Calling closures ===
+
+While you may take advantage of closures being method handles and call them using
+`invokeWithArguments`, there is a (much) better way.
+
+When you have a reference to a closure, you may simply call it as a regular function. The previous
+`adder` example can be equivalently rewritten as:
+
+[source,text]
+----
+let adder = |a, b| -> a + b
+println(adder(1, 2))
+
+let addToTen = adder: bindTo(10)
+println(addToTen(2))
+----
+
+=== Limitations ===
+
+Closures have access to the lexical scope of their defining environment. Consider this example:
+
+[source,text]
+----
+function plus_3 = {
+  let foo = 3
+  return |x| -> x + foo
+}
+----
+
+The `plus_3` function returns a closure that has access to the `foo` reference, just as you would
+expect. The `foo` reference is said to have been *captured* and made available in the closure.
+
+However, **captured references cannot be re-assigned from a closure**, as illustrated by the next
+example:
+
+[source,text]
+----
+function foo = {
+
+  # To be captured...
+  var i = 0
+
+  let myClosure = {
+    i = i + 1
+    println(i) # prints '1'
+  }
+  myClosure()
+
+  # prints '0'
+  println(i)
+}
+----
+
+That being said, a closure has a reference on the same object as its defining environment, so a
+mutable object is a sensible way to pass data back from a closure as a side-effect, as in:
+
+[source,text]
+----
+let list = java.util.LinkedList()
+let pump_it = {
+  list: add("I heard you say")
+  list: add("Hey!")
+  list: add("Hey!")
+}
+pump_it()
+println(list)
+----
+
+which prints `[I heard you say, Hey!, Hey!]`.
+
+=== Closures to single-method interfaces ===
+
+The Java SE APIs have plenty of interfaces with a single method: `java.util.concurrent.Callable`,
+`java.lang.Runnable`, `javax.swing.ActionListener`, etc.
+
+The predefined function `asInterfaceInstance` can be used to convert a method handle or Golo closure
+to an instance of a specific interface. 
+
+Here is how one could pass an action listener to a `javax.swing.JButton`:
+
+[source,text]
+----
+let button = JButton("Click me!")
+let handler = |event| -> println("Clicked!")
+button: addActionListener(asInterfaceInstance(ActionListener.class, handler))
+----
+
+Here is another example that uses the `java.util.concurrent` APIs to obtain an executor, pass it a
+task, fetch the result with a `Future` object then shut it down:
+
+[source,text]
+----
+function give_me_hey = {
+  let executor = Executors.newSingleThreadExecutor()
+  let future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
+  let result = future: get()
+  executor: shutdown()
+  return result
+}
+----
+
+NOTE: Golo is likely to have a more compact way than calling `asInterfaceInstance` in the future,
+possibly with dynamic class pimping.
+

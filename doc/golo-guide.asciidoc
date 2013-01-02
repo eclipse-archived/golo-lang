@@ -11,4 +11,5 @@ include::functions.asciidoc[]
 include::control-flow.asciidoc[]
 include::exceptions.asciidoc[]
 include::java-interop.asciidoc[]
+include::closures.asciidoc[]
 
