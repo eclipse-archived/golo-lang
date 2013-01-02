@@ -2,13 +2,17 @@ package gololang;
 
 import org.testng.annotations.Test;
 
-import java.io.IOError;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.WrongMethodTypeException;
+import java.util.concurrent.Callable;
 
+import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 public class PredefinedTest {
 
@@ -76,5 +80,29 @@ public class PredefinedTest {
     assertThat(Predefined.range(1, 10L), instanceOf(LongRange.class));
     assertThat(Predefined.range(1L, 10), instanceOf(LongRange.class));
     assertThat(Predefined.range(1L, 10L), instanceOf(LongRange.class));
+  }
+
+  static class MyCallable {
+
+    static Object hello() {
+      return "Hello!";
+    }
+  }
+
+  @Test
+  public void test_asInterfaceInstance() throws Throwable {
+    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    MethodHandle handle = lookup.findStatic(MyCallable.class, "hello", genericMethodType(0));
+    assertThat((String) handle.invoke(), is("Hello!"));
+    Callable<Object> converted = (Callable<Object>) Predefined.asInterfaceInstance(Callable.class, handle);
+    assertThat((String) converted.call(), is("Hello!"));
+  }
+
+  @Test(expectedExceptions = WrongMethodTypeException.class)
+  public void test_asInterfaceInstance_wrong_target_type() throws Throwable {
+    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    MethodHandle handle = lookup.findStatic(MyCallable.class, "hello", genericMethodType(0));
+    assertThat((String) handle.invoke(), is("Hello!"));
+    Predefined.asInterfaceInstance(ActionListener.class, handle);
   }
 }
