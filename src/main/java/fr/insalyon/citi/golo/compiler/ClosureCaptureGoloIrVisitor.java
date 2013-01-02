@@ -9,6 +9,7 @@ import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   static class Context {
+    final Set<String> parameterReferences = new HashSet<>();
     final Set<String> allReferences = new HashSet<>();
     final Set<String> localReferences = new HashSet<>();
     final Set<String> accessedReferences = new HashSet<>();
@@ -87,6 +88,10 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
+  private void declaredParameters(List<String> references) {
+    context().parameterReferences.addAll(references);
+  }
+
   @Override
   public void visitModule(GoloModule module) {
     for (GoloFunction function : module.getFunctions().values()) {
@@ -98,6 +103,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void visitFunction(GoloFunction function) {
     if (function.isSynthetic()) {
       newContext();
+      declaredParameters(function.getParameterNames());
       function.getBlock().internReferenceTable();
       function.getBlock().accept(this);
       makeArguments(function, context().shouldBeArguments());
@@ -109,8 +115,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void dropUnused(Set<String> refs) {
+    Context context = context();
     for (String ref : refs) {
-      context().definingBlock.get(ref).getReferenceTable().remove(ref);
+      if (!context.parameterReferences.contains(ref)) {
+        context.definingBlock.get(ref).getReferenceTable().remove(ref);
+      }
     }
   }
 
