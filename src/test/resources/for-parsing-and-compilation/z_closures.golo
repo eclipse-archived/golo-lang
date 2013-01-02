@@ -43,3 +43,8 @@ function g = |a, b| -> a + b
 function h = {
   let handler = |x| -> println("plop")
 }
+
+function i = {
+  let adder = |a, b| -> a + b
+  println(adder(1, 2))
+}

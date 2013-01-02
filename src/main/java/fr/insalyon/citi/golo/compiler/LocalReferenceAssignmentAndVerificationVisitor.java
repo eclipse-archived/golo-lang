@@ -85,6 +85,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (tableStack.peek().hasReferenceFor(functionInvocation.getName())) {
       functionInvocation.setOnReference(true);
     }
+    for (ExpressionStatement argument : functionInvocation.getArguments()) {
+      argument.accept(this);
+    }
   }
 
   @Override
@@ -148,7 +151,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
-
+    for (ExpressionStatement argument : methodInvocation.getArguments()) {
+      argument.accept(this);
+    }
   }
 
   @Override
