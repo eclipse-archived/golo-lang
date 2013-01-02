@@ -141,6 +141,18 @@ let handler = |event| -> println("Clicked!")
 button: addActionListener(asInterfaceInstance(ActionListener.class, handler))
 ----
 
+Because the `asInterfaceInstance` call consumes some readability budget, you may refactor it with a
+local function as in:
+
+[source,text]
+----
+local function listener = |handler| -> asInterfaceInstance(ActionListener.class, handler)
+
+# (...)
+let button = JButton("Click me!")
+button: addActionListener(listener(|event| -> println("Clicked!")))
+----
+
 Here is another example that uses the `java.util.concurrent` APIs to obtain an executor, pass it a
 task, fetch the result with a `Future` object then shut it down:
 

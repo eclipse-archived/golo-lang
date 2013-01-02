@@ -4,6 +4,8 @@ import java.awt.event
 import javax.swing
 import javax.swing.WindowConstants
 
+local function listener = |handler| -> asInterfaceInstance(ActionListener.class, handler)
+
 function main = |args| {
 
   let frame = JFrame("Action listeners")
@@ -11,9 +13,7 @@ function main = |args| {
 
   let button = JButton("Click me!")
   button: setFont(button: getFont(): deriveFont(96.0_F))
-
-  let handler = |event| -> println("Clicked!")
-  button: addActionListener(asInterfaceInstance(ActionListener.class, handler))
+  button: addActionListener(listener(|event| -> println("Clicked!")))
 
   frame: getContentPane(): add(button)
   frame: pack()
