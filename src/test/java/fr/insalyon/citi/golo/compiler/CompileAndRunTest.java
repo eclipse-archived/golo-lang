@@ -541,5 +541,13 @@ public class CompileAndRunTest {
 
     Method executor_and_callable = moduleClass.getMethod("executor_and_callable");
     assertThat((String) executor_and_callable.invoke(null), is("hey!"));
+
+    Method nested_compact = moduleClass.getMethod("nested_compact", Object.class);
+    result = nested_compact.invoke(null, 1);
+    assertThat(result, instanceOf(MethodHandle.class));
+    handle = (MethodHandle) result;
+    assertThat(handle.type(), is(genericMethodType(1)));
+    result = handle.invokeWithArguments(2);
+    assertThat((Integer) handle.invoke(2), is(3));
   }
 }

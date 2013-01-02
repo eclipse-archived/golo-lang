@@ -48,3 +48,5 @@ function i = {
   let adder = |a, b| -> a + b
   println(adder(1, 2))
 }
+
+function j = |a| -> |b| -> a + b

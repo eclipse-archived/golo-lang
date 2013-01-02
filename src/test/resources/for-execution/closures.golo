@@ -49,3 +49,5 @@ function executor_and_callable = {
   executor: shutdown()
   return result
 }
+
+function nested_compact = |a| -> |b| -> a + b

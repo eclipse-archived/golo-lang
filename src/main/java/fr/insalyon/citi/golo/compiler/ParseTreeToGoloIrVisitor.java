@@ -61,6 +61,21 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTFunctionDeclaration node, Object data) {
+    Context context = (Context) data;
+    GoloFunction function = new GoloFunction(
+        node.getName(),
+        node.isLocal() ? LOCAL : PUBLIC,
+        new PositionInSourceCode(
+            node.getLineInSourceCode(),
+            node.getColumnInSourceCode()));
+    context.objectStack.push(function);
+    node.childrenAccept(this, data);
+    context.objectStack.pop();
+    return data;
+  }
+
+  @Override
   public Object visit(ASTFunction node, Object data) {
     Context context = (Context) data;
     boolean isSynthetic = !(context.objectStack.peek() instanceof GoloFunction);
@@ -80,29 +95,15 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
     context.module.addFunction(function);
-    node.childrenAccept(this, data);
     if (node.isCompactForm()) {
-      Block block = new Block(context.referenceTableStack.peek().fork());
-      Object child = context.objectStack.pop();
-      if (child instanceof GoloFunction) {
-        // TODO handle function f = |a| -> |x| -> a + x
-//        GoloFunction closure = (GoloFunction) child;
-//        if (closure.isSynthetic()) {
-//          block.addStatement(
-//              new ClosureReference(
-//                  closure,
-//                  new PositionInSourceCode(
-//                      node.getLineInSourceCode(),
-//                      node.getColumnInSourceCode())));
-//        }
-      } else {
-        block.addStatement(new ReturnStatement(
-            (ExpressionStatement) child,
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode())));
-      }
-      function.setBlock(block);
+      Node astChild = node.jjtGetChild(0);
+      ASTReturn astReturn = new ASTReturn(0);
+      astReturn.jjtAddChild(astChild, 0);
+      ASTBlock astBlock = new ASTBlock(0);
+      astBlock.jjtAddChild(astReturn, 0);
+      astBlock.jjtAccept(this, data);
+    } else {
+      node.childrenAccept(this, data);
     }
     Block functionBlock = function.getBlock();
     ReferenceTable referenceTable = functionBlock.getReferenceTable();
@@ -132,21 +133,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
                   function.getPositionInSourceCode()),
               function.getPositionInSourceCode()));
     }
-  }
-
-  @Override
-  public Object visit(ASTFunctionDeclaration node, Object data) {
-    Context context = (Context) data;
-    GoloFunction function = new GoloFunction(
-        node.getName(),
-        node.isLocal() ? LOCAL : PUBLIC,
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
-    context.objectStack.push(function);
-    node.childrenAccept(this, data);
-    context.objectStack.pop();
-    return data;
   }
 
   @Override
