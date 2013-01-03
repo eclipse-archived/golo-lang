@@ -168,4 +168,43 @@ The solution is to use *escaping*, by prefixing identifiers with a backtick, as 
 someObject: foo(): `is(): `not(): bar()
 ---------------------------------------
 
+=== Golo class loader ===
+
+CAUTION: to be refined...
+
+Golo provides a class loader for directly loading and compiling Golo modules. You may use it as
+follows:
+
+[source,java]
+----
+import fr.insalyon.citi.golo.runtime.GoloClassLoader;
+
+public class Foo {
+  
+  public static void main(String... args) throws Throwable {
+    GoloClassLoader classLoader = new GoloClassLoader();
+    Class<?> moduleClass = classLoader.load("foo.golo", new FileInputStream("/path/to/foo.golo"));
+    Method bar = moduleClass.getMethod("bar", Object.class);
+    bar.invoke(null, "golo golo");
+  }
+}
+----
+
+This would work with a Golo module defined as in:
+
+[source,text]
+----
+module foo.Bar
+
+function bar = |wat| -> println(wat)
+----
+
+Indeed, a Golo module is viewable as a Java class where each function is a static method.
+
+IMPORTANT: `GoloClassLoader` is rather dumb at this stage, and you will get an exception if you try
+to load two Golo source files with the same `module` name declaration. This is because it will
+attempt to redefine an already defined class.
+
+CAUTION: Later in the glorious and glamorous future, Golo will have objects and not just functions.
+Be patient, it's coming in!
 
