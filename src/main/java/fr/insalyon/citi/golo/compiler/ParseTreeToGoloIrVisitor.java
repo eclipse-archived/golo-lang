@@ -491,7 +491,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     astBlock.jjtAddChild(astCase, 1);
     astBlock.jjtAddChild(astReference, 2);
 
-//    astBlock.dump("%%% ");
     astBlock.jjtAccept(this, data);
     return data;
   }
