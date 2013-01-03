@@ -4,7 +4,11 @@ Julien Ponge <julien.ponge@insa-lyon.fr>
 
 This is the documentation for the Golo programming language.
 
-WARNING: This is a work in progress.
+CAUTION: This is a work in progress. Golo is even far from being feature-complete. You have been
+warned, but hey, you somehow knew it I'm pretty sure.
+
+WARNING: This is confidential software. Dissemination of this information or reproduction of this
+material is strictly forbidden unless prior written permission is obtained from the authors.
 
 include::basics.asciidoc[]
 include::functions.asciidoc[]
