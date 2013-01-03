@@ -10,7 +10,8 @@ Not everything is deemed to be implemented...
 
 * Allow underscores in number literals.
 
-* Classes and value types. Provide polymorphism through dynamic casts in an IAdapter style.
+* Classes and value types. Provide polymorphism through dynamic casts and codegen in an IAdapter
+  style.
 
 * Ability to define classes and / or data objects.
   Must be lightweight, and complex use-cases should be done in POJOs.
@@ -47,17 +48,6 @@ Not everything is deemed to be implemented...
       "sample.txt": toFile("/tmp")
     }
 
-    ```
-
-* Matching, e.g.:
-  
-    ```
-    let result = match {
-      when (n oftype Integer.class) and (n < 100) then "An integer below 100"
-      when (n oftype Integer.class)               then "An integer"
-      when n oftype String.class                  then "A string: #{n}"
-      otherwise                                        "I have no idea"
-    }
     ```
 
 ## Runtime
