@@ -56,8 +56,6 @@ Not everything is deemed to be implemented...
 
 * The inline-cache is slow at the terminal node since every call can yield a new method handle.
 
-* Proper OSGi meta-data.
-
 ## Internals
 
 * Concurrent compilation?
@@ -73,6 +71,4 @@ Not everything is deemed to be implemented...
 * Vim syntax.
 
 * Netbeans support (they love JavaCC it seems).
-
-* Generate the image with [AppAssembler](http://mojo.codehaus.org/appassembler/appassembler-maven-plugin/usage-program.html)?
 
