@@ -1,0 +1,102 @@
+== Predefined functions ==
+
+Every Golo module definition comes with `gololang.Predefined` as a default import. It provides
+useful functions.
+
+=== Console output ===
+
+`print` and `println` do just what you would expect.
+
+[source,text]
+----
+print("Hey")
+println()
+
+println("Hey")
+----
+
+=== Exceptions ===
+
+`raise` can be used to throw a `java.lang.RuntimeException`. It comes in two forms: one with a
+message as a string, and one with a message and a cause.
+
+[source,text]
+----
+raise("Somehow something is wrong")
+
+try {
+  ...
+} catch (e) {
+  ...
+  raise("Something was wrong, and here is the cause", e)
+}
+----
+
+=== Preconditions ===
+
+Preconditions are useful, especially in a dynamically-typed language.
+
+`require` can check for a boolean expression along with an error message. In case of error, it
+throws an `AssertionError`.
+
+[source,text]
+----
+function foo = |a| {
+  require(a oftype String.class, "a must be a String")
+  ...
+}
+----
+
+You may also use `requireNotNull` that... well... checks that its argument is not `null`:
+
+[source,text]
+----
+function foo = |a| {
+  requireNotNull(a)
+  ...
+}
+----
+
+=== Arrays ===
+
+Golo deals with `Object[]` Java arrays as follows:
+
+* the `Array` function takes a variable number of arguments and returns a Java array from them,
+* the `aget` function takes an array and an index to return the element at that position,
+* the `aset` function takes an array, an index and a value to set the element at that position,
+* the `alength` function returns the length of an array.
+
+[source,text]
+----
+let a = Array(1, 2, 3)
+require(alength(a) == 3, "a must be of length 3")
+require(aget(a, 0) == 1, "the first element shall be 1")
+aset(a, 0, 666)
+require(aget(a, 0) == 666, "the new first element shall be 666")
+----
+
+=== Ranges ===
+
+The `range` function yields an iterable range over either `Integer` or `Long` bounds:
+
+[source,text]
+----
+foreach (i in range(1, 100)) {
+  print(i + " ")
+}
+----
+
+=== Closure to interface instance ===
+
+Given a closure reference or a method handle, one can convert it to an instance of an interface with
+a single method declaration, as in:
+
+[source,text]
+----
+local function listener = |handler| -> asInterfaceInstance(ActionListener.class, handler)
+
+# (...)
+let button = JButton("Click me!")
+button: addActionListener(listener(|event| -> println("Clicked!")))
+----
+
