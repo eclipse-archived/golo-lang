@@ -45,3 +45,19 @@ function dans_la_case = | obj | {
     }
   }
 }
+
+function dans_ton_match = |obj| -> match {
+  when obj oftype String.class then "String"
+  when obj oftype Integer.class then "Integer"
+  otherwise "alien"
+}
+
+function if_else_var = {
+  var foo = null
+  if true {
+    foo = "true"
+  } else {
+    foo = "false"
+  }
+  return foo
+}

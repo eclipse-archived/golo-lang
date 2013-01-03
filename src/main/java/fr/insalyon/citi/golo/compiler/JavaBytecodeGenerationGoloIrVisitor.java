@@ -345,17 +345,31 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
     Label startLabel = new Label();
     Label endLabel = new Label();
+    Label branchingElseLabel = new Label();
+    Label branchingExitLabel = new Label();
     conditionalBranching.getCondition().accept(this);
     methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
     methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
-    methodVisitor.visitJumpInsn(IFEQ, endLabel);
+    methodVisitor.visitJumpInsn(IFEQ, branchingElseLabel);
     context.labelRangeStack.push(new LabelRange(startLabel, endLabel));
     conditionalBranching.getTrueBlock().accept(this);
     if (conditionalBranching.hasFalseBlock()) {
+      if (!conditionalBranching.getTrueBlock().hasReturn()) {
+        methodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
+      }
+      methodVisitor.visitLabel(branchingElseLabel);
       context.labelRangeStack.push(new LabelRange(endLabel, new Label()));
       conditionalBranching.getFalseBlock().accept(this);
+      methodVisitor.visitLabel(branchingExitLabel);
     } else if (conditionalBranching.hasElseConditionalBranching()) {
+      if (!conditionalBranching.getTrueBlock().hasReturn()) {
+        methodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
+      }
+      methodVisitor.visitLabel(branchingElseLabel);
       conditionalBranching.getElseConditionalBranching().accept(this);
+      methodVisitor.visitLabel(branchingExitLabel);
+    } else {
+      methodVisitor.visitLabel(branchingElseLabel);
     }
   }
 

@@ -5,7 +5,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class Block extends GoloStatement {
+public final class Block extends ExpressionStatement {
 
   private final List<GoloStatement> statements = new LinkedList<>();
   private ReferenceTable referenceTable;

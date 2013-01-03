@@ -222,6 +222,14 @@ public class CompileAndRunTest {
     assertThat((String) what.invoke(null, "foo"), is("String"));
     assertThat((String) what.invoke(null, 666), is("Integer"));
     assertThat((String) what.invoke(null, true), is("alien"));
+
+    Method if_else_var = moduleClass.getMethod("if_else_var");
+    assertThat((String) if_else_var.invoke(null), is("true"));
+
+    Method what_match = moduleClass.getMethod("what_match", Object.class);
+    assertThat((String) what_match.invoke(null, "foo"), is("String"));
+    assertThat((String) what_match.invoke(null, 666), is("Integer"));
+    assertThat((String) what_match.invoke(null, true), is("alien"));
   }
 
   @Test

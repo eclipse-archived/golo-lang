@@ -14,6 +14,7 @@ import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.VARIABLE;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.LET;
+import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
 
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
@@ -457,6 +458,51 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     context.objectStack.push(branching);
     return data;
+  }
+
+  @Override
+  public Object visit(ASTMatch node, Object data) {
+    ASTCase astCase = new ASTCase(0);
+    astCase.setLineInSourceCode(node.getLineInSourceCode());
+    astCase.setColumnInSourceCode(node.getColumnInSourceCode());
+
+    int i = 0;
+    String varName = "__$$_match_" + System.currentTimeMillis();
+    while (i < node.jjtGetNumChildren() - 1) {
+      astCase.jjtAddChild(node.jjtGetChild(i), i);
+      i = i + 1;
+      matchTreeToCase(node, astCase, i, varName);
+      i = i + 1;
+    }
+    matchTreeToCase(node, astCase, i, varName);
+
+    ASTLetOrVar var = new ASTLetOrVar(0);
+    var.setName(varName);
+    var.setType(VAR);
+    ASTLiteral astLiteral = new ASTLiteral(0);
+    astLiteral.setLiteralValue(null);
+    var.jjtAddChild(astLiteral, 0);
+
+    ASTReference astReference = new ASTReference(0);
+    astReference.setName(varName);
+
+    ASTBlock astBlock = new ASTBlock(0);
+    astBlock.jjtAddChild(var, 0);
+    astBlock.jjtAddChild(astCase, 1);
+    astBlock.jjtAddChild(astReference, 2);
+
+//    astBlock.dump("%%% ");
+    astBlock.jjtAccept(this, data);
+    return data;
+  }
+
+  private void matchTreeToCase(ASTMatch node, ASTCase astCase, int i, String varName) {
+    ASTBlock astBlock = new ASTBlock(0);
+    astCase.jjtAddChild(astBlock, i);
+    ASTAssignment astAssignment = new ASTAssignment(0);
+    astAssignment.setName(varName);
+    astAssignment.jjtAddChild(node.jjtGetChild(i), 0);
+    astBlock.jjtAddChild(astAssignment, 0);
   }
 
   @Override

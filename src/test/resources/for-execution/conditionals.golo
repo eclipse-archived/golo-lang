@@ -34,7 +34,7 @@ function boolean_to_string = | boolean | {
   }
 }
 
-function what = | obj | {
+function what = |obj| {
   case {
     when obj oftype String.class {
       return "String"
@@ -46,4 +46,20 @@ function what = | obj | {
       return "alien"
     }
   }
+}
+
+function if_else_var = {
+  var foo = null
+  if true {
+    foo = "true"
+  } else {
+    foo = "false"
+  }
+  return foo
+}
+
+function what_match = |obj| -> match {
+  when obj oftype String.class then "String"
+  when obj oftype Integer.class then "Integer"
+  otherwise "alien"
 }

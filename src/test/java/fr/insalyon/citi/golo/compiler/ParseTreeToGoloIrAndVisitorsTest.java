@@ -1,6 +1,6 @@
 package fr.insalyon.citi.golo.compiler;
 
-import fr.insalyon.citi.golo.compiler.ir.*;
+import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
@@ -31,7 +31,16 @@ public class ParseTreeToGoloIrAndVisitorsTest {
     GoloParser parser = new GoloParser(new FileInputStream(goloFile));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ParseTreeToGoloIrVisitor visitor = new ParseTreeToGoloIrVisitor();
-    GoloModule module = visitor.transform(compilationUnit);
+
+    GoloModule module = null;
+    try {
+      module = visitor.transform(compilationUnit);
+    } catch (GoloCompilationException e) {
+      for (GoloCompilationException.Problem problem : e.getProblems()) {
+        println("[Problem] " + problem.getDescription());
+      }
+      throw e;
+    }
 
     assertThat(module, notNullValue());
 

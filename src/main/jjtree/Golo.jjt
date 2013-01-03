@@ -104,6 +104,10 @@ TOKEN :
   |
   < WHEN: "when" >
   |
+  < MATCH: "match" >
+  |
+  < THEN: "then" >
+  |
   < OTHERWISE: "otherwise" >
 }
 
@@ -481,6 +485,8 @@ void TerminalExpression() #void: {}
   |
   LOOKAHEAD(2) Reference()
   |
+  Match()
+  |
   Literal()
   |
   Function()
@@ -765,7 +771,21 @@ void Case():
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
   }
+}
 
+void Match():
+{ 
+  Token token;
+}
+{
+  token=<MATCH> "{" (<NEWLINE>)?
+    ( <WHEN> ExpressionStatement() <THEN> ExpressionStatement() (<NEWLINE>)? )+
+    <OTHERWISE> ExpressionStatement() (<NEWLINE>)?
+  "}"
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+  }
 }
 
 // ............................................................................................. //
