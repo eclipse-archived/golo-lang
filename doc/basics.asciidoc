@@ -127,7 +127,7 @@ Simple, isn't it?
 
 === Passing JVM-specific flags ===
 
-Both `golo` and `gologolo` can be given JVM-specific flags using the `JVM_FLAGS` environment
+Both `golo` and `gologolo` can be given JVM-specific flags using the `JAVA_OPTS` environment
 variable. 
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
@@ -135,11 +135,11 @@ As an example, the following runs `fibonacci.golo` and prints JIT compilation al
 [source,console]
 ------------------------------------------------------------------
 # Exporting an environment variable
-$ export JVM_FLAGS=-XX:+PrintCompilation
+$ export JAVA_OPTS=-XX:+PrintCompilation
 $ gologolo samples/fibonacci.golo
 
 # ...or you may use this one-liner
-$ JVM_FLAGS=-XX:+PrintCompilation gologolo samples/fibonacci.golo
+$ JAVA_OPTS=-XX:+PrintCompilation gologolo samples/fibonacci.golo
 ------------------------------------------------------------------
 
 === Variables and constants ===

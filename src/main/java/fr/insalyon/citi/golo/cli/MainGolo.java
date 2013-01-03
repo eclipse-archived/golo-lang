@@ -9,7 +9,9 @@ public class MainGolo {
 
   public static void main(String... args) throws InvocationTargetException, IllegalAccessException {
     if (args.length == 0) {
-      System.out.println("No module given.");
+      System.out.println("Usage: golo <some golo module with a main function>");
+      System.out.println("(e.g., golo my.Module)");
+      System.out.println();
       return;
     }
     try {

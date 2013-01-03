@@ -134,6 +134,40 @@
       </plugin>
 
       <plugin>
+        <groupId>org.codehaus.mojo</groupId>
+        <artifactId>appassembler-maven-plugin</artifactId>
+        <version>1.3</version>
+        <executions>
+          <execution>
+            <phase>package</phase>
+            <goals>
+              <goal>assemble</goal>
+            </goals>
+          </execution>
+        </executions>
+        <configuration>
+          <repositoryName>lib</repositoryName>
+          <repositoryLayout>flat</repositoryLayout>
+          <licenseHeaderFile>${project.basedir}/LICENSE</licenseHeaderFile>
+          <extraJvmArguments>-server -Xms512M -Xmx512M -XX:-TieredCompilation</extraJvmArguments>
+          <programs>
+            <program>
+              <name>golo</name>
+              <mainClass>fr.insalyon.citi.golo.cli.MainGolo</mainClass>
+            </program>
+            <program>
+              <name>goloc</name>
+              <mainClass>fr.insalyon.citi.golo.cli.MainGoloc</mainClass>
+            </program>
+            <program>
+              <name>gologolo</name>
+              <mainClass>fr.insalyon.citi.golo.cli.MainGoloGolo</mainClass>
+            </program>
+          </programs>
+        </configuration>
+      </plugin>
+
+      <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${maven-assembly-plugin.version}</version>

@@ -11,7 +11,13 @@ public class MainGoloGolo {
 
   public static void main(String... args) throws Throwable {
     if (args.length < 1) {
-      System.out.println("No enough arguments given (pass at least a golo file).");
+      System.out.println("Usage: gologolo <.golo files> [--args arg1 arg2 ...]");
+      System.out.println("(the last .golo file has a main function)");
+      System.out.println();
+      System.out.println("Examples:");
+      System.out.println("  golo foo.golo bar.golo");
+      System.out.println("  golo foo.golo bar.golo --args hello world");
+      System.out.println();
       return;
     }
     GoloClassLoader loader = new GoloClassLoader();
