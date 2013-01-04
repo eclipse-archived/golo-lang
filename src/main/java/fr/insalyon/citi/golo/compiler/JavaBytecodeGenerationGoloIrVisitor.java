@@ -182,7 +182,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       statement.accept(this);
       insertMissingPop(statement);
     }
-    methodVisitor.visitLabel(labelRange.end);
+    // methodVisitor.visitLabel(labelRange.end);
     context.referenceTableStack.pop();
   }
 
