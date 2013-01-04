@@ -32,16 +32,18 @@ class IntRange implements Iterable<Integer> {
 
       @Override
       public Integer next() {
+        int value = current;
         if (started) {
           if (hasNext()) {
             current = current + increment;
-            return current;
+            return value;
           } else {
             throw new NoSuchElementException("iteration has finished");
           }
         } else {
           started = true;
-          return from;
+          current = current + increment;
+          return value;
         }
       }
 

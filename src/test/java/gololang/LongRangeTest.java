@@ -25,8 +25,6 @@ public class LongRangeTest {
     assertThat(iterator.next(), is(1L));
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(2L));
-    assertThat(iterator.hasNext(), is(true));
-    assertThat(iterator.next(), is(3L));
     assertThat(iterator.hasNext(), is(false));
   }
 
@@ -50,13 +48,20 @@ public class LongRangeTest {
   }
 
   @Test
-  void increment() {
+  public void increment() {
     range.incrementBy(2);
     Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(1L));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
+  public void singleton() {
+    range = new LongRange(0L, 1L);
+    Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
-    assertThat(iterator.next(), is(3L));
+    assertThat(iterator.next(), is(0L));
     assertThat(iterator.hasNext(), is(false));
   }
 }

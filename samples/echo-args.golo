@@ -13,7 +13,7 @@ function main = |args| {
   }
 
   println("With a foreach over a range:")
-  foreach (i in range(0, alength(args) - 1)) {
+  foreach (i in range(0, alength(args))) {
     println("  #" + i + " -> " + aget(args, i))
   }
 }

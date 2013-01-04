@@ -25,8 +25,6 @@ public class IntRangeTest {
     assertThat(iterator.next(), is(1));
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(2));
-    assertThat(iterator.hasNext(), is(true));
-    assertThat(iterator.next(), is(3));
     assertThat(iterator.hasNext(), is(false));
   }
 
@@ -50,13 +48,20 @@ public class IntRangeTest {
   }
 
   @Test
-  void increment() {
+  public void increment() {
     range.incrementBy(2);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(1));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
+  public void singleton() {
+    range = new IntRange(0, 1);
+    Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
-    assertThat(iterator.next(), is(3));
+    assertThat(iterator.next(), is(0));
     assertThat(iterator.hasNext(), is(false));
   }
 }

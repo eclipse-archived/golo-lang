@@ -81,10 +81,13 @@ The `range` function yields an iterable range over either `Integer` or `Long` bo
 
 [source,text]
 ----
-foreach (i in range(1, 100)) {
+# Prints 1 2 (...) 100
+foreach (i in range(1, 101)) {
   print(i + " ")
 }
 ----
+
+The lower bound is inclusive, the upper bound is exclusive.
 
 === Closure to interface instance ===
 

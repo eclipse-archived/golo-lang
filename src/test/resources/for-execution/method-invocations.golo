@@ -36,7 +36,7 @@ function escaped = |a, b| {
 }
 
 function sum_one_to_ten = {
-  let interval = range(1, 10): incrementBy(1)
+  let interval = range(1, 11): incrementBy(1)
   var sum = 0
   foreach (i in interval) {
     sum = sum + i
