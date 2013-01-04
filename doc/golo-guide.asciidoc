@@ -10,6 +10,39 @@ warned, but hey, you somehow knew it I'm pretty sure.
 WARNING: This is confidential software. Dissemination of this information or reproduction of this
 material is strictly forbidden unless prior written permission is obtained from the authors.
 
+[NOTE]
+.Current status of the language and discussion
+====
+The current version of Golo supports:
+
+* the definition of modules,
+* the definition of public and local (*private*) functions,
+* closures as first-class citizen,
+* common control-flow constructions,
+* exceptions with `try` / (untyped) `catch` / `finally` blocks,
+* calling Java from Golo,
+* loading Golo from Java either through pre-compiled classes or through a classloader.
+
+Next iterations of the design of Golo will add support for creating classes, pimping them like
+categories in Objective-C, dynamically casting / adapting them to some other class, and more.
+
+It is possible that `catch` blocks will support an implicit decomposition based on the type, and
+that implicitly translates to a `case` construct.
+
+Golo does not perform any type coercion at runtime, such as converting a `String` to an `Integer`.
+Coercion makes code more concise, yet this is something that happens **implicitly**, and Golo
+strives to avoid implicitness. This could be useful for automatically converting closures to
+single-method interface instances without relying on the `asInterfaceInstance` function. Yet, the
+documentation and `samples/` folder show how this can be elegantly circumvented by introducing a
+wrapper function that makes things explicit without sacrificing readability.
+
+That's still a long road ahead :-)
+
+Thanks for testing this private Golo drop!
+
+-- Julien
+====
+
 include::basics.asciidoc[]
 include::functions.asciidoc[]
 include::control-flow.asciidoc[]
