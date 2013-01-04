@@ -86,11 +86,11 @@ let what_it_could_be = match {
 }
 
 # prints "an email?"
-println(item)
+println(what_it_could_be(item))
 ----
 
 The values to be returned are specified after a `then` keyword that follows a boolean expression to
-be evaluated.`
+be evaluated.
 
 Like `case` statements, a `match` construct needs at least one `when` clause and one `otherwise`
 clause.

@@ -142,6 +142,16 @@ $ gologolo samples/fibonacci.golo
 $ JAVA_OPTS=-XX:+PrintCompilation gologolo samples/fibonacci.golo
 ------------------------------------------------------------------
 
+=== Comments ===
+
+Golo comments start with a `#`, just like in Bash, Python or Ruby:
+
+[source,text]
+----
+# This is a comment
+println("WTF?") # it works here, too
+----
+
 === Variables and constants ===
 
 Golo does not check for types at compile time, and they are not
@@ -266,5 +276,17 @@ in Java.|
 
 |=============================================================================
 
+=== Calling a method ===
 
+Although we will discuss this in more details later on, you should already know that `:` is used to
+invoke instance methods.
+
+You could for instance call the `toString()` method that any Java object has, and print it out as
+follows:
+
+[source,text]
+----
+println(123: toString())
+println(someObject: toString())
+----
 

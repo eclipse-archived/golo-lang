@@ -45,9 +45,9 @@ Thanks for testing this private Golo drop!
 
 include::basics.asciidoc[]
 include::functions.asciidoc[]
+include::java-interop.asciidoc[]
 include::control-flow.asciidoc[]
 include::exceptions.asciidoc[]
-include::java-interop.asciidoc[]
 include::closures.asciidoc[]
 include::predefined-functions.asciidoc[]
 
