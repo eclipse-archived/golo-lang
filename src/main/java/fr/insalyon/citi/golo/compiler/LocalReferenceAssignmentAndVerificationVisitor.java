@@ -48,7 +48,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     resetIndexAssignmentCounter();
     ReferenceTable table = function.getBlock().getReferenceTable();
     for (String parameterName : function.getParameterNames()) {
-      table.get(parameterName).setIndex(nextAssignmentIndex());
+      LocalReference reference = table.get(parameterName);
+      if (reference == null) {
+        throw new IllegalStateException("[please report this bug] " + parameterName + " is not declared in the references of function " + function.getName());
+      }
+      reference.setIndex(nextAssignmentIndex());
     }
     function.getBlock().accept(this);
   }

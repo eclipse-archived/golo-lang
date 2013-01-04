@@ -135,7 +135,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitBlock(Block block) {
     pushBlockTable(block);
-    definedInBlock(block.getReferenceTable().symbols(), block);
+    definedInBlock(block.getReferenceTable().ownedSymbols(), block);
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
@@ -165,11 +165,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     if (!stack.isEmpty()) {
       assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(name));
     }
-    if (assignmentStatement.getLocalReference().getKind() == CONSTANT) {
-      locallyAssigned(name);
-    } else {
-      accessed(name);
-    }
+    locallyAssigned(name);
     assignmentStatement.getExpressionStatement().accept(this);
   }
 
