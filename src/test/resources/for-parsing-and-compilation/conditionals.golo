@@ -63,12 +63,12 @@ function if_else_var = {
 }
 
 function agrigolo = {
-	let add_animal = |player, animal, number| -> match {
-		when animal == "horse" then println(player + " has " + number + " horses")
-		when animal == "sheep" then println(player + " has " + number + " sheeps")
-		otherwise println("herr, not an animal buddy")
-	}
-	println("Agrigolo")
+  let add_animal = |player, animal, number| -> match {
+    when animal == "horse" then println(player + " has " + number + " horses")
+    when animal == "sheep" then println(player + " has " + number + " sheeps")
+    otherwise println("herr, not an animal buddy")
+  }
+  println("Agrigolo")
   add_animal("player2", "horse", 3)
   let add_animal_to_player1 = add_animal: bindTo("player1")
   add_animal_to_player1("sheep", 5)
