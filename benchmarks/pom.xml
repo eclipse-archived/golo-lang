@@ -109,6 +109,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
+          <argLine>-server -Xms512M -Xmx512M -XX:-TieredCompilation</argLine>
           <systemProperties>
             <jub.consumers>CONSOLE,H2</jub.consumers>
             <jub.db.file>.benchmarks</jub.db.file>
