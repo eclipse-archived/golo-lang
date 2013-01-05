@@ -39,19 +39,20 @@
       <outputDirectory>/bin</outputDirectory>
       <fileMode>0755</fileMode>
       <lineEnding>unix</lineEnding>
+      <includes>
+        <include>golo*</include>
+      </includes>
       <excludes>
-        <exclude>*.bat</exclude>
+        <exclude>golo*.bat</exclude>
       </excludes>
-      <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
     <fileSet>
       <directory>target/appassembler/bin</directory>
       <outputDirectory>/bin</outputDirectory>
       <lineEnding>dos</lineEnding>
       <includes>
-        <include>*.bat</include>
+        <include>golo*.bat</include>
       </includes>
-      <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
   </fileSets>
 </assembly>
