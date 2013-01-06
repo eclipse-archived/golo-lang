@@ -467,6 +467,9 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("foo"));
+
+    Method access_items_from_subclass = moduleClass.getMethod("access_items_from_subclass");
+    access_items_from_subclass.invoke(null);
   }
 
   @Test

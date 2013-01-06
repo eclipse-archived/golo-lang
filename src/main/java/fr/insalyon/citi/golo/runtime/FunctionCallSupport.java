@@ -164,22 +164,43 @@ public final class FunctionCallSupport {
 
   private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
-      if (method.getName().equals(name) && isStatic(method.getModifiers())) {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (haveSameNumberOfArguments(arguments, parameterTypes) || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
-          if (canAssign(parameterTypes, arguments, method.isVarArgs())) {
-            return method;
-          }
-        }
+      if (methodMatches(name, arguments, method)) {
+        return method;
+      }
+    }
+    for (Method method : klass.getMethods()) {
+      if (methodMatches(name, arguments, method)) {
+        return method;
       }
     }
     if (arguments.length == 0) {
       for (Field field : klass.getDeclaredFields()) {
-        if (field.getName().equals(name) && isStatic(field.getModifiers())) {
+        if (fieldMatches(name, field)) {
+          return field;
+        }
+      }
+      for (Field field : klass.getFields()) {
+        if (fieldMatches(name, field)) {
           return field;
         }
       }
     }
     return null;
+  }
+
+  private static boolean methodMatches(String name, Object[] arguments, Method method) {
+    if (method.getName().equals(name) && isStatic(method.getModifiers())) {
+      Class<?>[] parameterTypes = method.getParameterTypes();
+      if (haveSameNumberOfArguments(arguments, parameterTypes) || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
+        if (canAssign(parameterTypes, arguments, method.isVarArgs())) {
+          return true;
+        }
+      }
+    }
+    return false;
+  }
+
+  private static boolean fieldMatches(String name, Field field) {
+    return field.getName().equals(name) && isStatic(field.getModifiers());
   }
 }

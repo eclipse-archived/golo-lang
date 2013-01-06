@@ -49,3 +49,11 @@ function field_accessors = {
   helper: field("foo")
   return helper: field()
 }
+
+function access_items_from_subclass = {
+  fr.insalyon.citi.golo.compiler.testing.support.SomeClass.FOO()
+  let receiver = SomeClass()
+  receiver: c()
+  receiver: a()
+  receiver: b()
+}
