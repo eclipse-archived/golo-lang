@@ -50,3 +50,9 @@ function i = {
 }
 
 function j = |a| -> |b| -> a + b
+
+function k = {
+  let map1 = HashMap()
+  let map2 = HashMap()
+  map1: put("put_twice", |x| -> map2: put(x, x * 2))
+}

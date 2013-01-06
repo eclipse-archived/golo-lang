@@ -1,6 +1,7 @@
 module golotest.execution.Closures
 
 import java.awt.event
+import java.util.HashMap
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
 
@@ -51,3 +52,12 @@ function executor_and_callable = {
 }
 
 function nested_compact = |a| -> |b| -> a + b
+
+function in_a_map = {
+  let map1 = HashMap()
+  let map2 = HashMap()
+  map1: put("put_twice", |x| -> map2: put(x, x * 2))
+  map1: get("put_twice"): invokeWithArguments(2)
+  return map2: get(2)
+}
+

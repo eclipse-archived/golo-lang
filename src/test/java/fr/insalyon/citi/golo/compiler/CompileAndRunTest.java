@@ -557,5 +557,10 @@ public class CompileAndRunTest {
     assertThat(handle.type(), is(genericMethodType(1)));
     result = handle.invokeWithArguments(2);
     assertThat((Integer) handle.invoke(2), is(3));
+
+    Method in_a_map = moduleClass.getMethod("in_a_map");
+    result = in_a_map.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat((Integer) result, is(4));
   }
 }
