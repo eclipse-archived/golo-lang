@@ -76,6 +76,10 @@ public class MethodInvocationSupportTest {
     }
   }
 
+  public static class FieldAccessors {
+    public Object property;
+  }
+
   public Person julien() {
     return new Person("Julien", "julien.ponge@insa-lyon.fr");
   }
@@ -187,5 +191,27 @@ public class MethodInvocationSupportTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("a-b-c"));
+  }
+
+  @Test
+  public void check_field_getter() throws Throwable {
+    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class));
+    FieldAccessors receiver = new FieldAccessors();
+    receiver.property = "foo";
+
+    Object result = property.dynamicInvoker().invokeWithArguments(receiver);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("foo"));
+  }
+
+  @Test
+  public void check_field_setter() throws Throwable {
+    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class, Object.class));
+    FieldAccessors receiver = new FieldAccessors();
+    receiver.property = "undefined";
+
+    property.dynamicInvoker().invokeWithArguments(receiver, "foo");
+    assertThat((String) receiver.property, is("foo"));
   }
 }

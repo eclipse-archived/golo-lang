@@ -5,6 +5,7 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFields;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -460,6 +461,12 @@ public class CompileAndRunTest {
 
     Method sum_one_to_ten = moduleClass.getMethod("sum_one_to_ten");
     assertThat((Integer) sum_one_to_ten.invoke(null), is(55));
+
+    Method field_accessors = moduleClass.getMethod("field_accessors");
+    result = field_accessors.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("foo"));
   }
 
   @Test

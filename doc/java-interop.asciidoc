@@ -90,6 +90,64 @@ function main = |args| {
 NOTE: Given than most static fields are used as constants in Java, Golo does not provide support to
 change their values. This may change in the future if compelling general-interest use-cases emerge.
 
+=== Instance fields ===
+
+Instance fields can be accessed as functions, both for reading and writing. Suppose that we have a
+Java class that looks as follows:
+
+[source,java]
+----
+public class Foo {
+  public String bar;
+}
+----
+
+We can access the `bar` field as follows:
+
+[source,text]
+----
+let foo = Foo()
+
+# Write
+foo: bar("baz")
+
+# Read, prints "baz"
+println(foo: bar())
+----
+
+It should be noted that Golo won't bypass the regular Java visibility access rules on fields.
+
+[NOTE]
+.What happens if there is both a field and a method with the same names?
+====
+Back to the previous example, suppose that we have both a field and a method with the same name, as
+in:
+[source,java]
+----
+public class Foo {
+  public String bar;
+
+  public String bar() {
+    return bar;
+  }
+}
+----
+
+**Golo resolves methods first, fields last.** Hence, the following Golo code will resolve the
+`bar()` method, not the `bar` field:
+
+[source,text]
+----
+let foo = Foo()
+
+# Write the field
+foo: bar("baz")
+
+# Calls the bar() method
+println(foo: bar())
+----
+====
+
 === Inner classes and enumerations ===
 
 We will illustrate both how to deal with public static inner classes and enumerations at once.

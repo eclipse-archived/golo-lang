@@ -111,7 +111,11 @@ public class MethodInvocationSupport {
       if (makeAccessible) {
         field.setAccessible(true);
       }
-      target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
+      if (args.length == 1) {
+        target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
+      } else {
+        target = inlineCache.callerLookup.unreflectSetter(field).asType(type);
+      }
     }
     return target;
   }
@@ -141,7 +145,7 @@ public class MethodInvocationSupport {
       }
     }
 
-    if (argumentTypes.length == 1) {
+    if (argumentTypes.length <= 2) {
       for (Field field : receiverClass.getDeclaredFields()) {
         if (field.getName().equals(name)) {
           return field;

@@ -43,3 +43,9 @@ function sum_one_to_ten = {
   }
   return sum
 }
+
+function field_accessors = {
+  let helper = GoloTestHelperFields()
+  helper: field("foo")
+  return helper: field()
+}
