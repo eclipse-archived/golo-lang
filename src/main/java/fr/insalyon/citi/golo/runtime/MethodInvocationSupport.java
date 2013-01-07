@@ -3,7 +3,6 @@ package fr.insalyon.citi.golo.runtime;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -21,13 +20,13 @@ public class MethodInvocationSupport {
    * Remi Forax's JSR292 cookbooks.
    */
 
-  static class InlineCache extends MutableCallSite {
+  static class PolymorphicInlineCache extends MutableCallSite {
 
     final MethodHandles.Lookup callerLookup;
     final String name;
     int depth = 0;
 
-    InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    PolymorphicInlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -55,14 +54,14 @@ public class MethodInvocationSupport {
       FALLBACK = lookup.findStatic(
           MethodInvocationSupport.class,
           "fallback",
-          methodType(Object.class, InlineCache.class, Object[].class));
+          methodType(Object.class, PolymorphicInlineCache.class, Object[].class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
   }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
-    InlineCache callSite = new InlineCache(caller, name, type);
+    PolymorphicInlineCache callSite = new PolymorphicInlineCache(caller, name, type);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -75,7 +74,7 @@ public class MethodInvocationSupport {
     return receiver.getClass() == expected;
   }
 
-  public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback(PolymorphicInlineCache inlineCache, Object[] args) throws Throwable {
 
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = findTarget(receiverClass, inlineCache, args);
@@ -91,7 +90,7 @@ public class MethodInvocationSupport {
     return target.invokeWithArguments(args);
   }
 
-  private static MethodHandle findTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) throws IllegalAccessException {
+  private static MethodHandle findTarget(Class<?> receiverClass, PolymorphicInlineCache inlineCache, Object[] args) throws IllegalAccessException {
     MethodHandle target;
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
