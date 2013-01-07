@@ -5,9 +5,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 
-import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.haveSameNumberOfArguments;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isStatic;

@@ -3,14 +3,14 @@ package fr.insalyon.citi.golo.runtime;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isPublic;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import static java.lang.reflect.Modifier.isStatic;
 import static java.util.Arrays.copyOfRange;
 
 public class MethodInvocationSupport {
@@ -123,7 +123,7 @@ public class MethodInvocationSupport {
 
     List<Method> candidates = new LinkedList<>();
     for (Method method : receiverClass.getMethods()) {
-      if (isCandidate(name, method)) {
+      if (isCandidateMethod(name, method)) {
         candidates.add(method);
       }
     }
@@ -146,7 +146,12 @@ public class MethodInvocationSupport {
 
     if (argumentTypes.length <= 2) {
       for (Field field : receiverClass.getDeclaredFields()) {
-        if (field.getName().equals(name)) {
+        if (isMatchingField(name, field)) {
+          return field;
+        }
+      }
+      for (Field field : receiverClass.getFields()) {
+        if (isMatchingField(name, field)) {
           return field;
         }
       }
@@ -154,7 +159,11 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static boolean isCandidate(String name, Method method) {
+  private static boolean isMatchingField(String name, Field field) {
+    return field.getName().equals(name) && !isStatic(field.getModifiers());
+  }
+
+  private static boolean isCandidateMethod(String name, Method method) {
     return method.getName().equals(name) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers());
   }
 }
