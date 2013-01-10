@@ -50,4 +50,5 @@ include::control-flow.asciidoc[]
 include::exceptions.asciidoc[]
 include::closures.asciidoc[]
 include::predefined-functions.asciidoc[]
+include::pitfalls.asciidoc[]
 
