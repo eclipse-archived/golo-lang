@@ -115,6 +115,26 @@ foo: bar("baz")
 println(foo: bar())
 ----
 
+An interesting behavior when writing fields is that the *"methods"* return the object, which means
+that you can chain invocations.
+
+Suppose that we have a Java class as follows:
+
+[source,java]
+----
+public class Foo {
+  public String bar;
+  public String baz;
+}
+----
+
+We can set all fields by chaining invocations as in:
+
+[source,text]
+----
+let foo = Foo(): bar(1): baz(2)
+----
+
 It should be noted that Golo won't bypass the regular Java visibility access rules on fields.
 
 [NOTE]

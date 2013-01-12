@@ -3,14 +3,15 @@ package fr.insalyon.citi.golo.runtime;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
+import java.util.LinkedList;
+import java.util.List;
 
+import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import static java.lang.invoke.MethodHandles.constant;
+import static java.lang.invoke.MethodHandles.filterReturnValue;
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
-import static java.lang.reflect.Modifier.isAbstract;
-import static java.lang.reflect.Modifier.isPublic;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
-import static java.lang.reflect.Modifier.isStatic;
+import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.copyOfRange;
 
 public class MethodInvocationSupport {
@@ -113,7 +114,8 @@ public class MethodInvocationSupport {
       if (args.length == 1) {
         target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
       } else {
-        target = inlineCache.callerLookup.unreflectSetter(field).asType(type);
+        target = inlineCache.callerLookup.unreflectSetter(field);
+        target = filterReturnValue(target, constant(receiverClass, args[0])).asType(type);
       }
     }
     return target;
