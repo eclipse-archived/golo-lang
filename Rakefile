@@ -1,3 +1,6 @@
+VERSION='r0-SNAPSHOT'
+DIST_BIN_PATH = "target/gololang-#{VERSION}-distribution/gololang-#{VERSION}/bin"
+
 task :default => [:all]
 
 desc "Build a complete distribution (packages + documentation)"
@@ -23,6 +26,25 @@ task :doc do
   Dir.chdir("doc") do
     sh "rake clean all"
   end
+end
+
+namespace :run do
+
+  desc "Run golo"
+  task :golo, :arguments do |t, args|
+    sh "#{DIST_BIN_PATH}/golo #{args.arguments}"
+  end
+
+  desc "Run goloc"
+  task :goloc, :arguments do |t, args|
+    sh "#{DIST_BIN_PATH}/goloc #{args.arguments}"
+  end
+
+  desc "Run gologolo"
+  task :gologolo, :arguments do |t, args|
+    sh "#{DIST_BIN_PATH}/gologolo #{args.arguments}"
+  end
+
 end
 
 namespace :test do
