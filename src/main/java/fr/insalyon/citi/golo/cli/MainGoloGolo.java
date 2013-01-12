@@ -1,5 +1,7 @@
 package fr.insalyon.citi.golo.cli;
 
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
+import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 
 import java.io.File;
@@ -38,6 +40,10 @@ public class MainGoloGolo {
       }
       try (FileInputStream in = new FileInputStream(file)) {
         lastClass = loader.load(file.getName(), in);
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e);
+      } catch (TokenMgrError e) {
+        handleTokenMgrError(e);
       }
     }
     Object[] appArgs;
@@ -48,5 +54,20 @@ public class MainGoloGolo {
     }
     Method main = lastClass.getMethod("main", Object.class);
     main.invoke(null, new Object[]{appArgs});
+  }
+
+  static void handleTokenMgrError(TokenMgrError e) {
+    System.out.println("[error] " + e.getMessage());
+    System.exit(1);
+  }
+
+  static void handleCompilationException(GoloCompilationException e) {
+    if (e.getCause() != null) {
+      System.out.println("[error] " + e.getCause().getMessage());
+    }
+    for (GoloCompilationException.Problem problem : e.getProblems()) {
+      System.out.println("[error] " + problem.getDescription());
+    }
+    System.exit(1);
   }
 }
