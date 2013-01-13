@@ -60,7 +60,7 @@ namespace :test do
   end
 
   desc "IR tests (verbose)"
-  task :parser do
+  task :visitors do
     sh "mvn test -Dtest=ParseTreeToGoloIrAndVisitorsTest -P verbose-tests"
   end
 
