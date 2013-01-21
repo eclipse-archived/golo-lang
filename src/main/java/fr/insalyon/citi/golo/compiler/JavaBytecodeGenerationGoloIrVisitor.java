@@ -94,7 +94,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModule(GoloModule module) {
-    classWriter.visit(V1_7, ACC_PUBLIC, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
+    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     writeImportMetaData(module.getImports());
     for (GoloFunction function : module.getFunctions().values()) {
