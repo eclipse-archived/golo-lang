@@ -109,6 +109,8 @@ TOKEN :
   < THEN: "then" >
   |
   < OTHERWISE: "otherwise" >
+  |
+  < PIMP: "pimp" >
 }
 
 // Operators
@@ -311,6 +313,7 @@ ASTCompilationUnit CompilationUnit(): {}
   ModuleDeclaration()
   BlankLines()
   ( ImportDeclaration() BlankLines() )*
+  ( PimpDeclaration() BlankLines() )*
   ( FunctionDeclaration() BlankLines() )*
   <EOF>  
   { return jjtThis; }
@@ -341,6 +344,41 @@ void ImportDeclaration():
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name);
+  }
+}
+
+void PimpDeclaration():
+{
+  Token token;
+  String target;
+}
+{
+  token=<PIMP> target=QualifiedName() "{" BlankLines()
+    ( FunctionDeclaration() BlankLines() )* 
+  "}"
+  {
+    jjtThis.setLineInSourceCode(token.beginLine);
+    jjtThis.setColumnInSourceCode(token.beginColumn);
+    jjtThis.setTarget(target);
+    for (int i = 0; i < jjtThis.jjtGetNumChildren(); i++) {
+      ASTFunctionDeclaration func = (ASTFunctionDeclaration) jjtThis.jjtGetChild(i);
+      if (func.isLocal()) {
+        throw new TokenMgrError("Error: pimp function " + 
+          func.getName() + 
+          " on " + 
+          target + 
+          " is declared as local", 0);
+      }
+      func.setPimp(true);
+      ASTFunction body = (ASTFunction) func.jjtGetChild(0);
+      if (body.getArguments().isEmpty()) {
+        throw new TokenMgrError("Error: pimp function " +
+          func.getName() +
+          " on " + 
+          target + 
+          " must take at least 1 argument ('this' would be a good idea...)", 0);
+      }
+    }
   }
 }
 
