@@ -54,6 +54,8 @@ Not everything is deemed to be implemented...
 
 * Common collection sugar functions (lists, maps, sets, ...)
 
+* Cache method / function resolution in the runtime support classes.
+
 * The inline-cache is slow at the terminal node since every call can yield a new method handle.
 
 ## Internals
