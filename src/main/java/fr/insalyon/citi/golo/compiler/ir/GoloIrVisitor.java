@@ -32,5 +32,5 @@ public interface GoloIrVisitor {
 
   void visitTryCatchFinally(TryCatchFinally tryCatchFinally);
 
-  void acceptClosureReference(ClosureReference closureReference);
+  void visitClosureReference(ClosureReference closureReference);
 }

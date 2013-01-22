@@ -28,7 +28,7 @@ public class ClosureReference extends ExpressionStatement {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-    visitor.acceptClosureReference(this);
+    visitor.visitClosureReference(this);
   }
 
   public void setSyntheticArgumentsIndexStart(int syntheticArgumentsIndexStart) {

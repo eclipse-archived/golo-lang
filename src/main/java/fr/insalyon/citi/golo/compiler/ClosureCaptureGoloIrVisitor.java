@@ -232,7 +232,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptClosureReference(ClosureReference closureReference) {
+  public void visitClosureReference(ClosureReference closureReference) {
 
   }
 }

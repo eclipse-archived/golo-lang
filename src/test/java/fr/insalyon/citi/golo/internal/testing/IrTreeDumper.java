@@ -207,7 +207,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptClosureReference(ClosureReference closureReference) {
+  public void visitClosureReference(ClosureReference closureReference) {
     incr();
     space();
     System.out.printf(

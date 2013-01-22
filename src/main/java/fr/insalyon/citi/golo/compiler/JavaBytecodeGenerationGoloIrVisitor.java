@@ -449,7 +449,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptClosureReference(ClosureReference closureReference) {
+  public void visitClosureReference(ClosureReference closureReference) {
     GoloFunction target = closureReference.getTarget();
     methodVisitor.visitInvokeDynamicInsn(
         target.getName(),
