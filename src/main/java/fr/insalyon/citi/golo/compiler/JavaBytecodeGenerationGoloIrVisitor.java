@@ -101,6 +101,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       function.accept(this);
     }
     // TODO: handle pimps
+    writePimpsMetaData(module.getPimps().keySet());
     classWriter.visitEnd();
   }
 
@@ -118,6 +119,27 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInsn(DUP);
       loadInteger(i);
       methodVisitor.visitLdcInsn(importsArray[i].getPackageAndClass().toString());
+      methodVisitor.visitInsn(AASTORE);
+    }
+    methodVisitor.visitInsn(ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+  }
+
+  private void writePimpsMetaData(Set<String> pimps) {
+    String[] pimpsArray = pimps.toArray(new String[pimps.size()]);
+    methodVisitor = classWriter.visitMethod(
+        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
+        "$pimps",
+        "()[Ljava/lang/String;",
+        null, null);
+    methodVisitor.visitCode();
+    loadInteger(pimpsArray.length);
+    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+    for (int i = 0; i < pimpsArray.length; i++) {
+      methodVisitor.visitInsn(DUP);
+      loadInteger(i);
+      methodVisitor.visitLdcInsn(pimpsArray[i]);
       methodVisitor.visitInsn(AASTORE);
     }
     methodVisitor.visitInsn(ARETURN);

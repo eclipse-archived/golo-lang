@@ -16,9 +16,7 @@ import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.file.Files;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
@@ -572,5 +570,17 @@ public class CompileAndRunTest {
     result = in_a_map.invoke(null);
     assertThat(result, notNullValue());
     assertThat((Integer) result, is(4));
+  }
+
+  @Test
+  public void check_pimps() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "pimps.golo", temporaryFolder, "golotest.execution.Pimps");
+
+    Method $pimps = moduleClass.getMethod("$pimps");
+    assertThat(isStatic($pimps.getModifiers()), is(true));
+    assertThat(isPublic($pimps.getModifiers()), is(true));
+    Set<String> pimpSet = new HashSet<>(Arrays.asList((String[]) $pimps.invoke(null)));
+    assertThat(pimpSet.size(), is(1));
+    assertThat(pimpSet, contains("java.lang.String"));
   }
 }
