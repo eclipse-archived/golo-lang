@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Stack;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.LOCAL;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
@@ -20,6 +21,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
+    String pimp;
     Stack<Object> objectStack = new Stack<>();
     Stack<ReferenceTable> referenceTableStack = new Stack<>();
     int nextClosureId = 0;
@@ -63,8 +65,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTPimpDeclaration node, Object data) {
-    // TODO
-    return data;
+    Context context = (Context) data;
+    context.pimp = node.getTarget();
+    return node.childrenAccept(this, data);
   }
 
   @Override
@@ -73,6 +76,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function = new GoloFunction(
         node.getName(),
         node.isLocal() ? LOCAL : PUBLIC,
+        node.isPimp() ? PIMP : MODULE,
         new PositionInSourceCode(
             node.getLineInSourceCode(),
             node.getColumnInSourceCode()));
@@ -91,6 +95,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       function = new GoloFunction(
           "__$$_closure_" + context.nextClosureId++,
           LOCAL,
+          CLOSURE,
           new PositionInSourceCode(
               node.getLineInSourceCode(),
               node.getColumnInSourceCode()));
@@ -101,7 +106,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
-    context.module.addFunction(function);
+    if (PIMP.equals(function.getScope())) {
+      context.module.addPimp(context.pimp, function);
+    } else {
+      context.module.addFunction(function);
+    }
     if (node.isCompactForm()) {
       Node astChild = node.jjtGetChild(0);
       ASTReturn astReturn = new ASTReturn(0);

@@ -100,6 +100,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
     }
+    // TODO: handle pimps
     classWriter.visitEnd();
   }
 

@@ -11,8 +11,13 @@ public final class GoloFunction {
     PUBLIC, LOCAL
   }
 
+  public static enum Scope {
+    MODULE, PIMP, CLOSURE
+  }
+
   private final String name;
   private final Visibility visibility;
+  private final Scope scope;
   private final PositionInSourceCode positionInSourceCode;
 
   private List<String> parameterNames = new LinkedList<>();
@@ -21,10 +26,15 @@ public final class GoloFunction {
   private Block block;
   private boolean synthetic = false;
 
-  public GoloFunction(String name, Visibility visibility, PositionInSourceCode positionInSourceCode) {
+  public GoloFunction(String name, Visibility visibility, Scope scope, PositionInSourceCode positionInSourceCode) {
     this.name = name;
     this.visibility = visibility;
+    this.scope = scope;
     this.positionInSourceCode = positionInSourceCode;
+  }
+
+  public Scope getScope() {
+    return scope;
   }
 
   public int getSyntheticParameterCount() {
