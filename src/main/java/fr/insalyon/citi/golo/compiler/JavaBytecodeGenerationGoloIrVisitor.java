@@ -9,10 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
@@ -106,6 +103,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       function.accept(this);
     }
     // TODO: handle pimps
+    for (Map.Entry<String, Set<GoloFunction>> pimpEntry : module.getPimps().entrySet()) {
+      generatePimpBytecode(module, pimpEntry.getKey(), pimpEntry.getValue());
+    }
     writePimpsMetaData(module.getPimps().keySet());
     classWriter.visitEnd();
   }
@@ -150,6 +150,26 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ARETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
+  }
+
+  private void generatePimpBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
+    // TODO
+    ClassWriter previousClassWriter = classWriter;
+    PackageAndClass packageAndClass = new PackageAndClass(
+        module.getPackageAndClass().packageName(),
+        module.getPackageAndClass().className() + "$" + target.replace('.', '$'));
+
+    classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, packageAndClass.toJVMType(), null, JOBJECT, null);
+    classWriter.visitSource(sourceFilename, null);
+
+    for (GoloFunction function : functions) {
+      function.accept(this);
+    }
+
+    classWriter.visitEnd();
+    generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
+    classWriter = previousClassWriter;
   }
 
   @Override
