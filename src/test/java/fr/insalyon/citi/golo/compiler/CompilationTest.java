@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Iterator;
+import java.util.List;
 
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
@@ -41,31 +42,34 @@ public class CompilationTest {
   @Test(dataProvider = "golo-files")
   public void generate_bytecode(File goloFile) throws IOException, ParseException, ClassNotFoundException {
     GoloCompiler compiler = new GoloCompiler();
-    GoloCompiler.Result result = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
+    List<CodeGenerationResult> results = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
 
     if (shouldTrace) {
       println();
       println(">>> Compiling: " + goloFile);
     }
 
-    assertThat(result.getBytecode().length > 0, is(true));
-    assertThat(result.getPackageAndClass(), notNullValue());
+    for (CodeGenerationResult result : results) {
 
-    if (shouldTrace) {
-      visit(result.getBytecode());
-    }
+      assertThat(result.getBytecode().length > 0, is(true));
+      assertThat(result.getPackageAndClass(), notNullValue());
+
+      if (shouldTrace) {
+        visit(result.getBytecode());
+      }
 
     /*
      * We compile again to load the generated class into the JVM, and have it being verified by the
      * JVM class verifier. The ASM verifier has issues with objectStack operands and invokedynamic instructions,
      * so we will not be able to use it until it has been fixed.
      */
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, goloFile.getName(), temporaryFolder, result.getPackageAndClass().toString());
-    assertThat(moduleClass, notNullValue());
-    assertThat(moduleClass.getName(), is(result.getPackageAndClass().toString()));
+      Class<?> moduleClass = compileAndLoadGoloModule(SRC, goloFile.getName(), temporaryFolder, result.getPackageAndClass().toString());
+      assertThat(moduleClass, notNullValue());
+      assertThat(moduleClass.getName(), is(result.getPackageAndClass().toString()));
 
-    if (shouldTrace) {
-      println();
+      if (shouldTrace) {
+        println();
+      }
     }
   }
 

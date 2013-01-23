@@ -9,6 +9,8 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Set;
 import java.util.Stack;
 
@@ -65,6 +67,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private ClassWriter classWriter;
   private MethodVisitor methodVisitor;
+  private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
   private Context context;
 
@@ -84,12 +87,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  public byte[] toBytecode(GoloModule module, String sourceFilename) {
+  public List<CodeGenerationResult> generateBytecode(GoloModule module, String sourceFilename) {
     this.sourceFilename = sourceFilename;
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+    this.generationResults = new LinkedList<>();
     this.context = new Context();
     module.accept(this);
-    return classWriter.toByteArray();
+    this.generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), module.getPackageAndClass()));
+    return this.generationResults;
   }
 
   @Override
