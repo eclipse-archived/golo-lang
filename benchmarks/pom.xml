@@ -27,7 +27,7 @@
     <junit.version>4.11</junit.version>
     <groovy-all.version>2.0.5</groovy-all.version>
     <clojure.version>1.4.0</clojure.version>
-    <jruby-complete.version>1.7.1</jruby-complete.version>
+    <jruby-complete.version>1.7.2</jruby-complete.version>
 
     <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
