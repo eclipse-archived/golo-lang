@@ -2,6 +2,7 @@ package fr.insalyon.citi.golo.internal.testing;
 
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -29,11 +30,8 @@ public class TestUtils {
     return data.iterator();
   }
 
-  public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, File temporaryFolder, String moduleClass) throws IOException, ParseException, ClassNotFoundException {
-    GoloCompiler compiler = new GoloCompiler();
-    compiler.compileTo(goloFile, new FileInputStream(sourceFolder + goloFile), temporaryFolder);
-    try (URLClassLoader classLoader = new URLClassLoader(new URL[]{temporaryFolder.toURI().toURL()})) {
-      return classLoader.loadClass(moduleClass);
-    }
+  public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile) throws IOException, ParseException, ClassNotFoundException {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(TestUtils.class.getClassLoader());
+    return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
   }
 }
