@@ -154,22 +154,31 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private void generatePimpBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
     // TODO
-    ClassWriter previousClassWriter = classWriter;
+    ClassWriter mainClassWriter = classWriter;
+    String mangledClass = target.replace('.', '$');
     PackageAndClass packageAndClass = new PackageAndClass(
         module.getPackageAndClass().packageName(),
-        module.getPackageAndClass().className() + "$" + target.replace('.', '$'));
+        module.getPackageAndClass().className() + "$" + mangledClass);
+    String pimpClassInternalName = packageAndClass.toJVMType();
+
+    String outerName = module.getPackageAndClass().toJVMType();
+    mainClassWriter.visitInnerClass(
+        pimpClassInternalName,
+        outerName,
+        mangledClass,
+        ACC_PUBLIC | ACC_STATIC);
 
     classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
-    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, packageAndClass.toJVMType(), null, JOBJECT, null);
+    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, pimpClassInternalName, null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
-
+    classWriter.visitOuterClass(outerName, null, null);
     for (GoloFunction function : functions) {
       function.accept(this);
     }
 
     classWriter.visitEnd();
     generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
-    classWriter = previousClassWriter;
+    classWriter = mainClassWriter;
   }
 
   @Override
