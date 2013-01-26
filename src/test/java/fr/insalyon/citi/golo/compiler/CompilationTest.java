@@ -21,6 +21,7 @@ import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
 import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
+import static org.hamcrest.CoreMatchers.startsWith;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CompilationTest {
@@ -63,9 +64,9 @@ public class CompilationTest {
      * JVM class verifier. The ASM verifier has issues with objectStack operands and invokedynamic instructions,
      * so we will not be able to use it until it has been fixed.
      */
-      Class<?> moduleClass = compileAndLoadGoloModule(SRC, goloFile.getName(), temporaryFolder, result.getPackageAndClass().toString());
+      Class<?> moduleClass = compileAndLoadGoloModule(SRC, goloFile.getName());
       assertThat(moduleClass, notNullValue());
-      assertThat(moduleClass.getName(), is(result.getPackageAndClass().toString()));
+      assertThat(result.getPackageAndClass().toString(), startsWith(moduleClass.getName()));
 
       if (shouldTrace) {
         println();

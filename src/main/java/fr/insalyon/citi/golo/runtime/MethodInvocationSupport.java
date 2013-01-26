@@ -7,9 +7,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
-import static java.lang.invoke.MethodHandles.constant;
-import static java.lang.invoke.MethodHandles.filterReturnValue;
-import static java.lang.invoke.MethodHandles.guardWithTest;
+import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.copyOfRange;
@@ -97,28 +95,33 @@ public class MethodInvocationSupport {
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
-    if (searchResult == null) {
-      throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
-    }
-    if (searchResult.getClass() == Method.class) {
-      Method method = (Method) searchResult;
-      if (makeAccessible) {
-        method.setAccessible(true);
-      }
-      target = inlineCache.callerLookup.unreflect(method).asType(type);
-    } else {
-      Field field = (Field) searchResult;
-      if (makeAccessible) {
-        field.setAccessible(true);
-      }
-      if (args.length == 1) {
-        target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
+    if (searchResult != null) {
+      if (searchResult.getClass() == Method.class) {
+        Method method = (Method) searchResult;
+        if (makeAccessible) {
+          method.setAccessible(true);
+        }
+        target = inlineCache.callerLookup.unreflect(method).asType(type);
       } else {
-        target = inlineCache.callerLookup.unreflectSetter(field);
-        target = filterReturnValue(target, constant(receiverClass, args[0])).asType(type);
+        Field field = (Field) searchResult;
+        if (makeAccessible) {
+          field.setAccessible(true);
+        }
+        if (args.length == 1) {
+          target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
+        } else {
+          target = inlineCache.callerLookup.unreflectSetter(field);
+          target = filterReturnValue(target, constant(receiverClass, args[0])).asType(type);
+        }
       }
+      return target;
     }
-    return target;
+
+    target = findInPimps(receiverClass, inlineCache);
+    if (target != null) {
+      return target;
+    }
+    throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
   }
 
   private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes, Object[] args) {
@@ -156,6 +159,44 @@ public class MethodInvocationSupport {
         if (isMatchingField(name, field)) {
           return field;
         }
+      }
+    }
+
+//    try {
+//      Method $pimps = callerClass.getMethod("$pimps");
+//      String[] pimps = (String[]) $pimps.invoke(null);
+//      for (String pimp : pimps) {
+//        try {
+//          Class<?> pimpedClass = callerClass.getClassLoader().loadClass(pimp);
+//          if (receiverClass.isAssignableFrom(pimpedClass)) {
+//
+//          }
+//        } catch (ClassNotFoundException ignored) {
+//        }
+//      }
+//    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+//      return null;
+//    }
+
+    return null;
+  }
+
+  private static MethodHandle findInPimps(Class<?> receiverClass, PolymorphicInlineCache inlineCache) {
+    Class<?> callerClass = inlineCache.callerLookup.lookupClass();
+    String name = inlineCache.name;
+    MethodType type = inlineCache.type();
+    Lookup lookup = inlineCache.callerLookup;
+
+    ClassLoader classLoader = callerClass.getClassLoader();
+    for (String pimp : Module.pimps(callerClass)) {
+      try {
+        Class<?> pimpedClass = classLoader.loadClass(pimp);
+        if (pimpedClass.isAssignableFrom(receiverClass)) {
+          Class<?> pimpClass = classLoader.loadClass(callerClass.getName() + "$" + pimpedClass.getName().replace('.', '$'));
+          return lookup.findStatic(pimpClass, name, type);
+        }
+      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignored) {
+        ignored.printStackTrace();
       }
     }
     return null;
