@@ -18,38 +18,6 @@ Not everything is deemed to be implemented...
 
 * String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
 
-* Pimps / categories, e.g.:
-
-    ```
-    module foo
-
-    pimp String.class {
-      
-      method toURL = {
-        return URL(this)
-      }
-
-      method toFile = {
-        return File(this)
-      }
-
-      method toFile = |dir| = {
-        return File(dir, this)
-      }
-    }
-
-    (...)
-
-    module bar
-
-    apply pimp from foo on String.class
-
-    function plop = {
-      "sample.txt": toFile("/tmp")
-    }
-
-    ```
-
 ## Runtime
 
 * Common collection sugar functions (lists, maps, sets, ...)
