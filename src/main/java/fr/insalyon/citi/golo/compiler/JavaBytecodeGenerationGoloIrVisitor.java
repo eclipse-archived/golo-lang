@@ -9,8 +9,7 @@ import org.objectweb.asm.MethodVisitor;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
-import java.util.Set;
-import java.util.Stack;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
@@ -65,6 +64,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private ClassWriter classWriter;
   private MethodVisitor methodVisitor;
+  private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
   private Context context;
 
@@ -84,12 +84,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  public byte[] toBytecode(GoloModule module, String sourceFilename) {
+  public List<CodeGenerationResult> generateBytecode(GoloModule module, String sourceFilename) {
     this.sourceFilename = sourceFilename;
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+    this.generationResults = new LinkedList<>();
     this.context = new Context();
     module.accept(this);
-    return classWriter.toByteArray();
+    this.generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), module.getPackageAndClass()));
+    return this.generationResults;
   }
 
   @Override
@@ -100,6 +102,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
     }
+    // TODO: handle pimps
+    for (Map.Entry<String, Set<GoloFunction>> pimpEntry : module.getPimps().entrySet()) {
+      generatePimpBytecode(module, pimpEntry.getKey(), pimpEntry.getValue());
+    }
+    writePimpsMetaData(module.getPimps().keySet());
     classWriter.visitEnd();
   }
 
@@ -122,6 +129,58 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ARETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
+  }
+
+  private void writePimpsMetaData(Set<String> pimps) {
+    String[] pimpsArray = pimps.toArray(new String[pimps.size()]);
+    methodVisitor = classWriter.visitMethod(
+        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
+        "$pimps",
+        "()[Ljava/lang/String;",
+        null, null);
+    methodVisitor.visitCode();
+    loadInteger(pimpsArray.length);
+    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+    for (int i = 0; i < pimpsArray.length; i++) {
+      methodVisitor.visitInsn(DUP);
+      loadInteger(i);
+      methodVisitor.visitLdcInsn(pimpsArray[i]);
+      methodVisitor.visitInsn(AASTORE);
+    }
+    methodVisitor.visitInsn(ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+  }
+
+  private void generatePimpBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
+    ClassWriter mainClassWriter = classWriter;
+    String mangledClass = target.replace('.', '$');
+    PackageAndClass packageAndClass = new PackageAndClass(
+        module.getPackageAndClass().packageName(),
+        module.getPackageAndClass().className() + "$" + mangledClass);
+    String pimpClassInternalName = packageAndClass.toJVMType();
+
+    String outerName = module.getPackageAndClass().toJVMType();
+    mainClassWriter.visitInnerClass(
+        pimpClassInternalName,
+        outerName,
+        mangledClass,
+        ACC_PUBLIC | ACC_STATIC);
+
+    classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, pimpClassInternalName, null, JOBJECT, null);
+    classWriter.visitSource(sourceFilename, null);
+    classWriter.visitOuterClass(outerName, null, null);
+
+    for (GoloFunction function : functions) {
+      function.accept(this);
+    }
+
+    writeImportMetaData(module.getImports());
+
+    classWriter.visitEnd();
+    generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
+    classWriter = mainClassWriter;
   }
 
   @Override

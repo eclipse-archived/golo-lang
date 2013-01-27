@@ -38,6 +38,12 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
     }
+    for (String pimpTarget : module.getPimps().keySet()) {
+      Set<GoloFunction> functions = module.getPimps().get(pimpTarget);
+      for (GoloFunction function : functions) {
+        function.accept(this);
+      }
+    }
     if (exceptionBuilder != null) {
       exceptionBuilder.doThrow();
     }

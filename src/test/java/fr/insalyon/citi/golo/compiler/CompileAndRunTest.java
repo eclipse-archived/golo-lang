@@ -5,20 +5,15 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFields;
-import org.testng.annotations.BeforeTest;
+import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
-import java.nio.file.Files;
-import java.util.Collection;
-import java.util.LinkedList;
-import java.util.List;
+import java.net.URL;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
@@ -35,16 +30,9 @@ public class CompileAndRunTest {
 
   private static final String SRC = "src/test/resources/for-execution/";
 
-  private File temporaryFolder;
-
-  @BeforeTest
-  public void setup() throws IOException {
-    temporaryFolder = Files.createTempDirectory("golocomp").toFile();
-  }
-
   @Test
   public void check_generation_of_$imports_method() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "imports-metadata.golo", temporaryFolder, "golotest.execution.ImportsMetaData");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "imports-metadata.golo");
 
     Method $imports = moduleClass.getMethod("$imports");
     assertThat(isPublic($imports.getModifiers()), is(true));
@@ -60,7 +48,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_functions_with_returns() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "returns.golo", temporaryFolder, "golotest.execution.FunctionsWithReturns");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "returns.golo");
 
     Method emptyFunction = moduleClass.getMethod("empty");
     assertThat(isPublic(emptyFunction.getModifiers()), is(true));
@@ -93,7 +81,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_parameterless_function_calls() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "parameterless-function-calls.golo", temporaryFolder, "golotest.execution.ParameterLessFunctionCalls");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "parameterless-function-calls.golo");
 
     Method call_hello = moduleClass.getMethod("call_hello");
     assertThat((String) call_hello.invoke(null), is("hello()"));
@@ -119,7 +107,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_variable_assignments() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "variable-assignments.golo", temporaryFolder, "golotest.execution.VariableAssignments");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "variable-assignments.golo");
 
     Method echo = moduleClass.getMethod("echo", Object.class);
     assertThat((String) echo.invoke(null, "Plop!"), is("Plop!"));
@@ -149,7 +137,7 @@ public class CompileAndRunTest {
   @Test(expectedExceptions = GoloCompilationException.class)
   public void test_undeclared_variables() throws ClassNotFoundException, IOException, ParseException {
     try {
-      compileAndLoadGoloModule(SRC, "failure-undeclared-parameter.golo", temporaryFolder, "golotest.execution.UndeclaredVariables");
+      compileAndLoadGoloModule(SRC, "failure-undeclared-parameter.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
@@ -167,7 +155,7 @@ public class CompileAndRunTest {
   @Test(expectedExceptions = GoloCompilationException.class)
   public void test_assign_to_undeclared_reference() throws ClassNotFoundException, IOException, ParseException {
     try {
-      compileAndLoadGoloModule(SRC, "failure-assign-to-undeclared-reference.golo", temporaryFolder, "golotest.execution.AssignToUndeclaredReference");
+      compileAndLoadGoloModule(SRC, "failure-assign-to-undeclared-reference.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
@@ -186,7 +174,7 @@ public class CompileAndRunTest {
   @Test(expectedExceptions = GoloCompilationException.class)
   public void test_assign_constant() throws Throwable {
     try {
-      compileAndLoadGoloModule(SRC, "failure-assign-constant.golo", temporaryFolder, "golotest.execution.AssignToConstant");
+      compileAndLoadGoloModule(SRC, "failure-assign-constant.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
@@ -204,7 +192,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_conditionals() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "conditionals.golo", temporaryFolder, "golotest.execution.Conditionals");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "conditionals.golo");
 
     Method simple_if = moduleClass.getMethod("simple_if");
     assertThat((String) simple_if.invoke(null), is("ok"));
@@ -235,7 +223,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_operators() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo", temporaryFolder, "golotest.execution.Operators");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo");
 
     Method plus_one = moduleClass.getMethod("plus_one", Object.class);
     assertThat((Integer) plus_one.invoke(null, 1), is(2));
@@ -304,7 +292,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_fibonacci() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "fibonacci-recursive.golo", temporaryFolder, "golotest.execution.Fibonacci");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "fibonacci-recursive.golo");
 
     Method fib = moduleClass.getMethod("fib", Object.class);
     assertThat((Integer) fib.invoke(null, 0), is(0));
@@ -319,7 +307,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_loopings() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "loopings.golo", temporaryFolder, "golotest.execution.Loopings");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "loopings.golo");
 
     Method times = moduleClass.getMethod("times", Object.class);
     assertThat((Integer) times.invoke(null, 0), is(0));
@@ -339,7 +327,7 @@ public class CompileAndRunTest {
   @Test(expectedExceptions = GoloCompilationException.class)
   public void test_wrong_scope() throws Throwable {
     try {
-      compileAndLoadGoloModule(SRC, "failure-wrong-scope.golo", temporaryFolder, "golotest.execution.WrongScope");
+      compileAndLoadGoloModule(SRC, "failure-wrong-scope.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
@@ -350,7 +338,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_arrays() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo", temporaryFolder, "golotest.execution.Arrays");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
 
     Method make_123 = moduleClass.getMethod("make_123");
     Object result = make_123.invoke(null);
@@ -401,7 +389,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_varargs() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "varargs.golo", temporaryFolder, "golotest.execution.Varargs");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "varargs.golo");
 
     Method var_arg_ed = moduleClass.getMethod("var_arg_ed", Object.class, Object[].class);
     assertThat(var_arg_ed.isVarArgs(), is(true));
@@ -416,7 +404,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_call_java_objects() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "call-java-objects.golo", temporaryFolder, "golotest.execution.CallJavaObjects");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "call-java-objects.golo");
 
     Method new_integer = moduleClass.getMethod("new_integer");
     assertThat((Integer) new_integer.invoke(null), is(666));
@@ -432,7 +420,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_method_invocations() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "method-invocations.golo", temporaryFolder, "golotest.execution.MethodInvocations");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "method-invocations.golo");
 
     Method hello = moduleClass.getMethod("hello");
     assertThat((String) hello.invoke(null), is("Hello"));
@@ -474,7 +462,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_exception_throwing() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "exceptions.golo", temporaryFolder, "golotest.execution.Exceptions");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "exceptions.golo");
 
     Method runtimeException = moduleClass.getMethod("runtimeException");
     try {
@@ -519,7 +507,7 @@ public class CompileAndRunTest {
 
   @Test
   public void test_method_closures() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "closures.golo", temporaryFolder, "golotest.execution.Closures");
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "closures.golo");
     Object result;
     MethodHandle handle;
 
@@ -572,5 +560,38 @@ public class CompileAndRunTest {
     result = in_a_map.invoke(null);
     assertThat(result, notNullValue());
     assertThat((Integer) result, is(4));
+  }
+
+  @Test
+  public void check_pimps() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "pimps.golo", goloClassLoader);
+
+    Method $pimps = moduleClass.getMethod("$pimps");
+    assertThat(isStatic($pimps.getModifiers()), is(true));
+    assertThat(isPublic($pimps.getModifiers()), is(true));
+    Set<String> pimpSet = new HashSet<>(Arrays.asList((String[]) $pimps.invoke(null)));
+    assertThat(pimpSet.size(), is(1));
+    assertThat(pimpSet, contains("java.lang.String"));
+
+    Method goog = moduleClass.getMethod("goog");
+    Object result = goog.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(URL.class));
+    URL url = (URL) result;
+    assertThat(url.toExternalForm(), is("http://www.google.com/"));
+
+    Method exclamation = moduleClass.getMethod("exclamation", Object.class);
+    assertThat((String) exclamation.invoke(null, "hey"), is("hey!"));
+
+    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "pimps-external-source.golo", goloClassLoader);
+    Method externalPimp = moduleClass.getMethod("externalPimp");
+    assertThat((String) externalPimp.invoke(null), is("(abc)"));
+
+    Method varargs = moduleClass.getMethod("varargs");
+    assertThat((String) varargs.invoke(null), is("abcd"));
+
+    Method polymorphism = moduleClass.getMethod("polymorphism");
+    assertThat((String) polymorphism.invoke(null), is("plop!"));
   }
 }

@@ -4,6 +4,7 @@ public class ASTFunctionDeclaration extends GoloASTNode {
 
   private String name;
   private boolean local = false;
+  private boolean pimp = false;
 
   public ASTFunctionDeclaration(int i) {
     super(i);
@@ -29,11 +30,20 @@ public class ASTFunctionDeclaration extends GoloASTNode {
     this.local = local;
   }
 
+  public boolean isPimp() {
+    return pimp;
+  }
+
+  public void setPimp(boolean pimp) {
+    this.pimp = pimp;
+  }
+
   @Override
   public String toString() {
     return "ASTFunctionDeclaration{" +
         "name='" + name + '\'' +
         ", local=" + local +
+        ", pimp=" + pimp +
         '}';
   }
 

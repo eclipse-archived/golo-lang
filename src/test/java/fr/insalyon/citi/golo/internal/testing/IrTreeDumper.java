@@ -2,6 +2,8 @@ package fr.insalyon.citi.golo.internal.testing;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 
+import java.util.Set;
+
 public class IrTreeDumper implements GoloIrVisitor {
 
   private int spacing = 0;
@@ -27,6 +29,16 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println(module.getPackageAndClass());
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
+    }
+    for (String pimpTarget : module.getPimps().keySet()) {
+      incr();
+      space();
+      System.out.println("Pimp " + pimpTarget);
+      Set<GoloFunction> functions = module.getPimps().get(pimpTarget);
+      for (GoloFunction function : functions) {
+        function.accept(this);
+      }
+      decr();
     }
   }
 

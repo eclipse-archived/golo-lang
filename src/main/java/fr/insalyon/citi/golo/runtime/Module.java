@@ -17,4 +17,15 @@ class Module {
     }
     return imports;
   }
+
+  static String[] pimps(Class<?> callerClass) {
+    String[] pimps;
+    try {
+      Method $pimps = callerClass.getMethod("$pimps");
+      pimps = (String[]) $pimps.invoke(null);
+    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+      pimps = new String[]{};
+    }
+    return pimps;
+  }
 }

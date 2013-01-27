@@ -12,6 +12,7 @@ public final class GoloModule {
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new HashSet<>();
   private final Map<String, GoloFunction> functions = new HashMap<>();
+  private final Map<String, Set<GoloFunction>> pimps = new HashMap<>();
 
   public static final ModuleImport PREDEF = new ModuleImport(
       PackageAndClass.fromString("gololang.Predefined"),
@@ -30,12 +31,27 @@ public final class GoloModule {
     return unmodifiableSet(imports);
   }
 
+  public Map<String, Set<GoloFunction>> getPimps() {
+    return unmodifiableMap(pimps);
+  }
+
   public void addImport(ModuleImport moduleImport) {
     imports.add(moduleImport);
   }
 
   public void addFunction(GoloFunction function) {
     functions.put(function.getName(), function);
+  }
+
+  public void addPimp(String target, GoloFunction function) {
+    Set<GoloFunction> bag;
+    if (!pimps.containsKey(target)) {
+      bag = new HashSet<>();
+      pimps.put(target, bag);
+    } else {
+      bag = pimps.get(target);
+    }
+    bag.add(function);
   }
 
   public GoloFunction getFunction(String name) {
