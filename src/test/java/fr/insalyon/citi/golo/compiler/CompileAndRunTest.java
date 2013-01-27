@@ -5,6 +5,7 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -566,7 +567,8 @@ public class CompileAndRunTest {
 
   @Test
   public void check_pimps() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "pimps.golo");
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "pimps.golo", goloClassLoader);
 
     Method $pimps = moduleClass.getMethod("$pimps");
     assertThat(isStatic($pimps.getModifiers()), is(true));
@@ -584,5 +586,9 @@ public class CompileAndRunTest {
 
     Method exclamation = moduleClass.getMethod("exclamation", Object.class);
     assertThat((String) exclamation.invoke(null, "hey"), is("hey!"));
+
+    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "pimps-external-source.golo", goloClassLoader);
+    Method externalPimp = moduleClass.getMethod("externalPimp");
+    externalPimp.invoke(null);
   }
 }

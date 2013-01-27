@@ -192,13 +192,35 @@ public class MethodInvocationSupport {
       try {
         Class<?> pimpedClass = classLoader.loadClass(pimp);
         if (pimpedClass.isAssignableFrom(receiverClass)) {
-          Class<?> pimpClass = classLoader.loadClass(callerClass.getName() + "$" + pimpedClass.getName().replace('.', '$'));
+          Class<?> pimpClass = classLoader.loadClass(pimpClassName(callerClass, pimpedClass));
           return lookup.findStatic(pimpClass, name, type);
         }
       } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignored) {
       }
     }
+
+    for (String importSymbol : Module.imports(callerClass)) {
+      try {
+        Class<?> importClass = classLoader.loadClass(importSymbol);
+        for (String pimp : Module.pimps(importClass)) {
+          try {
+            Class<?> pimpedClass = classLoader.loadClass(pimp);
+            if (pimpedClass.isAssignableFrom(receiverClass)) {
+              Class<?> pimpClass = classLoader.loadClass(pimpClassName(importClass, pimpedClass));
+              return lookup.findStatic(pimpClass, name, type);
+            }
+          } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignored) {
+          }
+        }
+      } catch (ClassNotFoundException ignored) {
+      }
+    }
+
     return null;
+  }
+
+  private static String pimpClassName(Class<?> moduleClass, Class<?> pimpedClass) {
+    return moduleClass.getName() + "$" + pimpedClass.getName().replace('.', '$');
   }
 
   private static boolean isMatchingField(String name, Field field) {

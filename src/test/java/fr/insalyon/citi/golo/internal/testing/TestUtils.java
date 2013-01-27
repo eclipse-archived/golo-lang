@@ -31,7 +31,10 @@ public class TestUtils {
   }
 
   public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile) throws IOException, ParseException, ClassNotFoundException {
-    GoloClassLoader goloClassLoader = new GoloClassLoader(TestUtils.class.getClassLoader());
+    return compileAndLoadGoloModule(sourceFolder, goloFile, new GoloClassLoader(TestUtils.class.getClassLoader()));
+  }
+
+  public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, GoloClassLoader goloClassLoader) throws IOException, ParseException, ClassNotFoundException {
     return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
   }
 }
