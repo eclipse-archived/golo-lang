@@ -196,7 +196,6 @@ public class MethodInvocationSupport {
           return lookup.findStatic(pimpClass, name, type);
         }
       } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignored) {
-        ignored.printStackTrace();
       }
     }
     return null;
