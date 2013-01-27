@@ -25,3 +25,5 @@ function exclamation = |sentence| -> sentence: append("!")
 function externalPimp = -> "abc": wrap("(", ")")
 
 function varargs = -> "a": concatWith("b", "c", "d")
+
+function polymorphism = -> java.util.LinkedList(): plop()

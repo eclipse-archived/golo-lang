@@ -590,5 +590,8 @@ public class CompileAndRunTest {
 
     Method varargs = moduleClass.getMethod("varargs");
     assertThat((String) varargs.invoke(null), is("abcd"));
+
+    Method polymorphism = moduleClass.getMethod("polymorphism");
+    assertThat((String) polymorphism.invoke(null), is("plop!"));
   }
 }
