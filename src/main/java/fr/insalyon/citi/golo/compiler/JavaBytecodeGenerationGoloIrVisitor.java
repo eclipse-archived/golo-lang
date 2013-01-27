@@ -153,7 +153,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void generatePimpBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
-    // TODO
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.replace('.', '$');
     PackageAndClass packageAndClass = new PackageAndClass(
@@ -172,9 +171,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, pimpClassInternalName, null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visitOuterClass(outerName, null, null);
+
     for (GoloFunction function : functions) {
       function.accept(this);
     }
+
+    writeImportMetaData(module.getImports());
 
     classWriter.visitEnd();
     generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));

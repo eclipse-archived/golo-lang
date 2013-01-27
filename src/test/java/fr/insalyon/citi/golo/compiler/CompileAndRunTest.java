@@ -587,5 +587,8 @@ public class CompileAndRunTest {
     Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "pimps-external-source.golo", goloClassLoader);
     Method externalPimp = moduleClass.getMethod("externalPimp");
     assertThat((String) externalPimp.invoke(null), is("(abc)"));
+
+    Method varargs = moduleClass.getMethod("varargs");
+    assertThat((String) varargs.invoke(null), is("abcd"));
   }
 }

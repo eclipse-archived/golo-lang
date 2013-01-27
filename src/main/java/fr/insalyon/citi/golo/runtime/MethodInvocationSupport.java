@@ -193,12 +193,17 @@ public class MethodInvocationSupport {
         Class<?> pimpedClass = classLoader.loadClass(pimp);
         if (pimpedClass.isAssignableFrom(receiverClass)) {
           Class<?> pimpClass = classLoader.loadClass(pimpClassName(callerClass, pimpedClass));
-          return lookup.findStatic(pimpClass, name, type);
+          for (Method method : pimpClass.getMethods()) {
+            if (isCandidateMethod(name, method)) {
+              return lookup.unreflect(method).asType(type);
+            }
+          }
         }
-      } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignored) {
+      } catch (ClassNotFoundException | IllegalAccessException ignored) {
       }
     }
 
+    // TODO: refactor the lookups above and below
     for (String importSymbol : Module.imports(callerClass)) {
       try {
         Class<?> importClass = classLoader.loadClass(importSymbol);
@@ -207,9 +212,13 @@ public class MethodInvocationSupport {
             Class<?> pimpedClass = classLoader.loadClass(pimp);
             if (pimpedClass.isAssignableFrom(receiverClass)) {
               Class<?> pimpClass = classLoader.loadClass(pimpClassName(importClass, pimpedClass));
-              return lookup.findStatic(pimpClass, name, type);
+              for (Method method : pimpClass.getMethods()) {
+                if (isCandidateMethod(name, method)) {
+                  return lookup.unreflect(method).asType(type);
+                }
+              }
             }
-          } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException ignored) {
+          } catch (ClassNotFoundException | IllegalAccessException ignored) {
           }
         }
       } catch (ClassNotFoundException ignored) {
