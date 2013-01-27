@@ -581,5 +581,8 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(URL.class));
     URL url = (URL) result;
     assertThat(url.toExternalForm(), is("http://www.google.com/"));
+
+    Method exclamation = moduleClass.getMethod("exclamation", Object.class);
+    assertThat((String) exclamation.invoke(null, "hey"), is("hey!"));
   }
 }

@@ -6,3 +6,5 @@ pimp java.lang.String {
 }
 
 function goog = -> "http://www.google.com/": toURLType()
+
+function exclamation = |sentence| -> sentence: append("!")
