@@ -24,7 +24,7 @@ class TypeMatching {
   }
 
   static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Method method, Class<?>[] parameterTypes) {
-    return method.isVarArgs() && (arguments.length >= parameterTypes.length);
+    return method.isVarArgs() && (arguments.length >= (parameterTypes.length - 1));
   }
 
   static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
@@ -32,7 +32,7 @@ class TypeMatching {
   }
 
   static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
-    if (types.length == 0) {
+    if (types.length == 0 || arguments.length == 0) {
       return true;
     }
     for (int i = 0; i < types.length - 1; i++) {

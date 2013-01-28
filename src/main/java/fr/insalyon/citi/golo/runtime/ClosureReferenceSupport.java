@@ -7,8 +7,8 @@ import static java.lang.invoke.MethodType.genericMethodType;
 
 public class ClosureReferenceSupport {
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
-    MethodHandle target = caller.findStatic(caller.lookupClass(), name, genericMethodType(arity));
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity, int varargs) throws NoSuchMethodException, IllegalAccessException {
+    MethodHandle target = caller.findStatic(caller.lookupClass(), name, genericMethodType(arity, varargs == 1));
     return new ConstantCallSite(constant(MethodHandle.class, target));
   }
 }

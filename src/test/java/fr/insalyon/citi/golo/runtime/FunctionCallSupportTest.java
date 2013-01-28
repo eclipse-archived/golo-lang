@@ -95,8 +95,17 @@ public class FunctionCallSupportTest {
   public void check_varargs_only() throws Throwable {
     Lookup lookup = lookup();
     String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#defaultConcat";
+
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class, Object.class);
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("a", "b", "c"), is("a-b-c"));
+
+    type = MethodType.methodType(Object.class, Object.class);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments("a"), is("a"));
+
+    type = MethodType.methodType(Object.class);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments(), is(""));
   }
 }

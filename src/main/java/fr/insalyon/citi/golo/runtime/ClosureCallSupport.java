@@ -1,7 +1,6 @@
 package fr.insalyon.citi.golo.runtime;
 
 import java.lang.invoke.*;
-import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
@@ -56,6 +55,10 @@ public class ClosureCallSupport {
   public static Object fallback(InlineCache callSite, Object[] args) throws Throwable {
     MethodHandle target = (MethodHandle) args[0];
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, MethodHandle.class);
+    MethodType type = invoker.type();
+    if (type.parameterType(type.parameterCount() - 1) == Object[].class) {
+      invoker = invoker.asCollector(Object[].class, args.length - 1);
+    }
     MethodHandle guard = GUARD.bindTo(target);
     MethodHandle root = guardWithTest(guard, invoker, callSite.fallback);
     callSite.setTarget(root);

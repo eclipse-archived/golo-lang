@@ -53,7 +53,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClosureReferenceSupport";
     bootstrapMethod = "bootstrap";
-    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;II)Ljava/lang/invoke/CallSite;";
     CLOSUREREF_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClosureCallSupport";
@@ -510,11 +510,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
     GoloFunction target = closureReference.getTarget();
+    boolean isVarArgs = target.isVarargs();
+    int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
     methodVisitor.visitInvokeDynamicInsn(
         target.getName(),
         methodType(MethodHandle.class).toMethodDescriptorString(),
         CLOSUREREF_HANDLE,
-        target.getArity());
+        arity,
+        isVarArgs);
     final int syntheticCount = closureReference.getTarget().getSyntheticParameterCount();
     if (syntheticCount > 0) {
       ReferenceTable table = context.referenceTableStack.peek();

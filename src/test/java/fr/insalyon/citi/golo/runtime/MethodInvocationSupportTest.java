@@ -191,6 +191,14 @@ public class MethodInvocationSupportTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("a-b-c"));
+
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class));
+    receiver = varargsChecking();
+    assertThat((String) concat.dynamicInvoker().invokeWithArguments(receiver, "a"), is("a"));
+
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class));
+    receiver = varargsChecking();
+    assertThat((String) concat.dynamicInvoker().invokeWithArguments(receiver), is(""));
   }
 
   @Test
