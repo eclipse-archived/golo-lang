@@ -162,22 +162,6 @@ public class MethodInvocationSupport {
       }
     }
 
-//    try {
-//      Method $pimps = callerClass.getMethod("$pimps");
-//      String[] pimps = (String[]) $pimps.invoke(null);
-//      for (String pimp : pimps) {
-//        try {
-//          Class<?> pimpedClass = callerClass.getClassLoader().loadClass(pimp);
-//          if (receiverClass.isAssignableFrom(pimpedClass)) {
-//
-//          }
-//        } catch (ClassNotFoundException ignored) {
-//        }
-//      }
-//    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-//      return null;
-//    }
-
     return null;
   }
 
