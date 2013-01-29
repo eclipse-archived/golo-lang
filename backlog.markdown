@@ -40,7 +40,9 @@ Not everything is deemed to be implemented...
 
 * Netbeans support (they love JavaCC it seems).
 
-* Maven, Ant, Gradle plugins.
+* Maven: get incremental compilation. Tests?
+
+* Ant, Gradle plugins.
 
 * golodoc.
 
