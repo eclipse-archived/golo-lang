@@ -15,6 +15,9 @@ function main = |args| {
   button: setFont(button: getFont(): deriveFont(96.0_F))
   button: addActionListener(listener(|event| -> println("Clicked!")))
 
+  # Using a standard pimp: MethodHandle::to(Class)
+  button: addActionListener((|event| -> println("[click]")): to(ActionListener.class))
+
   frame: getContentPane(): add(button)
   frame: pack()
   frame: setVisible(true)
