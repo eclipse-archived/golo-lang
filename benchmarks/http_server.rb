@@ -43,6 +43,10 @@ server.mount "/", WEBrick::HTTPServlet::FileHandler, './'
 trap "INT" do 
   server.shutdown
 end
+
+trap "TERM" do
+  server.shutdown
+end
  
 server.start
 
