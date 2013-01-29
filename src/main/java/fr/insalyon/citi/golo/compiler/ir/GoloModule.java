@@ -18,9 +18,14 @@ public final class GoloModule {
       PackageAndClass.fromString("gololang.Predefined"),
       new PositionInSourceCode(0, 0));
 
+  public static final ModuleImport STD_PIMPS = new ModuleImport(
+      PackageAndClass.fromString("gololang.StandardPimps"),
+      new PositionInSourceCode(0, 0));
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
+    imports.add(STD_PIMPS);
   }
 
   public PackageAndClass getPackageAndClass() {
