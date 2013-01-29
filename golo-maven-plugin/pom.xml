@@ -26,8 +26,6 @@
     <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
     <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
     <maven-plugin-api.version>3.0.4</maven-plugin-api.version>
-    <maven-plugin-tools-annotations.version>3.2</maven-plugin-tools-annotations.version>
-    <plexus-utils.version>3.0.1</plexus-utils.version>
     <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
   </properties>
 
@@ -49,35 +47,9 @@
     </dependency>
 
     <dependency>
-      <groupId>org.codehaus.plexus</groupId>
-      <artifactId>plexus-utils</artifactId>
-      <version>${plexus-utils.version}</version>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-annotations</artifactId>
-      <version>${maven-plugin-tools-annotations.version}</version>
-      <scope>provided</scope>
-    </dependency>
-
-    <dependency>
-      <groupId>org.apache.maven.plugin-tools</groupId>
-      <artifactId>maven-plugin-tools-annotations</artifactId>
-      <version>${maven-plugin-tools-annotations.version}</version>
-    </dependency>
-
-    <dependency>
       <groupId>fr.citilab</groupId>
       <artifactId>gololang</artifactId>
       <version>${gololang.version}</version>
-      <classifier>with-asm</classifier>
-      <exclusions>
-        <exclusion>
-          <groupId>org.ow2.asm</groupId>
-          <artifactId>asm</artifactId>
-        </exclusion>
-      </exclusions>
     </dependency>
 
   </dependencies>
@@ -94,30 +66,6 @@
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
-      </plugin>
-
-      <plugin>
-        <!-- Based on http://maven.apache.org/plugin-tools/maven-plugin-plugin/examples/using-annotations.html -->
-        <groupId>org.apache.maven.plugins</groupId>
-        <artifactId>maven-plugin-plugin</artifactId>
-        <version>${maven-plugin-plugin.version}</version>
-        <configuration>
-          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
-        </configuration>
-        <executions>
-          <execution>
-            <id>mojo-descriptor</id>
-            <goals>
-              <goal>descriptor</goal>
-            </goals>
-          </execution>
-          <execution>
-            <id>help-goal</id>
-            <goals>
-              <goal>helpmojo</goal>
-            </goals>
-          </execution>
-        </executions>
       </plugin>
 
     </plugins>

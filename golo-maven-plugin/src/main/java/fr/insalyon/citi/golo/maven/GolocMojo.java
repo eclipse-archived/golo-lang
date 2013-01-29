@@ -6,9 +6,6 @@ import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
-import org.apache.maven.plugins.annotations.Execute;
-import org.apache.maven.plugins.annotations.Mojo;
-import org.apache.maven.plugins.annotations.Parameter;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,17 +13,22 @@ import java.io.InputStream;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 
-import static org.apache.maven.plugins.annotations.LifecyclePhase.COMPILE;
-
-@Mojo(name = "goloc", defaultPhase = COMPILE)
-@Execute(goal = "goloc")
+/**
+ * @goal goloc
+ */
 public class GolocMojo extends AbstractMojo {
 
-  @Parameter(required = true, defaultValue = "src/main/golo")
+  /**
+   * @parameter property="goloSourceDirectory" default-value="src/main/golo"
+   * @required
+   */
   private String goloSourceDirectory;
 
-  @Parameter(required = true, defaultValue = "target/classes")
-  private String outputDirectory;
+  /**
+   * @parameter property="goloOutputDirectory" default-value="target/classes"
+   * @required
+   */
+  private String goloOutputDirectory;
 
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
@@ -47,7 +49,7 @@ public class GolocMojo extends AbstractMojo {
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.golo");
     private final GoloCompiler compiler = new GoloCompiler();
-    private final File targetDirectory = Paths.get(outputDirectory).toFile();
+    private final File targetDirectory = Paths.get(goloOutputDirectory).toFile();
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -63,7 +65,7 @@ public class GolocMojo extends AbstractMojo {
 
     private void compile(Path file) throws IOException, MojoFailureException {
       getLog().info("Compiling: " + file);
-      try(InputStream in = Files.newInputStream(file)) {
+      try (InputStream in = Files.newInputStream(file)) {
         compiler.compileTo(file.getFileName().toString(), in, targetDirectory);
       } catch (GoloCompilationException e) {
         if (e.getCause() != null) {
