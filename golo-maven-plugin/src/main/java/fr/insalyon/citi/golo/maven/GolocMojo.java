@@ -64,6 +64,7 @@ public class GolocMojo extends AbstractMojo {
     }
 
     private void compile(Path file) throws IOException, MojoFailureException {
+      getLog().info("Compiling to: " + goloOutputDirectory);
       getLog().info("Compiling: " + file);
       try (InputStream in = Files.newInputStream(file)) {
         compiler.compileTo(file.getFileName().toString(), in, targetDirectory);
