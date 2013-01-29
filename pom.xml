@@ -10,6 +10,7 @@
 
   <packaging>jar</packaging>
 
+  <name>Golo Programming Language</name>
   <description>Golo: a lightweight dynamic language for the JVM.</description>
 
   <developers>
