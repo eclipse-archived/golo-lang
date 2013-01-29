@@ -102,7 +102,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions().values()) {
       function.accept(this);
     }
-    // TODO: handle pimps
     for (Map.Entry<String, Set<GoloFunction>> pimpEntry : module.getPimps().entrySet()) {
       generatePimpBytecode(module, pimpEntry.getKey(), pimpEntry.getValue());
     }
