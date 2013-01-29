@@ -29,7 +29,6 @@
     <maven-plugin-tools-annotations.version>3.2</maven-plugin-tools-annotations.version>
     <plexus-utils.version>3.0.1</plexus-utils.version>
     <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
-    <asm-all.version>4.1</asm-all.version>
   </properties>
 
   <developers>
@@ -42,12 +41,6 @@
   </developers>
 
   <dependencies>
-
-    <dependency>
-      <groupId>fr.citilab</groupId>
-      <artifactId>gololang</artifactId>
-      <version>${gololang.version}</version>
-    </dependency>
 
     <dependency>
       <groupId>org.apache.maven</groupId>
@@ -72,6 +65,19 @@
       <groupId>org.apache.maven.plugin-tools</groupId>
       <artifactId>maven-plugin-tools-annotations</artifactId>
       <version>${maven-plugin-tools-annotations.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>fr.citilab</groupId>
+      <artifactId>gololang</artifactId>
+      <version>${gololang.version}</version>
+      <classifier>with-asm</classifier>
+      <exclusions>
+        <exclusion>
+          <groupId>org.ow2.asm</groupId>
+          <artifactId>asm</artifactId>
+        </exclusion>
+      </exclusions>
     </dependency>
 
   </dependencies>
