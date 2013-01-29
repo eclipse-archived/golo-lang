@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <groupId>fr.citilab</groupId>
+  <artifactId>gololang-maven-plugin</artifactId>
+  <version>r0-SNAPSHOT</version>
+
+  <packaging>maven-plugin</packaging>
+
+  <name>Golo Maven Plugin</name>
+  <description>Golo Maven Plugin.</description>
+
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <properties>
+
+    <gololang.version>r0-SNAPSHOT</gololang.version>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <surefire.useFile>false</surefire.useFile>
+
+    <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
+    <maven-plugin-api.version>3.0.4</maven-plugin-api.version>
+    <maven-plugin-tools-annotations.version>3.2</maven-plugin-tools-annotations.version>
+    <plexus-utils.version>3.0.1</plexus-utils.version>
+    <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
+    <asm-all.version>4.1</asm-all.version>
+  </properties>
+
+  <developers>
+    <developer>
+      <id>jponge</id>
+      <name>Julien Ponge</name>
+      <email>julien.ponge@insa-lyon.fr</email>
+      <url>http://julien.ponge.info/</url>
+    </developer>
+  </developers>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>fr.citilab</groupId>
+      <artifactId>gololang</artifactId>
+      <version>${gololang.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven</groupId>
+      <artifactId>maven-plugin-api</artifactId>
+      <version>${maven-plugin-api.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.codehaus.plexus</groupId>
+      <artifactId>plexus-utils</artifactId>
+      <version>${plexus-utils.version}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-annotations</artifactId>
+      <version>${maven-plugin-tools-annotations.version}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.apache.maven.plugin-tools</groupId>
+      <artifactId>maven-plugin-tools-annotations</artifactId>
+      <version>${maven-plugin-tools-annotations.version}</version>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+
+    <plugins>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>${maven-compiler-plugin.version}</version>
+        <configuration>
+          <source>1.7</source>
+          <target>1.7</target>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <!-- Based on http://maven.apache.org/plugin-tools/maven-plugin-plugin/examples/using-annotations.html -->
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-plugin-plugin</artifactId>
+        <version>${maven-plugin-plugin.version}</version>
+        <configuration>
+          <skipErrorNoDescriptorsFound>true</skipErrorNoDescriptorsFound>
+        </configuration>
+        <executions>
+          <execution>
+            <id>mojo-descriptor</id>
+            <goals>
+              <goal>descriptor</goal>
+            </goals>
+          </execution>
+          <execution>
+            <id>help-goal</id>
+            <goals>
+              <goal>helpmojo</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+    </plugins>
+  </build>
+
+</project>
