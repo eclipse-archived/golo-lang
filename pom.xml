@@ -147,7 +147,6 @@
               <goal>shade</goal>
             </goals>
             <configuration>
-              <createDependencyReducedPom>true</createDependencyReducedPom>
               <shadedArtifactAttached>true</shadedArtifactAttached>
               <shadedClassifierName>with-asm</shadedClassifierName>
               <relocations>
@@ -258,6 +257,36 @@
                 <phase>test</phase>
                 <goals>
                   <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <!--
+       This allows building Golo without building the .golo files.
+
+       This is required in a clean-room environment, as the Maven plugin needs Golo... and Golo needs
+       the plugin :-)
+    -->
+    <profile>
+      <id>bootstrapped</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>fr.citilab</groupId>
+            <artifactId>gololang-maven-plugin</artifactId>
+            <version>r0-SNAPSHOT</version>
+            <executions>
+              <execution>
+                <phase>compile</phase>
+                <goals>
+                  <goal>goloc</goal>
                 </goals>
               </execution>
             </executions>

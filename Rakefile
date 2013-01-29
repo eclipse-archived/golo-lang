@@ -75,3 +75,16 @@ namespace :test do
   end
 
 end
+
+namespace :special do
+  
+  desc "Bootstrap Golo and the Maven plug-in for a clean-room environment"
+  task :bootstrap do
+    sh "mvn clean install -P !bootstrapped"
+    Dir.chdir("golo-maven-plugin") do
+      sh "mvn clean install"
+    end
+    sh "mvn clean install"
+  end
+
+end
