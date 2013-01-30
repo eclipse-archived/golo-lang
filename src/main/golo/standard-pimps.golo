@@ -49,3 +49,78 @@ pimp java.util.List {
 
 # ............................................................................................... #
 
+pimp java.util.Set {
+   
+  function include = |this, element| {
+    this: add(element)
+    return this
+  }
+
+  function exclude = |this, element| {
+    this: remove(element)
+    return this
+  }
+
+  function includeValues = |this, first, rest...| {
+    this: add(first)
+    foreach (element in atoList(rest)) {
+      this: add(element)
+    }
+    return this
+  }
+
+  function excludeValues = |this, first, rest...| {
+    this: remove(first)
+    foreach (element in atoList(rest)) {
+      this: remove(element)
+    }
+    return this
+  }
+
+  function containsValues = |this, first, rest...| {
+    if not(this: contains(first)) {
+      return false
+    } else {
+      foreach (element in atoList(rest)) {
+        if not(this: contains(element)) {
+          return false
+        }
+      }
+    }
+    return true
+  }
+
+  function unmodifiableView = |this| -> java.util.Collections.unmodifiableSet(this)
+}
+
+# ............................................................................................... #
+
+pimp java.util.Map {
+
+  function add = |this, key, value| {
+    this: put(key, value)
+    return this
+  }
+
+  function delete = |this, key| {
+    this: remove(key)
+    return this
+  }
+
+  function getOrElse = |this, key, replacement| {
+    let value = this: get(key)
+    if (value isnt null) {
+      return value
+    }
+    if (replacement oftype java.lang.invoke.MethodHandle.class) {
+      return replacement()
+    } else {
+      return replacement
+    }
+  }
+
+  function unmodifiableView = |this| -> java.util.Collections.unmodifiableMap(this)
+}
+
+# ............................................................................................... #
+
