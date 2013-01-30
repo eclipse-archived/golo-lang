@@ -27,7 +27,7 @@ pimp java.util.List {
     return this
   }
 
-  function appendAll = |this, head, tail...| {
+  function appendValues = |this, head, tail...| {
     this: append(head)
     foreach (element in atoList(tail)) {
       this: append(element)
@@ -35,7 +35,7 @@ pimp java.util.List {
     return this
   }
 
-  function prependAll = |this, head, tail...| {
+  function prependValues = |this, head, tail...| {
     for (var i = alength(tail) - 1, i >= 0, i = i - 1) {
       this: prepend(aget(tail, i))
     }
