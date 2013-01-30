@@ -112,5 +112,9 @@ public class Predefined {
     return MethodHandleProxies.asInterfaceInstance((Class<?>)interfaceClass, (MethodHandle) target);
   }
 
+  public static Object isClosure(Object object) {
+    return object instanceof MethodHandle;
+  }
+
   // ...................................................................................................................
 }

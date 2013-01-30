@@ -107,12 +107,23 @@ pimp java.util.Map {
     return this
   }
 
+  function addIfAbsent = |this, key, value| {
+    if not(this: containsKey(key)) {
+      if isClosure(value) {
+        this: put(key, value())
+      } else {
+        this: put(key, value)
+      }
+    }
+    return this
+  }
+
   function getOrElse = |this, key, replacement| {
     let value = this: get(key)
-    if (value isnt null) {
+    if value isnt null {
       return value
     }
-    if (replacement oftype java.lang.invoke.MethodHandle.class) {
+    if isClosure(replacement) {
       return replacement()
     } else {
       return replacement

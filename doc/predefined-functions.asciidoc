@@ -89,7 +89,7 @@ foreach (i in range(1, 101)) {
 
 The lower bound is inclusive, the upper bound is exclusive.
 
-=== Closure to interface instance ===
+=== Closures ===
 
 Given a closure reference or a method handle, one can convert it to an instance of an interface with
 a single method declaration, as in:
@@ -101,5 +101,17 @@ local function listener = |handler| -> asInterfaceInstance(ActionListener.class,
 # (...)
 let button = JButton("Click me!")
 button: addActionListener(listener(|event| -> println("Clicked!")))
+----
+
+It is possible to test if an object is a closure or not with the `isClosure` function. This is
+useful to support values and delayed evaluation, as in:
+
+[source,text]
+----
+if isClosure(value) {
+  map: put(key, value())
+} else {
+  map: put(key, value)
+}
 ----
 
