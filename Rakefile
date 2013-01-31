@@ -54,6 +54,11 @@ namespace :test do
     sh "mvn test"
   end
 
+  desc "Run all tests with JaCoCo code coverage"
+  task :all_jacoco do
+    sh "mvn test -P test-coverage"
+  end
+
   desc "Parser tests (verbose)"
   task :parser do
     sh "mvn test -Dtest=ParserSanityTest -P verbose-tests"
