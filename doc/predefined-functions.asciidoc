@@ -115,3 +115,15 @@ if isClosure(value) {
 }
 ----
 
+=== Misc. ===
+
+`mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:
+
+[source,text]
+----
+let e = mapEntry("foo", "bar")
+
+# prints "foo => bar"
+println(e: getKey() + " => " + e: getValue())
+----
+

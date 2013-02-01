@@ -2,6 +2,7 @@ package gololang;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
+import java.util.AbstractMap;
 import java.util.Arrays;
 
 public class Predefined {
@@ -102,6 +103,12 @@ public class Predefined {
     } else {
       return new LongRange((Integer) from, (Long) to);
     }
+  }
+
+  // ...................................................................................................................
+
+  public static Object mapEntry(Object key, Object value) {
+    return new AbstractMap.SimpleEntry<>(key, value);
   }
 
   // ...................................................................................................................
