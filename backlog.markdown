@@ -4,6 +4,8 @@ Not everything is deemed to be implemented...
 
 ## Language
 
+* Allow overloading in Golo.
+
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
 * Annotations.
