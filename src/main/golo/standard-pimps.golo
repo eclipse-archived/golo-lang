@@ -10,6 +10,21 @@ pimp java.lang.invoke.MethodHandle {
 
 # ............................................................................................... #
 
+pimp java.util.Collection {
+
+  function newWithSameType = |this| -> this: getClass(): newInstance()
+
+  function reduce = |this, initialValue, func| {
+    var acc = initialValue
+    foreach (element in this) {
+      acc = func(acc, element)
+    }
+    return acc
+  }
+}
+
+# ............................................................................................... #
+
 pimp java.util.List {
 
   function append = |this, element| {
@@ -45,6 +60,24 @@ pimp java.util.List {
   function head = |this| -> this: get(0)
   function tail = |this| -> this: subList(1, this: size())
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableList(this)
+
+  function filter = |this, pred| {
+    let filtered = this: newWithSameType()
+    foreach (element in this) {
+      if pred(element) {
+        filtered: append(element)
+      }
+    }
+    return filtered
+  }
+
+  function map = |this, func| {
+    let mapped = this: newWithSameType()
+    foreach (element in this) {
+      mapped: append(func(element))
+    }
+    return mapped
+  }
 }
 
 # ............................................................................................... #
@@ -91,6 +124,24 @@ pimp java.util.Set {
   }
 
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableSet(this)
+
+  function filter = |this, pred| {
+    let filtered = this: newWithSameType()
+    foreach (element in this) {
+      if pred(element) {
+        filtered: include(element)
+      }
+    }
+    return filtered
+  }
+
+  function map = |this, func| {
+    let mapped = this: newWithSameType()
+    foreach (element in this) {
+      mapped: include(func(element))
+    }
+    return mapped
+  }
 }
 
 # ............................................................................................... #
@@ -131,6 +182,41 @@ pimp java.util.Map {
   }
 
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableMap(this)
+
+  function newWithSameType = |this| -> this: getClass(): newInstance()
+
+  function filter = |this, pred| {
+    let filtered = this: newWithSameType()
+    foreach (entry in this: entrySet()) {
+      let key = entry: getKey()
+      let value = entry: getValue()
+      if pred(key, value) {
+        filtered: put(key, value)
+      }
+    }
+    return filtered
+  }
+
+  function map = |this, func| {
+    let mapped = this: newWithSameType()
+    foreach (entry in this: entrySet()) {
+      let key = entry: getKey()
+      let value = entry: getValue()
+      let result = func(key, value)
+      mapped: put(result: getKey(), result: getValue())
+    }
+    return mapped
+  }
+
+  function reduce = |this, initialValue, func| {
+    var acc = initialValue
+    foreach (entry in this: entrySet()) {
+      let key = entry: getKey()
+      let value = entry: getValue()
+      acc = func(acc, key, value)
+    }
+    return acc
+  }
 }
 
 # ............................................................................................... #
