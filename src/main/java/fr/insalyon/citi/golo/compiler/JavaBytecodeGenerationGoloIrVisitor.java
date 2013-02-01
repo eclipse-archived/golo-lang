@@ -175,7 +175,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       function.accept(this);
     }
 
-    writeImportMetaData(module.getImports());
+    Set<ModuleImport> imports = new HashSet<>(module.getImports());
+    imports.add(new ModuleImport(module.getPackageAndClass(), new PositionInSourceCode(0, 0)));
+    writeImportMetaData(imports);
 
     classWriter.visitEnd();
     generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
