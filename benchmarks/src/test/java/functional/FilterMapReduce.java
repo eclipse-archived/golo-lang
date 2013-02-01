@@ -1,5 +1,6 @@
 package functional;
 
+import clojure.lang.Var;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.Clock;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
@@ -22,6 +23,7 @@ public class FilterMapReduce extends GoloBenchmark {
   private static final Class<?> GroovyClass = loadGroovyClass("FilterMapReduce.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
+  private static final Var ClojureScript = clojureReference("filter-map-reduce.clj", "filtermapreduce)", "testcase");
 
   static {
     JRubyContainer = new ScriptingContainer();
@@ -51,5 +53,12 @@ public class FilterMapReduce extends GoloBenchmark {
   public void jruby() throws Throwable {
     JRubyContainer.put("@data_set", javaList);
     Object result = JRubyScript.run();
+  }
+
+  @Test
+  public void clojure() throws Throwable {
+    System.out.println(ClojureScript);
+    Object result = ClojureScript.invoke();
+    System.out.println(result);
   }
 }
