@@ -6,7 +6,9 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.haveSameNumberOfArguments;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.*;
@@ -89,32 +91,39 @@ public class MethodInvocationSupport {
     return target.invokeWithArguments(args);
   }
 
-  private static MethodHandle findTarget(Class<?> receiverClass, PolymorphicInlineCache inlineCache, Object[] args) throws IllegalAccessException {
+  private static MethodHandle findTarget(Class<?> receiverClass, PolymorphicInlineCache inlineCache, Object[] args) {
     MethodHandle target;
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
     if (searchResult != null) {
-      if (searchResult.getClass() == Method.class) {
-        Method method = (Method) searchResult;
-        if (makeAccessible) {
-          method.setAccessible(true);
-        }
-        target = inlineCache.callerLookup.unreflect(method).asType(type);
-      } else {
-        Field field = (Field) searchResult;
-        if (makeAccessible) {
-          field.setAccessible(true);
-        }
-        if (args.length == 1) {
-          target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
+      try {
+        if (searchResult.getClass() == Method.class) {
+          Method method = (Method) searchResult;
+          if (makeAccessible) {
+            method.setAccessible(true);
+          }
+          target = inlineCache.callerLookup.unreflect(method).asType(type);
         } else {
-          target = inlineCache.callerLookup.unreflectSetter(field);
-          target = filterReturnValue(target, constant(receiverClass, args[0])).asType(type);
+          Field field = (Field) searchResult;
+          if (makeAccessible) {
+            field.setAccessible(true);
+          }
+          if (args.length == 1) {
+            target = inlineCache.callerLookup.unreflectGetter(field).asType(type);
+          } else {
+            target = inlineCache.callerLookup.unreflectSetter(field);
+            target = filterReturnValue(target, constant(receiverClass, args[0])).asType(type);
+          }
         }
+        return target;
+      } catch (IllegalAccessException ignored) {
+        /* We need to give pimps a chance, as IllegalAccessException can be noise in our resolution.
+         * Example: pimping HashSet with a map function.
+         *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
+         */
       }
-      return target;
     }
 
     target = findInPimps(receiverClass, inlineCache);
