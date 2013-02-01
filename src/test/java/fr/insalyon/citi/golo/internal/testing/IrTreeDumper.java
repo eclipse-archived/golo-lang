@@ -105,7 +105,8 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
     incr();
     space();
-    System.out.println("Function call: " + functionInvocation.getName());
+    System.out.println("Function call: " + functionInvocation.getName()
+        + " on reference? -> " + functionInvocation.isOnReference());
     for (ExpressionStatement argument : functionInvocation.getArguments()) {
       argument.accept(this);
     }

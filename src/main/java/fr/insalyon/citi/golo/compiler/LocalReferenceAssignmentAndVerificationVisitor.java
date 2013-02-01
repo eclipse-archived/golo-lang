@@ -128,6 +128,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
+    conditionalBranching.getCondition().accept(this);
     conditionalBranching.getTrueBlock().accept(this);
     if (conditionalBranching.hasFalseBlock()) {
       conditionalBranching.getFalseBlock().accept(this);
