@@ -13,7 +13,7 @@ import org.junit.Test;
 
 import static org.jruby.javasupport.JavaEmbedUtils.javaToRuby;
 
-@BenchmarkOptions(clock = Clock.NANO_TIME)
+@BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 15, benchmarkRounds = 5)
 @BenchmarkMethodChart(filePrefix = "fibonacci")
 @BenchmarkHistoryChart(filePrefix = "fibonacci-history", labelWith = LabelType.TIMESTAMP)
 public class FibonacciTest extends GoloBenchmark {

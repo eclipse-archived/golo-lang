@@ -17,7 +17,7 @@ import java.util.List;
 @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 20, benchmarkRounds = 10)
 @BenchmarkMethodChart(filePrefix = "filter-map-reduce")
 @BenchmarkHistoryChart(filePrefix = "filter-map-reduce-history", labelWith = LabelType.TIMESTAMP)
-public class FilterMapReduce extends GoloBenchmark {
+public class FilterMapReduceTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("FilterMapReduce.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("FilterMapReduce.groovy");
