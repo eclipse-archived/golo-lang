@@ -152,7 +152,7 @@
           <repositoryName>lib</repositoryName>
           <repositoryLayout>flat</repositoryLayout>
           <licenseHeaderFile>${project.basedir}/LICENSE</licenseHeaderFile>
-          <extraJvmArguments>-server -Xms512M -Xmx512M -XX:-TieredCompilation</extraJvmArguments>
+          <extraJvmArguments>-server -Xms1024M -Xmx1024M -XX:-TieredCompilation</extraJvmArguments>
           <programs>
             <program>
               <name>golo</name>
