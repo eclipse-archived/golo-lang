@@ -10,10 +10,10 @@ import java.io.*;
 
 public class GoloBenchmark extends AbstractBenchmark {
 
-  private static String GOLO_SRC_DIR = "src/main/golo/";
-  private static String GROOVY_SRC_DIR = "src/main/groovy/";
-  private static String CLOJURE_SRC_DIR = "src/main/clojure/";
-  private static String RUBY_SRC_DIR = "src/main/ruby/";
+  private static final String GOLO_SRC_DIR = "src/main/golo/";
+  private static final String GROOVY_SRC_DIR = "src/main/groovy/";
+  private static final String CLOJURE_SRC_DIR = "src/main/clojure/";
+  private static final String RUBY_SRC_DIR = "src/main/ruby/";
 
   private static GoloClassLoader goloClassLoader;
   private static GroovyClassLoader groovyClassLoader;
