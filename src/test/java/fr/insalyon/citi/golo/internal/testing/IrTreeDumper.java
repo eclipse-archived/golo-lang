@@ -27,7 +27,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void visitModule(GoloModule module) {
     space();
     System.out.println(module.getPackageAndClass());
-    for (GoloFunction function : module.getFunctions().values()) {
+    for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
     for (String pimpTarget : module.getPimps().keySet()) {

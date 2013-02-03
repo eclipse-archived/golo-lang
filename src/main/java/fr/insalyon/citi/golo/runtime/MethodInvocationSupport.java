@@ -6,9 +6,7 @@ import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
-import static fr.insalyon.citi.golo.runtime.TypeMatching.canAssign;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.haveEnoughArgumentsForVarargs;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.haveSameNumberOfArguments;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.*;
@@ -177,6 +175,7 @@ public class MethodInvocationSupport {
     String name = inlineCache.name;
     MethodType type = inlineCache.type();
     Lookup lookup = inlineCache.callerLookup;
+    final int arity = inlineCache.type().parameterCount();
 
     ClassLoader classLoader = callerClass.getClassLoader();
     for (String pimp : Module.pimps(callerClass)) {
@@ -185,7 +184,7 @@ public class MethodInvocationSupport {
         if (pimpedClass.isAssignableFrom(receiverClass)) {
           Class<?> pimpClass = classLoader.loadClass(pimpClassName(callerClass, pimpedClass));
           for (Method method : pimpClass.getMethods()) {
-            if (isCandidateMethod(name, method)) {
+            if (isCandidateMethod(name, method) && pimpMethodMatches(arity, method)) {
               return lookup.unreflect(method).asType(type);
             }
           }
@@ -204,7 +203,7 @@ public class MethodInvocationSupport {
             if (pimpedClass.isAssignableFrom(receiverClass)) {
               Class<?> pimpClass = classLoader.loadClass(pimpClassName(importClass, pimpedClass));
               for (Method method : pimpClass.getMethods()) {
-                if (isCandidateMethod(name, method)) {
+                if (isCandidateMethod(name, method) && pimpMethodMatches(arity, method)) {
                   return lookup.unreflect(method).asType(type);
                 }
               }
@@ -217,6 +216,11 @@ public class MethodInvocationSupport {
     }
 
     return null;
+  }
+
+  private static boolean pimpMethodMatches(int arity, Method method) {
+    int parameterCount = method.getParameterTypes().length;
+    return (parameterCount == arity) || (method.isVarArgs() && (parameterCount <= arity));
   }
 
   private static String pimpClassName(Class<?> moduleClass, Class<?> pimpedClass) {

@@ -94,7 +94,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModule(GoloModule module) {
-    for (GoloFunction function : module.getFunctions().values()) {
+    for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
     for (String pimpTarget : module.getPimps().keySet()) {

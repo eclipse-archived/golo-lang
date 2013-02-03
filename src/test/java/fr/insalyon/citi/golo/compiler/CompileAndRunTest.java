@@ -598,4 +598,21 @@ public class CompileAndRunTest {
     Method priority = moduleClass.getMethod("priority");
     assertThat((String) priority.invoke(null), is("Pimped!"));
   }
+
+  @Test
+  public void check_overloading() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "overloading.golo");
+
+    Method foo = moduleClass.getMethod("foo");
+    assertThat((String) foo.invoke(null), is("foo"));
+
+    foo = moduleClass.getMethod("foo", Object.class);
+    assertThat((String) foo.invoke(null, "plop"), is("plop"));
+
+    Method pimp1 = moduleClass.getMethod("pimp1");
+    assertThat((String) pimp1.invoke(null), is("ab"));
+
+    Method pimp2 = moduleClass.getMethod("pimp2");
+    assertThat((String) pimp2.invoke(null), is("abc"));
+  }
 }

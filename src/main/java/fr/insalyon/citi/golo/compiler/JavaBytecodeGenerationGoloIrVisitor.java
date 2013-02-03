@@ -99,7 +99,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     writeImportMetaData(module.getImports());
-    for (GoloFunction function : module.getFunctions().values()) {
+    for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
     for (Map.Entry<String, Set<GoloFunction>> pimpEntry : module.getPimps().entrySet()) {
