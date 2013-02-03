@@ -16,6 +16,8 @@ pimp java.lang.String {
     }
     return result
   }
+
+  function toString = |this| -> "Pimped!"
 }
 
 function goog = -> "http://www.google.com/": toURLType()
@@ -27,3 +29,5 @@ function externalPimp = -> "abc": wrap("(", ")")
 function varargs = -> "a": concatWith("b", "c", "d")
 
 function polymorphism = -> java.util.LinkedList(): plop()
+
+function priority = -> "Plop": toString()

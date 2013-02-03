@@ -594,5 +594,8 @@ public class CompileAndRunTest {
 
     Method polymorphism = moduleClass.getMethod("polymorphism");
     assertThat((String) polymorphism.invoke(null), is("plop!"));
+
+    Method priority = moduleClass.getMethod("priority");
+    assertThat((String) priority.invoke(null), is("Pimped!"));
   }
 }
