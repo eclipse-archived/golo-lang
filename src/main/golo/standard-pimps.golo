@@ -42,7 +42,7 @@ pimp java.util.List {
     return this
   }
 
-  function appendValues = |this, head, tail...| {
+  function append = |this, head, tail...| {
     this: append(head)
     foreach (element in atoList(tail)) {
       this: append(element)
@@ -50,7 +50,7 @@ pimp java.util.List {
     return this
   }
 
-  function prependValues = |this, head, tail...| {
+  function prepend = |this, head, tail...| {
     for (var i = alength(tail) - 1, i >= 0, i = i - 1) {
       this: prepend(aget(tail, i))
     }
@@ -94,7 +94,7 @@ pimp java.util.Set {
     return this
   }
 
-  function includeValues = |this, first, rest...| {
+  function include = |this, first, rest...| {
     this: add(first)
     foreach (element in atoList(rest)) {
       this: add(element)
@@ -102,7 +102,7 @@ pimp java.util.Set {
     return this
   }
 
-  function excludeValues = |this, first, rest...| {
+  function exclude = |this, first, rest...| {
     this: remove(first)
     foreach (element in atoList(rest)) {
       this: remove(element)
@@ -110,7 +110,9 @@ pimp java.util.Set {
     return this
   }
 
-  function containsValues = |this, first, rest...| {
+  function has = |this, element| -> this: contains(element)
+
+  function has = |this, first, rest...| {
     if not(this: contains(first)) {
       return false
     } else {
