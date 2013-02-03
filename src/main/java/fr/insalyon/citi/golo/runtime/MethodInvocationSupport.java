@@ -94,12 +94,6 @@ public class MethodInvocationSupport {
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
-    // Pimps can shortcut methods
-    target = findInPimps(receiverClass, inlineCache);
-    if (target != null) {
-      return target;
-    }
-
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
     if (searchResult != null) {
       try {
@@ -123,9 +117,17 @@ public class MethodInvocationSupport {
         }
         return target;
       } catch (IllegalAccessException ignored) {
+        /* We need to give pimps a chance, as IllegalAccessException can be noise in our resolution.
+         * Example: pimping HashSet with a map function.
+         *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
+         */
       }
     }
 
+    target = findInPimps(receiverClass, inlineCache);
+    if (target != null) {
+      return target;
+    }
     throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
   }
 
