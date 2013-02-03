@@ -3,6 +3,8 @@ module golotest.execution.Pimps
 import java.util.List
 import golotest.execution.Pimps.ExternalSource
 
+function dummy = -> null
+
 pimp java.lang.String {
 
   function append = |this, tail| -> this + tail

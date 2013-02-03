@@ -313,8 +313,7 @@ ASTCompilationUnit CompilationUnit(): {}
   ModuleDeclaration()
   BlankLines()
   ( ImportDeclaration() BlankLines() )*
-  ( PimpDeclaration() BlankLines() )*
-  ( FunctionDeclaration() BlankLines() )*
+  ( (PimpDeclaration() | FunctionDeclaration()) BlankLines() )*
   <EOF>  
   { return jjtThis; }
 }
