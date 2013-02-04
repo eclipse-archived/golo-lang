@@ -24,7 +24,9 @@ Not everything is deemed to be implemented...
 
 * Cache method / function resolution in the runtime support classes.
 
-* The inline-cache is slow at the terminal node since every call can yield a new method handle.
+* Deal with polymorphic call sites.
+
+* Investigate adaptive handling of types.
 
 ## Internals
 
