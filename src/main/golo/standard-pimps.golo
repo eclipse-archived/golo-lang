@@ -78,6 +78,12 @@ pimp java.util.List {
     }
     return mapped
   }
+
+  function each = |this, func| {
+    foreach (element in this) {
+      func(element)
+    }
+  }
 }
 
 # ............................................................................................... #
@@ -143,6 +149,12 @@ pimp java.util.Set {
       mapped: include(func(element))
     }
     return mapped
+  }
+
+  function each = |this, func| {
+    foreach (element in this) {
+      func(element)
+    }
   }
 }
 
@@ -218,6 +230,12 @@ pimp java.util.Map {
       acc = func(acc, key, value)
     }
     return acc
+  }
+
+  function each = |this, func| {
+    foreach (entry in this: entrySet()) {
+      func(entry: getKey(), entry: getValue())
+    }
   }
 }
 
