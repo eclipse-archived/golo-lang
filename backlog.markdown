@@ -28,6 +28,8 @@ Not everything is deemed to be implemented...
 
 * Investigate adaptive handling of types.
 
+* Ability to define a blacklist of classes.
+
 ## Internals
 
 * Concurrent compilation?
