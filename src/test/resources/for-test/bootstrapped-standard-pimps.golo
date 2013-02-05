@@ -1,10 +1,18 @@
+# ............................................................................................... #
+
 module golo.test.bootstrapped.StandardPimpsTests
+
+# ............................................................................................... #
 
 import java.util
 import java.util.concurrent
 import java.util.concurrent.atomic
 
+# ............................................................................................... #
+
 function method_handle_to = -> (-> "ok"): to(Callable.class)
+
+# ............................................................................................... #
 
 local function list_data = {
   return LinkedList():
@@ -27,6 +35,8 @@ function lists_each = {
   list_data(): each(|v| -> int: addAndGet(v))
   return int: get()
 }
+
+# ............................................................................................... #
 
 local function set_data = {
   return HashSet():
@@ -51,3 +61,27 @@ function sets_each = {
   set_data(): each(|v| -> int: addAndGet(v))
   return int: get()
 }
+
+# ............................................................................................... #
+
+local function map_data = {
+  return TreeMap():
+    add("a", 1):
+    add("b", 2):
+    add("c", 3)
+}
+
+function maps_addIfAbsent = -> map_data(): addIfAbsent("b", 666): get("b")
+function maps_getOrElse = -> map_data(): delete("b"): unmodifiableView(): getOrElse("b", 666)
+
+function maps_filter = -> map_data(): filter(|k, v| -> k isnt "b")
+function maps_map = -> map_data(): map(|k, v| -> mapEntry(k, v * 10)): unmodifiableView()
+function maps_reduce = -> map_data(): reduce("", |acc, k, v| -> acc + k + v)
+
+function maps_each = {
+  let int = AtomicInteger(0)
+  map_data(): each(|k, v| -> int: addAndGet(v))
+  return int: get()
+}
+
+# ............................................................................................... #

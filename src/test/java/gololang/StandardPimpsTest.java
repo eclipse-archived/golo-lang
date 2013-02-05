@@ -8,6 +8,7 @@ import org.testng.annotations.Test;
 import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.Callable;
 
@@ -23,7 +24,7 @@ public class StandardPimpsTest {
   @BeforeTest
   public void load_module() throws Throwable {
     if (System.getenv("golo.bootstrapped") == null) {
-      throw new SkipException("Not bootstrapped");
+      throw new SkipException("Golo is in a bootstrap build execution");
     }
     moduleClass = compileAndLoadGoloModule(SRC, "bootstrapped-standard-pimps.golo");
   }
@@ -127,5 +128,52 @@ public class StandardPimpsTest {
     Object result = sets_each.invoke(null);
     assertThat(result, instanceOf(Integer.class));
     assertThat((Integer) result, is(10));
+  }
+
+  @Test
+  public void maps_addIfAbsent() throws Throwable {
+    Method maps_addIfAbsent = moduleClass.getMethod("maps_addIfAbsent");
+    assertThat((Integer) maps_addIfAbsent.invoke(null), is(2));
+  }
+
+  @Test
+  public void maps_getOrElse() throws Throwable {
+    Method maps_getOrElse = moduleClass.getMethod("maps_getOrElse");
+    assertThat((Integer) maps_getOrElse.invoke(null), is(666));
+  }
+
+  @Test
+  public void maps_filter() throws Throwable {
+    Method maps_filter = moduleClass.getMethod("maps_filter");
+    Object result = maps_filter.invoke(null);
+    assertThat(result, instanceOf(Map.class));
+    Map<String, Integer> map = (Map<String, Integer>) result;
+    assertThat(map, hasEntry("a", 1));
+    assertThat(map, hasEntry("c", 3));
+    assertThat(map.size(), is(2));
+  }
+
+  @Test
+  public void maps_map() throws Throwable {
+    Method maps_map = moduleClass.getMethod("maps_map");
+    Object result = maps_map.invoke(null);
+    assertThat(result, instanceOf(Map.class));
+    Map<String, Integer> map = (Map<String, Integer>) result;
+    assertThat(map, hasEntry("a", 10));
+    assertThat(map, hasEntry("b", 20));
+    assertThat(map, hasEntry("c", 30));
+    assertThat(map.size(), is(3));
+  }
+
+  @Test
+  public void maps_reduce() throws Throwable {
+    Method maps_reduce = moduleClass.getMethod("maps_reduce");
+    assertThat((String) maps_reduce.invoke(null), is("a1b2c3"));
+  }
+
+  @Test
+  public void maps_each() throws Throwable {
+    Method maps_each = moduleClass.getMethod("maps_each");
+    assertThat((Integer) maps_each.invoke(null), is(6));
   }
 }
