@@ -74,9 +74,14 @@ namespace :test do
     sh "mvn test -Dtest=CompilationTest -P verbose-tests"
   end
 
-  desc "Samples running tests (verbose)"
+  desc "Samples compilation and running tests (verbose)"
   task :run do
     sh "mvn test -Dtest=CompileAndRunTest -P verbose-tests"
+  end
+
+  desc "Standard library classes"
+  task :stdlib do
+    sh "mvn test -Dtest=gololang.*"
   end
 
 end
