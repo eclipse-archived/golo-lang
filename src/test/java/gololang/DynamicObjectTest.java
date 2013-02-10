@@ -36,50 +36,50 @@ public class DynamicObjectTest {
     DynamicObject dynamicObject = new DynamicObject();
     dynamicObject.define("name", "Mr Bean");
 
-    MutableCallSite callSite = new MutableCallSite(genericMethodType(0));
+    MutableCallSite callSite = new MutableCallSite(genericMethodType(1));
     dynamicObject.plug(callSite, "name");
     MethodHandle invoker = callSite.dynamicInvoker();
-    Object result = invoker.invoke();
+    Object result = invoker.invoke(dynamicObject);
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("Mr Bean"));
 
     dynamicObject.undefine("name");
     assertThat(dynamicObject.get("name"), nullValue());
     try {
-      invoker.invoke();
+      invoker.invoke(dynamicObject);
       fail("Expected NoSuchMethodException");
     } catch (NoSuchMethodException expected) {
     }
 
     dynamicObject.define("name", "John B Root");
-    assertThat((String) invoker.invoke(), is("John B Root"));
+    assertThat((String) invoker.invoke(dynamicObject), is("John B Root"));
 
     dynamicObject.define("name", "John B Rootz");
-    assertThat((String) invoker.invoke(), is("John B Rootz"));
+    assertThat((String) invoker.invoke(dynamicObject), is("John B Rootz"));
   }
 
   @Test
   public void plug_function() throws Throwable {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
-    MethodHandle concatenate = lookup.findStatic(GoloTestHelperFunctions.class, "concatenate",
-        methodType(String.class, String.class, String.class));
+    MethodHandle is = lookup.findStatic(GoloTestHelperFunctions.class, "is",
+        methodType(boolean.class, Object.class, Object.class));
 
     DynamicObject dynamicObject = new DynamicObject();
-    dynamicObject.define("concat", concatenate);
+    dynamicObject.define("is", is);
     MutableCallSite callSite = new MutableCallSite(genericMethodType(2));
-    dynamicObject.plug(callSite, "concat");
+    dynamicObject.plug(callSite, "is");
     MethodHandle invoker = callSite.dynamicInvoker();
 
-    assertThat((String) invoker.invokeWithArguments("a", "b"), is("ab"));
+    assertThat((Boolean) invoker.invokeWithArguments("a", "a"), is(true));
 
-    dynamicObject.undefine("concat");
+    dynamicObject.undefine("is");
     try {
-      invoker.invokeWithArguments("a", "b");
+      invoker.invokeWithArguments("a", "a");
       fail("Expected NoSuchMethodException");
     } catch (NoSuchMethodException expected) {
     }
 
-    dynamicObject.define("concat", concatenate);
-    assertThat((String) invoker.invokeWithArguments("a", "b"), is("ab"));
+    dynamicObject.define("is", is);
+    assertThat((Boolean) invoker.invokeWithArguments("a", "a"), is(true));
   }
 }

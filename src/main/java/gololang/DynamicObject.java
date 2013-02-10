@@ -6,8 +6,10 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import static java.lang.invoke.MethodHandles.constant;
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.invoke.MethodHandles.insertArguments;
+import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 public class DynamicObject {
@@ -76,8 +78,11 @@ public class DynamicObject {
     if (value != null) {
       if (isFunction) {
         target = (MethodHandle) value;
+        if (wrongFunctionSignature(target)) {
+          throw new IllegalArgumentException(name + " must have a first a non-array first argument as the dynamic object");
+        }
       } else {
-        target = MethodHandles.constant(Object.class, value);
+        target = dropArguments(constant(Object.class, value), 0, DynamicObject.class);
       }
     } else {
       target = PROPERTY_MISSING
@@ -93,5 +98,9 @@ public class DynamicObject {
     callSite.setTarget(switchPoint.guardWithTest(target.asType(type), fallback));
     switchPoints.get(name).add(switchPoint);
     return callSite;
+  }
+
+  private boolean wrongFunctionSignature(MethodHandle target) {
+    return target.type().parameterCount() < 1 || target.type().parameterType(0).isArray();
   }
 }
