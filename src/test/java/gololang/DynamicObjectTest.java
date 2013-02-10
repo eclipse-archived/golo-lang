@@ -78,5 +78,8 @@ public class DynamicObjectTest {
       fail("Expected NoSuchMethodException");
     } catch (NoSuchMethodException expected) {
     }
+
+    dynamicObject.define("concat", concatenate);
+    assertThat((String) invoker.invokeWithArguments("a", "b"), is("ab"));
   }
 }
