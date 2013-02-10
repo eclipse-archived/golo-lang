@@ -53,7 +53,7 @@ public class DynamicObject {
       FALLBACK = lookup.findStatic(DynamicObject.class, "fallback",
           methodType(Object.class, MutableCallSite.class, String.class, DynamicObject.class, Object[].class));
       PROPERTY_MISSING = lookup.findStatic(DynamicObject.class, "propertyMissing",
-          methodType(Object.class, String.class));
+          methodType(Object.class, String.class, Object[].class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles");
     }
@@ -64,12 +64,13 @@ public class DynamicObject {
     return callSite.dynamicInvoker().invokeWithArguments(args);
   }
 
-  public static Object propertyMissing(String name) throws NoSuchMethodException {
+  public static Object propertyMissing(String name, Object[] args) throws NoSuchMethodException {
     throw new NoSuchMethodException("Missing DynamicObject definition for " + name);
   }
 
   public MutableCallSite plug(MutableCallSite callSite, String name) {
     MethodHandle target;
+    MethodType type = callSite.type();
     Object value = properties.get(name);
     boolean isFunction = value instanceof MethodHandle;
     if (value != null) {
@@ -79,10 +80,12 @@ public class DynamicObject {
         target = MethodHandles.constant(Object.class, value);
       }
     } else {
-      target = PROPERTY_MISSING.bindTo(name);
+      target = PROPERTY_MISSING
+          .bindTo(name)
+          .asCollector(Object[].class, type.parameterCount())
+          .asType(type);
       switchPoints.put(name, new HashSet<SwitchPoint>());
     }
-    MethodType type = callSite.type();
     MethodHandle fallback = insertArguments(FALLBACK, 0, callSite, name, this)
         .asCollector(Object[].class, type.parameterCount())
         .asType(type);
