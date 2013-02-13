@@ -1,9 +1,6 @@
 package gololang;
 
 import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFunctions;
-import org.hamcrest.Matchers;
-import org.testng.Assert;
-import org.testng.TestException;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -18,6 +15,37 @@ import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 
 public class DynamicObjectTest {
+
+  static Object same(Object receiver, Object a, Object b) {
+    return a == b;
+  }
+
+  static Object fallback(MutableCallSite callsite, String name, Object[] args) throws Throwable {
+    DynamicObject object = (DynamicObject) args[0];
+    MethodType type = callsite.type();
+    MethodHandle fallback = FALLBACK
+        .bindTo(callsite)
+        .bindTo(name)
+        .asCollector(Object[].class, type.parameterCount())
+        .asType(type);
+    MethodHandle newTarget = object.plug(name, type, fallback);
+    callsite.setTarget(newTarget);
+    return newTarget.invokeWithArguments(args);
+  }
+
+  static final MethodHandle FALLBACK;
+
+  static {
+    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    try {
+      FALLBACK = lookup.findStatic(
+          DynamicObjectTest.class,
+          "fallback",
+          methodType(Object.class, MutableCallSite.class, String.class, Object[].class));
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new Error(e);
+    }
+  }
 
   @Test
   public void define_undefine_value() {
@@ -36,8 +64,15 @@ public class DynamicObjectTest {
     DynamicObject dynamicObject = new DynamicObject();
     dynamicObject.define("name", "Mr Bean");
 
-    MutableCallSite callSite = new MutableCallSite(genericMethodType(1));
-    dynamicObject.plug(callSite, "name");
+    MethodType type = genericMethodType(1);
+    MutableCallSite callSite = new MutableCallSite(type);
+    MethodHandle fallback = FALLBACK
+        .bindTo(callSite)
+        .bindTo("name")
+        .asCollector(Object[].class, 1)
+        .asType(type);
+    callSite.setTarget(fallback);
+
     MethodHandle invoker = callSite.dynamicInvoker();
     Object result = invoker.invoke(dynamicObject);
     assertThat(result, instanceOf(String.class));
@@ -60,26 +95,34 @@ public class DynamicObjectTest {
 
   @Test
   public void plug_function() throws Throwable {
+    MethodType type = genericMethodType(3);
     MethodHandles.Lookup lookup = MethodHandles.lookup();
-    MethodHandle is = lookup.findStatic(GoloTestHelperFunctions.class, "is",
-        methodType(boolean.class, Object.class, Object.class));
+    MethodHandle same = lookup.findStatic(DynamicObjectTest.class, "same", type);
 
     DynamicObject dynamicObject = new DynamicObject();
-    dynamicObject.define("is", is);
-    MutableCallSite callSite = new MutableCallSite(genericMethodType(2));
-    dynamicObject.plug(callSite, "is");
+    dynamicObject.define("same", same);
+
+    MutableCallSite callSite = new MutableCallSite(type);
+    MethodHandle fallback = FALLBACK
+        .bindTo(callSite)
+        .bindTo("same")
+        .asCollector(Object[].class, 3)
+        .asType(type);
+    callSite.setTarget(fallback);
+
     MethodHandle invoker = callSite.dynamicInvoker();
+    assertThat((Boolean) invoker.invokeWithArguments(dynamicObject, "a", "a"), is(true));
+    assertThat((Boolean) invoker.invokeWithArguments(dynamicObject, "a", "b"), is(false));
 
-    assertThat((Boolean) invoker.invokeWithArguments("a", "a"), is(true));
-
-    dynamicObject.undefine("is");
+    dynamicObject.undefine("same");
     try {
-      invoker.invokeWithArguments("a", "a");
+      invoker.invokeWithArguments(dynamicObject, "a", "a");
       fail("Expected NoSuchMethodException");
     } catch (NoSuchMethodException expected) {
     }
 
-    dynamicObject.define("is", is);
-    assertThat((Boolean) invoker.invokeWithArguments("a", "a"), is(true));
+    dynamicObject.define("same", same);
+    assertThat((Boolean) invoker.invokeWithArguments(dynamicObject, "a", "a"), is(true));
+    assertThat((Boolean) invoker.invokeWithArguments(dynamicObject, "a", "b"), is(false));
   }
 }

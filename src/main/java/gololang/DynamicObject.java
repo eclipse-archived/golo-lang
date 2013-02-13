@@ -1,6 +1,9 @@
 package gololang;
 
-import java.lang.invoke.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.lang.invoke.SwitchPoint;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -8,8 +11,6 @@ import java.util.Set;
 
 import static java.lang.invoke.MethodHandles.constant;
 import static java.lang.invoke.MethodHandles.dropArguments;
-import static java.lang.invoke.MethodHandles.insertArguments;
-import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 public class DynamicObject {
@@ -46,14 +47,11 @@ public class DynamicObject {
     return this;
   }
 
-  private static final MethodHandle FALLBACK;
   private static final MethodHandle PROPERTY_MISSING;
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
-      FALLBACK = lookup.findStatic(DynamicObject.class, "fallback",
-          methodType(Object.class, MutableCallSite.class, String.class, DynamicObject.class, Object[].class));
       PROPERTY_MISSING = lookup.findStatic(DynamicObject.class, "propertyMissing",
           methodType(Object.class, String.class, Object[].class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
@@ -61,22 +59,15 @@ public class DynamicObject {
     }
   }
 
-  public static Object fallback(MutableCallSite callSite, String name, DynamicObject dynamicObject, Object[] args) throws Throwable {
-    dynamicObject.plug(callSite, name);
-    return callSite.dynamicInvoker().invokeWithArguments(args);
-  }
-
   public static Object propertyMissing(String name, Object[] args) throws NoSuchMethodException {
     throw new NoSuchMethodException("Missing DynamicObject definition for " + name);
   }
 
-  public MutableCallSite plug(MutableCallSite callSite, String name) {
-    MethodHandle target;
-    MethodType type = callSite.type();
+  public MethodHandle plug(String name, MethodType type, MethodHandle fallback) {
     Object value = properties.get(name);
-    boolean isFunction = value instanceof MethodHandle;
+    MethodHandle target;
     if (value != null) {
-      if (isFunction) {
+      if (value instanceof MethodHandle) {
         target = (MethodHandle) value;
         if (wrongFunctionSignature(target)) {
           throw new IllegalArgumentException(name + " must have a first a non-array first argument as the dynamic object");
@@ -91,13 +82,9 @@ public class DynamicObject {
           .asType(type);
       switchPoints.put(name, new HashSet<SwitchPoint>());
     }
-    MethodHandle fallback = insertArguments(FALLBACK, 0, callSite, name, this)
-        .asCollector(Object[].class, type.parameterCount())
-        .asType(type);
     SwitchPoint switchPoint = new SwitchPoint();
-    callSite.setTarget(switchPoint.guardWithTest(target.asType(type), fallback));
     switchPoints.get(name).add(switchPoint);
-    return callSite;
+    return switchPoint.guardWithTest(target.asType(type), fallback);
   }
 
   private boolean wrongFunctionSignature(MethodHandle target) {
