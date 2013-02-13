@@ -11,6 +11,7 @@ import java.util.Set;
 
 import static java.lang.invoke.MethodHandles.constant;
 import static java.lang.invoke.MethodHandles.dropArguments;
+import static java.lang.invoke.MethodHandles.insertArguments;
 import static java.lang.invoke.MethodType.methodType;
 
 public class DynamicObject {
@@ -48,12 +49,15 @@ public class DynamicObject {
   }
 
   private static final MethodHandle PROPERTY_MISSING;
+  private static final MethodHandle DEFINE;
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
       PROPERTY_MISSING = lookup.findStatic(DynamicObject.class, "propertyMissing",
           methodType(Object.class, String.class, Object[].class));
+      DEFINE = lookup.findVirtual(DynamicObject.class, "define",
+          methodType(DynamicObject.class, String.class, Object.class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles");
     }
@@ -66,6 +70,7 @@ public class DynamicObject {
   public MethodHandle plug(String name, MethodType type, MethodHandle fallback) {
     Object value = properties.get(name);
     MethodHandle target;
+    int parameterCount = type.parameterCount();
     if (value != null) {
       if (value instanceof MethodHandle) {
         target = (MethodHandle) value;
@@ -73,12 +78,18 @@ public class DynamicObject {
           throw new IllegalArgumentException(name + " must have a first a non-array first argument as the dynamic object");
         }
       } else {
-        target = dropArguments(constant(Object.class, value), 0, DynamicObject.class);
+        if (parameterCount == 1) {
+          target = dropArguments(constant(Object.class, value), 0, DynamicObject.class);
+        } else if (parameterCount == 2) {
+          target = insertArguments(DEFINE, 1, name);
+        } else {
+          throw new IllegalArgumentException(name + " needs to invoked with just 1 argument");
+        }
       }
     } else {
       target = PROPERTY_MISSING
           .bindTo(name)
-          .asCollector(Object[].class, type.parameterCount())
+          .asCollector(Object[].class, parameterCount)
           .asType(type);
       switchPoints.put(name, new HashSet<SwitchPoint>());
     }

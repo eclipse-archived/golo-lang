@@ -94,6 +94,30 @@ public class DynamicObjectTest {
   }
 
   @Test
+  public void plug_value_setter() throws Throwable {
+    DynamicObject dynamicObject = new DynamicObject();
+    dynamicObject.define("name", "Mr Bean");
+
+    MethodType type = genericMethodType(2);
+    MutableCallSite callSite = new MutableCallSite(type);
+    MethodHandle fallback = FALLBACK
+        .bindTo(callSite)
+        .bindTo("name")
+        .asCollector(Object[].class, 2)
+        .asType(type);
+    callSite.setTarget(fallback);
+
+    MethodHandle invoker = callSite.dynamicInvoker();
+    Object result = invoker.invoke(dynamicObject, "John B Root");
+    assertThat(result, instanceOf(DynamicObject.class));
+    assertThat((String) dynamicObject.get("name"), is("John B Root"));
+
+    result = invoker.invoke(dynamicObject, "John B Rootz");
+    assertThat(result, instanceOf(DynamicObject.class));
+    assertThat((String) dynamicObject.get("name"), is("John B Rootz"));
+  }
+
+  @Test
   public void plug_function() throws Throwable {
     MethodType type = genericMethodType(3);
     MethodHandles.Lookup lookup = MethodHandles.lookup();
