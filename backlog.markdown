@@ -4,6 +4,8 @@ Not everything is deemed to be implemented...
 
 ## Language
 
+* Relax the parser (e.g., operators on the next line, etc)
+
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
 * Annotations.
