@@ -10,24 +10,24 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 import org.junit.Test;
 
-@BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 10)
-@BenchmarkMethodChart(filePrefix = "polymorphic-dispatch")
-@BenchmarkHistoryChart(filePrefix = "polymorphic-dispatch-history", labelWith = LabelType.TIMESTAMP)
-public class PolymorphicTest extends GoloBenchmark {
+@BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 15, benchmarkRounds = 5)
+@BenchmarkMethodChart(filePrefix = "pathologic-polymorphic-dispatch")
+@BenchmarkHistoryChart(filePrefix = "pathologic-polymorphic-dispatch-history", labelWith = LabelType.TIMESTAMP)
+public class PathologicPolymorphicTest extends GoloBenchmark {
 
-  private static final Class<?> GoloModule = loadGoloModule("Polymorphic.golo");
-  private static final Class<?> GroovyClass = loadGroovyClass("Polymorphic.groovy");
+  private static final Class<?> GoloModule = loadGoloModule("PathologicPolymorphic.golo");
+  private static final Class<?> GroovyClass = loadGroovyClass("PathologicPolymorphic.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
 
   static {
     JRubyContainer = new ScriptingContainer();
-    JRubyScript = jrubyEvalUnit(JRubyContainer, "polymorphic.rb");
+    JRubyScript = jrubyEvalUnit(JRubyContainer, "pathologic-polymorphic.rb");
   }
 
   @Test
   public void java() {
-    Polymorphic.run();
+    PathologicPolymorphic.run();
   }
 
   @Test

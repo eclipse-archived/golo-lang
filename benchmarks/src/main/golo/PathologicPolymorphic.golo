@@ -1,4 +1,4 @@
-module Polymorphic
+module PathologicPolymorphic
 
 import java.lang
 import java.util
@@ -8,7 +8,7 @@ function run = {
                    IllegalArgumentException(), IllegalStateException(), Object(), Exception())
   let length = alength(data)
   var result = null
-  for (var i = 0, i < 1000000, i = i + 1) {
+  for (var i = 0, i < 200000, i = i + 1) {
     for (var j = 0, j < length, j = j + 1) {
       result = aget(data, j): toString()
     }
