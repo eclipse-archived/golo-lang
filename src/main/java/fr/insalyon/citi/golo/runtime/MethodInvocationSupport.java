@@ -10,6 +10,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Set;
 
+import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.DYNAMIC_OBJECT;
+import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.POLYMORPHIC;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
@@ -23,15 +25,20 @@ public class MethodInvocationSupport {
    * Remi Forax's JSR292 cookbooks.
    */
 
-  static class PolymorphicInlineCache extends MutableCallSite {
+  static class InlineCache extends MutableCallSite {
+
+    static enum State {
+      DYNAMIC_OBJECT, POLYMORPHIC
+    }
 
     final MethodHandles.Lookup callerLookup;
     final String name;
 
     int depth = 0;
+    State state = POLYMORPHIC;
     MethodHandle fallback;
 
-    PolymorphicInlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -79,7 +86,7 @@ public class MethodInvocationSupport {
       FALLBACK = lookup.findStatic(
           MethodInvocationSupport.class,
           "fallback",
-          methodType(Object.class, PolymorphicInlineCache.class, Object[].class));
+          methodType(Object.class, InlineCache.class, Object[].class));
 
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
@@ -87,7 +94,7 @@ public class MethodInvocationSupport {
   }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
-    PolymorphicInlineCache callSite = new PolymorphicInlineCache(caller, name, type);
+    InlineCache callSite = new InlineCache(caller, name, type);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -105,13 +112,14 @@ public class MethodInvocationSupport {
     return expected == receiver;
   }
 
-  public static Object fallback(PolymorphicInlineCache inlineCache, Object[] args) throws Throwable {
+  public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
 
     if (isCallOnDynamicObject(inlineCache, args[0])) {
       DynamicObject dynamicObject = (DynamicObject) args[0];
       MethodHandle target = dynamicObject.plug(inlineCache.name, inlineCache.type(), inlineCache.fallback);
       MethodHandle guard = INSTANCE_GUARD.bindTo(dynamicObject);
       MethodHandle root = guardWithTest(guard, target, inlineCache.fallback);
+      inlineCache.state = DYNAMIC_OBJECT;
       inlineCache.resetWith(root);
       return target.invokeWithArguments(args);
     }
@@ -124,18 +132,19 @@ public class MethodInvocationSupport {
     }
 
     MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
-    MethodHandle fallback = (inlineCache.depth > 0) ? inlineCache.getTarget() : inlineCache.fallback;
+    MethodHandle fallback = (inlineCache.state == POLYMORPHIC) ? inlineCache.getTarget() : inlineCache.fallback;
     MethodHandle root = guardWithTest(guard, target, fallback);
     inlineCache.setTarget(root);
+    inlineCache.state = POLYMORPHIC;
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
   }
 
-  private static boolean isCallOnDynamicObject(PolymorphicInlineCache inlineCache, Object arg) {
+  private static boolean isCallOnDynamicObject(InlineCache inlineCache, Object arg) {
     return (arg instanceof DynamicObject) && !(DYNAMIC_OBJECT_RESERVED_METHOD_NAMES.contains(inlineCache.name));
   }
 
-  private static MethodHandle findTarget(Class<?> receiverClass, PolymorphicInlineCache inlineCache, Object[] args) {
+  private static MethodHandle findTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
     MethodHandle target;
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
@@ -218,7 +227,7 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static MethodHandle findInPimps(Class<?> receiverClass, PolymorphicInlineCache inlineCache) {
+  private static MethodHandle findInPimps(Class<?> receiverClass, InlineCache inlineCache) {
     Class<?> callerClass = inlineCache.callerLookup.lookupClass();
     String name = inlineCache.name;
     MethodType type = inlineCache.type();
