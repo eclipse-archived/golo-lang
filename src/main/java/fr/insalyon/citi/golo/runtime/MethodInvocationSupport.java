@@ -1,10 +1,14 @@
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.DynamicObject;
+
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Set;
 
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.*;
@@ -23,7 +27,9 @@ public class MethodInvocationSupport {
 
     final MethodHandles.Lookup callerLookup;
     final String name;
+
     int depth = 0;
+    MethodHandle fallback;
 
     PolymorphicInlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
       super(type);
@@ -36,24 +42,45 @@ public class MethodInvocationSupport {
       // TODO: check megamorphic fallback strategies
       // return depth >= 5;
     }
+
+    void resetWith(MethodHandle target) {
+      depth = 0;
+      setTarget(target);
+    }
   }
 
-  private static final MethodHandle GUARD;
+  private static final MethodHandle CLASS_GUARD;
+  private static final MethodHandle INSTANCE_GUARD;
   private static final MethodHandle FALLBACK;
+
+  private static final Set<String> DYNAMIC_OBJECT_RESERVED_METHOD_NAMES = new HashSet<String>() {
+    {
+      add("get");
+      add("plug");
+      add("define");
+      add("undefine");
+    }
+  };
 
   static {
     try {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-      GUARD = lookup.findStatic(
+      CLASS_GUARD = lookup.findStatic(
           MethodInvocationSupport.class,
-          "guard",
+          "classGuard",
           methodType(boolean.class, Class.class, Object.class));
+
+      INSTANCE_GUARD = lookup.findStatic(
+          MethodInvocationSupport.class,
+          "instanceGuard",
+          methodType(boolean.class, Object.class, Object.class));
 
       FALLBACK = lookup.findStatic(
           MethodInvocationSupport.class,
           "fallback",
           methodType(Object.class, PolymorphicInlineCache.class, Object[].class));
+
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
@@ -65,15 +92,29 @@ public class MethodInvocationSupport {
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
         .asType(type);
+    callSite.fallback = fallbackHandle;
     callSite.setTarget(fallbackHandle);
     return callSite;
   }
 
-  public static boolean guard(Class<?> expected, Object receiver) {
+  public static boolean classGuard(Class<?> expected, Object receiver) {
     return receiver.getClass() == expected;
   }
 
+  public static boolean instanceGuard(Object expected, Object receiver) {
+    return expected == receiver;
+  }
+
   public static Object fallback(PolymorphicInlineCache inlineCache, Object[] args) throws Throwable {
+
+    if (isCallOnDynamicObject(inlineCache, args[0])) {
+      DynamicObject dynamicObject = (DynamicObject) args[0];
+      MethodHandle target = dynamicObject.plug(inlineCache.name, inlineCache.type(), inlineCache.fallback);
+      MethodHandle guard = INSTANCE_GUARD.bindTo(dynamicObject);
+      MethodHandle root = guardWithTest(guard, target, inlineCache.fallback);
+      inlineCache.resetWith(root);
+      return target.invokeWithArguments(args);
+    }
 
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = findTarget(receiverClass, inlineCache, args);
@@ -82,11 +123,16 @@ public class MethodInvocationSupport {
       return target.invokeWithArguments(args);
     }
 
-    MethodHandle guard = GUARD.bindTo(receiverClass);
-    MethodHandle root = guardWithTest(guard, target, inlineCache.getTarget());
+    MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
+    MethodHandle fallback = (inlineCache.depth > 0) ? inlineCache.getTarget() : inlineCache.fallback;
+    MethodHandle root = guardWithTest(guard, target, fallback);
     inlineCache.setTarget(root);
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
+  }
+
+  private static boolean isCallOnDynamicObject(PolymorphicInlineCache inlineCache, Object arg) {
+    return (arg instanceof DynamicObject) && !(DYNAMIC_OBJECT_RESERVED_METHOD_NAMES.contains(inlineCache.name));
   }
 
   private static MethodHandle findTarget(Class<?> receiverClass, PolymorphicInlineCache inlineCache, Object[] args) {

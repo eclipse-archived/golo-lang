@@ -39,9 +39,10 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(5));
+    assertThat(imports.size(), is(6));
     assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("gololang.StandardPimps"));
+    assertThat(imports, hasItem("gololang"));
     assertThat(imports, hasItem("java.util.List"));
     assertThat(imports, hasItem("java.util.LinkedList"));
     assertThat(imports, hasItem("java.lang.System"));
@@ -611,5 +612,22 @@ public class CompileAndRunTest {
 
     Method pimp2 = moduleClass.getMethod("pimp2");
     assertThat((String) pimp2.invoke(null), is("abc"));
+  }
+
+  @Test
+  public void dynamic_objects() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "dynamic-objects.golo");
+
+    Method get_value = moduleClass.getMethod("get_value");
+    assertThat((String) get_value.invoke(null), is("foo"));
+
+    Method set_then_get_value = moduleClass.getMethod("set_then_get_value");
+    assertThat((String) set_then_get_value.invoke(null), is("foo"));
+
+    Method call_as_method = moduleClass.getMethod("call_as_method");
+    assertThat((String) call_as_method.invoke(null), is("w00t"));
+
+    Method person_to_str = moduleClass.getMethod("person_to_str");
+    assertThat((String) person_to_str.invoke(null), is("Mr Bean <mrbean@outlook.com>"));
   }
 }

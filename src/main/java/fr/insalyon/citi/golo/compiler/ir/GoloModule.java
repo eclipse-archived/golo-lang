@@ -22,10 +22,15 @@ public final class GoloModule {
       PackageAndClass.fromString("gololang.StandardPimps"),
       new PositionInSourceCode(0, 0));
 
+  public static final ModuleImport GOLOLANG = new ModuleImport(
+      PackageAndClass.fromString("gololang"),
+      new PositionInSourceCode(0, 0));
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
     imports.add(STD_PIMPS);
+    imports.add(GOLOLANG);
   }
 
   public PackageAndClass getPackageAndClass() {

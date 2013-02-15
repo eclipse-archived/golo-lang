@@ -9,9 +9,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import static java.lang.invoke.MethodHandles.constant;
-import static java.lang.invoke.MethodHandles.dropArguments;
-import static java.lang.invoke.MethodHandles.insertArguments;
+import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
 public class DynamicObject {
@@ -87,10 +85,14 @@ public class DynamicObject {
         }
       }
     } else {
-      target = PROPERTY_MISSING
-          .bindTo(name)
-          .asCollector(Object[].class, parameterCount)
-          .asType(type);
+      if (parameterCount == 2) {
+        target = insertArguments(DEFINE, 1, name);
+      } else {
+        target = PROPERTY_MISSING
+            .bindTo(name)
+            .asCollector(Object[].class, parameterCount)
+            .asType(type);
+      }
       switchPoints.put(name, new HashSet<SwitchPoint>());
     }
     SwitchPoint switchPoint = new SwitchPoint();
