@@ -629,5 +629,8 @@ public class CompileAndRunTest {
 
     Method person_to_str = moduleClass.getMethod("person_to_str");
     assertThat((String) person_to_str.invoke(null), is("Mr Bean <mrbean@outlook.com>"));
+
+    Method with_function_update = moduleClass.getMethod("with_function_update");
+    assertThat((Integer) with_function_update.invoke(null), is(40));
   }
 }
