@@ -24,7 +24,7 @@ def run
     Exception.new
   ]
   result = nil
-  for i in 0..1000000 do
+  for i in 0..200000 do
     for o in data do
       result = o.to_s
     end

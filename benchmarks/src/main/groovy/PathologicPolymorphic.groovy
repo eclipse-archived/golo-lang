@@ -2,7 +2,7 @@ import java.util.HashMap
 import java.util.LinkedList
 import java.util.TreeSet
 
-class Polymorphic {
+class PathologicPolymorphic {
 
     static Object run() {
         Object[] data = [
@@ -21,7 +21,7 @@ class Polymorphic {
             new Exception()
         ]
         Object result = null
-        for (int i = 0; i < 1000000; i++) {
+        for (int i = 0; i < 200000; i++) {
             for (int j = 0; j < data.length; j++) {
                 result = data[j].toString()
             }
