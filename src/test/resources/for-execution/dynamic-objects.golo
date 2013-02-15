@@ -10,6 +10,6 @@ function call_as_method = -> DynamicObject():
 
 function person_to_str = {
   let bean = DynamicObject(): name("Mr Bean"): email("mrbean@outlook.com")
-  bean: toString(|this| -> this: name() + " <" + this: email() + ">")
+  bean: define("toString", |this| -> this: name() + " <" + this: email() + ">")
   return bean: toString()
 }
