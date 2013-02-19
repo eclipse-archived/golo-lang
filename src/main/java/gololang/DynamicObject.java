@@ -72,8 +72,11 @@ public class DynamicObject {
     if (value != null) {
       if (value instanceof MethodHandle) {
         target = (MethodHandle) value;
-        if (wrongFunctionSignature(target)) {
+        if (missesReceiverType(target)) {
           throw new IllegalArgumentException(name + " must have a first a non-array first argument as the dynamic object");
+        }
+        if (wrongMethodSignature(type, target)) {
+          throw new IllegalArgumentException(name + " must have the following signature: " + type + " (found: " + target.type() + ")");
         }
       } else {
         if (parameterCount == 1) {
@@ -100,7 +103,11 @@ public class DynamicObject {
     return switchPoint.guardWithTest(target.asType(type), fallback);
   }
 
-  private boolean wrongFunctionSignature(MethodHandle target) {
+  private boolean wrongMethodSignature(MethodType type, MethodHandle target) {
+    return target.type().parameterCount() != type.parameterCount();
+  }
+
+  private boolean missesReceiverType(MethodHandle target) {
     return target.type().parameterCount() < 1 || target.type().parameterType(0).isArray();
   }
 }
