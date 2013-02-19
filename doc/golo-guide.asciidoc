@@ -21,20 +21,16 @@ The current version of Golo supports:
 * common control-flow constructions,
 * exceptions with `try` / (untyped) `catch` / `finally` blocks,
 * calling Java from Golo,
-* loading Golo from Java either through pre-compiled classes or through a classloader.
-
-Next iterations of the design of Golo will add support for creating classes, pimping them like
-categories in Objective-C, dynamically casting / adapting them to some other class, and more.
+* loading Golo from Java either through pre-compiled classes or through a classloader,
+* pimping existing classes,
+* dynamic objects.
 
 It is possible that `catch` blocks will support an implicit decomposition based on the type, and
 that implicitly translates to a `case` construct.
 
 Golo does not perform any type coercion at runtime, such as converting a `String` to an `Integer`.
 Coercion makes code more concise, yet this is something that happens **implicitly**, and Golo
-strives to avoid implicitness. This could be useful for automatically converting closures to
-single-method interface instances without relying on the `asInterfaceInstance` function. Yet, the
-documentation and `samples/` folder show how this can be elegantly circumvented by introducing a
-wrapper function that makes things explicit without sacrificing readability.
+strives to avoid implicitness. 
 
 That's still a long road ahead :-)
 
@@ -50,6 +46,7 @@ include::control-flow.asciidoc[]
 include::exceptions.asciidoc[]
 include::closures.asciidoc[]
 include::pimps.asciidoc[]
+include::dynamic-objects.asciidoc[]
 include::predefined-functions.asciidoc[]
 include::pitfalls.asciidoc[]
 

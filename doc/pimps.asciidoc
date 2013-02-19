@@ -129,3 +129,15 @@ TIP: As a matter of style, we suggest that your module names end with `Pimps`. B
 module imports **all** of its pimp definitions, we suggest that you modularize them with *fine
 taste* (for what it means).
 
+=== Standard pimps ===
+
+Golo comes with a set of pre-defined pimps.
+
+CAUTION: Until we have a tool to extract the documentation from Golo source files, their documentation will
+simply be the inclusion of that file content.
+
+[source,text]
+----
+include::../src/main/golo/standard-pimps.golo[]
+----
+
