@@ -1,0 +1,17 @@
+task :default => [:all]
+
+desc "Run the tests"
+task :all do
+  sh "mvn clean test"
+end
+
+desc "Clean history"
+task :clean_history do
+  Dir["*.{json,html}"].each {|f| rm_f f }
+end
+
+desc "Results HTTP server"
+task :server do
+  sh "ruby http_server.rb"
+end
+
