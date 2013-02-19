@@ -80,3 +80,6 @@ function main = |args| {
 WARNING: You cannot overload methods, that is, providing methods with the same name but different
 signatures.
 
+CAUTION: Dynamic objects cause call site invalidations that may degrade performance in some cases.
+If this happens to you and performance matter, please investigate the use of *real* objects.
+
