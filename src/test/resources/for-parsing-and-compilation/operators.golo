@@ -68,3 +68,12 @@ function p = |a, b| {
 function q = |a| {
   return (a isnt null) and (a oftype String.class)
 }
+
+function r = {
+  return (1
+    + 2)
+    *
+    4
+    :
+    doubleValue()
+}

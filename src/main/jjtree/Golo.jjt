@@ -549,7 +549,7 @@ void CommutativeExpression():
 {
   AssociativeExpression()
   (
-    LOOKAHEAD(2) token=<COMMUTATIVE_OPERATOR> AssociativeExpression()
+    LOOKAHEAD(2) (<NEWLINE>)? token=<COMMUTATIVE_OPERATOR> (<NEWLINE>)? AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
       jjtThis.addLine(token.beginLine);
@@ -564,16 +564,19 @@ void AssociativeExpression():
 }
 {
   (
-    "(" CommutativeExpression() ")"
+    "(" (<NEWLINE>)? CommutativeExpression() (<NEWLINE>)? ")"
     |
     TerminalExpression()
     |
     UnaryExpression()
   )
   (
+    (LOOKAHEAD(1) <NEWLINE>)?
+  )
+  (
     LOOKAHEAD(2)
     (
-      token=<ASSOCIATIVE_OPERATOR> AssociativeExpression()
+      token=<ASSOCIATIVE_OPERATOR> (<NEWLINE>)? AssociativeExpression()
       {
         jjtThis.addOperator(token.image);
         jjtThis.addLine(token.beginLine);
