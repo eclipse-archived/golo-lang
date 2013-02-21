@@ -76,4 +76,7 @@ function r = {
     4
     :
     doubleValue()
+      : intValue()
+    *
+    2
 }

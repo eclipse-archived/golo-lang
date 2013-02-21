@@ -570,9 +570,7 @@ void AssociativeExpression():
     |
     UnaryExpression()
   )
-  (
-    (LOOKAHEAD(1) <NEWLINE>)?
-  )
+  (LOOKAHEAD(1) <NEWLINE>)?
   (
     LOOKAHEAD(2)
     (
@@ -583,7 +581,7 @@ void AssociativeExpression():
         jjtThis.addColumn(token.beginColumn);
       }
     |
-      token=":" (<NEWLINE>)? MethodInvocation()
+      (<NEWLINE>)? token=":" (<NEWLINE>)? MethodInvocation()
       {
         jjtThis.addOperator(token.image);
         jjtThis.addLine(token.beginLine);
@@ -591,6 +589,7 @@ void AssociativeExpression():
       }
     )
   )*
+  (LOOKAHEAD(1) <NEWLINE>)?
 }
 
 void MethodInvocation():
