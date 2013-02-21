@@ -1,7 +1,8 @@
 module WithReturns
 
 function hello = {
-  return "Hello"
+  return
+    "Hello"
 }
 
 function universalAnswer = { return ((42)) }

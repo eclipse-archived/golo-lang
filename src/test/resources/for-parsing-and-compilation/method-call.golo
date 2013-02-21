@@ -14,6 +14,10 @@ function b = {
                      awesome(): reallyIs(): cool()
   let foo = Foo()
   let bar = Bar()
+  bar
+    : plop (
+      foo : yeah()
+    )
   foo: foo(): bar(): baz(bar: baz())
 }
 

@@ -9,10 +9,13 @@ function now = {
 
 function now2 = |a, b| {
   let currentTime = nanoTime()
-  var foo = "foo"
-  var c = a
+  var foo =
+            "foo"
+  var c =
+            a
   var d = b
-  d = foo
+  d =
+            foo
 }
 
 function long_number = {
