@@ -769,7 +769,7 @@ void FunctionInvocation():
   Token token;
 }
 {
-  name=QualifiedName() token="(" (Expressions())? ")"
+  name=QualifiedName() token="(" (<NEWLINE>)? (Expressions())? ")"
   {
     jjtThis.setName(name);
     jjtThis.setLineInSourceCode(token.beginLine);
