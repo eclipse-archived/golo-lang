@@ -4,8 +4,6 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* Relax the parser (e.g., operators on the next line, etc)
-
 * Reference functions, yielding method handles (.e.g, `Foo::bar`).
 
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
@@ -33,8 +31,6 @@ Not everything is deemed to be implemented...
 * Common collection sugar functions (lists, maps, sets, ...)
 
 * Cache method / function resolution in the runtime support classes.
-
-* Deal with polymorphic call sites.
 
 * Investigate adaptive handling of types.
 
