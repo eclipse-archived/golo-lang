@@ -5,10 +5,7 @@ import gololang.DynamicObject;
 import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.DYNAMIC_OBJECT;
 import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.POLYMORPHIC;
@@ -37,6 +34,7 @@ public class MethodInvocationSupport {
     int depth = 0;
     State state = POLYMORPHIC;
     MethodHandle fallback;
+    HashMap<Class, MethodHandle> vtable;
 
     InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
       super(type);
@@ -45,13 +43,10 @@ public class MethodInvocationSupport {
     }
 
     boolean isMegaMorphic() {
-      return false;
-      // TODO: check megamorphic fallback strategies
-      // return depth >= 5;
+      return depth > 5;
     }
 
     void resetWith(MethodHandle target) {
-      depth = 0;
       setTarget(target);
     }
   }
@@ -59,6 +54,8 @@ public class MethodInvocationSupport {
   private static final MethodHandle CLASS_GUARD;
   private static final MethodHandle INSTANCE_GUARD;
   private static final MethodHandle FALLBACK;
+  private static final MethodHandle VTABLE_LOOKUP;
+  private static final MethodHandle NOT_DYNAMIC_OBJECT;
 
   private static final Set<String> DYNAMIC_OBJECT_RESERVED_METHOD_NAMES = new HashSet<String>() {
     {
@@ -88,6 +85,16 @@ public class MethodInvocationSupport {
           "fallback",
           methodType(Object.class, InlineCache.class, Object[].class));
 
+      VTABLE_LOOKUP = lookup.findStatic(
+          MethodInvocationSupport.class,
+          "vtableLookup",
+          methodType(MethodHandle.class, InlineCache.class, Object[].class));
+
+      NOT_DYNAMIC_OBJECT = lookup.findStatic(
+          MethodInvocationSupport.class,
+          "notDynamicObject",
+          methodType(boolean.class, Object.class));
+
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
@@ -112,26 +119,56 @@ public class MethodInvocationSupport {
     return expected == receiver;
   }
 
+  public static boolean notDynamicObject(Object receiver) {
+    return receiver.getClass() != DynamicObject.class;
+  }
+
+  public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {
+    Class<?> receiverClass = args[0].getClass();
+    MethodHandle target = inlineCache.vtable.get(receiverClass);
+    if (target == null) {
+      target = findTarget(receiverClass, inlineCache, args);
+      inlineCache.vtable.put(receiverClass, target);
+    }
+    return target;
+  }
+
   public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
 
     if (isCallOnDynamicObject(inlineCache, args[0])) {
       return installDynamicObjectDispatch(inlineCache, args);
     }
 
+    if (inlineCache.isMegaMorphic()) {
+      return installVTableDispatch(inlineCache, args);
+    }
+
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = findTarget(receiverClass, inlineCache, args);
-
-    if (inlineCache.isMegaMorphic()) {
-      return target.invokeWithArguments(args);
-    }
 
     MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
     MethodHandle fallback = (inlineCache.state == POLYMORPHIC) ? inlineCache.getTarget() : inlineCache.fallback;
     MethodHandle root = guardWithTest(guard, target, fallback);
+
     inlineCache.setTarget(root);
     inlineCache.state = POLYMORPHIC;
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
+  }
+
+  private static Object installVTableDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
+    if (inlineCache.vtable == null) {
+      inlineCache.vtable = new HashMap<>();
+    }
+    MethodHandle lookup = VTABLE_LOOKUP
+        .bindTo(inlineCache)
+        .asCollector(Object[].class, args.length);
+    MethodHandle exactInvoker = exactInvoker(inlineCache.type());
+    MethodHandle vtableTarget = foldArguments(exactInvoker, lookup);
+    MethodHandle gwt = guardWithTest(NOT_DYNAMIC_OBJECT, vtableTarget, inlineCache.fallback);
+    inlineCache.setTarget(gwt);
+    inlineCache.setTarget(vtableTarget);
+    return vtableTarget.invokeWithArguments(args);
   }
 
   private static Object installDynamicObjectDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
