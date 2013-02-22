@@ -115,13 +115,7 @@ public class MethodInvocationSupport {
   public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
 
     if (isCallOnDynamicObject(inlineCache, args[0])) {
-      DynamicObject dynamicObject = (DynamicObject) args[0];
-      MethodHandle target = dynamicObject.plug(inlineCache.name, inlineCache.type(), inlineCache.fallback);
-      MethodHandle guard = INSTANCE_GUARD.bindTo(dynamicObject);
-      MethodHandle root = guardWithTest(guard, target, inlineCache.fallback);
-      inlineCache.state = DYNAMIC_OBJECT;
-      inlineCache.resetWith(root);
-      return target.invokeWithArguments(args);
+      return installDynamicObjectDispatch(inlineCache, args);
     }
 
     Class<?> receiverClass = args[0].getClass();
@@ -137,6 +131,16 @@ public class MethodInvocationSupport {
     inlineCache.setTarget(root);
     inlineCache.state = POLYMORPHIC;
     inlineCache.depth = inlineCache.depth + 1;
+    return target.invokeWithArguments(args);
+  }
+
+  private static Object installDynamicObjectDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
+    DynamicObject dynamicObject = (DynamicObject) args[0];
+    MethodHandle target = dynamicObject.plug(inlineCache.name, inlineCache.type(), inlineCache.fallback);
+    MethodHandle guard = INSTANCE_GUARD.bindTo(dynamicObject);
+    MethodHandle root = guardWithTest(guard, target, inlineCache.fallback);
+    inlineCache.state = DYNAMIC_OBJECT;
+    inlineCache.resetWith(root);
     return target.invokeWithArguments(args);
   }
 
