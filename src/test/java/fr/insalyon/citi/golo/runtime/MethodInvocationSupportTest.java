@@ -153,6 +153,22 @@ public class MethodInvocationSupportTest {
       result = (String) toStringMH.invokeWithArguments(new Object() {
         @Override
         public String toString() {
+          return "Damn";
+        }
+      });
+      assertThat(result, is("Damn"));
+
+      result = (String) toStringMH.invokeWithArguments(new Object() {
+        @Override
+        public String toString() {
+          return "Plop";
+        }
+      });
+      assertThat(result, is("Plop"));
+
+      result = (String) toStringMH.invokeWithArguments(new Object() {
+        @Override
+        public String toString() {
           return "Hey!";
         }
       });
