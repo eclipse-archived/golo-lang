@@ -754,7 +754,7 @@ void Return():
   Token token;
 }
 {  
-  token=<RETURN> (LOOKAHEAD(2) ExpressionStatement())?
+  token=<RETURN> (LOOKAHEAD(2) (<NEWLINE>)? ExpressionStatement())?
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
