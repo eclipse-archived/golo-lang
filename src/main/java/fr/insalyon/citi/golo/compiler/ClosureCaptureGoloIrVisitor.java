@@ -230,6 +230,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
     tryCatchFinally.getTryBlock().accept(this);
     if (tryCatchFinally.hasCatchBlock()) {
+      locallyAssigned(tryCatchFinally.getExceptionId());
       tryCatchFinally.getCatchBlock().accept(this);
     }
     if (tryCatchFinally.hasFinallyBlock()) {

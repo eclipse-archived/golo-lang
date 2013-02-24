@@ -30,3 +30,17 @@ function try_finally = {
     println("Finally!")
   }
 }
+
+function inside_closure = |args| {
+  let obj = DynamicObject():
+    define("setField", |this, fieldName, value| {
+      this: model(): fields(): put(fieldName, value)
+      try {
+        println("A")
+      } catch(e) {
+        println("B")
+      } finally{
+        return this
+      }
+    })
+}
