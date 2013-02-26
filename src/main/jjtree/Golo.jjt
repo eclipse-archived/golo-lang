@@ -171,16 +171,21 @@ TOKEN :
 }
 
 // Comments
-SPECIAL_TOKEN :
+TOKEN :
 {
   < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n") >
 }
 
 // ............................................................................................. //
 
+void BlankLine() #void:{}
+{
+  ( <NEWLINE> | <COMMENT> )
+}
+
 void BlankLines() #void: {}
 {
-  ( <NEWLINE> )*
+  (BlankLine())*
 }
 
 String QualifiedName() #void:
@@ -217,7 +222,7 @@ List<String> Arguments() #void:
     arguments.add(rootToken.image);
   }
   (
-    "," (<NEWLINE>)? nextToken=<IDENTIFIER>
+    "," (BlankLine())? nextToken=<IDENTIFIER>
     {
       arguments.add(nextToken.image);
     }
@@ -407,7 +412,7 @@ ASTFunctionDeclaration FunctionDeclaration():
 
 void Statement() #void:{}
 {
-  <NEWLINE> 
+  BlankLine() 
   |
   LOOKAHEAD(2) Assignment()
   |
@@ -437,7 +442,7 @@ void Throw():
   Token token;
 }
 {
-  token=<THROW> (<NEWLINE>)? ExpressionStatement()
+  token=<THROW> (BlankLine())? ExpressionStatement()
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
@@ -461,9 +466,9 @@ void ForLoop():
   Token token;
 }
 {
-  token=<FOR> "("  (<NEWLINE>)? LetOrVar() ","
-                   (<NEWLINE>)? ExpressionStatement() "," 
-                   (LOOKAHEAD(1) <NEWLINE>)? Statement() ")"
+  token=<FOR> "("  (BlankLine())? LetOrVar() ","
+                   (BlankLine())? ExpressionStatement() "," 
+                   (LOOKAHEAD(1) BlankLine())? Statement() ")"
   "{" Block() "}"
   {
     jjtThis.setLineInSourceCode(token.beginLine);
@@ -552,7 +557,7 @@ void CommutativeExpression():
 {
   AssociativeExpression()
   (
-    LOOKAHEAD(2) (<NEWLINE>)? token=<COMMUTATIVE_OPERATOR> (<NEWLINE>)? AssociativeExpression()
+    LOOKAHEAD(2) (BlankLine())? token=<COMMUTATIVE_OPERATOR> (BlankLine())? AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
       jjtThis.addLine(token.beginLine);
@@ -567,24 +572,24 @@ void AssociativeExpression():
 }
 {
   (
-    "(" (<NEWLINE>)? CommutativeExpression() (<NEWLINE>)? ")"
+    "(" (BlankLine())? CommutativeExpression() (BlankLine())? ")"
     |
     TerminalExpression()
     |
     UnaryExpression()
   )
-  (LOOKAHEAD(1) <NEWLINE>)?
+  (LOOKAHEAD(1) BlankLine())?
   (
     LOOKAHEAD(2)
     (
-      token=<ASSOCIATIVE_OPERATOR> (<NEWLINE>)? AssociativeExpression()
+      token=<ASSOCIATIVE_OPERATOR> (BlankLine())? AssociativeExpression()
       {
         jjtThis.addOperator(token.image);
         jjtThis.addLine(token.beginLine);
         jjtThis.addColumn(token.beginColumn);
       }
     |
-      (<NEWLINE>)? token=":" (<NEWLINE>)? MethodInvocation()
+      (BlankLine())? token=":" (BlankLine())? MethodInvocation()
       {
         jjtThis.addOperator(token.image);
         jjtThis.addLine(token.beginLine);
@@ -592,7 +597,7 @@ void AssociativeExpression():
       }
     )
   )*
-  (LOOKAHEAD(1) <NEWLINE>)?
+  (LOOKAHEAD(1) BlankLine())?
 }
 
 void MethodInvocation():
@@ -600,7 +605,7 @@ void MethodInvocation():
   Token token;
 }
 {
-  token=<IDENTIFIER> "("  (<NEWLINE>)? (Expressions())? ")"
+  token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
   {
     jjtThis.setName(token.image);
     jjtThis.setLineInSourceCode(token.beginLine);
@@ -719,7 +724,7 @@ void LetOrVar():
   Token idToken;
 }
 {
-  <LET> idToken=<IDENTIFIER> "="  (<NEWLINE>)? ExpressionStatement()
+  <LET> idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.LET);
     jjtThis.setName(idToken.image);
@@ -727,7 +732,7 @@ void LetOrVar():
     jjtThis.setColumnInSourceCode(idToken.beginColumn);
   }
   |
-  <VAR> idToken=<IDENTIFIER> "="  (<NEWLINE>)? ExpressionStatement()
+  <VAR> idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
     jjtThis.setName(idToken.image);
@@ -741,7 +746,7 @@ void Assignment():
   Token idToken;
 }
 {
-  idToken=<IDENTIFIER> "="  (<NEWLINE>)? ExpressionStatement()
+  idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
   {
     jjtThis.setName(idToken.image);
     jjtThis.setLineInSourceCode(idToken.beginLine);
@@ -754,7 +759,7 @@ void Return():
   Token token;
 }
 {  
-  token=<RETURN> (LOOKAHEAD(2) (<NEWLINE>)? ExpressionStatement())?
+  token=<RETURN> (LOOKAHEAD(2) (BlankLine())? ExpressionStatement())?
   {
     jjtThis.setLineInSourceCode(token.beginLine);
     jjtThis.setColumnInSourceCode(token.beginColumn);
@@ -763,7 +768,7 @@ void Return():
 
 void Expressions() #void: {}
 {
-  ExpressionStatement() ("," (<NEWLINE>)? ExpressionStatement())*
+  ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
 }
 
 void FunctionInvocation():
@@ -772,7 +777,7 @@ void FunctionInvocation():
   Token token;
 }
 {
-  name=QualifiedName() token="(" (<NEWLINE>)? (Expressions())? ")"
+  name=QualifiedName() token="(" (BlankLine())? (Expressions())? ")"
   {
     jjtThis.setName(name);
     jjtThis.setLineInSourceCode(token.beginLine);
@@ -805,9 +810,9 @@ void Case():
   Token token;
 }
 {
-  token=<CASE> "{" (<NEWLINE>)?
-    ( <WHEN> ExpressionStatement() "{" Block() "}" (<NEWLINE>)? )+
-    <OTHERWISE> "{" Block() "}" (<NEWLINE>)?
+  token=<CASE> "{" (BlankLine())?
+    ( <WHEN> ExpressionStatement() "{" Block() "}" (BlankLine())? )+
+    <OTHERWISE> "{" Block() "}" (BlankLine())?
   "}"
   {
     jjtThis.setLineInSourceCode(token.beginLine);
@@ -820,9 +825,10 @@ void Match():
   Token token;
 }
 {
-  token=<MATCH> "{" (<NEWLINE>)?
-    ( <WHEN> (<NEWLINE>)? ExpressionStatement() (<NEWLINE>)? <THEN> (<NEWLINE>)? ExpressionStatement() (<NEWLINE>)? )+
-    <OTHERWISE>  (<NEWLINE>)? ExpressionStatement() (<NEWLINE>)?
+  token=<MATCH> "{" (BlankLine())?
+    ( <WHEN> (BlankLine())? ExpressionStatement() (BlankLine())? 
+      <THEN> (BlankLine())? ExpressionStatement() (BlankLine())? )+
+    <OTHERWISE>  (BlankLine())? ExpressionStatement() (BlankLine())?
   "}"
   {
     jjtThis.setLineInSourceCode(token.beginLine);

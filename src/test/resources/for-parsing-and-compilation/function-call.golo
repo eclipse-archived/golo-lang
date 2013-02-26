@@ -8,10 +8,10 @@ local function foo = |boo| { }
 local function bar = |bzz| { }
 
 local function go = {
-  return now (
-    foo(6),
-    bar(9)
-  )
+  return now ( # Damn
+    foo(6),    # This
+    bar(9)     # Is
+  )            # Awesome
 }
 
 function someKindOfMain = |args| {
