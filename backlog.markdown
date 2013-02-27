@@ -4,8 +4,6 @@ Not everything is deemed to be implemented...
 
 ## Language
 
-* Reference functions, yielding method handles (.e.g, `Foo::bar`).
-
 * Support invocations with either () or {}? Could be fun for DSL-style constructs.
 
 * Annotations.
