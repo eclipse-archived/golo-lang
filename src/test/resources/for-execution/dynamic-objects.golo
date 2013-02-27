@@ -43,3 +43,18 @@ function copying = {
   let bar = foo: copy(): define("a", 2)
   return foo: a() + bar: a()
 }
+
+function mrfriz = {
+  let foo = DynamicObject(): define("a", 1): freeze()
+  if (foo: a()) isnt 1 {
+    raise("a() shall have been 1")
+  }
+  try {
+    foo: a(666)
+  } catch (e) {
+    return match {
+      when e oftype java.lang.IllegalStateException.class then "OK"
+      otherwise "WTF"
+    }
+  }
+}

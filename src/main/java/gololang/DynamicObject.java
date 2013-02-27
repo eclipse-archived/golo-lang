@@ -16,8 +16,12 @@ public class DynamicObject {
 
   private final Map<String, Set<SwitchPoint>> switchPoints = new HashMap<>();
   private final Map<String, Object> properties = new HashMap<>();
+  private boolean frozen = false;
 
   public DynamicObject define(String name, Object value) {
+    if (frozen) {
+      throw new IllegalStateException("the object is frozen");
+    }
     properties.put(name, value);
     if (switchPoints.containsKey(name)) {
       invalidate(name);
@@ -58,6 +62,11 @@ public class DynamicObject {
     for (Map.Entry<String, Object> entry : other.properties.entrySet()) {
       define(entry.getKey(), entry.getValue());
     }
+    return this;
+  }
+
+  public DynamicObject freeze() {
+    this.frozen = true;
     return this;
   }
 

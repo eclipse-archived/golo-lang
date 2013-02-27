@@ -638,5 +638,8 @@ public class CompileAndRunTest {
 
     Method copying = moduleClass.getMethod("copying");
     assertThat((Integer) copying.invoke(null), is(3));
+
+    Method mrfriz = moduleClass.getMethod("mrfriz");
+    assertThat((String) mrfriz.invoke(null), is("OK"));
   }
 }

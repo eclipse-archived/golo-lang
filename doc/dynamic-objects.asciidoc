@@ -19,7 +19,8 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 - `get(name)` gives the value or closure for a property name, or `null` if there is none, and
 - `undefine(name)` removes a property from the object, and
 - `mixin(dynobj)` mixes in all the properties of the dynamic object `dynobj`, and
-- `copy` gives a copy of a dynamic object.
+- `copy()` gives a copy of a dynamic object, and
+- `freeze()` locks an object, and calling `define` will raise an `IllegalStateException`.
 
 === Defining values ===
 

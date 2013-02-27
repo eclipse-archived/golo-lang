@@ -24,8 +24,6 @@ Not everything is deemed to be implemented...
 
 ## Runtime
 
-* Dynamic objects extend / mixin / freeze goodness.
-
 * Java Array wrapper?
 
 * Common collection sugar functions (lists, maps, sets, ...)

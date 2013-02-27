@@ -65,6 +65,7 @@ public class MethodInvocationSupport {
       add("undefine");
       add("mixin");
       add("copy");
+      add("freeze");
     }
   };
 
