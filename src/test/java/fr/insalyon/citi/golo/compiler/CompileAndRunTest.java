@@ -105,6 +105,12 @@ public class CompileAndRunTest {
 
     Method five = moduleClass.getMethod("five");
     assertThat((String) five.invoke(null), is("5"));
+
+    Method string_class = moduleClass.getMethod("string_class");
+    assertThat(string_class.invoke(null), instanceOf(Class.class));
+
+    Method string_module = moduleClass.getMethod("string_module");
+    assertThat(string_module.invoke(null), instanceOf(Class.class));
   }
 
   @Test
