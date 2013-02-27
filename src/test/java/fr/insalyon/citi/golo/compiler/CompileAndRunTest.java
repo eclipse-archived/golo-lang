@@ -568,6 +568,9 @@ public class CompileAndRunTest {
     result = in_a_map.invoke(null);
     assertThat(result, notNullValue());
     assertThat((Integer) result, is(4));
+
+    Method call_local_fun = moduleClass.getMethod("call_local_fun");
+    assertThat((Integer) call_local_fun.invoke(null), is(2));
   }
 
   @Test

@@ -61,3 +61,9 @@ function in_a_map = {
   return map2: get(2)
 }
 
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+  let f = fun("local_fun", golotest.execution.Closures.module)
+  return f(1)
+}
