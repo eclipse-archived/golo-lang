@@ -46,6 +46,21 @@ public class DynamicObject {
     return this;
   }
 
+  public DynamicObject copy() {
+    DynamicObject copy = new DynamicObject();
+    for (Map.Entry<String, Object> entry : properties.entrySet()) {
+      define(entry.getKey(), entry.getValue());
+    }
+    return copy;
+  }
+
+  public DynamicObject mixin(DynamicObject other) {
+    for (Map.Entry<String, Object> entry : other.properties.entrySet()) {
+      define(entry.getKey(), entry.getValue());
+    }
+    return this;
+  }
+
   private static final MethodHandle PROPERTY_MISSING;
   private static final MethodHandle DEFINE;
 

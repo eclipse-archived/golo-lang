@@ -632,5 +632,11 @@ public class CompileAndRunTest {
 
     Method with_function_update = moduleClass.getMethod("with_function_update");
     assertThat((Integer) with_function_update.invoke(null), is(40));
+
+    Method mixins = moduleClass.getMethod("mixins");
+    assertThat((String) mixins.invoke(null), is("22[plop]"));
+
+    Method copying = moduleClass.getMethod("copying");
+    assertThat((Integer) copying.invoke(null), is(3));
   }
 }

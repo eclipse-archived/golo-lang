@@ -25,3 +25,21 @@ function with_function_update = {
   obj: operation()
   return obj: value()
 }
+
+function mixins = {
+  let foo = DynamicObject():
+    define("a", 1):
+    define("b", |this, x| -> x + 1):
+    define("c", |this| -> "plop")
+  let bar = DynamicObject():
+    define("a", |this| -> 2):
+    define("c", "[plop]")
+  let baz = foo: mixin(bar)
+  return baz: a() + baz: b(1) + baz: c()
+}
+
+function copying = {
+  let foo = DynamicObject(): define("a", 1)
+  let bar = foo: copy(): define("a", 2)
+  return foo: a() + bar: a()
+}

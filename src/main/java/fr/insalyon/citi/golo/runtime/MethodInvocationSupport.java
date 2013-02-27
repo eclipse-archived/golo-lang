@@ -63,6 +63,8 @@ public class MethodInvocationSupport {
       add("plug");
       add("define");
       add("undefine");
+      add("mixin");
+      add("copy");
     }
   };
 
