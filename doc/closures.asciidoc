@@ -167,6 +167,47 @@ function give_me_hey = {
 }
 ----
 
-NOTE: Golo is likely to have a more compact way than calling `asInterfaceInstance` in the future,
-possibly with dynamic class pimping.
+=== Shortcuts ===
+
+Instead of using `asInterfaceInstance`, you may use a *pimp* which is described later in this
+documentation. In short, it allows you to call a `to` method on instances of `MethodHandle`, which
+in turn calls `asInterfaceInstance`. Back to the previous examples, the next 2 lines are equivalent:
+
+[source,text]
+----
+# Calling asInterfaceInstance
+future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
+
+# Using a pimp
+future = executor: submit((-> "hey!"): to(Callable.class))
+----
+
+You may also take advantage of the predefined `fun` function to obtain a reference to a closure, as
+in:
+
+[source,text]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+
+  # local_fun, with a parameter
+  var f = fun("local_fun", golotest.Closures.module, 1)
+
+  # ...or just like this if there is only 1 local_fun definition
+  f = fun("local_fun", golotest.Closures.module)
+
+  return f(1)
+}
+----
+
+.Why not directly referencing the function name?
+[NOTE]
+We could indeed think of referencing `local_fun` directly instead of going through a call to `fun`,
+which is more verbose. The problem with that approach is that calls get ambiguous between functions
+and references on functions. Also, it is better to report an undeclared reference `f` early instead of
+supposing that *"it must be some function `f` somewhere"*, which may lead to unexpected side-effects
+and hard to debug pieces of code.
 
