@@ -67,3 +67,13 @@ function call_local_fun = {
   let f = fun("local_fun", golotest.execution.Closures.module)
   return f(1)
 }
+
+function call_local_fun_short_literal = {
+  let f = ^local_fun
+  return f(1)
+}
+
+function call_local_fun_full_literal = {
+  let f = ^golotest.execution.Closures::local_fun
+  return f(1)
+}

@@ -571,6 +571,12 @@ public class CompileAndRunTest {
 
     Method call_local_fun = moduleClass.getMethod("call_local_fun");
     assertThat((Integer) call_local_fun.invoke(null), is(2));
+
+    Method call_local_fun_short_literal = moduleClass.getMethod("call_local_fun_short_literal");
+    assertThat((Integer) call_local_fun_short_literal.invoke(null), is(2));
+
+    Method call_local_fun_full_literal = moduleClass.getMethod("call_local_fun_full_literal");
+    assertThat((Integer) call_local_fun_full_literal.invoke(null), is(2));
   }
 
   @Test

@@ -56,3 +56,8 @@ function k = {
   let map2 = HashMap()
   map1: put("put_twice", |x| -> map2: put(x, x * 2))
 }
+
+function l = {
+  let f1 = ^k
+  let f2 = ^foo.bar::baz
+}
