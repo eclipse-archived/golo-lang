@@ -203,11 +203,24 @@ function call_local_fun = {
 }
 ----
 
-.Why not directly referencing the function name?
-[NOTE]
-We could indeed think of referencing `local_fun` directly instead of going through a call to `fun`,
-which is more verbose. The problem with that approach is that calls get ambiguous between functions
-and references on functions. Also, it is better to report an undeclared reference `f` early instead of
-supposing that *"it must be some function `f` somewhere"*, which may lead to unexpected side-effects
-and hard to debug pieces of code.
+Last but not least, we have an even shorter notation if function are not overridden:
+
+[source,text]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+
+  # In the current module
+  var f = ^fun
+
+  # ...or with a full module name
+  f = ^golotest.Closures::fun
+
+  return f(1)
+}
+----
+
 
