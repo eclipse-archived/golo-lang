@@ -115,6 +115,35 @@ if isClosure(value) {
 }
 ----
 
+You can get a reference to a closure using the predefined `fun` function:
+
+[source,text]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+  let f = fun("local_fun", golotest.Closures.module)
+  return f(1)
+}
+----
+
+Because functions may be overloaded, there is a form that accepts an extra parameter for specifying
+the number of parameters:
+
+[source,text]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+  let f = fun("local_fun", golotest.Closures.module, 1)
+  return f(1)
+}
+----
+
 === Misc. ===
 
 `mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:

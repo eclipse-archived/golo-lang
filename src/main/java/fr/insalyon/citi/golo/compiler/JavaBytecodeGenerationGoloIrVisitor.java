@@ -63,6 +63,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private ClassWriter classWriter;
+  private String klass;
   private MethodVisitor methodVisitor;
   private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
@@ -99,6 +100,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     writeImportMetaData(module.getImports());
+    klass = module.getPackageAndClass().toString();
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
@@ -327,6 +329,20 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (value instanceof GoloParser.ParserClassRef) {
       GoloParser.ParserClassRef ref = (GoloParser.ParserClassRef) value;
       methodVisitor.visitInvokeDynamicInsn(ref.name.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
+      return;
+    }
+    if (value instanceof GoloParser.FunctionRef) {
+      GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
+      String module = ref.module;
+      if (module == null) {
+        module = klass;
+      }
+      methodVisitor.visitLdcInsn(ref.name);
+      methodVisitor.visitInvokeDynamicInsn(module.replaceAll("\\.", "#"), "()Ljava/lang/Class;", CLASSREF_HANDLE);
+      methodVisitor.visitInvokeDynamicInsn(
+          "gololang#Predefined#fun",
+          "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
+          FUNCTION_INVOCATION_HANDLE);
       return;
     }
     if (value instanceof Double) {

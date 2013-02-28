@@ -43,3 +43,6 @@ function five = {
   println(5)
   return java.lang.Integer.toString(5)
 }
+
+function string_class = -> java.lang.String.class
+function string_module = -> java.lang.String.module

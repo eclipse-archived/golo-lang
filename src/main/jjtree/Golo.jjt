@@ -35,6 +35,22 @@ public class GoloParser {
     }
   }
 
+  public static class FunctionRef {
+    
+    public String module;
+    public String name;
+
+    public FunctionRef(String module, String name) {
+      this.module = module;
+      this.name = name;
+    }
+
+    @Override
+    public String toString() {
+      return "FunctionRef{module=" + module + ",name=" + name + "}";
+    }
+  }
+
   public static void main(String[] args) throws Throwable {
     GoloParser parser = new GoloParser(System.in);    
     // ASTCompilationUnit unit = parser.CompilationUnit();
@@ -156,7 +172,9 @@ TOKEN :
   |
   < FALSE: "false" >
   |
-  < CLASSREF: <IDENTIFIER> ("." <IDENTIFIER>)* ".class" >
+  < CLASSREF: <IDENTIFIER> ("." <IDENTIFIER>)* (".class" | ".module") >
+  |
+  < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
 }
 
 // Identifiers
@@ -284,7 +302,8 @@ GoloParser.ParserClassRef ClassLiteral() #void:
   literal=<CLASSREF>
   {
     String image = literal.image;
-    return new GoloParser.ParserClassRef(image.substring(0, image.length() - 6));
+    int suffixLength = image.endsWith("class") ? 6 : 7;
+    return new GoloParser.ParserClassRef(image.substring(0, image.length() - suffixLength));
   }
 }
 
@@ -307,6 +326,23 @@ Float FloatLiteral() #void:
   literal=<FLOAT>
   {
     return Float.valueOf(literal.image.substring(0, literal.image.length() - 2));
+  }
+}
+
+GoloParser.FunctionRef FunctionRef() #void:
+{
+  Token literal;
+}
+{
+  literal=<FUNREF>
+  {
+    String image = literal.image.substring(1);
+    String[] parts = image.split("::");
+    if (parts.length > 1) {
+      return new GoloParser.FunctionRef(parts[0], parts[1]);
+    } else {
+      return new GoloParser.FunctionRef(null, parts[0]);
+    }
   }
 }
 
@@ -703,6 +739,11 @@ void Literal():
     {
       jjtThis.setLiteralValue(Boolean.FALSE);
     }    
+    |
+    value=FunctionRef()
+    {
+      jjtThis.setLiteralValue(value);
+    }
   )
 }
 

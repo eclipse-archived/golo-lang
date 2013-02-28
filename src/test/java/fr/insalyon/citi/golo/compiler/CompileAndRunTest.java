@@ -105,6 +105,12 @@ public class CompileAndRunTest {
 
     Method five = moduleClass.getMethod("five");
     assertThat((String) five.invoke(null), is("5"));
+
+    Method string_class = moduleClass.getMethod("string_class");
+    assertThat(string_class.invoke(null), instanceOf(Class.class));
+
+    Method string_module = moduleClass.getMethod("string_module");
+    assertThat(string_module.invoke(null), instanceOf(Class.class));
   }
 
   @Test
@@ -562,6 +568,15 @@ public class CompileAndRunTest {
     result = in_a_map.invoke(null);
     assertThat(result, notNullValue());
     assertThat((Integer) result, is(4));
+
+    Method call_local_fun = moduleClass.getMethod("call_local_fun");
+    assertThat((Integer) call_local_fun.invoke(null), is(2));
+
+    Method call_local_fun_short_literal = moduleClass.getMethod("call_local_fun_short_literal");
+    assertThat((Integer) call_local_fun_short_literal.invoke(null), is(2));
+
+    Method call_local_fun_full_literal = moduleClass.getMethod("call_local_fun_full_literal");
+    assertThat((Integer) call_local_fun_full_literal.invoke(null), is(2));
   }
 
   @Test

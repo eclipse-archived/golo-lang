@@ -2,8 +2,13 @@ package gololang;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
+import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.AbstractMap;
 import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Predefined {
 
@@ -116,11 +121,43 @@ public class Predefined {
   public static Object asInterfaceInstance(Object interfaceClass, Object target) {
     require(interfaceClass instanceof Class, "interfaceClass must be a Class");
     require(target instanceof MethodHandle, "target must be a MethodHandle");
-    return MethodHandleProxies.asInterfaceInstance((Class<?>)interfaceClass, (MethodHandle) target);
+    return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, (MethodHandle) target);
   }
 
   public static Object isClosure(Object object) {
     return object instanceof MethodHandle;
+  }
+
+  // ...................................................................................................................
+
+  public static Object fun(Object name, Object module, Object arity) throws Throwable {
+    require(name instanceof String, "name must be a String");
+    require(module instanceof Class, "module must be a module (e.g., foo.bar.Some.module)");
+    require(arity instanceof Integer, "name must be an Integer");
+    Class<?> moduleClass = (Class<?>) module;
+    String functionName = (String) name;
+    int functionArity = (Integer) arity;
+    Method targetMethod = null;
+    List<Method> candidates = new LinkedList<>(Arrays.asList(moduleClass.getDeclaredMethods()));
+    candidates.addAll(Arrays.asList(moduleClass.getMethods()));
+    for (Method method : candidates) {
+      if (method.getName().equals(functionName) && Modifier.isStatic(method.getModifiers())) {
+        if ((functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
+          targetMethod = method;
+          break;
+        }
+      }
+    }
+    if (targetMethod != null) {
+      MethodHandles.Lookup lookup = MethodHandles.publicLookup();
+      targetMethod.setAccessible(true);
+      return lookup.unreflect(targetMethod);
+    }
+    throw new NoSuchMethodException((name + " in " + module + ((functionArity < 0) ? "" : (" with arity " + functionArity))));
+  }
+
+  public static Object fun(Object name, Object module) throws Throwable {
+    return fun(name, module, -1);
   }
 
   // ...................................................................................................................

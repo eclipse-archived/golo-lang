@@ -6,7 +6,6 @@ import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.concurrent.Callable;
 
@@ -104,5 +103,22 @@ public class PredefinedTest {
     MethodHandle handle = lookup.findStatic(MyCallable.class, "hello", genericMethodType(0));
     assertThat((String) handle.invoke(), is("Hello!"));
     Predefined.asInterfaceInstance(ActionListener.class, handle);
+  }
+
+  @Test
+  public void test_fun() throws Throwable {
+    MethodHandle hello = (MethodHandle) Predefined.fun("hello", MyCallable.class, 0);
+    assertThat((String) hello.invoke(), is("Hello!"));
+  }
+
+  @Test
+  public void test_fun_no_arity() throws Throwable {
+    MethodHandle hello = (MethodHandle) Predefined.fun("hello", MyCallable.class);
+    assertThat((String) hello.invoke(), is("Hello!"));
+  }
+
+  @Test(expectedExceptions = NoSuchMethodException.class)
+  public void test_fun_fail() throws Throwable {
+    MethodHandle hello = (MethodHandle) Predefined.fun("helloz", MyCallable.class, 0);
   }
 }
