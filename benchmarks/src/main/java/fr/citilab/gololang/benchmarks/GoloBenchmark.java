@@ -50,9 +50,11 @@ public class GoloBenchmark extends AbstractBenchmark {
 
   public static clojure.lang.Var clojureReference(String clojureSourceFilename, String namespace, String referenceName) {
     try {
+      // Damn you Clojure 1.5, somehow RT needs to be loaded in a way or the other
+      Class.forName("clojure.lang.RT");
       clojure.lang.Compiler.loadFile(CLOJURE_SRC_DIR + clojureSourceFilename);
       return clojure.lang.RT.var(namespace, referenceName);
-    } catch (IOException e) {
+    } catch (IOException | ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
