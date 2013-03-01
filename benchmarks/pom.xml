@@ -27,7 +27,7 @@
     <h2.version>1.3.170</h2.version>
     <junit.version>4.11</junit.version>
     <groovy-all.version>2.1.0</groovy-all.version>
-    <clojure.version>1.4.0</clojure.version>
+    <clojure.version>1.5.0</clojure.version>
     <jruby-complete.version>1.7.2</jruby-complete.version>
 
     <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
