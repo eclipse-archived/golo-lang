@@ -32,6 +32,12 @@ Not everything is deemed to be implemented...
 
 * Ability to define a blacklist of classes.
 
+## stdlib
+
+* Concurrency
+
+* Tests
+
 ## Internals
 
 * Concurrent compilation?
