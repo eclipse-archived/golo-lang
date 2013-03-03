@@ -30,5 +30,6 @@ public class StringUnescaping {
       result = result.replace(SEQS[i], ESCAPE_STRINGS[i]);
     }
     return result;
+    // TODO: this is a rather inefficient algorithm...
   }
 }
