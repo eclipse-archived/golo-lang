@@ -14,3 +14,6 @@ function yes = { return ((true)) }
 
 function no = { return (false) }
 
+function escaped = {
+  return "\nFoo\r\n"
+}

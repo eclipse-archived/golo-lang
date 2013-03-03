@@ -19,6 +19,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Collections;
 
+import fr.insalyon.citi.golo.compiler.utils.StringUnescaping;
+
 public class GoloParser {
 
   public static class ParserClassRef {
@@ -50,7 +52,7 @@ public class GoloParser {
       return "FunctionRef{module=" + module + ",name=" + name + "}";
     }
   }
-
+  
   public static void main(String[] args) throws Throwable {
     GoloParser parser = new GoloParser(System.in);    
     // ASTCompilationUnit unit = parser.CompilationUnit();
@@ -162,7 +164,11 @@ TOKEN :
   |
   < FLOAT: <FLOATING_NUMBER> "_F" >
   |
-  < STRING: "\"" (~["\n", "\r", "\""])* "\"" >
+  < STRING: "\"" (
+    (~["\"", "\\", "\n", "\r"])
+    |
+    ("\\" (["n", "t", "b", "r", "f", "\\", "'", "\""]) )
+  )* "\"" >
   |
   < CHAR: "'" (~["\n", "\r", "\""]) "'" >
   |
@@ -257,7 +263,7 @@ String StringLiteral() #void:
 {
   literal=<STRING>
   {
-    return literal.image.replace("\"", "");
+    return StringUnescaping.unescape(literal.image.substring(1, literal.image.length() - 1));
   }
 }
 

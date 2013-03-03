@@ -33,3 +33,7 @@ function floats = {
   let b = -123.45_F
   let c = 123.4e5_F
 }
+
+function escaped = {
+  return "\nFoo\r\n"
+}
