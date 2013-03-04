@@ -2,6 +2,7 @@ package gololang.concurrent.workers;
 
 import org.testng.annotations.Test;
 
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
 
 public class WorkersTest {
@@ -30,6 +31,7 @@ public class WorkersTest {
     while (counter.get() < MAX) {
       sender.send(1);
     }
+    environment.awaitTermination(1, TimeUnit.SECONDS);
     environment.shutdown();
   }
 }

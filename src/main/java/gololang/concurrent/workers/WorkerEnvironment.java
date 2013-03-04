@@ -36,4 +36,12 @@ public final class WorkerEnvironment {
   public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
     return executor.awaitTermination(timeout, unit);
   }
+
+  public boolean isShutdown() {
+    return executor.isShutdown();
+  }
+
+  public boolean isTerminated() {
+    return executor.isTerminated();
+  }
 }
