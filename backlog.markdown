@@ -20,6 +20,8 @@ Not everything is deemed to be implemented...
 
 * String templates, e.g. `"Hello #{foo} #{Bar.baz()}!"` or `"Current time: #{System.currentTime()}"`.
 
+* Elvis
+
 ## Runtime
 
 * Java Array wrapper?
