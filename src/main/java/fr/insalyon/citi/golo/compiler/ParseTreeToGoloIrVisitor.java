@@ -305,7 +305,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     LocalReference reference = context.referenceTableStack.peek().get(node.getName());
     if (reference == null) {
-      new GoloCompilationException.Builder()
+      new GoloCompilationException.Builder(context.module.getPackageAndClass().toString())
           .report(UNDECLARED_REFERENCE, node,
               "Assigning to an undeclared reference `" + node.getName() +
                   "` at (line=" + node.getLineInSourceCode() +

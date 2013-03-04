@@ -11,6 +11,7 @@ import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Ty
 
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
+  private GoloModule module = null;
   private int indexAssignmentCounter = 0;
   private Stack<ReferenceTable> tableStack = new Stack<>();
   private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
@@ -28,13 +29,14 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private GoloCompilationException.Builder getExceptionBuilder() {
     if (exceptionBuilder == null) {
-      exceptionBuilder = new GoloCompilationException.Builder();
+      exceptionBuilder = new GoloCompilationException.Builder(module.getPackageAndClass().toString());
     }
     return exceptionBuilder;
   }
 
   @Override
   public void visitModule(GoloModule module) {
+    this.module = module;
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }

@@ -47,7 +47,11 @@ public class GoloCompilationException extends RuntimeException {
 
   public static class Builder {
 
-    private GoloCompilationException exception = new GoloCompilationException();
+    private final GoloCompilationException exception;
+
+    public Builder(String goloSourceFilename) {
+      exception = new GoloCompilationException("In Golo module: " + goloSourceFilename);
+    }
 
     public Builder report(Problem.Type type, Object source, String description) {
       exception.report(new Problem(type, source, description));
@@ -70,6 +74,10 @@ public class GoloCompilationException extends RuntimeException {
   }
 
   private GoloCompilationException() {
+  }
+
+  public GoloCompilationException(String message) {
+    super(message);
   }
 
   public GoloCompilationException(Throwable throwable) {
