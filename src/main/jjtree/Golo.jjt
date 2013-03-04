@@ -673,7 +673,7 @@ void Function():
   (
     (token="{" Block() "}")
     |
-    (token="->" ExpressionStatement())
+    (token="->" (BlankLine())? ExpressionStatement())
     {
       compactForm = true;
     }
