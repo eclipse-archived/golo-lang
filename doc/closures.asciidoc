@@ -167,7 +167,7 @@ function give_me_hey = {
 }
 ----
 
-=== Shortcuts ===
+=== Conversion to single-method interfaces ===
 
 Instead of using `asInterfaceInstance`, you may use a *pimp* which is described later in this
 documentation. In short, it allows you to call a `to` method on instances of `MethodHandle`, which
@@ -181,6 +181,8 @@ future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
 # Using a pimp
 future = executor: submit((-> "hey!"): to(Callable.class))
 ----
+
+=== Getting a reference to a closure / Golo function ===
 
 You may also take advantage of the predefined `fun` function to obtain a reference to a closure, as
 in:
@@ -221,6 +223,31 @@ function call_local_fun = {
 
   return f(1)
 }
+----
+
+=== Binding and composing ===
+
+Because closure references are just instances of `java.lang.invoke.MethodHandle`, you can bind its
+first argument using the `bindTo(value)` method. If you need to bind an argument at another position
+than 0, you may take advantage of the `bind(position, value)` pimp:
+
+[source,text]
+----
+let diff = |a, b| -> a - b
+let minus10 = diff: bind(1, 10)
+
+# 10
+println(minus10(20))
+----
+
+You may compose function using the `andThen` pimp method:
+
+[source,text]
+----
+let f = (|x| -> x + 1): andThen(|x| -> x - 10): andThen(|x| -> x * 100)
+
+# -500
+println(f(4))
 ----
 
 
