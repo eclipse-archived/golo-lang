@@ -4,7 +4,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.Executor;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-public final class Port implements Runnable {
+public final class Port {
 
   private final Executor executor;
   private final WorkerFunction function;
@@ -17,14 +17,27 @@ public final class Port implements Runnable {
     this.function = function;
   }
 
-  @Override
-  public void run() {
-    if (running.get()) {
+  private final Runnable runner = new Runnable() {
+    @Override
+    public void run() {
+      if (running.get()) {
+        try {
+          function.apply(queue.poll());
+        } finally {
+          running.set(false);
+          scheduleNext();
+        }
+      }
+    }
+  };
+
+  private void scheduleNext() {
+    if (!queue.isEmpty() && running.compareAndSet(false, true)) {
       try {
-        function.apply(queue.poll());
-      } finally {
+        executor.execute(runner);
+      } catch (Throwable t) {
         running.set(false);
-        scheduleNext();
+        throw t;
       }
     }
   }
@@ -33,16 +46,5 @@ public final class Port implements Runnable {
     queue.offer(message);
     scheduleNext();
     return this;
-  }
-
-  private void scheduleNext() {
-    if (!queue.isEmpty() && running.compareAndSet(false, true)) {
-      try {
-        executor.execute(this);
-      } catch (Throwable t) {
-        running.set(false);
-        throw t;
-      }
-    }
   }
 }
