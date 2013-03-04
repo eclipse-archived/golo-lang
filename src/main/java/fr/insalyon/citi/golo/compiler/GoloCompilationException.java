@@ -76,7 +76,7 @@ public class GoloCompilationException extends RuntimeException {
     super(throwable);
   }
 
-  protected GoloCompilationException(String message, Throwable cause) {
+  public GoloCompilationException(String message, Throwable cause) {
     super(message, cause);
   }
 }
