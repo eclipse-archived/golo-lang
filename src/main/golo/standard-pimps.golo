@@ -5,7 +5,14 @@ module gololang.StandardPimps
 # ............................................................................................... #
 
 pimp java.lang.invoke.MethodHandle {
+
   function to = |this, interfaceClass| -> asInterfaceInstance(interfaceClass, this)
+
+  function andThen = |this, filter| ->
+    java.lang.invoke.MethodHandles.filterReturnValue(this, filter)
+
+  function bind = |this, pos, val| ->
+    java.lang.invoke.MethodHandles.insertArguments(this, pos, val)
 }
 
 # ............................................................................................... #
