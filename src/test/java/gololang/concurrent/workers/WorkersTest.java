@@ -2,27 +2,25 @@ package gololang.concurrent.workers;
 
 import org.testng.annotations.Test;
 
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class PortTest {
+public class WorkersTest {
 
   @Test
   public void make_a_sum() throws InterruptedException {
 
     final AtomicInteger counter = new AtomicInteger(0);
     final int MAX = 1000;
-    final ExecutorService executor = Executors.newCachedThreadPool();
+    WorkerEnvironment environment = WorkerEnvironment.newWorkerEnvironment();
 
-    final Port receiver = new Port(executor, new WorkerFunction() {
+    final Port receiver = environment.spawnWorker(new WorkerFunction() {
       @Override
       public void apply(Object message) {
         counter.addAndGet((Integer) message);
       }
     });
 
-    final Port sender = new Port(executor, new WorkerFunction() {
+    final Port sender = environment.spawnWorker(new WorkerFunction() {
       @Override
       public void apply(Object message) {
         receiver.send(message);
@@ -32,6 +30,6 @@ public class PortTest {
     while (counter.get() < MAX) {
       sender.send(1);
     }
-    executor.shutdown();
+    environment.shutdown();
   }
 }
