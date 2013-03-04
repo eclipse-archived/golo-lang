@@ -62,6 +62,9 @@ public class MainGoloGolo {
   }
 
   static void handleCompilationException(GoloCompilationException e) {
+    if (e.getMessage() != null) {
+      System.out.println("[error] " + e.getMessage());
+    }
     if (e.getCause() != null) {
       System.out.println("[error] " + e.getCause().getMessage());
     }

@@ -29,7 +29,7 @@ public final class GoloCompiler {
     try {
       compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
     } catch (ParseException e) {
-      throw new GoloCompilationException(e);
+      throw new GoloCompilationException("Parser error in " + goloSourceFilename, e);
     }
     ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
     GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
