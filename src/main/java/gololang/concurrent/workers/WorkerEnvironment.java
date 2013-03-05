@@ -52,6 +52,10 @@ public final class WorkerEnvironment {
     return this;
   }
 
+  public boolean awaitTermination(int millis) throws InterruptedException {
+    return awaitTermination((long) millis);
+  }
+
   public boolean awaitTermination(long millis) throws InterruptedException {
     return awaitTermination(millis, TimeUnit.MILLISECONDS);
   }
