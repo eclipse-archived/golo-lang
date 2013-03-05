@@ -11,7 +11,7 @@ pimp java.lang.invoke.MethodHandle {
   function andThen = |this, filter| ->
     java.lang.invoke.MethodHandles.filterReturnValue(this, filter)
 
-  function bind = |this, pos, val| ->
+  function bindAt = |this, pos, val| ->
     java.lang.invoke.MethodHandles.insertArguments(this, pos, val)
 }
 

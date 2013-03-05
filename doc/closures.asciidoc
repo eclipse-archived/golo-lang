@@ -229,12 +229,12 @@ function call_local_fun = {
 
 Because closure references are just instances of `java.lang.invoke.MethodHandle`, you can bind its
 first argument using the `bindTo(value)` method. If you need to bind an argument at another position
-than 0, you may take advantage of the `bind(position, value)` pimp:
+than 0, you may take advantage of the `bindAt(position, value)` pimp:
 
 [source,text]
 ----
 let diff = |a, b| -> a - b
-let minus10 = diff: bind(1, 10)
+let minus10 = diff: bindAt(1, 10)
 
 # 10
 println(minus10(20))
