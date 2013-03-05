@@ -20,6 +20,25 @@ public final class WorkerEnvironment {
     return new WorkerEnvironment(Executors.newCachedThreadPool());
   }
 
+  public static Builder builder() {
+    return new Builder();
+  }
+
+  public static class Builder {
+
+    public WorkerEnvironment withCachedThreadPool() {
+      return newWorkerEnvironment();
+    }
+
+    public WorkerEnvironment withFixedThreadPool(int size) {
+      return new WorkerEnvironment(Executors.newFixedThreadPool(size));
+    }
+
+    public WorkerEnvironment withFixedThreadPool() {
+      return withFixedThreadPool(Runtime.getRuntime().availableProcessors());
+    }
+  }
+
   public Port spawn(MethodHandle handle) {
     return spawnWorker(asInterfaceInstance(WorkerFunction.class, handle));
   }
@@ -31,6 +50,10 @@ public final class WorkerEnvironment {
   public WorkerEnvironment shutdown() {
     executor.shutdown();
     return this;
+  }
+
+  public boolean awaitTermination(long millis) throws InterruptedException {
+    return awaitTermination(millis, TimeUnit.MILLISECONDS);
   }
 
   public boolean awaitTermination(long timeout, TimeUnit unit) throws InterruptedException {
