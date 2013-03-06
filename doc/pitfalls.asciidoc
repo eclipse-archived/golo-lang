@@ -50,7 +50,7 @@ let foo = AtomicInteger(666)
 Keep in mind that instance methods are invoked using the `:` operator, not with dots (`.`) like in
 many languages.
 
-This is a common mistake !
+This is a common mistake!
 
 [source,text]
 ----
