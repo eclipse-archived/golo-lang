@@ -1,12 +1,15 @@
 // ............................................................................................. //
 
 options {
-  MULTI=true;
-  VISITOR=true;
-  STATIC=false;
-  NODE_CLASS="GoloASTNode";
+  MULTI = true;
+  VISITOR = true;
+  STATIC = false;
+  NODE_CLASS = "GoloASTNode";
   JAVA_UNICODE_ESCAPE = true;
   UNICODE_INPUT = true;
+  TOKEN_EXTENDS = "fr.insalyon.citi.golo.compiler.parser.GoloTokenBase";
+  TRACK_TOKENS = true;
+  COMMON_TOKEN_ACTION = true;
 }
 
 // ............................................................................................. //
@@ -198,6 +201,20 @@ TOKEN :
 TOKEN :
 {
   < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n") >
+}
+
+TOKEN_MGR_DECLS :
+{
+    public static interface TokenCompleter {
+        void completeToken(Token t);
+    }
+    public TokenCompleter tokenCompleter = null;
+    
+    void CommonTokenAction(Token t) {
+        if (tokenCompleter != null) {
+            tokenCompleter.completeToken(t);
+        }
+    }
 }
 
 // ............................................................................................. //

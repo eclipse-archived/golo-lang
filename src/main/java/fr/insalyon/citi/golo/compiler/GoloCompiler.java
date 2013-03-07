@@ -4,44 +4,41 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.io.Reader;
 import java.util.List;
 
-public final class GoloCompiler {
+public class GoloCompiler {
 
   private GoloParser parser;
 
-  private GoloParser getParser(InputStream sourceCodeInputStream) {
+  public final GoloParser initParser(InputStream sourceCodeInputStream) {
+    return initParser(new InputStreamReader(sourceCodeInputStream));
+  }
+
+  public final GoloParser initParser(Reader sourceReader) {
     if (parser == null) {
-      parser = new GoloParser(sourceCodeInputStream);
+      parser = createGoloParser(sourceReader);
     } else {
-      parser.ReInit(sourceCodeInputStream);
+      parser.ReInit(sourceReader);
     }
     return parser;
   }
 
-  public List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    ASTCompilationUnit compilationUnit = null;
-    try {
-      compilationUnit = getParser(sourceCodeInputStream).CompilationUnit();
-    } catch (ParseException e) {
-      throw new GoloCompilationException("Parser error in " + goloSourceFilename, e);
-    }
-    ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
-    GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
-    ClosureCaptureGoloIrVisitor closureCaptureVisitor = new ClosureCaptureGoloIrVisitor();
-    closureCaptureVisitor.visitModule(goloModule);
-    LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
-    localReferenceVisitor.visitModule(goloModule);
+  public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+    ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(sourceCodeInputStream));
+    GoloModule goloModule = check(compilationUnit);
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
     return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
   }
 
-  public void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
+  public final void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
     if (targetFolder.isFile()) {
       throw new IllegalArgumentException(targetFolder + " already exists and is a file.");
     }
@@ -57,4 +54,28 @@ public final class GoloCompiler {
       }
     }
   }
+
+    public final ASTCompilationUnit parse(String goloSourceFilename, GoloParser parser) throws GoloCompilationException {
+        ASTCompilationUnit compilationUnit = null;
+        try {
+          compilationUnit = parser.CompilationUnit();
+        } catch (ParseException | TokenMgrError e) {
+          throw new GoloCompilationException("Parser error in " + goloSourceFilename, e);
+        }
+        return compilationUnit;
+    }
+
+    public final GoloModule check(ASTCompilationUnit compilationUnit) {
+        ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
+        GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
+        ClosureCaptureGoloIrVisitor closureCaptureVisitor = new ClosureCaptureGoloIrVisitor();
+        closureCaptureVisitor.visitModule(goloModule);
+        LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
+        localReferenceVisitor.visitModule(goloModule);
+        return goloModule;
+    }
+
+    protected GoloParser createGoloParser(Reader sourceReader) {
+        return new GoloParser(sourceReader);
+    }
 }
