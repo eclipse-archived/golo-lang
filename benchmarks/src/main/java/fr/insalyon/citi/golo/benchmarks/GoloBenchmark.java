@@ -1,4 +1,4 @@
-package fr.citilab.gololang.benchmarks;
+package fr.insalyon.citi.golo.benchmarks;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import fr.insalyon.citi.golo.runtime.GoloClassLoader;

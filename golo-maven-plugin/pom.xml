@@ -4,9 +4,9 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
   <modelVersion>4.0.0</modelVersion>
 
-  <groupId>fr.citilab</groupId>
-  <artifactId>gololang-maven-plugin</artifactId>
-  <version>r0-SNAPSHOT</version>
+  <groupId>org.gololang</groupId>
+  <artifactId>golo-maven-plugin</artifactId>
+  <version>0-SNAPSHOT</version>
 
   <packaging>maven-plugin</packaging>
 
@@ -19,7 +19,7 @@
 
   <properties>
 
-    <gololang.version>r0-SNAPSHOT</gololang.version>
+    <gololang.version>0-SNAPSHOT</gololang.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
 
@@ -47,8 +47,8 @@
     </dependency>
 
     <dependency>
-      <groupId>fr.citilab</groupId>
-      <artifactId>gololang</artifactId>
+      <groupId>org.gololang</groupId>
+      <artifactId>golo</artifactId>
       <version>${gololang.version}</version>
     </dependency>
 
