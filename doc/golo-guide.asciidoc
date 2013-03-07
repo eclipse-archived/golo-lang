@@ -48,5 +48,6 @@ include::closures.asciidoc[]
 include::pimps.asciidoc[]
 include::dynamic-objects.asciidoc[]
 include::predefined-functions.asciidoc[]
+include::workers.asciidoc[]
 include::pitfalls.asciidoc[]
 
