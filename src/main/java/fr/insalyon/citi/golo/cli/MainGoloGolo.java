@@ -42,8 +42,6 @@ public class MainGoloGolo {
         lastClass = loader.load(file.getName(), in);
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
-      } catch (TokenMgrError e) {
-        handleTokenMgrError(e);
       }
     }
     Object[] appArgs;
@@ -54,11 +52,6 @@ public class MainGoloGolo {
     }
     Method main = lastClass.getMethod("main", Object.class);
     main.invoke(null, new Object[]{appArgs});
-  }
-
-  static void handleTokenMgrError(TokenMgrError e) {
-    System.out.println("[error] " + e.getMessage());
-    System.exit(1);
   }
 
   static void handleCompilationException(GoloCompilationException e) {

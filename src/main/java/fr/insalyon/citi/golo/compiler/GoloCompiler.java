@@ -4,6 +4,7 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -58,7 +59,7 @@ public class GoloCompiler {
         ASTCompilationUnit compilationUnit = null;
         try {
           compilationUnit = parser.CompilationUnit();
-        } catch (ParseException e) {
+        } catch (ParseException | TokenMgrError e) {
           throw new GoloCompilationException("Parser error in " + goloSourceFilename, e);
         }
         return compilationUnit;

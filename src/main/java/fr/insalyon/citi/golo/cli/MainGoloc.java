@@ -2,17 +2,14 @@ package fr.insalyon.citi.golo.cli;
 
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
-import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.cli.MainGoloGolo.handleCompilationException;
-import static fr.insalyon.citi.golo.cli.MainGoloGolo.handleTokenMgrError;
 
 public class MainGoloc {
 
@@ -82,8 +79,6 @@ public class MainGoloc {
         return;
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
-      } catch (TokenMgrError e) {
-        handleTokenMgrError(e);
       }
     }
   }
