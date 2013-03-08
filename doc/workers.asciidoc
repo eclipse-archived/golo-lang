@@ -33,7 +33,8 @@ you may go through its builder object and call either of the following static me
 
 - `withCachedThreadPool()` uses a cached thread pool,
 - `withFixedThreadPool(size)` uses a fixed number of threads in a pool,
-- `withFixedThreadPool()` uses a pool with 1 thread per processor core.
+- `withFixedThreadPool()` uses a pool with 1 thread per processor core,
+- `withSingleThreadExecutor()` uses a single executor thread.
 
 In most scenarios `withCachedThreadPool()` is a safe choice, but as usual, your mileage varies. If
 you have many concurrent tasks to perform and they are not IO-bound, then `withFixedThreadPool()` is

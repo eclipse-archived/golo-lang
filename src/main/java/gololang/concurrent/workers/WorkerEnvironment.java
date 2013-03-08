@@ -37,6 +37,10 @@ public final class WorkerEnvironment {
     public WorkerEnvironment withFixedThreadPool() {
       return withFixedThreadPool(Runtime.getRuntime().availableProcessors());
     }
+
+    public WorkerEnvironment withSingleThreadExecutor() {
+      return new WorkerEnvironment(Executors.newSingleThreadExecutor());
+    }
   }
 
   public Port spawn(MethodHandle handle) {
