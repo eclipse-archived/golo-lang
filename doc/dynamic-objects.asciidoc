@@ -95,7 +95,7 @@ thus write code such as:
 [source,text]
 ----
 function dump = |obj| {
-  foreach (prop : obj: properties()) {
+  foreach (prop in obj: properties()) {
     println(prop: getKey() + " -> " + prop: getValue())
   }
 }
