@@ -13,6 +13,7 @@
         <include>README*</include>
         <include>LICENSE*</include>
         <include>NOTICE*</include>
+        <include>CONTRIB*</include>
         <include>pom.xml</include>
         <include>backlog.markdown</include>
         <include>doc/**/*</include>
