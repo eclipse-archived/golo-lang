@@ -66,6 +66,7 @@ public class MethodInvocationSupport {
       add("mixin");
       add("copy");
       add("freeze");
+      add("properties");
     }
   };
 

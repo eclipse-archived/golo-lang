@@ -20,7 +20,8 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 - `undefine(name)` removes a property from the object, and
 - `mixin(dynobj)` mixes in all the properties of the dynamic object `dynobj`, and
 - `copy()` gives a copy of a dynamic object, and
-- `freeze()` locks an object, and calling `define` will raise an `IllegalStateException`.
+- `freeze()` locks an object, and calling `define` will raise an `IllegalStateException`, and
+- `properties()` gives the set of entries in the dynamic object.
 
 === Defining values ===
 
@@ -86,3 +87,19 @@ signatures.
 CAUTION: Dynamic objects cause call site invalidations that may degrade performance in some cases.
 If this happens to you and performance matter, please investigate the use of *real* objects.
 
+=== Querying the properties ===
+
+The `properties()` method returns a set of entries, as instances of `java.util.Map.Entry`. You can
+thus write code such as:
+
+[source,text]
+----
+function dump = |obj| {
+  foreach (prop : obj: properties()) {
+    println(prop: getKey() + " -> " + prop: getValue())
+  }
+}
+----
+
+Because dynamic object entries mix both values and method handles, do not forget that the predefined
+`isClosure(obj)` function can be useful to distinguish them.

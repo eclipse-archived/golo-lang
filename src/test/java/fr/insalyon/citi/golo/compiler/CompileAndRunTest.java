@@ -663,5 +663,8 @@ public class CompileAndRunTest {
 
     Method mrfriz = moduleClass.getMethod("mrfriz");
     assertThat((String) mrfriz.invoke(null), is("OK"));
+
+    Method propz = moduleClass.getMethod("propz");
+    assertThat((String) propz.invoke(null), is("foo:foobar:bar"));
   }
 }

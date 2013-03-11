@@ -31,6 +31,10 @@ public class DynamicObject {
     return this;
   }
 
+  public Set<Map.Entry<String,Object>> properties() {
+    return properties.entrySet();
+  }
+
   private void invalidate(String name) {
     Set<SwitchPoint> switches = switchPoints.get(name);
     SwitchPoint.invalidateAll(switches.toArray(new SwitchPoint[switches.size()]));

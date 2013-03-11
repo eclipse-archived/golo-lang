@@ -58,3 +58,9 @@ function mrfriz = {
     }
   }
 }
+
+function propz = -> DynamicObject():
+  foo("foo"):
+  bar("bar"):
+  properties():
+  reduce("", |acc, next| -> acc + next: getKey() + ":" + next: getValue())
