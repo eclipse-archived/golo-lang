@@ -665,6 +665,7 @@ public class CompileAndRunTest {
     assertThat((String) mrfriz.invoke(null), is("OK"));
 
     Method propz = moduleClass.getMethod("propz");
-    assertThat((String) propz.invoke(null), is("foo:foobar:bar"));
+    // Damn ordering on sets...
+    assertThat((String) propz.invoke(null), either(is("foo:foobar:bar")).or(is("bar:barfoo:foo")));
   }
 }
