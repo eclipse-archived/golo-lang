@@ -117,6 +117,7 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
+          <runOrder>random</runOrder>
           <systemPropertyVariables>
             <golo.test.trace>no</golo.test.trace>
           </systemPropertyVariables>
