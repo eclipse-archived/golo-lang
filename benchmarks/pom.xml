@@ -140,8 +140,6 @@
         <artifactId>maven-surefire-plugin</artifactId>
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
-          <parallel>both</parallel>
-          <forkCount>1.0C</forkCount>
           <argLine>-server -Xms1024M -Xmx1024M</argLine>
           <systemProperties>
             <jub.consumers>CONSOLE,H2</jub.consumers>
