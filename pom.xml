@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ Copyright 2012-2013 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~     http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -14,12 +29,26 @@
   <description>Golo: a lightweight dynamic language for the JVM.</description>
   <url>http://golo-lang.org/</url>
 
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:golo-lang/golo-lang.git</connection>
+    <url>scm:git:git@github.com:golo-lang/golo-lang.git</url>
+    <developerConnection>scm:git:git@github.com:golo-lang/golo-lang.git</developerConnection>
+  </scm>
+
   <developers>
     <developer>
       <id>jponge</id>
       <name>Julien Ponge</name>
       <email>julien.ponge@insa-lyon.fr</email>
-      <url>http://julien.ponge.info/</url>
+      <url>http://julien.ponge.org/</url>
     </developer>
   </developers>
 
@@ -153,7 +182,7 @@
         <configuration>
           <repositoryName>lib</repositoryName>
           <repositoryLayout>flat</repositoryLayout>
-          <licenseHeaderFile>${project.basedir}/LICENSE</licenseHeaderFile>
+          <licenseHeaderFile>${project.basedir}/LICENSE-header</licenseHeaderFile>
           <extraJvmArguments>-server -Xms1024M -Xmx1024M -XX:-TieredCompilation</extraJvmArguments>
           <programs>
             <program>
@@ -192,6 +221,16 @@
             </goals>
           </execution>
         </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-release-plugin</artifactId>
+        <version>2.4</version>
+        <configuration>
+          <localCheckout>true</localCheckout>
+          <pushChanges>false</pushChanges>
+        </configuration>
       </plugin>
 
     </plugins>
