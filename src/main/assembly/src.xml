@@ -34,6 +34,9 @@
         <include>doc/**/*</include>
         <include>samples/**/*</include>
       </includes>
+      <excludes>
+        <exclude>doc/output/**/*</exclude>
+      </excludes>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
     <fileSet>
