@@ -59,8 +59,14 @@ function mrfriz = {
   }
 }
 
-function propz = -> DynamicObject():
-  foo("foo"):
-  bar("bar"):
-  properties():
-  reduce("", |acc, next| -> acc + next: getKey() + ":" + next: getValue())
+function propz = {
+  let props = DynamicObject():
+    foo("foo"):
+    bar("bar"):
+    properties()
+  var result = ""
+  foreach (prop in props) {
+    result = result + prop: getKey() + ":" + prop: getValue()
+  }
+  return result
+}

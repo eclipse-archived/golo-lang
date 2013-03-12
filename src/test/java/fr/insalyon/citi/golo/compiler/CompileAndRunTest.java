@@ -38,7 +38,6 @@ import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGol
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
-import static java.util.Arrays.equals;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
