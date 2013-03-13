@@ -26,15 +26,36 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
+/**
+ * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
+ * default.
+ */
 public class Predefined {
+
+  private Predefined() {
+    throw new UnsupportedOperationException("Why on earth are you trying to instantiate this class?");
+  }
 
   // ...................................................................................................................
 
+  /**
+   * Raises a <code>RuntimeException</code> with a message.
+   *
+   * @param message the exception description.
+   * @throws RuntimeException (always)
+   */
   public static void raise(Object message) {
     require(message instanceof String, "raise requires a message as a String");
     throw new RuntimeException((String) message);
   }
 
+  /**
+   * Raises a <code>RuntimeException</code> with a message and a cause.
+   *
+   * @param message the exception description.
+   * @param cause   the exception cause.
+   * @throws RuntimeException (always)
+   */
   public static void raise(Object message, Object cause) {
     require(message instanceof String, "raise requires a message as a String");
     require(cause instanceof Throwable, "raise requires a cause as a Throwable");
@@ -43,16 +64,32 @@ public class Predefined {
 
   // ...................................................................................................................
 
+  /**
+   * Prints to the standard console.
+   *
+   * @param obj the object to be printed.
+   */
   public static void print(Object obj) {
     System.out.print(obj);
   }
 
+  /**
+   * Prints to the standard console, including a newline.
+   *
+   * @param obj obj the object to be printed.
+   */
   public static void println(Object obj) {
     System.out.println(obj);
   }
 
   // ...................................................................................................................
 
+  /**
+   * Requires that an object is not the <code>null</code> reference.
+   *
+   * @param obj the object to test against <code>null</code>.
+   * @throws AssertionError if <code>obj</code> is <code>null</code>.
+   */
   public static void requireNotNull(Object obj) throws AssertionError {
     if (obj != null) {
       return;
@@ -60,6 +97,14 @@ public class Predefined {
     throw new AssertionError("null reference encountered");
   }
 
+  /**
+   * Requires that a condition be <code>true</code>.
+   *
+   * @param condition    the condition, must be a <code>Boolean</code>.
+   * @param errorMessage the error message, must be a <code>String</code>.
+   * @throws IllegalArgumentException if the arguments are of the wrong type.
+   * @throws AssertionError           if <code>condition</code> is <code>false</code>.
+   */
   public static void require(Object condition, Object errorMessage) throws IllegalArgumentException, AssertionError {
     requireNotNull(condition);
     requireNotNull(errorMessage);
@@ -82,14 +127,33 @@ public class Predefined {
 
   // ...................................................................................................................
 
+  /**
+   * Makes a Java primitive array out of values.
+   *
+   * @param values the values.
+   * @return an array.
+   */
   public static Object Array(Object... values) {
     return values;
   }
 
+  /**
+   * Makes a list out of a Java primitive array.
+   *
+   * @param values the array.
+   * @return a list from the <code>java.util</code> package.
+   */
   public static Object atoList(Object[] values) {
     return Arrays.asList(values);
   }
 
+  /**
+   * Access an array element by index.
+   *
+   * @param a the array.
+   * @param i the index.
+   * @return the element at index <code>i</code>.
+   */
   public static Object aget(Object a, Object i) {
     require(a instanceof Object[], "aget takes an Array as first parameter");
     require(i instanceof Integer, "aget takes an index as second parameter");
@@ -97,6 +161,13 @@ public class Predefined {
     return array[(Integer) i];
   }
 
+  /**
+   * Updates an array element by index.
+   *
+   * @param a     the array.
+   * @param i     the index.
+   * @param value the new value.
+   */
   public static void aset(Object a, Object i, Object value) {
     require(a instanceof Object[], "aset takes an Array as first parameter");
     require(i instanceof Integer, "aset takes an index as second parameter");
@@ -104,6 +175,12 @@ public class Predefined {
     array[(Integer) i] = value;
   }
 
+  /**
+   * Array length.
+   *
+   * @param a the array.
+   * @return the length of <code>a</code>.
+   */
   public static Object alength(Object a) {
     require(a instanceof Object[], "alength takes an Array as parameter");
     Object[] array = (Object[]) a;
@@ -112,6 +189,15 @@ public class Predefined {
 
   // ...................................................................................................................
 
+  /**
+   * Makes an integer range object between two bounds. Range objects implement <code>java.lang.Iterable</code>, so
+   * they can be used in Golo <code>foreach</code> loops.
+   *
+   * @param from the lower-bound (inclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param to   the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @return a range object.
+   * @see java.lang.Iterable
+   */
   public static Object range(Object from, Object to) {
     require((from instanceof Integer) || (from instanceof Long), "from must either be an Integer or a Long");
     require((to instanceof Integer) || (to instanceof Long), "to must either be an Integer or a Long");
@@ -128,24 +214,58 @@ public class Predefined {
 
   // ...................................................................................................................
 
+  /**
+   * Makes a key / value pair.
+   *
+   * @param key   the key.
+   * @param value the value.
+   * @return an instance of <code>AbstractMap.SimpleEntry</code>
+   * @see java.util.AbstractMap.SimpleEntry
+   */
   public static Object mapEntry(Object key, Object value) {
     return new AbstractMap.SimpleEntry<>(key, value);
   }
 
   // ...................................................................................................................
 
+  /**
+   * Turns a method handle into a instance of a single-method interface.
+   *
+   * @param interfaceClass the target single-method interface class.
+   * @param target         the implementation method handle.
+   * @return an instance of <code>interfaceClass</code>.
+   * @see java.lang.invoke.MethodHandleProxies#asInterfaceInstance(Class, java.lang.invoke.MethodHandle)
+   */
   public static Object asInterfaceInstance(Object interfaceClass, Object target) {
     require(interfaceClass instanceof Class, "interfaceClass must be a Class");
     require(target instanceof MethodHandle, "target must be a MethodHandle");
     return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, (MethodHandle) target);
   }
 
+  /**
+   * Test whether an object is a closure or not.
+   *
+   * @param object the object.
+   * @return <code>true</code> if <code>object</code> is an instance of <code>java.lang.invoke.MethodHandle</code>,
+   *         <code>false</code> otherwise.
+   */
   public static Object isClosure(Object object) {
     return object instanceof MethodHandle;
   }
 
   // ...................................................................................................................
 
+  /**
+   * Obtains a method handle / closure to a function.
+   *
+   * @param name   the function name.
+   * @param module the function enclosing module (a Java class).
+   * @param arity  the function arity, where a negative value means that any arity will do.
+   * @return a method handle to the matched function.
+   * @throws NoSuchMethodException    if the target function could not be found.
+   * @throws IllegalArgumentException if the argument types are not of types <code>(String, Class, Integer)</code>.
+   * @throws Throwable                if an error occurs.
+   */
   public static Object fun(Object name, Object module, Object arity) throws Throwable {
     require(name instanceof String, "name must be a String");
     require(module instanceof Class, "module must be a module (e.g., foo.bar.Some.module)");
@@ -172,6 +292,13 @@ public class Predefined {
     throw new NoSuchMethodException((name + " in " + module + ((functionArity < 0) ? "" : (" with arity " + functionArity))));
   }
 
+  /**
+   * Obtains the first method handle / closure to a function.
+   * <p>
+   * This is the same as calling <code>fun(name, module, -1)</code>.
+   *
+   * @see Predefined#fun(Object, Object, Object)
+   */
   public static Object fun(Object name, Object module) throws Throwable {
     return fun(name, module, -1);
   }

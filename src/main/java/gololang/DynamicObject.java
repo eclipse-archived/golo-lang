@@ -28,12 +28,27 @@ import java.util.Set;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
+/**
+ * A dynamic object is an object whose properties can be dynamically added, changed and removed. Properties can be any
+ * object value or a method handle to a closure.
+ * <p>
+ * The methods <code>plug</code> and <code>propertyMissing</code> are left undocumented. They are being used
+ * by the Golo runtime to dispatch method invocations on dynamic objects.
+ */
 public class DynamicObject {
 
   private final Map<String, Set<SwitchPoint>> switchPoints = new HashMap<>();
   private final Map<String, Object> properties = new HashMap<>();
   private boolean frozen = false;
 
+  /**
+   * Defines a property.
+   *
+   * @param name  the property name.
+   * @param value the property value.
+   * @return the same dynamic object.
+   * @throws IllegalStateException if the dynamic object is frozen.
+   */
   public DynamicObject define(String name, Object value) {
     if (frozen) {
       throw new IllegalStateException("the object is frozen");
@@ -47,7 +62,10 @@ public class DynamicObject {
     return this;
   }
 
-  public Set<Map.Entry<String,Object>> properties() {
+  /**
+   * @return a view of all properties.
+   */
+  public Set<Map.Entry<String, Object>> properties() {
     return properties.entrySet();
   }
 
@@ -57,10 +75,20 @@ public class DynamicObject {
     switches.clear();
   }
 
+  /**
+   * @param name the property name.
+   * @return the property value.
+   */
   public Object get(String name) {
     return properties.get(name);
   }
 
+  /**
+   * Removes a property.
+   *
+   * @param name the property name.
+   * @return the same dynamic object.
+   */
   public DynamicObject undefine(String name) {
     if (properties.containsKey(name)) {
       properties.remove(name);
@@ -70,6 +98,9 @@ public class DynamicObject {
     return this;
   }
 
+  /**
+   * @return a new dynamic object whose properties point to the same objects.
+   */
   public DynamicObject copy() {
     DynamicObject copy = new DynamicObject();
     for (Map.Entry<String, Object> entry : properties.entrySet()) {
@@ -78,6 +109,12 @@ public class DynamicObject {
     return copy;
   }
 
+  /**
+   * Mixes all properties from another dynamic object into this one, overwriting existing properties.
+   *
+   * @param other the dynamic object to mix the properties from.
+   * @return the same dynamic object.
+   */
   public DynamicObject mixin(DynamicObject other) {
     for (Map.Entry<String, Object> entry : other.properties.entrySet()) {
       define(entry.getKey(), entry.getValue());
@@ -85,6 +122,11 @@ public class DynamicObject {
     return this;
   }
 
+  /**
+   * Freezes a dynamic object, meaning that its properties cannot be added, updated and removed anymore.
+   *
+   * @return the same dynamic object.
+   */
   public DynamicObject freeze() {
     this.frozen = true;
     return this;
