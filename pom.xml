@@ -23,6 +23,12 @@
   <artifactId>golo</artifactId>
   <version>0-SNAPSHOT</version>
 
+  <parent>
+    <groupId>org.sonatype.oss</groupId>
+    <artifactId>oss-parent</artifactId>
+    <version>7</version>
+  </parent>
+
   <packaging>jar</packaging>
 
   <name>Golo Programming Language</name>
