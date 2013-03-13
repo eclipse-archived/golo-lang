@@ -49,8 +49,14 @@
       <name>Julien Ponge</name>
       <email>julien.ponge@insa-lyon.fr</email>
       <url>http://julien.ponge.org/</url>
+      <organization>INSA-Lyon</organization>
     </developer>
   </developers>
+
+  <organization>
+    <name>Institut National des Sciences Appliquées de Lyon (INSA-Lyon)</name>
+    <url>http://www.insa-lyon.fr/</url>
+  </organization>
 
   <prerequisites>
     <maven>3.0</maven>
