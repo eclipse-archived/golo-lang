@@ -21,7 +21,6 @@ import fr.insalyon.citi.golo.compiler.ir.PositionInSourceCode;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 import org.testng.annotations.Test;
 
 import java.io.IOException;

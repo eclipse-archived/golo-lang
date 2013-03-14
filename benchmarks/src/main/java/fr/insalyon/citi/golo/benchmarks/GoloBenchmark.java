@@ -17,7 +17,7 @@
 package fr.insalyon.citi.golo.benchmarks;
 
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
-import fr.insalyon.citi.golo.runtime.GoloClassLoader;
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import groovy.lang.GroovyClassLoader;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;

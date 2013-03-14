@@ -255,7 +255,7 @@ follows:
 
 [source,java]
 ----
-import fr.insalyon.citi.golo.runtime.GoloClassLoader;
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 
 public class Foo {
   

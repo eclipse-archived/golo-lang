@@ -14,11 +14,11 @@
  * limitations under the License.
  */
 
-package fr.insalyon.citi.golo.runtime;
+package fr.insalyon.citi.golo.compiler;
 
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import org.testng.annotations.Test;
 
-import java.io.File;
 import java.io.FileInputStream;
 
 import static org.hamcrest.MatcherAssert.assertThat;

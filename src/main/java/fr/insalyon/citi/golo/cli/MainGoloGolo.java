@@ -16,9 +16,8 @@
 
 package fr.insalyon.citi.golo.cli;
 
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
-import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
-import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 
 import java.io.File;
 import java.io.FileInputStream;

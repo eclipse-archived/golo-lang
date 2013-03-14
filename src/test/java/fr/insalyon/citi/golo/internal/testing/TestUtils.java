@@ -16,16 +16,13 @@
 
 package fr.insalyon.citi.golo.internal.testing;
 
-import fr.insalyon.citi.golo.compiler.GoloCompiler;
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.runtime.GoloClassLoader;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FilenameFilter;
 import java.io.IOException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
