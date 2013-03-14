@@ -103,3 +103,4 @@ function dump = |obj| {
 
 Because dynamic object entries mix both values and method handles, do not forget that the predefined
 `isClosure(obj)` function can be useful to distinguish them.
+
