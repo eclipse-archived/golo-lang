@@ -21,10 +21,19 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
+/**
+ * A Golo compilation exception that may also report a cause and several identified problems.
+ */
 public class GoloCompilationException extends RuntimeException {
 
+  /**
+   * A problem reported either while compiling the source code or processing the intermediate representation.
+   */
   public static class Problem {
 
+    /**
+     * The possible problem types.
+     */
     public static enum Type {
       UNDECLARED_REFERENCE, ASSIGN_CONSTANT
     }
@@ -33,20 +42,36 @@ public class GoloCompilationException extends RuntimeException {
     private final Object source;
     private final String description;
 
+    /**
+     * Constructs a new problem to report.
+     *
+     * @param type        the problem type.
+     * @param source      the problem source, which may be of any meaningful type.
+     * @param description the problem description in a human-readable form.
+     */
     public Problem(Type type, Object source, String description) {
       this.type = type;
       this.source = source;
       this.description = description;
     }
 
+    /**
+     * @return the problem type.
+     */
     public Type getType() {
       return type;
     }
 
+    /**
+     * @return the problem source.
+     */
     public Object getSource() {
       return source;
     }
 
+    /**
+     * @return the problem description.
+     */
     public String getDescription() {
       return description;
     }
@@ -61,19 +86,40 @@ public class GoloCompilationException extends RuntimeException {
     }
   }
 
+  /**
+   * An exception builder object allows preparing an exception by progressively adding problems.
+   */
   public static class Builder {
 
     private final GoloCompilationException exception;
 
+    /**
+     * Makes a builder to report problems in a source file.
+     *
+     * @param goloSourceFilename the source file name.
+     */
     public Builder(String goloSourceFilename) {
       exception = new GoloCompilationException("In Golo module: " + goloSourceFilename);
     }
 
+    /**
+     * Report a problem to the exception being built.
+     *
+     * @param type        the problem type.
+     * @param source      the problem source.
+     * @param description the prob;em description.
+     * @return the same builder object.
+     */
     public Builder report(Problem.Type type, Object source, String description) {
       exception.report(new Problem(type, source, description));
       return this;
     }
 
+    /**
+     * Stops adding problems and throws the exception,
+     *
+     * @throws GoloCompilationException everytime.
+     */
     public void doThrow() throws GoloCompilationException {
       throw exception;
     }
@@ -81,6 +127,9 @@ public class GoloCompilationException extends RuntimeException {
 
   private final List<Problem> problems = new LinkedList<>();
 
+  /**
+   * @return all reported problems.
+   */
   public List<Problem> getProblems() {
     return unmodifiableList(problems);
   }
@@ -90,16 +139,33 @@ public class GoloCompilationException extends RuntimeException {
   }
 
   private GoloCompilationException() {
+    super();
   }
 
+  /**
+   * Makes a new compiler exception with a message.
+   *
+   * @param message the message.
+   */
   public GoloCompilationException(String message) {
     super(message);
   }
 
+  /**
+   * Makes a new compiler exception from a root cause.
+   *
+   * @param throwable the cause.
+   */
   public GoloCompilationException(Throwable throwable) {
     super(throwable);
   }
 
+  /**
+   * Makes a new exception from a message and a root cause.
+   *
+   * @param message the message.
+   * @param cause   the cause.
+   */
   public GoloCompilationException(String message, Throwable cause) {
     super(message, cause);
   }

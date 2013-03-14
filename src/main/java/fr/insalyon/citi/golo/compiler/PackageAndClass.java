@@ -19,24 +19,45 @@ package fr.insalyon.citi.golo.compiler;
 import static fr.insalyon.citi.golo.compiler.utils.NamingUtils.extractTargetJavaClass;
 import static fr.insalyon.citi.golo.compiler.utils.NamingUtils.extractTargetJavaPackage;
 
+/**
+ * Represents a package and class.
+ */
 public final class PackageAndClass {
 
   private final String packageName;
   private final String className;
 
+  /**
+   * Makes a new package and class definition.
+   *
+   * @param packageName the package name.
+   * @param className   the class name.
+   */
   public PackageAndClass(String packageName, String className) {
     this.packageName = packageName;
     this.className = className;
   }
 
+  /**
+   * Extracts a package and class definition from a string.
+   *
+   * @param qualifiedName a qualified name.
+   * @return a package and class definition.
+   */
   public static PackageAndClass fromString(String qualifiedName) {
     return new PackageAndClass(extractTargetJavaPackage(qualifiedName), extractTargetJavaClass(qualifiedName));
   }
 
+  /**
+   * @return the package name.
+   */
   public String packageName() {
     return packageName;
   }
 
+  /**
+   * @return the class name.
+   */
   public String className() {
     return className;
   }
@@ -50,6 +71,9 @@ public final class PackageAndClass {
     }
   }
 
+  /**
+   * @return a JVM type representation for this object, e.g.: <code>foo.Bar</code> gives <code>foo/Bar</code>.
+   */
   public String toJVMType() {
     return toString().replaceAll("\\.", "/");
   }
