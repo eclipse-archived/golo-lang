@@ -1,5 +1,15 @@
 == Basics ==
 
+Let us start with the Golo basics.
+
+=== Editor / IDE support ===
+
+Editor and IDE support for Golo is available for:
+
+- https://github.com/jponge/vim-golo[Vim]
+- https://github.com/k33g/sublime-golo[Sublime Text 2]
+- https://github.com/k33g/golo-storm[IntelliJ IDEA (syntax highthing)]
+
 === Hello world ===
 
 Golo source code need to be placed in _modules_. Module names are
