@@ -18,6 +18,11 @@ pimp java.lang.String {
     }
     return result
   }
+
+  function asIdentityFunction = |this| {
+    let id = -> this
+    return id
+  }
 }
 
 function goog = -> "http://www.google.com/": toURLType()
@@ -29,3 +34,8 @@ function externalPimp = -> "abc": wrap("(", ")")
 function varargs = -> "a": concatWith("b", "c", "d")
 
 function polymorphism = -> java.util.LinkedList(): plop()
+
+function closure_in_pimp = {
+  let f = "foo": asIdentityFunction()
+  return f()
+}

@@ -631,6 +631,9 @@ public class CompileAndRunTest {
 
     Method polymorphism = moduleClass.getMethod("polymorphism");
     assertThat((String) polymorphism.invoke(null), is("plop!"));
+
+    Method closure_in_pimp = moduleClass.getMethod("closure_in_pimp");
+    assertThat((String) closure_in_pimp.invoke(null), is("foo"));
   }
 
   @Test
