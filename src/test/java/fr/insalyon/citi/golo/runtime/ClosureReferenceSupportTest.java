@@ -33,6 +33,8 @@ import static org.hamcrest.Matchers.is;
 
 public class ClosureReferenceSupportTest {
 
+  private final String KLASS = "fr.insalyon.citi.golo.runtime.ClosureReferenceSupportTest";
+
   static Object to_list(Object foo, Object bar) {
     return Arrays.asList(foo, bar);
   }
@@ -47,7 +49,7 @@ public class ClosureReferenceSupportTest {
 
   @Test
   public void check_bootstrap() throws Throwable {
-    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "to_list", methodType(MethodHandle.class), 2, 0);
+    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "to_list", methodType(MethodHandle.class), KLASS, 2, 0);
     assertThat(callSite.type(), is(methodType(MethodHandle.class)));
 
     Object result = callSite.dynamicInvoker().invoke();
@@ -63,7 +65,7 @@ public class ClosureReferenceSupportTest {
 
   @Test
   public void check_bootstrap_varargs() throws Throwable {
-    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "concat", methodType(MethodHandle.class), 0, 1);
+    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "concat", methodType(MethodHandle.class), KLASS, 0, 1);
     assertThat(callSite.type(), is(methodType(MethodHandle.class)));
 
     Object result = callSite.dynamicInvoker().invoke();

@@ -17,14 +17,17 @@
 package fr.insalyon.citi.golo.runtime;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Method;
 
 import static java.lang.invoke.MethodHandles.constant;
 import static java.lang.invoke.MethodType.genericMethodType;
 
 public class ClosureReferenceSupport {
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity, int varargs) throws NoSuchMethodException, IllegalAccessException {
-    MethodHandle target = caller.findStatic(caller.lookupClass(), name, genericMethodType(arity, varargs == 1));
-    return new ConstantCallSite(constant(MethodHandle.class, target));
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, String moduleClass, int arity, int varargs) throws Throwable {
+    Class<?> module = caller.lookupClass().getClassLoader().loadClass(moduleClass);
+    Method function = module.getDeclaredMethod(name, genericMethodType(arity, varargs == 1).parameterArray());
+    function.setAccessible(true);
+    return new ConstantCallSite(constant(MethodHandle.class, caller.unreflect(function)));
   }
 }
