@@ -27,7 +27,6 @@ function main = |args| {
   
   server: createContext("/", handler(|exchange| {
     let headers = exchange: getResponseHeaders()
-    let writer = OutputStreamWriter(exchange: getResponseBody())
     let response = StringBuilder():
       append("Requested URI: "):
       append(exchange: getRequestURI()):
