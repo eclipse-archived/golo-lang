@@ -18,7 +18,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
 
-public final class ModuleImport {
+public final class ModuleImport  extends GoloElement {
 
   private final PackageAndClass packageAndClass;
   private final PositionInSourceCode positionInSourceCode;

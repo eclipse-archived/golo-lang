@@ -23,7 +23,7 @@ import java.util.*;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
-public final class GoloModule {
+public final class GoloModule  extends GoloElement {
 
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new HashSet<>();
