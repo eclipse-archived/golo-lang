@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTFunctionDeclaration extends GoloASTNode {
+public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
   private boolean local = false;
@@ -30,10 +30,12 @@ public class ASTFunctionDeclaration extends GoloASTNode {
     super(p, i);
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }

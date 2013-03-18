@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTImportDeclaration extends GoloASTNode {
+public class ASTImportDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
 
@@ -28,10 +28,12 @@ public class ASTImportDeclaration extends GoloASTNode {
     super(p, i);
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }

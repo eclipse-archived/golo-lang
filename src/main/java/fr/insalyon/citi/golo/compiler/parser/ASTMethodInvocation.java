@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTMethodInvocation extends GoloASTNode {
+public class ASTMethodInvocation extends GoloASTNode implements NamedNode {
 
   private String name;
 
@@ -28,10 +28,12 @@ public class ASTMethodInvocation extends GoloASTNode {
     super(p, id);
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }
