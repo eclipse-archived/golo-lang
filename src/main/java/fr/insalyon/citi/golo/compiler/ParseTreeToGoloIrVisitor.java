@@ -35,6 +35,19 @@ import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
 
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
+  private GoloCompilationException.Builder exceptionBuilder;
+  private boolean dontThrow = false;
+
+  public void setExceptionBuilder(GoloCompilationException.Builder builder) {
+    exceptionBuilder = builder;
+    dontThrow = builder != null;
+  }
+  
+  @Override
+  public Object visit(ASTerror node, Object data) {
+    return null;
+  }
+
   private static class Context {
     GoloModule module;
     String pimp;
@@ -333,23 +346,30 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     LocalReference reference = context.referenceTableStack.peek().get(node.getName());
     if (reference == null) {
-      new GoloCompilationException.Builder(context.module.getPackageAndClass().toString())
-          .report(UNDECLARED_REFERENCE, node,
+      if (exceptionBuilder == null) {
+        exceptionBuilder = new GoloCompilationException.Builder(context.module.getPackageAndClass().toString());
+      }
+      
+      exceptionBuilder.report(UNDECLARED_REFERENCE, node,
               "Assigning to an undeclared reference `" + node.getName() +
                   "` at (line=" + node.getLineInSourceCode() +
-                  ", column=" + node.getColumnInSourceCode() + ")")
-          .doThrow();
+                  ", column=" + node.getColumnInSourceCode() + ")");
+      if (! dontThrow) {
+        exceptionBuilder.doThrow();
+      }
     }
     node.childrenAccept(this, data);
-    AssignmentStatement assignmentStatement = new AssignmentStatement(
-                             reference,
-                             (ExpressionStatement) context.objectStack.pop(),
-                             new PositionInSourceCode(
-                                 node.getLineInSourceCode(),
-                                 node.getColumnInSourceCode()));
-    
-    context.objectStack.push(assignmentStatement);
-    node.setIrElement(assignmentStatement);
+    if (reference != null) {
+      AssignmentStatement assignmentStatement = new AssignmentStatement(
+                               reference,
+                               (ExpressionStatement) context.objectStack.pop(),
+                               new PositionInSourceCode(
+                                   node.getLineInSourceCode(),
+                                   node.getColumnInSourceCode()));
+
+      context.objectStack.push(assignmentStatement);
+      node.setIrElement(assignmentStatement);
+    }
     return data;
   }
 

@@ -32,6 +32,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   private Stack<ReferenceTable> tableStack = new Stack<>();
   private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
   private GoloCompilationException.Builder exceptionBuilder;
+  private boolean dontThrow = false;
 
   private void resetIndexAssignmentCounter() {
     indexAssignmentCounter = 0;
@@ -43,6 +44,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     return value;
   }
 
+  public void setExceptionBuilder(GoloCompilationException.Builder builder) {
+    exceptionBuilder = builder;
+    dontThrow = exceptionBuilder != null;
+  }
+  
   private GoloCompilationException.Builder getExceptionBuilder() {
     if (exceptionBuilder == null) {
       exceptionBuilder = new GoloCompilationException.Builder(module.getPackageAndClass().toString());
@@ -62,7 +68,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
         function.accept(this);
       }
     }
-    if (exceptionBuilder != null) {
+    if (exceptionBuilder != null && ! dontThrow) {
       exceptionBuilder.doThrow();
     }
   }
@@ -124,7 +130,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (reference.getKind().equals(LocalReference.Kind.CONSTANT)) {
       Set<LocalReference> assignedReferences = assignmentStack.peek();
       if (assignedReferences.contains(reference)) {
-        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement,
+        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
             "Assigning " + reference.getName() +
                 " at " + assignmentStatement.getPositionInSourceCode() +
                 " but it is a constant");
@@ -139,7 +145,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     ReferenceTable table = tableStack.peek();
     if (!table.hasReferenceFor(referenceLookup.getName())) {
-      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup,
+      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
           "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
     }
   }
