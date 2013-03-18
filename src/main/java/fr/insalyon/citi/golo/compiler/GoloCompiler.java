@@ -37,6 +37,19 @@ import java.util.List;
 public class GoloCompiler {
 
   private GoloParser parser;
+  private GoloCompilationException.Builder exceptionBuilder = null;
+
+  
+  /**
+   * Initializes an ExceptionBuilder to collect errors instead of throwing immediately.
+   * This method is made public for the requirements of IDEs support.
+   *
+   * @param builder the exception builder to add problems into.
+   */
+  public final void setExceptionBuilder(GoloCompilationException.Builder builder) {
+    exceptionBuilder = builder;
+  }
+  
 
   /**
    * Initializes a parser from an input stream. This method is made public for the requirements of IDEs support.
@@ -133,10 +146,12 @@ public class GoloCompiler {
    */
   public final GoloModule check(ASTCompilationUnit compilationUnit) {
     ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
+    parseTreeToIR.setExceptionBuilder(exceptionBuilder);
     GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
     ClosureCaptureGoloIrVisitor closureCaptureVisitor = new ClosureCaptureGoloIrVisitor();
     closureCaptureVisitor.visitModule(goloModule);
     LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
+    parseTreeToIR.setExceptionBuilder(exceptionBuilder);
     localReferenceVisitor.visitModule(goloModule);
     return goloModule;
   }
