@@ -42,6 +42,21 @@ import fr.insalyon.citi.golo.compiler.utils.StringUnescaping;
 
 public class GoloParser {
 
+  public List<ParseException> parseErrors = new LinkedList<ParseException>();
+
+  void skipto(int kind, ParseException e) {
+    parseErrors.add(((ParseException)e));
+    Token t;
+    do {
+      t = getNextToken();
+    } while (t.kind != kind);
+    // The above loop consumes tokens all the way up to a token of
+    // "kind". We use a do-while loop rather than a while because the
+    // current token is the one immediately before the erroneous token
+    // (in our case the token immediately before what should have been
+    // "if"/"while".
+  }
+
   public static class ParserClassRef {
 
     public String name;
@@ -235,6 +250,12 @@ TOKEN_MGR_DECLS :
 
 // ............................................................................................. //
 
+JAVACODE
+void error() {
+  throw generateParseException();
+}
+
+
 void BlankLine() #void:{}
 {
   ( <NEWLINE> | <COMMENT> )
@@ -389,12 +410,30 @@ GoloParser.FunctionRef FunctionRef() #void:
 
 ASTCompilationUnit CompilationUnit(): {}
 {
-  BlankLines()
-  ModuleDeclaration()
-  BlankLines()
-  ( ImportDeclaration() BlankLines() )*
-  ( (PimpDeclaration() | FunctionDeclaration()) BlankLines() )*
-  <EOF>  
+  try {
+    ( 
+      ( 
+        BlankLines()
+        ModuleDeclaration() BlankLines()
+        ( ImportDeclaration() BlankLines() )*
+        ( 
+          try {
+            (PimpDeclaration() | FunctionDeclaration()) BlankLines() 
+          }
+          catch (ParseException e) {
+            skipto(NEWLINE, e);
+          }
+        )*
+
+      )
+      |
+      error()
+    )
+    <EOF>  
+  }
+  catch (ParseException e) {
+    skipto(NEWLINE, e);
+  }
   { return jjtThis; }
 }
 
@@ -418,11 +457,16 @@ void ImportDeclaration():
   String name;
 }
 {
-  token=<IMPORT> name=QualifiedName()
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-    jjtThis.setName(name);
+  try {
+    token=<IMPORT> name=QualifiedName()
+    {
+      jjtThis.setLineInSourceCode(token.beginLine);
+      jjtThis.setColumnInSourceCode(token.beginColumn);
+      jjtThis.setName(name);
+    }
+  }
+  catch (ParseException e) {
+    skipto(NEWLINE, e);
   }
 }
 
@@ -458,7 +502,7 @@ void PimpDeclaration():
           " must take at least 1 argument ('this' would be a good idea...)", 0);
       }
     }
-  }
+  } 
 }
 
 ASTFunctionDeclaration FunctionDeclaration():
@@ -487,29 +531,34 @@ ASTFunctionDeclaration FunctionDeclaration():
 
 void Statement() #void:{}
 {
-  BlankLine() 
-  |
-  LOOKAHEAD(2) Assignment()
-  |
-  ExpressionStatement()
-  | 
-  Return() 
-  |
-  LetOrVar()
-  |
-  ConditionalBranching()
-  |
-  WhileLoop()
-  |
-  ForLoop()
-  |
-  ForEachLoop()
-  |
-  Throw()
-  |
-  TryCatchFinally()
-  |
-  Case()
+  try {
+    BlankLine() 
+    |
+    LOOKAHEAD(2) Assignment()
+    |
+    ExpressionStatement()
+    | 
+    Return() 
+    |
+    LetOrVar()
+    |
+    ConditionalBranching()
+    |
+    WhileLoop()
+    |
+    ForLoop()
+    |
+    ForEachLoop()
+    |
+    Throw()
+    |
+    TryCatchFinally()
+    |
+    Case()
+  }
+  catch (ParseException e) {
+    skipto(NEWLINE, e);
+  }
 }
 
 void Throw():
@@ -691,7 +740,16 @@ void MethodInvocation():
 
 void Block(): {}
 {
-  (Statement())*
+  try { 
+    (
+      (Statement())*
+    )
+    | 
+    error()
+  }
+  catch (ParseException e) {
+    skipto(NEWLINE, e);
+  }
 }
 
 void Function():
