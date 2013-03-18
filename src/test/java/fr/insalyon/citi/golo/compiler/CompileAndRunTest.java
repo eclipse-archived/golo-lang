@@ -173,8 +173,8 @@ public class CompileAndRunTest {
       assertThat(problems.size(), is(1));
       Problem problem = problems.get(0);
       assertThat(problem.getType(), is(UNDECLARED_REFERENCE));
-      assertThat(problem.getSource(), instanceOf(ReferenceLookup.class));
-      ReferenceLookup lookup = (ReferenceLookup) problem.getSource();
+      assertThat(problem.getSource().getIrElement(), instanceOf(ReferenceLookup.class));
+      ReferenceLookup lookup = (ReferenceLookup) problem.getSource().getIrElement();
       assertThat(lookup.getName(), is("some_parameter"));
       assertThat(lookup.getPositionInSourceCode(), is(new PositionInSourceCode(4, 13)));
       throw expected;
@@ -210,8 +210,8 @@ public class CompileAndRunTest {
       assertThat(problems.size(), is(1));
       Problem problem = problems.get(0);
       assertThat(problem.getType(), is(ASSIGN_CONSTANT));
-      assertThat(problem.getSource(), instanceOf(AssignmentStatement.class));
-      AssignmentStatement statement = (AssignmentStatement) problem.getSource();
+      assertThat(problem.getSource().getIrElement(), instanceOf(AssignmentStatement.class));
+      AssignmentStatement statement = (AssignmentStatement) problem.getSource().getIrElement();
       assertThat(statement.getLocalReference().getName(), is("foo"));
       assertThat(statement.getPositionInSourceCode().getLine(), is(7));
       assertThat(statement.getPositionInSourceCode().getColumn(), is(3));
