@@ -16,10 +16,21 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
+import fr.insalyon.citi.golo.compiler.ir.GoloElement;
+        
 public class GoloASTNode extends SimpleNode {
 
   private int lineInSourceCode = -1;
   private int columnInSourceCode = -1;
+  private GoloElement irElement;
+
+    public void setIrElement(GoloElement element) {
+        this.irElement = element;
+    }
+
+    public GoloElement getIrElement() {
+        return irElement;
+    }
 
   public GoloASTNode(int i) {
     super(i);
