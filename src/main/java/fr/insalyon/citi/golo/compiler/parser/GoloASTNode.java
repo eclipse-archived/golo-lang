@@ -26,6 +26,7 @@ public class GoloASTNode extends SimpleNode {
 
     public void setIrElement(GoloElement element) {
         this.irElement = element;
+        element.setASTNode(this);
     }
 
     public GoloElement getIrElement() {
