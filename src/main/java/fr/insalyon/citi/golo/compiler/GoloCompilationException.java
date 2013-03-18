@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.compiler;
 
+import fr.insalyon.citi.golo.compiler.ir.GoloElement;
+import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -39,7 +41,7 @@ public class GoloCompilationException extends RuntimeException {
     }
 
     private final Type type;
-    private final Object source;
+    private final GoloASTNode source;
     private final String description;
 
     /**
@@ -49,7 +51,7 @@ public class GoloCompilationException extends RuntimeException {
      * @param source      the problem source, which may be of any meaningful type.
      * @param description the problem description in a human-readable form.
      */
-    public Problem(Type type, Object source, String description) {
+    public Problem(Type type, GoloASTNode source, String description) {
       this.type = type;
       this.source = source;
       this.description = description;
@@ -65,7 +67,7 @@ public class GoloCompilationException extends RuntimeException {
     /**
      * @return the problem source.
      */
-    public Object getSource() {
+    public GoloASTNode getSource() {
       return source;
     }
 
@@ -110,7 +112,7 @@ public class GoloCompilationException extends RuntimeException {
      * @param description the prob;em description.
      * @return the same builder object.
      */
-    public Builder report(Problem.Type type, Object source, String description) {
+    public Builder report(Problem.Type type, GoloASTNode source, String description) {
       exception.report(new Problem(type, source, description));
       return this;
     }
