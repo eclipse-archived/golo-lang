@@ -24,14 +24,14 @@ public class GoloASTNode extends SimpleNode {
   private int columnInSourceCode = -1;
   private GoloElement irElement;
 
-    public void setIrElement(GoloElement element) {
-        this.irElement = element;
-        element.setASTNode(this);
-    }
+  public void setIrElement(GoloElement element) {
+    this.irElement = element;
+    element.setASTNode(this);
+  }
 
-    public GoloElement getIrElement() {
-        return irElement;
-    }
+  public GoloElement getIrElement() {
+    return irElement;
+  }
 
   public GoloASTNode(int i) {
     super(i);

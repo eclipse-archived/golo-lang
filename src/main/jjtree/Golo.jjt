@@ -50,11 +50,6 @@ public class GoloParser {
     do {
       t = getNextToken();
     } while (t.kind != kind);
-    // The above loop consumes tokens all the way up to a token of
-    // "kind". We use a do-while loop rather than a while because the
-    // current token is the one immediately before the erroneous token
-    // (in our case the token immediately before what should have been
-    // "if"/"while".
   }
 
   public static class ParserClassRef {
