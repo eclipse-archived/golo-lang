@@ -78,7 +78,7 @@ other languages it is not fully equivalent, as Golo does not support destructuri
 ----
 let item = "foo@bar.com"
 
-let what_it_could_be = match {
+let what_it_could_be = -> match {
   when item: contains("@") then "an email?"
   when item: startsWith("+33") then "a French phone number?"
   when item: startsWith("http://") then "a website URL?"
