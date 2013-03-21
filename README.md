@@ -52,7 +52,7 @@ The documentation is located in `doc/` and is built using [AsciiDoc](http://asci
 
 The current configuration depends on MacOSX + Homebrew specific paths. We know this is very bad,
 and we promise to solve this *at some point*. Or maybe we'll just switch to
-[AsciiDoctor](http://asciidoctor.org) at some point.
+[AsciiDoctor](http://asciidoctor.org) *at some point*.
 
 The documentation can be built using the provided `Rakefile`. For instance one may build a HTML
 output using:
@@ -80,3 +80,28 @@ output using:
 We welcome contributions from the community!
 
 Check the `CONTRIBUTING.md` file for instructions.
+
+## Credits
+
+Big thanks to our early testers before Golo was made public! *(in random order)*
+
+* Pierre Colomb
+* Olivier Coupelon
+* Cédric Exbrayat
+* Frédéric Le Mouel
+* Nicolas Stouls
+* Henri Gomez
+* Julien Viet
+* Philippe Charrière
+* Ludovic Champenois
+* Thierry Chantier
+* David Gageot
+* David Festal
+* Gildas Cuisinier
+* Thomas Maurel
+* Yannick Loiseau
+* Alexis Plantin
+* Sylvain Desgrais
+* William Guyot
+* Agnès Crépet
+* Cyril Lacote
