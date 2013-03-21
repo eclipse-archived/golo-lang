@@ -234,12 +234,16 @@ TOKEN_MGR_DECLS :
     public static interface TokenCompleter {
         void completeToken(Token t);
     }
+
     public TokenCompleter tokenCompleter = null;
+    private Token lastToken = null;
     
     void CommonTokenAction(Token t) {
+        t.previousToken = lastToken;
         if (tokenCompleter != null) {
             tokenCompleter.completeToken(t);
         }
+        lastToken = t;
     }
 }
 
@@ -413,7 +417,7 @@ ASTCompilationUnit CompilationUnit(): {}
         ( ImportDeclaration() BlankLines() )*
         ( 
           try {
-            (PimpDeclaration() | FunctionDeclaration()) BlankLines() 
+            ToplevelDeclaration() BlankLines() 
           }
           catch (ParseException e) {
             skipto(NEWLINE, e);
@@ -434,29 +438,23 @@ ASTCompilationUnit CompilationUnit(): {}
 
 void ModuleDeclaration():
 {
-  Token token;
   String name;
 }
 {
-  token=<MODULE> name=QualifiedName()
+  <MODULE> name=QualifiedName()
   {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name);
   }
 }
 
 void ImportDeclaration():
 {
-  Token token;
   String name;
 }
 {
   try {
-    token=<IMPORT> name=QualifiedName()
+    <IMPORT> name=QualifiedName()
     {
-      jjtThis.setLineInSourceCode(token.beginLine);
-      jjtThis.setColumnInSourceCode(token.beginColumn);
       jjtThis.setName(name);
     }
   }
@@ -465,28 +463,35 @@ void ImportDeclaration():
   }
 }
 
+void ToplevelDeclaration():
+{
+  ASTFunctionDeclaration functionDecl;
+  Token local = null;
+}
+{
+  
+  PimpDeclaration() 
+  | 
+  (local=<LOCAL>)? functionDecl=FunctionDeclaration()
+  {
+    if (local != null) {
+      functionDecl.setLocal(true);
+    }
+  }
+}
+
 void PimpDeclaration():
 {
-  Token token;
   String target;
 }
 {
-  token=<PIMP> target=QualifiedName() "{" BlankLines()
+  <PIMP> target=QualifiedName() "{" BlankLines()
     ( FunctionDeclaration() BlankLines() )* 
   "}"
   {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setTarget(target);
     for (int i = 0; i < jjtThis.jjtGetNumChildren(); i++) {
       ASTFunctionDeclaration func = (ASTFunctionDeclaration) jjtThis.jjtGetChild(i);
-      if (func.isLocal()) {
-        throw new TokenMgrError("Error: pimp function " + 
-          func.getName() + 
-          " on " + 
-          target + 
-          " is declared as local", 0);
-      }
       func.setPimp(true);
       ASTFunction body = (ASTFunction) func.jjtGetChild(0);
       if (body.getArguments().isEmpty()) {
@@ -502,21 +507,11 @@ void PimpDeclaration():
 
 ASTFunctionDeclaration FunctionDeclaration():
 {
-  Token token;
   Token name;
-  Token local = null;
 }
 {
-  (local=<LOCAL>)?
+  <FUNCTION> name=<IDENTIFIER> "=" Function()
   {
-    if (local != null) {
-      jjtThis.setLocal(true);
-    }
-  }
-  token=<FUNCTION> name=<IDENTIFIER> "=" Function()
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setName(name.image);
     return jjtThis;
   }
@@ -556,83 +551,54 @@ void Statement() #void:{}
   }
 }
 
-void Throw():
+void Throw(): {}
 {
-  Token token;
-}
-{
-  token=<THROW> (BlankLine())? ExpressionStatement()
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
+  <THROW> (BlankLine())? ExpressionStatement()
 }
 
-void WhileLoop():
+void WhileLoop(): {}
 {
-  Token token;
-}
-{
-  token=<WHILE> ExpressionStatement() "{" Block() "}"
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
+  <WHILE> ExpressionStatement() Block()
 }
 
-void ForLoop():
+void ForLoop(): {}
 {
-  Token token;
-}
-{
-  token=<FOR> "("  (BlankLine())? LetOrVar() ","
+  <FOR> "("  (BlankLine())? LetOrVar() ","
                    (BlankLine())? ExpressionStatement() "," 
                    (LOOKAHEAD(1) BlankLine())? Statement() ")"
-  "{" Block() "}"
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
+  Block()
 }
 
 void ForEachLoop():
 {
-  Token token;
   Token elementId;
 }
 {
-  token=<FOREACH> "(" elementId=<IDENTIFIER> <IN> ExpressionStatement() ")" "{" Block() "}"
+  <FOREACH> "(" elementId=<IDENTIFIER> <IN> ExpressionStatement() ")" Block()
   {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setElementIdentifier(elementId.image);
   }
 }
 
 void TryCatchFinally():
 {
-  Token token;
   Token exceptionId;
 }
 {
-  token=<TRY> "{" Block() "}" 
+  <TRY> Block()
   (
     (
-      <FINALLY> "{" Block() "}"
+      <FINALLY> Block()
       {
         jjtThis.setExceptionId(null);
-        jjtThis.setLineInSourceCode(token.beginLine);
-        jjtThis.setColumnInSourceCode(token.beginColumn);
       }
     )
     |
     (
-      <CATCH> "(" exceptionId=<IDENTIFIER> ")" "{" Block() "}"
-      (<FINALLY> "{" Block() "}")?
+      <CATCH> "(" exceptionId=<IDENTIFIER> ")" Block()
+      (<FINALLY> Block() )?
       {
         jjtThis.setExceptionId(exceptionId.image);
-        jjtThis.setLineInSourceCode(token.beginLine);
-        jjtThis.setColumnInSourceCode(token.beginColumn);
       }
     )
   )
@@ -664,8 +630,6 @@ void UnaryExpression():
   token=<UNARY_OPERATOR> CommutativeExpression()
   {
     jjtThis.setOperator(token.image);
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
   }
 }
 
@@ -679,8 +643,6 @@ void CommutativeExpression():
     LOOKAHEAD(2) (BlankLine())? token=<COMMUTATIVE_OPERATOR> (BlankLine())? AssociativeExpression()
     {
       jjtThis.addOperator(token.image);
-      jjtThis.addLine(token.beginLine);
-      jjtThis.addColumn(token.beginColumn);
     }
   )*
 }
@@ -704,22 +666,18 @@ void AssociativeExpression():
       token=<ASSOCIATIVE_OPERATOR> (BlankLine())? AssociativeExpression()
       {
         jjtThis.addOperator(token.image);
-        jjtThis.addLine(token.beginLine);
-        jjtThis.addColumn(token.beginColumn);
       }
     |
       (BlankLine())? token=":" (BlankLine())? MethodInvocation()
       {
         jjtThis.addOperator(token.image);
-        jjtThis.addLine(token.beginLine);
-        jjtThis.addColumn(token.beginColumn);
       }
     )
   )*
   (LOOKAHEAD(1) BlankLine())?
 }
 
-void MethodInvocation():
+void MethodInvocation(): 
 {
   Token token;
 }
@@ -727,8 +685,6 @@ void MethodInvocation():
   token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
   {
     jjtThis.setName(token.image);
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
   }
 }
 
@@ -736,11 +692,9 @@ void MethodInvocation():
 void Block(): {}
 {
   try { 
-    (
-      (Statement())*
-    )
-    | 
-    error()
+    "{"
+    (Statement())*
+    "}"
   }
   catch (ParseException e) {
     skipto(NEWLINE, e);
@@ -749,7 +703,6 @@ void Block(): {}
 
 void Function():
 {
-  Token token;
   List<String> arguments = null;
   Token varargsToken = null;
   boolean compactForm = false;
@@ -757,9 +710,9 @@ void Function():
 {
   ("|" arguments=Arguments() (varargsToken="...")? "|")? 
   (
-    (token="{" Block() "}")
+    Block()
     |
-    (token="->" (BlankLine())? ExpressionStatement())
+    ("->" (BlankLine())? ExpressionStatement())
     {
       compactForm = true;
     }
@@ -768,8 +721,6 @@ void Function():
     if (arguments == null) {
       arguments = Collections.emptyList();
     }
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
     jjtThis.setCompactForm(compactForm);
     jjtThis.setArguments(arguments);
     jjtThis.setVarargs(varargsToken != null);
@@ -839,16 +790,11 @@ void Literal():
   )
 }
 
-void Reference():
+void Reference():{}
 {
-  Token token;
-}
-{
-  token=<IDENTIFIER>
+  <IDENTIFIER>
   {
-    jjtThis.setName(token.image);
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
+    jjtThis.setName(jjtThis.jjtGetFirstToken().image);
   }
 }
 
@@ -861,16 +807,12 @@ void LetOrVar():
   {
     jjtThis.setType(ASTLetOrVar.Type.LET);
     jjtThis.setName(idToken.image);
-    jjtThis.setLineInSourceCode(idToken.beginLine);
-    jjtThis.setColumnInSourceCode(idToken.beginColumn);
   }
   |
   <VAR> idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
     jjtThis.setName(idToken.image);
-    jjtThis.setLineInSourceCode(idToken.beginLine);
-    jjtThis.setColumnInSourceCode(idToken.beginColumn);
   }
 }
 
@@ -882,21 +824,12 @@ void Assignment():
   idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
   {
     jjtThis.setName(idToken.image);
-    jjtThis.setLineInSourceCode(idToken.beginLine);
-    jjtThis.setColumnInSourceCode(idToken.beginColumn);
   }
 }
 
-void Return():
-{
-  Token token;
-}
+void Return(): {}
 {  
-  token=<RETURN> (LOOKAHEAD(2) (BlankLine())? ExpressionStatement())?
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
+  <RETURN> (LOOKAHEAD(2) (BlankLine())? ExpressionStatement())?
 }
 
 void Expressions() #void: {}
@@ -907,66 +840,42 @@ void Expressions() #void: {}
 void FunctionInvocation():
 {
   String name;
-  Token token;
 }
 {
-  name=QualifiedName() token="(" (BlankLine())? (Expressions())? ")"
+  name=QualifiedName() "(" (BlankLine())? (Expressions())? ")"
   {
     jjtThis.setName(name);
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
   }
 }
 
-void ConditionalBranching():
+void ConditionalBranching(): {}
 {
-  Token token;
-}
-{
-  token=<IF> ExpressionStatement() "{" Block() "}"
+  <IF> ExpressionStatement() Block()
   ( LOOKAHEAD( <ELSE> )
     <ELSE>
     (
       ConditionalBranching()
      |
-      ( "{" Block() "}" )
+      Block()
     )
   )?
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
 }
 
-void Case():
-{ 
-  Token token;
-}
+void Case(): {}
 {
-  token=<CASE> "{" (BlankLine())?
-    ( <WHEN> ExpressionStatement() "{" Block() "}" (BlankLine())? )+
-    <OTHERWISE> "{" Block() "}" (BlankLine())?
+  <CASE> "{" (BlankLine())?
+    ( <WHEN> ExpressionStatement() Block() (BlankLine())? )+
+    <OTHERWISE> Block() (BlankLine())?
   "}"
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
 }
 
-void Match():
-{ 
-  Token token;
-}
+void Match(): {}
 {
-  token=<MATCH> "{" (BlankLine())?
+  <MATCH> "{" (BlankLine())?
     ( <WHEN> (BlankLine())? ExpressionStatement() (BlankLine())? 
       <THEN> (BlankLine())? ExpressionStatement() (BlankLine())? )+
     <OTHERWISE>  (BlankLine())? ExpressionStatement() (BlankLine())?
   "}"
-  {
-    jjtThis.setLineInSourceCode(token.beginLine);
-    jjtThis.setColumnInSourceCode(token.beginColumn);
-  }
 }
 
 // ............................................................................................. //

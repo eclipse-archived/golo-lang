@@ -23,8 +23,8 @@ public class UnaryOperation extends ExpressionStatement {
   private final OperatorType type;
   private final ExpressionStatement expressionStatement;
 
-  public UnaryOperation(OperatorType type, ExpressionStatement expressionStatement, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public UnaryOperation(OperatorType type, ExpressionStatement expressionStatement) {
+    super();
     this.type = type;
     this.expressionStatement = expressionStatement;
   }

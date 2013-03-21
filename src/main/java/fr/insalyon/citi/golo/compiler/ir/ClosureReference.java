@@ -25,9 +25,10 @@ public class ClosureReference extends ExpressionStatement {
   private final Set<String> capturedReferenceNames = new HashSet<>();
   private int syntheticArgumentsIndexStart;
 
-  public ClosureReference(GoloFunction target, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ClosureReference(GoloFunction target) {
+    super();
     this.target = target;
+    this.setASTNode(target.getASTNode());
   }
 
   public GoloFunction getTarget() {

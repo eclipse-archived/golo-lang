@@ -85,12 +85,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTImportDeclaration node, Object data) {
     Context context = (Context) data;
     ModuleImport moduleImport = new ModuleImport(
-            PackageAndClass.fromString(node.getName()),
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode()));
+            PackageAndClass.fromString(node.getName()));
     node.setIrElement(moduleImport);
     context.module.addImport(moduleImport);
+    return node.childrenAccept(this, data);
+  }
+
+  @Override
+  public Object visit(ASTToplevelDeclaration node, Object data) {
     return node.childrenAccept(this, data);
   }
 
@@ -107,10 +109,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function = new GoloFunction(
         node.getName(),
         node.isLocal() ? LOCAL : PUBLIC,
-        node.isPimp() ? PIMP : MODULE,
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+        node.isPimp() ? PIMP : MODULE);
     node.setIrElement(function);
     context.objectStack.push(function);
     node.childrenAccept(this, data);
@@ -127,10 +126,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       function = new GoloFunction(
           "__$$_closure_" + context.nextClosureId++,
           LOCAL,
-          CLOSURE,
-          new PositionInSourceCode(
-              node.getLineInSourceCode(),
-              node.getColumnInSourceCode()));
+          CLOSURE);
       function.setSynthetic(true);
       context.objectStack.push(function);
     } else {
@@ -166,10 +162,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       context.objectStack.pop();
       context.objectStack.push(
           new ClosureReference(
-              function,
-              new PositionInSourceCode(
-                  node.getLineInSourceCode(),
-                  node.getColumnInSourceCode())));
+              function));
     }
     return data;
   }
@@ -180,9 +173,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       block.addStatement(
           new ReturnStatement(
               new ConstantStatement(
-                  null,
-                  function.getPositionInSourceCode()),
-              function.getPositionInSourceCode()));
+                  null)));
     }
   }
 
@@ -192,10 +183,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     UnaryOperation unaryOperation = new UnaryOperation(
             operationFrom(node.getOperator()),
-            (ExpressionStatement) context.objectStack.pop(),
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode()));
+            (ExpressionStatement) context.objectStack.pop());
     context.objectStack.push(unaryOperation);
     node.setIrElement(unaryOperation);
     return data;
@@ -244,10 +232,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
   }
 
-  private void makeBinaryOperation(GoloASTNode node, List<String> symbols, Stack<PositionInSourceCode> positions, Context context) {
+  private void makeBinaryOperation(GoloASTNode node, List<String> symbols, Context context) {
     Stack<ExpressionStatement> expressions = new Stack<>();
     Stack<OperatorType> operators = new Stack<>();
-    PositionInSourceCode positionInSourceCode = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, context);
       expressions.push((ExpressionStatement) context.objectStack.pop());
@@ -257,30 +244,20 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     ExpressionStatement right = expressions.pop();
     ExpressionStatement left = expressions.pop();
-    BinaryOperation current = new BinaryOperation(operators.pop(), left, right, positionInSourceCode);
+    BinaryOperation current = new BinaryOperation(operators.pop(), left, right);
     while (!expressions.isEmpty()) {
       left = expressions.pop();
-      current = new BinaryOperation(operators.pop(), left, current, positions.pop());
+      current = new BinaryOperation(operators.pop(), left, current);
     }
     node.setIrElement(current);
     context.objectStack.push(current);
-  }
-
-  private Stack<PositionInSourceCode> positions(List<Integer> lines, List<Integer> columns) {
-    Stack<PositionInSourceCode> stack = new Stack<>();
-    Iterator<Integer> lineIterator = lines.iterator();
-    Iterator<Integer> columnIterator = columns.iterator();
-    while (lineIterator.hasNext()) {
-      stack.push(new PositionInSourceCode(lineIterator.next(), columnIterator.next()));
-    }
-    return stack;
   }
 
   @Override
   public Object visit(ASTCommutativeExpression node, Object data) {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 1) {
-      makeBinaryOperation(node, node.getOperators(), positions(node.getLines(), node.getColumns()), context);
+      makeBinaryOperation(node, node.getOperators(), context);
     } else {
       node.childrenAccept(this, data);
     }
@@ -291,7 +268,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTAssociativeExpression node, Object data) {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 1) {
-      makeBinaryOperation(node, node.getOperators(), positions(node.getLines(), node.getColumns()), context);
+      makeBinaryOperation(node, node.getOperators(), context);
     } else {
       node.childrenAccept(this, data);
     }
@@ -302,10 +279,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTLiteral node, Object data) {
     Context context = (Context) data;
     ConstantStatement constantStatement = new ConstantStatement(
-            node.getLiteralValue(),
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode()));
+            node.getLiteralValue());
     context.objectStack.push(constantStatement);
     node.setIrElement(constantStatement);
     return data;
@@ -315,10 +289,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTReference node, Object data) {
     Context context = (Context) data;
     ReferenceLookup referenceLookup = new ReferenceLookup(
-            node.getName(),
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode()));
+            node.getName());
     context.objectStack.push(referenceLookup);
     node.setIrElement(referenceLookup);
     return data;
@@ -332,10 +303,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     AssignmentStatement assignmentStatement = new AssignmentStatement(
         localReference,
-        (ExpressionStatement) context.objectStack.pop(),
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+        (ExpressionStatement) context.objectStack.pop());
     context.objectStack.push(assignmentStatement);
     node.setIrElement(assignmentStatement);
     return data;
@@ -362,10 +330,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     if (reference != null) {
       AssignmentStatement assignmentStatement = new AssignmentStatement(
                                reference,
-                               (ExpressionStatement) context.objectStack.pop(),
-                               new PositionInSourceCode(
-                                   node.getLineInSourceCode(),
-                                   node.getColumnInSourceCode()));
+                               (ExpressionStatement) context.objectStack.pop());
 
       context.objectStack.push(assignmentStatement);
       node.setIrElement(assignmentStatement);
@@ -379,14 +344,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     if (node.jjtGetNumChildren() > 0) {
       node.childrenAccept(this, data);
     } else {
-      context.objectStack.push(new ConstantStatement(null, new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode())));
+      context.objectStack.push(new ConstantStatement(null));
     }
     ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
-    ReturnStatement returnStatement = new ReturnStatement(
-                     statement,
-                     new PositionInSourceCode(
-                         node.getLineInSourceCode(),
-                         node.getColumnInSourceCode()));
+    ReturnStatement returnStatement = new ReturnStatement(statement);
     context.objectStack.push(returnStatement);
     node.setIrElement(returnStatement);
     return data;
@@ -397,11 +358,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, data);
     ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
-    ThrowStatement throwStatement = new ThrowStatement(
-                   statement,
-                   new PositionInSourceCode(
-                       node.getLineInSourceCode(),
-                       node.getColumnInSourceCode()));
+    ThrowStatement throwStatement = new ThrowStatement(statement);
     context.objectStack.push(throwStatement);
     node.setIrElement(throwStatement);
     return data;
@@ -435,11 +392,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTFunctionInvocation node, Object data) {
     Context context = (Context) data;
-    FunctionInvocation functionInvocation = new FunctionInvocation(
-        node.getName(),
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+    FunctionInvocation functionInvocation = new FunctionInvocation(node.getName());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
       argumentNode.jjtAccept(this, data);
@@ -453,11 +406,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTMethodInvocation node, Object data) {
     Context context = (Context) data;
-    MethodInvocation invocation = new MethodInvocation(
-        node.getName(),
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+    MethodInvocation invocation = new MethodInvocation(node.getName());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
       argumentNode.jjtAccept(this, data);
@@ -486,18 +435,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
           conditionalBranching = new ConditionalBranching(
               condition,
               trueBlock,
-              (Block) elseObject,
-              new PositionInSourceCode(
-                  node.getLineInSourceCode(),
-                  node.getColumnInSourceCode()));
+              (Block) elseObject);
     } else {
           conditionalBranching = new ConditionalBranching(
               condition,
               trueBlock,
-              (ConditionalBranching) elseObject,
-              new PositionInSourceCode(
-                  node.getLineInSourceCode(),
-                  node.getColumnInSourceCode()));
+              (ConditionalBranching) elseObject);
     }
     
     context.objectStack.push(conditionalBranching);
@@ -523,12 +466,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Block otherwise = (Block) stack.pop();
     Block lastWhenBlock = (Block) stack.pop();
     ExpressionStatement lastWhenCondition = (ExpressionStatement) stack.pop();
-    PositionInSourceCode position = new PositionInSourceCode(node.getLineInSourceCode(), node.getColumnInSourceCode());
-    ConditionalBranching branching = new ConditionalBranching(lastWhenCondition, lastWhenBlock, otherwise, position);
+    ConditionalBranching branching = new ConditionalBranching(lastWhenCondition, lastWhenBlock, otherwise);
     while (!stack.isEmpty()) {
       lastWhenBlock = (Block) stack.pop();
       lastWhenCondition = (ExpressionStatement) stack.pop();
-      branching = new ConditionalBranching(lastWhenCondition, lastWhenBlock, branching, position);
+      branching = new ConditionalBranching(lastWhenCondition, lastWhenBlock, branching);
     }
 
     context.objectStack.push(branching);
@@ -539,8 +481,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTMatch node, Object data) {
     ASTCase astCase = new ASTCase(0);
-    astCase.setLineInSourceCode(node.getLineInSourceCode());
-    astCase.setColumnInSourceCode(node.getColumnInSourceCode());
 
     int i = 0;
     String varName = "__$$_match_" + System.currentTimeMillis();
@@ -587,10 +527,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ExpressionStatement condition = (ExpressionStatement) context.objectStack.pop();
     node.jjtGetChild(1).jjtAccept(this, data);
     Block block = (Block) context.objectStack.pop();
-    LoopStatement loopStatement = new LoopStatement(null, condition, block, null,
-            new PositionInSourceCode(
-                node.getLineInSourceCode(),
-                node.getColumnInSourceCode()));
+    LoopStatement loopStatement = new LoopStatement(null, condition, block, null);
     context.objectStack.push(loopStatement);
     node.setIrElement(loopStatement);
     return data;
@@ -609,10 +546,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloStatement post = (GoloStatement) context.objectStack.pop();
     node.jjtGetChild(3).jjtAccept(this, data);
     Block block = (Block) context.objectStack.pop();
-    LoopStatement loopStatement = new LoopStatement(init, condition, block, post,
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+    LoopStatement loopStatement = new LoopStatement(init, condition, block, post);
     Block localBlock = new Block(localTable);
     localBlock.addStatement(loopStatement);
     context.objectStack.push(localBlock);
@@ -639,39 +573,29 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.jjtGetChild(1).jjtAccept(this, data);
     Block block = (Block) context.objectStack.pop();
 
-    PositionInSourceCode dummy = new PositionInSourceCode(-1, -1);
-
     AssignmentStatement init =
         new AssignmentStatement(
             iteratorReference,
             new BinaryOperation(
                 OperatorType.METHOD_CALL,
                 iterableExpressionStatement,
-                new MethodInvocation("iterator", dummy),
-                dummy),
-            dummy);
+                new MethodInvocation("iterator")));
 
     ExpressionStatement condition =
         new BinaryOperation(
             OperatorType.METHOD_CALL,
-            new ReferenceLookup(iteratorId, dummy),
-            new MethodInvocation("hasNext", dummy),
-            dummy);
+            new ReferenceLookup(iteratorId),
+            new MethodInvocation("hasNext"));
 
     block.prependStatement(
         new AssignmentStatement(
             elementReference,
             new BinaryOperation(
                 OperatorType.METHOD_CALL,
-                new ReferenceLookup(iteratorId, dummy),
-                new MethodInvocation("next", dummy),
-                dummy),
-            dummy));
+                new ReferenceLookup(iteratorId),
+                new MethodInvocation("next"))));
 
-    LoopStatement loopStatement = new LoopStatement(init, condition, block, null,
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+    LoopStatement loopStatement = new LoopStatement(init, condition, block, null);
     Block localBlock = new Block(localTable);
     localBlock.addStatement(loopStatement);
     context.objectStack.push(localBlock);
@@ -719,10 +643,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         exceptionId,
         tryBlock,
         catchBlock,
-        finallyBlock,
-        new PositionInSourceCode(
-            node.getLineInSourceCode(),
-            node.getColumnInSourceCode()));
+        finallyBlock);
     context.objectStack.push(tryCatchFinally);
     node.setIrElement(tryCatchFinally);
     return data;

@@ -20,13 +20,19 @@ import fr.insalyon.citi.golo.compiler.ir.GoloElement;
         
 public class GoloASTNode extends SimpleNode {
 
-  private int lineInSourceCode = -1;
-  private int columnInSourceCode = -1;
   private GoloElement irElement;
 
   public void setIrElement(GoloElement element) {
     this.irElement = element;
-    element.setASTNode(this);
+    
+    if (jjtGetFirstToken() != null) {
+      // Only add a reverse weak ref to this ASTNode if it was contstructed by 
+      // the parser and is  really part of the AST (on the contrary, temporary
+      // AST elements used in the ParseTreeToGoloIR visitor to create IR 
+      // elements should not be referenced, since they can be garbage collected
+      // at any moment and they don't reflect the source code exactly
+      element.setASTNode(this);
+    }
   }
 
   public GoloElement getIrElement() {
@@ -42,19 +48,11 @@ public class GoloASTNode extends SimpleNode {
   }
 
   public int getLineInSourceCode() {
-    return lineInSourceCode;
-  }
-
-  public void setLineInSourceCode(int lineInSourceCode) {
-    this.lineInSourceCode = lineInSourceCode;
+    return jjtGetFirstToken().beginLine;
   }
 
   public int getColumnInSourceCode() {
-    return columnInSourceCode;
-  }
-
-  public void setColumnInSourceCode(int columnInSourceCode) {
-    this.columnInSourceCode = columnInSourceCode;
+    return jjtGetFirstToken().beginColumn;
   }
 
   @Override

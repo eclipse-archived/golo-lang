@@ -31,16 +31,13 @@ public final class GoloModule  extends GoloElement {
   private final Map<String, Set<GoloFunction>> pimps = new HashMap<>();
 
   public static final ModuleImport PREDEF = new ModuleImport(
-      PackageAndClass.fromString("gololang.Predefined"),
-      new PositionInSourceCode(0, 0));
+      PackageAndClass.fromString("gololang.Predefined"));
 
   public static final ModuleImport STD_PIMPS = new ModuleImport(
-      PackageAndClass.fromString("gololang.StandardPimps"),
-      new PositionInSourceCode(0, 0));
+      PackageAndClass.fromString("gololang.StandardPimps"));
 
   public static final ModuleImport GOLOLANG = new ModuleImport(
-      PackageAndClass.fromString("gololang"),
-      new PositionInSourceCode(0, 0));
+      PackageAndClass.fromString("gololang"));
 
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;

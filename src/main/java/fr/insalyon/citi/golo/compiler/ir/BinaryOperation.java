@@ -24,8 +24,8 @@ public class BinaryOperation extends ExpressionStatement {
   private final ExpressionStatement leftExpression;
   private final ExpressionStatement rightExpression;
 
-  public BinaryOperation(OperatorType type, ExpressionStatement leftExpression, ExpressionStatement rightExpression, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public BinaryOperation(OperatorType type, ExpressionStatement leftExpression, ExpressionStatement rightExpression) {
+    super();
     this.type = type;
     this.leftExpression = leftExpression;
     this.rightExpression = rightExpression;

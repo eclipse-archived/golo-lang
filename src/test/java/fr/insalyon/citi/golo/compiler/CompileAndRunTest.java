@@ -176,7 +176,8 @@ public class CompileAndRunTest {
       assertThat(problem.getSource().getIrElement(), instanceOf(ReferenceLookup.class));
       ReferenceLookup lookup = (ReferenceLookup) problem.getSource().getIrElement();
       assertThat(lookup.getName(), is("some_parameter"));
-      assertThat(lookup.getPositionInSourceCode(), is(new PositionInSourceCode(4, 13)));
+      assertThat(lookup.getPositionInSourceCode().getLine(), is(4));
+      assertThat(lookup.getPositionInSourceCode().getColumn(), is(13));
       throw expected;
     }
   }

@@ -20,8 +20,8 @@ public class ReturnStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
 
-  public ReturnStatement(ExpressionStatement expressionStatement, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ReturnStatement(ExpressionStatement expressionStatement) {
+    super();
     this.expressionStatement = expressionStatement;
   }
 

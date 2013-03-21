@@ -28,4 +28,12 @@ public class GoloElement {
   public GoloASTNode getASTNode() {
     return nodeRef.get();
   }
+  
+  public PositionInSourceCode getPositionInSourceCode() {
+    GoloASTNode node = getASTNode();
+    if (node == null) {
+      return new PositionInSourceCode(0, 0);
+    }
+    return new PositionInSourceCode(node.jjtGetFirstToken().beginLine, node.jjtGetFirstToken().beginColumn);
+  }
 }

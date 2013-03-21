@@ -18,8 +18,8 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 public class MethodInvocation extends AbstractInvocation {
 
-  public MethodInvocation(String name, PositionInSourceCode positionInSourceCode) {
-    super(name, positionInSourceCode);
+  public MethodInvocation(String name) {
+    super(name);
   }
 
   @Override

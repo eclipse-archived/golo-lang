@@ -23,8 +23,8 @@ public class LoopStatement extends GoloStatement {
   private final GoloStatement postStatement;
   private final Block block;
 
-  public LoopStatement(AssignmentStatement initStatement, ExpressionStatement conditionStatement, Block block, GoloStatement postStatement, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public LoopStatement(AssignmentStatement initStatement, ExpressionStatement conditionStatement, Block block, GoloStatement postStatement) {
+    super();
     this.initStatement = initStatement;
     this.conditionStatement = conditionStatement;
     this.postStatement = postStatement;

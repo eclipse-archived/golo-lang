@@ -16,12 +16,14 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
+import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
+
 public class ConstantStatement extends ExpressionStatement {
 
   private final Object value;
 
-  public ConstantStatement(Object value, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ConstantStatement(Object value) {
+    super();
     this.value = value;
   }
 

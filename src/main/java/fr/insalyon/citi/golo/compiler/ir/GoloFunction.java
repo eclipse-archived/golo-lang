@@ -34,7 +34,6 @@ public final class GoloFunction extends GoloElement {
   private final String name;
   private final Visibility visibility;
   private final Scope scope;
-  private final PositionInSourceCode positionInSourceCode;
 
   private List<String> parameterNames = new LinkedList<>();
   private int syntheticParameterCount = 0;
@@ -42,11 +41,10 @@ public final class GoloFunction extends GoloElement {
   private Block block;
   private boolean synthetic = false;
 
-  public GoloFunction(String name, Visibility visibility, Scope scope, PositionInSourceCode positionInSourceCode) {
+  public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
     this.visibility = visibility;
     this.scope = scope;
-    this.positionInSourceCode = positionInSourceCode;
   }
 
   public Scope getScope() {
@@ -96,10 +94,6 @@ public final class GoloFunction extends GoloElement {
 
   public boolean isVarargs() {
     return varargs;
-  }
-
-  public PositionInSourceCode getPositionInSourceCode() {
-    return positionInSourceCode;
   }
 
   public Block getBlock() {

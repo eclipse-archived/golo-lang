@@ -21,26 +21,20 @@ import fr.insalyon.citi.golo.compiler.PackageAndClass;
 public final class ModuleImport  extends GoloElement {
 
   private final PackageAndClass packageAndClass;
-  private final PositionInSourceCode positionInSourceCode;
 
-  public ModuleImport(PackageAndClass packageAndClass, PositionInSourceCode positionInSourceCode) {
+  public ModuleImport(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
-    this.positionInSourceCode = positionInSourceCode;
   }
 
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
   }
 
-  public PositionInSourceCode getPositionInSourceCode() {
-    return positionInSourceCode;
-  }
 
   @Override
   public String toString() {
     return "ModuleImport{" +
-        "packageAndClass=" + packageAndClass +
-        ", positionInSourceCode=" + positionInSourceCode +
+        "packageAndClass=" + packageAndClass + 
         '}';
   }
 
@@ -52,7 +46,6 @@ public final class ModuleImport  extends GoloElement {
     ModuleImport that = (ModuleImport) o;
 
     if (!packageAndClass.equals(that.packageAndClass)) return false;
-    if (!positionInSourceCode.equals(that.positionInSourceCode)) return false;
 
     return true;
   }
@@ -60,7 +53,6 @@ public final class ModuleImport  extends GoloElement {
   @Override
   public int hashCode() {
     int result = packageAndClass.hashCode();
-    result = 31 * result + positionInSourceCode.hashCode();
     return result;
   }
 }
