@@ -23,7 +23,8 @@ import java.lang.invoke.MethodType;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.*;
+import static org.hamcrest.Matchers.instanceOf;
+import static org.hamcrest.Matchers.is;
 
 public class OperatorSupportTest {
 
@@ -55,7 +56,7 @@ public class OperatorSupportTest {
     assertThat(str, is("=> Mr Bean"));
   }
 
-  @Test(expectedExceptions= IllegalArgumentException.class)
+  @Test(expectedExceptions = IllegalArgumentException.class)
   public void plus_cannot_add_object_and_object() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "plus", BINOP_TYPE, 2).dynamicInvoker();
     handle.invokeWithArguments(new Object(), new Object());

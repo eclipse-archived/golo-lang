@@ -46,7 +46,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
   }
-  
+
   private GoloCompilationException.Builder getExceptionBuilder() {
     if (exceptionBuilder == null) {
       exceptionBuilder = new GoloCompilationException.Builder(module.getPackageAndClass().toString());

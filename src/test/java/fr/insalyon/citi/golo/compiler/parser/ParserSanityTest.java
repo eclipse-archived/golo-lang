@@ -17,7 +17,6 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 import fr.insalyon.citi.golo.internal.testing.TestUtils;
-import fr.insalyon.citi.golo.internal.testing.Tracing;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 

@@ -16,7 +16,6 @@
 
 package fr.insalyon.citi.golo.compiler;
 
-import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;

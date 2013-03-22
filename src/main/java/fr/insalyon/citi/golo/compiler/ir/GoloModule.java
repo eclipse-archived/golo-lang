@@ -18,12 +18,15 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
-public final class GoloModule  extends GoloElement {
+public final class GoloModule extends GoloElement {
 
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new HashSet<>();

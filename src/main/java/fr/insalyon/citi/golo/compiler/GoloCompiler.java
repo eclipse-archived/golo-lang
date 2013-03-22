@@ -20,7 +20,6 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.compiler.parser.TokenMgrError;
 
 import java.io.*;
 import java.util.Collections;
@@ -41,7 +40,7 @@ public class GoloCompiler {
   private GoloParser parser;
   private GoloCompilationException.Builder exceptionBuilder = null;
 
-  
+
   /**
    * Initializes an ExceptionBuilder to collect errors instead of throwing immediately.
    * This method is made public for the requirements of IDEs support.
@@ -51,7 +50,7 @@ public class GoloCompiler {
   public final void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
   }
-  
+
   private GoloCompilationException.Builder getOrCreateExceptionBuilder(String goloSourceFile) {
     if (exceptionBuilder == null) {
       exceptionBuilder = new GoloCompilationException.Builder(goloSourceFile);
@@ -95,7 +94,7 @@ public class GoloCompiler {
   public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
     ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(sourceCodeInputStream));
     GoloModule goloModule = check(compilationUnit);
-    if (! getProblems().isEmpty()) {
+    if (!getProblems().isEmpty()) {
       exceptionBuilder.doThrow();
     }
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
@@ -104,8 +103,8 @@ public class GoloCompiler {
 
   /**
    * Returns the list of problems encountered during the last compilation
-   * @return a list of compilation problems.
    *
+   * @return a list of compilation problems.
    */
   public List<GoloCompilationException.Problem> getProblems() {
     if (exceptionBuilder == null) {
@@ -113,7 +112,7 @@ public class GoloCompiler {
     }
     return exceptionBuilder.getProblems();
   }
-  
+
   /**
    * Compiles a Golo source file and writes the resulting JVM bytecode <code>.class</code> files in a target
    * folder. The class files are written in a directory structure that respects package names.
@@ -155,11 +154,10 @@ public class GoloCompiler {
     parser.exceptionBuilder = getOrCreateExceptionBuilder(goloSourceFilename);
     try {
       compilationUnit = parser.CompilationUnit();
-    }
-    catch(ParseException pe) {
+    } catch (ParseException pe) {
       exceptionBuilder.report(pe, compilationUnit);
     }
-    
+
     return compilationUnit;
   }
 

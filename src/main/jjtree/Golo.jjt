@@ -427,7 +427,6 @@ ASTCompilationUnit CompilationUnit(): {}
             skipto(NEWLINE, e, jjtThis);
           }
         )*
-
       )
       |
       error()

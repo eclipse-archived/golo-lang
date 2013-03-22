@@ -17,14 +17,14 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloElement;
-        
+
 public class GoloASTNode extends SimpleNode {
 
   private GoloElement irElement;
 
   public void setIrElement(GoloElement element) {
     this.irElement = element;
-    
+
     if (jjtGetFirstToken() != null) {
       // Only add a reverse weak ref to this ASTNode if it was contstructed by 
       // the parser and is  really part of the AST (on the contrary, temporary

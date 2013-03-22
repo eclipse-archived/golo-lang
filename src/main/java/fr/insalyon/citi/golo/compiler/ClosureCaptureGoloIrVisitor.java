@@ -20,8 +20,6 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 
 import java.util.*;
 
-import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
-
 class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   static class Context {

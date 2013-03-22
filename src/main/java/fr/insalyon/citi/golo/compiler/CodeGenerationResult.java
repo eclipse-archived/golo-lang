@@ -30,7 +30,7 @@ public final class CodeGenerationResult {
   /**
    * Constructor for a code generation result.
    *
-   * @param bytecode the JVM bytecode as an array.
+   * @param bytecode        the JVM bytecode as an array.
    * @param packageAndClass the package and class descriptor for the bytecode.
    */
   public CodeGenerationResult(byte[] bytecode, PackageAndClass packageAndClass) {

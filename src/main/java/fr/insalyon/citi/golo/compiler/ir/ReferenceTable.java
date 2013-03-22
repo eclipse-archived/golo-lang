@@ -18,7 +18,6 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import java.util.*;
 
-import static java.util.Collections.frequency;
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableSet;
 

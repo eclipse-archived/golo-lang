@@ -16,7 +16,6 @@
 
 package gololang;
 
-import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFunctions;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;

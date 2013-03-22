@@ -18,7 +18,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
 
-public final class ModuleImport  extends GoloElement {
+public final class ModuleImport extends GoloElement {
 
   private final PackageAndClass packageAndClass;
 
@@ -34,7 +34,7 @@ public final class ModuleImport  extends GoloElement {
   @Override
   public String toString() {
     return "ModuleImport{" +
-        "packageAndClass=" + packageAndClass + 
+        "packageAndClass=" + packageAndClass +
         '}';
   }
 

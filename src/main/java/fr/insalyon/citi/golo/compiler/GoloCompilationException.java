@@ -16,10 +16,10 @@
 
 package fr.insalyon.citi.golo.compiler;
 
-import fr.insalyon.citi.golo.compiler.ir.GoloElement;
 import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.compiler.parser.Token;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -143,7 +143,7 @@ public class GoloCompilationException extends RuntimeException {
      *
      * @param type        the problem type.
      * @param source      the problem source.
-     * @param description the prob;em description.
+     * @param description the problem description.
      * @return the same builder object.
      */
     public Builder report(Problem.Type type, GoloASTNode source, String description) {
@@ -154,8 +154,8 @@ public class GoloCompilationException extends RuntimeException {
     /**
      * Report a parsing error problem to the exception being built.
      *
-     * @param pe   the catched ParseException.
-     * @param source      the node of the parsedException.
+     * @param pe     the caught {@code ParseException}.
+     * @param source the node of the {@code ParseException}.
      * @return the same builder object.
      */
     public Builder report(ParseException pe, GoloASTNode source) {
@@ -172,7 +172,7 @@ public class GoloCompilationException extends RuntimeException {
     public void doThrow() throws GoloCompilationException {
       throw exception;
     }
-    
+
     public List<Problem> getProblems() {
       return exception.getProblems();
     }

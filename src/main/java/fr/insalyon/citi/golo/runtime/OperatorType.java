@@ -40,8 +40,7 @@ public enum OperatorType {
 
   OFTYPE("oftype"),
 
-  METHOD_CALL(":")
-  ;
+  METHOD_CALL(":");
 
   private final String symbol;
 

@@ -24,7 +24,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.invoke.MethodHandles.lookup;
-import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.instanceOf;

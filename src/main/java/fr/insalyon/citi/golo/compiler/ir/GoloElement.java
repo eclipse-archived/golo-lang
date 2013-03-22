@@ -17,10 +17,12 @@
 package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
+
 import java.lang.ref.WeakReference;
 
 public class GoloElement {
   private WeakReference<GoloASTNode> nodeRef;
+
   public void setASTNode(GoloASTNode node) {
     nodeRef = new WeakReference<>(node);
   }
@@ -28,7 +30,7 @@ public class GoloElement {
   public GoloASTNode getASTNode() {
     return nodeRef.get();
   }
-  
+
   public PositionInSourceCode getPositionInSourceCode() {
     GoloASTNode node = getASTNode();
     if (node == null) {

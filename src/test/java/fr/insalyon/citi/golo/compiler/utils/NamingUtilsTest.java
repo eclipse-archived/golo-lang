@@ -19,8 +19,8 @@ package fr.insalyon.citi.golo.compiler.utils;
 import org.testng.annotations.Test;
 
 import static fr.insalyon.citi.golo.compiler.utils.NamingUtils.*;
-import static org.hamcrest.Matchers.*;
-import static org.hamcrest.MatcherAssert.*;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class NamingUtilsTest {
 

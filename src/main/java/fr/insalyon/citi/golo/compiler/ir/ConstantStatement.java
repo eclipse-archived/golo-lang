@@ -16,8 +16,6 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
-
 public class ConstantStatement extends ExpressionStatement {
 
   private final Object value;

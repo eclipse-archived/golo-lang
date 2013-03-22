@@ -18,7 +18,7 @@ package fr.insalyon.citi.golo.compiler;
 
 import org.testng.annotations.Test;
 
-import static org.hamcrest.CoreMatchers.*;
+import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class PackageAndClassTest {

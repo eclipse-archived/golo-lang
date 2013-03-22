@@ -20,9 +20,7 @@ import org.testng.annotations.Test;
 
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.VARIABLE;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.not;
-import static org.hamcrest.CoreMatchers.nullValue;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsCollectionContaining.hasItem;
 import static org.hamcrest.core.IsCollectionContaining.hasItems;

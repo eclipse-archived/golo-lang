@@ -35,9 +35,7 @@ import java.util.List;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
 import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
-import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
-import static org.hamcrest.CoreMatchers.startsWith;
+import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CompilationTest {

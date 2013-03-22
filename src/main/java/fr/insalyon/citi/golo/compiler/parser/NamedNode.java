@@ -13,6 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+
 package fr.insalyon.citi.golo.compiler.parser;
 
 public interface NamedNode {
@@ -20,5 +21,5 @@ public interface NamedNode {
   String getName();
 
   void setName(String name);
-  
+
 }

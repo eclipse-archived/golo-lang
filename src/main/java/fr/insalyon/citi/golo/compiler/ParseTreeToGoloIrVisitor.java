@@ -20,7 +20,6 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.*;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 
-import java.util.Iterator;
 import java.util.List;
 import java.util.Stack;
 
@@ -40,11 +39,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
   }
-  
+
   public GoloCompilationException.Builder getExceptionBuilder() {
     return exceptionBuilder;
   }
-  
+
   private GoloCompilationException.Builder getOrCreateExceptionBuilder(Context context) {
     if (exceptionBuilder == null) {
       exceptionBuilder = new GoloCompilationException.Builder(context.module.getPackageAndClass().toString());
@@ -94,7 +93,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTImportDeclaration node, Object data) {
     Context context = (Context) data;
     ModuleImport moduleImport = new ModuleImport(
-            PackageAndClass.fromString(node.getName()));
+        PackageAndClass.fromString(node.getName()));
     node.setIrElement(moduleImport);
     context.module.addImport(moduleImport);
     return node.childrenAccept(this, data);
@@ -141,7 +140,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     } else {
       function = (GoloFunction) context.objectStack.peek();
     }
-    
+
     node.setIrElement(function);
 
     function.setParameterNames(node.getArguments());
@@ -191,8 +190,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, data);
     UnaryOperation unaryOperation = new UnaryOperation(
-            operationFrom(node.getOperator()),
-            (ExpressionStatement) context.objectStack.pop());
+        operationFrom(node.getOperator()),
+        (ExpressionStatement) context.objectStack.pop());
     context.objectStack.push(unaryOperation);
     node.setIrElement(unaryOperation);
     return data;
@@ -287,8 +286,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTLiteral node, Object data) {
     Context context = (Context) data;
-    ConstantStatement constantStatement = new ConstantStatement(
-            node.getLiteralValue());
+    ConstantStatement constantStatement = new ConstantStatement(node.getLiteralValue());
     context.objectStack.push(constantStatement);
     node.setIrElement(constantStatement);
     return data;
@@ -297,8 +295,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTReference node, Object data) {
     Context context = (Context) data;
-    ReferenceLookup referenceLookup = new ReferenceLookup(
-            node.getName());
+    ReferenceLookup referenceLookup = new ReferenceLookup(node.getName());
     context.objectStack.push(referenceLookup);
     node.setIrElement(referenceLookup);
     return data;
@@ -307,7 +304,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTLetOrVar node, Object data) {
     Context context = (Context) data;
-    LocalReference localReference = new LocalReference(node.getType() == LET ? CONSTANT : VARIABLE, node.getName());
+    LocalReference localReference = new LocalReference(
+        node.getType() == LET ? CONSTANT : VARIABLE,
+        node.getName());
     context.referenceTableStack.peek().add(localReference);
     node.childrenAccept(this, data);
     AssignmentStatement assignmentStatement = new AssignmentStatement(
@@ -324,16 +323,15 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     LocalReference reference = context.referenceTableStack.peek().get(node.getName());
     if (reference == null) {
       getOrCreateExceptionBuilder(context).report(UNDECLARED_REFERENCE, node,
-              "Assigning to an undeclared reference `" + node.getName() +
-                  "` at (line=" + node.getLineInSourceCode() +
-                  ", column=" + node.getColumnInSourceCode() + ")");
+          "Assigning to an undeclared reference `" + node.getName() +
+              "` at (line=" + node.getLineInSourceCode() +
+              ", column=" + node.getColumnInSourceCode() + ")");
     }
     node.childrenAccept(this, data);
     if (reference != null) {
       AssignmentStatement assignmentStatement = new AssignmentStatement(
-                               reference,
-                               (ExpressionStatement) context.objectStack.pop());
-
+          reference,
+          (ExpressionStatement) context.objectStack.pop());
       context.objectStack.push(assignmentStatement);
       node.setIrElement(assignmentStatement);
     }
@@ -434,17 +432,17 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     ConditionalBranching conditionalBranching;
     if (elseObject == null || elseObject instanceof Block) {
-          conditionalBranching = new ConditionalBranching(
-              condition,
-              trueBlock,
-              (Block) elseObject);
+      conditionalBranching = new ConditionalBranching(
+          condition,
+          trueBlock,
+          (Block) elseObject);
     } else {
-          conditionalBranching = new ConditionalBranching(
-              condition,
-              trueBlock,
-              (ConditionalBranching) elseObject);
+      conditionalBranching = new ConditionalBranching(
+          condition,
+          trueBlock,
+          (ConditionalBranching) elseObject);
     }
-    
+
     context.objectStack.push(conditionalBranching);
     node.setIrElement(conditionalBranching);
     return data;
