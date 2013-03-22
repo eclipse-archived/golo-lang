@@ -16,29 +16,24 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-import fr.insalyon.citi.golo.runtime.OperatorType;
+import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
+import java.lang.ref.WeakReference;
 
-public class UnaryOperation extends ExpressionStatement {
-
-  private final OperatorType type;
-  private final ExpressionStatement expressionStatement;
-
-  public UnaryOperation(OperatorType type, ExpressionStatement expressionStatement) {
-    super();
-    this.type = type;
-    this.expressionStatement = expressionStatement;
+public class GoloElement {
+  private WeakReference<GoloASTNode> nodeRef;
+  public void setASTNode(GoloASTNode node) {
+    nodeRef = new WeakReference<>(node);
   }
 
-  public ExpressionStatement getExpressionStatement() {
-    return expressionStatement;
+  public GoloASTNode getASTNode() {
+    return nodeRef.get();
   }
-
-  public OperatorType getType() {
-    return type;
-  }
-
-  @Override
-  public void accept(GoloIrVisitor visitor) {
-    visitor.visitUnaryOperation(this);
+  
+  public PositionInSourceCode getPositionInSourceCode() {
+    GoloASTNode node = getASTNode();
+    if (node == null) {
+      return new PositionInSourceCode(0, 0);
+    }
+    return new PositionInSourceCode(node.jjtGetFirstToken().beginLine, node.jjtGetFirstToken().beginColumn);
   }
 }

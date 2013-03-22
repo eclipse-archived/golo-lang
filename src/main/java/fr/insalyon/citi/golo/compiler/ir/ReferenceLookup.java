@@ -20,8 +20,8 @@ public class ReferenceLookup extends ExpressionStatement {
 
   private final String name;
 
-  public ReferenceLookup(String name, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ReferenceLookup(String name) {
+    super();
     this.name = name;
   }
 

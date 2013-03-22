@@ -20,8 +20,8 @@ public class FunctionInvocation extends AbstractInvocation {
 
   private boolean onReference = false;
 
-  public FunctionInvocation(String name, PositionInSourceCode positionInSourceCode) {
-    super(name, positionInSourceCode);
+  public FunctionInvocation(String name) {
+    super(name);
   }
 
   public boolean isOnReference() {

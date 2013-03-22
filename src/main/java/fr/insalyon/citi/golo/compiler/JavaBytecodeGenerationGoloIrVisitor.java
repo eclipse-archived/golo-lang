@@ -194,7 +194,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
 
     Set<ModuleImport> imports = new HashSet<>(module.getImports());
-    imports.add(new ModuleImport(module.getPackageAndClass(), new PositionInSourceCode(0, 0)));
+    imports.add(new ModuleImport(module.getPackageAndClass()));
     writeImportMetaData(imports);
 
     classWriter.visitEnd();

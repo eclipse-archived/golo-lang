@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTLetOrVar extends GoloASTNode {
+public class ASTLetOrVar extends GoloASTNode implements NamedNode {
 
   public static enum Type {
     LET, VAR
@@ -41,10 +41,12 @@ public class ASTLetOrVar extends GoloASTNode {
     this.type = type;
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }

@@ -29,7 +29,7 @@ public final class Block extends ExpressionStatement {
   private boolean hasReturn = false;
 
   public Block(ReferenceTable referenceTable) {
-    super(new PositionInSourceCode(-1, -1));
+    super();
     this.referenceTable = referenceTable;
   }
 

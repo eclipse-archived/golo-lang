@@ -23,16 +23,16 @@ public final class ConditionalBranching extends GoloStatement {
   private final ConditionalBranching elseConditionalBranching;
   private final Block falseBlock;
 
-  public ConditionalBranching(ExpressionStatement condition, Block trueBlock, Block falseBlock, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ConditionalBranching(ExpressionStatement condition, Block trueBlock, Block falseBlock) {
+    super();
     this.condition = condition;
     this.trueBlock = trueBlock;
     this.falseBlock = falseBlock;
     this.elseConditionalBranching = null;
   }
 
-  public ConditionalBranching(ExpressionStatement condition, Block trueBlock, ConditionalBranching elseConditionalBranching, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ConditionalBranching(ExpressionStatement condition, Block trueBlock, ConditionalBranching elseConditionalBranching) {
+    super();
     this.condition = condition;
     this.trueBlock = trueBlock;
     this.elseConditionalBranching = elseConditionalBranching;

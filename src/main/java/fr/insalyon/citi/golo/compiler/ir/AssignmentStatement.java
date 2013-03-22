@@ -21,8 +21,8 @@ public class AssignmentStatement extends GoloStatement {
   private LocalReference localReference;
   private final ExpressionStatement expressionStatement;
 
-  public AssignmentStatement(LocalReference localReference, ExpressionStatement expressionStatement, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public AssignmentStatement(LocalReference localReference, ExpressionStatement expressionStatement) {
+    super();
     this.localReference = localReference;
     this.expressionStatement = expressionStatement;
   }

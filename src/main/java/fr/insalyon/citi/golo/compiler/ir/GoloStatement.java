@@ -16,16 +16,9 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-public abstract class GoloStatement {
+public abstract class GoloStatement extends GoloElement {
 
-  private final PositionInSourceCode positionInSourceCode;
-
-  public GoloStatement(PositionInSourceCode positionInSourceCode) {
-    this.positionInSourceCode = positionInSourceCode;
-  }
-
-  public PositionInSourceCode getPositionInSourceCode() {
-    return positionInSourceCode;
+  public GoloStatement() {
   }
 
   public abstract void accept(GoloIrVisitor visitor);

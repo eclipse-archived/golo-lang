@@ -25,8 +25,8 @@ public abstract class AbstractInvocation extends ExpressionStatement {
   private final String name;
   private final List<ExpressionStatement> arguments = new LinkedList<>();
 
-  public AbstractInvocation(String name, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public AbstractInvocation(String name) {
+    super();
     this.name = name;
   }
 

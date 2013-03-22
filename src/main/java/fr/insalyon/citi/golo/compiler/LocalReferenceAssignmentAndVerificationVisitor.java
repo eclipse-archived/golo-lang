@@ -43,6 +43,10 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     return value;
   }
 
+  public void setExceptionBuilder(GoloCompilationException.Builder builder) {
+    exceptionBuilder = builder;
+  }
+  
   private GoloCompilationException.Builder getExceptionBuilder() {
     if (exceptionBuilder == null) {
       exceptionBuilder = new GoloCompilationException.Builder(module.getPackageAndClass().toString());
@@ -61,9 +65,6 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       for (GoloFunction function : functions) {
         function.accept(this);
       }
-    }
-    if (exceptionBuilder != null) {
-      exceptionBuilder.doThrow();
     }
   }
 
@@ -124,7 +125,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (reference.getKind().equals(LocalReference.Kind.CONSTANT)) {
       Set<LocalReference> assignedReferences = assignmentStack.peek();
       if (assignedReferences.contains(reference)) {
-        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement,
+        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
             "Assigning " + reference.getName() +
                 " at " + assignmentStatement.getPositionInSourceCode() +
                 " but it is a constant");
@@ -139,7 +140,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     ReferenceTable table = tableStack.peek();
     if (!table.hasReferenceFor(referenceLookup.getName())) {
-      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup,
+      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
           "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
     }
   }

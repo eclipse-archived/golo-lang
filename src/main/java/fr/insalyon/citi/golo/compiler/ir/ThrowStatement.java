@@ -20,8 +20,8 @@ public class ThrowStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
 
-  public ThrowStatement(GoloStatement expressionStatement, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public ThrowStatement(GoloStatement expressionStatement) {
+    super();
     this.expressionStatement = expressionStatement;
   }
 

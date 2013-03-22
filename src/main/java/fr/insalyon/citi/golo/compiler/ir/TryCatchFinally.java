@@ -23,8 +23,8 @@ public class TryCatchFinally extends GoloStatement {
   private final Block catchBlock;
   private final Block finallyBlock;
 
-  public TryCatchFinally(String exceptionId, Block tryBlock, Block catchBlock, Block finallyBlock, PositionInSourceCode positionInSourceCode) {
-    super(positionInSourceCode);
+  public TryCatchFinally(String exceptionId, Block tryBlock, Block catchBlock, Block finallyBlock) {
+    super();
     this.exceptionId = exceptionId;
     this.tryBlock = tryBlock;
     this.catchBlock = catchBlock;

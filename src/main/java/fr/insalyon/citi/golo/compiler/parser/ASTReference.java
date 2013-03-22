@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTReference extends GoloASTNode {
+public class ASTReference extends GoloASTNode implements NamedNode {
 
   private String name;
 
@@ -28,10 +28,12 @@ public class ASTReference extends GoloASTNode {
     super(p, id);
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
   }

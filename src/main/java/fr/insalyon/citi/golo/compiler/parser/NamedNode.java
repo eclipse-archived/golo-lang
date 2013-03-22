@@ -13,26 +13,12 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
+package fr.insalyon.citi.golo.compiler.parser;
 
-package fr.insalyon.citi.golo.compiler.ir;
+public interface NamedNode {
 
-import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
+  String getName();
 
-public class ConstantStatement extends ExpressionStatement {
-
-  private final Object value;
-
-  public ConstantStatement(Object value) {
-    super();
-    this.value = value;
-  }
-
-  public Object getValue() {
-    return value;
-  }
-
-  @Override
-  public void accept(GoloIrVisitor visitor) {
-    visitor.visitConstantStatement(this);
-  }
+  void setName(String name);
+  
 }
