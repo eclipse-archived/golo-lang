@@ -36,13 +36,22 @@ import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private GoloCompilationException.Builder exceptionBuilder;
-  private boolean dontThrow = false;
 
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
-    dontThrow = builder != null;
   }
   
+  public GoloCompilationException.Builder getExceptionBuilder() {
+    return exceptionBuilder;
+  }
+  
+  private GoloCompilationException.Builder getOrCreateExceptionBuilder(Context context) {
+    if (exceptionBuilder == null) {
+      exceptionBuilder = new GoloCompilationException.Builder(context.module.getPackageAndClass().toString());
+    }
+    return exceptionBuilder;
+  }
+
   @Override
   public Object visit(ASTerror node, Object data) {
     return null;
@@ -314,17 +323,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     LocalReference reference = context.referenceTableStack.peek().get(node.getName());
     if (reference == null) {
-      if (exceptionBuilder == null) {
-        exceptionBuilder = new GoloCompilationException.Builder(context.module.getPackageAndClass().toString());
-      }
-      
-      exceptionBuilder.report(UNDECLARED_REFERENCE, node,
+      getOrCreateExceptionBuilder(context).report(UNDECLARED_REFERENCE, node,
               "Assigning to an undeclared reference `" + node.getName() +
                   "` at (line=" + node.getLineInSourceCode() +
                   ", column=" + node.getColumnInSourceCode() + ")");
-      if (! dontThrow) {
-        exceptionBuilder.doThrow();
-      }
     }
     node.childrenAccept(this, data);
     if (reference != null) {

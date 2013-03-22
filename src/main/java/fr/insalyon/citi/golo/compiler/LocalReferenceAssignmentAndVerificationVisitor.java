@@ -32,7 +32,6 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   private Stack<ReferenceTable> tableStack = new Stack<>();
   private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
   private GoloCompilationException.Builder exceptionBuilder;
-  private boolean dontThrow = false;
 
   private void resetIndexAssignmentCounter() {
     indexAssignmentCounter = 0;
@@ -46,7 +45,6 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
-    dontThrow = exceptionBuilder != null;
   }
   
   private GoloCompilationException.Builder getExceptionBuilder() {
@@ -67,9 +65,6 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       for (GoloFunction function : functions) {
         function.accept(this);
       }
-    }
-    if (exceptionBuilder != null && ! dontThrow) {
-      exceptionBuilder.doThrow();
     }
   }
 

@@ -39,13 +39,17 @@ import java.util.LinkedList;
 import java.util.Collections;
 
 import fr.insalyon.citi.golo.compiler.utils.StringUnescaping;
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 
 public class GoloParser {
 
-  public List<ParseException> parseErrors = new LinkedList<ParseException>();
+  public GoloCompilationException.Builder exceptionBuilder;
 
-  void skipto(int kind, ParseException e) {
-    parseErrors.add(((ParseException)e));
+  void skipto(int kind, ParseException e, GoloASTNode node) throws ParseException {
+    if (exceptionBuilder == null) {
+      throw e;
+    }
+    exceptionBuilder.report(e, node);
     Token t;
     do {
       t = getNextToken();
@@ -420,7 +424,7 @@ ASTCompilationUnit CompilationUnit(): {}
             ToplevelDeclaration() BlankLines() 
           }
           catch (ParseException e) {
-            skipto(NEWLINE, e);
+            skipto(NEWLINE, e, jjtThis);
           }
         )*
 
@@ -431,7 +435,7 @@ ASTCompilationUnit CompilationUnit(): {}
     <EOF>  
   }
   catch (ParseException e) {
-    skipto(NEWLINE, e);
+    skipto(NEWLINE, e, jjtThis);
   }
   { return jjtThis; }
 }
@@ -459,7 +463,7 @@ void ImportDeclaration():
     }
   }
   catch (ParseException e) {
-    skipto(NEWLINE, e);
+    skipto(NEWLINE, e, jjtThis);
   }
 }
 
@@ -483,25 +487,32 @@ void ToplevelDeclaration():
 void PimpDeclaration():
 {
   String target;
+  ASTFunctionDeclaration func;
 }
 {
   <PIMP> target=QualifiedName() "{" BlankLines()
-    ( FunctionDeclaration() BlankLines() )* 
+    ( 
+      func=FunctionDeclaration()
+      {
+        func.setPimp(true);
+        ASTFunction body = (ASTFunction) func.jjtGetChild(0);
+        if (body.getArguments().isEmpty()) {
+          String description = "Error: pimp function " +
+            func.getName() +
+            " on " + 
+            target + 
+            " must take at least 1 argument ('this' would be a good idea...)";
+          if (exceptionBuilder == null) {
+            throw new TokenMgrError(description, 0);
+          }
+          exceptionBuilder.report(GoloCompilationException.Problem.Type.PIMP_FUNCTION_NO_ARGS, body, description);
+        }
+      }
+      BlankLines() 
+    )* 
   "}"
   {
     jjtThis.setTarget(target);
-    for (int i = 0; i < jjtThis.jjtGetNumChildren(); i++) {
-      ASTFunctionDeclaration func = (ASTFunctionDeclaration) jjtThis.jjtGetChild(i);
-      func.setPimp(true);
-      ASTFunction body = (ASTFunction) func.jjtGetChild(0);
-      if (body.getArguments().isEmpty()) {
-        throw new TokenMgrError("Error: pimp function " +
-          func.getName() +
-          " on " + 
-          target + 
-          " must take at least 1 argument ('this' would be a good idea...)", 0);
-      }
-    }
   } 
 }
 
@@ -521,34 +532,29 @@ ASTFunctionDeclaration FunctionDeclaration():
 
 void Statement() #void:{}
 {
-  try {
-    BlankLine() 
-    |
-    LOOKAHEAD(2) Assignment()
-    |
-    ExpressionStatement()
-    | 
-    Return() 
-    |
-    LetOrVar()
-    |
-    ConditionalBranching()
-    |
-    WhileLoop()
-    |
-    ForLoop()
-    |
-    ForEachLoop()
-    |
-    Throw()
-    |
-    TryCatchFinally()
-    |
-    Case()
-  }
-  catch (ParseException e) {
-    skipto(NEWLINE, e);
-  }
+  BlankLine() 
+  |
+  LOOKAHEAD(2) Assignment()
+  |
+  ExpressionStatement()
+  | 
+  Return() 
+  |
+  LetOrVar()
+  |
+  ConditionalBranching()
+  |
+  WhileLoop()
+  |
+  ForLoop()
+  |
+  ForEachLoop()
+  |
+  Throw()
+  |
+  TryCatchFinally()
+  |
+  Case()
 }
 
 void Throw(): {}
@@ -693,11 +699,18 @@ void Block(): {}
 {
   try { 
     "{"
-    (Statement())*
+    (
+      try { 
+        Statement()
+      }
+      catch (ParseException e) {
+        skipto(NEWLINE, e, jjtThis);
+      }
+    )*
     "}"
   }
   catch (ParseException e) {
-    skipto(NEWLINE, e);
+    skipto(NEWLINE, e, jjtThis);
   }
 }
 

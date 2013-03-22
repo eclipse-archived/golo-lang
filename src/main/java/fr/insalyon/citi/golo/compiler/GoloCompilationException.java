@@ -18,6 +18,8 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloElement;
 import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
+import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.compiler.parser.Token;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -37,11 +39,13 @@ public class GoloCompilationException extends RuntimeException {
      * The possible problem types.
      */
     public static enum Type {
-      UNDECLARED_REFERENCE, ASSIGN_CONSTANT
+      PARSING, PIMP_FUNCTION_NO_ARGS, UNDECLARED_REFERENCE, ASSIGN_CONSTANT
     }
 
     private final Type type;
     private final GoloASTNode source;
+    private final Token token;
+
     private final String description;
 
     /**
@@ -54,7 +58,30 @@ public class GoloCompilationException extends RuntimeException {
     public Problem(Type type, GoloASTNode source, String description) {
       this.type = type;
       this.source = source;
+      this.token = null;
       this.description = description;
+    }
+
+    /**
+     * Constructs a new problem to report.
+     *
+     * @param type        the problem type.
+     * @param source      the problem source, which may be of any meaningful type.
+     * @param token       the precise source token, where the problem is located.
+     * @param description the problem description in a human-readable form.
+     */
+    public Problem(Type type, GoloASTNode source, Token token, String description) {
+      this.type = type;
+      this.source = source;
+      this.token = token;
+      this.description = description;
+    }
+
+    public Problem(ParseException pe, GoloASTNode source) {
+      this.type = Type.PARSING;
+      this.source = source;
+      this.token = pe.currentToken;
+      this.description = pe.getMessage();
     }
 
     /**
@@ -69,6 +96,13 @@ public class GoloCompilationException extends RuntimeException {
      */
     public GoloASTNode getSource() {
       return source;
+    }
+
+    /**
+     * @return the problem detailed token in source. May be null.
+     */
+    public Token getToken() {
+      return token;
     }
 
     /**
@@ -118,12 +152,29 @@ public class GoloCompilationException extends RuntimeException {
     }
 
     /**
+     * Report a parsing error problem to the exception being built.
+     *
+     * @param pe   the catched ParseException.
+     * @param source      the node of the parsedException.
+     * @return the same builder object.
+     */
+    public Builder report(ParseException pe, GoloASTNode source) {
+      exception.report(new Problem(pe, source));
+      return this;
+    }
+
+
+    /**
      * Stops adding problems and throws the exception,
      *
      * @throws GoloCompilationException everytime.
      */
     public void doThrow() throws GoloCompilationException {
       throw exception;
+    }
+    
+    public List<Problem> getProblems() {
+      return exception.getProblems();
     }
   }
 
