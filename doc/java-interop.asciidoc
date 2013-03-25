@@ -248,8 +248,6 @@ someObject: foo(): `is(): `not(): bar()
 
 === Golo class loader ===
 
-CAUTION: to be refined...
-
 Golo provides a class loader for directly loading and compiling Golo modules. You may use it as
 follows:
 
