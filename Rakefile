@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION='r0-SNAPSHOT'
+VERSION='0-preview1'
 DIST_BIN_PATH = "target/gololang-#{VERSION}-distribution/gololang-#{VERSION}/bin"
 
 task :default => [:all]
@@ -23,6 +23,9 @@ task :all => [:doc, :rebuild]
 desc "Clean"
 task :clean do
   sh "mvn clean"
+  Dir.chdir("golo-maven-plugin") do
+    sh "mvn clean"
+  end
 end
 
 desc "Build and install"
