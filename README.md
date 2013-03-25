@@ -95,6 +95,7 @@ Big thanks to our early testers before Golo was made public! *(in random order)*
 * Philippe Charrière
 * Ludovic Champenois
 * Thierry Chantier
+* Daniel Pétisme
 * David Gageot
 * David Festal
 * Gildas Cuisinier
