@@ -143,14 +143,14 @@ variable.
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
 
 [source,console]
-------------------------------------------------------------------
+----
 # Exporting an environment variable
 $ export JAVA_OPTS=-XX:+PrintCompilation
 $ gologolo samples/fibonacci.golo
 
 # ...or you may use this one-liner
 $ JAVA_OPTS=-XX:+PrintCompilation gologolo samples/fibonacci.golo
-------------------------------------------------------------------
+----
 
 === Comments ===
 
@@ -177,7 +177,7 @@ do so results in a compilation error.
 Here are a few examples:
 
 [source,text]
--------------
+----
 # Ok
 var i = 3
 i = i + 1
@@ -188,19 +188,19 @@ truth = 666
 
 # Invalid statement, variables / constants have to be initialized
 var foo
--------------
+----
 
 Valid names contain upper and lower case letters within the `[a..z]` range, underscores (`_`),
 dollar symbols (`$`) and numbers. In any case, an identifier must not start with a number.
 
 [source,text]
----------------------------------------------
+----
 # Ok, but not necessarily great for humans...
 let _$_f_o_$$666 = 666
 
 # Wrong!
 let 666_club = 666
----------------------------------------------
+----
 
 === Data literals ===
 
@@ -208,7 +208,7 @@ Golo supports a set of data literals. They directly map to their counterparts fr
 API. We give them along with examples in <<data-literals,the data literals table>> below.
 
 [options="header",id="data-literals"]
-|============================
+|===
 |Java type | Golo literals
 
 |`null` | `null`
@@ -231,14 +231,14 @@ API. We give them along with examples in <<data-literals,the data literals table
 
 | `java.lang.invoke.MethodHandle` | `^foo`, `^some.module::foo`, ...
 
-|===========================
+|===
 
 === Operators ===
 
 Golo supports the following <<operators,set of operators>>.
 
 [options="header",id="operators"]
-|=============================================================================
+|===
 |Symbol(s) |Description |Examples
 
 |`+`|
@@ -286,7 +286,7 @@ Checks the type of an object instance, equivalent to the `instanceof` operator
 in Java.|
 `("plop" oftype String.class)` gives `true`.
 
-|=============================================================================
+|===
 
 === Calling a method ===
 
