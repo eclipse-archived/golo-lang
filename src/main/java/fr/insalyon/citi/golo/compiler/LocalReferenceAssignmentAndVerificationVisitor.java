@@ -216,4 +216,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       currentIndex = currentIndex + 1;
     }
   }
+
+  @Override
+  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+    // TODO
+  }
 }

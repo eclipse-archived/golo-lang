@@ -126,6 +126,20 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTContinue node, Object data) {
+    Context context = (Context) data;
+    context.objectStack.push(LoopBreakFlowStatement.newContinue());
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTBreak node, Object data) {
+    Context context = (Context) data;
+    context.objectStack.push(LoopBreakFlowStatement.newBreak());
+    return data;
+  }
+
+  @Override
   public Object visit(ASTFunction node, Object data) {
     Context context = (Context) data;
     boolean isSynthetic = !(context.objectStack.peek() instanceof GoloFunction);
