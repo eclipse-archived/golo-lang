@@ -685,4 +685,12 @@ public class CompileAndRunTest {
     // Damn ordering on sets...
     assertThat((String) propz.invoke(null), either(is("foo:foobar:bar")).or(is("bar:barfoo:foo")));
   }
+
+  @Test
+  public void continue_and_break() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "continue-and-break.golo");
+
+    Method twenty_four = moduleClass.getMethod("twenty_four");
+    assertThat((Integer) twenty_four.invoke(null), is(24));
+  }
 }
