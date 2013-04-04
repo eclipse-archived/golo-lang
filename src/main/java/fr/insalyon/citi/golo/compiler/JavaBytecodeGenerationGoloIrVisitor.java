@@ -89,6 +89,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     private final Stack<ReferenceTable> referenceTableStack = new Stack<>();
     private final Stack<Integer> methodArityStack = new Stack<>();
     private final Stack<LabelRange> labelRangeStack = new Stack<>();
+    private final Map<LoopStatement, Label> loopStartMap = new HashMap<>();
+    private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
   }
 
   private static class LabelRange {
@@ -470,6 +472,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     // TODO handle init and post statement and potential reference scoping issues
     Label loopStart = new Label();
     Label loopEnd = new Label();
+    context.loopStartMap.put(loopStatement, loopStart);
+    context.loopEndMap.put(loopStatement, loopEnd);
     if (loopStatement.hasInitStatement()) {
       loopStatement.getInitStatement().accept(this);
     }
@@ -485,6 +489,17 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     methodVisitor.visitJumpInsn(GOTO, loopStart);
     methodVisitor.visitLabel(loopEnd);
+  }
+
+  @Override
+  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+    Label jumpTarget;
+    if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
+      jumpTarget = context.loopEndMap.get(loopBreakFlowStatement.getEnclosingLoop());
+    } else {
+      jumpTarget = context.loopStartMap.get(loopBreakFlowStatement.getEnclosingLoop());
+    }
+    methodVisitor.visitJumpInsn(GOTO, jumpTarget);
   }
 
   @Override
@@ -571,11 +586,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           "insertArguments",
           "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;");
     }
-  }
-
-  @Override
-  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
-    // TODO
   }
 
   @Override

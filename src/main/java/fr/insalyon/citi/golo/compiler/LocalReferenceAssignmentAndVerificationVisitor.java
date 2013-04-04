@@ -23,6 +23,7 @@ import java.util.Set;
 import java.util.Stack;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
@@ -31,6 +32,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   private int indexAssignmentCounter = 0;
   private Stack<ReferenceTable> tableStack = new Stack<>();
   private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
+  private Stack<LoopStatement> loopStack = new Stack<>();
   private GoloCompilationException.Builder exceptionBuilder;
 
   private void resetIndexAssignmentCounter() {
@@ -169,6 +171,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitLoopStatement(LoopStatement loopStatement) {
+    loopStack.push(loopStatement);
     if (loopStatement.hasInitStatement()) {
       loopStatement.getInitStatement().accept(this);
     }
@@ -177,6 +180,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (loopStatement.hasPostStatement()) {
       loopStatement.getPostStatement().accept(this);
     }
+    loopStack.pop();
   }
 
   @Override
@@ -219,6 +223,12 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
-    // TODO
+    if (loopStack.isEmpty()) {
+      getExceptionBuilder().report(BREAK_OR_CONTINUE_OUTSIDE_LOOP,
+          loopBreakFlowStatement.getASTNode(),
+          "continue or break statement outside a loop at " + loopBreakFlowStatement.getPositionInSourceCode());
+    } else {
+      loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
+    }
   }
 }

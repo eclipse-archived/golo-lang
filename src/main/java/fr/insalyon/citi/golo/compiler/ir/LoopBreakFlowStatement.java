@@ -7,6 +7,7 @@ public class LoopBreakFlowStatement extends GoloStatement {
   }
 
   private final Type type;
+  private LoopStatement enclosingLoop;
 
   private LoopBreakFlowStatement(Type type) {
     super();
@@ -23,6 +24,14 @@ public class LoopBreakFlowStatement extends GoloStatement {
 
   public Type getType() {
     return type;
+  }
+
+  public LoopStatement getEnclosingLoop() {
+    return enclosingLoop;
+  }
+
+  public void setEnclosingLoop(LoopStatement enclosingLoop) {
+    this.enclosingLoop = enclosingLoop;
   }
 
   @Override
