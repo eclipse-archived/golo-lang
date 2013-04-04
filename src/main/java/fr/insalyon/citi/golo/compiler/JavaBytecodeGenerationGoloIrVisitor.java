@@ -499,7 +499,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     } else {
       jumpTarget = context.loopStartMap.get(loopBreakFlowStatement.getEnclosingLoop());
     }
-    methodVisitor.visitJumpInsn(GOTO, jumpTarget);
+    methodVisitor.visitLdcInsn(0);
+    methodVisitor.visitJumpInsn(IFEQ, jumpTarget);
+    // NOP + ATHROW invalid frames if the GOTO is followed by an else branch code...
+    // methodVisitor.visitJumpInsn(GOTO, jumpTarget);
   }
 
   @Override
