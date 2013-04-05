@@ -31,6 +31,7 @@ import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -692,5 +693,17 @@ public class CompileAndRunTest {
 
     Method twenty_four = moduleClass.getMethod("twenty_four");
     assertThat((Integer) twenty_four.invoke(null), is(24));
+  }
+
+  @Test
+  public void failure_invalid_break() throws Throwable {
+    try {
+      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "failure-invalid-break.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException e) {
+      assertThat(e.getProblems().size(), is(1));
+      Problem problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(BREAK_OR_CONTINUE_OUTSIDE_LOOP));
+    }
   }
 }
