@@ -178,6 +178,48 @@ function main = |args| {
 ----------------------------------------
 ==================================================================================================
 
+=== `break` and `continue` ===
+
+Although not strictly necessary, the `break` and `continue` statements can be useful to simplify
+some loops in imperative languages.
+
+Like in Java and many other languages:
+
+* `break` exits the current inner-most loop, and
+* `continue` skips to the next iteration of the current inner-most loop.
+
+Consider the following contrived example:
+
+[source,text]
+----
+module test
+ 
+function main = |args| {
+  var i = 0
+  while true {
+    i = i + 1
+    if i < 40 {
+      continue
+    } else {
+      print(i + " ")
+    }
+    if i == 50 {
+      break
+    } 
+  }
+  println("bye")
+}
+----
+
+It prints the following output:
+
+----
+40 41 42 43 44 45 46 47 48 49 50 bye
+----
+
+Golo does not support `break` statements to labels like Java does. In fact, this is a `goto`
+statement in disguise.
+
 === Why no value from most control flow constructions? ===
 
 Some programming languages return values from selected control flow constructions, with the returned
