@@ -1,5 +1,3 @@
-[![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
-
 # Golo, a lightweight dynamic language for the JVM.
 
 > The world didn't need another JVM language.
@@ -22,6 +20,8 @@ Golo is being developed as part of the research activities of the
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
 ## Building Golo
+
+[![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
 
 ### Dependencies
 
