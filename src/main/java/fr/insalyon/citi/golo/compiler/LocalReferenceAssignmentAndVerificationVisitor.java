@@ -18,21 +18,20 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
-import java.util.Stack;
 
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private GoloModule module = null;
   private int indexAssignmentCounter = 0;
-  private Stack<ReferenceTable> tableStack = new Stack<>();
-  private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
-  private Stack<LoopStatement> loopStack = new Stack<>();
+  private Deque<ReferenceTable> tableStack = new LinkedList<>();
+  private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
+  private Deque<LoopStatement> loopStack = new LinkedList<>();
   private GoloCompilationException.Builder exceptionBuilder;
 
   private void resetIndexAssignmentCounter() {
