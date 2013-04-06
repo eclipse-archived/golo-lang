@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
+
 # Golo, a lightweight dynamic language for the JVM.
 
 > The world didn't need another JVM language.
@@ -85,24 +87,7 @@ Check the `CONTRIBUTING.md` file for instructions.
 
 Big thanks to our early testers before Golo was made public! *(in random order)*
 
-* Pierre Colomb
-* Olivier Coupelon
-* Cédric Exbrayat
-* Frédéric Le Mouel
-* Nicolas Stouls
-* Henri Gomez
-* Julien Viet
-* Philippe Charrière
-* Ludovic Champenois
-* Thierry Chantier
-* Daniel Petisme
-* David Gageot
-* David Festal
-* Gildas Cuisinier
-* Thomas Maurel
-* Yannick Loiseau
-* Alexis Plantin
-* Sylvain Desgrais
-* William Guyot
-* Agnès Crépet
-* Cyril Lacote
+Pierre Colomb, Olivier Coupelon, Cédric Exbrayat, Frédéric Le Mouel, Nicolas Stouls,
+Henri Gomez, Julien Viet, Philippe Charrière, Ludovic Champenois, Thierry Chantier,
+Daniel Petisme, David Gageot, David Festal, Gildas Cuisinier, Thomas Maurel, 
+Yannick Loiseau, Alexis Plantin, Sylvain Desgrais, William Guyot, Agnès Crépet, Cyril Lacote.
