@@ -256,4 +256,9 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void visitClosureReference(ClosureReference closureReference) {
 
   }
+
+  @Override
+  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+
+  }
 }

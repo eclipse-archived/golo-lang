@@ -49,4 +49,6 @@ public interface GoloIrVisitor {
   void visitTryCatchFinally(TryCatchFinally tryCatchFinally);
 
   void visitClosureReference(ClosureReference closureReference);
+
+  void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement);
 }
