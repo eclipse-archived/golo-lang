@@ -86,9 +86,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private Context context;
 
   private static class Context {
-    private final Stack<ReferenceTable> referenceTableStack = new Stack<>();
-    private final Stack<Integer> methodArityStack = new Stack<>();
-    private final Stack<LabelRange> labelRangeStack = new Stack<>();
+    private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
+    private final Deque<Integer> methodArityStack = new LinkedList<>();
+    private final Deque<LabelRange> labelRangeStack = new LinkedList<>();
     private final Map<LoopStatement, Label> loopStartMap = new HashMap<>();
     private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
   }
