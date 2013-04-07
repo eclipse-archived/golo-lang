@@ -162,6 +162,10 @@ TOKEN :
   < OTHERWISE: "otherwise" >
   |
   < PIMP: "pimp" >
+  |
+  < BREAK: "break" >
+  |
+  < CONTINUE: "continue" >
 }
 
 // Operators
@@ -554,6 +558,20 @@ void Statement() #void:{}
   TryCatchFinally()
   |
   Case()
+  |
+  Continue()
+  |
+  Break()
+}
+
+void Continue(): {}
+{
+  <CONTINUE>
+}
+
+void Break(): {}
+{
+  <BREAK>
 }
 
 void Throw(): {}
