@@ -28,7 +28,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     final Set<String> localReferences = new HashSet<>();
     final Set<String> accessedReferences = new HashSet<>();
     final Map<String, Block> definingBlock = new HashMap<>();
-    final Stack<ReferenceTable> referenceTableStack = new Stack<>();
+    final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
 
     Set<String> shouldBeArguments() {
       Set<String> result = new HashSet<>();
@@ -49,7 +49,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private final Stack<Context> stack = new Stack<>();
+  private final Deque<Context> stack = new LinkedList<>();
 
   private Context context() {
     return stack.peek();

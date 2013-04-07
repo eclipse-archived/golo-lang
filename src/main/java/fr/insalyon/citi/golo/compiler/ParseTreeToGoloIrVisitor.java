@@ -20,8 +20,9 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.*;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 
+import java.util.Deque;
+import java.util.LinkedList;
 import java.util.List;
-import java.util.Stack;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
@@ -59,8 +60,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private static class Context {
     GoloModule module;
     String pimp;
-    Stack<Object> objectStack = new Stack<>();
-    Stack<ReferenceTable> referenceTableStack = new Stack<>();
+    Deque<Object> objectStack = new LinkedList<>();
+    Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
     int nextClosureId = 0;
   }
 
@@ -259,8 +260,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   private void makeBinaryOperation(GoloASTNode node, List<String> symbols, Context context) {
-    Stack<ExpressionStatement> expressions = new Stack<>();
-    Stack<OperatorType> operators = new Stack<>();
+    Deque<ExpressionStatement> expressions = new LinkedList<>();
+    Deque<OperatorType> operators = new LinkedList<>();
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, context);
       expressions.push((ExpressionStatement) context.objectStack.pop());
@@ -470,7 +471,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTCase node, Object data) {
     Context context = (Context) data;
     final int lastWhen = node.jjtGetNumChildren() - 1;
-    Stack<Object> stack = new Stack<>();
+    Deque<Object> stack = new LinkedList<>();
 
     for (int i = 0; i < lastWhen; i = i + 2) {
       node.jjtGetChild(i).jjtAccept(this, data);
