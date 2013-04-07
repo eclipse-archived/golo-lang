@@ -39,7 +39,9 @@ public final class GoloFunction extends GoloElement {
   private int syntheticParameterCount = 0;
   private boolean varargs;
   private Block block;
+  private NativeCall nativeCall;
   private boolean synthetic = false;
+  private boolean isNative = false;
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
@@ -84,6 +86,14 @@ public final class GoloFunction extends GoloElement {
     this.synthetic = synthetic;
   }
 
+  public void setNative(boolean aNative) {
+    isNative = aNative;
+  }
+
+  public boolean isNative() {
+    return isNative;
+  }
+
   public Visibility getVisibility() {
     return visibility;
   }
@@ -104,6 +114,13 @@ public final class GoloFunction extends GoloElement {
     this.block = block;
   }
 
+  public NativeCall getNativeCall() {
+    return nativeCall;
+  }
+
+  public void setNativeCall(NativeCall nativeCall) {
+    this.nativeCall = nativeCall;
+  }
   public void accept(GoloIrVisitor visitor) {
     visitor.visitFunction(this);
   }

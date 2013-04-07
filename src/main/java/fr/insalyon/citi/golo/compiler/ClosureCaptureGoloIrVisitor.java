@@ -124,13 +124,16 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     if (function.isSynthetic()) {
       newContext();
       declaredParameters(function.getParameterNames());
-      function.getBlock().internReferenceTable();
-      function.getBlock().accept(this);
+      if(!function.isNative()){
+        function.getBlock().internReferenceTable();
+        function.getBlock().accept(this);
+      }
       makeArguments(function, context().shouldBeArguments());
       dropUnused(context().shouldBeRemoved());
       dropContext();
     } else {
-      function.getBlock().accept(this);
+      if(!function.isNative())
+        function.getBlock().accept(this);
     }
   }
 

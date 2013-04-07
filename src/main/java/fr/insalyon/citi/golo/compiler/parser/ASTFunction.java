@@ -23,6 +23,7 @@ public class ASTFunction extends GoloASTNode {
   private List<String> arguments;
   private boolean varargs = false;
   private boolean compactForm = false;
+  private boolean isNative = false;
 
   public ASTFunction(int i) {
     super(i);
@@ -56,12 +57,21 @@ public class ASTFunction extends GoloASTNode {
     this.compactForm = compactForm;
   }
 
+  public boolean isNative() {
+    return isNative;
+  }
+
+  public void setNative(boolean aNative) {
+    isNative = aNative;
+  }
+
   @Override
   public String toString() {
     return "ASTFunction{" +
         "arguments=" + arguments +
         ", varargs=" + varargs +
         ", compactForm=" + compactForm +
+        ", isNative=" + isNative +
         '}';
   }
 
@@ -69,4 +79,5 @@ public class ASTFunction extends GoloASTNode {
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
+
 }

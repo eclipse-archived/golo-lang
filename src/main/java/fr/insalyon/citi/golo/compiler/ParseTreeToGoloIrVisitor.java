@@ -23,6 +23,7 @@ import fr.insalyon.citi.golo.runtime.OperatorType;
 import java.util.List;
 import java.util.Stack;
 
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.NO_NAME_FOR_NATIVE_CLOSURE;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.LOCAL;
@@ -129,15 +130,32 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTFunction node, Object data) {
     Context context = (Context) data;
     boolean isSynthetic = !(context.objectStack.peek() instanceof GoloFunction);
+    boolean isNative = node.isNative();
     GoloFunction function;
     if (isSynthetic) {
-      function = new GoloFunction(
-          "__$$_closure_" + context.nextClosureId++,
-          LOCAL,
-          CLOSURE);
-      function.setSynthetic(true);
+      if(isNative){
+          ASTNativeCall nativeCallNode = (ASTNativeCall) node.jjtGetChild(0);
+          if(nativeCallNode.getName() == null)
+              getOrCreateExceptionBuilder(context).report(NO_NAME_FOR_NATIVE_CLOSURE, nativeCallNode,
+                      "Native closure needs a name to be assigned to the native code" +
+                              " at (line=" + nativeCallNode.getLineInSourceCode() +
+                              ", column=" + nativeCallNode.getColumnInSourceCode() + ")");
+          function = new GoloFunction(
+                  nativeCallNode.getName(),
+                  LOCAL,
+                  CLOSURE);
+          function.setSynthetic(false); //javah generate c headers only for non synthetic methods
+          function.setNative(true);
+      }else{
+        function = new GoloFunction(
+            "__$$_closure_" + context.nextClosureId++,
+            LOCAL,
+            CLOSURE);
+        function.setSynthetic(true);
+      }
       context.objectStack.push(function);
     } else {
+      //TODO: warn : if native function name is set it is ignored
       function = (GoloFunction) context.objectStack.peek();
     }
 
@@ -150,7 +168,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     } else {
       context.module.addFunction(function);
     }
-    if (node.isCompactForm()) {
+    if (node.isCompactForm() && !isNative) {
       Node astChild = node.jjtGetChild(0);
       ASTReturn astReturn = new ASTReturn(0);
       astReturn.jjtAddChild(astChild, 0);
@@ -160,12 +178,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     } else {
       node.childrenAccept(this, data);
     }
-    Block functionBlock = function.getBlock();
-    ReferenceTable referenceTable = functionBlock.getReferenceTable();
-    for (String parameter : function.getParameterNames()) {
-      referenceTable.add(new LocalReference(CONSTANT, parameter));
+
+    if(!isNative){
+      Block functionBlock = function.getBlock();
+      ReferenceTable referenceTable = functionBlock.getReferenceTable();
+      for (String parameter : function.getParameterNames()) {
+        referenceTable.add(new LocalReference(CONSTANT, parameter));
+      }
+      insertMissingReturnStatement(function);
     }
-    insertMissingReturnStatement(function);
+
     if (isSynthetic) {
       context.objectStack.pop();
       context.objectStack.push(
@@ -418,6 +440,22 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTNativeCall node, Object data) {
+      Context context = (Context) data;
+      NativeCall call = new NativeCall(node.getName());
+      node.setIrElement(call);
+      if (context.objectStack.peek() instanceof GoloFunction) {
+          GoloFunction function = (GoloFunction) context.objectStack.peek();
+          function.setNative(true);
+          function.setNativeCall(call);
+          if (function.isSynthetic()) {
+              context.objectStack.pop();
+          }
+      }
+      return data;
+  }
+
+    @Override
   public Object visit(ASTConditionalBranching node, Object data) {
     Context context = (Context) data;
     node.jjtGetChild(0).jjtAccept(this, data);
