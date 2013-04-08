@@ -71,7 +71,10 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitFunction(GoloFunction function) {
     resetIndexAssignmentCounter();
-    if(function.isNative()) return;
+    if(function.isNative()) {
+        return;
+    }
+
     ReferenceTable table = function.getBlock().getReferenceTable();
     for (String parameterName : function.getParameterNames()) {
       LocalReference reference = table.get(parameterName);

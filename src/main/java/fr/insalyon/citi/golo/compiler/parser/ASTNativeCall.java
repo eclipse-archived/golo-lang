@@ -29,7 +29,7 @@ public class ASTNativeCall extends GoloASTNode {
   }
 
 
-  /** Accept the visitor. **/
+  @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
@@ -49,4 +49,4 @@ public class ASTNativeCall extends GoloASTNode {
     this.name = name;
   }
 }
-/* JavaCC - OriginalChecksum=0613be872cfd0238eb41d02a65a6b1dc (do not edit this line) */
+

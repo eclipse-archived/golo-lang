@@ -133,20 +133,21 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     boolean isNative = node.isNative();
     GoloFunction function;
     if (isSynthetic) {
-      if(isNative){
-          ASTNativeCall nativeCallNode = (ASTNativeCall) node.jjtGetChild(0);
-          if(nativeCallNode.getName() == null)
-              getOrCreateExceptionBuilder(context).report(NO_NAME_FOR_NATIVE_CLOSURE, nativeCallNode,
-                      "Native closure needs a name to be assigned to the native code" +
-                              " at (line=" + nativeCallNode.getLineInSourceCode() +
-                              ", column=" + nativeCallNode.getColumnInSourceCode() + ")");
-          function = new GoloFunction(
-                  nativeCallNode.getName(),
-                  LOCAL,
-                  CLOSURE);
-          function.setSynthetic(false); //javah generate c headers only for non synthetic methods
-          function.setNative(true);
-      }else{
+      if (isNative) {
+        ASTNativeCall nativeCallNode = (ASTNativeCall) node.jjtGetChild(0);
+        if (nativeCallNode.getName() == null) {
+          getOrCreateExceptionBuilder(context).report(NO_NAME_FOR_NATIVE_CLOSURE, nativeCallNode,
+                    "Native closure needs a name to be assigned to the native code" +
+                            " at (line=" + nativeCallNode.getLineInSourceCode() +
+                            ", column=" + nativeCallNode.getColumnInSourceCode() + ")");
+        }
+        function = new GoloFunction(
+            nativeCallNode.getName(),
+            LOCAL,
+            CLOSURE);
+        function.setSynthetic(false); //javah generate c headers only for non synthetic methods
+        function.setNative(true);
+      } else {
         function = new GoloFunction(
             "__$$_closure_" + context.nextClosureId++,
             LOCAL,
@@ -441,18 +442,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTNativeCall node, Object data) {
-      Context context = (Context) data;
-      NativeCall call = new NativeCall(node.getName());
-      node.setIrElement(call);
-      if (context.objectStack.peek() instanceof GoloFunction) {
-          GoloFunction function = (GoloFunction) context.objectStack.peek();
-          function.setNative(true);
-          function.setNativeCall(call);
-          if (function.isSynthetic()) {
-              context.objectStack.pop();
-          }
+    Context context = (Context) data;
+    NativeCall call = new NativeCall(node.getName());
+    node.setIrElement(call);
+    if (context.objectStack.peek() instanceof GoloFunction) {
+      GoloFunction function = (GoloFunction) context.objectStack.peek();
+      function.setNative(true);
+      function.setNativeCall(call);
+      if (function.isSynthetic()) {
+        context.objectStack.pop();
       }
-      return data;
+    }
+    return data;
   }
 
     @Override
