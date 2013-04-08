@@ -39,7 +39,12 @@ public class GoloCompilationException extends RuntimeException {
      * The possible problem types.
      */
     public static enum Type {
-      PARSING, PIMP_FUNCTION_NO_ARGS, UNDECLARED_REFERENCE, ASSIGN_CONSTANT, NO_NAME_FOR_NATIVE_CLOSURE
+      PARSING,
+      PIMP_FUNCTION_NO_ARGS,
+      UNDECLARED_REFERENCE,
+      ASSIGN_CONSTANT,
+      BREAK_OR_CONTINUE_OUTSIDE_LOOP,
+      NO_NAME_FOR_NATIVE_CLOSURE
     }
 
     private final Type type;

@@ -18,19 +18,20 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 
+import java.util.Deque;
 import java.util.HashSet;
+import java.util.LinkedList;
 import java.util.Set;
-import java.util.Stack;
 
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private GoloModule module = null;
   private int indexAssignmentCounter = 0;
-  private Stack<ReferenceTable> tableStack = new Stack<>();
-  private Stack<Set<LocalReference>> assignmentStack = new Stack<>();
+  private Deque<ReferenceTable> tableStack = new LinkedList<>();
+  private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
+  private Deque<LoopStatement> loopStack = new LinkedList<>();
   private GoloCompilationException.Builder exceptionBuilder;
 
   private void resetIndexAssignmentCounter() {
@@ -173,6 +174,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitLoopStatement(LoopStatement loopStatement) {
+    loopStack.push(loopStatement);
     if (loopStatement.hasInitStatement()) {
       loopStatement.getInitStatement().accept(this);
     }
@@ -181,6 +183,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (loopStatement.hasPostStatement()) {
       loopStatement.getPostStatement().accept(this);
     }
+    loopStack.pop();
   }
 
   @Override
@@ -218,6 +221,17 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
         closureReference.addCapturedReferenceName(name);
       }
       currentIndex = currentIndex + 1;
+    }
+  }
+
+  @Override
+  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+    if (loopStack.isEmpty()) {
+      getExceptionBuilder().report(BREAK_OR_CONTINUE_OUTSIDE_LOOP,
+          loopBreakFlowStatement.getASTNode(),
+          "continue or break statement outside a loop at " + loopBreakFlowStatement.getPositionInSourceCode());
+    } else {
+      loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }
   }
 }

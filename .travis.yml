@@ -1,0 +1,12 @@
+language: java
+
+jdk:
+  - oraclejdk7
+  - openjdk7
+
+install: "rake special:bootstrap"
+
+script: "mvn clean install"
+
+notifications:
+  email: false

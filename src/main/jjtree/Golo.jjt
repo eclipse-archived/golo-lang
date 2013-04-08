@@ -163,6 +163,10 @@ TOKEN :
   |
   < PIMP: "pimp" >
   |
+  < BREAK: "break" >
+  |
+  < CONTINUE: "continue" >
+  |
   < NATIVE: "native" >
 }
 
@@ -556,6 +560,20 @@ void Statement() #void:{}
   TryCatchFinally()
   |
   Case()
+  |
+  Continue()
+  |
+  Break()
+}
+
+void Continue(): {}
+{
+  <CONTINUE>
+}
+
+void Break(): {}
+{
+  <BREAK>
 }
 
 void Throw(): {}
@@ -686,7 +704,7 @@ void AssociativeExpression():
 
 void MethodInvocation(): 
 {
-  Token token = null;
+  Token token;
 }
 {
   token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
@@ -695,16 +713,6 @@ void MethodInvocation():
   }
 }
 
-void NativeCall(): 
-{
-	Token token = null;
-}
-{
-  <NATIVE> (LOOKAHEAD(3)"(" (BlankLine())?  token=<IDENTIFIER>  ")")?
-  {
-    jjtThis.setName(token == null ? null : token.image);
-  }
-}
 
 void Block(): {}
 {
@@ -730,37 +738,22 @@ void Function():
   List<String> arguments = null;
   Token varargsToken = null;
   boolean compactForm = false;
-  boolean isNative = false;
 }
 {
   ("|" arguments=Arguments() (varargsToken="...")? "|")? 
-  ( 
-    (
-      LOOKAHEAD(3)Block()
-      |
-      LOOKAHEAD(3)("->" (BlankLine())? ExpressionStatement())
-      {
-        compactForm = true;
-      }
-      |
-      LOOKAHEAD(3)("{"(BlankLine())? NativeCall() (BlankLine())? "}")
-      {
-        isNative = true;
-      }
-      |
-      LOOKAHEAD(3)("->" (BlankLine())? NativeCall())
-      {
-        compactForm = true;
-        isNative = true;
-      }
-    )
+  (
+    Block()
+    |
+    ("->" (BlankLine())? ExpressionStatement())
+    {
+      compactForm = true;
+    }
   )
   {
     if (arguments == null) {
       arguments = Collections.emptyList();
     }
     jjtThis.setCompactForm(compactForm);
-    jjtThis.setNative(isNative);
     jjtThis.setArguments(arguments);
     jjtThis.setVarargs(varargsToken != null);
   }

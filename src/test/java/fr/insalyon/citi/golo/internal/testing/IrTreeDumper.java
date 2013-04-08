@@ -251,4 +251,12 @@ public class IrTreeDumper implements GoloIrVisitor {
     decr();
     decr();
   }
+
+  @Override
+  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+    incr();
+    space();
+    System.out.println("Loop break flow: " + loopBreakFlowStatement.getType().name());
+    decr();
+  }
 }

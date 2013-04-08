@@ -10,6 +10,12 @@ convenient, such an open system may lead to well-known conflicts between the add
 Golo provides a more limited but explicit way to add methods to existing classes in the form of
 **pimps**.
 
+NOTE: The verb *"to pimp"* http://en.wikipedia.org/wiki/Pimp#Etymology:[comes from the French
+*"pimper"*] which means *"dressing elegantly and charmingly"*. It is a positive expression, and in
+no way a reference to degrading activities. *"Pimping"* has also entered the mainstream culture in
+TV shows, hip-hop lyrics and advertising. Golo does not use `pimp` in an offending way. Instead, it
+highlights the fact that it can decorate existing classes to make them look nicer.
+
 === Wrapping a string with a function ===
 
 Let us motivate the value of pimps by starting with the following example. Suppose that we would
@@ -35,7 +41,7 @@ Defining a pimp is a matter of adding a `pimp` block in a module:
 ----
 module foo
 
-pimp java.lang.String {
+pimp java.lang.String { 
   function wrap = |this, left, right| -> left + this + right
 }
 
