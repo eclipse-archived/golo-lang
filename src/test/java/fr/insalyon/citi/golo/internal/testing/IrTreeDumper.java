@@ -46,11 +46,11 @@ public class IrTreeDumper implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (String pimpTarget : module.getPimps().keySet()) {
+    for (String augmentation : module.getAugmentations().keySet()) {
       incr();
       space();
-      System.out.println("Pimp " + pimpTarget);
-      Set<GoloFunction> functions = module.getPimps().get(pimpTarget);
+      System.out.println("Augmentation " + augmentation);
+      Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
       for (GoloFunction function : functions) {
         function.accept(this);
       }

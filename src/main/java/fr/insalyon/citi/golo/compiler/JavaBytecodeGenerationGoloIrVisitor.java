@@ -122,10 +122,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (Map.Entry<String, Set<GoloFunction>> pimpEntry : module.getPimps().entrySet()) {
-      generatePimpBytecode(module, pimpEntry.getKey(), pimpEntry.getValue());
+    for (Map.Entry<String, Set<GoloFunction>> entry : module.getAugmentations().entrySet()) {
+      generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
     }
-    writePimpsMetaData(module.getPimps().keySet());
+    writeAugmentsMetaData(module.getAugmentations().keySet());
     classWriter.visitEnd();
   }
 
@@ -150,20 +150,20 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
-  private void writePimpsMetaData(Set<String> pimps) {
-    String[] pimpsArray = pimps.toArray(new String[pimps.size()]);
+  private void writeAugmentsMetaData(Set<String> augmentations) {
+    String[] augmentArray = augmentations.toArray(new String[augmentations.size()]);
     methodVisitor = classWriter.visitMethod(
         ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
-        "$pimps",
+        "$augmentations",
         "()[Ljava/lang/String;",
         null, null);
     methodVisitor.visitCode();
-    loadInteger(pimpsArray.length);
+    loadInteger(augmentArray.length);
     methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-    for (int i = 0; i < pimpsArray.length; i++) {
+    for (int i = 0; i < augmentArray.length; i++) {
       methodVisitor.visitInsn(DUP);
       loadInteger(i);
-      methodVisitor.visitLdcInsn(pimpsArray[i]);
+      methodVisitor.visitLdcInsn(augmentArray[i]);
       methodVisitor.visitInsn(AASTORE);
     }
     methodVisitor.visitInsn(ARETURN);
@@ -171,23 +171,23 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
-  private void generatePimpBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
+  private void generateAugmentationBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.replace('.', '$');
     PackageAndClass packageAndClass = new PackageAndClass(
         module.getPackageAndClass().packageName(),
         module.getPackageAndClass().className() + "$" + mangledClass);
-    String pimpClassInternalName = packageAndClass.toJVMType();
+    String augmentationClassInternalName = packageAndClass.toJVMType();
 
     String outerName = module.getPackageAndClass().toJVMType();
     mainClassWriter.visitInnerClass(
-        pimpClassInternalName,
+        augmentationClassInternalName,
         outerName,
         mangledClass,
         ACC_PUBLIC | ACC_STATIC);
 
     classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
-    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, pimpClassInternalName, null, JOBJECT, null);
+    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visitOuterClass(outerName, null, null);
 

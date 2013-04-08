@@ -34,14 +34,14 @@ class Module {
     return imports;
   }
 
-  static String[] pimps(Class<?> callerClass) {
-    String[] pimps;
+  static String[] augmentations(Class<?> callerClass) {
+    String[] augmentations;
     try {
-      Method $pimps = callerClass.getMethod("$pimps");
-      pimps = (String[]) $pimps.invoke(null);
+      Method $augmentations = callerClass.getMethod("$augmentations");
+      augmentations = (String[]) $augmentations.invoke(null);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-      pimps = new String[]{};
+      augmentations = new String[]{};
     }
-    return pimps;
+    return augmentations;
   }
 }

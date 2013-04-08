@@ -40,7 +40,7 @@ public class GoloCompilationException extends RuntimeException {
      */
     public static enum Type {
       PARSING,
-      PIMP_FUNCTION_NO_ARGS,
+      AUGMENT_FUNCTION_NO_ARGS,
       UNDECLARED_REFERENCE,
       ASSIGN_CONSTANT,
       BREAK_OR_CONTINUE_OUTSIDE_LOOP

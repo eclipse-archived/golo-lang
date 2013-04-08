@@ -28,7 +28,7 @@ public final class GoloFunction extends GoloElement {
   }
 
   public static enum Scope {
-    MODULE, PIMP, CLOSURE
+    MODULE, AUGMENT, CLOSURE
   }
 
   private final String name;

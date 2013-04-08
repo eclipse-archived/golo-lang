@@ -56,7 +56,7 @@ public class CompileAndRunTest {
     List<String> imports = asList((String[]) $imports.invoke(null));
     assertThat(imports.size(), is(6));
     assertThat(imports, hasItem("gololang.Predefined"));
-    assertThat(imports, hasItem("gololang.StandardPimps"));
+    assertThat(imports, hasItem("gololang.StandardAugmentations"));
     assertThat(imports, hasItem("gololang"));
     assertThat(imports, hasItem("java.util.List"));
     assertThat(imports, hasItem("java.util.LinkedList"));
@@ -602,16 +602,16 @@ public class CompileAndRunTest {
   }
 
   @Test
-  public void check_pimps() throws Throwable {
+  public void check_augmentations() throws Throwable {
     GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "pimps.golo", goloClassLoader);
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "augmentations.golo", goloClassLoader);
 
-    Method $pimps = moduleClass.getMethod("$pimps");
-    assertThat(isStatic($pimps.getModifiers()), is(true));
-    assertThat(isPublic($pimps.getModifiers()), is(true));
-    Set<String> pimpSet = new HashSet<>(Arrays.asList((String[]) $pimps.invoke(null)));
-    assertThat(pimpSet.size(), is(1));
-    assertThat(pimpSet, contains("java.lang.String"));
+    Method $augmentations = moduleClass.getMethod("$augmentations");
+    assertThat(isStatic($augmentations.getModifiers()), is(true));
+    assertThat(isPublic($augmentations.getModifiers()), is(true));
+    Set<String> augments = new HashSet<>(Arrays.asList((String[]) $augmentations.invoke(null)));
+    assertThat(augments.size(), is(1));
+    assertThat(augments, contains("java.lang.String"));
 
     Method goog = moduleClass.getMethod("goog");
     Object result = goog.invoke(null);
@@ -623,9 +623,9 @@ public class CompileAndRunTest {
     Method exclamation = moduleClass.getMethod("exclamation", Object.class);
     assertThat((String) exclamation.invoke(null, "hey"), is("hey!"));
 
-    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "pimps-external-source.golo", goloClassLoader);
-    Method externalPimp = moduleClass.getMethod("externalPimp");
-    assertThat((String) externalPimp.invoke(null), is("(abc)"));
+    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "augmentations-external-source.golo", goloClassLoader);
+    Method externalAugmentation = moduleClass.getMethod("externalAugmentation");
+    assertThat((String) externalAugmentation.invoke(null), is("(abc)"));
 
     Method varargs = moduleClass.getMethod("varargs");
     assertThat((String) varargs.invoke(null), is("abcd"));
@@ -633,8 +633,8 @@ public class CompileAndRunTest {
     Method polymorphism = moduleClass.getMethod("polymorphism");
     assertThat((String) polymorphism.invoke(null), is("plop!"));
 
-    Method closure_in_pimp = moduleClass.getMethod("closure_in_pimp");
-    assertThat((String) closure_in_pimp.invoke(null), is("foo"));
+    Method closure_in_augmentation = moduleClass.getMethod("closure_in_augmentation");
+    assertThat((String) closure_in_augmentation.invoke(null), is("foo"));
   }
 
   @Test
@@ -647,11 +647,11 @@ public class CompileAndRunTest {
     foo = moduleClass.getMethod("foo", Object.class);
     assertThat((String) foo.invoke(null, "plop"), is("plop"));
 
-    Method pimp1 = moduleClass.getMethod("pimp1");
-    assertThat((String) pimp1.invoke(null), is("ab"));
+    Method augmentation1 = moduleClass.getMethod("augmentation1");
+    assertThat((String) augmentation1.invoke(null), is("ab"));
 
-    Method pimp2 = moduleClass.getMethod("pimp2");
-    assertThat((String) pimp2.invoke(null), is("abc"));
+    Method augmentation2 = moduleClass.getMethod("augmentation2");
+    assertThat((String) augmentation2.invoke(null), is("abc"));
   }
 
   @Test

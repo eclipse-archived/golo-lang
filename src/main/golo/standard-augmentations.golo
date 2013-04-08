@@ -16,11 +16,11 @@
 #
 # ............................................................................................... #
 
-module gololang.StandardPimps
+module gololang.StandardAugmentations
 
 # ............................................................................................... #
 
-pimp java.lang.invoke.MethodHandle {
+augment java.lang.invoke.MethodHandle {
 
   function to = |this, interfaceClass| -> asInterfaceInstance(interfaceClass, this)
 
@@ -33,7 +33,7 @@ pimp java.lang.invoke.MethodHandle {
 
 # ............................................................................................... #
 
-pimp java.util.Collection {
+augment java.util.Collection {
 
   function newWithSameType = |this| -> this: getClass(): newInstance()
 
@@ -48,7 +48,7 @@ pimp java.util.Collection {
 
 # ............................................................................................... #
 
-pimp java.util.List {
+augment java.util.List {
 
   function append = |this, element| {
     this: add(element)
@@ -111,7 +111,7 @@ pimp java.util.List {
 
 # ............................................................................................... #
 
-pimp java.util.Set {
+augment java.util.Set {
    
   function include = |this, element| {
     this: add(element)
@@ -183,7 +183,7 @@ pimp java.util.Set {
 
 # ............................................................................................... #
 
-pimp java.util.Map {
+augment java.util.Map {
 
   function add = |this, key, value| {
     this: put(key, value)

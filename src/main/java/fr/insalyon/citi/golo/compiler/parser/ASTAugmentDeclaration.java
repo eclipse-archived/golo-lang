@@ -16,15 +16,15 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTPimpDeclaration extends GoloASTNode implements NamedNode {
+public class ASTAugmentDeclaration extends GoloASTNode implements NamedNode {
 
   private String target;
 
-  public ASTPimpDeclaration(int id) {
+  public ASTAugmentDeclaration(int id) {
     super(id);
   }
 
-  public ASTPimpDeclaration(GoloParser p, int id) {
+  public ASTAugmentDeclaration(GoloParser p, int id) {
     super(p, id);
   }
 
@@ -38,7 +38,7 @@ public class ASTPimpDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTPimpDeclaration{" +
+    return "ASTAugmentDeclaration{" +
         "target='" + target + '\'' +
         '}';
   }

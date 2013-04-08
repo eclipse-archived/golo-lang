@@ -20,7 +20,7 @@ public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
   private boolean local = false;
-  private boolean pimp = false;
+  private boolean augmentation = false;
 
   public ASTFunctionDeclaration(int i) {
     super(i);
@@ -48,12 +48,12 @@ public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
     this.local = local;
   }
 
-  public boolean isPimp() {
-    return pimp;
+  public boolean isAugmentation() {
+    return augmentation;
   }
 
-  public void setPimp(boolean pimp) {
-    this.pimp = pimp;
+  public void setAugmentation(boolean augmentation) {
+    this.augmentation = augmentation;
   }
 
   @Override
@@ -61,7 +61,7 @@ public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
     return "ASTFunctionDeclaration{" +
         "name='" + name + '\'' +
         ", local=" + local +
-        ", pimp=" + pimp +
+        ", augmentation=" + augmentation +
         '}';
   }
 

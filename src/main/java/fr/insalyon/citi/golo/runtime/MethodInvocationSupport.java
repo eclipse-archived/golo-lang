@@ -233,14 +233,14 @@ public class MethodInvocationSupport {
         }
         return target;
       } catch (IllegalAccessException ignored) {
-        /* We need to give pimps a chance, as IllegalAccessException can be noise in our resolution.
-         * Example: pimping HashSet with a map function.
+        /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
+         * Example: augmenting HashSet with a map function.
          *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
          */
       }
     }
 
-    target = findInPimps(receiverClass, inlineCache);
+    target = findInAugmentations(receiverClass, inlineCache);
     if (target != null) {
       return target;
     }
@@ -288,7 +288,7 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static MethodHandle findInPimps(Class<?> receiverClass, InlineCache inlineCache) {
+  private static MethodHandle findInAugmentations(Class<?> receiverClass, InlineCache inlineCache) {
     Class<?> callerClass = inlineCache.callerLookup.lookupClass();
     String name = inlineCache.name;
     MethodType type = inlineCache.type();
@@ -296,13 +296,13 @@ public class MethodInvocationSupport {
     final int arity = inlineCache.type().parameterCount();
 
     ClassLoader classLoader = callerClass.getClassLoader();
-    for (String pimp : Module.pimps(callerClass)) {
+    for (String augmentation : Module.augmentations(callerClass)) {
       try {
-        Class<?> pimpedClass = classLoader.loadClass(pimp);
-        if (pimpedClass.isAssignableFrom(receiverClass)) {
-          Class<?> pimpClass = classLoader.loadClass(pimpClassName(callerClass, pimpedClass));
-          for (Method method : pimpClass.getMethods()) {
-            if (isCandidateMethod(name, method) && pimpMethodMatches(arity, method)) {
+        Class<?> augmentedClass = classLoader.loadClass(augmentation);
+        if (augmentedClass.isAssignableFrom(receiverClass)) {
+          Class<?> augmentClass = classLoader.loadClass(augmentClassName(callerClass, augmentedClass));
+          for (Method method : augmentClass.getMethods()) {
+            if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
               return lookup.unreflect(method).asType(type);
             }
           }
@@ -315,13 +315,13 @@ public class MethodInvocationSupport {
     for (String importSymbol : Module.imports(callerClass)) {
       try {
         Class<?> importClass = classLoader.loadClass(importSymbol);
-        for (String pimp : Module.pimps(importClass)) {
+        for (String augmentation : Module.augmentations(importClass)) {
           try {
-            Class<?> pimpedClass = classLoader.loadClass(pimp);
-            if (pimpedClass.isAssignableFrom(receiverClass)) {
-              Class<?> pimpClass = classLoader.loadClass(pimpClassName(importClass, pimpedClass));
-              for (Method method : pimpClass.getMethods()) {
-                if (isCandidateMethod(name, method) && pimpMethodMatches(arity, method)) {
+            Class<?> augmentedClass = classLoader.loadClass(augmentation);
+            if (augmentedClass.isAssignableFrom(receiverClass)) {
+              Class<?> augmentClass = classLoader.loadClass(augmentClassName(importClass, augmentedClass));
+              for (Method method : augmentClass.getMethods()) {
+                if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
                   return lookup.unreflect(method).asType(type);
                 }
               }
@@ -336,13 +336,13 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static boolean pimpMethodMatches(int arity, Method method) {
+  private static boolean augmentMethodMatches(int arity, Method method) {
     int parameterCount = method.getParameterTypes().length;
     return (parameterCount == arity) || (method.isVarArgs() && (parameterCount <= arity));
   }
 
-  private static String pimpClassName(Class<?> moduleClass, Class<?> pimpedClass) {
-    return moduleClass.getName() + "$" + pimpedClass.getName().replace('.', '$');
+  private static String augmentClassName(Class<?> moduleClass, Class<?> augmentedClass) {
+    return moduleClass.getName() + "$" + augmentedClass.getName().replace('.', '$');
   }
 
   private static boolean isMatchingField(String name, Field field) {

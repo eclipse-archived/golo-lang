@@ -59,7 +59,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
-    String pimp;
+    String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
     int nextClosureId = 0;
@@ -106,9 +106,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
-  public Object visit(ASTPimpDeclaration node, Object data) {
+  public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
-    context.pimp = node.getTarget();
+    context.augmentation = node.getTarget();
     return node.childrenAccept(this, data);
   }
 
@@ -118,7 +118,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function = new GoloFunction(
         node.getName(),
         node.isLocal() ? LOCAL : PUBLIC,
-        node.isPimp() ? PIMP : MODULE);
+        node.isAugmentation() ? AUGMENT : MODULE);
     node.setIrElement(function);
     context.objectStack.push(function);
     node.childrenAccept(this, data);
@@ -164,8 +164,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
-    if (PIMP.equals(function.getScope())) {
-      context.module.addPimp(context.pimp, function);
+    if (AUGMENT.equals(function.getScope())) {
+      context.module.addAugmentation(context.augmentation, function);
     } else {
       context.module.addFunction(function);
     }
