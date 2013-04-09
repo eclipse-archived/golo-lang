@@ -174,6 +174,14 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
+    if (context() != null) {
+      Context context = context();
+      String name = functionInvocation.getName();
+      if (context.allReferences.contains(name)) {
+        accessed(name);
+        functionInvocation.setOnReference(true);
+      }
+    }
     for (ExpressionStatement statement : functionInvocation.getArguments()) {
       statement.accept(this);
     }
@@ -254,7 +262,12 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
-
+    if (closureReference.getTarget().isSynthetic()) {
+      closureReference.getTarget().accept(this);
+      for (String name : closureReference.getTarget().getParameterNames()) {
+        accessed(name);
+      }
+    }
   }
 
   @Override

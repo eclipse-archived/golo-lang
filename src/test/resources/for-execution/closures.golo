@@ -77,3 +77,14 @@ function call_local_fun_full_literal = {
   let f = ^golotest.execution.Closures::local_fun
   return f(1)
 }
+
+function nested_closures = {
+  let s = "plop"
+  let f1 = |x| -> x
+  let f2 = {
+    return {
+      return f1(s)
+    }
+  }
+  return f2()
+}

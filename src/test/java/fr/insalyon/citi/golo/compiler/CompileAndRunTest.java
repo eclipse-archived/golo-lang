@@ -599,6 +599,13 @@ public class CompileAndRunTest {
 
     Method call_local_fun_full_literal = moduleClass.getMethod("call_local_fun_full_literal");
     assertThat((Integer) call_local_fun_full_literal.invoke(null), is(2));
+
+    Method nested_closures = moduleClass.getMethod("nested_closures");
+    result = nested_closures.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(MethodHandle.class));
+    handle = (MethodHandle) result;
+    assertThat((String) handle.invoke(), is("plop"));
   }
 
   @Test

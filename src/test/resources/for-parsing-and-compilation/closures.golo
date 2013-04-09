@@ -61,3 +61,18 @@ function l = {
   let f1 = ^k
   let f2 = ^foo.bar::baz
 }
+
+function m = {
+  let a = 666
+  let f1 = -> a
+  let f2 = {
+    return f1()
+  }
+  let f3 = {
+    return {
+      return f2()
+    }
+  }
+  println(f1())
+  println(f2())
+}
