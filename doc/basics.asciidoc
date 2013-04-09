@@ -9,6 +9,7 @@ Editor and IDE support for Golo is available for:
 - https://github.com/jponge/vim-golo[Vim]
 - https://github.com/k33g/sublime-golo[Sublime Text 2]
 - https://github.com/k33g/golo-storm[IntelliJ IDEA (syntax highthing)]
+- https://github.com/golo-lang/golo-netbeans[Netbeans] (contributed by http://www.serli.com/[Serli])
 
 === Hello world ===
 
