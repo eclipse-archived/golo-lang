@@ -142,7 +142,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     ReferenceTable table = tableStack.peek();
     if (!table.hasReferenceFor(referenceLookup.getName())) {
       getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
-          "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
+          "Undeclared reference `" + referenceLookup.getName() + "` at " + referenceLookup.getPositionInSourceCode());
     }
   }
 
