@@ -76,3 +76,24 @@ function m = {
   println(f1())
   println(f2())
 }
+
+function n = {
+  let runner = {
+    let a = "MrBean"
+    let go = {
+      let Person = |name, email| -> DynamicObject(): name(name): email(email)
+      let f3 = {
+        return |b| {
+          return {
+            return Person(a, b)
+          }
+        }
+      }
+      return f3(): invokeWithArguments("bean@outlook.com"): invokeWithArguments()
+    }
+    let result = go()
+    println(result: name())
+    println(result: email())
+  }
+  runner()
+}

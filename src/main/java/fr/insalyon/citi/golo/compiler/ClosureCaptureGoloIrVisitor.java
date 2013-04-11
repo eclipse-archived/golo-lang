@@ -82,14 +82,12 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     if (!stack.isEmpty()) {
       context().localReferences.add(name);
       context().accessedReferences.add(name);
-      context().allReferences.add(name);
     }
   }
 
   private void accessed(String name) {
     if (!stack.isEmpty()) {
       context().accessedReferences.add(name);
-      context().allReferences.add(name);
     }
   }
 
@@ -262,10 +260,17 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
+    closureReference.getTarget().accept(this);
     if (closureReference.getTarget().isSynthetic()) {
-      closureReference.getTarget().accept(this);
-      for (String name : closureReference.getTarget().getParameterNames()) {
-        accessed(name);
+      Context context = context();
+      if (context != null) {
+        for (String refName : closureReference.getTarget().getParameterNames()) {
+          ReferenceTable referenceTable = context.referenceTableStack.peek();
+          if (referenceTable.hasReferenceFor(refName)) {
+            // ...else it's a regular parameter
+            accessed(refName);
+          }
+        }
       }
     }
   }
