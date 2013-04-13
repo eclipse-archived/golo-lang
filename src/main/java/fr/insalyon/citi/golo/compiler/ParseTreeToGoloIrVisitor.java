@@ -32,6 +32,7 @@ import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.VARIABLE;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.LET;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
 
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
@@ -256,6 +257,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.METHOD_CALL;
       case "orIfNull":
          return OperatorType.ORIFNULL;
+      case "?:":
+        return ELVIS_METHOD_CALL;
       default:
         throw new IllegalArgumentException(symbol);
     }
@@ -273,10 +276,20 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     ExpressionStatement right = expressions.pop();
     ExpressionStatement left = expressions.pop();
-    BinaryOperation current = new BinaryOperation(operators.pop(), left, right);
+    OperatorType operator = operators.pop();
+    BinaryOperation current = new BinaryOperation(operator, left, right);
+    if (operator == ELVIS_METHOD_CALL) {
+      MethodInvocation invocation = (MethodInvocation) right;
+      invocation.setNullSafeGuarded(true);
+    }
     while (!expressions.isEmpty()) {
       left = expressions.pop();
-      current = new BinaryOperation(operators.pop(), left, current);
+      operator = operators.pop();
+      if (operator == ELVIS_METHOD_CALL) {
+        MethodInvocation invocation = (MethodInvocation) current.getLeftExpression();
+        invocation.setNullSafeGuarded(true);
+      }
+      current = new BinaryOperation(operator, left, current);
     }
     node.setIrElement(current);
     context.objectStack.push(current);

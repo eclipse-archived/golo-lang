@@ -28,6 +28,7 @@ import java.lang.invoke.MethodType;
 import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
@@ -59,7 +60,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/MethodInvocationSupport";
     bootstrapMethod = "bootstrap";
-    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     METHOD_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClassReferenceSupport";
@@ -272,10 +273,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInsn(POP);
     } else if (statementClass == BinaryOperation.class) {
       BinaryOperation operation = (BinaryOperation) statement;
-      if (operation.getType() == METHOD_CALL) {
+      if (isMethodCall(operation)) {
         methodVisitor.visitInsn(POP);
       }
     }
+  }
+
+  private boolean isMethodCall(BinaryOperation operation) {
+    return operation.getType() == METHOD_CALL || operation.getType() == ELVIS_METHOD_CALL;
   }
 
   private static boolean between(int value, int lower, int upper) {
@@ -391,18 +396,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ATHROW);
   }
 
-  private void invocation(AbstractInvocation invocation, Handle boostrap, int arity) {
-    invocation(invocation, boostrap, goloFunctionSignature(arity));
+  private void visitInvocationArguments(AbstractInvocation invocation, Handle boostrap, int arity) {
+    visitInvocationArguments(invocation, boostrap, goloFunctionSignature(arity));
   }
 
-  private void invocation(AbstractInvocation invocation, Handle boostrap, String signature) {
+  private void visitInvocationArguments(AbstractInvocation invocation, Handle bootstrap, String signature) {
     for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
     }
-    methodVisitor.visitInvokeDynamicInsn(
-        invocation.getName().replaceAll("\\.", "#"),
-        signature,
-        boostrap);
   }
 
   @Override
@@ -412,15 +413,29 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
       methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/invoke/MethodHandle");
       MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, MethodHandle.class);
-      invocation(functionInvocation, CLOSURE_INVOCATION_HANDLE, type.toMethodDescriptorString());
+      visitInvocationArguments(functionInvocation, CLOSURE_INVOCATION_HANDLE, type.toMethodDescriptorString());
+      methodVisitor.visitInvokeDynamicInsn(
+          functionInvocation.getName().replaceAll("\\.", "#"),
+          type.toMethodDescriptorString(),
+          CLOSURE_INVOCATION_HANDLE);
     } else {
-      invocation(functionInvocation, FUNCTION_INVOCATION_HANDLE, functionInvocation.getArity());
+      visitInvocationArguments(functionInvocation, FUNCTION_INVOCATION_HANDLE, functionInvocation.getArity());
+      methodVisitor.visitInvokeDynamicInsn(
+          functionInvocation.getName().replaceAll("\\.", "#"),
+          goloFunctionSignature(functionInvocation.getArity()),
+          FUNCTION_INVOCATION_HANDLE);
     }
   }
 
   @Override
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
-    invocation(methodInvocation, METHOD_INVOCATION_HANDLE, methodInvocation.getArity() + 1);
+    visitInvocationArguments(methodInvocation, METHOD_INVOCATION_HANDLE, methodInvocation.getArity() + 1);
+    methodVisitor.visitInvokeDynamicInsn(
+        methodInvocation.getName().replaceAll("\\.", "#"),
+        goloFunctionSignature(methodInvocation.getArity() + 1),
+        METHOD_INVOCATION_HANDLE,
+        methodInvocation.isNullSafeGuarded());
+
   }
 
   @Override
@@ -595,7 +610,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
-    if (!binaryOperation.getType().equals(METHOD_CALL)) {
+    if (!isMethodCall(binaryOperation)) {
       String name = binaryOperation.getType().name().toLowerCase();
       methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, 2);
     }

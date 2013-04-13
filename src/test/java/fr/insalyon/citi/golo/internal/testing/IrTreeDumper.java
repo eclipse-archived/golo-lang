@@ -200,7 +200,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
     incr();
     space();
-    System.out.println("Method invocation: " + methodInvocation.getName());
+    System.out.println("Method invocation: " + methodInvocation.getName() + ", null safe? -> " + methodInvocation.isNullSafeGuarded());
     for (ExpressionStatement argument : methodInvocation.getArguments()) {
       argument.accept(this);
     }
