@@ -180,6 +180,8 @@ TOKEN :
                            "and" | "or") >
   |
   < UNARY_OPERATOR: "not" >
+  |
+  < INVOCATION: ":" >
 }
 
 // References
@@ -691,7 +693,7 @@ void AssociativeExpression():
         jjtThis.addOperator(token.image);
       }
     |
-      (BlankLine())? token=":" (BlankLine())? MethodInvocation()
+      (BlankLine())? token=<INVOCATION> (BlankLine())? MethodInvocation()
       {
         jjtThis.addOperator(token.image);
       }
