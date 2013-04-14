@@ -318,6 +318,9 @@ public class CompileAndRunTest {
     Method is_even = moduleClass.getMethod("is_even", Object.class);
     assertThat((Boolean) is_even.invoke(null, 2), is(true));
     assertThat((Boolean) is_even.invoke(null, 3), is(false));
+
+    Method null_guarded = moduleClass.getMethod("null_guarded");
+    assertThat((String) null_guarded.invoke(null), is("n/a"));
   }
 
   @Test

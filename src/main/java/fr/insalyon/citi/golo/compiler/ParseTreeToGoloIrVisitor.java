@@ -254,6 +254,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.OFTYPE;
       case ":":
         return OperatorType.METHOD_CALL;
+      case "orIfNull":
+         return OperatorType.ORIFNULL;
       default:
         throw new IllegalArgumentException(symbol);
     }

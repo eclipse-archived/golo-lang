@@ -72,3 +72,8 @@ function average = | zero, items... | {
 function is_even = |value| {
   return (value % 2) == 0
 }
+
+function null_guarded = {
+  let map = java.util.HashMap()
+  return map: get("bogus") orIfNull "n/a"
+}

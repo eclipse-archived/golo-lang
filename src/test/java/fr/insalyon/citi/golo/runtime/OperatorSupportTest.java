@@ -311,4 +311,11 @@ public class OperatorSupportTest {
     assertThat((Integer) modulo.invokeWithArguments(four, two), is(0));
     assertThat((Long) modulo.invokeWithArguments(three_l, two), is(1L));
   }
+
+  @Test
+  public void check_orIfNull() throws Throwable {
+    MethodHandle orIfNull = OperatorSupport.bootstrap(lookup(), "orifnull", BINOP_TYPE, 2).dynamicInvoker();
+    assertThat((String) orIfNull.invoke("a", "b"), is("a"));
+    assertThat((String) orIfNull.invoke(null, "n/a"), is("n/a"));
+  }
 }

@@ -80,3 +80,7 @@ function r = {
     *
     2
 }
+
+function s = {
+  return foo(): bar() orIfNull "n/a"
+}
