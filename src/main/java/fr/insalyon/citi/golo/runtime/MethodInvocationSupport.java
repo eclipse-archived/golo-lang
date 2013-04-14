@@ -187,7 +187,6 @@ public class MethodInvocationSupport {
     MethodHandle vtableTarget = foldArguments(exactInvoker, lookup);
     MethodHandle gwt = guardWithTest(NOT_DYNAMIC_OBJECT, vtableTarget, inlineCache.fallback);
     inlineCache.setTarget(gwt);
-    inlineCache.setTarget(vtableTarget);
     return vtableTarget.invokeWithArguments(args);
   }
 
