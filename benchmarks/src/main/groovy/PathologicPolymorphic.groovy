@@ -37,8 +37,8 @@ class PathologicPolymorphic {
             new Exception()
         ]
         Object result = null
-        for (int i = 0; i < 200000; i++) {
-            for (int j = 0; j < data.length; j++) {
+        for (def i = 0; i < 200000; i++) {
+            for (def j = 0; j < data.length; j++) {
                 result = data[j].toString()
             }
         }
