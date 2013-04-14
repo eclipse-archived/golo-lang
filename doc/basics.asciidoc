@@ -287,6 +287,11 @@ Checks the type of an object instance, equivalent to the `instanceof` operator
 in Java.|
 `("plop" oftype String.class)` gives `true`.
 
+|`orIfNull`|
+Evaluates an expression and returns the value of another one if `null`.|
+`null orIfNull "a"` gives `"a"`. `foo() orIfNull 0` gives the value of calling `foo()`, or `0` if
+`foo()` returns `null`.
+
 |===
 
 === Calling a method ===
