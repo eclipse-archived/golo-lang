@@ -24,25 +24,4 @@ class Monomorphic {
         }
         return result
     }
-
-    static def run_safenav() {
-        def max = 5000000
-        def result = null
-        for (def i = 0; i < max; i = i + 1) {
-            result = i?.toString()
-        }
-        return result
-    }
-
-    static def run_safenav_with_nulls() {
-        def max = 5000000
-        def obj = null
-        def random = new java.util.Random()
-        def result = null
-        for (def i = 0; i < max; i = i + 1) {
-            obj = random.nextBoolean() ? null : i
-            result = obj?.toString()
-        }
-        return result
-    }
 }

@@ -52,7 +52,7 @@ public class TriMorphicTest extends GoloBenchmark {
   }
 
   @Test
-  public void golo_with_elvis_and_nulls() throws Throwable {
+  public void golo_elvis_nulls() throws Throwable {
     GoloModule.getMethod("run_with_elvis_and_nulls").invoke(null);
   }
 
