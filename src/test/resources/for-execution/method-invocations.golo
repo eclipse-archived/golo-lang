@@ -57,3 +57,14 @@ function access_items_from_subclass = {
   receiver: a()
   receiver: b()
 }
+
+function elvis_direct = -> null ?: plop()
+
+function elvis_indirect = {
+  let map = java.util.HashMap()
+  map: put("foo", "-")
+  map: put("bar", null)
+  var str = map: get("foo") ?: toString()
+  str = str + map: get("bar") ?: toString()
+  return str
+}

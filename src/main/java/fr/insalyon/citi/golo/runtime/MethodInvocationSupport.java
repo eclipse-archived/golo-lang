@@ -40,26 +40,30 @@ public class MethodInvocationSupport {
 
   static class InlineCache extends MutableCallSite {
 
+    static final int MEGAMORPHIC_THRESHOLD = 5;
+
     static enum State {
       DYNAMIC_OBJECT, POLYMORPHIC
     }
 
     final MethodHandles.Lookup callerLookup;
     final String name;
+    final boolean nullSafeGuarded;
 
     int depth = 0;
     State state = POLYMORPHIC;
     MethodHandle fallback;
     HashMap<Class, MethodHandle> vtable;
 
-    InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
+      this.nullSafeGuarded = nullSafeGuarded;
     }
 
     boolean isMegaMorphic() {
-      return depth > 5;
+      return depth > MEGAMORPHIC_THRESHOLD;
     }
 
     void resetWith(MethodHandle target) {
@@ -120,8 +124,8 @@ public class MethodInvocationSupport {
     }
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
-    InlineCache callSite = new InlineCache(caller, name, type);
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int nullSafeGuarded) {
+    InlineCache callSite = new InlineCache(caller, name, type, (nullSafeGuarded != 0));
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -144,6 +148,9 @@ public class MethodInvocationSupport {
   }
 
   public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {
+    if (shouldReturnNull(inlineCache, args[0])) {
+      return null;
+    }
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = inlineCache.vtable.get(receiverClass);
     if (target == null) {
@@ -163,17 +170,33 @@ public class MethodInvocationSupport {
       return installVTableDispatch(inlineCache, args);
     }
 
+    if (shouldReturnNull(inlineCache, args[0])) {
+      return null;
+    }
+
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = findTarget(receiverClass, inlineCache, args);
 
     MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
     MethodHandle fallback = (inlineCache.state == POLYMORPHIC) ? inlineCache.getTarget() : inlineCache.fallback;
     MethodHandle root = guardWithTest(guard, target, fallback);
-
+    if (inlineCache.nullSafeGuarded) {
+      root = makeNullSafeGuarded(root);
+    }
     inlineCache.setTarget(root);
     inlineCache.state = POLYMORPHIC;
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
+  }
+
+  private static MethodHandle makeNullSafeGuarded(MethodHandle root) {
+    MethodHandle catchThenNull = dropArguments(constant(Object.class, null), 0, NullPointerException.class);
+    root = catchException(root, NullPointerException.class, catchThenNull);
+    return root;
+  }
+
+  private static boolean shouldReturnNull(InlineCache inlineCache, Object arg) {
+    return (arg == null) && inlineCache.nullSafeGuarded;
   }
 
   private static Object installVTableDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
@@ -186,7 +209,13 @@ public class MethodInvocationSupport {
     MethodHandle exactInvoker = exactInvoker(inlineCache.type());
     MethodHandle vtableTarget = foldArguments(exactInvoker, lookup);
     MethodHandle gwt = guardWithTest(NOT_DYNAMIC_OBJECT, vtableTarget, inlineCache.fallback);
+    if (inlineCache.nullSafeGuarded) {
+      gwt = makeNullSafeGuarded(gwt);
+    }
     inlineCache.setTarget(gwt);
+    if (shouldReturnNull(inlineCache, args[0])) {
+      return null;
+    }
     return vtableTarget.invokeWithArguments(args);
   }
 
