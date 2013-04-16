@@ -44,6 +44,8 @@ function main = |args| {
 console. As you can easily guess, here we output `Hello, world!` and
 that is an awesome achievement.
 
+NOTE: Newlines are important in Golo, so make sure that your editor ends files with a newline.
+
 === Running _"Hello world"_ with `gologolo` ===
 
 Of course, we need to run this incredibly complex application.
