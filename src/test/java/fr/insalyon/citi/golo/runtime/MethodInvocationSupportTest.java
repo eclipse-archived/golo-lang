@@ -106,7 +106,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_to_string() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class));
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
     String result = (String) toString.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
     assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr'}"));
@@ -114,7 +114,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_set_name() throws Throwable {
-    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "setName", methodType(Object.class, Object.class, Object.class));
+    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "setName", methodType(Object.class, Object.class, Object.class), 0);
     Person julien = julien();
     setName.dynamicInvoker().invokeWithArguments(julien, "Julien Ponge");
     assertThat(julien.name, is("Julien Ponge"));
@@ -122,7 +122,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_equals() throws Throwable {
-    CallSite equals = MethodInvocationSupport.bootstrap(lookup(), "equals", methodType(Object.class, Object.class, Object.class));
+    CallSite equals = MethodInvocationSupport.bootstrap(lookup(), "equals", methodType(Object.class, Object.class, Object.class), 0);
     Person julien = julien();
     Boolean result = (Boolean) equals.dynamicInvoker().invokeWithArguments(julien, julien);
     assertThat(result, is(true));
@@ -130,7 +130,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_field_read() throws Throwable {
-    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class));
+    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class), 0);
     String result = (String) name.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
     assertThat(result, is("Julien"));
@@ -138,13 +138,13 @@ public class MethodInvocationSupportTest {
 
   @Test(expectedExceptions = NoSuchMethodError.class)
   public void check_bogus() throws Throwable {
-    CallSite bogus = MethodInvocationSupport.bootstrap(lookup(), "bogus", methodType(Object.class, Object.class));
+    CallSite bogus = MethodInvocationSupport.bootstrap(lookup(), "bogus", methodType(Object.class, Object.class), 0);
     bogus.dynamicInvoker().invokeWithArguments(julien());
   }
 
   @Test
   public void check_many_to_string() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class));
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
     MethodHandle toStringMH = toString.dynamicInvoker();
 
     for (int i = 0; i < 5; i++) {
@@ -195,7 +195,7 @@ public class MethodInvocationSupportTest {
   @Test
   public void check_primitive_argument_allowance() throws Throwable {
     List<String> list = Arrays.asList("a", "b", "c");
-    CallSite get = MethodInvocationSupport.bootstrap(lookup(), "get", methodType(Object.class, Object.class, Object.class));
+    CallSite get = MethodInvocationSupport.bootstrap(lookup(), "get", methodType(Object.class, Object.class, Object.class), 0);
 
     MethodHandle handle = get.dynamicInvoker();
     assertThat(((String) handle.invokeWithArguments(list, 0)), is("a"));
@@ -205,7 +205,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_varags() throws Throwable {
-    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "concat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class));
+    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "concat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class), 0);
     VarargsChecking receiver = varargsChecking();
 
     Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "-", "a", "b", "c");
@@ -216,7 +216,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_varags_only() throws Throwable {
-    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class));
+    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class), 0);
     VarargsChecking receiver = varargsChecking();
 
     Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "a", "b", "c");
@@ -224,18 +224,18 @@ public class MethodInvocationSupportTest {
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("a-b-c"));
 
-    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class));
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class), 0);
     receiver = varargsChecking();
     assertThat((String) concat.dynamicInvoker().invokeWithArguments(receiver, "a"), is("a"));
 
-    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class));
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class), 0);
     receiver = varargsChecking();
     assertThat((String) concat.dynamicInvoker().invokeWithArguments(receiver), is(""));
   }
 
   @Test
   public void check_field_getter() throws Throwable {
-    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class));
+    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class), 0);
     FieldAccessors receiver = new FieldAccessors();
     receiver.property = "foo";
 
@@ -247,11 +247,44 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_field_setter() throws Throwable {
-    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class, Object.class));
+    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class, Object.class), 0);
     FieldAccessors receiver = new FieldAccessors();
     receiver.property = "undefined";
 
     property.dynamicInvoker().invokeWithArguments(receiver, "foo");
     assertThat((String) receiver.property, is("foo"));
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void not_nullsafe_invocation() throws Throwable {
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
+    toString.dynamicInvoker().invoke(null);
+  }
+
+  @Test
+  public void nullsafe_invocation() throws Throwable {
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 1);
+
+    MethodHandle invoker = toString.dynamicInvoker();
+    assertThat(invoker.invoke(null), nullValue());
+    assertThat((String) invoker.invoke("a"), is("a"));
+    assertThat((String) invoker.invoke("b"), is("b"));
+    assertThat(invoker.invoke(null), nullValue());
+  }
+
+  @Test
+  public void nullsafe_megamorphic_invocation() throws Throwable {
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 1);
+    MethodInvocationSupport.InlineCache pic = (MethodInvocationSupport.InlineCache) toString;
+    pic.depth = MethodInvocationSupport.InlineCache.MEGAMORPHIC_THRESHOLD + 10;
+
+    MethodHandle invoker = toString.dynamicInvoker();
+    assertThat(invoker.invoke(null), nullValue());
+    assertThat((String) invoker.invoke("a"), is("a"));
+    assertThat((String) invoker.invoke(1), is("1"));
+    assertThat((String) invoker.invoke(1L), is("1"));
+    assertThat((String) invoker.invoke(Arrays.asList()), is("[]"));
+    assertThat((String) invoker.invoke(new Object()), startsWith("java.lang.Object"));
+    assertThat(invoker.invoke(null), nullValue());
   }
 }

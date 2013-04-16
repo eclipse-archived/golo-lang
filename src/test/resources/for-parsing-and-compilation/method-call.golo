@@ -37,3 +37,5 @@ function d = {
 function escaped = {
   return Foo(): `is(): `not(): bad()
 }
+
+function elvis = -> null ?: foo() ?: bar() : baz()

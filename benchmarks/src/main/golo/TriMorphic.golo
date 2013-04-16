@@ -14,3 +14,16 @@ function run = {
   }
   return result
 }
+
+function run_with_elvis_and_nulls = {
+  let data = Array("foo", 666, "bar", 999, "plop", null, "plop", null, "ever",
+                   1, 2, 3, null, 5, 6, Object(), Object(), null, Object())
+  let length = alength(data)
+  var result = null
+  for (var i = 0, i < 200000, i = i + 1) {
+    for (var j = 0, j < length, j = j + 1) {
+      result = aget(data, j) ?: toString()
+    }
+  }
+  return result
+}

@@ -18,8 +18,18 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 public class MethodInvocation extends AbstractInvocation {
 
+  private boolean nullSafeGuarded = false;
+
   public MethodInvocation(String name) {
     super(name);
+  }
+
+  public void setNullSafeGuarded(boolean nullSafeGuarded) {
+    this.nullSafeGuarded = nullSafeGuarded;
+  }
+
+  public boolean isNullSafeGuarded() {
+    return nullSafeGuarded;
   }
 
   @Override

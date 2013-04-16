@@ -30,9 +30,7 @@ import java.net.URL;
 import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
@@ -491,6 +489,12 @@ public class CompileAndRunTest {
 
     Method access_items_from_subclass = moduleClass.getMethod("access_items_from_subclass");
     access_items_from_subclass.invoke(null);
+
+    Method elvis_direct = moduleClass.getMethod("elvis_direct");
+    assertThat(elvis_direct.invoke(null), nullValue());
+
+    Method elvis_indirect = moduleClass.getMethod("elvis_indirect");
+    assertThat((String) elvis_indirect.invoke(null), is("-null"));
   }
 
   @Test
