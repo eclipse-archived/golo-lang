@@ -8,5 +8,3 @@ install: "rake special:bootstrap"
 
 script: "mvn clean install"
 
-notifications:
-  email: false
