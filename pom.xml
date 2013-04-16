@@ -21,7 +21,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo</artifactId>
-  <version>0-preview2</version>
+  <version>0-preview3-SNAPSHOT</version>
 
   <parent>
     <groupId>org.sonatype.oss</groupId>
