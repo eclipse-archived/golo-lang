@@ -147,6 +147,7 @@
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <runOrder>random</runOrder>
+          <reuseForks>false</reuseForks>
           <argLine>-server -Xms1024M -Xmx1024M</argLine>
           <systemProperties>
             <jub.consumers>CONSOLE,H2</jub.consumers>
