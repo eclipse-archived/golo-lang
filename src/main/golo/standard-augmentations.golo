@@ -107,6 +107,19 @@ augment java.util.List {
       func(element)
     }
   }
+
+  function join = |this, separator| {
+    var buffer = java.lang.StringBuilder("")
+    if(not this: isEmpty()){      
+      buffer: append(this: head())      
+      let tail = this: tail()      
+      if(not tail: isEmpty()){
+        buffer: append(separator)      
+        buffer: append(tail: join(separator))
+      }
+    }
+    return buffer: toString()
+  }
 }
 
 # ............................................................................................... #
