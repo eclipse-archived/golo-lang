@@ -47,4 +47,11 @@ public class PrimitiveArrayIteratorTest {
     PrimitiveArrayIterator iterator = new PrimitiveArrayIterator(array);
     iterator.remove();
   }
+
+  @Test(expectedExceptions = ArrayIndexOutOfBoundsException.class)
+  public void outofbounds_exception() {
+    Object[] array = {};
+    PrimitiveArrayIterator iterator = new PrimitiveArrayIterator(array);
+    iterator.next();
+  }
 }

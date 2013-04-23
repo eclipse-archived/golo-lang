@@ -34,7 +34,11 @@ public class PrimitiveArrayIterator implements Iterator<Object> {
 
   @Override
   public Object next() {
-    return array[position++];
+    if (hasNext()) {
+      return array[position++];
+    } else {
+      throw new ArrayIndexOutOfBoundsException(position);
+    }
   }
 
   @Override
