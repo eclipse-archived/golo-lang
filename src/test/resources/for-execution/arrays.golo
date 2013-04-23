@@ -47,3 +47,7 @@ function iterator_method = {
   }
   return sum
 }
+
+function toString_method = {
+  return Array(1, 2, 3): toString()
+}

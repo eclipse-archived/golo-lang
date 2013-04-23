@@ -433,6 +433,9 @@ public class CompileAndRunTest {
 
     Method iterator_method = moduleClass.getMethod("iterator_method");
     assertThat((Integer) iterator_method.invoke(null), is(6));
+
+    Method toString_method = moduleClass.getMethod("toString_method");
+    assertThat((String) toString_method.invoke(null), is("[1, 2, 3]"));
   }
 
   @Test
