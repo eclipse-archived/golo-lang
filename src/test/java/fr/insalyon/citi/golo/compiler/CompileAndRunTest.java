@@ -439,6 +439,9 @@ public class CompileAndRunTest {
 
     Method equals_method = moduleClass.getMethod("equals_method");
     assertThat((Boolean) equals_method.invoke(null), is(true));
+
+    Method asList_method = moduleClass.getMethod("asList_method");
+    assertThat(asList_method.invoke(null), instanceOf(List.class));
   }
 
   @Test

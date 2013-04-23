@@ -55,3 +55,7 @@ function toString_method = {
 function equals_method = {
   return Array(1, 2, 3): equals(Array(1, 2, 3))
 }
+
+function asList_method = {
+  return Array(1, 2, 3): asList()
+}
