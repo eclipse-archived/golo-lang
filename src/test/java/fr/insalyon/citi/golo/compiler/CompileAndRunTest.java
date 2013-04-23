@@ -419,6 +419,23 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_arrays_as_objects() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
+
+    Method get_method = moduleClass.getMethod("get_method");
+    assertThat((Integer) get_method.invoke(null), is(1));
+
+    Method set_method = moduleClass.getMethod("set_method");
+    assertThat((Integer) set_method.invoke(null), is(10));
+
+    Method length_method = moduleClass.getMethod("length_method");
+    assertThat((Integer) length_method.invoke(null), is(3));
+
+    Method iterator_method = moduleClass.getMethod("iterator_method");
+    assertThat((Integer) iterator_method.invoke(null), is(6));
+  }
+
+  @Test
   public void test_varargs() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "varargs.golo");
 
