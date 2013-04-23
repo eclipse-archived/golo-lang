@@ -322,6 +322,16 @@ public class MethodInvocationSupport {
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
+      case "equals":
+        if (args.length != 2) {
+          throw new UnsupportedOperationException("toString on arrays takes 1 parameter");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
       default:
         throw new UnsupportedOperationException(inlineCache.name + " is not supported on arrays");
     }

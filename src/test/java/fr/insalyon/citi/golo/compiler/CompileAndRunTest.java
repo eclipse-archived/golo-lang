@@ -436,6 +436,9 @@ public class CompileAndRunTest {
 
     Method toString_method = moduleClass.getMethod("toString_method");
     assertThat((String) toString_method.invoke(null), is("[1, 2, 3]"));
+
+    Method equals_method = moduleClass.getMethod("equals_method");
+    assertThat((Boolean) equals_method.invoke(null), is(true));
   }
 
   @Test
