@@ -1,8 +1,10 @@
-Binary distributions of Golo include or may include software developed by others.
+Binary distributions of Golo include software developed outside of INSA-Lyon.
 
-# ASM
+# ASM Library (OW2 Consortium)
 
-http://asm.ow2.org/
+See http://asm.ow2.org/
+
+Published under the terms of a BSD-style license:
 
     Copyright (c) 2000-2011 INRIA, France Telecom
     All rights reserved.
