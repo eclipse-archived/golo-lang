@@ -7,7 +7,7 @@ Control flow in Golo is imperative and has the usual constructions found in upst
 Golo supports the traditional `if` / `else` constructions, as in:
 
 [source,text]
--------------------------------
+----
 if goloIsGreat() {
   println("Golo Golo")
 }
@@ -19,7 +19,7 @@ if (someCondition) {
 } else {
   doThatThing()
 }
--------------------------------
+----
 
 The condition of an `if` statement does not need parenthesis. You may add some to clarify a more
 elaborated expression, though.
@@ -30,7 +30,7 @@ Golo offers a versatile `case` construction for conditional branching. It may be
 multiple nested `if` / `else` statements, as in:
 
 [source,text]
--------------------------------------
+----
 function what = |obj| {
   case {
     when obj oftype String.class {
@@ -44,14 +44,14 @@ function what = |obj| {
     }
   }
 }
--------------------------------------
+----
 
 A `case` statement requires at least 1 `when` clause and a mandatory `otherwise` clause. Each clause
 is being associated with a block. It is semantically equivalent to the corresponding `if` / `else`
 chain:
 
 [source,text]
----------------------------------------
+----
 function what = |obj| {
   if obj oftype String.class {
     return "String"
@@ -61,7 +61,7 @@ function what = |obj| {
     return "alien"
   }
 }
----------------------------------------
+----
 
 IMPORTANT: `when` clauses are being evaluated in the declaration order, and only the first satisfied
 one is being executed.
@@ -100,13 +100,13 @@ clause.
 While loops in Golo are straightforward:
 
 [source,text]
------------------------------------------
+----
 function times = |n| {
   var times = 0
   while (times < n) { times = times + 1 }
   return times
 }
------------------------------------------
+----
 
 The parenthesis in the `while` condition may be omitted like it is the case for `if` statements.
 
@@ -121,7 +121,7 @@ This is the most versatile loop construction, as it features:
 The following function shows a `for` loop:
 
 [source,text]
-----------------------------------------
+----
 function fact = |value, n| {
   var result = 1
   for (var i = 0, i < n, i = i + 1) {
@@ -129,7 +129,7 @@ function fact = |value, n| {
   }
   return result
 }
-----------------------------------------
+----
 
 As you can see, it is very much like a `for` loop in Java, except that:
 
@@ -145,7 +145,7 @@ Golo provides a "for each" style of iteration over iterable elements. Any object
 of `java.lang.Iterable` can be used in `foreach` loops, as in:
 
 [source,text]
-----------------------------------------
+----
 function concat_to_string = |iterable| {
   var result = ""
   foreach (item in iterable) {
@@ -153,30 +153,13 @@ function concat_to_string = |iterable| {
   }
   return result
 }
-----------------------------------------
+----
 
 In this example, `item` is a variable within the `foreach` loop scope, and `iterable` is an object
 that is expected to be iterable.
 
-[IMPORTANT]
-.Arrays and `foreach` loops
-==================================================================================================
-`foreach` loops do not work with Java arrays, instances of `Object[]`.
-
-If you need to do so, then you can take advantage of the predefined `atoList` function that
-turns an array into a collection (internally, it uses `java.util.Arrays#asList`).
-
-Here is how you could process the arguments of a `main` function with a `foreach` loop:
-
-[source,text]
-----------------------------------------
-function main = |args| {
-  foreach (arg in atoList(args)) {
-    println(arg)
-  }
-}
-----------------------------------------
-==================================================================================================
+NOTE: Although Java arrays (`Object[]`) are not real objects, they can be used with `foreach` loops.
+Golo provides a `iterator()` method for them.
 
 === `break` and `continue` ===
 
@@ -227,9 +210,9 @@ value being the evaluation of the last statement in a block. This can be handy i
 such as the following code snippet in Scala:
 
 [source,scala]
-------------------------------------------
+----
 println(if (4 % 2 == 0) "even" else "odd")
-------------------------------------------
+----
 
 The Golo original author recognizes and appreciates the expressiveness of such construct. However,
 he often finds it harder to spot the returned values with such constructs, and he thought that

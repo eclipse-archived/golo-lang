@@ -234,7 +234,7 @@ function main = |args| {
   println("name=" + new: name() + ", ordinal=" + new: ordinal())
 
   # Walk through all enum entries
-  foreach (element in atoList(Thread$State.values())) {
+  foreach (element in Thread$State.values()) {
     println("name=" + element: name() + ", ordinal=" + element: ordinal())
   }
 }

@@ -67,15 +67,15 @@ augment java.util.List {
 
   function append = |this, head, tail...| {
     this: append(head)
-    foreach (element in atoList(tail)) {
+    foreach (element in tail) {
       this: append(element)
     }
     return this
   }
 
   function prepend = |this, head, tail...| {
-    for (var i = alength(tail) - 1, i >= 0, i = i - 1) {
-      this: prepend(aget(tail, i))
+    for (var i = tail: length() - 1, i >= 0, i = i - 1) {
+      this: prepend(tail: get(i))
     }
     return this: prepend(head)
   }
@@ -125,7 +125,7 @@ augment java.util.Set {
 
   function include = |this, first, rest...| {
     this: add(first)
-    foreach (element in atoList(rest)) {
+    foreach (element in rest) {
       this: add(element)
     }
     return this
@@ -133,7 +133,7 @@ augment java.util.Set {
 
   function exclude = |this, first, rest...| {
     this: remove(first)
-    foreach (element in atoList(rest)) {
+    foreach (element in rest) {
       this: remove(element)
     }
     return this
@@ -145,7 +145,7 @@ augment java.util.Set {
     if not(this: contains(first)) {
       return false
     } else {
-      foreach (element in atoList(rest)) {
+      foreach (element in rest) {
         if not(this: contains(element)) {
           return false
         }
