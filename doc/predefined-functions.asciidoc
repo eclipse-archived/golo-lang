@@ -57,14 +57,15 @@ function foo = |a| {
 }
 ----
 
-=== Arrays ===
+=== Arrays (deprecated) ===
 
-Golo deals with `Object[]` Java arrays as follows:
+Golo provides functions to deal with Java arrays (`Object[]`).
 
 * the `Array` function takes a variable number of arguments and returns a Java array from them,
 * the `aget` function takes an array and an index to return the element at that position,
 * the `aset` function takes an array, an index and a value to set the element at that position,
-* the `alength` function returns the length of an array.
+* the `alength` function returns the length of an array,
+* the `atoList` function calls the `java.util.Arrays.asList(values...)` method.
 
 [source,text]
 ----
@@ -74,6 +75,10 @@ require(aget(a, 0) == 1, "the first element shall be 1")
 aset(a, 0, 666)
 require(aget(a, 0) == 666, "the new first element shall be 666")
 ----
+
+WARNING: Those functions were introduced for the needs of the early developments of Golo. They will
+be removed at some point before the release of version 0, so please use the corresponding array
+object methods instead: `get`, `set`, `length`, ...
 
 === Ranges ===
 

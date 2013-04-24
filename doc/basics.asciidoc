@@ -74,8 +74,8 @@ as follows:
 module EchoArgs
 
 function main = |args| {
-  for (var i = 0, i < alength(args), i = i + 1) {
-    println("#" + i + " -> " + aget(args, i))
+  foreach (arg in args) {
+    println("->  " + arg)
   }
 }
 ----
@@ -85,15 +85,13 @@ We may invoke it as follows:
 [source,console]
 ----
 $ gologolo samples/echo-args.golo --args plop da plop
-#0 -> plop
-#1 -> da
-#2 -> plop
+-> plop
+-> da
+-> plop
 $
 ----
 
-Note that `args` is expected to be an array, and we can use built-in
-functions to deal with it: `alength` gives the length of an array while
-`aget` gives the value of an element at a given index.
+Note that `args` is expected to be an array.
 
 === Compiling Golo source code ===
 
@@ -308,5 +306,48 @@ follows:
 ----
 println(123: toString())
 println(someObject: toString())
+----
+
+=== Java / JVM arrays ===
+
+As you probably know, arrays on the JVM are special objects. Golo deals with such arrays as being
+instances of `Object[]` and does not provide a wrapper class like many languages do. A Java / JVM
+array is just what it is supposed to be.
+
+Golo adds some sugar to relieve the pain of working with arrays. Golo allows some special methods to
+be invoked on arrays:
+
+- `get(index)` returns the value at `index`,
+- `set(index, value)` sets `value` at `index`,
+- `length()` returns the array length,
+- `iterator()` returns a `java.util.Iterator`,
+- `toString()` delegates to `java.util.Arrays.toString(Object[])`,
+- `asList()` delegates to `java.util.Arrays.asList(Object[])`,
+- `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`.
+
+Given a reference `a` on some array:
+
+[source,text]
+----
+# Gets the element at index 0
+a: get(0)
+
+# Replaces the element at index 1 with "a"
+a: set(1, "a")
+
+# Nice print
+println(a: toString())
+
+# Convert to a real collection
+let list = a: asList()
+----
+
+WARNING: The methods above do **not** perform array bound checks.
+
+Finally, arrays can be created with the `Array` function, as in:
+
+----
+let a = Array(1, 2, 3, 4)
+let b = Array("a", "b")
 ----
 
