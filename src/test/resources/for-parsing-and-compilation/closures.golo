@@ -97,3 +97,8 @@ function n = {
   }
   runner()
 }
+
+function closure_with_varargs_and_capture = {
+  let obj = fr.insalyon.citi.golo.runtime.MethodInvocationSupportTest$VarargsChecking()
+  return |args...| -> obj: defaultConcat(args)
+}

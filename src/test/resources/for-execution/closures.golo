@@ -88,3 +88,15 @@ function nested_closures = {
   }
   return f2()
 }
+
+function closure_with_varargs_and_capture = {
+  let prefix = "> "
+  let fun = |args...| {
+    var result = 0
+    for (var i = 0, i < args: length(), i = i + 1) {
+      result = result + args: get(i)
+    }
+    return prefix + result
+  }
+  return fun(1, 2, 3)
+}

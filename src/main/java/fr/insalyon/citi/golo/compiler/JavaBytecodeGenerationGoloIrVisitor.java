@@ -589,7 +589,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (syntheticCount > 0) {
       ReferenceTable table = context.referenceTableStack.peek();
       String[] refs = closureReference.getCapturedReferenceNames().toArray(new String[syntheticCount]);
-      loadInteger(closureReference.getSyntheticArgumentsIndexStart());
+      loadInteger(0);
       loadInteger(syntheticCount);
       methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
       for (int i = 0; i < syntheticCount; i++) {

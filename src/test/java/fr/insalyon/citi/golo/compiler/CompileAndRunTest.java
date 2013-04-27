@@ -639,6 +639,9 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(MethodHandle.class));
     handle = (MethodHandle) result;
     assertThat((String) handle.invoke(), is("plop"));
+
+    Method closure_with_varargs_and_capture = moduleClass.getMethod("closure_with_varargs_and_capture");
+    assertThat((String) closure_with_varargs_and_capture.invoke(null), is("> 6"));
   }
 
   @Test
