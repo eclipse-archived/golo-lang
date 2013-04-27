@@ -110,10 +110,10 @@ augment java.util.List {
 
   function join = |this, separator| {
     var buffer = java.lang.StringBuilder("")
-    if(not this: isEmpty()){      
+    if not (this: isEmpty()) {      
       buffer: append(this: head())      
       let tail = this: tail()      
-      if(not tail: isEmpty()){
+      if not (tail: isEmpty()) {
         buffer: append(separator)      
         buffer: append(tail: join(separator))
       }
