@@ -149,9 +149,6 @@ public class MethodInvocationSupport {
   }
 
   public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {
-    if (shouldReturnNull(inlineCache, args[0])) {
-      return null;
-    }
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = inlineCache.vtable.get(receiverClass);
     if (target == null) {
