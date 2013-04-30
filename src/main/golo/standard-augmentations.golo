@@ -35,7 +35,26 @@ augment java.lang.invoke.MethodHandle {
 
 augment java.util.Collection {
 
-  function newWithSameType = |this| -> this: getClass(): newInstance()
+  function newWithSameType = |this| {
+    try {
+      return this: getClass(): newInstance()
+    } catch (e) {
+      if not(e oftype java.lang.InstantiationException.class) {
+        throw e
+      }
+      let fallback = match {
+        when this oftype java.util.RandomAccess.class then java.util.ArrayList()
+        when this oftype java.util.List.class then java.util.LinkedList()
+        when this oftype java.util.Set.class then java.util.HashSet()
+        when this oftype java.util.Map.class then java.util.HashMap()
+        otherwise null
+      }
+      if fallback is null {
+        raise("Cannot create a new collection from " + this: getClass())
+      }
+      return fallback
+    }
+  }
 
   function reduce = |this, initialValue, func| {
     var acc = initialValue
