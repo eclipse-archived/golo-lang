@@ -240,9 +240,9 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.printf(
-        "Closure reference: %s, capturing at index %d%n",
+        "Closure reference: %s, regular arguments at index %d%n",
         closureReference.getTarget().getName(),
-        closureReference.getSyntheticArgumentsIndexStart());
+        closureReference.getTarget().getSyntheticParameterCount());
     incr();
     for (String refName : closureReference.getCapturedReferenceNames()) {
       space();

@@ -50,6 +50,9 @@ public class GoloParser {
       throw e;
     }
     exceptionBuilder.report(e, node);
+    if ("<EOF>".equals(e.tokenImage[0])) {
+      return;
+    }
     Token t;
     do {
       t = getNextToken();

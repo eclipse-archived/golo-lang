@@ -419,6 +419,32 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_arrays_as_objects() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
+
+    Method get_method = moduleClass.getMethod("get_method");
+    assertThat((Integer) get_method.invoke(null), is(1));
+
+    Method set_method = moduleClass.getMethod("set_method");
+    assertThat((Integer) set_method.invoke(null), is(10));
+
+    Method length_method = moduleClass.getMethod("length_method");
+    assertThat((Integer) length_method.invoke(null), is(3));
+
+    Method iterator_method = moduleClass.getMethod("iterator_method");
+    assertThat((Integer) iterator_method.invoke(null), is(6));
+
+    Method toString_method = moduleClass.getMethod("toString_method");
+    assertThat((String) toString_method.invoke(null), is("[1, 2, 3]"));
+
+    Method equals_method = moduleClass.getMethod("equals_method");
+    assertThat((Boolean) equals_method.invoke(null), is(true));
+
+    Method asList_method = moduleClass.getMethod("asList_method");
+    assertThat(asList_method.invoke(null), instanceOf(List.class));
+  }
+
+  @Test
   public void test_varargs() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "varargs.golo");
 
@@ -613,6 +639,9 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(MethodHandle.class));
     handle = (MethodHandle) result;
     assertThat((String) handle.invoke(), is("plop"));
+
+    Method closure_with_varargs_and_capture = moduleClass.getMethod("closure_with_varargs_and_capture");
+    assertThat((String) closure_with_varargs_and_capture.invoke(null), is("> 6"));
   }
 
   @Test

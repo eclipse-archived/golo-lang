@@ -8,20 +8,20 @@ call some.
 Golo modules can define functions as follows:
 
 [source,text]
------------------- 
+----
 module sample
 
 function hello = {
   return "Hello!"
 }
-------------------
+----
 
 In turn, you may invoke a function with a familiar notation:
 
 [source,text]
------------------ 
+----
 let str = hello()
------------------
+----
 
 A function needs to return a value using the `return` keyword. Some
 languages state that the last statement is the return value, but Golo
@@ -32,39 +32,39 @@ Still, you may omit `return` statements if your function does not return
 a value:
 
 [source,text]
---------------------- 
+----
 function printer = { 
   println("Hey!")
 }
----------------------
+----
 
 If you do so, the function will actually return `null`, hence `result`
 in the next statement is `null`:
 
 [source,text]
----------------------- 
+----
 # result will be null
 let result = printer()
-----------------------
+----
 
 === Functions with parameters ===
 
 Of course functions may take some parameters, as in:
 
 [source,text]
----------------------------- 
+----
 function addition = |a, b| {
   return a + b
 }
-----------------------------
+----
 
 Invoking functions that take parameters is straightforward, too:
 
 [source,text]
----------------------------------------------- 
+----
 let three = addition(1, 2)
 let hello_world = addition("hello ", "world!")
-----------------------------------------------
+----
 
 === Variable-arity functions ===
 
@@ -72,11 +72,11 @@ Functions may take a varying number of parameters. To define one, just
 add `...` to the last parameter name:
 
 [source,text]
------------------------------ 
+----
 function foo = |a, b, c...| {
   # ...
 }
------------------------------
+----
 
 Here, `c` catches the variable arguments in an array, just like it would
 be the case with Java. You can thus treat `c` as being a Java object of
@@ -87,7 +87,7 @@ arguments in an array. While invoking the `foo` function above, the
 following examples are legit:
 
 [source,text]
-------------------- 
+----
 # a=1, b=2, c=[]
 foo(1, 2)
 
@@ -96,51 +96,51 @@ foo(1, 2, 3)
 
 # a=1, b=2, c=[3,4]
 foo(1, 2, 3, 4)
--------------------
+----
 
 Because the parameter that catches the last arguments is an array, you
-may call the array functions. Given:
+may call array methods. Given:
 
 [source,text]
---------------------------------------- 
+----
 function elementAt = |index, args...| {
-  return aget(args, index)
+  return args: get(index)
 }
----------------------------------------
+----
 
 then:
 
 [source,text]
------------------------------- 
+----
 # prints "2"
 println(elementAt(1, 1, 2, 3))
-------------------------------
+----
 
 === Functions from other modules and imports ===
 
 Suppose that we have a module `Foo.Bar`:
 
 [source,text]
--------------- 
+----
 module Foo.Bar
 
 function f = {
   return "f()"
 }
---------------
+----
 
 We can invoke `f` from another module by prefixing it with its module
 name:
 
 [source,text]
-------------------- 
+----
 let r = Foo.Bar.f()
--------------------
+----
 
 Of course, we may also take advantage of an `import` statement:
 
 [source,text]
---------------------- 
+----
 module Somewhere.Else
 
 import Foo.Bar
@@ -148,7 +148,7 @@ import Foo.Bar
 function plop = {
   return f()
 }
----------------------
+----
 
 NOTE: Imports in Golo do not work as in Java.
 Golo is a dynamic language where symbols are being resolved at runtime. Module imports are
@@ -162,7 +162,7 @@ Last but not least, you may prepend the last piece of the module name. The follo
 equivalent:
 
 [source,text]
---------------------- 
+----
 module Somewhere.Else
 
 import Foo.Bar
@@ -173,8 +173,7 @@ function plop = {
   let result_full = Foo.Bar.f()
   return result
 }
----------------------
-
+----
 
 === Local functions ===
 
@@ -182,7 +181,7 @@ By default, functions are visible outside of their module. You may
 restrict the visibility of a function by using the `local` keyword:
 
 [source,text]
--------------------- 
+----
 module Foo
 
 local function a = {
@@ -192,19 +191,18 @@ local function a = {
 function b = {
   return a()
 }
---------------------
+----
 
 Here, `b` is visible while `a` can only be invoked from within the `Foo`
 module. Given another module called `Bogus`, the following would fail at
 runtime:
 
 [source,text]
-------------------------- 
+----
 module Bogus
 
 function i_will_crash = {
   return Foo.a()
 }
--------------------------
-
+----
 

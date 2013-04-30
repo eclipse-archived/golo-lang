@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.runtime;
 import gololang.DynamicObject;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -148,9 +149,6 @@ public class MethodInvocationSupport {
   }
 
   public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {
-    if (shouldReturnNull(inlineCache, args[0])) {
-      return null;
-    }
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = inlineCache.vtable.get(receiverClass);
     if (target == null) {
@@ -238,6 +236,10 @@ public class MethodInvocationSupport {
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
+    if (receiverClass.isArray()) {
+      return findArraySpecialMethod(receiverClass, inlineCache, args, type);
+    }
+
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
     if (searchResult != null) {
       try {
@@ -273,6 +275,73 @@ public class MethodInvocationSupport {
       return target;
     }
     throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
+  }
+
+  private static MethodHandle findArraySpecialMethod(Class<?> receiverClass, InlineCache inlineCache, Object[] args, MethodType type) {
+    switch (inlineCache.name) {
+      case "get":
+        if (args.length != 2) {
+          throw new UnsupportedOperationException("get on arrays takes 1 parameter");
+        }
+        return MethodHandles.arrayElementGetter(receiverClass).asType(type);
+      case "set":
+        if (args.length != 3) {
+          throw new UnsupportedOperationException("set on arrays takes 2 parameters");
+        }
+        return MethodHandles.arrayElementSetter(receiverClass).asType(type);
+      case "length":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("length on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Array.class, "getLength", methodType(int.class, Object.class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "iterator":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("iterator on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findConstructor(
+              PrimitiveArrayIterator.class, methodType(void.class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "toString":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("toString on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "toString", methodType(String.class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "asList":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("toString on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "asList", methodType(List.class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "equals":
+        if (args.length != 2) {
+          throw new UnsupportedOperationException("toString on arrays takes 1 parameter");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      default:
+        throw new UnsupportedOperationException(inlineCache.name + " is not supported on arrays");
+    }
   }
 
   private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes, Object[] args) {
@@ -380,4 +449,5 @@ public class MethodInvocationSupport {
   private static boolean isCandidateMethod(String name, Method method) {
     return method.getName().equals(name) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers());
   }
+
 }
