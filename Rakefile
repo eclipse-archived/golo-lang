@@ -123,4 +123,28 @@ namespace :special do
     sh "mvn clean install"
   end
 
+  desc "Check for Maven dependency updates"
+  task :check_dependency_updates do
+    CMD = "mvn versions:display-dependency-updates"
+    sh CMD
+    Dir.chdir("golo-maven-plugin") do
+      sh CMD
+    end
+    Dir.chdir("benchmarks") do
+      sh CMD
+    end
+  end
+
+  desc "Check for Maven plugin updates"
+  task :check_plugin_updates do
+    CMD = "mvn versions:display-plugin-updates"
+    sh CMD
+    Dir.chdir("golo-maven-plugin") do
+      sh CMD
+    end
+    Dir.chdir("benchmarks") do
+      sh CMD
+    end
+  end
+
 end
