@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.runtime;
 import gololang.DynamicObject;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
@@ -40,26 +41,30 @@ public class MethodInvocationSupport {
 
   static class InlineCache extends MutableCallSite {
 
+    static final int MEGAMORPHIC_THRESHOLD = 5;
+
     static enum State {
       DYNAMIC_OBJECT, POLYMORPHIC
     }
 
     final MethodHandles.Lookup callerLookup;
     final String name;
+    final boolean nullSafeGuarded;
 
     int depth = 0;
     State state = POLYMORPHIC;
     MethodHandle fallback;
     HashMap<Class, MethodHandle> vtable;
 
-    InlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
+      this.nullSafeGuarded = nullSafeGuarded;
     }
 
     boolean isMegaMorphic() {
-      return depth > 5;
+      return depth > MEGAMORPHIC_THRESHOLD;
     }
 
     void resetWith(MethodHandle target) {
@@ -120,8 +125,8 @@ public class MethodInvocationSupport {
     }
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
-    InlineCache callSite = new InlineCache(caller, name, type);
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int nullSafeGuarded) {
+    InlineCache callSite = new InlineCache(caller, name, type, (nullSafeGuarded != 0));
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -163,17 +168,33 @@ public class MethodInvocationSupport {
       return installVTableDispatch(inlineCache, args);
     }
 
+    if (shouldReturnNull(inlineCache, args[0])) {
+      return null;
+    }
+
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = findTarget(receiverClass, inlineCache, args);
 
     MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
     MethodHandle fallback = (inlineCache.state == POLYMORPHIC) ? inlineCache.getTarget() : inlineCache.fallback;
     MethodHandle root = guardWithTest(guard, target, fallback);
-
+    if (inlineCache.nullSafeGuarded) {
+      root = makeNullSafeGuarded(root);
+    }
     inlineCache.setTarget(root);
     inlineCache.state = POLYMORPHIC;
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
+  }
+
+  private static MethodHandle makeNullSafeGuarded(MethodHandle root) {
+    MethodHandle catchThenNull = dropArguments(constant(Object.class, null), 0, NullPointerException.class);
+    root = catchException(root, NullPointerException.class, catchThenNull);
+    return root;
+  }
+
+  private static boolean shouldReturnNull(InlineCache inlineCache, Object arg) {
+    return (arg == null) && inlineCache.nullSafeGuarded;
   }
 
   private static Object installVTableDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
@@ -186,8 +207,13 @@ public class MethodInvocationSupport {
     MethodHandle exactInvoker = exactInvoker(inlineCache.type());
     MethodHandle vtableTarget = foldArguments(exactInvoker, lookup);
     MethodHandle gwt = guardWithTest(NOT_DYNAMIC_OBJECT, vtableTarget, inlineCache.fallback);
+    if (inlineCache.nullSafeGuarded) {
+      gwt = makeNullSafeGuarded(gwt);
+    }
     inlineCache.setTarget(gwt);
-    inlineCache.setTarget(vtableTarget);
+    if (shouldReturnNull(inlineCache, args[0])) {
+      return null;
+    }
     return vtableTarget.invokeWithArguments(args);
   }
 
@@ -209,6 +235,10 @@ public class MethodInvocationSupport {
     MethodHandle target;
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
+
+    if (receiverClass.isArray()) {
+      return findArraySpecialMethod(receiverClass, inlineCache, args, type);
+    }
 
     Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
     if (searchResult != null) {
@@ -233,18 +263,85 @@ public class MethodInvocationSupport {
         }
         return target;
       } catch (IllegalAccessException ignored) {
-        /* We need to give pimps a chance, as IllegalAccessException can be noise in our resolution.
-         * Example: pimping HashSet with a map function.
+        /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
+         * Example: augmenting HashSet with a map function.
          *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
          */
       }
     }
 
-    target = findInPimps(receiverClass, inlineCache);
+    target = findInAugmentations(receiverClass, inlineCache);
     if (target != null) {
       return target;
     }
     throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
+  }
+
+  private static MethodHandle findArraySpecialMethod(Class<?> receiverClass, InlineCache inlineCache, Object[] args, MethodType type) {
+    switch (inlineCache.name) {
+      case "get":
+        if (args.length != 2) {
+          throw new UnsupportedOperationException("get on arrays takes 1 parameter");
+        }
+        return MethodHandles.arrayElementGetter(receiverClass).asType(type);
+      case "set":
+        if (args.length != 3) {
+          throw new UnsupportedOperationException("set on arrays takes 2 parameters");
+        }
+        return MethodHandles.arrayElementSetter(receiverClass).asType(type);
+      case "length":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("length on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Array.class, "getLength", methodType(int.class, Object.class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "iterator":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("iterator on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findConstructor(
+              PrimitiveArrayIterator.class, methodType(void.class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "toString":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("toString on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "toString", methodType(String.class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "asList":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("toString on arrays takes no parameters");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "asList", methodType(List.class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      case "equals":
+        if (args.length != 2) {
+          throw new UnsupportedOperationException("toString on arrays takes 1 parameter");
+        }
+        try {
+          return inlineCache.callerLookup.findStatic(
+              Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class)).asType(type);
+        } catch (NoSuchMethodException | IllegalAccessException e) {
+          throw new Error(e);
+        }
+      default:
+        throw new UnsupportedOperationException(inlineCache.name + " is not supported on arrays");
+    }
   }
 
   private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes, Object[] args) {
@@ -288,7 +385,7 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static MethodHandle findInPimps(Class<?> receiverClass, InlineCache inlineCache) {
+  private static MethodHandle findInAugmentations(Class<?> receiverClass, InlineCache inlineCache) {
     Class<?> callerClass = inlineCache.callerLookup.lookupClass();
     String name = inlineCache.name;
     MethodType type = inlineCache.type();
@@ -296,13 +393,13 @@ public class MethodInvocationSupport {
     final int arity = inlineCache.type().parameterCount();
 
     ClassLoader classLoader = callerClass.getClassLoader();
-    for (String pimp : Module.pimps(callerClass)) {
+    for (String augmentation : Module.augmentations(callerClass)) {
       try {
-        Class<?> pimpedClass = classLoader.loadClass(pimp);
-        if (pimpedClass.isAssignableFrom(receiverClass)) {
-          Class<?> pimpClass = classLoader.loadClass(pimpClassName(callerClass, pimpedClass));
-          for (Method method : pimpClass.getMethods()) {
-            if (isCandidateMethod(name, method) && pimpMethodMatches(arity, method)) {
+        Class<?> augmentedClass = classLoader.loadClass(augmentation);
+        if (augmentedClass.isAssignableFrom(receiverClass)) {
+          Class<?> augmentClass = classLoader.loadClass(augmentClassName(callerClass, augmentedClass));
+          for (Method method : augmentClass.getMethods()) {
+            if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
               return lookup.unreflect(method).asType(type);
             }
           }
@@ -315,13 +412,13 @@ public class MethodInvocationSupport {
     for (String importSymbol : Module.imports(callerClass)) {
       try {
         Class<?> importClass = classLoader.loadClass(importSymbol);
-        for (String pimp : Module.pimps(importClass)) {
+        for (String augmentation : Module.augmentations(importClass)) {
           try {
-            Class<?> pimpedClass = classLoader.loadClass(pimp);
-            if (pimpedClass.isAssignableFrom(receiverClass)) {
-              Class<?> pimpClass = classLoader.loadClass(pimpClassName(importClass, pimpedClass));
-              for (Method method : pimpClass.getMethods()) {
-                if (isCandidateMethod(name, method) && pimpMethodMatches(arity, method)) {
+            Class<?> augmentedClass = classLoader.loadClass(augmentation);
+            if (augmentedClass.isAssignableFrom(receiverClass)) {
+              Class<?> augmentClass = classLoader.loadClass(augmentClassName(importClass, augmentedClass));
+              for (Method method : augmentClass.getMethods()) {
+                if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
                   return lookup.unreflect(method).asType(type);
                 }
               }
@@ -336,13 +433,13 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static boolean pimpMethodMatches(int arity, Method method) {
+  private static boolean augmentMethodMatches(int arity, Method method) {
     int parameterCount = method.getParameterTypes().length;
     return (parameterCount == arity) || (method.isVarArgs() && (parameterCount <= arity));
   }
 
-  private static String pimpClassName(Class<?> moduleClass, Class<?> pimpedClass) {
-    return moduleClass.getName() + "$" + pimpedClass.getName().replace('.', '$');
+  private static String augmentClassName(Class<?> moduleClass, Class<?> augmentedClass) {
+    return moduleClass.getName() + "$" + augmentedClass.getName().replace('.', '$');
   }
 
   private static boolean isMatchingField(String name, Field field) {
@@ -352,4 +449,5 @@ public class MethodInvocationSupport {
   private static boolean isCandidateMethod(String name, Method method) {
     return method.getName().equals(name) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers());
   }
+
 }

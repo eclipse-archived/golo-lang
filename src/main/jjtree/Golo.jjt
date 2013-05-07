@@ -50,6 +50,9 @@ public class GoloParser {
       throw e;
     }
     exceptionBuilder.report(e, node);
+    if ("<EOF>".equals(e.tokenImage[0])) {
+      return;
+    }
     Token t;
     do {
       t = getNextToken();
@@ -161,7 +164,7 @@ TOKEN :
   |
   < OTHERWISE: "otherwise" >
   |
-  < PIMP: "pimp" >
+  < AUGMENT: ("augment" | "pimp") >
   |
   < BREAK: "break" >
   |
@@ -179,9 +182,12 @@ TOKEN :
                            "oftype" ) >
   |
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
-                           "and" | "or") >
+                           "and" | "or" |
+                           "orIfNull" ) >
   |
   < UNARY_OPERATOR: "not" >
+  |
+  < INVOCATION: (":" | "?:") >
 }
 
 // References
@@ -236,7 +242,7 @@ TOKEN :
 // Comments
 TOKEN :
 {
-  < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n") >
+  < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n")? >
 }
 
 TOKEN_MGR_DECLS :
@@ -479,7 +485,7 @@ void ToplevelDeclaration():
 }
 {
   
-  PimpDeclaration() 
+  AugmentDeclaration() 
   | 
   (local=<LOCAL>)? functionDecl=FunctionDeclaration()
   {
@@ -489,20 +495,20 @@ void ToplevelDeclaration():
   }
 }
 
-void PimpDeclaration():
+void AugmentDeclaration():
 {
   String target;
   ASTFunctionDeclaration func;
 }
 {
-  <PIMP> target=QualifiedName() "{" BlankLines()
+  <AUGMENT> target=QualifiedName() "{" BlankLines()
     ( 
       func=FunctionDeclaration()
       {
-        func.setPimp(true);
+        func.setAugmentation(true);
         ASTFunction body = (ASTFunction) func.jjtGetChild(0);
         if (body.getArguments().isEmpty()) {
-          String description = "Error: pimp function " +
+          String description = "Error: augmentation function " +
             func.getName() +
             " on " + 
             target + 
@@ -510,7 +516,7 @@ void PimpDeclaration():
           if (exceptionBuilder == null) {
             throw new TokenMgrError(description, 0);
           }
-          exceptionBuilder.report(GoloCompilationException.Problem.Type.PIMP_FUNCTION_NO_ARGS, body, description);
+          exceptionBuilder.report(GoloCompilationException.Problem.Type.AUGMENT_FUNCTION_NO_ARGS, body, description);
         }
       }
       BlankLines() 
@@ -693,7 +699,7 @@ void AssociativeExpression():
         jjtThis.addOperator(token.image);
       }
     |
-      (BlankLine())? token=":" (BlankLine())? MethodInvocation()
+      (BlankLine())? token=<INVOCATION> (BlankLine())? MethodInvocation()
       {
         jjtThis.addOperator(token.image);
       }

@@ -35,6 +35,46 @@ Of course, you may chain calls as long as a method is not of a `void` return typ
 Java `void` methods by making them return `null`. This is neither a bug or a feature: the
 *invokedynamic* support on the JVM simply does so.
 
+=== `null`-safe instance method invocations ===
+
+Golo supports *`null`-safe* methods invocations using the *"Elvis"* symbol: `?:`.
+
+Suppose that we invoke the method `bar()` on some reference `foo`: `foo: bar()`. If `foo` is `null`,
+then invoking `bar()` throws a `java.lang.NullPointerException`, just like you would expect in Java.
+
+By contrast:
+
+* `foo?: bar()` simply returns `null`, and
+* `null?: anything()` returns `null`, too.
+
+This is quite useful when querying data models where `null` values could be returned. This can be
+elegantly combined with the `orIfNull` operator to return a default value, as illustrated by the
+following example:
+
+[source,text]
+----
+let person = dao: findByName("Mr Bean")
+let city = person?: address()?: city() orIfNull "n/a"
+----
+
+This is more elegant than, say:
+
+[source,text]
+----
+let person = dao: findByName("Mr Bean")
+var city = "n/a"
+if person isnt null {
+  let address = person: address()
+  if address isnt null {
+    city = address: city() ofIfNull "n/a"
+  }
+}
+----
+
+NOTE: The runtime implementation of `null`-safe method invocations is *optimistic* as it behaves
+like a `try` block catching a `NullPointerException`. Performance is good unless most invocations
+happen to be on `null`, in which case using `?:` is probably not a great idea.
+
 === Creating objects ===
 
 Golo doesn't have an instantiation operator like `new` in Java. Instead, creating an object and
@@ -194,7 +234,7 @@ function main = |args| {
   println("name=" + new: name() + ", ordinal=" + new: ordinal())
 
   # Walk through all enum entries
-  foreach (element in atoList(Thread$State.values())) {
+  foreach (element in Thread$State.values()) {
     println("name=" + element: name() + ", ordinal=" + element: ordinal())
   }
 }

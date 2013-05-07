@@ -30,9 +30,7 @@ import java.net.URL;
 import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.ASSIGN_CONSTANT;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP;
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
@@ -56,7 +54,7 @@ public class CompileAndRunTest {
     List<String> imports = asList((String[]) $imports.invoke(null));
     assertThat(imports.size(), is(6));
     assertThat(imports, hasItem("gololang.Predefined"));
-    assertThat(imports, hasItem("gololang.StandardPimps"));
+    assertThat(imports, hasItem("gololang.StandardAugmentations"));
     assertThat(imports, hasItem("gololang"));
     assertThat(imports, hasItem("java.util.List"));
     assertThat(imports, hasItem("java.util.LinkedList"));
@@ -318,6 +316,9 @@ public class CompileAndRunTest {
     Method is_even = moduleClass.getMethod("is_even", Object.class);
     assertThat((Boolean) is_even.invoke(null, 2), is(true));
     assertThat((Boolean) is_even.invoke(null, 3), is(false));
+
+    Method null_guarded = moduleClass.getMethod("null_guarded");
+    assertThat((String) null_guarded.invoke(null), is("n/a"));
   }
 
   @Test
@@ -418,6 +419,32 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_arrays_as_objects() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
+
+    Method get_method = moduleClass.getMethod("get_method");
+    assertThat((Integer) get_method.invoke(null), is(1));
+
+    Method set_method = moduleClass.getMethod("set_method");
+    assertThat((Integer) set_method.invoke(null), is(10));
+
+    Method length_method = moduleClass.getMethod("length_method");
+    assertThat((Integer) length_method.invoke(null), is(3));
+
+    Method iterator_method = moduleClass.getMethod("iterator_method");
+    assertThat((Integer) iterator_method.invoke(null), is(6));
+
+    Method toString_method = moduleClass.getMethod("toString_method");
+    assertThat((String) toString_method.invoke(null), is("[1, 2, 3]"));
+
+    Method equals_method = moduleClass.getMethod("equals_method");
+    assertThat((Boolean) equals_method.invoke(null), is(true));
+
+    Method asList_method = moduleClass.getMethod("asList_method");
+    assertThat(asList_method.invoke(null), instanceOf(List.class));
+  }
+
+  @Test
   public void test_varargs() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "varargs.golo");
 
@@ -488,6 +515,12 @@ public class CompileAndRunTest {
 
     Method access_items_from_subclass = moduleClass.getMethod("access_items_from_subclass");
     access_items_from_subclass.invoke(null);
+
+    Method elvis_direct = moduleClass.getMethod("elvis_direct");
+    assertThat(elvis_direct.invoke(null), nullValue());
+
+    Method elvis_indirect = moduleClass.getMethod("elvis_indirect");
+    assertThat((String) elvis_indirect.invoke(null), is("-null"));
   }
 
   @Test
@@ -599,19 +632,29 @@ public class CompileAndRunTest {
 
     Method call_local_fun_full_literal = moduleClass.getMethod("call_local_fun_full_literal");
     assertThat((Integer) call_local_fun_full_literal.invoke(null), is(2));
+
+    Method nested_closures = moduleClass.getMethod("nested_closures");
+    result = nested_closures.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(MethodHandle.class));
+    handle = (MethodHandle) result;
+    assertThat((String) handle.invoke(), is("plop"));
+
+    Method closure_with_varargs_and_capture = moduleClass.getMethod("closure_with_varargs_and_capture");
+    assertThat((String) closure_with_varargs_and_capture.invoke(null), is("> 6"));
   }
 
   @Test
-  public void check_pimps() throws Throwable {
+  public void check_augmentations() throws Throwable {
     GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "pimps.golo", goloClassLoader);
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "augmentations.golo", goloClassLoader);
 
-    Method $pimps = moduleClass.getMethod("$pimps");
-    assertThat(isStatic($pimps.getModifiers()), is(true));
-    assertThat(isPublic($pimps.getModifiers()), is(true));
-    Set<String> pimpSet = new HashSet<>(Arrays.asList((String[]) $pimps.invoke(null)));
-    assertThat(pimpSet.size(), is(1));
-    assertThat(pimpSet, contains("java.lang.String"));
+    Method $augmentations = moduleClass.getMethod("$augmentations");
+    assertThat(isStatic($augmentations.getModifiers()), is(true));
+    assertThat(isPublic($augmentations.getModifiers()), is(true));
+    Set<String> augments = new HashSet<>(Arrays.asList((String[]) $augmentations.invoke(null)));
+    assertThat(augments.size(), is(1));
+    assertThat(augments, contains("java.lang.String"));
 
     Method goog = moduleClass.getMethod("goog");
     Object result = goog.invoke(null);
@@ -623,9 +666,9 @@ public class CompileAndRunTest {
     Method exclamation = moduleClass.getMethod("exclamation", Object.class);
     assertThat((String) exclamation.invoke(null, "hey"), is("hey!"));
 
-    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "pimps-external-source.golo", goloClassLoader);
-    Method externalPimp = moduleClass.getMethod("externalPimp");
-    assertThat((String) externalPimp.invoke(null), is("(abc)"));
+    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "augmentations-external-source.golo", goloClassLoader);
+    Method externalAugmentation = moduleClass.getMethod("externalAugmentation");
+    assertThat((String) externalAugmentation.invoke(null), is("(abc)"));
 
     Method varargs = moduleClass.getMethod("varargs");
     assertThat((String) varargs.invoke(null), is("abcd"));
@@ -633,8 +676,8 @@ public class CompileAndRunTest {
     Method polymorphism = moduleClass.getMethod("polymorphism");
     assertThat((String) polymorphism.invoke(null), is("plop!"));
 
-    Method closure_in_pimp = moduleClass.getMethod("closure_in_pimp");
-    assertThat((String) closure_in_pimp.invoke(null), is("foo"));
+    Method closure_in_augmentation = moduleClass.getMethod("closure_in_augmentation");
+    assertThat((String) closure_in_augmentation.invoke(null), is("foo"));
   }
 
   @Test
@@ -647,11 +690,11 @@ public class CompileAndRunTest {
     foo = moduleClass.getMethod("foo", Object.class);
     assertThat((String) foo.invoke(null, "plop"), is("plop"));
 
-    Method pimp1 = moduleClass.getMethod("pimp1");
-    assertThat((String) pimp1.invoke(null), is("ab"));
+    Method augmentation1 = moduleClass.getMethod("augmentation1");
+    assertThat((String) augmentation1.invoke(null), is("ab"));
 
-    Method pimp2 = moduleClass.getMethod("pimp2");
-    assertThat((String) pimp2.invoke(null), is("abc"));
+    Method augmentation2 = moduleClass.getMethod("augmentation2");
+    assertThat((String) augmentation2.invoke(null), is("abc"));
   }
 
   @Test

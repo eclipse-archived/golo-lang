@@ -16,43 +16,33 @@
 
 package fr.insalyon.citi.golo.runtime;
 
-public enum OperatorType {
+import java.util.Iterator;
 
-  PLUS("+"),
-  MINUS("-"),
-  TIMES("*"),
-  DIVIDE("/"),
-  MODULO("%"),
+public class PrimitiveArrayIterator implements Iterator<Object> {
 
-  EQUALS("=="),
-  NOTEQUALS("!="),
-  LESS("<"),
-  LESSOREQUALS("<="),
-  MORE(">"),
-  MOREOREQUALS(">="),
+  private final Object[] array;
+  private int position = 0;
 
-  AND("and"),
-  OR("or"),
-  NOT("not"),
-
-  IS("is"),
-  ISNT("isnt"),
-
-  OFTYPE("oftype"),
-
-  ORIFNULL("orIfNull"),
-
-  METHOD_CALL(":"),
-  ELVIS_METHOD_CALL("?:");
-
-  private final String symbol;
-
-  OperatorType(String symbol) {
-    this.symbol = symbol;
+  public PrimitiveArrayIterator(Object[] array) {
+    this.array = array;
   }
 
   @Override
-  public String toString() {
-    return symbol;
+  public boolean hasNext() {
+    return position < array.length;
+  }
+
+  @Override
+  public Object next() {
+    if (hasNext()) {
+      return array[position++];
+    } else {
+      throw new ArrayIndexOutOfBoundsException(position);
+    }
+  }
+
+  @Override
+  public void remove() {
+    throw new UnsupportedOperationException();
   }
 }

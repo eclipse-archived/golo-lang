@@ -1,6 +1,6 @@
 # ............................................................................................... #
 
-module golo.test.bootstrapped.StandardPimpsTests
+module golo.test.bootstrapped.StandardAugmentationsTests
 
 # ............................................................................................... #
 

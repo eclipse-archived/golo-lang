@@ -38,7 +38,7 @@ public class ParserSanityTest {
   }
 
   @Test(dataProvider = "golo-files")
-  public void check_parse(File goloFile) throws FileNotFoundException, ParseException {
+  public void check_parse(File goloFile) throws Throwable {
     if (shouldTrace) {
       println();
       println(">>> Parsing: " + goloFile);
@@ -53,5 +53,11 @@ public class ParserSanityTest {
       compilationUnit.dump("% ");
       println();
     }
+  }
+
+  @Test(expectedExceptions = ParseException.class, timeOut = 5000)
+  public void check_incomplete_file() throws Throwable {
+    GoloParser parser = new GoloParser(new FileReader("src/test/resources/for-test/incomplete.golo"));
+    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
   }
 }

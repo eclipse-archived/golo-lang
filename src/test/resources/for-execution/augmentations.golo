@@ -1,11 +1,11 @@
-module golotest.execution.Pimps
+module golotest.execution.Augmentations
 
 import java.util.List
-import golotest.execution.Pimps.ExternalSource
+import golotest.execution.Augmentations.ExternalSource
 
 function dummy = -> null
 
-pimp java.lang.String {
+augment java.lang.String {
 
   function append = |this, tail| -> this + tail
 
@@ -29,13 +29,13 @@ function goog = -> "http://www.google.com/": toURLType()
 
 function exclamation = |sentence| -> sentence: append("!")
 
-function externalPimp = -> "abc": wrap("(", ")")
+function externalAugmentation = -> "abc": wrap("(", ")")
 
 function varargs = -> "a": concatWith("b", "c", "d")
 
 function polymorphism = -> java.util.LinkedList(): plop()
 
-function closure_in_pimp = {
+function closure_in_augmentation = {
   let f = "foo": asIdentityFunction()
   return f()
 }

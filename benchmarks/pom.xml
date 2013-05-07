@@ -21,7 +21,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo-benchmarks</artifactId>
-  <version>0-preview2-SNAPSHOT</version>
+  <version>0-preview3-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
@@ -64,19 +64,19 @@
 
   <properties>
 
-    <gololang.version>0-preview2-SNAPSHOT</gololang.version>
+    <gololang.version>0-preview3-SNAPSHOT</gololang.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
 
-    <junit-benchmarks.version>0.4.0</junit-benchmarks.version>
-    <h2.version>1.3.170</h2.version>
+    <junit-benchmarks.version>0.6.0</junit-benchmarks.version>
+    <h2.version>1.3.171</h2.version>
     <junit.version>4.11</junit.version>
-    <groovy-all.version>2.1.0</groovy-all.version>
-    <clojure.version>1.5.0</clojure.version>
-    <jruby-complete.version>1.7.2</jruby-complete.version>
+    <groovy-all.version>2.1.3</groovy-all.version>
+    <clojure.version>1.5.1</clojure.version>
+    <jruby-complete.version>1.7.3</jruby-complete.version>
 
-    <maven-compiler-plugin.version>3.0</maven-compiler-plugin.version>
-    <maven-surefire-plugin.version>2.12.4</maven-surefire-plugin.version>
+    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-surefire-plugin.version>2.14.1</maven-surefire-plugin.version>
 
   </properties>
 
@@ -147,6 +147,7 @@
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <runOrder>random</runOrder>
+          <reuseForks>false</reuseForks>
           <argLine>-server -Xms1024M -Xmx1024M</argLine>
           <systemProperties>
             <jub.consumers>CONSOLE,H2</jub.consumers>

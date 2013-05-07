@@ -82,14 +82,12 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     if (!stack.isEmpty()) {
       context().localReferences.add(name);
       context().accessedReferences.add(name);
-      context().allReferences.add(name);
     }
   }
 
   private void accessed(String name) {
     if (!stack.isEmpty()) {
       context().accessedReferences.add(name);
-      context().allReferences.add(name);
     }
   }
 
@@ -111,8 +109,8 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (String pimpTarget : module.getPimps().keySet()) {
-      Set<GoloFunction> functions = module.getPimps().get(pimpTarget);
+    for (String augmentation : module.getAugmentations().keySet()) {
+      Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
       for (GoloFunction function : functions) {
         function.accept(this);
       }
@@ -177,6 +175,14 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
+    if (context() != null) {
+      Context context = context();
+      String name = functionInvocation.getName();
+      if (context.allReferences.contains(name)) {
+        accessed(name);
+        functionInvocation.setOnReference(true);
+      }
+    }
     for (ExpressionStatement statement : functionInvocation.getArguments()) {
       statement.accept(this);
     }
@@ -257,7 +263,19 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
-
+    closureReference.getTarget().accept(this);
+    if (closureReference.getTarget().isSynthetic()) {
+      Context context = context();
+      if (context != null) {
+        for (String refName : closureReference.getTarget().getParameterNames()) {
+          ReferenceTable referenceTable = context.referenceTableStack.peek();
+          if (referenceTable.hasReferenceFor(refName)) {
+            // ...else it's a regular parameter
+            accessed(refName);
+          }
+        }
+      }
+    }
   }
 
   @Override

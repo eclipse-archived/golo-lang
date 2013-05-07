@@ -28,7 +28,7 @@ public final class GoloFunction extends GoloElement {
   }
 
   public static enum Scope {
-    MODULE, PIMP, CLOSURE
+    MODULE, AUGMENT, CLOSURE
   }
 
   private final String name;
@@ -36,6 +36,7 @@ public final class GoloFunction extends GoloElement {
   private final Scope scope;
 
   private List<String> parameterNames = new LinkedList<>();
+  private List<String> syntheticParameterNames = new LinkedList<>();
   private int syntheticParameterCount = 0;
   private boolean varargs;
   private Block block;
@@ -58,7 +59,13 @@ public final class GoloFunction extends GoloElement {
   }
 
   public List<String> getParameterNames() {
-    return unmodifiableList(parameterNames);
+    LinkedList<String> list = new LinkedList<>(syntheticParameterNames);
+    list.addAll(parameterNames);
+    return unmodifiableList(list);
+  }
+
+  public List<String> getSyntheticParameterNames() {
+    return unmodifiableList(syntheticParameterNames);
   }
 
   public void setParameterNames(List<String> parameterNames) {
@@ -66,7 +73,7 @@ public final class GoloFunction extends GoloElement {
   }
 
   public void addSyntheticParameter(String name) {
-    this.parameterNames.add(name);
+    this.syntheticParameterNames.add(name);
     this.syntheticParameterCount = this.syntheticParameterCount + 1;
   }
 
@@ -99,7 +106,7 @@ public final class GoloFunction extends GoloElement {
   }
 
   public int getArity() {
-    return parameterNames.size();
+    return parameterNames.size() + syntheticParameterCount;
   }
 
   public boolean isVarargs() {

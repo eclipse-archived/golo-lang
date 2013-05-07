@@ -31,7 +31,7 @@ import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGol
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-public class StandardPimpsTest {
+public class StandardAugmentationsTest {
 
   private static final String SRC = "src/test/resources/for-test/";
   private Class<?> moduleClass;
@@ -41,7 +41,7 @@ public class StandardPimpsTest {
     if (System.getenv("golo.bootstrapped") == null) {
       throw new SkipException("Golo is in a bootstrap build execution");
     }
-    moduleClass = compileAndLoadGoloModule(SRC, "bootstrapped-standard-pimps.golo");
+    moduleClass = compileAndLoadGoloModule(SRC, "bootstrapped-standard-augmentations.golo");
   }
 
   @Test

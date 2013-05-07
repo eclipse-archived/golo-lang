@@ -46,11 +46,11 @@ public class IrTreeDumper implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (String pimpTarget : module.getPimps().keySet()) {
+    for (String augmentation : module.getAugmentations().keySet()) {
       incr();
       space();
-      System.out.println("Pimp " + pimpTarget);
-      Set<GoloFunction> functions = module.getPimps().get(pimpTarget);
+      System.out.println("Augmentation " + augmentation);
+      Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
       for (GoloFunction function : functions) {
         function.accept(this);
       }
@@ -200,7 +200,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
     incr();
     space();
-    System.out.println("Method invocation: " + methodInvocation.getName());
+    System.out.println("Method invocation: " + methodInvocation.getName() + ", null safe? -> " + methodInvocation.isNullSafeGuarded());
     for (ExpressionStatement argument : methodInvocation.getArguments()) {
       argument.accept(this);
     }
@@ -240,9 +240,9 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.printf(
-        "Closure reference: %s, capturing at index %d%n",
+        "Closure reference: %s, regular arguments at index %d%n",
         closureReference.getTarget().getName(),
-        closureReference.getSyntheticArgumentsIndexStart());
+        closureReference.getTarget().getSyntheticParameterCount());
     incr();
     for (String refName : closureReference.getCapturedReferenceNames()) {
       space();

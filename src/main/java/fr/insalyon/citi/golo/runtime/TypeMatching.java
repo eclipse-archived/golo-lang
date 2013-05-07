@@ -32,6 +32,7 @@ class TypeMatching {
       put(long.class, Long.class);
       put(float.class, Float.class);
       put(double.class, Double.class);
+      put(boolean.class, Boolean.class);
     }
   };
 

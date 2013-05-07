@@ -1,0 +1,145 @@
+== Class augmentations ==
+
+Many dynamic languages support the ability to extend existing classes by adding new methods to them.
+You may think of categories in Objective-C and Groovy, or *open classes* in Ruby.
+
+This is generally implemented by providing *meta-classes*. When some piece of code adds a method
+`foo` to, say, `SomeClass`, then all instances of `SomeClass` get that new `foo` method. While very
+convenient, such an open system may lead to well-known conflicts between the added methods.
+
+Golo provides a more limited but explicit way to add methods to existing classes in the form of
+**class augmentations**.
+
+=== Wrapping a string with a function ===
+
+Let us motivate the value of *augmentations* by starting with the following example. Suppose that we would
+like a function to wrap a string with a left and right string. We could do that in Golo as follows:
+
+[source,text]
+----
+function wrap = |left, str, right| -> left + str + right
+
+# (...)
+let str = wrap("(", "foo", ")")
+println(str) # prints "(abc)"
+----
+
+Defining functions for such tasks makes perfect sense, but what if we could just add the `wrap`
+method to all instances of `java.lang.String` instead?
+
+=== Augmenting classes ===
+
+Defining an augmentation is a matter of adding a `augment` block in a module:
+
+[source,text]
+----
+module foo
+
+augment java.lang.String {
+  function wrap = |this, left, right| -> left + this + right
+}
+
+function wrapped = -> "abc": wrap("(", ")")
+----
+
+More specifically:
+
+1. a `augment` definition is made on a fully-qualified class name, and
+2. an augmentation function takes the receiver object as its first argument, followed by optional
+   arguments, and
+3. there can be as many augmentation functions as you want, and
+4. there can be as many augmentations as you want.
+
+It is a good convention to name the receiver `this`, but you are free to call it differently.
+
+Also, augmentation functions can take variable-arity arguments, as in:
+
+[source,text]
+----
+augment java.lang.String {
+
+  function concatWith = |this, args...| {
+    var result = this
+    foreach(arg in args) {
+      result = result + arg
+    }
+    return result
+  }
+}
+
+# (...)
+function varargs = -> "a": concatWith("b", "c", "d")
+----
+
+It should be noted that augmentations work with class hierarchies too. The following example adds an
+augmentation to `java.util.Collection`, which also adds it to concrete subclasses such as `java.util.LinkedList`:
+
+[source,text]
+----
+augment java.util.Collection {
+  function plop = |this| -> "plop!"
+}
+
+# (...)
+function plop_in_a_list = -> java.util.LinkedList(): plop()
+----
+
+=== Augmentation scopes, reusable augmentations ===
+
+By default, an augmentation is only visible from its defining module.
+
+**Augmentations are clear and explicit as they
+only affect the instances from which you have decided to make them visible.**
+
+It is advised to place reusable augmentations in separate module definitions. Then, a module that needs such
+augmentations can make them available through imports.
+
+Suppose that you want to define augmentations for dealing with URLs from strings. You could define a
+`string-url-augmentations.golo` module source as follows:
+
+[source,text]
+----
+module my.StringUrlAugmentations
+
+import java.net
+
+augment java.lang.String {
+
+  function toURL = |this| -> URL(this)
+
+  function httpGet = |this| {
+    # Open the URL, get a connection, grab the body as a string, etc
+    # (...)
+  }
+
+  # (...)
+}
+----
+
+Then, a module willing to take advantage of those augmentations can simply import their defining module:
+
+[source,text]
+----
+module my.App
+
+import my.StringUrlAugmentations
+
+function googPageBody = -> "http://www.google.com/": httpGet()
+----
+
+TIP: As a matter of style, we suggest that your module names end with `Augmentations`. Because importing a
+module imports **all** of its augmentation definitions, we suggest that you modularize them with *fine
+taste* (for what it means).
+
+=== Standard augmentations ===
+
+Golo comes with a set of pre-defined augmentations.
+
+CAUTION: Until we have a tool to extract the documentation from Golo source files, their documentation will
+simply be the inclusion of that file content.
+
+[source,text]
+----
+include::../src/main/golo/standard-augmentations.golo[]
+----
+

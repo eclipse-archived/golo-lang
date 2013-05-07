@@ -169,7 +169,7 @@ function give_me_hey = {
 
 === Conversion to single-method interfaces ===
 
-Instead of using `asInterfaceInstance`, you may use a *pimp* which is described later in this
+Instead of using `asInterfaceInstance`, you may use a *class augmentation* which is described later in this
 documentation. In short, it allows you to call a `to` method on instances of `MethodHandle`, which
 in turn calls `asInterfaceInstance`. Back to the previous examples, the next 2 lines are equivalent:
 
@@ -178,7 +178,7 @@ in turn calls `asInterfaceInstance`. Back to the previous examples, the next 2 l
 # Calling asInterfaceInstance
 future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
 
-# Using a pimp
+# Using a class augmentation
 future = executor: submit((-> "hey!"): to(Callable.class))
 ----
 
@@ -229,7 +229,7 @@ function call_local_fun = {
 
 Because closure references are just instances of `java.lang.invoke.MethodHandle`, you can bind its
 first argument using the `bindTo(value)` method. If you need to bind an argument at another position
-than 0, you may take advantage of the `bindAt(position, value)` pimp:
+than 0, you may take advantage of the `bindAt(position, value)` augmentation:
 
 [source,text]
 ----
@@ -240,7 +240,7 @@ let minus10 = diff: bindAt(1, 10)
 println(minus10(20))
 ----
 
-You may compose function using the `andThen` pimp method:
+You may compose function using the `andThen` augmentation method:
 
 [source,text]
 ----

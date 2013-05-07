@@ -47,6 +47,16 @@ public class MonomorphicTest extends GoloBenchmark {
   }
 
   @Test
+  public void golo_elvis() throws Throwable {
+    GoloModule.getMethod("run_elvis").invoke(null);
+  }
+
+  @Test
+  public void golo_elvis_nulls() throws Throwable {
+    GoloModule.getMethod("run_elvis_with_nulls").invoke(null);
+  }
+
+  @Test
   public void groovy() throws Throwable {
     GroovyClass.getMethod("run").invoke(null);
   }

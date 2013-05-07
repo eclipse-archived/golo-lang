@@ -18,6 +18,8 @@ Golo is being developed as part of the research activities of the
 * GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
 * Sourceforge: [http://sourceforge.net/projects/golo-lang/](http://sourceforge.net/projects/golo-lang/)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
+* Forums: [at Sourceforge, (email subscriptions are possible)](https://sourceforge.net/p/golo-lang/discussion/)
+* IRC: [`#golo-lang` on Freenode](https://webchat.freenode.net/)
 
 ## Building Golo
 
@@ -85,9 +87,17 @@ Check the `CONTRIBUTING.md` file for instructions.
 
 ## Credits
 
+### Early testers
+
 Big thanks to our early testers before Golo was made public! *(in random order)*
 
 Pierre Colomb, Olivier Coupelon, Cédric Exbrayat, Frédéric Le Mouel, Nicolas Stouls,
 Henri Gomez, Julien Viet, Philippe Charrière, Ludovic Champenois, Thierry Chantier,
 Daniel Petisme, David Gageot, David Festal, Gildas Cuisinier, Thomas Maurel, 
 Yannick Loiseau, Alexis Plantin, Sylvain Desgrais, William Guyot, Agnès Crépet, Cyril Lacote.
+
+### Companies
+
+[Serli](http://www.serli.com/), 
+[Ninja Squad](http://ninja-squad.com/).
+

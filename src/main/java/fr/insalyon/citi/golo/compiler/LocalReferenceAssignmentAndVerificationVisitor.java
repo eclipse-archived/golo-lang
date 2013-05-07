@@ -61,8 +61,8 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (String pimpTarget : module.getPimps().keySet()) {
-      Set<GoloFunction> functions = module.getPimps().get(pimpTarget);
+    for (String augmentation : module.getAugmentations().keySet()) {
+      Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
       for (GoloFunction function : functions) {
         function.accept(this);
       }
@@ -146,7 +146,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     ReferenceTable table = tableStack.peek();
     if (!table.hasReferenceFor(referenceLookup.getName())) {
       getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
-          "Undeclared reference at " + referenceLookup.getPositionInSourceCode());
+          "Undeclared reference `" + referenceLookup.getName() + "` at " + referenceLookup.getPositionInSourceCode());
     }
   }
 
@@ -212,15 +212,8 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
     GoloFunction target = closureReference.getTarget();
-    int totalArgsCount = target.getParameterNames().size();
-    int startIndex = totalArgsCount - target.getSyntheticParameterCount();
-    closureReference.setSyntheticArgumentsIndexStart(startIndex);
-    int currentIndex = 0;
-    for (String name : target.getParameterNames()) {
-      if (currentIndex >= startIndex) {
-        closureReference.addCapturedReferenceName(name);
-      }
-      currentIndex = currentIndex + 1;
+    for (String name : target.getSyntheticParameterNames()) {
+      closureReference.addCapturedReferenceName(name);
     }
   }
 

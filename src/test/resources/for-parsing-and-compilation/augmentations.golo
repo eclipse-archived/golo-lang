@@ -1,6 +1,6 @@
-module pimped
+module augmented
 
-pimp java.lang.String {
+augment java.lang.String {
 
   function append = |this, tail| -> this + tail
 

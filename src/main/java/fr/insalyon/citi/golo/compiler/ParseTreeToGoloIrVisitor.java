@@ -33,6 +33,7 @@ import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.VARIABLE;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.LET;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
 
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
@@ -60,7 +61,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
-    String pimp;
+    String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
     int nextClosureId = 0;
@@ -107,9 +108,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
-  public Object visit(ASTPimpDeclaration node, Object data) {
+  public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
-    context.pimp = node.getTarget();
+    context.augmentation = node.getTarget();
     return node.childrenAccept(this, data);
   }
 
@@ -119,7 +120,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function = new GoloFunction(
         node.getName(),
         node.isLocal() ? LOCAL : PUBLIC,
-        node.isPimp() ? PIMP : MODULE);
+        node.isAugmentation() ? AUGMENT : MODULE);
     node.setIrElement(function);
     context.objectStack.push(function);
     node.childrenAccept(this, data);
@@ -183,8 +184,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
-    if (PIMP.equals(function.getScope())) {
-      context.module.addPimp(context.pimp, function);
+    if (AUGMENT.equals(function.getScope())) {
+      context.module.addAugmentation(context.augmentation, function);
     } else {
       context.module.addFunction(function);
     }
@@ -277,6 +278,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         return OperatorType.OFTYPE;
       case ":":
         return OperatorType.METHOD_CALL;
+      case "orIfNull":
+         return OperatorType.ORIFNULL;
+      case "?:":
+        return ELVIS_METHOD_CALL;
       default:
         throw new IllegalArgumentException(symbol);
     }
@@ -294,10 +299,20 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     ExpressionStatement right = expressions.pop();
     ExpressionStatement left = expressions.pop();
-    BinaryOperation current = new BinaryOperation(operators.pop(), left, right);
+    OperatorType operator = operators.pop();
+    BinaryOperation current = new BinaryOperation(operator, left, right);
+    if (operator == ELVIS_METHOD_CALL) {
+      MethodInvocation invocation = (MethodInvocation) right;
+      invocation.setNullSafeGuarded(true);
+    }
     while (!expressions.isEmpty()) {
       left = expressions.pop();
-      current = new BinaryOperation(operators.pop(), left, current);
+      operator = operators.pop();
+      if (operator == ELVIS_METHOD_CALL) {
+        MethodInvocation invocation = (MethodInvocation) current.getLeftExpression();
+        invocation.setNullSafeGuarded(true);
+      }
+      current = new BinaryOperation(operator, left, current);
     }
     node.setIrElement(current);
     context.objectStack.push(current);

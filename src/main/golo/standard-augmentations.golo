@@ -16,11 +16,11 @@
 #
 # ............................................................................................... #
 
-module gololang.StandardPimps
+module gololang.StandardAugmentations
 
 # ............................................................................................... #
 
-pimp java.lang.invoke.MethodHandle {
+augment java.lang.invoke.MethodHandle {
 
   function to = |this, interfaceClass| -> asInterfaceInstance(interfaceClass, this)
 
@@ -33,9 +33,28 @@ pimp java.lang.invoke.MethodHandle {
 
 # ............................................................................................... #
 
-pimp java.util.Collection {
+augment java.util.Collection {
 
-  function newWithSameType = |this| -> this: getClass(): newInstance()
+  function newWithSameType = |this| {
+    try {
+      return this: getClass(): newInstance()
+    } catch (e) {
+      if not(e oftype java.lang.InstantiationException.class) {
+        throw e
+      }
+      let fallback = match {
+        when this oftype java.util.RandomAccess.class then java.util.ArrayList()
+        when this oftype java.util.List.class then java.util.LinkedList()
+        when this oftype java.util.Set.class then java.util.HashSet()
+        when this oftype java.util.Map.class then java.util.HashMap()
+        otherwise null
+      }
+      if fallback is null {
+        raise("Cannot create a new collection from " + this: getClass())
+      }
+      return fallback
+    }
+  }
 
   function reduce = |this, initialValue, func| {
     var acc = initialValue
@@ -48,7 +67,7 @@ pimp java.util.Collection {
 
 # ............................................................................................... #
 
-pimp java.util.List {
+augment java.util.List {
 
   function append = |this, element| {
     this: add(element)
@@ -67,15 +86,15 @@ pimp java.util.List {
 
   function append = |this, head, tail...| {
     this: append(head)
-    foreach (element in atoList(tail)) {
+    foreach (element in tail) {
       this: append(element)
     }
     return this
   }
 
   function prepend = |this, head, tail...| {
-    for (var i = alength(tail) - 1, i >= 0, i = i - 1) {
-      this: prepend(aget(tail, i))
+    for (var i = tail: length() - 1, i >= 0, i = i - 1) {
+      this: prepend(tail: get(i))
     }
     return this: prepend(head)
   }
@@ -107,11 +126,24 @@ pimp java.util.List {
       func(element)
     }
   }
+
+  function join = |this, separator| {
+    var buffer = java.lang.StringBuilder("")
+    if not (this: isEmpty()) {      
+      buffer: append(this: head())      
+      let tail = this: tail()      
+      if not (tail: isEmpty()) {
+        buffer: append(separator)      
+        buffer: append(tail: join(separator))
+      }
+    }
+    return buffer: toString()
+  }
 }
 
 # ............................................................................................... #
 
-pimp java.util.Set {
+augment java.util.Set {
    
   function include = |this, element| {
     this: add(element)
@@ -125,7 +157,7 @@ pimp java.util.Set {
 
   function include = |this, first, rest...| {
     this: add(first)
-    foreach (element in atoList(rest)) {
+    foreach (element in rest) {
       this: add(element)
     }
     return this
@@ -133,7 +165,7 @@ pimp java.util.Set {
 
   function exclude = |this, first, rest...| {
     this: remove(first)
-    foreach (element in atoList(rest)) {
+    foreach (element in rest) {
       this: remove(element)
     }
     return this
@@ -145,7 +177,7 @@ pimp java.util.Set {
     if not(this: contains(first)) {
       return false
     } else {
-      foreach (element in atoList(rest)) {
+      foreach (element in rest) {
         if not(this: contains(element)) {
           return false
         }
@@ -183,7 +215,7 @@ pimp java.util.Set {
 
 # ............................................................................................... #
 
-pimp java.util.Map {
+augment java.util.Map {
 
   function add = |this, key, value| {
     this: put(key, value)

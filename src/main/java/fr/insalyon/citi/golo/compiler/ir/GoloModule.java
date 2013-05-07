@@ -31,13 +31,13 @@ public final class GoloModule extends GoloElement {
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new HashSet<>();
   private final Set<GoloFunction> functions = new HashSet<>();
-  private final Map<String, Set<GoloFunction>> pimps = new HashMap<>();
+  private final Map<String, Set<GoloFunction>> augmentations = new HashMap<>();
 
   public static final ModuleImport PREDEF = new ModuleImport(
       PackageAndClass.fromString("gololang.Predefined"));
 
-  public static final ModuleImport STD_PIMPS = new ModuleImport(
-      PackageAndClass.fromString("gololang.StandardPimps"));
+  public static final ModuleImport STD_AUGMENTATIONS = new ModuleImport(
+      PackageAndClass.fromString("gololang.StandardAugmentations"));
 
   public static final ModuleImport GOLOLANG = new ModuleImport(
       PackageAndClass.fromString("gololang"));
@@ -45,7 +45,7 @@ public final class GoloModule extends GoloElement {
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
-    imports.add(STD_PIMPS);
+    imports.add(STD_AUGMENTATIONS);
     imports.add(GOLOLANG);
   }
 
@@ -57,8 +57,8 @@ public final class GoloModule extends GoloElement {
     return unmodifiableSet(imports);
   }
 
-  public Map<String, Set<GoloFunction>> getPimps() {
-    return unmodifiableMap(pimps);
+  public Map<String, Set<GoloFunction>> getAugmentations() {
+    return unmodifiableMap(augmentations);
   }
 
   public void addImport(ModuleImport moduleImport) {
@@ -69,13 +69,13 @@ public final class GoloModule extends GoloElement {
     functions.add(function);
   }
 
-  public void addPimp(String target, GoloFunction function) {
+  public void addAugmentation(String target, GoloFunction function) {
     Set<GoloFunction> bag;
-    if (!pimps.containsKey(target)) {
+    if (!augmentations.containsKey(target)) {
       bag = new HashSet<>();
-      pimps.put(target, bag);
+      augmentations.put(target, bag);
     } else {
-      bag = pimps.get(target);
+      bag = augmentations.get(target);
     }
     bag.add(function);
   }

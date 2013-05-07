@@ -12,18 +12,18 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module samples.Pimping
+module samples.Augmentations
 
 import java.util.LinkedList
 
-pimp java.util.List {
+augment java.util.List {
   function with = |this, value| {
     this: add(value)
     return this
   }
 }
 
-pimp java.util.Collection {
+augment java.util.Collection {
   function doToEach = |this, func| {
     foreach (element in this) {
       func(element)

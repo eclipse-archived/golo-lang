@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION='0-preview2-SNAPSHOT'
+VERSION='0-preview3-SNAPSHOT'
 DIST_BIN_PATH = "target/gololang-#{VERSION}-distribution/gololang-#{VERSION}/bin"
 
 task :default => [:all]
@@ -47,7 +47,7 @@ end
 
 desc "Release"
 task :release => [:clean, :all] do
-  MAGIC = "mvn deploy -P sonatype-oss-release"
+  MAGIC = "mvn deploy"
   sh MAGIC
   Dir.chdir("golo-maven-plugin") do
     sh MAGIC
@@ -121,6 +121,30 @@ namespace :special do
       sh "mvn clean install"
     end
     sh "mvn clean install"
+  end
+
+  desc "Check for Maven dependency updates"
+  task :check_dependency_updates do
+    CMD = "mvn versions:display-dependency-updates"
+    sh CMD
+    Dir.chdir("golo-maven-plugin") do
+      sh CMD
+    end
+    Dir.chdir("benchmarks") do
+      sh CMD
+    end
+  end
+
+  desc "Check for Maven plugin updates"
+  task :check_plugin_updates do
+    CMD = "mvn versions:display-plugin-updates"
+    sh CMD
+    Dir.chdir("golo-maven-plugin") do
+      sh CMD
+    end
+    Dir.chdir("benchmarks") do
+      sh CMD
+    end
   end
 
 end

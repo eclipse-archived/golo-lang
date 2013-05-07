@@ -31,6 +31,7 @@
         <include>LICENSE*</include>
         <include>NOTICE*</include>
         <include>CONTRIB*</include>
+        <include>THIRD-PARTY*</include>
         <include>samples/**/*</include>
       </includes>
       <useDefaultExcludes>true</useDefaultExcludes>
