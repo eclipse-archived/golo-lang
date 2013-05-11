@@ -16,6 +16,7 @@
 
 package gololang;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
@@ -80,6 +81,46 @@ public class Predefined {
    */
   public static void println(Object obj) {
     System.out.println(obj);
+  }
+
+  /**
+   * Reads the next line of characters from the console.
+   *
+   * @return a String.
+   */
+  public static String readln() throws IOException {
+    return System.console().readLine();
+  }
+
+  /**
+   * Reads the next line of characters from the console.
+   *
+   * @param message displays a prompt message.
+   * @return a String.
+   */
+  public static String readln(String message) throws IOException {
+    System.out.print(message);
+    return readln();
+  }
+
+  /**
+   * Reads a password from the console with echoing disabled.
+   *
+   * @return a String.
+   */
+  public static String readpwd() throws IOException {
+    return String.valueOf(System.console().readPassword());
+  }
+
+  /**
+   * Reads a password from the console with echoing disabled.
+   *
+   * @param message displays a prompt message.
+   * @return a String.
+   */
+  public static String readpwd(String message) throws IOException {
+    System.out.print(message);
+    return readpwd();
   }
 
   // ...................................................................................................................
