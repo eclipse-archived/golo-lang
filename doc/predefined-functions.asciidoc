@@ -17,13 +17,16 @@ println("Hey")
 
 === Console input ===
 
-`readln()` or `readln(strMessage)` reads a single line of text from the console. It returns always a string.
+`readln()` or `readln(strMessage)` reads a single line of text from the console. It always returns a string.
+
+`readpwd()` or `readpwd(strPassword)` reads a password from the console with echoing disabled. It always returns a string.
 
 [source,text]
 ----
-let name = readln("what's your name ? ")
+let name = readln("what's your name? ")
 let value = readln()
 
+let pwd = readpwd("type your password:")
 ----
 
 === Exceptions ===
