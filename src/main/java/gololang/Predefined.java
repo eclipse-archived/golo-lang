@@ -16,6 +16,7 @@
 
 package gololang;
 
+import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
@@ -82,6 +83,25 @@ public class Predefined {
     System.out.println(obj);
   }
 
+  /**
+   * Method to access the character-based console device.
+   *
+   * @return an String.
+   */
+  public static String readln() throws IOException {
+    return System.console().readLine();
+  }
+
+  /**
+   * Method to access the character-based console device.
+   *
+   * @param message displays a prompt message.
+   * @return an String.
+   */
+  public static String readln(String message) throws IOException {
+    System.out.print(message);
+    return readln();
+  }
   // ...................................................................................................................
 
   /**
