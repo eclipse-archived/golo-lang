@@ -1,0 +1,55 @@
+[INFO] Scanning for projects...
+[INFO]                                                                         
+[INFO] ------------------------------------------------------------------------
+[INFO] Building Golo Programming Language 0-preview3-SNAPSHOT
+[INFO] ------------------------------------------------------------------------
+[INFO] 
+[INFO] --- maven-enforcer-plugin:1.0:enforce (enforce-maven) @ golo ---
+[INFO] 
+[INFO] --- javacc-maven-plugin:2.6:jjtree-javacc (jjtree-javacc) @ golo ---
+[INFO] Skipping - all parsers are up to date
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:resources (default-resources) @ golo ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 1 resource
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.0:compile (default-compile) @ golo ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 110 source files to /var/lib/stickshift/519039ffe0b8cd749f000029/app-root/data/495633/target/classes
+[INFO] 
+[INFO] --- golo-maven-plugin:0-preview3-SNAPSHOT:goloc (default) @ golo ---
+[INFO] Compiling to: target/classes
+[INFO] Compiling: src/main/golo/standard-augmentations.golo
+[INFO] 
+[INFO] --- maven-resources-plugin:2.4.3:testResources (default-testResources) @ golo ---
+[INFO] Using 'UTF-8' encoding to copy filtered resources.
+[INFO] Copying 42 resources
+[INFO] 
+[INFO] --- maven-compiler-plugin:3.0:testCompile (default-testCompile) @ golo ---
+[INFO] Changes detected - recompiling the module!
+[INFO] Compiling 31 source files to /var/lib/stickshift/519039ffe0b8cd749f000029/app-root/data/495633/target/test-classes
+[WARNING] /var/lib/stickshift/519039ffe0b8cd749f000029/app-root/data/495633/src/test/java/gololang/PredefinedTest.java: Some input files use unchecked or unsafe operations.
+[WARNING] /var/lib/stickshift/519039ffe0b8cd749f000029/app-root/data/495633/src/test/java/gololang/PredefinedTest.java: Recompile with -Xlint:unchecked for details.
+[INFO] 
+[INFO] --- maven-surefire-plugin:2.12.4:test (default-test) @ golo ---
+[INFO] Surefire report directory: /var/lib/stickshift/519039ffe0b8cd749f000029/app-root/data/495633/target/surefire-reports
+
+-------------------------------------------------------
+ T E S T S
+-------------------------------------------------------
+Running TestSuite
+Configuring TestNG with: org.apache.maven.surefire.testng.conf.TestNG652Configurator@46ee9d
+>>> 5
+Tests run: 199, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 25.301 sec
+
+Results :
+
+Tests run: 199, Failures: 0, Errors: 0, Skipped: 0
+
+[INFO] ------------------------------------------------------------------------
+[INFO] BUILD SUCCESS
+[INFO] ------------------------------------------------------------------------
+[INFO] Total time: 1:44.193s
+[INFO] Finished at: Mon May 13 11:05:54 EDT 2013
+[INFO] Final Memory: 17M/178M
+[INFO] ------------------------------------------------------------------------

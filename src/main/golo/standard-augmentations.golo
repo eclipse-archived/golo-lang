@@ -18,6 +18,28 @@
 
 module gololang.StandardAugmentations
 
+
+function newWithSameType = |this| {
+  try {
+    return this: getClass(): newInstance()
+  } catch (e) {
+    if not(e oftype java.lang.InstantiationException.class) {
+      throw e
+    }
+    let fallback = match {
+      when this oftype java.util.RandomAccess.class then java.util.ArrayList()
+      when this oftype java.util.List.class then java.util.LinkedList()
+      when this oftype java.util.Set.class then java.util.HashSet()
+      when this oftype java.util.Map.class then java.util.HashMap()
+      otherwise null
+    }
+    if fallback is null {
+      raise("Cannot create a new collection from " + this: getClass())
+    }
+    return fallback
+  }
+}
+  
 # ............................................................................................... #
 
 augment java.lang.invoke.MethodHandle {
@@ -33,28 +55,7 @@ augment java.lang.invoke.MethodHandle {
 
 # ............................................................................................... #
 
-augment java.util.Collection {
-
-  function newWithSameType = |this| {
-    try {
-      return this: getClass(): newInstance()
-    } catch (e) {
-      if not(e oftype java.lang.InstantiationException.class) {
-        throw e
-      }
-      let fallback = match {
-        when this oftype java.util.RandomAccess.class then java.util.ArrayList()
-        when this oftype java.util.List.class then java.util.LinkedList()
-        when this oftype java.util.Set.class then java.util.HashSet()
-        when this oftype java.util.Map.class then java.util.HashMap()
-        otherwise null
-      }
-      if fallback is null {
-        raise("Cannot create a new collection from " + this: getClass())
-      }
-      return fallback
-    }
-  }
+augment java.lang.Iterable {
 
   function reduce = |this, initialValue, func| {
     var acc = initialValue
@@ -63,6 +64,19 @@ augment java.util.Collection {
     }
     return acc
   }
+  
+  function each = |this, func| {
+    foreach (element in this) {
+      func(element)
+    }
+  }
+
+}
+
+augment java.util.Collection {
+
+  function newWithSameType = |this| -> gololang.StandardAugmentations.newWithSameType(this)
+
 }
 
 # ............................................................................................... #
@@ -119,12 +133,6 @@ augment java.util.List {
       mapped: append(func(element))
     }
     return mapped
-  }
-
-  function each = |this, func| {
-    foreach (element in this) {
-      func(element)
-    }
   }
 
   function join = |this, separator| {
@@ -205,12 +213,6 @@ augment java.util.Set {
     }
     return mapped
   }
-
-  function each = |this, func| {
-    foreach (element in this) {
-      func(element)
-    }
-  }
 }
 
 # ............................................................................................... #
@@ -252,7 +254,7 @@ augment java.util.Map {
 
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableMap(this)
 
-  function newWithSameType = |this| -> this: getClass(): newInstance()
+  function newWithSameType = |this| -> gololang.StandardAugmentations.newWithSameType(this)
 
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
