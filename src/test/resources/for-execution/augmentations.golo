@@ -23,7 +23,13 @@ augment java.lang.String {
     let id = -> this
     return id
   }
+
+  function banged = |this| -> bang(this)
 }
+
+local function bang = |str| -> str + "!"
+
+function bang_plop = -> "Plop": banged()
 
 function goog = -> "http://www.google.com/": toURLType()
 
