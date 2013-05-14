@@ -40,6 +40,7 @@ import java.util.LinkedHashSet;
 import java.util.Collections;
 
 import fr.insalyon.citi.golo.compiler.utils.StringUnescaping;
+import fr.insalyon.citi.golo.compiler.utils.StringBlockIndenter;
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 
 public class GoloParser {
@@ -475,8 +476,12 @@ String Documentation() #void:
 {
   token=<DOCUMENTATION>
   {
-    String image = token.image.trim();
-    return image.substring(4, image.length() - 4);
+    String result = token.image.trim();
+    result = result.substring(4, result.length() - 4);
+    if (token.beginColumn > 1) {
+      result = StringBlockIndenter.unindent(result, token.beginColumn - 1);
+    }
+    return result;
   }
 }
 
