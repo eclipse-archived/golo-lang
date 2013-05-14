@@ -1,13 +1,13 @@
   ----               
-Waoo, this is a documented module!
+  Waoo, this is a documented module!
 
-This is super *cool*.
+  This is super *cool*.
 
-Imagine:
+  Imagine:
 
-    let foo = "bar"
-    let bang = "----"
-    let bangbang = "------"
+      let foo = "bar"
+      let bang = "----"
+      let bangbang = "------"
 
       ----     
 module Documented
