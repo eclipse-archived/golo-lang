@@ -19,7 +19,7 @@
 module gololang.StandardAugmentations
 
 
-function newWithSameType = |this| {
+local function _newWithSameType = |this| {
   try {
     return this: getClass(): newInstance()
   } catch (e) {
@@ -75,7 +75,7 @@ augment java.lang.Iterable {
 
 augment java.util.Collection {
 
-  function newWithSameType = |this| -> gololang.StandardAugmentations.newWithSameType(this)
+  function newWithSameType = |this| -> _newWithSameType(this)
 
 }
 
@@ -254,7 +254,7 @@ augment java.util.Map {
 
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableMap(this)
 
-  function newWithSameType = |this| -> gololang.StandardAugmentations.newWithSameType(this)
+  function newWithSameType = |this| -> _newWithSameType(this)
 
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
