@@ -122,6 +122,7 @@
     <animal-sniffer-maven-plugin.version>1.9</animal-sniffer-maven-plugin.version>
     <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
     <maven-bundle-plugin.version>2.4.0</maven-bundle-plugin.version>
+    <txtmark.version>0.9</txtmark.version>
   </properties>
 
   <dependencies>
@@ -137,6 +138,12 @@
       <artifactId>jcommander</artifactId>
       <version>${jcommander.version}</version>
       <optional>true</optional>
+    </dependency>
+
+    <dependency>
+      <groupId>com.github.rjeschke</groupId>
+      <artifactId>txtmark</artifactId>
+      <version>${txtmark.version}</version>
     </dependency>
 
     <dependency>
