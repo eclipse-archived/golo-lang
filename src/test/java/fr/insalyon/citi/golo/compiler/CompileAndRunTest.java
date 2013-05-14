@@ -678,6 +678,9 @@ public class CompileAndRunTest {
 
     Method closure_in_augmentation = moduleClass.getMethod("closure_in_augmentation");
     assertThat((String) closure_in_augmentation.invoke(null), is("foo"));
+
+    Method bang_plop = moduleClass.getMethod("bang_plop");
+    assertThat((String) bang_plop.invoke(null), is("Plop!"));
   }
 
   @Test
