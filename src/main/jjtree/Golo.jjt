@@ -261,6 +261,27 @@ TOKEN :
   < COMMENT: "#" (~["\n", "\r"])* ("\n" | "\r" | "\r\n")? >
 }
 
+// Documentation
+
+MORE :
+{
+  < "----" (" " | "\t")* "\n" > : WithinDocumentation
+}
+
+<WithinDocumentation>
+MORE :
+{
+  < ~[] >
+}
+
+<WithinDocumentation>
+TOKEN :
+{
+  < DOCUMENTATION : "----" (" " | "\t")* "\n" > : DEFAULT
+}
+
+// ............................................................................................. //
+
 TOKEN_MGR_DECLS :
 {
     public static interface TokenCompleter {
@@ -285,7 +306,6 @@ JAVACODE
 void error() {
   throw generateParseException();
 }
-
 
 void BlankLine() #void:{}
 {
@@ -448,6 +468,18 @@ GoloParser.FunctionRef FunctionRef() #void:
   }
 }
 
+String Documentation() #void:
+{
+  Token token;
+}
+{
+  token=<DOCUMENTATION>
+  {
+    String image = token.image.trim();
+    return image.substring(4, image.length() - 4);
+  }
+}
+
 // ............................................................................................. //
 
 ASTCompilationUnit CompilationUnit(): {}
@@ -481,11 +513,14 @@ ASTCompilationUnit CompilationUnit(): {}
 void ModuleDeclaration():
 {
   String name;
+  String documentation = null;
 }
 {
+  (documentation=Documentation())?
   <MODULE> name=QualifiedName()
   {
     jjtThis.setName(name);
+    jjtThis.setDocumentation(documentation);
   }
 }
 
@@ -508,16 +543,26 @@ void ImportDeclaration():
 void ToplevelDeclaration():
 {
   ASTFunctionDeclaration functionDecl;
+  ASTAugmentDeclaration augmentDecl;
   Token local = null;
+  String documentation = null;
 }
-{ 
-  AugmentDeclaration() 
-  | 
-  (local=<LOCAL>)? functionDecl=FunctionDeclaration()
-  {
-    if (local != null) {
-      functionDecl.setLocal(true);
+{
+  (documentation=Documentation())?
+  (
+    augmentDecl=AugmentDeclaration()
+    {
+      augmentDecl.setDocumentation(documentation);
     }
+    |
+    (local=<LOCAL>)? functionDecl=FunctionDeclaration()
+    {
+      if (local != null) {
+        functionDecl.setLocal(true);
+      }
+      functionDecl.setDocumentation(documentation);
+    }
+  )
   }
   |
   StructDeclaration()
@@ -549,6 +594,7 @@ void StructDeclaration():
 }
 
 void AugmentDeclaration():
+ASTAugmentDeclaration AugmentDeclaration():
 {
   String target;
   ASTFunctionDeclaration func;
@@ -577,6 +623,7 @@ void AugmentDeclaration():
   "}"
   {
     jjtThis.setTarget(target);
+    return jjtThis;
   } 
 }
 

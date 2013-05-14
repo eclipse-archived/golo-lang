@@ -21,6 +21,7 @@ import fr.insalyon.citi.golo.compiler.ir.GoloElement;
 public class GoloASTNode extends SimpleNode {
 
   private GoloElement irElement;
+  private String documentation;
 
   public void setIrElement(GoloElement element) {
     this.irElement = element;
@@ -58,5 +59,13 @@ public class GoloASTNode extends SimpleNode {
   @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
+  }
+
+  public String getDocumentation() {
+    return documentation;
+  }
+
+  public void setDocumentation(String documentation) {
+    this.documentation = documentation;
   }
 }
