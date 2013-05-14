@@ -28,3 +28,19 @@ function with_doc = |a, b| -> a + b
 ----
 function with_empty_doc = -> 42
 
+----
+Improves instances of `String`, such as in:
+
+    println("foo": yop())
+
+----
+augment java.lang.String {
+
+  function plop = |this| -> "Plop"
+
+  ----
+  The yop factor.
+  ----
+  function yop = |this| -> "Yop: " + this
+}
+

@@ -597,14 +597,16 @@ void AugmentDeclaration():
 ASTAugmentDeclaration AugmentDeclaration():
 {
   String target;
+  String documentation = null;
   ASTFunctionDeclaration func;
 }
 {
   <AUGMENT> target=QualifiedName() "{" BlankLines()
     ( 
-      func=FunctionDeclaration()
+      (documentation=Documentation())? func=FunctionDeclaration()
       {
         func.setAugmentation(true);
+        func.setDocumentation(documentation);
         ASTFunction body = (ASTFunction) func.jjtGetChild(0);
         if (body.getArguments().isEmpty()) {
           String description = "Error: augmentation function " +
