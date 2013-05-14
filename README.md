@@ -87,9 +87,17 @@ Check the `CONTRIBUTING.md` file for instructions.
 
 ## Credits
 
+### Early testers
+
 Big thanks to our early testers before Golo was made public! *(in random order)*
 
 Pierre Colomb, Olivier Coupelon, Cédric Exbrayat, Frédéric Le Mouel, Nicolas Stouls,
 Henri Gomez, Julien Viet, Philippe Charrière, Ludovic Champenois, Thierry Chantier,
 Daniel Petisme, David Gageot, David Festal, Gildas Cuisinier, Thomas Maurel, 
 Yannick Loiseau, Alexis Plantin, Sylvain Desgrais, William Guyot, Agnès Crépet, Cyril Lacote.
+
+### Companies
+
+[Serli](http://www.serli.com/), 
+[Ninja Squad](http://ninja-squad.com/).
+
