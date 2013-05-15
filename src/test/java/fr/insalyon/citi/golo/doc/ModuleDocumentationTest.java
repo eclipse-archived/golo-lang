@@ -27,7 +27,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.hasKey;
 import static org.hamcrest.Matchers.is;
 
-public class ModuleDocumentationViewTest {
+public class ModuleDocumentationTest {
 
   public static final String SRC = "src/test/resources/for-parsing-and-compilation/";
 
@@ -35,16 +35,16 @@ public class ModuleDocumentationViewTest {
   public void check() throws Throwable {
     GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
-    ModuleDocumentationView view = new ModuleDocumentationView(compilationUnit);
+    ModuleDocumentation doc = new ModuleDocumentation(compilationUnit);
 
-    assertThat(view.getModuleName(), is("Documented"));
-    assertThat(view.getModuleDocumentation(), containsString("    let foo = \"bar\""));
+    assertThat(doc.getModuleName(), is("Documented"));
+    assertThat(doc.getModuleDocumentation(), containsString("    let foo = \"bar\""));
 
-    assertThat(view.getFunctionsMap(), hasKey("with_doc"));
-    assertThat(view.getFunctionsMap().get("with_doc"), containsString("Returns: the sum of `a` and `b`."));
+    assertThat(doc.getFunctionsMap(), hasKey("with_doc"));
+    assertThat(doc.getFunctionsMap().get("with_doc"), containsString("Returns: the sum of `a` and `b`."));
 
-    assertThat(view.getAugmentationsMap(), hasKey("java.lang.String"));
-    assertThat(view.getAugmentationsFunctionsMap().get("java.lang.String"), hasKey("yop"));
-    assertThat(view.getAugmentationsFunctionsMap().get("java.lang.String").get("yop"), containsString("The yop factor."));
+    assertThat(doc.getAugmentationsMap(), hasKey("java.lang.String"));
+    assertThat(doc.getAugmentationsFunctionsMap().get("java.lang.String"), hasKey("yop"));
+    assertThat(doc.getAugmentationsFunctionsMap().get("java.lang.String").get("yop"), containsString("The yop factor."));
   }
 }

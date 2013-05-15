@@ -23,7 +23,7 @@ import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
 
-class ModuleDocumentationView {
+class ModuleDocumentation {
 
   private String moduleName;
   private String moduleDocumentation;
@@ -32,7 +32,7 @@ class ModuleDocumentationView {
   private final Map<String, String> augmentationsMap = new TreeMap<>();
   private final Map<String, Map<String, String>> augmentationsFunctionsMap = new TreeMap<>();
 
-  ModuleDocumentationView(ASTCompilationUnit compilationUnit) {
+  ModuleDocumentation(ASTCompilationUnit compilationUnit) {
     new ModuleVisitor().visit(compilationUnit, null);
   }
 
