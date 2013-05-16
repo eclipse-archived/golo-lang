@@ -226,6 +226,26 @@ TOKEN :
   < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
 }
 
+// Multiline strings
+
+<DEFAULT>
+MORE :
+{
+  "\"\"\"" : WithinMultiString
+}
+
+<WithinMultiString>
+MORE :
+{
+   < (~[]) | ("\\" "\"") >
+}
+
+<WithinMultiString>
+TOKEN :
+{
+  < MULTI_STRING : "\"\"\"" > : DEFAULT
+}
+
 // Identifiers
 <DEFAULT,ESCAPED>
 TOKEN :
@@ -328,10 +348,19 @@ String StringLiteral() #void:
   Token literal;
 }
 {
-  literal=<STRING>
-  {
-    return StringUnescaping.unescape(literal.image.substring(1, literal.image.length() - 1));
-  }
+  (
+    literal=<STRING>
+    {
+      return StringUnescaping.unescape(literal.image.substring(1, literal.image.length() - 1));
+    }
+  )
+  |
+  (
+    literal=<MULTI_STRING>
+    {
+      return StringUnescaping.unescape(literal.image.substring(3, literal.image.length() - 3));
+    }
+  )
 }
 
 Character CharLiteral() #void:

@@ -98,6 +98,12 @@ public class CompileAndRunTest {
     String expected = "\nFoo\r\n";
     assertThat(str.length(), is(expected.length()));
     assertThat(str, is(expected));
+
+    Method multiline = moduleClass.getMethod("multiline");
+    assertThat((String) multiline.invoke(null), is("This is\n*awesome*"));
+
+    Method nasty_multiline = moduleClass.getMethod("nasty_multiline");
+    assertThat((String) nasty_multiline.invoke(null), is("Damn!=\"\"\"="));
   }
 
   @Test
