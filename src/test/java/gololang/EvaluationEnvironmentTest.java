@@ -70,6 +70,12 @@ public class EvaluationEnvironmentTest {
     assertThat((Integer) result, is(3));
   }
 
+  @Test(expectedExceptions = RuntimeException.class)
+  public void run_error() throws Throwable {
+    EvaluationEnvironment env = new EvaluationEnvironment();
+    env.run("returnz false");
+  }
+
   @Test
   public void run_with_imports() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment().imports("java.lang.Math");
