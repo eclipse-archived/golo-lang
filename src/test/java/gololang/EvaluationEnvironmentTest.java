@@ -20,6 +20,7 @@ import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
+import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -80,6 +81,20 @@ public class EvaluationEnvironmentTest {
 
     assertThat(result, instanceOf(Integer.class));
     assertThat((Integer) result, is(3));
+  }
+
+  @Test
+  public void run_with_context() throws Throwable {
+    EvaluationEnvironment env = new EvaluationEnvironment();
+    Object result = env.run("return a + b", new HashMap<String, Object>() {
+      {
+        put("a", 11);
+        put("b", 9);
+      }
+    });
+
+    assertThat(result, instanceOf(Integer.class));
+    assertThat((Integer) result, is(20));
   }
 
   @Test(expectedExceptions = RuntimeException.class)

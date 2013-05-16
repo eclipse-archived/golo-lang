@@ -22,9 +22,7 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 public class EvaluationEnvironment {
 
@@ -65,8 +63,23 @@ public class EvaluationEnvironment {
   public Object function(String source, String... argumentNames) {
     return loadAndRun(source, "$_code_ref", argumentNames);
   }
+
   public Object run(String source) {
     return loadAndRun(source, "$_code");
+  }
+
+  public Object run(String source, Map<String, Object> context) {
+    StringBuilder builder = new StringBuilder();
+    for (String param : context.keySet()) {
+      builder
+          .append("let ")
+          .append(param)
+          .append(" = $_env: get(\"")
+          .append(param)
+          .append("\")\n");
+    }
+    builder.append(source);
+    return loadAndRun(builder.toString(), "$_code", new String[]{"$_env"}, new Object[]{context});
   }
 
   private Class<?> wrapAndLoad(String source, String... argumentNames) {
@@ -100,6 +113,17 @@ public class EvaluationEnvironment {
     try {
       Class<?> module = wrapAndLoad(source, argumentNames);
       return module.getMethod(target).invoke(null);
+    } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private Object loadAndRun(String source, String target, String[] argumentNames, Object[] arguments) {
+    try {
+      Class<?> module = wrapAndLoad(source, argumentNames);
+      Class<?>[] type = new Class<?>[argumentNames.length];
+      Arrays.fill(type, Object.class);
+      return module.getMethod(target, type).invoke(null, arguments);
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       throw new RuntimeException(e);
     }
