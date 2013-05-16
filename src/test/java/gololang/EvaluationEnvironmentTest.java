@@ -84,7 +84,6 @@ public class EvaluationEnvironmentTest {
       env.run(snippet);
       throw new TestNGException("A RuntimeException should have been raised");
     } catch (RuntimeException ignored) {
-
     }
   }
 }
