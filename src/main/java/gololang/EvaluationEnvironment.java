@@ -62,32 +62,43 @@ public class EvaluationEnvironment {
     return module(anonymousModuleName() + "\n\n" + source);
   }
 
-  public Object function(String source) {
-    return loadAndRun(source, "$_code_ref");
+  public Object function(String source, String... argumentNames) {
+    return loadAndRun(source, "$_code_ref", argumentNames);
   }
   public Object run(String source) {
     return loadAndRun(source, "$_code");
   }
 
-  private Class<?> wrapAndLoad(String source) {
+  private Class<?> wrapAndLoad(String source, String... argumentNames) {
     StringBuilder builder = new StringBuilder()
         .append(anonymousModuleName())
         .append("\n");
     for (String importSymbol : imports) {
       builder.append("import ").append(importSymbol).append("\n");
     }
+    builder.append("\nfunction $_code = ");
+    if (argumentNames.length > 0) {
+      builder.append("| ");
+      final int lastIndex = argumentNames.length - 1;
+      for (int i = 0; i < argumentNames.length; i++) {
+        builder.append(argumentNames[i]);
+        if (i < lastIndex) {
+          builder.append(", ");
+        }
+      }
+      builder.append(" |");
+    }
     builder
-        .append("\n")
-        .append("function $_code = {\n")
+        .append(" {\n")
         .append(source)
         .append("\n}\n\n")
         .append("function $_code_ref = -> ^$_code\n\n");
     return (Class<?>) module(builder.toString());
   }
 
-  private Object loadAndRun(String source, String target) {
+  private Object loadAndRun(String source, String target, String... argumentNames) {
     try {
-      Class<?> module = wrapAndLoad(source);
+      Class<?> module = wrapAndLoad(source, argumentNames);
       return module.getMethod(target).invoke(null);
     } catch (IllegalAccessException | InvocationTargetException | NoSuchMethodException e) {
       throw new RuntimeException(e);
