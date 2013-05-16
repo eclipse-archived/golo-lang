@@ -16,6 +16,7 @@
 
 package gololang;
 
+import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -67,5 +68,23 @@ public class EvaluationEnvironmentTest {
 
     assertThat(result, instanceOf(Integer.class));
     assertThat((Integer) result, is(3));
+  }
+
+  @Test
+  public void run_with_imports() throws Throwable {
+    EvaluationEnvironment env = new EvaluationEnvironment().imports("java.lang.Math");
+    String snippet = "return max(1, 2)";
+
+    Object result = env.run(snippet);
+    assertThat(result, instanceOf(Integer.class));
+    assertThat((Integer) result, is(2));
+
+    env.clearImports();
+    try {
+      env.run(snippet);
+      throw new TestNGException("A RuntimeException should have been raised");
+    } catch (RuntimeException ignored) {
+
+    }
   }
 }

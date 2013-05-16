@@ -22,10 +22,14 @@ import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.lang.reflect.InvocationTargetException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class EvaluationEnvironment {
 
   private final GoloClassLoader goloClassLoader = new GoloClassLoader();
+  private final List<String> imports = new LinkedList<>();
 
   private static String anonymousFilename() {
     return "$Anonymous$_" + System.nanoTime() + ".golo";
@@ -33,6 +37,17 @@ public class EvaluationEnvironment {
 
   private static String anonymousModuleName() {
     return "module anonymous" + System.nanoTime();
+  }
+
+  public EvaluationEnvironment imports(String head, String... tail) {
+    imports.add(head);
+    Collections.addAll(imports, tail);
+    return this;
+  }
+
+  public EvaluationEnvironment clearImports() {
+    imports.clear();
+    return this;
   }
 
   public Object module(String source) {
@@ -57,7 +72,12 @@ public class EvaluationEnvironment {
   private Class<?> wrapAndLoad(String source) {
     StringBuilder builder = new StringBuilder()
         .append(anonymousModuleName())
-        .append("\n\n")
+        .append("\n");
+    for (String importSymbol : imports) {
+      builder.append("import ").append(importSymbol).append("\n");
+    }
+    builder
+        .append("\n")
         .append("function $_code = {\n")
         .append(source)
         .append("\n}\n\n")
