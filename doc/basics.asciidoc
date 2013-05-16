@@ -234,6 +234,30 @@ API. We give them along with examples in <<data-literals,the data literals table
 
 |===
 
+Speaking of strings, Golo also supports multi-line strings using the `"""` delimiters, as in:
+
+----
+let text = """This is
+a multi-line string.
+  How
+    cool
+      is
+        that?"""
+
+println(text)
+----
+
+This snippet would print the following to the standard console output:
+
+----
+This is
+a multi-line string.
+  How
+    cool
+      is
+        that?
+----
+
 === Operators ===
 
 Golo supports the following <<operators,set of operators>>.
