@@ -60,7 +60,7 @@ public class EvaluationEnvironment {
     return module(anonymousModuleName() + "\n\n" + source);
   }
 
-  public Object function(String source, String... argumentNames) {
+  public Object func(String source, String... argumentNames) {
     return loadAndRun(source, "$_code_ref", argumentNames);
   }
 

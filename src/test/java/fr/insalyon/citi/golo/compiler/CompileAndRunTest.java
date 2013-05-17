@@ -758,4 +758,12 @@ public class CompileAndRunTest {
       assertThat(problem.getType(), is(BREAK_OR_CONTINUE_OUTSIDE_LOOP));
     }
   }
+
+  @Test
+  public void dynamic_evaluation() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "dynamic-evaluation.golo");
+
+    Method maxer = moduleClass.getMethod("maxer");
+    assertThat((Integer) maxer.invoke(null), is(10));
+  }
 }

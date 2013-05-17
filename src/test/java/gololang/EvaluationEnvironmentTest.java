@@ -54,7 +54,7 @@ public class EvaluationEnvironmentTest {
   @Test
   public void function() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment();
-    Object result = env.function("let x = 1\nreturn x + 2");
+    Object result = env.func("let x = 1\nreturn x + 2");
 
     assertThat(result, instanceOf(MethodHandle.class));
 
@@ -65,7 +65,7 @@ public class EvaluationEnvironmentTest {
   @Test
   public void function_with_arguments() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment();
-    Object result = env.function("return a + b", "a", "b");
+    Object result = env.func("return a + b", "a", "b");
 
     assertThat(result, instanceOf(MethodHandle.class));
     MethodHandle func = (MethodHandle) result;
