@@ -765,5 +765,8 @@ public class CompileAndRunTest {
 
     Method maxer = moduleClass.getMethod("maxer");
     assertThat((Integer) maxer.invoke(null), is(10));
+
+    Method run_plop = moduleClass.getMethod("run_plop");
+    assertThat((Integer) run_plop.invoke(null), is(3));
   }
 }

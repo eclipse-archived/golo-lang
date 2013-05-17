@@ -9,3 +9,13 @@ function maxer = {
   """, "a", "b")
   return max(10, 4)
 }
+
+function run_plop = {
+  let env = EvaluationEnvironment()
+  return env: run("""
+    let a = 1
+    let b = 2
+    let f = |x, y| -> x + y
+    return f(a, b)
+  """)
+}
