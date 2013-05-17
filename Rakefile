@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION='0-preview3'
+VERSION='0-preview4-SNAPSHOT'
 DIST_BIN_PATH = "target/gololang-#{VERSION}-distribution/gololang-#{VERSION}/bin"
 
 task :default => [:all]
