@@ -358,7 +358,7 @@ String StringLiteral() #void:
   (
     literal=<MULTI_STRING>
     {
-      return StringUnescaping.unescape(literal.image.substring(3, literal.image.length() - 3));
+      return literal.image.substring(3, literal.image.length() - 3);
     }
   )
 }
