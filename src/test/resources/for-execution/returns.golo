@@ -26,3 +26,7 @@ function multiline = {
 function nasty_multiline = {
   return """Damn!=\"""="""
 }
+
+function raw_code = {
+  return """println("Hello!\n")"""
+}

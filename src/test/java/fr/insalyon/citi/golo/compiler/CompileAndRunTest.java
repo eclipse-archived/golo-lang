@@ -103,7 +103,10 @@ public class CompileAndRunTest {
     assertThat((String) multiline.invoke(null), is("This is\n*awesome*"));
 
     Method nasty_multiline = moduleClass.getMethod("nasty_multiline");
-    assertThat((String) nasty_multiline.invoke(null), is("Damn!=\"\"\"="));
+    assertThat((String) nasty_multiline.invoke(null), is("Damn!=\\\"\"\"="));
+
+    Method raw_code = moduleClass.getMethod("raw_code");
+    assertThat((String) raw_code.invoke(null), is("println(\"Hello!\\n\")"));
   }
 
   @Test
