@@ -55,6 +55,19 @@ augment java.lang.invoke.MethodHandle {
 
 # ............................................................................................... #
 
+augment java.lang.String {
+
+  function format = |this, args...| {
+    if args: length() == 1 {
+      return java.lang.String.format(this, args: get(0))
+    } else {
+      return java.lang.String.format(this, args)
+    }
+  }
+}
+
+# ............................................................................................... #
+
 augment java.lang.Iterable {
 
   function reduce = |this, initialValue, func| {

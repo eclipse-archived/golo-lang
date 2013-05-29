@@ -212,4 +212,13 @@ public class StandardAugmentationsTest {
     Method maps_each = moduleClass.getMethod("maps_each");
     assertThat((Integer) maps_each.invoke(null), is(6));
   }
+
+  @Test
+  public void stringFormat() throws Throwable {
+    Method str_format1 = moduleClass.getMethod("str_format1");
+    assertThat((String) str_format1.invoke(null), is("plop"));
+
+    Method str_format2 = moduleClass.getMethod("str_format2");
+    assertThat((String) str_format2.invoke(null), is("plop da plop"));
+  }
 }
