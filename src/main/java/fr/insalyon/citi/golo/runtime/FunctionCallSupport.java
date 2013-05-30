@@ -95,7 +95,7 @@ public final class FunctionCallSupport {
     } else if (result instanceof Constructor) {
       Constructor constructor = (Constructor) result;
       handle = caller.unreflectConstructor(constructor).asType(type);
-    } else if (result instanceof Field) {
+    } else {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
