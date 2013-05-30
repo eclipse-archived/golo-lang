@@ -82,6 +82,7 @@ augment java.lang.Iterable {
     foreach (element in this) {
       func(element)
     }
+    return this
   }
 
 }
@@ -306,6 +307,7 @@ augment java.util.Map {
     foreach (entry in this: entrySet()) {
       func(entry: getKey(), entry: getValue())
     }
+    return this
   }
 }
 
