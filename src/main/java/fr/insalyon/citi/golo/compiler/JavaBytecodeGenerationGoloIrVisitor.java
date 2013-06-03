@@ -215,8 +215,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     } else {
       signature = goloFunctionSignature(function.getArity());
     }
-    if (function.isSynthetic()) {
+    if (function.isSynthetic() && ! function.isNative()) {
       accessFlags = accessFlags | ACC_SYNTHETIC;
+    }
+    if (function.isNative()) {
+      accessFlags = accessFlags | ACC_NATIVE;
     }
     context.methodArityStack.push(function.getArity());
     methodVisitor = classWriter.visitMethod(
@@ -224,9 +227,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         function.getName(),
         signature,
         null, null);
-    methodVisitor.visitCode();
-    context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
-    function.getBlock().accept(this);
+    if(!function.isNative()){
+      methodVisitor.visitCode();
+      context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
+      function.getBlock().accept(this);
+    }
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
     context.methodArityStack.pop();
