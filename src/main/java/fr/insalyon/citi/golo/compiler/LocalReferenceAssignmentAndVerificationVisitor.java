@@ -138,7 +138,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
         getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
             "Assigning " + reference.getName() +
                 " at " + assignmentStatement.getPositionInSourceCode() +
-                " but it is a constant");
+                " but it is a constant reference");
       } else {
         assignedReferences.add(reference);
       }
