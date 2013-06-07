@@ -38,7 +38,7 @@ public final class Block extends ExpressionStatement {
   }
 
   public void internReferenceTable() {
-    this.referenceTable = referenceTable.flatDeepCopy();
+    this.referenceTable = referenceTable.flatDeepCopy(true);
   }
 
   public List<GoloStatement> getStatements() {

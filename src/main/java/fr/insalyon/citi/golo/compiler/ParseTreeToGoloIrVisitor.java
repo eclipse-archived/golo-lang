@@ -346,6 +346,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     AssignmentStatement assignmentStatement = new AssignmentStatement(
         localReference,
         (ExpressionStatement) context.objectStack.pop());
+    assignmentStatement.setDeclaring(true);
     context.objectStack.push(assignmentStatement);
     node.setIrElement(assignmentStatement);
     return data;
