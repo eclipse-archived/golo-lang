@@ -58,6 +58,8 @@ function addition = |a, b| {
 }
 ----
 
+NOTE: Parameters are constant references, hence they cannot be reassigned.
+
 Invoking functions that take parameters is straightforward, too:
 
 [source,text]
