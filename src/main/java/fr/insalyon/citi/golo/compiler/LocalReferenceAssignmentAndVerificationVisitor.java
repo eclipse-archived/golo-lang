@@ -29,6 +29,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private GoloModule module = null;
   private int indexAssignmentCounter = 0;
+  private Deque<GoloFunction> functionStack = new LinkedList<>();
   private Deque<ReferenceTable> tableStack = new LinkedList<>();
   private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
   private Deque<LoopStatement> loopStack = new LinkedList<>();
@@ -72,6 +73,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitFunction(GoloFunction function) {
     resetIndexAssignmentCounter();
+    functionStack.push(function);
     ReferenceTable table = function.getBlock().getReferenceTable();
     for (String parameterName : function.getParameterNames()) {
       LocalReference reference = table.get(parameterName);
@@ -81,6 +83,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       reference.setIndex(nextAssignmentIndex());
     }
     function.getBlock().accept(this);
+    functionStack.pop();
   }
 
   @Override
@@ -92,7 +95,13 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       }
     }
     tableStack.push(table);
-    assignmentStack.push(new HashSet<LocalReference>());
+    HashSet<LocalReference> assigned = new HashSet<>();
+    if (table == functionStack.peek().getBlock().getReferenceTable()) {
+      for (String param : functionStack.peek().getParameterNames()) {
+        assigned.add(table.get(param));
+      }
+    }
+    assignmentStack.push(assigned);
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
     }
