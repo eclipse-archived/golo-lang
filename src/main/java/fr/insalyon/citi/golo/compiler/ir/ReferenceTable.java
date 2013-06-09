@@ -86,10 +86,10 @@ public final class ReferenceTable {
     return new ReferenceTable(this);
   }
 
-  public ReferenceTable flatDeepCopy() {
+  public ReferenceTable flatDeepCopy(boolean turnIntoConstants) {
     ReferenceTable referenceTable = new ReferenceTable();
     for (LocalReference reference : references()) {
-      referenceTable.add(new LocalReference(reference.getKind(), reference.getName()));
+      referenceTable.add(new LocalReference(turnIntoConstants ? LocalReference.Kind.CONSTANT : reference.getKind(), reference.getName()));
     }
     return referenceTable;
   }

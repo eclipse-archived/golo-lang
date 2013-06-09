@@ -71,7 +71,7 @@ public class ReferenceTableTest {
     assertThat(child.ownedReferences().size(), is(0));
 
     child.add(new LocalReference(VARIABLE, "plop"));
-    ReferenceTable flatCopy = child.flatDeepCopy();
+    ReferenceTable flatCopy = child.flatDeepCopy(false);
     assertThat(flatCopy.references().size(), is(child.references().size()));
     child.get("plop").setIndex(666);
     assertThat(flatCopy.get("plop").getIndex(), not(is(child.get("plop").getIndex())));

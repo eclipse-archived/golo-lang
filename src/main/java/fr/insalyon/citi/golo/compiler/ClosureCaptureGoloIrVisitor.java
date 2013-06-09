@@ -78,9 +78,14 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void locallyAssigned(String name) {
+  private void locallyDeclared(String name) {
     if (!stack.isEmpty()) {
       context().localReferences.add(name);
+    }
+  }
+
+  private void locallyAssigned(String name) {
+    if (!stack.isEmpty()) {
       context().accessedReferences.add(name);
     }
   }
@@ -192,6 +197,9 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(name));
     }
     locallyAssigned(name);
+    if (assignmentStatement.isDeclaring()) {
+      locallyDeclared(name);
+    }
     assignmentStatement.getExpressionStatement().accept(this);
   }
 
@@ -251,6 +259,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     tryCatchFinally.getTryBlock().accept(this);
     if (tryCatchFinally.hasCatchBlock()) {
       locallyAssigned(tryCatchFinally.getExceptionId());
+      locallyDeclared(tryCatchFinally.getExceptionId());
       tryCatchFinally.getCatchBlock().accept(this);
     }
     if (tryCatchFinally.hasFinallyBlock()) {
