@@ -20,11 +20,20 @@ public class AssignmentStatement extends GoloStatement {
 
   private LocalReference localReference;
   private final ExpressionStatement expressionStatement;
+  private boolean declaring = false;
 
   public AssignmentStatement(LocalReference localReference, ExpressionStatement expressionStatement) {
     super();
     this.localReference = localReference;
     this.expressionStatement = expressionStatement;
+  }
+
+  public boolean isDeclaring() {
+    return declaring;
+  }
+
+  public void setDeclaring(boolean declaring) {
+    this.declaring = declaring;
   }
 
   public LocalReference getLocalReference() {

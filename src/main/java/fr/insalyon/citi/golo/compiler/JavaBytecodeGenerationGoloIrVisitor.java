@@ -18,6 +18,7 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import fr.insalyon.citi.golo.runtime.OperatorType;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Handle;
 import org.objectweb.asm.Label;
@@ -28,8 +29,7 @@ import java.lang.invoke.MethodType;
 import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
-import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
-import static fr.insalyon.citi.golo.runtime.OperatorType.METHOD_CALL;
+import static fr.insalyon.citi.golo.runtime.OperatorType.*;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -457,8 +457,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label branchingElseLabel = new Label();
     Label branchingExitLabel = new Label();
     conditionalBranching.getCondition().accept(this);
-    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+    asmBooleanValue();
     methodVisitor.visitJumpInsn(IFEQ, branchingElseLabel);
     context.labelRangeStack.push(new LabelRange(startLabel, endLabel));
     conditionalBranching.getTrueBlock().accept(this);
@@ -494,8 +493,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     methodVisitor.visitLabel(loopStart);
     loopStatement.getConditionStatement().accept(this);
-    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+    asmBooleanValue();
     methodVisitor.visitJumpInsn(IFEQ, loopEnd);
     context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     loopStatement.getBlock().accept(this);
@@ -608,12 +606,68 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+    OperatorType operatorType = binaryOperation.getType();
+    if (AND.equals(operatorType)) {
+      andOperator(binaryOperation);
+    } else if (OR.equals(operatorType)) {
+      orOperator(binaryOperation);
+    } else {
+      genericBinaryOperator(binaryOperation, operatorType);
+    }
+  }
+
+  private void genericBinaryOperator(BinaryOperation binaryOperation, OperatorType operatorType) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
     if (!isMethodCall(binaryOperation)) {
-      String name = binaryOperation.getType().name().toLowerCase();
+      String name = operatorType.name().toLowerCase();
       methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, 2);
     }
+  }
+
+  private void orOperator(BinaryOperation binaryOperation) {
+    Label exitLabel = new Label();
+    Label trueLabel = new Label();
+    binaryOperation.getLeftExpression().accept(this);
+    asmBooleanValue();
+    methodVisitor.visitJumpInsn(IFNE, trueLabel);
+    binaryOperation.getRightExpression().accept(this);
+    asmBooleanValue();
+    methodVisitor.visitJumpInsn(IFNE, trueLabel);
+    asmFalseObject();
+    methodVisitor.visitJumpInsn(GOTO, exitLabel);
+    methodVisitor.visitLabel(trueLabel);
+    asmTrueObject();
+    methodVisitor.visitLabel(exitLabel);
+  }
+
+  private void andOperator(BinaryOperation binaryOperation) {
+    Label exitLabel = new Label();
+    Label falseLabel = new Label();
+    binaryOperation.getLeftExpression().accept(this);
+    asmBooleanValue();
+    methodVisitor.visitJumpInsn(IFEQ, falseLabel);
+    binaryOperation.getRightExpression().accept(this);
+    asmBooleanValue();
+    methodVisitor.visitJumpInsn(IFEQ, falseLabel);
+    asmTrueObject();
+    methodVisitor.visitJumpInsn(GOTO, exitLabel);
+    methodVisitor.visitLabel(falseLabel);
+    asmFalseObject();
+    methodVisitor.visitLabel(exitLabel);
+  }
+
+  private void asmFalseObject() {
+    methodVisitor.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "FALSE", "Ljava/lang/Boolean;");
+  }
+
+  private void asmTrueObject() {
+    methodVisitor.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "TRUE", "Ljava/lang/Boolean;");
+  }
+
+  private void asmBooleanValue() {
+    methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
   }
 
   @Override

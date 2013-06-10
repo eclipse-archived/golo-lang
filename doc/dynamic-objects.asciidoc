@@ -84,6 +84,41 @@ function main = |args| {
 WARNING: You cannot overload methods, that is, providing methods with the same name but different
 signatures.
 
+[WARNING]
+====
+
+It is strongly recommended that you use `define` to create and update methods.
+Consider the following example:
+
+----
+let obj = DynamicObject():
+  plop(|this| -> "Plop!")
+----
+
+Any call such as `obj: plop()` properly calls `plop()`. Because the dynamic object is fresh and new,
+the first call to `plop` creates a property since it is currently missing. 
+
+That being said, the following would fail:
+
+----
+obj: plop(|this| -> "Plop it up!")
+----
+
+Indeed, when the value of a dynamic object property is a function, it is understood to be a method,
+hence calling `plop` like it would be a setter method fails because there already exists a property
+that is a function, and it has a different signature. It needs to be updated as in:
+
+----
+obj: define('plop', |this| -> "Plop it up!")
+----
+
+**As a rule of thumb, prefer named setters for values and `define` for methods. It is acceptable
+to have named definitions for methods if and only if a call happens after the object creation and
+before any call to `mixin` (remember that it injects properties from other objects, including
+methods).**
+
+====
+
 CAUTION: Dynamic objects cause call site invalidations that may degrade performance in some cases.
 If this happens to you and performance matter, please investigate the use of *real* objects.
 

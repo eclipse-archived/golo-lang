@@ -86,26 +86,20 @@ function plus_3 = {
 The `plus_3` function returns a closure that has access to the `foo` reference, just as you would
 expect. The `foo` reference is said to have been *captured* and made available in the closure.
 
-However, **captured references cannot be re-assigned from a closure**, as illustrated by the next
-example:
+It is important to **note that captured references are constants within the closure**. Consider the
+following example:
 
 [source,text]
 ----
-function foo = {
-
-  # To be captured...
-  var i = 0
-
-  let myClosure = {
-    i = i + 1
-    println(i) # prints '1'
-  }
-  myClosure()
-
-  # prints '0'
-  println(i)
+var a = 1
+let f = {
+  a = 2   # Compilation error!
 }
 ----
+
+The compilation fails because although `a` is declared using `var` in its original scope, it is
+actually passed as an argument to the `f` closure. Because function parameters are implicitly
+constant references, this results in a compilation error.
 
 That being said, a closure has a reference on the same object as its defining environment, so a
 mutable object is a sensible way to pass data back from a closure as a side-effect, as in:

@@ -259,7 +259,22 @@ public class CompileAndRunTest {
   }
 
   @Test
-  public void test_operators() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void test_booleans() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "booleans.golo");
+
+    moduleClass.getMethod("and_logic").invoke(null);
+
+    moduleClass.getMethod("or_logic").invoke(null);
+
+    Method and_shortcut = moduleClass.getMethod("and_shortcut");
+    assertThat((String) and_shortcut.invoke(null), is("Ok"));
+
+    Method or_shortcut = moduleClass.getMethod("or_shortcut");
+    assertThat((String) or_shortcut.invoke(null), is("Ok"));
+  }
+
+  @Test
+  public void test_operators() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo");
 
     Method plus_one = moduleClass.getMethod("plus_one", Object.class);

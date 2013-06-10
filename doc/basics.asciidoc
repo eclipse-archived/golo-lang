@@ -163,17 +163,17 @@ Golo comments start with a `#`, just like in Bash, Python or Ruby:
 println("WTF?") # it works here, too
 ----
 
-=== Variables and constants ===
+=== Variable and constant references ===
 
-Golo does not check for types at compile time, and they are not
-declared. Everything happens at runtime in Golo.
+Golo does not check for types at compile time, and they are not declared. Everything happens at
+runtime in Golo.
 
-Variables are declared using the `var` keyword, while constants are
-declared with `let`. It is strongly advised that you favour `let` over
-`var` unless you are certain that you need mutability.
+Variables are declared using the `var` keyword, while constant references are declared with `let`.
+It is strongly advised that you favour `let` over `var` unless you are certain that you need
+mutability.
 
-Variables and constants need to be initialized when declared. Failing to
-do so results in a compilation error.
+Variables and constants need to be initialized when declared. Failing to do so results in a
+compilation error.
 
 Here are a few examples:
 

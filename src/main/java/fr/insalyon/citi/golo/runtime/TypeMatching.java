@@ -58,6 +58,9 @@ class TypeMatching {
       }
     }
     final int last = types.length - 1;
+    if (last >= arguments.length) {
+      return false;
+    }
     if (varArgs) {
       return valueAndTypeMatch(types[last].getComponentType(), arguments[last]);
     }

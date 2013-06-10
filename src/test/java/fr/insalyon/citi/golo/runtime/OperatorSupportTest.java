@@ -217,36 +217,6 @@ public class OperatorSupportTest {
   }
 
   @Test
-  public void check_and() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "and", BINOP_TYPE, 2).dynamicInvoker();
-    assertThat((Boolean) handle.invokeWithArguments(true, true), is(true));
-    assertThat((Boolean) handle.invokeWithArguments(false, true), is(false));
-    assertThat((Boolean) handle.invokeWithArguments(true, false), is(false));
-    assertThat((Boolean) handle.invokeWithArguments(false, false), is(false));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void check_and_rejects_non_booleans() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "and", BINOP_TYPE, 2).dynamicInvoker();
-    handle.invokeWithArguments("foo", "bar");
-  }
-
-  @Test
-  public void check_or() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "or", BINOP_TYPE, 2).dynamicInvoker();
-    assertThat((Boolean) handle.invokeWithArguments(true, true), is(true));
-    assertThat((Boolean) handle.invokeWithArguments(false, true), is(true));
-    assertThat((Boolean) handle.invokeWithArguments(true, false), is(true));
-    assertThat((Boolean) handle.invokeWithArguments(false, false), is(false));
-  }
-
-  @Test(expectedExceptions = IllegalArgumentException.class)
-  public void check_or_rejects_non_booleans() throws Throwable {
-    MethodHandle handle = OperatorSupport.bootstrap(lookup(), "or", BINOP_TYPE, 2).dynamicInvoker();
-    handle.invokeWithArguments("foo", "bar");
-  }
-
-  @Test
   public void check_not() throws Throwable {
     MethodHandle handle = OperatorSupport.bootstrap(lookup(), "not", UNOP_TYPE, 1).dynamicInvoker();
     assertThat((Boolean) handle.invokeWithArguments(true), is(false));

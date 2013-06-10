@@ -754,14 +754,6 @@ public class OperatorSupport {
 
   // logic ............................................................................................................
 
-  public static Object and(Boolean a, Boolean b) {
-    return a && b;
-  }
-
-  public static Object or(Boolean a, Boolean b) {
-    return a || b;
-  }
-
   public static Object not(Boolean a) {
     return !a;
   }
