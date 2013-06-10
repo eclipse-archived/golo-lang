@@ -16,7 +16,7 @@ module samples.DynamicEvaluation
 
 import gololang.EvaluationEnvironment
 
-local function fullModule = |env| {
+local function test_fullModule = |env| {
   let code =
 """
 module foo
@@ -32,7 +32,7 @@ function b = -> "b!"
   println(b())
 }
 
-local function anonymousModule = |env| {
+local function test_anonymousModule = |env| {
   let code =
 """
 function a = -> "a."
@@ -46,14 +46,14 @@ function b = -> "b."
   println(b())
 }
 
-local function func = |env| {
+local function test_func = |env| {
   let code = "return (a + b) * 2"
   let f = env: func(code, "a", "b")
   println(">>> func")
   println(f(10, 20))
 }
 
-local function run = |env| {
+local function test_run = |env| {
   let code = """println(">>> run")
   foreach (i in range(0, 3)) {
     println("w00t")
@@ -61,7 +61,7 @@ local function run = |env| {
   env: run(code)
 }
 
-local function run_map = |env| {
+local function test_run_map = |env| {
   let code = """println(">>> run_map")
   println(a)
   println(b)
@@ -72,9 +72,9 @@ local function run_map = |env| {
 
 function main = |args| {
   let env = EvaluationEnvironment()
-  fullModule(env)
-  anonymousModule(env)
-  func(env)
-  run(env)
-  run_map(env)
+  test_fullModule(env)
+  test_anonymousModule(env)
+  test_func(env)
+  test_run(env)
+  test_run_map(env)
 }
