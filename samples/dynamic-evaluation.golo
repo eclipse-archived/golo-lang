@@ -53,6 +53,13 @@ local function test_func = |env| {
   println(f(10, 20))
 }
 
+local function test_defunc = |env| {
+  let code = "|a, b| -> (a + b) * 2"
+  let f = env: defunc(code)
+  println(">>> defunc")
+  println(f(10, 20))
+}
+
 local function test_run = |env| {
   let code = """println(">>> run")
   foreach (i in range(0, 3)) {
@@ -75,6 +82,7 @@ function main = |args| {
   test_fullModule(env)
   test_anonymousModule(env)
   test_func(env)
+  test_defunc(env)
   test_run(env)
   test_run_map(env)
 }

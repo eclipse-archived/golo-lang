@@ -60,6 +60,10 @@ public class EvaluationEnvironment {
     return fullModule(anonymousModuleName() + "\n\n" + source);
   }
 
+  public Object defunc(String source) {
+    return loadAndRun("return " + source, "$_code");
+  }
+
   public Object func(String source, String... argumentNames) {
     return loadAndRun(source, "$_code_ref", argumentNames);
   }

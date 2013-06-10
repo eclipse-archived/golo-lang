@@ -119,4 +119,16 @@ public class EvaluationEnvironmentTest {
     } catch (RuntimeException ignored) {
     }
   }
+
+  @Test
+  public void defunc() throws Throwable {
+    EvaluationEnvironment env = new EvaluationEnvironment();
+    String code = "|a, b| -> a + b";
+
+    Object result = env.defunc(code);
+    assertThat(result, instanceOf(MethodHandle.class));
+    MethodHandle func = (MethodHandle) result;
+    assertThat(func.type().parameterCount(), is(2));
+    assertThat((Integer) func.invoke(10, 5), is(15));
+  }
 }
