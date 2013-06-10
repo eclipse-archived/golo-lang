@@ -48,7 +48,7 @@ public class EvaluationEnvironment {
     return this;
   }
 
-  public Object module(String source) {
+  public Object fullModule(String source) {
     try (InputStream in = new ByteArrayInputStream(source.getBytes())) {
       return goloClassLoader.load(anonymousFilename(), in);
     } catch (IOException e) {
@@ -57,7 +57,7 @@ public class EvaluationEnvironment {
   }
 
   public Object anonymousModule(String source) {
-    return module(anonymousModuleName() + "\n\n" + source);
+    return fullModule(anonymousModuleName() + "\n\n" + source);
   }
 
   public Object func(String source, String... argumentNames) {
@@ -106,7 +106,7 @@ public class EvaluationEnvironment {
         .append(source)
         .append("\n}\n\n")
         .append("function $_code_ref = -> ^$_code\n\n");
-    return (Class<?>) module(builder.toString());
+    return (Class<?>) fullModule(builder.toString());
   }
 
   private Object loadAndRun(String source, String target, String... argumentNames) {

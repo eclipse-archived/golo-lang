@@ -36,7 +36,7 @@ public class EvaluationEnvironmentTest {
   @Test
   public void module() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment();
-    Class<?> module = (Class<?>) env.module(SIMPLE_MODULE);
+    Class<?> module = (Class<?>) env.fullModule(SIMPLE_MODULE);
 
     assertThat(module, not(nullValue()));
     assertThat((String) module.getMethod("plop").invoke(null), is("Plop!"));
