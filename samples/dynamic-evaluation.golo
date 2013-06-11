@@ -16,7 +16,7 @@ module samples.DynamicEvaluation
 
 import gololang.EvaluationEnvironment
 
-local function test_fullModule = |env| {
+local function test_moduleFile = |env| {
   let code =
 """
 module foo
@@ -24,10 +24,10 @@ module foo
 function a = -> "a!"
 function b = -> "b!"
 """
-  let mod = env: fullModule(code)
+  let mod = env: moduleFile(code)
   let a = fun("a", mod)
   let b = fun("b", mod)
-  println(">>> fullModule()")
+  println(">>> moduleFile()")
   println(a())
   println(b())
 }
@@ -46,17 +46,17 @@ function b = -> "b."
   println(b())
 }
 
-local function test_func = |env| {
+local function test_asFunction = |env| {
   let code = "return (a + b) * 2"
-  let f = env: func(code, "a", "b")
-  println(">>> func")
+  let f = env: asFunction(code, "a", "b")
+  println(">>> asFunction")
   println(f(10, 20))
 }
 
-local function test_defunc = |env| {
+local function test_def = |env| {
   let code = "|a, b| -> (a + b) * 2"
-  let f = env: defunc(code)
-  println(">>> defunc")
+  let f = env: def(code)
+  println(">>> def")
   println(f(10, 20))
 }
 
@@ -79,10 +79,10 @@ local function test_run_map = |env| {
 
 function main = |args| {
   let env = EvaluationEnvironment()
-  test_fullModule(env)
+  test_moduleFile(env)
   test_anonymousModule(env)
-  test_func(env)
-  test_defunc(env)
+  test_asFunction(env)
+  test_def(env)
   test_run(env)
   test_run_map(env)
 }

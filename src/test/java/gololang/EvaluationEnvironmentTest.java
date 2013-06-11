@@ -36,7 +36,7 @@ public class EvaluationEnvironmentTest {
   @Test
   public void module() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment();
-    Class<?> module = (Class<?>) env.fullModule(SIMPLE_MODULE);
+    Class<?> module = (Class<?>) env.moduleFile(SIMPLE_MODULE);
 
     assertThat(module, not(nullValue()));
     assertThat((String) module.getMethod("plop").invoke(null), is("Plop!"));
@@ -54,7 +54,7 @@ public class EvaluationEnvironmentTest {
   @Test
   public void function() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment();
-    Object result = env.func("let x = 1\nreturn x + 2");
+    Object result = env.asFunction("let x = 1\nreturn x + 2");
 
     assertThat(result, instanceOf(MethodHandle.class));
 
@@ -65,7 +65,7 @@ public class EvaluationEnvironmentTest {
   @Test
   public void function_with_arguments() throws Throwable {
     EvaluationEnvironment env = new EvaluationEnvironment();
-    Object result = env.func("return a + b", "a", "b");
+    Object result = env.asFunction("return a + b", "a", "b");
 
     assertThat(result, instanceOf(MethodHandle.class));
     MethodHandle func = (MethodHandle) result;
@@ -125,7 +125,7 @@ public class EvaluationEnvironmentTest {
     EvaluationEnvironment env = new EvaluationEnvironment();
     String code = "|a, b| -> a + b";
 
-    Object result = env.defunc(code);
+    Object result = env.def(code);
     assertThat(result, instanceOf(MethodHandle.class));
     MethodHandle func = (MethodHandle) result;
     assertThat(func.type().parameterCount(), is(2));

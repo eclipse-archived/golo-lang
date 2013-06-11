@@ -4,7 +4,7 @@ import gololang.EvaluationEnvironment
 
 function maxer = {
   let env = EvaluationEnvironment(): imports("java.lang.Math")
-  let max = env: func("""
+  let max = env: asFunction("""
      return max(a, b)
   """, "a", "b")
   return max(10, 4)
