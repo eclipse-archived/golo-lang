@@ -16,7 +16,7 @@ module samples.DynamicEvaluation
 
 import gololang.EvaluationEnvironment
 
-local function test_moduleFile = |env| {
+local function test_asModule = |env| {
   let code =
 """
 module foo
@@ -24,10 +24,10 @@ module foo
 function a = -> "a!"
 function b = -> "b!"
 """
-  let mod = env: moduleFile(code)
+  let mod = env: asModule(code)
   let a = fun("a", mod)
   let b = fun("b", mod)
-  println(">>> moduleFile()")
+  println(">>> asModule()")
   println(a())
   println(b())
 }
@@ -79,7 +79,7 @@ local function test_run_map = |env| {
 
 function main = |args| {
   let env = EvaluationEnvironment()
-  test_moduleFile(env)
+  test_asModule(env)
   test_anonymousModule(env)
   test_asFunction(env)
   test_def(env)
