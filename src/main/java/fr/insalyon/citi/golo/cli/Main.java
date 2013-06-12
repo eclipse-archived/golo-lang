@@ -26,6 +26,8 @@ import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -53,7 +55,17 @@ public class Main {
     List<String> sources = new LinkedList<>();
   }
 
-  public static void main(String... args) {
+  @Parameters(commandDescription = "Run compiled Golo code")
+  private static class RunCommand {
+
+    @Parameter(names = "--module", description = "The Golo module with a main function", required = true)
+    String module;
+
+    @Parameter(description = "Program arguments")
+    List<String> arguments = new LinkedList<>();
+  }
+
+  public static void main(String... args) throws Throwable {
     GlobalArguments global = new GlobalArguments();
     JCommander cmd = new JCommander(global);
     cmd.setProgramName("golo");
@@ -61,6 +73,8 @@ public class Main {
     cmd.addCommand("version", version);
     CompilerCommand goloc = new CompilerCommand();
     cmd.addCommand("compile", goloc);
+    RunCommand golo = new RunCommand();
+    cmd.addCommand("run", golo);
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -73,12 +87,16 @@ public class Main {
           case "compile":
             compile(goloc);
             break;
+          case "run":
+            run(golo);
+            break;
           default:
             throw new AssertionError("WTF?");
         }
       }
     } catch (ParameterException exception) {
       System.err.println(exception.getMessage());
+      System.out.println();
       cmd.usage();
     }
   }
@@ -117,6 +135,18 @@ public class Main {
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
       }
+    }
+  }
+
+  private static void run(RunCommand golo) throws InvocationTargetException, IllegalAccessException {
+    try {
+      Class<?> module = Class.forName(golo.module);
+      Method main = module.getMethod("main", Object.class);
+      main.invoke(null, (Object) golo.arguments.toArray());
+    } catch (ClassNotFoundException e) {
+      System.out.println("The module " + golo.module + " could not be loaded.");
+    } catch (NoSuchMethodException e) {
+      System.out.println("The module " + golo.module + " does not have a main method with am argument.");
     }
   }
 }
