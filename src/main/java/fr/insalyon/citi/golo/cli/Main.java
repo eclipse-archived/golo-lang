@@ -20,6 +20,15 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
+import fr.insalyon.citi.golo.compiler.GoloCompiler;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.util.Collections;
+import java.util.LinkedList;
+import java.util.List;
 
 public class Main {
 
@@ -35,12 +44,24 @@ public class Main {
     boolean full = false;
   }
 
+  @Parameters(commandDescription = "Compiles Golo source files")
+  private static class CompilerCommand {
+
+    @Parameter(names = "--output", description = "The compiled classes output directory")
+    String output = ".";
+
+    @Parameter(description = "Golo source files (*.golo)")
+    List<String> sources = new LinkedList<>();
+  }
+
   public static void main(String... args) {
     GlobalArguments global = new GlobalArguments();
     JCommander cmd = new JCommander(global);
     cmd.setProgramName("golo");
     VersionCommand version = new VersionCommand();
     cmd.addCommand("version", version);
+    CompilerCommand goloc = new CompilerCommand();
+    cmd.addCommand("compile", goloc);
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -49,6 +70,9 @@ public class Main {
       switch (cmd.getParsedCommand()) {
         case "version":
           version(version);
+          break;
+        case "compile":
+          compile(goloc);
           break;
         default:
           throw new AssertionError("WTF?");
@@ -59,11 +83,40 @@ public class Main {
     }
   }
 
+  static void handleCompilationException(GoloCompilationException e) {
+    if (e.getMessage() != null) {
+      System.out.println("[error] " + e.getMessage());
+    }
+    if (e.getCause() != null) {
+      System.out.println("[error] " + e.getCause().getMessage());
+    }
+    for (GoloCompilationException.Problem problem : e.getProblems()) {
+      System.out.println("[error] " + problem.getDescription());
+    }
+    System.exit(1);
+  }
+
   private static void version(VersionCommand options) {
     if (options.full) {
       System.out.println(Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
     } else {
       System.out.println(Metadata.VERSION);
+    }
+  }
+
+  private static void compile(CompilerCommand options) {
+    GoloCompiler compiler = new GoloCompiler();
+    File outputDir = new File(options.output);
+    for (String source : options.sources) {
+      File file = new File(source);
+      try (FileInputStream in = new FileInputStream(file)) {
+        compiler.compileTo(file.getName(), in, outputDir);
+      } catch (IOException e) {
+        System.out.println("[error] " + source + " does not exist or could not be opened.");
+        return;
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e);
+      }
     }
   }
 }
