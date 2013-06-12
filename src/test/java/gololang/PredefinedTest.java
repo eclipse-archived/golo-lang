@@ -19,6 +19,7 @@ package gololang;
 import org.testng.annotations.Test;
 
 import java.awt.event.ActionListener;
+import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -139,7 +140,7 @@ public class PredefinedTest {
   }
 
   @Test
-  public void test_fileText() throws Throwable {
+  public void test_fileToText() throws Throwable {
     Object content = Predefined.fileToText("THIRD-PARTY", "UTF-8");
     assertThat(content, instanceOf(String.class));
     String text = (String) content;
@@ -147,5 +148,14 @@ public class PredefinedTest {
     assertThat(text, containsString("INRIA"));
     assertThat(text, containsString("DAMAGE"));
     assertThat(text, containsString("INSA-Lyon"));
+  }
+
+  @Test
+  public void test_textToFile() throws Throwable {
+    File tempFile = File.createTempFile("plop", "daplop");
+    String message = "Plop!";
+    Predefined.textToFile(message, tempFile);
+    String text = (String) Predefined.fileToText(tempFile, "UTF-8");
+    assertThat(text, is(message));
   }
 }
