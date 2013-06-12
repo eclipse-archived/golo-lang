@@ -20,14 +20,17 @@ import com.beust.jcommander.JCommander;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -65,6 +68,16 @@ public class Main {
     List<String> arguments = new LinkedList<>();
   }
 
+  @Parameters(commandDescription = "Dynamically load and run from Golo source files")
+  private static class GoloGoloCommand {
+
+    @Parameter(names = "--files", variableArity = true, description = "Golo source files", required = true)
+    List<String> files = new LinkedList<>();
+
+    @Parameter(names = "--args", variableArity = true, description = "Program arguments")
+    List<String> arguments = new LinkedList<>();
+  }
+
   public static void main(String... args) throws Throwable {
     GlobalArguments global = new GlobalArguments();
     JCommander cmd = new JCommander(global);
@@ -75,6 +88,8 @@ public class Main {
     cmd.addCommand("compile", goloc);
     RunCommand golo = new RunCommand();
     cmd.addCommand("run", golo);
+    GoloGoloCommand gologolo = new GoloGoloCommand();
+    cmd.addCommand("golo", gologolo);
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -89,6 +104,9 @@ public class Main {
             break;
           case "run":
             run(golo);
+            break;
+          case "golo":
+            golo(gologolo);
             break;
           default:
             throw new AssertionError("WTF?");
@@ -138,7 +156,7 @@ public class Main {
     }
   }
 
-  private static void run(RunCommand golo) throws InvocationTargetException, IllegalAccessException {
+  private static void run(RunCommand golo) throws Throwable {
     try {
       Class<?> module = Class.forName(golo.module);
       Method main = module.getMethod("main", Object.class);
@@ -148,5 +166,28 @@ public class Main {
     } catch (NoSuchMethodException e) {
       System.out.println("The module " + golo.module + " does not have a main method with am argument.");
     }
+  }
+
+  private static void golo(GoloGoloCommand gologolo) throws Throwable {
+    GoloClassLoader loader = new GoloClassLoader();
+    Class<?> lastClass = null;
+    for (String goloFile : gologolo.files) {
+      File file = new File(goloFile);
+      if (!file.exists()) {
+        System.out.println("Error: " + file + " does not exist.");
+        return;
+      }
+      if (!file.isFile()) {
+        System.out.println("Error: " + file + " is not a file.");
+        return;
+      }
+      try (FileInputStream in = new FileInputStream(file)) {
+        lastClass = loader.load(file.getName(), in);
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e);
+      }
+    }
+    Method main = lastClass.getMethod("main", Object.class);
+    main.invoke(null, (Object) gologolo.arguments.toArray());
   }
 }
