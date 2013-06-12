@@ -137,4 +137,15 @@ public class PredefinedTest {
   public void test_fun_fail() throws Throwable {
     MethodHandle hello = (MethodHandle) Predefined.fun("helloz", MyCallable.class, 0);
   }
+
+  @Test
+  public void test_fileText() throws Throwable {
+    Object content = Predefined.fileText("THIRD-PARTY", "UTF-8");
+    assertThat(content, instanceOf(String.class));
+    String text = (String) content;
+    assertThat(text, containsString("ASM"));
+    assertThat(text, containsString("INRIA"));
+    assertThat(text, containsString("DAMAGE"));
+    assertThat(text, containsString("INSA-Lyon"));
+  }
 }
