@@ -165,11 +165,11 @@ function call_local_fun = {
 
 === File I/O ===
 
-Sometimes it is very desirable to read the content of a text file. The `fileText` function does just that:
+Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:
 
 [source,text]
 ----
-let text = fileText("/some/file.txt", "UTF-8")
+let text = fileToText("/some/file.txt", "UTF-8")
 ----
 
 The first parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`. The second parameter

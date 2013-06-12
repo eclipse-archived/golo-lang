@@ -140,7 +140,7 @@ public class PredefinedTest {
 
   @Test
   public void test_fileText() throws Throwable {
-    Object content = Predefined.fileText("THIRD-PARTY", "UTF-8");
+    Object content = Predefined.fileToText("THIRD-PARTY", "UTF-8");
     assertThat(content, instanceOf(String.class));
     String text = (String) content;
     assertThat(text, containsString("ASM"));

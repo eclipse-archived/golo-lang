@@ -358,7 +358,7 @@ public class Predefined {
    * @param encoding the file encoding as a {@link String} or {@link Charset}.
    * @return the content as a {@link String}.
    */
-  public static Object fileText(Object file, Object encoding) throws Throwable {
+  public static Object fileToText(Object file, Object encoding) throws Throwable {
     Path path = null;
     if (file instanceof String) {
       path = Paths.get((String) file);
