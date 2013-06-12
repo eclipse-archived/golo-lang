@@ -12,9 +12,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-VERSION='0-preview5-SNAPSHOT'
-DIST_BIN_PATH = "target/gololang-#{VERSION}-distribution/gololang-#{VERSION}/bin"
-
 task :default => [:all]
 
 desc "Build a complete distribution (packages + documentation)"
@@ -61,25 +58,6 @@ task :release => [:clean, :all] do
   Dir.chdir("golo-maven-plugin") do
     sh MAGIC
   end
-end
-
-namespace :run do
-
-  desc "Run golo"
-  task :golo, :arguments do |t, args|
-    sh "#{DIST_BIN_PATH}/golo #{args.arguments}"
-  end
-
-  desc "Run goloc"
-  task :goloc, :arguments do |t, args|
-    sh "#{DIST_BIN_PATH}/goloc #{args.arguments}"
-  end
-
-  desc "Run gologolo"
-  task :gologolo, :arguments do |t, args|
-    sh "#{DIST_BIN_PATH}/gologolo #{args.arguments}"
-  end
-
 end
 
 namespace :test do
