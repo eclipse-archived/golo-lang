@@ -58,7 +58,7 @@ public class Main {
     List<String> sources = new LinkedList<>();
   }
 
-  @Parameters(commandDescription = "Run compiled Golo code")
+  @Parameters(commandDescription = "Runs compiled Golo code")
   private static class RunCommand {
 
     @Parameter(names = "--module", description = "The Golo module with a main function", required = true)
@@ -68,10 +68,10 @@ public class Main {
     List<String> arguments = new LinkedList<>();
   }
 
-  @Parameters(commandDescription = "Dynamically load and run from Golo source files")
+  @Parameters(commandDescription = "Dynamically loads and runs from Golo source files")
   private static class GoloGoloCommand {
 
-    @Parameter(names = "--files", variableArity = true, description = "Golo source files", required = true)
+    @Parameter(names = "--files", variableArity = true, description = "Golo source files (the last one has a main function)", required = true)
     List<String> files = new LinkedList<>();
 
     @Parameter(names = "--args", variableArity = true, description = "Program arguments")
