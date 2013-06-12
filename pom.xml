@@ -227,20 +227,8 @@
           <extraJvmArguments>-server -Xms1024M -Xmx1024M -XX:-TieredCompilation</extraJvmArguments>
           <programs>
             <program>
-              <name>golo-cli</name>
-              <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
-            </program>
-            <program>
               <name>golo</name>
-              <mainClass>fr.insalyon.citi.golo.cli.MainGolo</mainClass>
-            </program>
-            <program>
-              <name>goloc</name>
-              <mainClass>fr.insalyon.citi.golo.cli.MainGoloc</mainClass>
-            </program>
-            <program>
-              <name>gologolo</name>
-              <mainClass>fr.insalyon.citi.golo.cli.MainGoloGolo</mainClass>
+              <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
             </program>
           </programs>
         </configuration>
