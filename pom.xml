@@ -123,6 +123,7 @@
       <groupId>com.beust</groupId>
       <artifactId>jcommander</artifactId>
       <version>${jcommander.version}</version>
+      <optional>true</optional>
     </dependency>
 
     <dependency>
