@@ -26,14 +26,13 @@ import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
 public class Main {
 
   private static class GlobalArguments {
-    @Parameter(names = {"--help"}, help = true)
+    @Parameter(names = {"--help"}, description = "Prints this message", help = true)
     boolean help;
   }
 
@@ -66,16 +65,17 @@ public class Main {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
         cmd.usage();
-      }
-      switch (cmd.getParsedCommand()) {
-        case "version":
-          version(version);
-          break;
-        case "compile":
-          compile(goloc);
-          break;
-        default:
-          throw new AssertionError("WTF?");
+      } else {
+        switch (cmd.getParsedCommand()) {
+          case "version":
+            version(version);
+            break;
+          case "compile":
+            compile(goloc);
+            break;
+          default:
+            throw new AssertionError("WTF?");
+        }
       }
     } catch (ParameterException exception) {
       System.err.println(exception.getMessage());
