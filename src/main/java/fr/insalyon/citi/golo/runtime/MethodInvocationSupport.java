@@ -289,6 +289,7 @@ public class MethodInvocationSupport {
           throw new UnsupportedOperationException("set on arrays takes 2 parameters");
         }
         return MethodHandles.arrayElementSetter(receiverClass).asType(type);
+      case "size":
       case "length":
         if (args.length != 1) {
           throw new UnsupportedOperationException("length on arrays takes no parameters");

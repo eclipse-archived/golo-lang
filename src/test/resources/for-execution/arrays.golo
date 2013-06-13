@@ -39,6 +39,10 @@ function length_method = {
   return Array(1, 2, 3): length()
 }
 
+function size_method = {
+  return Array(1, 2, 3): size()
+}
+
 function iterator_method = {
   let a = Array(1, 2, 3)
   var sum = 0

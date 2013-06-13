@@ -351,7 +351,7 @@ be invoked on arrays:
 
 - `get(index)` returns the value at `index`,
 - `set(index, value)` sets `value` at `index`,
-- `length()` returns the array length,
+- `length()` and `size()` return the array length,
 - `iterator()` returns a `java.util.Iterator`,
 - `toString()` delegates to `java.util.Arrays.toString(Object[])`,
 - `asList()` delegates to `java.util.Arrays.asList(Object[])`,
