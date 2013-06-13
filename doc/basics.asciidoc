@@ -46,22 +46,31 @@ that is an awesome achievement.
 
 NOTE: Newlines are important in Golo, so make sure that your editor ends files with a newline.
 
-=== Running _"Hello world"_ with `gologolo` ===
+=== Running _"Hello world"_ ===
 
 Of course, we need to run this incredibly complex application.
 
-Golo comes with a `gologolo` script found in the distribution `bin/`
-folder. Provided that it is available from your current `$PATH`, you may
-simply invoke it as follows:
+Golo comes with a `golo` script found in the distribution `bin/` folder. It provides several
+commands, notably:
+
+- `version` to query the Golo version,
+- `compile` to compile some Golo code to JVM classes,
+- `run` to execute some already compiled Golo code, and
+- `golo` to directly execute Golo code from source files.
+
+The complete commands usage instructions can be listed by running `golo --help`.
+
+Provided that `golo` is available from your current `$PATH`, you may run the program above as
+follows:
 
 [source,console]
 ----
-$ gologolo samples/helloworld.golo
+$ golo golo --files samples/helloworld.golo
 Hello world!
 $
 ----
 
-`gologolo` takes several Golo source files as input. It expects the last
+`golo golo` takes several Golo source files as input. It expects the last
 one to have a `main` function to call. The Golo code is compiled on the
 fly and executed straight into a JVM.
 
@@ -84,7 +93,7 @@ We may invoke it as follows:
 
 [source,console]
 ----
-$ gologolo samples/echo-args.golo --args plop da plop
+$ golo golo --files samples/echo-args.golo --args plop da plop
 -> plop
 -> da
 -> plop
@@ -95,15 +104,14 @@ Note that `args` is expected to be an array.
 
 === Compiling Golo source code ===
 
-Golo comes with a `goloc` compiler that generates JVM bytecode in
-`.class` files. We will give more details in the chapter on
-interoperability with Java.
+Golo comes with a compiler that generates JVM bytecode in `.class` files. We will give more details
+in the chapter on interoperability with Java.
 
 Compiling Golo files is straightforward:
 
 [source,console]
 ----
-$ goloc -output classes samples/helloworld.golo
+$ golo compile --output classes samples/helloworld.golo
 $
 ----
 
@@ -129,7 +137,7 @@ Golo provides a `golo` command for running compiled Golo code:
 [source,console]
 ----
 $ cd classes
-$ golo hello.World
+$ golo run --module hello.World
 Hello world!
 $
 ----
@@ -138,7 +146,7 @@ Simple, isn't it?
 
 === Passing JVM-specific flags ===
 
-Both `golo` and `gologolo` can be given JVM-specific flags using the `JAVA_OPTS` environment
+Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment
 variable. 
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
@@ -147,10 +155,10 @@ As an example, the following runs `fibonacci.golo` and prints JIT compilation al
 ----
 # Exporting an environment variable
 $ export JAVA_OPTS=-XX:+PrintCompilation
-$ gologolo samples/fibonacci.golo
+$ golo golo --files samples/fibonacci.golo
 
 # ...or you may use this one-liner
-$ JAVA_OPTS=-XX:+PrintCompilation gologolo samples/fibonacci.golo
+$ JAVA_OPTS=-XX:+PrintCompilation golo golo --files samples/fibonacci.golo
 ----
 
 === Comments ===
