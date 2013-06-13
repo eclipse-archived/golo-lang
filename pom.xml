@@ -110,7 +110,7 @@
     <animal-sniffer-maven-plugin.version>1.9</animal-sniffer-maven-plugin.version>
     <jcommander.version>1.30</jcommander.version>
     <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
-    <maven-bundle-plugin.version>2.4.0-SNAPSHOT</maven-bundle-plugin.version>
+    <maven-bundle-plugin.version>2.4.0</maven-bundle-plugin.version>
   </properties>
 
   <dependencies>
