@@ -455,6 +455,9 @@ public class CompileAndRunTest {
     Method length_method = moduleClass.getMethod("length_method");
     assertThat((Integer) length_method.invoke(null), is(3));
 
+    Method size_method = moduleClass.getMethod("size_method");
+    assertThat((Integer) size_method.invoke(null), is(3));
+
     Method iterator_method = moduleClass.getMethod("iterator_method");
     assertThat((Integer) iterator_method.invoke(null), is(6));
 
