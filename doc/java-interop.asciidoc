@@ -244,7 +244,7 @@ Running it yields the following console output:
 
 [source,console]
 ------------------------------------------
-$ gologolo samples/enums-thread-state.golo 
+$ golo golo --files samples/enums-thread-state.golo 
 name=NEW, ordinal=0
 name=NEW, ordinal=0
 name=RUNNABLE, ordinal=1
