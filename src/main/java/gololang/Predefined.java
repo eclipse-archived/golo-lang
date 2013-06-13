@@ -16,12 +16,18 @@
 
 package gololang;
 
+import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.LinkedList;
@@ -342,6 +348,52 @@ public class Predefined {
    */
   public static Object fun(Object name, Object module) throws Throwable {
     return fun(name, module, -1);
+  }
+
+  // ...................................................................................................................
+
+  /**
+   * Reads the content of a text file.
+   *
+   * @param file     the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
+   * @param encoding the file encoding as a {@link String} or {@link Charset}.
+   * @return the content as a {@link String}.
+   */
+  public static Object fileToText(Object file, Object encoding) throws Throwable {
+    Path path = pathFrom(file);
+    Charset charset = null;
+    if (encoding instanceof String) {
+      charset = Charset.forName((String) encoding);
+    } else if (encoding instanceof Charset) {
+      charset = (Charset) encoding;
+    } else {
+      throw new IllegalArgumentException("encoding must be either a string or a charset instance");
+    }
+    return new String(Files.readAllBytes(path), charset);
+  }
+
+  private static Path pathFrom(Object file) {
+    if (file instanceof String) {
+      return Paths.get((String) file);
+    } else if (file instanceof File) {
+      return ((File) file).toPath();
+    } else if (file instanceof Path) {
+      return (Path) file;
+    }
+    throw new IllegalArgumentException("file must be a string, a file or a path");
+  }
+
+  /**
+   * Writes some text to a file. The file is created if it does not exist, and overwritten if it already exists.
+   *
+   * @param text the text to write.
+   * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
+   */
+  public static void textToFile(Object text, Object file) throws Throwable {
+    require(text instanceof String, "text must be a string");
+    String str = (String) text;
+    Path path = pathFrom(file);
+    Files.write(path, str.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
   }
 
   // ...................................................................................................................
