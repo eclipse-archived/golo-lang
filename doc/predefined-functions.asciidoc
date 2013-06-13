@@ -163,6 +163,30 @@ function call_local_fun = {
 }
 ----
 
+=== File I/O ===
+
+Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:
+
+[source,text]
+----
+let text = fileToText("/some/file.txt", "UTF-8")
+----
+
+The first parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`. The second parameter
+represents the encoding charset, either as a `java.lang.String` or a `java.nio.charset.Charset`.
+
+We can write some text to a file, too:
+
+[source,text]
+----
+textToFile("Hello, world!", "/foo/bar.txt")
+----
+
+The `textToFile` function overwrites existing files, and creates new ones if needed.
+
+These functions are provided for convenience, so if you need more fine-grained control over reading and writing text
+then we suggest that you look into the `java.nio.file` package.
+
 === Misc. ===
 
 `mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:
