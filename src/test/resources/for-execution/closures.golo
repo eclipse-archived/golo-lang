@@ -100,3 +100,23 @@ function closure_with_varargs_and_capture = {
   }
   return fun(1, 2, 3)
 }
+
+function closure_with_synthetic_refs = {
+  let builder = java.lang.StringBuilder()
+  let fun = {
+    foreach (i in range(0, 3)) {
+      builder: append(i)
+    }
+  }
+  fun()
+  return builder: toString()
+}
+
+function closure_with_synthetic_refs_in_match = {
+  let fun = |x| -> match {
+    when x: startsWith("1") then "1"
+    when x: startsWith("2") then "2"
+    otherwise "0"
+  }
+  return fun("12") + fun("21") + fun("666")
+}

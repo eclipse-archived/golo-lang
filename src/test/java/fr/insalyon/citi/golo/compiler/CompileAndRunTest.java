@@ -669,6 +669,12 @@ public class CompileAndRunTest {
 
     Method closure_with_varargs_and_capture = moduleClass.getMethod("closure_with_varargs_and_capture");
     assertThat((String) closure_with_varargs_and_capture.invoke(null), is("> 6"));
+
+    Method closure_with_synthetic_refs = moduleClass.getMethod("closure_with_synthetic_refs");
+    assertThat((String) closure_with_synthetic_refs.invoke(null), is("012"));
+
+    Method closure_with_synthetic_refs_in_match = moduleClass.getMethod("closure_with_synthetic_refs_in_match");
+    assertThat((String) closure_with_synthetic_refs_in_match.invoke(null), is("120"));
   }
 
   @Test
