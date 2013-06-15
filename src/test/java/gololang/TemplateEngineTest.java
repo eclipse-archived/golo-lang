@@ -19,7 +19,9 @@ package gololang;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
+import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.TreeMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -52,5 +54,24 @@ public class TemplateEngineTest {
     String template = "<% foreach (i in range(0, 3)) { %>a<% } %>";
     MethodHandle tpl = engine.compile(template);
     assertThat((String) tpl.invoke(null), is("aaa"));
+  }
+
+  @Test
+  public void render_people() throws Throwable {
+    HashMap<String, Object> params = new HashMap<String, Object>() {
+      {
+        put("people", Arrays.asList("Julien", "Mr Bean", "Bob LesPonges"));
+      }
+    };
+    String template = "People:\n" +
+        "<% foreach (p in params: get(\"people\")) { %>- <%= p %>\n" +
+        "<% } %>\n";
+    TemplateEngine engine = new TemplateEngine();
+    MethodHandle tpl = engine.compile(template);
+    assertThat((String) tpl.invoke(params), is(
+        "People:\n" +
+        "- Julien\n" +
+        "- Mr Bean\n" +
+        "- Bob LesPonges\n\n"));
   }
 }

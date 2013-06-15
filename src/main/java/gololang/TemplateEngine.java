@@ -28,7 +28,7 @@ public class TemplateEngine {
 
   public MethodHandle compile(String template) {
     String goloCode = templateToGolo(template);
-    System.out.println(goloCode);
+//    System.out.println(goloCode);
     return (MethodHandle) evaluationEnvironment.def(goloCode);
   }
 
