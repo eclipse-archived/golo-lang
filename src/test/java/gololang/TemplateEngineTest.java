@@ -49,7 +49,7 @@ public class TemplateEngineTest {
   @Test
   public void simple_repeat() throws Throwable {
     TemplateEngine engine = new TemplateEngine();
-    String template = "<% for (var i = 0, i < 3, i = i + 1) { %>a<% } %>";
+    String template = "<% foreach (i in range(0, 3)) { %>a<% } %>";
     MethodHandle tpl = engine.compile(template);
     assertThat((String) tpl.invoke(null), is("aaa"));
   }
