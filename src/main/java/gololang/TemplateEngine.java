@@ -33,7 +33,8 @@ public class TemplateEngine {
   }
 
   private String templateToGolo(String template) {
-    StringBuilder builder = new StringBuilder("|params| {\n");
+    StringBuilder builder = new StringBuilder();
+    String params = null;
     builder.append("  let _$result = java.lang.StringBuilder()\n");
     Matcher matcher = PATTERN.matcher(template);
     int startIndex = 0;
@@ -44,6 +45,8 @@ public class TemplateEngine {
       code = code.substring(2, code.length() - 2);
       if (code.startsWith("=")) {
         builder.append("  _$result: append(").append(code.substring(1)).append(")\n");
+      } else if (code.startsWith("@params")) {
+        params = "|" + code.substring(7).trim() + "| {\n";
       } else {
         builder.append(code);
       }
@@ -55,6 +58,9 @@ public class TemplateEngine {
         .append("\"\"\")\n")
         .append("  return _$result: toString()\n")
         .append("}\n");
-    return builder.toString();
+    if (params == null) {
+      params = "|params| {\n";
+    }
+    return params + builder.toString();
   }
 }

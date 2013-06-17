@@ -74,4 +74,13 @@ public class TemplateEngineTest {
         "- Mr Bean\n" +
         "- Bob LesPonges\n\n"));
   }
+
+  @Test
+  public void with_params() throws Throwable {
+    TemplateEngine engine = new TemplateEngine();
+    String template = "<%@params foo, bar %>=<%= foo + bar %>";
+    MethodHandle tpl = engine.compile(template);
+    assertThat(tpl.type().parameterCount(), is(2));
+    assertThat((String) tpl.invoke(1, 2), is("=3"));
+  }
 }
