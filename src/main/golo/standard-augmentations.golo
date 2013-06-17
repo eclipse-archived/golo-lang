@@ -39,7 +39,40 @@ local function _newWithSameType = |this| {
     return fallback
   }
 }
-  
+
+local function _closureWithIndexArgument = |target| -> match {
+  when target: type(): parameterCount() == 0
+    then java.lang.invoke.MethodHandles.dropArguments(target, 0, java.lang.Object.class)
+  otherwise
+    target
+}
+
+# ............................................................................................... #
+
+augment java.lang.Number {
+
+  function times = |count, func| {
+    let target = _closureWithIndexArgument(func)
+    for (var i = 0, i < count, i = i + 1) {
+      target(i)
+    }
+  }
+
+  function upTo = |low, high, func| {
+    let target = _closureWithIndexArgument(func)
+    for (var i = low, i <= high, i = i + 1) {
+      target(i)
+    }
+  }
+
+  function downTo = |high, low, func| {
+    let target = _closureWithIndexArgument(func)
+    for (var i = high, i >= low, i = i - 1) {
+      target(i)
+    }
+  }
+}
+
 # ............................................................................................... #
 
 augment java.lang.invoke.MethodHandle {
@@ -86,6 +119,8 @@ augment java.lang.Iterable {
   }
 
 }
+
+# ............................................................................................... #
 
 augment java.util.Collection {
 
