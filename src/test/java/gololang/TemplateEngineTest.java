@@ -83,4 +83,12 @@ public class TemplateEngineTest {
     assertThat(tpl.type().parameterCount(), is(2));
     assertThat((String) tpl.invoke(1, 2), is("=3"));
   }
+
+  @Test
+  public void with_imports() throws Throwable {
+    TemplateEngine engine = new TemplateEngine();
+    String template = "<%@import java.lang.Math %><%= max(1, 2) %>";
+    MethodHandle tpl = engine.compile(template);
+    assertThat((String) tpl.invoke(null), is("2"));
+  }
 }

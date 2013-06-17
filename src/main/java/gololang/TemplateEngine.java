@@ -27,6 +27,7 @@ public class TemplateEngine {
   private final static Pattern PATTERN = Pattern.compile("<%(.*?)%>", Pattern.DOTALL);
 
   public MethodHandle compile(String template) {
+    evaluationEnvironment.clearImports();
     String goloCode = templateToGolo(template);
 //    System.out.println(goloCode);
     return (MethodHandle) evaluationEnvironment.def(goloCode);
@@ -47,6 +48,8 @@ public class TemplateEngine {
         builder.append("  _$result: append(").append(code.substring(1)).append(")\n");
       } else if (code.startsWith("@params")) {
         params = "|" + code.substring(7).trim() + "| {\n";
+      } else if (code.startsWith("@import")) {
+        evaluationEnvironment.imports(code.substring(7).trim());
       } else {
         builder.append(code);
       }
