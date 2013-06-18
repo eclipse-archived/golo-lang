@@ -29,11 +29,10 @@ public class TemplateEngine {
   public MethodHandle compile(String template) {
     evaluationEnvironment.clearImports();
     String goloCode = templateToGolo(template);
-//    System.out.println(goloCode);
     return (MethodHandle) evaluationEnvironment.def(goloCode);
   }
 
-  private String templateToGolo(String template) {
+  public String templateToGolo(String template) {
     StringBuilder builder = new StringBuilder();
     String params = null;
     builder.append("  let _$result = java.lang.StringBuilder()\n");
