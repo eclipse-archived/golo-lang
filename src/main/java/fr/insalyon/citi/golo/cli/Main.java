@@ -171,7 +171,7 @@ public class Main {
     } catch (ClassNotFoundException e) {
       System.out.println("The module " + golo.module + " could not be loaded.");
     } catch (NoSuchMethodException e) {
-      System.out.println("The module " + golo.module + " does not have a main method with am argument.");
+      System.out.println("The module " + golo.module + " does not have a main method with an argument.");
     }
   }
 
