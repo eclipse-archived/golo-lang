@@ -26,13 +26,14 @@ import fr.insalyon.citi.golo.compiler.GoloCompiler;
 
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.lang.reflect.InvocationTargetException;
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import static java.lang.invoke.MethodHandles.publicLookup;
+import static java.lang.invoke.MethodType.genericMethodType;
 
 public class Main {
 
@@ -156,15 +157,21 @@ public class Main {
     }
   }
 
+  private static void callRun(Class<?> klass, Object arguments) throws Throwable {
+    MethodHandle main = publicLookup().findStatic(klass, "main", genericMethodType(1));
+    main.invoke(arguments);
+  }
+
   private static void run(RunCommand golo) throws Throwable {
     try {
       Class<?> module = Class.forName(golo.module);
+      callRun(module, golo.arguments.toArray(new Object[golo.arguments.size()]));
       Method main = module.getMethod("main", Object.class);
       main.invoke(null, (Object) golo.arguments.toArray());
     } catch (ClassNotFoundException e) {
       System.out.println("The module " + golo.module + " could not be loaded.");
     } catch (NoSuchMethodException e) {
-      System.out.println("The module " + golo.module + " does not have a main method with am argument.");
+      System.out.println("The module " + golo.module + " does not have a main method with an argument.");
     }
   }
 
@@ -187,7 +194,6 @@ public class Main {
         handleCompilationException(e);
       }
     }
-    Method main = lastClass.getMethod("main", Object.class);
-    main.invoke(null, (Object) gologolo.arguments.toArray());
+    callRun(lastClass, gologolo.arguments.toArray(new Object[gologolo.arguments.size()]));
   }
 }

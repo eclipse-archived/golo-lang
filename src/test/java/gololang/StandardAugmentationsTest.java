@@ -221,4 +221,10 @@ public class StandardAugmentationsTest {
     Method str_format2 = moduleClass.getMethod("str_format2");
     assertThat((String) str_format2.invoke(null), is("plop da plop"));
   }
+
+  @Test
+  public void number_repeaters() throws Throwable {
+    Method number_repeaters = moduleClass.getMethod("number_repeaters");
+    assertThat((String) number_repeaters.invoke(null), is("..012101112121110"));
+  }
 }

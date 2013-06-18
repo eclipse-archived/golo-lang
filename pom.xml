@@ -301,6 +301,9 @@
             <artifactId>java17</artifactId>
             <version>1.0</version>
           </signature>
+          <ignores>
+            <ignore>java.lang.invoke.MethodHandle</ignore>
+          </ignores>
         </configuration>
         <executions>
           <execution>
