@@ -35,5 +35,6 @@ include::augmentations.asciidoc[]
 include::dynamic-objects.asciidoc[]
 include::dynamic-evaluation.asciidoc[]
 include::workers.asciidoc[]
+include::templates.asciidoc[]
 include::pitfalls.asciidoc[]
 

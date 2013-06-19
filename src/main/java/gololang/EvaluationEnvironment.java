@@ -17,6 +17,7 @@
 package gololang;
 
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -124,6 +125,9 @@ public class EvaluationEnvironment {
       return goloClassLoader.load(anonymousFilename(), in);
     } catch (IOException e) {
       throw new RuntimeException(e);
+    } catch (GoloCompilationException e) {
+      e.setSourceCode(source);
+      throw e;
     }
   }
 

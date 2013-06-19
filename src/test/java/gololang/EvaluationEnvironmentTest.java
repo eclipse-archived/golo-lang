@@ -16,6 +16,7 @@
 
 package gololang;
 
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
@@ -130,5 +131,17 @@ public class EvaluationEnvironmentTest {
     MethodHandle func = (MethodHandle) result;
     assertThat(func.type().parameterCount(), is(2));
     assertThat((Integer) func.invoke(10, 5), is(15));
+  }
+
+  @Test
+  public void check_source_present_with_compilation_error() {
+    EvaluationEnvironment env = new EvaluationEnvironment();
+    try {
+      env.def("boom");
+      throw new TestNGException("A GoloCompilationException should have been raised");
+    } catch (GoloCompilationException e) {
+      assertThat(e.getSourceCode(), notNullValue());
+      assertThat(e.getSourceCode(), both(containsString("boom")).and(containsString("module anonymous")));
+    }
   }
 }

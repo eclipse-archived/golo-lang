@@ -184,6 +184,8 @@ public class GoloCompilationException extends RuntimeException {
 
   private final List<Problem> problems = new LinkedList<>();
 
+  private String sourceCode;
+
   /**
    * @return all reported problems.
    */
@@ -197,6 +199,24 @@ public class GoloCompilationException extends RuntimeException {
 
   private GoloCompilationException() {
     super();
+  }
+
+  /**
+   * Gives the problematic source code, if specified.
+   *
+   * @return the source code, or {@code null} if none has been specified.
+   */
+  public String getSourceCode() {
+    return sourceCode;
+  }
+
+  /**
+   * Specifies the problematic source code.
+   *
+   * @param sourceCode the raw source code.
+   */
+  public void setSourceCode(String sourceCode) {
+    this.sourceCode = sourceCode;
   }
 
   /**
