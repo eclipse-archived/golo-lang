@@ -16,6 +16,7 @@
 
 package gololang;
 
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -38,6 +39,9 @@ public class TemplateEngineTest {
 
   @Test
   public void simple_value() throws Throwable {
+    if (System.getenv("golo.bootstrapped") == null) {
+      throw new SkipException("Golo is in a bootstrap build execution");
+    }
     TemplateEngine engine = new TemplateEngine();
     MethodHandle tpl = engine.compile("<%= params: getOrElse(\"a\", \"n/a\")%>!");
     assertThat((String) tpl.invoke(Collections.emptyMap()), is("n/a!"));
