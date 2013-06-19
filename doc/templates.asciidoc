@@ -1,0 +1,61 @@
+== Golo template engine ==
+
+Golo comes with a built-in template engine that is reminiscent of Java Server Pages or Ruby ERB. It
+compiles template text into Golo functions.
+
+=== Example ===
+
+Consider the following example.
+
+[source,text]
+----
+let template = """
+<%@params posts %>
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Golo Chat</title>
+  </head>
+  <body>
+  <form action="/" method="post">
+    <input type="text" name="msg">
+    <input type="submit" value="Send">
+  </form>
+  <div>
+    <h3>Last posts</h3>
+    <% foreach (post in posts) { %>
+      <div>
+        <%= post %>
+      </div>
+    <% } %>
+  </div>
+  </body>
+</html>
+"""
+----
+
+This multi-line string has a Golo template. It can be compiled into a function as follows:
+
+[source,text]
+----
+let tpl = gololang.TemplateEngine(): compile(template)
+println(tpl(someDataModel: posts()))
+----
+
+=== Directives ===
+
+As you may have guess from the previous example:
+
+- Golo code snippets are placed in `<% %>` blocks, and
+- expressions can output values using `<%= %>`, and
+- `<%@import foo.bar.Baz %>` causes `foo.bar.Baz` to be imported, and
+- `<%@params foo, bar, baz %>` causes the template function to have 3 parameters, i.e., it is a
+  `|foo, bar, baz| { ... }` function.
+
+When no `<%@params ... %>` exists, the function is assumed to have a single `params` parameter.
+
+WARNING: The template engine is a simple one and makes **no** verification either on the templates
+or the resulting Golo source code. The `compile` method may throw a `GoloCompilation` exception
+though, and you can query the exception `getSourceCode()` and `getProblems()` methods to obtain
+more details.
+
