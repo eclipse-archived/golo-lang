@@ -93,7 +93,7 @@ The first form of `run` method works as follows:
 ----
 let env = gololang.EvaluationEnvironment()
 let code = """println(">>> run")
-foreach (i in range(0, 3)) {
+foreach i in range(0, 3) {
   println("w00t")
 }
 return 666"""

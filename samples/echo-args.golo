@@ -22,12 +22,12 @@ function main = |args| {
   }
 
   println("With a foreach loop:")
-  foreach (arg in args) {
+  foreach arg in args {
     println("  " + arg)
   }
 
   println("With a foreach over a range:")
-  foreach (i in range(0, args: length())) {
+  foreach i in range(0, args: length()) {
     println("  #" + i + " -> " + args: get(i))
   }
 }

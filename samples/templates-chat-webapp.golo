@@ -72,7 +72,7 @@ local function index_template = -> """
   </form>
   <div>
     <h3>Last posts</h3>
-    <% foreach (post in posts) { %>
+    <% foreach post in posts { %>
       <div>
         <%= post %>
       </div>

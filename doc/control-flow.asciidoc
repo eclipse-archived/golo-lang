@@ -148,7 +148,7 @@ of `java.lang.Iterable` can be used in `foreach` loops, as in:
 ----
 function concat_to_string = |iterable| {
   var result = ""
-  foreach (item in iterable) {
+  foreach item in iterable {
     result = result + item
   }
   return result
@@ -157,6 +157,9 @@ function concat_to_string = |iterable| {
 
 In this example, `item` is a variable within the `foreach` loop scope, and `iterable` is an object
 that is expected to be iterable.
+
+You may use parenthesis around a `foreach` expression, so `foreach (foo in bar)` is equivalent to
+`foreach foo in bar`.
 
 NOTE: Although Java arrays (`Object[]`) are not real objects, they can be used with `foreach` loops.
 Golo provides a `iterator()` method for them.

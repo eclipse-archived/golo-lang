@@ -33,7 +33,7 @@ local function what_it_could_be = |item| -> match {
 }
 
 function main = |args| {
-  foreach (item in data()) {
+  foreach item in data() {
     println(item + " => " + what_it_could_be(item))
   }
 }
