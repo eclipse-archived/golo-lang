@@ -21,7 +21,7 @@ import gololang.concurrent.workers.WorkerEnvironment
 local function pusher = |queue, message| -> queue: offer(message)
 
 local function generator = |port, message| {
-  foreach (i in range(0, 100)) {
+  foreach i in range(0, 100) {
     port: send(message)
   }
 }
@@ -36,7 +36,7 @@ function main = |args| {
 
   let finishPort = env: spawn(|any| -> env: shutdown())
 
-  foreach (i in range(0, 10)) {
+  foreach i in range(0, 10) {
     generatorPort: send("[" + i + "]")
   }
   Thread.sleep(2000_L)
