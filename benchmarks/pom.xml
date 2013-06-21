@@ -71,7 +71,7 @@
     <junit-benchmarks.version>0.7.0</junit-benchmarks.version>
     <h2.version>1.3.172</h2.version>
     <junit.version>4.11</junit.version>
-    <groovy-all.version>2.1.4</groovy-all.version>
+    <groovy-all.version>2.1.5</groovy-all.version>
     <clojure.version>1.5.1</clojure.version>
     <jruby-complete.version>1.7.4</jruby-complete.version>
 
