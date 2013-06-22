@@ -1,0 +1,13 @@
+<%@params doc %>
+# Documentation of: <%= doc: getModuleName() %>
+
+<%= doc: getModuleDocumentation() %>
+
+## Functions
+<% doc: getFunctionsMap(): each(|name, funcDoc| { %>
+### <%= name %>
+
+<%= funcDoc %>
+<% }) %>
+
+...that's all folks.

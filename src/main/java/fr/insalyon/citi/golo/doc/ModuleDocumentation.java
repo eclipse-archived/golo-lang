@@ -36,23 +36,23 @@ class ModuleDocumentation {
     new ModuleVisitor().visit(compilationUnit, null);
   }
 
-  String getModuleName() {
+  public String getModuleName() {
     return moduleName;
   }
 
-  String getModuleDocumentation() {
+  public String getModuleDocumentation() {
     return moduleDocumentation;
   }
 
-  Map<String, String> getFunctionsMap() {
+  public Map<String, String> getFunctionsMap() {
     return functionsMap;
   }
 
-  Map<String, String> getAugmentationsMap() {
+  public Map<String, String> getAugmentationsMap() {
     return augmentationsMap;
   }
 
-  Map<String, Map<String, String>> getAugmentationsFunctionsMap() {
+  public Map<String, Map<String, String>> getAugmentationsFunctionsMap() {
     return augmentationsFunctionsMap;
   }
 
