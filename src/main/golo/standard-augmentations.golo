@@ -196,6 +196,12 @@ augment java.util.List {
     }
     return buffer: toString()
   }
+
+  function reverse = |this| {
+    java.util.Collections.reverse(this)
+  	return this
+  }
+
 }
 
 # ............................................................................................... #
