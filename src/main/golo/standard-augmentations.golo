@@ -202,6 +202,21 @@ augment java.util.List {
   	return this
   }
 
+  function sort = |this| {
+  	java.util.Collections.sort(this)
+  	return this
+  }
+
+  function sort = |this, comparator| {
+  	java.util.Collections.sort(this,comparator)
+  	return this
+  }
+
+  function sortReverse = |this| {
+  	java.util.Collections.sort(this,java.util.Collections.reverseOrder())
+  	return this
+  }
+
 }
 
 # ............................................................................................... #
