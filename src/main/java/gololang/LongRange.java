@@ -27,6 +27,7 @@ class LongRange implements Iterable<Long> {
 
   public long from() {return this.from;}
   public long to() {return this.to;}
+  public long increment() {return this.increment;}
 
   public LongRange(long from, long to) {
     this.from = from;

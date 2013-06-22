@@ -111,6 +111,8 @@ println("End : "+r:to())
 foreach i in r {
     println(i)
 }
+
+println("Increment : "+r:increment())
 ----
 
 The lower bound is inclusive, the upper bound is exclusive.
