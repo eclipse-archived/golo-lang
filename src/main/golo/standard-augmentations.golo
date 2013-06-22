@@ -197,9 +197,21 @@ augment java.util.List {
     return buffer: toString()
   }
 
+  function clone = |this| {
+    let cloned = this: newWithSameType()
+    foreach (element in this) {
+      cloned: append(element)
+    }
+    return cloned
+  }
+
   function reverse = |this| {
     java.util.Collections.reverse(this)
     return this
+  }
+
+  function reversed = |this| {
+    return this: clone(): reverse()
   }
 
   function sort = |this| {
@@ -207,9 +219,17 @@ augment java.util.List {
     return this
   }
 
+  function sorted = |this| {
+    return this: clone(): sort()
+  }
+
   function sort = |this, comparator| {
     java.util.Collections.sort(this, comparator)
     return this
+  }
+
+  function sorted = |this, comparator| {
+    return this: clone(): sort(comparator)
   }
 
 }
