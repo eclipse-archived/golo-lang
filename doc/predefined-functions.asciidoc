@@ -105,14 +105,14 @@ foreach i in range(1, 101) {
   print(i + " ")
 }
 
-let r = range(0,6):incrementBy(2)
-println("Start : " + r:from())
-println("End : " + r:to())
+let r = range(0,6): incrementBy(2)
+println("Start : " + r: from())
+println("End : " + r: to())
 foreach i in r {
-    println(i)
+  println(i)
 }
 
-println("Increment : " + r:increment())
+println("Increment : " + r: increment())
 ----
 
 The lower bound is inclusive, the upper bound is exclusive.
