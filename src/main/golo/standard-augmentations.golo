@@ -199,22 +199,17 @@ augment java.util.List {
 
   function reverse = |this| {
     java.util.Collections.reverse(this)
-  	return this
+    return this
   }
 
   function sort = |this| {
-  	java.util.Collections.sort(this)
-  	return this
+    java.util.Collections.sort(this)
+    return this
   }
 
   function sort = |this, comparator| {
-  	java.util.Collections.sort(this, comparator)
-  	return this
-  }
-
-  function sortReverse = |this| {
-  	java.util.Collections.sort(this, java.util.Collections.reverseOrder())
-  	return this
+    java.util.Collections.sort(this, comparator)
+    return this
   }
 
 }

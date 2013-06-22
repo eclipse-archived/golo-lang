@@ -42,19 +42,15 @@ function lists_each = {
 }
 
 function list_reverse = {
- return list_data(): reverse()
+  return list_data(): reverse()
 }
 
 function list_sort = {
- return list_data(): reverse(): sort()
+  return list_data(): reverse(): sort()
 }
 
 function list_sort_reverse = {
- return list_data(): sort(java.util.Collections.reverseOrder())
-}
-
-function list_sortReverse = {
- return list_data(): sortReverse()
+  return list_data(): sort(java.util.Collections.reverseOrder())
 }
 
 # ............................................................................................... #
