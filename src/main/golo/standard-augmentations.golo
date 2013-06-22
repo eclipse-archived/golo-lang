@@ -208,12 +208,12 @@ augment java.util.List {
   }
 
   function sort = |this, comparator| {
-  	java.util.Collections.sort(this,comparator)
+  	java.util.Collections.sort(this, comparator)
   	return this
   }
 
   function sortReverse = |this| {
-  	java.util.Collections.sort(this,java.util.Collections.reverseOrder())
+  	java.util.Collections.sort(this, java.util.Collections.reverseOrder())
   	return this
   }
 
