@@ -41,6 +41,10 @@ function lists_each = {
   return int: get()
 }
 
+function list_reverse = {
+ return list_data(): reverse()
+}
+
 # ............................................................................................... #
 
 local function set_data = {
