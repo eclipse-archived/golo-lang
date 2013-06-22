@@ -53,6 +53,9 @@ function list_sort_reverse = {
  return list_data(): sort(java.util.Collections.reverseOrder())
 }
 
+function list_sortReverse = {
+ return list_data(): sortReverse()
+}
 
 # ............................................................................................... #
 

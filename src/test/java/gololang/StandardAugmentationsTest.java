@@ -136,6 +136,15 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_sortReverse() throws Throwable {
+    Method list_sortReverse = moduleClass.getMethod("list_sortReverse");
+    Object result = list_sortReverse.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(4, 3, 2, 1, 0));
+  }    
+
+  @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
     assertThat((Boolean) sets_has_single.invoke(null), is(true));
