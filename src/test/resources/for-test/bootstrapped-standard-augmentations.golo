@@ -49,6 +49,11 @@ function list_sort = {
  return list_data(): reverse(): sort()
 }
 
+function list_sort_reverse = {
+ return list_data(): sort(java.util.Collections.reverseOrder())
+}
+
+
 # ............................................................................................... #
 
 local function set_data = {
