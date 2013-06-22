@@ -45,6 +45,10 @@ function list_reverse = {
  return list_data(): reverse()
 }
 
+function list_sort = {
+ return list_data(): reverse(): sort()
+}
+
 # ............................................................................................... #
 
 local function set_data = {

@@ -118,6 +118,15 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_sort() throws Throwable {
+    Method list_sort = moduleClass.getMethod("list_sort");
+    Object result = list_sort.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(0, 1, 2, 3, 4));
+  }    
+
+  @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
     assertThat((Boolean) sets_has_single.invoke(null), is(true));
