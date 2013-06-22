@@ -18,12 +18,15 @@ package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.*;
 
-import java.util.Collections;
-import java.util.LinkedHashMap;
-import java.util.Map;
-import java.util.TreeMap;
+import java.util.*;
 
 class ModuleDocumentation {
+
+  static class FunctionDocumentation {
+    public String name;
+    public String documentation;
+    public List<String> arguments;
+  }
 
   private String moduleName;
   private String moduleDocumentation;
@@ -63,6 +66,7 @@ class ModuleDocumentation {
   private class ModuleVisitor implements GoloParserVisitor {
 
     private String currentAugmentation = null;
+    private FunctionDocumentation currentFunctionDocumentation = null;
 
     @Override
     public Object visit(SimpleNode node, Object data) {
@@ -112,6 +116,10 @@ class ModuleDocumentation {
     public Object visit(ASTFunctionDeclaration node, Object data) {
       Map<String, String> target = node.isAugmentation() ? augmentationsFunctionsMap.get(currentAugmentation) : functionsMap;
       target.put(node.getName(), documentationOrNothing(node.getDocumentation()));
+      currentFunctionDocumentation = new FunctionDocumentation();
+      currentFunctionDocumentation.name = node.getName();
+      currentFunctionDocumentation.documentation = documentationOrNothing(node.getDocumentation());
+      node.childrenAccept(this, data);
       return data;
     }
 
@@ -177,6 +185,11 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTFunction node, Object data) {
+      if (currentFunctionDocumentation != null) {
+        currentFunctionDocumentation.arguments = node.getArguments();
+        // TODO do something here
+        currentFunctionDocumentation = null;
+      }
       return data;
     }
 
