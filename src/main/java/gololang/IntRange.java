@@ -29,6 +29,18 @@ class IntRange implements Iterable<Integer> {
     this.to = to;
   }
 
+  public int from() {
+    return this.from;
+  }
+
+  public int to() {
+    return this.to;
+  }
+
+  public int increment() {
+    return this.increment;
+  }
+
   public IntRange incrementBy(int value) {
     this.increment = value;
     return this;
