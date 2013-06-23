@@ -21,11 +21,10 @@ import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
+import java.util.TreeSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.containsString;
-import static org.hamcrest.Matchers.hasKey;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class ModuleDocumentationTest {
 
@@ -37,14 +36,25 @@ public class ModuleDocumentationTest {
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ModuleDocumentation doc = new ModuleDocumentation(compilationUnit);
 
-    assertThat(doc.getModuleName(), is("Documented"));
-    assertThat(doc.getModuleDocumentation(), containsString("    let foo = \"bar\""));
+    assertThat(doc.moduleName(), is("Documented"));
+    assertThat(doc.moduleDocumentation(), containsString("    let foo = \"bar\""));
 
-    assertThat(doc.getFunctionsMap(), hasKey("with_doc"));
-    assertThat(doc.getFunctionsMap().get("with_doc"), containsString("Returns: the sum of `a` and `b`."));
+    assertThat(doc.augmentations(), hasKey("java.lang.String"));
 
-    assertThat(doc.getAugmentationsMap(), hasKey("java.lang.String"));
-    assertThat(doc.getAugmentationsFunctionsMap().get("java.lang.String"), hasKey("yop"));
-    assertThat(doc.getAugmentationsFunctionsMap().get("java.lang.String").get("yop"), containsString("The yop factor."));
+    assertThat(doc.functions().size(), is(2));
+    ModuleDocumentation.FunctionDocumentation first = doc.functions().first();
+    assertThat(first.name, is("with_doc"));
+    assertThat(first.arguments, contains("a", "b"));
+    assertThat(first.documentation, containsString("the sum of `a` and `b`"));
+
+    assertThat(doc.augmentationFunctions().size(), is(1));
+    TreeSet<ModuleDocumentation.FunctionDocumentation> onStrings = doc.augmentationFunctions().get("java.lang.String");
+    assertThat(onStrings, notNullValue());
+    assertThat(onStrings.size(), is(2));
+    first = onStrings.first();
+    assertThat(first.name, is("plop"));
+    assertThat(first.arguments.size(), is(1));
+    assertThat(first.arguments.get(0), is("this"));
+    assertThat(first.documentation, is("\n"));
   }
 }

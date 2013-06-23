@@ -18,45 +18,55 @@ package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.*;
 
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+import java.util.TreeSet;
 
 class ModuleDocumentation {
 
-  static class FunctionDocumentation {
+  static class FunctionDocumentation implements Comparable<FunctionDocumentation> {
     public String name;
     public String documentation;
     public List<String> arguments;
+    public boolean augmentation;
+
+    @Override
+    public int compareTo(FunctionDocumentation o) {
+      return name.compareTo(o.name);
+    }
   }
 
   private String moduleName;
   private String moduleDocumentation;
 
-  private final Map<String, String> functionsMap = new TreeMap<>();
-  private final Map<String, String> augmentationsMap = new TreeMap<>();
-  private final Map<String, Map<String, String>> augmentationsFunctionsMap = new TreeMap<>();
+  private TreeSet<FunctionDocumentation> functions = new TreeSet<>();
+  private final TreeMap<String, String> augmentations = new TreeMap<>();
+  private final TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions = new TreeMap<>();
+
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
     new ModuleVisitor().visit(compilationUnit, null);
   }
 
-  public String getModuleName() {
+  public TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions() {
+    return augmentationFunctions;
+  }
+
+  public TreeSet<FunctionDocumentation> functions() {
+    return functions;
+  }
+
+  public String moduleName() {
     return moduleName;
   }
 
-  public String getModuleDocumentation() {
+  public String moduleDocumentation() {
     return moduleDocumentation;
   }
 
-  public Map<String, String> getFunctionsMap() {
-    return functionsMap;
-  }
-
-  public Map<String, String> getAugmentationsMap() {
-    return augmentationsMap;
-  }
-
-  public Map<String, Map<String, String>> getAugmentationsFunctionsMap() {
-    return augmentationsFunctionsMap;
+  public Map<String, String> augmentations() {
+    return augmentations;
   }
 
   private String documentationOrNothing(String documentation) {
@@ -105,8 +115,8 @@ class ModuleDocumentation {
     @Override
     public Object visit(ASTAugmentDeclaration node, Object data) {
       currentAugmentation = node.getName();
-      augmentationsMap.put(node.getName(), documentationOrNothing(node.getDocumentation()));
-      augmentationsFunctionsMap.put(node.getName(), new TreeMap<String, String>());
+      augmentations.put(node.getName(), documentationOrNothing(node.getDocumentation()));
+      augmentationFunctions.put(node.getName(), new TreeSet<FunctionDocumentation>());
       node.childrenAccept(this, data);
       currentAugmentation = null;
       return data;
@@ -114,11 +124,10 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTFunctionDeclaration node, Object data) {
-      Map<String, String> target = node.isAugmentation() ? augmentationsFunctionsMap.get(currentAugmentation) : functionsMap;
-      target.put(node.getName(), documentationOrNothing(node.getDocumentation()));
       currentFunctionDocumentation = new FunctionDocumentation();
       currentFunctionDocumentation.name = node.getName();
       currentFunctionDocumentation.documentation = documentationOrNothing(node.getDocumentation());
+      currentFunctionDocumentation.augmentation = node.isAugmentation();
       node.childrenAccept(this, data);
       return data;
     }
@@ -187,7 +196,11 @@ class ModuleDocumentation {
     public Object visit(ASTFunction node, Object data) {
       if (currentFunctionDocumentation != null) {
         currentFunctionDocumentation.arguments = node.getArguments();
-        // TODO do something here
+        if (currentFunctionDocumentation.augmentation) {
+          augmentationFunctions.get(currentAugmentation).add(currentFunctionDocumentation);
+        } else {
+          functions.add(currentFunctionDocumentation);
+        }
         currentFunctionDocumentation = null;
       }
       return data;
