@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.internal.testing;
 
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 
 import java.io.File;
@@ -48,6 +49,13 @@ public class TestUtils {
   }
 
   public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, GoloClassLoader goloClassLoader) throws IOException, ParseException, ClassNotFoundException {
-    return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
+    try {
+      return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
+    } catch (GoloCompilationException e) {
+      for (GoloCompilationException.Problem p : e.getProblems()) {
+        System.out.println(p.getDescription());
+      }
+      throw e;
+    }
   }
 }

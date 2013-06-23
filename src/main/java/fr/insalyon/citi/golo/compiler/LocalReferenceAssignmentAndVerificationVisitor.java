@@ -101,6 +101,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
         assigned.add(table.get(param));
       }
     }
+    if (!assignmentStack.isEmpty()) {
+      assigned.addAll(assignmentStack.peek());
+    }
     assignmentStack.push(assigned);
     for (GoloStatement statement : block.getStatements()) {
       statement.accept(this);
