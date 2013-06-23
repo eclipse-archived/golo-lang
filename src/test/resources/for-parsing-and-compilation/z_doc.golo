@@ -13,6 +13,11 @@
 module Documented
 
 ----
+This should be hidden, really.
+----
+local function should_be_hidden = |foo| -> foo
+
+----
 Incredible: this makes a sum.
 
 Parameters:

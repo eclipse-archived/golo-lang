@@ -124,6 +124,9 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTFunctionDeclaration node, Object data) {
+      if (node.isLocal()) {
+        return data;
+      }
       currentFunctionDocumentation = new FunctionDocumentation();
       currentFunctionDocumentation.name = node.getName();
       currentFunctionDocumentation.documentation = documentationOrNothing(node.getDocumentation());

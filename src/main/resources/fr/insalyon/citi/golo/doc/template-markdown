@@ -1,20 +1,20 @@
 <%@params doc %>
-# Documentation of: <%= doc: moduleName() %>
+# Documentation for `<%= doc: moduleName() %>`
 
 <%= doc: moduleDocumentation() %>
 
 ## Functions
 <% foreach funcDoc in doc: functions() { %>
-### <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
 <%= funcDoc: documentation() %>
 <% } %>
 
 ## Augmentations
 <% foreach augmentation in doc: augmentations(): keySet() { %>
-### <%= augmentation %>
+### `<%= augmentation %>`
 <%= doc: augmentations(): get(augmentation) %>
 <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
-#### <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
 <%= funcDoc: documentation() %>
 <% } %>
 <% } %>
