@@ -109,15 +109,6 @@ public class StandardAugmentationsTest {
   }
 
   @Test
-  public void list_clone() throws Throwable {
-    Method list_clone = moduleClass.getMethod("list_clone");
-    Object result = list_clone.invoke(null);
-    assertThat(result, instanceOf(Boolean.class));
-    Boolean sameSize = (Boolean) result;
-    assertThat(sameSize, is(false));
-  }
-
-  @Test
   public void list_reverse() throws Throwable {
     Method list_reverse = moduleClass.getMethod("list_reverse");
     Object result = list_reverse.invoke(null);

@@ -41,13 +41,6 @@ function lists_each = {
   return int: get()
 }
 
-function list_clone = {
-  let original = list_data()
-  let clone = original: clone()
-  clone: append(5)
-  return original: size() == clone: size()
-}
-
 function list_reverse = {
   return list_data(): reverse()
 }
