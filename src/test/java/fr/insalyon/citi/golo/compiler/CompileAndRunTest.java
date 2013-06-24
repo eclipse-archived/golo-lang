@@ -675,6 +675,9 @@ public class CompileAndRunTest {
 
     Method closure_with_synthetic_refs_in_match = moduleClass.getMethod("closure_with_synthetic_refs_in_match");
     assertThat((String) closure_with_synthetic_refs_in_match.invoke(null), is("120"));
+
+    Method scoping_check = moduleClass.getMethod("scoping_check");
+    assertThat((Integer) scoping_check.invoke(null), is(120));
   }
 
   @Test

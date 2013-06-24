@@ -90,7 +90,7 @@ public final class ReferenceTable {
     ReferenceTable referenceTable = new ReferenceTable();
     Collection<LocalReference> parentRefs = (parent != null) ? parent.references() : Collections.<LocalReference>emptySet();
     for (LocalReference reference : references()) {
-      if (turnIntoConstants && parentRefs.contains(reference)) {
+      if (turnIntoConstants && parentRefs.contains(reference) && !table.containsValue(reference)) {
         referenceTable.add(new LocalReference(LocalReference.Kind.CONSTANT, reference.getName()));
       } else {
         referenceTable.add(new LocalReference(reference.getKind(), reference.getName()));

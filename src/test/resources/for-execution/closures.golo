@@ -120,3 +120,18 @@ function closure_with_synthetic_refs_in_match = {
   }
   return fun("12") + fun("21") + fun("666")
 }
+
+function scoping_check = {
+  var acc = 100
+  let delta = 4
+  let f = {
+    var acc = 0
+    var delta = 0
+    for (var i = 0, i <= 3, i = i + 1) {
+      acc = acc + i
+    }
+    delta = 10
+    return acc + delta
+  }
+  return acc + f() + delta
+}
