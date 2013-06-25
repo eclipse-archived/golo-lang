@@ -1,8 +1,10 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import gololang.Predefined;
 import gololang.TemplateEngine;
 
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -38,5 +40,9 @@ public class DocumentationRenderer {
     MethodHandle template = templateFor(format);
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
     return (String) template.invokeWithArguments(documentation);
+  }
+
+  public void renderTo(File file, ASTCompilationUnit compilationUnit, String format) throws Throwable {
+    Predefined.textToFile(render(compilationUnit, format), file);
   }
 }
