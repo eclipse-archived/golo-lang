@@ -196,6 +196,40 @@ augment java.util.List {
     }
     return buffer: toString()
   }
+
+  function reverse = |this| {
+    java.util.Collections.reverse(this)
+    return this
+  }
+
+  function reversed = |this| {
+    let reversedList = this: newWithSameType()
+    reversedList: addAll(this)
+    return reversedList: reverse()
+  }
+
+  function sort = |this| {
+    java.util.Collections.sort(this)
+    return this
+  }
+
+  function sorted = |this| {
+    let sortedList = this: newWithSameType()
+    sortedList: addAll(this)
+    return sortedList: sort()
+  }
+
+  function sort = |this, comp| {
+    java.util.Collections.sort(this, comp)
+    return this
+  }
+
+  function sorted = |this, comp| {
+    let sortedList = this: newWithSameType()
+    sortedList: addAll(this)
+    return sortedList: sort(comp)
+  }
+
 }
 
 # ............................................................................................... #
