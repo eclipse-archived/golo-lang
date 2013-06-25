@@ -109,6 +109,60 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_reverse() throws Throwable {
+    Method list_reverse = moduleClass.getMethod("list_reverse");
+    Object result = list_reverse.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(4, 3, 2, 1, 0));
+  }
+
+  @Test
+  public void list_reversed() throws Throwable {
+    Method list_reversed = moduleClass.getMethod("list_reversed");
+    Object result = list_reversed.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(4, 3, 2, 1, 0));
+  }
+
+  @Test
+  public void list_sort() throws Throwable {
+    Method list_sort = moduleClass.getMethod("list_sort");
+    Object result = list_sort.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(0, 1, 2, 3, 4));
+  }
+
+  @Test
+  public void list_sorted() throws Throwable {
+    Method list_sorted = moduleClass.getMethod("list_sorted");
+    Object result = list_sorted.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(0, 1, 2, 3, 4));
+  }
+
+  @Test
+  public void list_sort_reverse() throws Throwable {
+    Method list_sort_reverse = moduleClass.getMethod("list_sort_reverse");
+    Object result = list_sort_reverse.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(4, 3, 2, 1, 0));
+  }
+
+  @Test
+  public void list_sorted_reverse() throws Throwable {
+    Method list_sorted_reverse = moduleClass.getMethod("list_sorted_reverse");
+    Object result = list_sorted_reverse.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(4, 3, 2, 1, 0));
+  }
+
+  @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
     assertThat((Boolean) sets_has_single.invoke(null), is(true));
