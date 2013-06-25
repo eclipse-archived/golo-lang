@@ -53,7 +53,7 @@ public class TestUtils {
       return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
     } catch (GoloCompilationException e) {
       for (GoloCompilationException.Problem p : e.getProblems()) {
-        System.out.println(p.getDescription());
+        System.out.println("In " + goloFile + ": " + p.getDescription());
       }
       throw e;
     }
