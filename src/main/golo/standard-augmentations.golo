@@ -219,15 +219,15 @@ augment java.util.List {
     return sortedList: sort()
   }
 
-  function sort = |this, comparator| {
-    java.util.Collections.sort(this, comparator)
+  function sort = |this, comp| {
+    java.util.Collections.sort(this, comp)
     return this
   }
 
-  function sorted = |this, comparator| {
+  function sorted = |this, comp| {
     let sortedList = this: newWithSameType()
     sortedList: addAll(this)
-    return sortedList: sort(comparator)
+    return sortedList: sort(comp)
   }
 
 }

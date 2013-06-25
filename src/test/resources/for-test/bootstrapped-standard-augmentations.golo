@@ -41,29 +41,29 @@ function lists_each = {
   return int: get()
 }
 
-#function list_reverse = {
-#  return list_data(): reverse()
-#}
+function list_reverse = {
+  return list_data(): reverse()
+}
 
-#function list_reversed = {
-#  return list_data(): reversed()
-#}
+function list_reversed = {
+  return list_data(): reversed()
+}
 
-#function list_sort = {
-#  return list_data(): sort()
-#}
+function list_sort = {
+  return list_data(): sort()
+}
 
-#function list_sorted = {
-#  return list_data(): sorted()
-#}
+function list_sorted = {
+  return list_data(): sorted()
+}
 
-#function list_sort_reverse = {
-#  return list_data(): sort(java.util.Collections.reverseOrder())
-#}
+function list_sort_reverse = {
+  return list_data(): sort(java.util.Collections.reverseOrder())
+}
 
-#function list_sorted_reverse = {
-#  return list_data(): sorted(java.util.Collections.reverseOrder())
-#}
+function list_sorted_reverse = {
+  return list_data(): sorted(java.util.Collections.reverseOrder())
+}
 
 # ............................................................................................... #
 

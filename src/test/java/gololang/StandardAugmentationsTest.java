@@ -107,7 +107,7 @@ public class StandardAugmentationsTest {
     assertThat(result, instanceOf(Integer.class));
     assertThat((Integer) result, is(10));
   }
-/*
+
   @Test
   public void list_reverse() throws Throwable {
     Method list_reverse = moduleClass.getMethod("list_reverse");
@@ -125,7 +125,6 @@ public class StandardAugmentationsTest {
     List<Integer> list = (List<Integer>) result;
     assertThat(list, contains(4, 3, 2, 1, 0));
   }
-
 
   @Test
   public void list_sort() throws Throwable {
@@ -162,7 +161,7 @@ public class StandardAugmentationsTest {
     List<Integer> list = (List<Integer>) result;
     assertThat(list, contains(4, 3, 2, 1, 0));
   }
-*/
+
   @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
