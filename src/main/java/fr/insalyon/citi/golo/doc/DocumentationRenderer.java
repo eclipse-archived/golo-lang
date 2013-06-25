@@ -34,10 +34,9 @@ public class DocumentationRenderer {
     return compiledTemplate;
   }
 
-  public void render(ASTCompilationUnit compilationUnit, String format) throws Throwable {
+  public String render(ASTCompilationUnit compilationUnit, String format) throws Throwable {
     MethodHandle template = templateFor(format);
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    String result = (String) template.invokeWithArguments(documentation);
-    System.out.println("Result ---\n" + result);
+    return (String) template.invokeWithArguments(documentation);
   }
 }
