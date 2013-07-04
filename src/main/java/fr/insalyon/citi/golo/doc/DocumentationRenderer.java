@@ -1,6 +1,7 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.ASTModuleDeclaration;
 import gololang.Predefined;
 import gololang.TemplateEngine;
 
@@ -9,6 +10,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.HashMap;
 
 public class DocumentationRenderer {
@@ -45,5 +48,12 @@ public class DocumentationRenderer {
 
   public void renderTo(File file, ASTCompilationUnit compilationUnit, String format) throws Throwable {
     Predefined.textToFile(render(compilationUnit, format), file);
+  }
+
+  public void renderToFolder(File folder, ASTCompilationUnit compilationUnit, String format) throws Throwable {
+    ASTModuleDeclaration declaration = (ASTModuleDeclaration) compilationUnit.jjtGetChild(0);
+    Path filePath = folder.toPath().resolve(declaration.getName().replace('.', '/') + "." + format);
+    Files.createDirectories(filePath.getParent());
+    renderTo(filePath.toFile(), compilationUnit, format);
   }
 }

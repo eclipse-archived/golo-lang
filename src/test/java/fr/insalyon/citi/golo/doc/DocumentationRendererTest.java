@@ -3,12 +3,11 @@ package fr.insalyon.citi.golo.doc;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import gololang.Predefined;
-import org.hamcrest.CoreMatchers;
-import org.hamcrest.MatcherAssert;
 import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.nio.file.Files;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -33,5 +32,12 @@ public class DocumentationRendererTest {
     renderer.renderTo(tempFile, compilationUnit, "markdown");
     String text = (String) Predefined.fileToText(tempFile, "UTF-8");
     assertThat(text, is(result));
+
+    File tempDir = Files.createTempDirectory("foo").toFile();
+    renderer.renderToFolder(tempDir, compilationUnit, "markdown");
+    File expectedFile = new File(tempDir, "Documented.markdown");
+    assertThat(expectedFile.exists(), is(true));
+    assertThat(expectedFile.isFile(), is(true));
+    assertThat(expectedFile.length() > 0, is(true));
   }
 }
