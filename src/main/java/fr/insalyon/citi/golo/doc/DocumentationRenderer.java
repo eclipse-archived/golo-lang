@@ -24,16 +24,17 @@ public class DocumentationRenderer {
     if (in == null) {
       throw new IllegalArgumentException("There is no template for format: " + format);
     }
-    InputStreamReader reader = new InputStreamReader(in);
-    StringBuilder builder = new StringBuilder();
-    char[] buffer = new char[1024];
-    int nread;
-    while ((nread = reader.read(buffer)) > 0) {
-      builder.append(buffer, 0, nread);
+    try (InputStreamReader reader = new InputStreamReader(in)) {
+      StringBuilder builder = new StringBuilder();
+      char[] buffer = new char[1024];
+      int nread;
+      while ((nread = reader.read(buffer)) > 0) {
+        builder.append(buffer, 0, nread);
+      }
+      MethodHandle compiledTemplate = templateEngine.compile(builder.toString());
+      templateCache.put(format, compiledTemplate);
+      return compiledTemplate;
     }
-    MethodHandle compiledTemplate = templateEngine.compile(builder.toString());
-    templateCache.put(format, compiledTemplate);
-    return compiledTemplate;
   }
 
   public String render(ASTCompilationUnit compilationUnit, String format) throws Throwable {
