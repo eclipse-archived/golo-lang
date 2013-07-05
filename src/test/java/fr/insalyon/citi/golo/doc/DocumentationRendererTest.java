@@ -8,6 +8,8 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
+import java.nio.file.Path;
+import java.util.Arrays;
 
 import static org.hamcrest.CoreMatchers.containsString;
 import static org.hamcrest.CoreMatchers.is;
@@ -18,6 +20,28 @@ public class DocumentationRendererTest {
   public static final String SRC = "src/test/resources/for-parsing-and-compilation/";
 
   @Test
+  public void markdown_processor() throws Throwable {
+    GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
+    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
+
+    MarkdownProcessor processor = new MarkdownProcessor();
+    String result = processor.render(compilationUnit);
+    assertThat(result, containsString("# Documentation for `Documented`"));
+    assertThat(result, containsString("### `with_doc(a, b)`"));
+    assertThat(result, containsString("println(\"foo\": yop())"));
+
+    Path tempDir = Files.createTempDirectory("foo");
+    processor.process(Arrays.asList(compilationUnit), tempDir);
+    Path expectedDocFile = tempDir.resolve("Documented.markdown");
+    assertThat(Files.exists(expectedDocFile), is(true));
+    assertThat(Files.isRegularFile(expectedDocFile), is(true));
+    assertThat(Files.size(expectedDocFile) > 0, is(true));
+
+    String contents = (String) Predefined.fileToText(expectedDocFile, "UTF-8");
+    assertThat(contents, is(result));
+  }
+
+  @Test(enabled = false)
   public void render_markdown() throws Throwable {
     GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();

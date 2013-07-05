@@ -18,10 +18,8 @@ package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.ASTModuleDeclaration;
-import gololang.Predefined;
 import gololang.TemplateEngine;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -29,23 +27,24 @@ import java.lang.invoke.MethodHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.List;
 
-public class DocumentationRenderer {
+public abstract class AbstractProcessor {
 
+  public abstract String render(ASTCompilationUnit compilationUnit) throws Throwable;
 
-
-  // --- API to remove --- //
+  public abstract void process(List<ASTCompilationUnit> units, Path targetFolder) throws Throwable;
 
   private TemplateEngine templateEngine = new TemplateEngine();
   private HashMap<String, MethodHandle> templateCache = new HashMap<>();
 
-  private MethodHandle templateFor(String format) throws IOException {
+  protected MethodHandle template(String name, String format) throws IOException {
     if (templateCache.containsKey(format)) {
       return templateCache.get(format);
     }
-    InputStream in = DocumentationRenderer.class.getResourceAsStream("/fr/insalyon/citi/golo/doc/template-" + format);
+    InputStream in = DocumentationRenderer.class.getResourceAsStream("/fr/insalyon/citi/golo/doc/" + name + "-" + format);
     if (in == null) {
-      throw new IllegalArgumentException("There is no template for format: " + format);
+      throw new IllegalArgumentException("There is no template " + name + " for format: " + format);
     }
     try (InputStreamReader reader = new InputStreamReader(in)) {
       StringBuilder builder = new StringBuilder();
@@ -60,20 +59,15 @@ public class DocumentationRenderer {
     }
   }
 
-  public String render(ASTCompilationUnit compilationUnit, String format) throws Throwable {
-    MethodHandle template = templateFor(format);
-    ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    return (String) template.invokeWithArguments(documentation);
+  protected void ensureFolderExists(Path path) throws IOException {
+    Files.createDirectories(path);
   }
 
-  public void renderTo(File file, ASTCompilationUnit compilationUnit, String format) throws Throwable {
-    Predefined.textToFile(render(compilationUnit, format), file);
+  protected Path outputFile(Path targetFolder, String moduleName, String extension) {
+    return targetFolder.resolve(moduleName.replace('.', '/') + extension);
   }
 
-  public void renderToFolder(File folder, ASTCompilationUnit compilationUnit, String format) throws Throwable {
-    ASTModuleDeclaration declaration = (ASTModuleDeclaration) compilationUnit.jjtGetChild(0);
-    Path filePath = folder.toPath().resolve(declaration.getName().replace('.', '/') + "." + format);
-    Files.createDirectories(filePath.getParent());
-    renderTo(filePath.toFile(), compilationUnit, format);
+  protected String moduleName(ASTCompilationUnit unit) {
+    return ((ASTModuleDeclaration) unit.jjtGetChild(0)).getName();
   }
 }
