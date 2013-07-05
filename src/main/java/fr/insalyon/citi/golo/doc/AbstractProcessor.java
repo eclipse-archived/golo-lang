@@ -39,8 +39,9 @@ public abstract class AbstractProcessor {
   private HashMap<String, MethodHandle> templateCache = new HashMap<>();
 
   protected MethodHandle template(String name, String format) throws IOException {
-    if (templateCache.containsKey(format)) {
-      return templateCache.get(format);
+    String key = name + "-" + format;
+    if (templateCache.containsKey(key)) {
+      return templateCache.get(key);
     }
     InputStream in = DocumentationRenderer.class.getResourceAsStream("/fr/insalyon/citi/golo/doc/" + name + "-" + format);
     if (in == null) {
@@ -54,7 +55,7 @@ public abstract class AbstractProcessor {
         builder.append(buffer, 0, nread);
       }
       MethodHandle compiledTemplate = templateEngine.compile(builder.toString());
-      templateCache.put(format, compiledTemplate);
+      templateCache.put(key, compiledTemplate);
       return compiledTemplate;
     }
   }

@@ -39,6 +39,15 @@ public class DocumentationRendererTest {
 
     String contents = (String) Predefined.fileToText(expectedDocFile, "UTF-8");
     assertThat(contents, is(result));
+
+    Path expectedIndexFile = tempDir.resolve("index.markdown");
+    assertThat(Files.exists(expectedIndexFile), is(true));
+    assertThat(Files.isRegularFile(expectedIndexFile), is(true));
+    assertThat(Files.size(expectedIndexFile) > 0, is(true));
+
+    contents = (String) Predefined.fileToText(expectedIndexFile, "UTF-8");
+    assertThat(contents, containsString("# Modules index"));
+    assertThat(contents, containsString("* [Documented](Documented.markdown"));
   }
 
   @Test(enabled = false)
