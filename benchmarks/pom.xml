@@ -148,7 +148,7 @@
         <configuration>
           <runOrder>random</runOrder>
           <reuseForks>false</reuseForks>
-          <argLine>-server -Xms1024M -Xmx1024M</argLine>
+          <argLine>-server -Xms1024M -Xmx1024M -XX:+AggressiveOpts</argLine>
           <systemProperties>
             <jub.consumers>CONSOLE,H2</jub.consumers>
             <jub.db.file>.benchmarks</jub.db.file>
