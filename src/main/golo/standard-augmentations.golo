@@ -208,26 +208,26 @@ augment java.util.List {
     return reversedList: reverse()
   }
 
-  function sort = |this| {
+  function order = |this| {
     java.util.Collections.sort(this)
     return this
   }
 
-  function sorted = |this| {
+  function ordered = |this| {
     let sortedList = this: newWithSameType()
     sortedList: addAll(this)
-    return sortedList: sort()
+    return sortedList: order()
   }
 
-  function sort = |this, comparator| {
+  function order = |this, comparator| {
     java.util.Collections.sort(this, comparator)
     return this
   }
 
-  function sorted = |this, comparator| {
+  function ordered = |this, comparator| {
     let sortedList = this: newWithSameType()
     sortedList: addAll(this)
-    return sortedList: sort(comparator)
+    return sortedList: order(comparator)
   }
 }
 
