@@ -224,6 +224,8 @@ TOKEN :
   < CLASSREF: <IDENTIFIER> ("." <IDENTIFIER>)* (".class" | ".module") >
   |
   < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
+  |
+  < COLL_START: ("array" | "list" | "set" | "map")? "[" >
 }
 
 // Multiline strings
@@ -684,6 +686,8 @@ void TerminalExpression() #void: {}
   Literal()
   |
   Function()
+  |
+  CollectionLiteral()
 }
 
 void UnaryExpression():
@@ -859,6 +863,21 @@ void Literal():
       jjtThis.setLiteralValue(value);
     }
   )
+}
+
+void CollectionLiteral():
+{
+  Token token;
+}
+{
+  token=<COLL_START> ExpressionStatement() ("," ExpressionStatement())* "]"
+  {
+    String image = token.image;
+    jjtThis.setType(image.substring(0, image.length() - 1));
+    if (jjtThis.getType().isEmpty()) {
+      jjtThis.setType("tuple");
+    }
+  }
 }
 
 void Reference():{}

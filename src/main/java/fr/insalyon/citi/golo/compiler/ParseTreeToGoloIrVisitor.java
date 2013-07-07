@@ -327,6 +327,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTCollectionLiteral node, Object data) {
+    // TODO
+    return null;  //To change body of implemented methods use File | Settings | File Templates.
+  }
+
+  @Override
   public Object visit(ASTReference node, Object data) {
     Context context = (Context) data;
     ReferenceLookup referenceLookup = new ReferenceLookup(node.getName());
