@@ -28,6 +28,7 @@ import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.doc.AbstractProcessor;
+import fr.insalyon.citi.golo.doc.HtmlProcessor;
 import fr.insalyon.citi.golo.doc.MarkdownProcessor;
 
 import java.io.File;
@@ -125,8 +126,8 @@ public class Main {
   @Parameters(commandDescription = "Generate documentation from Golo source files")
   private static class DocCommand {
 
-    @Parameter(names = "--format", description = "Documentation output format")
-    String format = "markdown";
+    @Parameter(names = "--format", description = "Documentation output format (html, markdown)")
+    String format = "html";
 
     @Parameter(names = "--output", description = "The compiled classes output directory")
     String output = ".";
@@ -321,6 +322,9 @@ public class Main {
     switch (options.format) {
       case "markdown":
         processor = new MarkdownProcessor();
+        break;
+      case "html":
+        processor = new HtmlProcessor();
         break;
       default:
         System.out.println("Error: " + options.format + " is not supported");

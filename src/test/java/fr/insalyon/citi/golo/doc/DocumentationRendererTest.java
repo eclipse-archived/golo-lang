@@ -50,6 +50,18 @@ public class DocumentationRendererTest {
     assertThat(contents, containsString("* [Documented](Documented.markdown"));
   }
 
+  @Test
+  public void html_processor() throws Throwable {
+    GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
+    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
+
+    HtmlProcessor processor = new HtmlProcessor();
+    String result = processor.render(compilationUnit);
+    assertThat(result, containsString("<h1>Documentation for Documented</h1>"));
+    assertThat(result, containsString("<h3>with_doc(a, b)"));
+    assertThat(result, containsString("<pre><code>println(\"foo\": yop())"));
+  }
+
   @Test(enabled = false)
   public void render_markdown() throws Throwable {
     GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));

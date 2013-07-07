@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<%@params doc %>
+<%@import com.github.rjeschke.txtmark.Processor %>
+<html>
+<head>
+  <title>Documentation for <%= doc: moduleName() %></title>
+</head>
+<body>
+
+<h1>Documentation for <%= doc: moduleName() %></h1>
+
+<h2>Functions</h2>
+
+<% foreach funcDoc in doc: functions() { %>
+  <h3><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
+  <div>
+    <%= process(funcDoc: documentation()) %>
+  </div>
+<% } %>
+
+<h2>Augmentations</h2>
+
+<% foreach augmentation in doc: augmentations(): keySet() { %>
+  <h3><%= augmentation %></h3>
+  <div>
+    <%= process(doc: augmentations(): get(augmentation)) %>
+  </div>
+  <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
+    <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h4>
+    <div>
+      <%= process(funcDoc: documentation()) %>
+    </div>
+  <% } %>
+<% } %>
+
+</body>
+</html>
