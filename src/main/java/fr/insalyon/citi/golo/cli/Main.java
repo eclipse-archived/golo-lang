@@ -24,6 +24,11 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.doc.AbstractProcessor;
+import fr.insalyon.citi.golo.doc.MarkdownProcessor;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -34,6 +39,8 @@ import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -115,6 +122,19 @@ public class Main {
     }
   }
 
+  @Parameters(commandDescription = "Generate documentation from Golo source files")
+  private static class DocCommand {
+
+    @Parameter(names = "--format", description = "Documentation output format")
+    String format = "markdown";
+
+    @Parameter(names = "--output", description = "The compiled classes output directory")
+    String output = ".";
+
+    @Parameter(description = "Golo source files (*.golo)")
+    List<String> sources = new LinkedList<>();
+  }
+
   public static void main(String... args) throws Throwable {
     GlobalArguments global = new GlobalArguments();
     JCommander cmd = new JCommander(global);
@@ -129,6 +149,8 @@ public class Main {
     cmd.addCommand("golo", gologolo);
     DiagnoseCommand diagnose = new DiagnoseCommand();
     cmd.addCommand("diagnose", diagnose);
+    DocCommand doc = new DocCommand();
+    cmd.addCommand("doc", doc);
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -149,6 +171,9 @@ public class Main {
             break;
           case "diagnose":
             diagnose(diagnose);
+            break;
+          case "doc":
+            doc(doc);
             break;
           default:
             throw new AssertionError("WTF?");
@@ -289,5 +314,32 @@ public class Main {
       }
     }
     callRun(lastClass, gologolo.arguments.toArray(new String[gologolo.arguments.size()]));
+  }
+
+  private static void doc(DocCommand options) {
+    AbstractProcessor processor;
+    switch (options.format) {
+      case "markdown":
+        processor = new MarkdownProcessor();
+        break;
+      default:
+        System.out.println("Error: " + options.format + " is not supported");
+        return;
+    }
+    LinkedList<ASTCompilationUnit> units = new LinkedList<>();
+    for (String source : options.sources) {
+      try (FileInputStream in = new FileInputStream(source)) {
+        units.add(new GoloParser(in).CompilationUnit());
+      } catch (IOException e) {
+        System.out.println("[error] " + source + " does not exist or could not be opened.");
+      } catch (ParseException e) {
+        System.out.println("[error] " + source + " has syntax errors: " + e.getMessage());
+      }
+    }
+    try {
+      processor.process(units, Paths.get(options.output));
+    } catch (Throwable throwable) {
+      System.out.println("[error] " + throwable.getMessage());
+    }
   }
 }
