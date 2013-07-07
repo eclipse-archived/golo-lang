@@ -288,4 +288,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
 
   }
+
+  @Override
+  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+    for (ExpressionStatement statement : collectionLiteral.getExpressions()) {
+      statement.accept(this);
+    }
+  }
 }

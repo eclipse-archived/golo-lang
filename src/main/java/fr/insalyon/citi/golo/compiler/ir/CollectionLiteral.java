@@ -42,7 +42,6 @@ public class CollectionLiteral extends ExpressionStatement {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-    // TODO integrate into IR class hierarchy
-    //visitor.acceptCollectionLiteral(this);
+    visitor.acceptCollectionLiteral(this);
   }
 }

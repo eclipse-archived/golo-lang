@@ -519,6 +519,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+    // TODO generate bytecode for collections
+  }
+
+  @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
     Label tryStart = new Label();
     Label tryEnd = new Label();

@@ -51,4 +51,6 @@ public interface GoloIrVisitor {
   void visitClosureReference(ClosureReference closureReference);
 
   void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement);
+
+  void acceptCollectionLiteral(CollectionLiteral collectionLiteral);
 }
