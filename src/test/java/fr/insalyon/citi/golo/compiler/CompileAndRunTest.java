@@ -20,6 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import gololang.Tuple;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -798,5 +799,26 @@ public class CompileAndRunTest {
 
     Method run_plop = moduleClass.getMethod("run_plop");
     assertThat((Integer) run_plop.invoke(null), is(3));
+  }
+
+  @Test
+  public void collection_literals() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "collection-literals.golo");
+
+    Method nested_tuples = moduleClass.getMethod("nested_tuples");
+    Object result = nested_tuples.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(4));
+    assertThat((Integer) tuple.get(0), is(1));
+    assertThat((Integer) tuple.get(1), is(2));
+    assertThat((Integer) tuple.get(2), is(3));
+    assertThat(tuple.get(3), instanceOf(Tuple.class));
+
+    Tuple nestedTuple = (Tuple) tuple.get(3);
+    assertThat(nestedTuple.size(), is(2));
+    assertThat((Integer) nestedTuple.get(0), is(10));
+    assertThat((Integer) nestedTuple.get(1), is(20));
   }
 }

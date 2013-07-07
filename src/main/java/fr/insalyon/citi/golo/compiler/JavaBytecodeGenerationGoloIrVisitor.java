@@ -521,6 +521,25 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
     // TODO generate bytecode for collections
+    switch (collectionLiteral.getType()) {
+      case tuple:
+        methodVisitor.visitTypeInsn(NEW, "gololang/Tuple");
+        methodVisitor.visitInsn(DUP);
+        loadInteger(collectionLiteral.getExpressions().size());
+        methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+        int i = 0;
+        for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+          methodVisitor.visitInsn(DUP);
+          loadInteger(i);
+          expression.accept(this);
+          methodVisitor.visitInsn(AASTORE);
+          i = i + 1;
+        }
+        methodVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/Tuple", "<init>", "([Ljava/lang/Object;)V");
+        break;
+      default:
+        throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
+    }
   }
 
   @Override
