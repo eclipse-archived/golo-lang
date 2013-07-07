@@ -256,7 +256,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       case ":":
         return OperatorType.METHOD_CALL;
       case "orIfNull":
-         return OperatorType.ORIFNULL;
+        return OperatorType.ORIFNULL;
       case "?:":
         return ELVIS_METHOD_CALL;
       default:
@@ -328,8 +328,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTCollectionLiteral node, Object data) {
-    // TODO
-    return null;  //To change body of implemented methods use File | Settings | File Templates.
+    Context context = (Context) data;
+    List<ExpressionStatement> expressions = new LinkedList<>();
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      GoloASTNode expressionNode = (GoloASTNode) node.jjtGetChild(i);
+      expressionNode.jjtAccept(this, data);
+      expressions.add((ExpressionStatement) context.objectStack.pop());
+    }
+    CollectionLiteral.Type type = CollectionLiteral.Type.valueOf(node.getType());
+    context.objectStack.push(new CollectionLiteral(type, expressions));
+    return data;
   }
 
   @Override
