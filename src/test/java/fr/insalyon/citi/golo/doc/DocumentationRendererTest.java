@@ -60,6 +60,22 @@ public class DocumentationRendererTest {
     assertThat(result, containsString("<h1>Documentation for Documented</h1>"));
     assertThat(result, containsString("<h3>with_doc(a, b)"));
     assertThat(result, containsString("<pre><code>println(\"foo\": yop())"));
+
+    Path tempDir = Files.createTempDirectory("foo");
+    processor.process(Arrays.asList(compilationUnit), tempDir);
+    Path expectedDocFile = tempDir.resolve("Documented.html");
+    assertThat(Files.exists(expectedDocFile), is(true));
+    assertThat(Files.isRegularFile(expectedDocFile), is(true));
+    assertThat(Files.size(expectedDocFile) > 0, is(true));
+
+    Path expectedIndexFile = tempDir.resolve("index.html");
+    assertThat(Files.exists(expectedIndexFile), is(true));
+    assertThat(Files.isRegularFile(expectedIndexFile), is(true));
+    assertThat(Files.size(expectedIndexFile) > 0, is(true));
+
+    String contents = (String) Predefined.fileToText(expectedIndexFile, "UTF-8");
+    assertThat(contents, containsString("<h1>Modules index</h1>"));
+    assertThat(contents, containsString("<a href='Documented.html'>Documented</a>"));
   }
 
   @Test(enabled = false)

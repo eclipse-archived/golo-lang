@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Modules index</title>
+</head>
+<body>
+
+<h1>Modules index</h1>
+
+<ul>
+  <% foreach moduleName in params: keySet() { %>
+    <li>
+      <a href='<%= params: get(moduleName) %>'><%= moduleName %></a>
+    </li>
+  <% } %>
+</ul>
+
+</body>
+</html>

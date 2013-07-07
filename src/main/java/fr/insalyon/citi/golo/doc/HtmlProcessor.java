@@ -44,8 +44,8 @@ public class HtmlProcessor extends AbstractProcessor {
       Predefined.textToFile(render(unit), docFile);
       moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
     }
-//    MethodHandle indexTemplate = template("index", "markdown");
-//    String index = (String) indexTemplate.invokeWithArguments(moduleDocFile);
-//    Predefined.textToFile(index, targetFolder.resolve("index.markdown"));
+    MethodHandle indexTemplate = template("index", "html");
+    String index = (String) indexTemplate.invokeWithArguments(moduleDocFile);
+    Predefined.textToFile(index, targetFolder.resolve("index.html"));
   }
 }
