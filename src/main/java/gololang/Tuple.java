@@ -45,6 +45,16 @@ public final class Tuple implements Iterable<Object> {
   }
 
   /**
+   * Helper factory method.
+   *
+   * @param values the values as an array.
+   * @return a tuple from the array values.
+   */
+  public static Tuple fromArray(Object[] values) {
+    return new Tuple(values);
+  }
+
+  /**
    * Gives the number of elements in this tuple.
    *
    * @return the tuple size.
