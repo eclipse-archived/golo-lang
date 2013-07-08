@@ -225,7 +225,7 @@ TOKEN :
   |
   < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
   |
-  < COLL_START: ("array" | "list" | "set" | "map")? "[" >
+  < COLL_START: ("array" | "list" | "set" | "map" | "vector" | "tuple" )? "[" >
 }
 
 // Multiline strings

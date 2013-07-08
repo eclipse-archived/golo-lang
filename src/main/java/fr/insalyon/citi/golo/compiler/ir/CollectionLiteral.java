@@ -21,7 +21,7 @@ import java.util.List;
 public class CollectionLiteral extends ExpressionStatement {
 
   public static enum Type {
-    array, list, set, map, tuple
+    array, list, set, map, tuple, vector
   }
 
   private final Type type;
