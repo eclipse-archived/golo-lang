@@ -9,3 +9,5 @@ function some_list = -> list[1, 2, 3]
 function some_vector = -> vector[1, 2, 3]
 
 function some_set = -> set["a", "b", "a"]
+
+function some_map = -> map[["foo", "bar"], ["plop", "da plop"]]

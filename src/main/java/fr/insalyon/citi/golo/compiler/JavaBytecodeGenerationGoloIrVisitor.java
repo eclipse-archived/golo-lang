@@ -537,8 +537,30 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       case set:
         createSet(collectionLiteral);
         break;
+      case map:
+        createMap(collectionLiteral);
+        break;
       default:
         throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
+    }
+  }
+
+  private void createMap(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashMap");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashMap", "<init>", "()V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitTypeInsn(CHECKCAST, "gololang/Tuple");
+      methodVisitor.visitInsn(DUP);
+      loadInteger(0);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;");
+      methodVisitor.visitInsn(SWAP);
+      loadInteger(1);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+      methodVisitor.visitInsn(POP);
     }
   }
 

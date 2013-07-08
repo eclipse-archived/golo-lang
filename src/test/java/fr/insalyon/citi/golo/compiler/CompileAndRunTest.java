@@ -891,5 +891,13 @@ public class CompileAndRunTest {
     assertThat(set.size(), is(2));
     assertThat(set.contains("a"), is(true));
     assertThat(set.contains("b"), is(true));
+
+    Method some_map = moduleClass.getMethod("some_map");
+    result = some_map.invoke(null);
+    assertThat(result, instanceOf(Map.class));
+    Map<?, ?> map = (Map) result;
+    assertThat(map.size(), is(2));
+    assertThat((String) map.get("foo"), is("bar"));
+    assertThat((String) map.get("plop"), is("da plop"));
   }
 }
