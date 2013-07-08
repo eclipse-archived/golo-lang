@@ -441,6 +441,11 @@ public class CompileAndRunTest {
     result = as_list.invoke(null);
     assertThat(result, instanceOf(Collection.class));
     assertThat(((Collection) result).size(), is(3));
+
+    Method getClass_method = moduleClass.getMethod("getClass_method");
+    result = getClass_method.invoke(null);
+    assertThat(result, instanceOf(Class.class));
+    assertThat(result.equals(Object[].class), is(true));
   }
 
   @Test

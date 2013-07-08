@@ -452,7 +452,8 @@ be invoked on arrays:
 - `iterator()` returns a `java.util.Iterator`,
 - `toString()` delegates to `java.util.Arrays.toString(Object[])`,
 - `asList()` delegates to `java.util.Arrays.asList(Object[])`,
-- `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`.
+- `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`,
+- `getClass()` return the array class.
 
 Given a reference `a` on some array:
 

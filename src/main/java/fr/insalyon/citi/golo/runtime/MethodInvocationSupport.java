@@ -340,6 +340,11 @@ public class MethodInvocationSupport {
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
+      case "getClass":
+        if (args.length != 1) {
+          throw new UnsupportedOperationException("getClass on arrays takes no parameters");
+        }
+        return MethodHandles.dropArguments(MethodHandles.constant(Class.class, receiverClass), 0, receiverClass).asType(type);
       default:
         throw new UnsupportedOperationException(inlineCache.name + " is not supported on arrays");
     }
