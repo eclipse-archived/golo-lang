@@ -19,18 +19,56 @@ package gololang;
 import java.util.Arrays;
 import java.util.Iterator;
 
+/**
+ * Represents an tuple object.
+ * <p>
+ * A tuple essentially behaves like an immutable array. In Golo, tuples can be created as follows:
+ * <pre>
+ * # Short syntax
+ * let t1 = [1, 2, 3]
+ *
+ * # Complete collection literal syntax
+ * let t2 = tuple[1, 2, 3]
+ * </pre>
+ */
 public final class Tuple implements Iterable<Object> {
 
   private final Object[] data;
 
+  /**
+   * Creates a new tuple from values.
+   *
+   * @param values the tuple values.
+   */
   public Tuple(Object... values) {
     data = Arrays.copyOf(values, values.length);
   }
 
+  /**
+   * Gives the number of elements in this tuple.
+   *
+   * @return the tuple size.
+   */
   public int size() {
     return data.length;
   }
 
+  /**
+   * Checks whether the tuple is empty or not.
+   *
+   * @return {@code true} if the tuple has no element, {@code false} otherwise.
+   */
+  public boolean isEmpty() {
+    return data.length == 0;
+  }
+
+  /**
+   * Gets the element at a specified index.
+   *
+   * @param index the element index.
+   * @return the element at index {@code index}.
+   * @throws IndexOutOfBoundsException if the specified {@code index} is not valid (negative value or above the size).
+   */
   public Object get(int index) {
     if (index < 0 || index >= data.length) {
       throw new IndexOutOfBoundsException(index + " is outside the bounds of a " + data.length + "-tuple");
@@ -38,6 +76,12 @@ public final class Tuple implements Iterable<Object> {
     return data[index];
   }
 
+  /**
+   * Creates an iterator over the tuple.
+   * <p>The iterator does not support removal.
+   *
+   * @return an iterator.
+   */
   @Override
   public Iterator<Object> iterator() {
     return new Iterator<Object>() {

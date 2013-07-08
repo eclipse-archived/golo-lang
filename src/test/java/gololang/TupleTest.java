@@ -30,6 +30,7 @@ public class TupleTest {
   public void empty_tuple() {
     Tuple tuple = new Tuple();
     assertThat(tuple.size(), is(0));
+    assertThat(tuple.isEmpty(), is(true));
     assertThat(tuple.iterator().hasNext(), is(false));
   }
 
@@ -47,6 +48,7 @@ public class TupleTest {
   public void singleton() {
     Tuple tuple = new Tuple("a");
     assertThat(tuple.size(), is(1));
+    assertThat(tuple.isEmpty(), is(false));
     assertThat((String) tuple.get(0), is("a"));
     Iterator<Object> iterator = tuple.iterator();
     assertThat(iterator.hasNext(), is(true));
@@ -58,6 +60,7 @@ public class TupleTest {
   public void any_tuple() {
     Tuple tuple = new Tuple(1, 2, 3);
     assertThat(tuple.size(), is(3));
+    assertThat(tuple.isEmpty(), is(false));
     assertThat((Integer) tuple.get(0), is(1));
     assertThat((Integer) tuple.get(1), is(2));
     assertThat((Integer) tuple.get(2), is(3));
