@@ -868,16 +868,21 @@ public class CompileAndRunTest {
     assertThat((String) array[1], is("a"));
 
     Method some_list = moduleClass.getMethod("some_list");
-    try {
     result = some_list.invoke(null);
-    } catch (Throwable t) {
-      t.getCause().printStackTrace();
-      throw t;
-    }
     assertThat(result, instanceOf(LinkedList.class));
     LinkedList<?> list = (LinkedList) result;
     assertThat(list.size(), is(3));
     assertThat((Integer) list.getFirst(), is(1));
     assertThat((Integer) list.getLast(), is(3));
+
+    Method some_vector = moduleClass.getMethod("some_vector");
+    result = some_vector.invoke(null);
+    assertThat(result, instanceOf(ArrayList.class));
+    ArrayList<?> vector = (ArrayList) result;
+    assertThat(vector.size(), is(3));
+    assertThat((Integer) vector.get(0), is(1));
+    assertThat((Integer) vector.get(1), is(2));
+    assertThat((Integer) vector.get(2), is(3));
+
   }
 }

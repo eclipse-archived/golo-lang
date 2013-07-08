@@ -531,8 +531,24 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       case list:
         createList(collectionLiteral);
         break;
+      case vector:
+        createVector(collectionLiteral);
+        break;
       default:
         throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
+    }
+  }
+
+  private void createVector(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/ArrayList");
+    methodVisitor.visitInsn(DUP);
+    loadInteger(collectionLiteral.getExpressions().size());
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "(I)V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitInsn(POP);
     }
   }
 
