@@ -62,4 +62,23 @@ public final class Tuple implements Iterable<Object> {
       }
     };
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    Tuple tuple = (Tuple) o;
+    return Arrays.equals(data, tuple.data);
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(data);
+  }
+
+  @Override
+  public String toString() {
+    return "tuple" + Arrays.toString(data);
+  }
 }

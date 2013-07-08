@@ -22,6 +22,7 @@ import java.util.Iterator;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class TupleTest {
 
@@ -65,5 +66,10 @@ public class TupleTest {
       sum = sum + (int) o;
     }
     assertThat(sum, is(6));
+
+    assertThat(tuple.toString(), is("tuple[1, 2, 3]"));
+    assertThat(tuple, is(new Tuple(1, 2, 3)));
+    assertThat(tuple, not(new Tuple(1, 2, "3")));
+    assertThat(tuple, not(new Tuple()));
   }
 }
