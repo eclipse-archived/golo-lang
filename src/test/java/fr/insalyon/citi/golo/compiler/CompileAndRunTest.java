@@ -858,5 +858,13 @@ public class CompileAndRunTest {
     assertThat(nestedTuple.size(), is(2));
     assertThat((Integer) nestedTuple.get(0), is(10));
     assertThat((Integer) nestedTuple.get(1), is(20));
+
+    Method some_array = moduleClass.getMethod("some_array");
+    result = some_array.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    Object[] array = (Object[]) result;
+    assertThat(array.length, is(2));
+    assertThat((Integer) array[0], is(1));
+    assertThat((String) array[1], is("a"));
   }
 }

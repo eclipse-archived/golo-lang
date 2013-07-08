@@ -525,14 +525,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       case tuple:
         createTuple(collectionLiteral);
         break;
+      case array:
+        createArray(collectionLiteral);
+        break;
       default:
         throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
     }
   }
 
-  private void createTuple(CollectionLiteral collectionLiteral) {
-    methodVisitor.visitTypeInsn(NEW, "gololang/Tuple");
-    methodVisitor.visitInsn(DUP);
+  private void createArray(CollectionLiteral collectionLiteral) {
     loadInteger(collectionLiteral.getExpressions().size());
     methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;
@@ -543,6 +544,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInsn(AASTORE);
       i = i + 1;
     }
+  }
+
+  private void createTuple(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "gololang/Tuple");
+    methodVisitor.visitInsn(DUP);
+    createArray(collectionLiteral);
     methodVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/Tuple", "<init>", "([Ljava/lang/Object;)V");
   }
 
