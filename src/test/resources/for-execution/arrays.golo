@@ -63,3 +63,7 @@ function equals_method = {
 function asList_method = {
   return Array(1, 2, 3): asList()
 }
+
+function getClass_method = {
+  return Array(1, 2, 3): getClass()
+}

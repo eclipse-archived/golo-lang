@@ -281,4 +281,10 @@ public class StandardAugmentationsTest {
     Method number_repeaters = moduleClass.getMethod("number_repeaters");
     assertThat((String) number_repeaters.invoke(null), is("..012101112121110"));
   }
+
+  @Test
+  public void tupled() throws Throwable {
+    Method tupled = moduleClass.getMethod("tupled");
+    assertThat((Integer) tupled.invoke(null), is(60));
+  }
 }

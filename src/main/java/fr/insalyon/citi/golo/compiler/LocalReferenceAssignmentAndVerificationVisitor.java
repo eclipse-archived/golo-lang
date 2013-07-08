@@ -235,4 +235,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }
   }
+
+  @Override
+  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+    for (ExpressionStatement statement : collectionLiteral.getExpressions()) {
+      statement.accept(this);
+    }
+  }
 }
