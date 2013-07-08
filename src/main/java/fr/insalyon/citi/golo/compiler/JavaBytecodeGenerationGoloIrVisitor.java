@@ -534,8 +534,23 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       case vector:
         createVector(collectionLiteral);
         break;
+      case set:
+        createSet(collectionLiteral);
+        break;
       default:
         throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
+    }
+  }
+
+  private void createSet(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashSet");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashSet", "<init>", "()V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashSet", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitInsn(POP);
     }
   }
 

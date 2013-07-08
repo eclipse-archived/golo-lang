@@ -884,5 +884,12 @@ public class CompileAndRunTest {
     assertThat((Integer) vector.get(1), is(2));
     assertThat((Integer) vector.get(2), is(3));
 
+    Method some_set = moduleClass.getMethod("some_set");
+    result = some_set.invoke(null);
+    assertThat(result, instanceOf(Set.class));
+    Set<?> set = (Set) result;
+    assertThat(set.size(), is(2));
+    assertThat(set.contains("a"), is(true));
+    assertThat(set.contains("b"), is(true));
   }
 }
