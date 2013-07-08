@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.internal.testing;
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import org.testng.Reporter;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -53,9 +54,13 @@ public class TestUtils {
       return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
     } catch (GoloCompilationException e) {
       for (GoloCompilationException.Problem p : e.getProblems()) {
-        System.out.println("In " + goloFile + ": " + p.getDescription());
+        Reporter.log("In " + goloFile + ": " + p.getDescription(), shouldTestNgReportToConsole());
       }
       throw e;
     }
+  }
+
+  private static boolean shouldTestNgReportToConsole() {
+    return Boolean.valueOf(System.getProperty("testng-report-to-console", "false"));
   }
 }
