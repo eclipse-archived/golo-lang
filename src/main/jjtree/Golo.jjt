@@ -873,8 +873,10 @@ void CollectionLiteral():
 }
 {
   token=<COLL_START> (BlankLine())?
-  ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
-  (BlankLine())? "]"
+  (
+    ExpressionStatement() ("," (BlankLine())? ExpressionStatement())* (BlankLine())?
+  )?
+  "]"
   {
     String image = token.image;
     jjtThis.setType(image.substring(0, image.length() - 1));
