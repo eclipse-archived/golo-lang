@@ -799,4 +799,42 @@ public class CompileAndRunTest {
     Method run_plop = moduleClass.getMethod("run_plop");
     assertThat((Integer) run_plop.invoke(null), is(3));
   }
+
+  @Test
+  public void underscores_in_number_literals() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "numeric-literals.golo");
+    Method integer = moduleClass.getMethod("number");
+    assertThat((Integer) integer.invoke(null), is(1234567));
+  }
+
+  @Test
+  public void underscores_in_long_number_literals() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "numeric-literals.golo");
+    Method integer = moduleClass.getMethod("long_number");
+    assertThat((Long) integer.invoke(null), is(1234567l));
+  }
+
+  @Test
+  public void failure_trailing_underscore() throws Throwable {
+    try {
+      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "failure-numeric-trailing-underscore.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException e) {
+      assertThat(e.getProblems().size(), is(1));
+      Problem problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(PARSING));
+    }
+  }
+
+  @Test
+  public void failure_double_underscore() throws Throwable {
+    try {
+      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "failure-numeric-double-underscore.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException e) {
+      assertThat(e.getProblems().size(), is(1));
+      Problem problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(PARSING));
+    }
+  }
 }
