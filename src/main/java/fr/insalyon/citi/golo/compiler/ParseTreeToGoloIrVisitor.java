@@ -256,7 +256,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       case ":":
         return OperatorType.METHOD_CALL;
       case "orIfNull":
-         return OperatorType.ORIFNULL;
+        return OperatorType.ORIFNULL;
       case "?:":
         return ELVIS_METHOD_CALL;
       default:
@@ -323,6 +323,20 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ConstantStatement constantStatement = new ConstantStatement(node.getLiteralValue());
     context.objectStack.push(constantStatement);
     node.setIrElement(constantStatement);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTCollectionLiteral node, Object data) {
+    Context context = (Context) data;
+    List<ExpressionStatement> expressions = new LinkedList<>();
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      GoloASTNode expressionNode = (GoloASTNode) node.jjtGetChild(i);
+      expressionNode.jjtAccept(this, data);
+      expressions.add((ExpressionStatement) context.objectStack.pop());
+    }
+    CollectionLiteral.Type type = CollectionLiteral.Type.valueOf(node.getType());
+    context.objectStack.push(new CollectionLiteral(type, expressions));
     return data;
   }
 

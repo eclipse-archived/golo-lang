@@ -519,6 +519,109 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+    // TODO generate bytecode for collections
+    switch (collectionLiteral.getType()) {
+      case tuple:
+        createTuple(collectionLiteral);
+        break;
+      case array:
+        createArray(collectionLiteral);
+        break;
+      case list:
+        createList(collectionLiteral);
+        break;
+      case vector:
+        createVector(collectionLiteral);
+        break;
+      case set:
+        createSet(collectionLiteral);
+        break;
+      case map:
+        createMap(collectionLiteral);
+        break;
+      default:
+        throw new UnsupportedOperationException("Can't handle collections of type " + collectionLiteral.getType() + " yet");
+    }
+  }
+
+  private void createMap(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashMap");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashMap", "<init>", "()V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitTypeInsn(CHECKCAST, "gololang/Tuple");
+      methodVisitor.visitInsn(DUP);
+      loadInteger(0);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;");
+      methodVisitor.visitInsn(SWAP);
+      loadInteger(1);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+      methodVisitor.visitInsn(POP);
+    }
+  }
+
+  private void createSet(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashSet");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashSet", "<init>", "()V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashSet", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitInsn(POP);
+    }
+  }
+
+  private void createVector(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/ArrayList");
+    methodVisitor.visitInsn(DUP);
+    loadInteger(collectionLiteral.getExpressions().size());
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "(I)V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitInsn(POP);
+    }
+  }
+
+  private void createList(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "java/util/LinkedList");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedList", "<init>", "()V");
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      expression.accept(this);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedList", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitInsn(POP);
+    }
+  }
+
+  private void createArray(CollectionLiteral collectionLiteral) {
+    loadInteger(collectionLiteral.getExpressions().size());
+    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+    int i = 0;
+    for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
+      methodVisitor.visitInsn(DUP);
+      loadInteger(i);
+      expression.accept(this);
+      methodVisitor.visitInsn(AASTORE);
+      i = i + 1;
+    }
+  }
+
+  private void createTuple(CollectionLiteral collectionLiteral) {
+    methodVisitor.visitTypeInsn(NEW, "gololang/Tuple");
+    methodVisitor.visitInsn(DUP);
+    createArray(collectionLiteral);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/Tuple", "<init>", "([Ljava/lang/Object;)V");
+  }
+
+  @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
     Label tryStart = new Label();
     Label tryEnd = new Label();

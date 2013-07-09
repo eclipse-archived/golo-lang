@@ -20,6 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import gololang.Tuple;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -440,6 +441,11 @@ public class CompileAndRunTest {
     result = as_list.invoke(null);
     assertThat(result, instanceOf(Collection.class));
     assertThat(((Collection) result).size(), is(3));
+
+    Method getClass_method = moduleClass.getMethod("getClass_method");
+    result = getClass_method.invoke(null);
+    assertThat(result, instanceOf(Class.class));
+    assertThat(result.equals(Object[].class), is(true));
   }
 
   @Test
@@ -836,5 +842,73 @@ public class CompileAndRunTest {
       Problem problem = e.getProblems().get(0);
       assertThat(problem.getType(), is(PARSING));
     }
+  }
+
+  @Test
+  public void collection_literals() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "collection-literals.golo");
+
+    Method nested_tuples = moduleClass.getMethod("nested_tuples");
+    Object result = nested_tuples.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(4));
+    assertThat((Integer) tuple.get(0), is(1));
+    assertThat((Integer) tuple.get(1), is(2));
+    assertThat((Integer) tuple.get(2), is(3));
+    assertThat(tuple.get(3), instanceOf(Tuple.class));
+
+    Tuple nestedTuple = (Tuple) tuple.get(3);
+    assertThat(nestedTuple.size(), is(2));
+    assertThat((Integer) nestedTuple.get(0), is(10));
+    assertThat((Integer) nestedTuple.get(1), is(20));
+
+    Method empty_tuple = moduleClass.getMethod("empty_tuple");
+    result = empty_tuple.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.size(), is(0));
+
+    Method some_array = moduleClass.getMethod("some_array");
+    result = some_array.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    Object[] array = (Object[]) result;
+    assertThat(array.length, is(2));
+    assertThat((Integer) array[0], is(1));
+    assertThat((String) array[1], is("a"));
+
+    Method some_list = moduleClass.getMethod("some_list");
+    result = some_list.invoke(null);
+    assertThat(result, instanceOf(LinkedList.class));
+    LinkedList<?> list = (LinkedList) result;
+    assertThat(list.size(), is(3));
+    assertThat((Integer) list.getFirst(), is(1));
+    assertThat((Integer) list.getLast(), is(3));
+
+    Method some_vector = moduleClass.getMethod("some_vector");
+    result = some_vector.invoke(null);
+    assertThat(result, instanceOf(ArrayList.class));
+    ArrayList<?> vector = (ArrayList) result;
+    assertThat(vector.size(), is(3));
+    assertThat((Integer) vector.get(0), is(1));
+    assertThat((Integer) vector.get(1), is(2));
+    assertThat((Integer) vector.get(2), is(3));
+
+    Method some_set = moduleClass.getMethod("some_set");
+    result = some_set.invoke(null);
+    assertThat(result, instanceOf(Set.class));
+    Set<?> set = (Set) result;
+    assertThat(set.size(), is(2));
+    assertThat(set.contains("a"), is(true));
+    assertThat(set.contains("b"), is(true));
+
+    Method some_map = moduleClass.getMethod("some_map");
+    result = some_map.invoke(null);
+    assertThat(result, instanceOf(Map.class));
+    Map<?, ?> map = (Map) result;
+    assertThat(map.size(), is(2));
+    assertThat((String) map.get("foo"), is("bar"));
+    assertThat((String) map.get("plop"), is("da plop"));
   }
 }

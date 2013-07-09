@@ -224,6 +224,8 @@ TOKEN :
   < CLASSREF: <IDENTIFIER> ("." <IDENTIFIER>)* (".class" | ".module") >
   |
   < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
+  |
+  < COLL_START: ("array" | "list" | "set" | "map" | "vector" | "tuple" )? "[" >
 }
 
 // Multiline strings
@@ -686,6 +688,8 @@ void TerminalExpression() #void: {}
   Literal()
   |
   Function()
+  |
+  CollectionLiteral()
 }
 
 void UnaryExpression():
@@ -863,6 +867,25 @@ void Literal():
   )
 }
 
+void CollectionLiteral():
+{
+  Token token;
+}
+{
+  token=<COLL_START> (BlankLine())?
+  (
+    ExpressionStatement() ("," (BlankLine())? ExpressionStatement())* (BlankLine())?
+  )?
+  "]"
+  {
+    String image = token.image;
+    jjtThis.setType(image.substring(0, image.length() - 1));
+    if (jjtThis.getType().isEmpty()) {
+      jjtThis.setType("tuple");
+    }
+  }
+}
+
 void Reference():{}
 {
   <IDENTIFIER>
@@ -876,13 +899,13 @@ void LetOrVar():
   Token idToken;
 }
 {
-  <LET> idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
+  <LET> idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.LET);
     jjtThis.setName(idToken.image);
   }
   |
-  <VAR> idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
+  <VAR> idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
     jjtThis.setName(idToken.image);
@@ -894,7 +917,7 @@ void Assignment():
   Token idToken;
 }
 {
-  idToken=<IDENTIFIER> "="  (BlankLine())? ExpressionStatement()
+  idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setName(idToken.image);
   }

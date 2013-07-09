@@ -266,6 +266,103 @@ a multi-line string.
         that?
 ----
 
+=== Collection literals ===
+
+Golo support special support for common collections. The syntax uses brackets prefixed by a
+collection name, as in:
+
+----
+let s = set[1, 2, "a", "b"]
+let v = vector[1, 2, 3]
+let m = map[[1, "a"], [2, "b"]]
+# (...)
+----
+
+The syntax and type matchings are the following:
+
+[options="header",id="collection-literals-matching"]
+|===
+|Collection |Java type |Syntax
+
+|Tuple|
+`gololang.Tuple`|
+`tuple[1, 2, 3]`, or simply `[1, 2, 3]`
+
+|Array|
+`java.lang.Object[]`|
+`array[1, 2, 3]`
+
+|List|
+`java.util.LinkedList`|
+`list[1, 2, 3]`
+
+|Vector|
+`java.util.ArrayList`|
+`vector[1, 2, 3]`
+
+|Set|
+`java.util.LinkedHashSet`|
+`set[1, 2, 3]`
+
+|Map|
+`java.util.LinkedHashMap`|
+`map[[1, "a"], [2, "b"]]`
+
+|===
+
+==== A note on tuples ====
+
+Tuples essentially behave as immutable arrays.
+
+The `gololang.Tuple` class provides the following methods:
+
+- a constructor with a variable-arguments list of values,
+- a `get(index)` method to get the element at a specified index,
+- `size()` and `isEmpty()` methods that do what their names suggest,
+- an `iterator()` method because tuples are iterable, and
+- `equals(other)`, `hashCode()` and `toString()` do just what you would expect.
+
+==== A note on maps ====
+
+The map collection literal expects entries to be specified as tuples where the first entry is the
+key, and the second entry is the value. This allows nested structures to be specified as in:
+
+----
+map[
+  ["foo", "bar"],
+  ["plop", set[1, 2, 3, 4, 5]],
+  ["mrbean", map[
+    ["name", "Mr Bean"],
+    ["email", "bean@outlook.com"]
+  ]]
+]
+----
+
+There are a few rules to observe:
+
+- not providing a series of tuples will yield class cast exceptions,
+- tuples must have at least 2 entries or will yield index bound exceptions,
+- tuples with more than 2 entries are ok, but only the first 2 entries matter.
+
+Because of that, the following code compiles but raises exceptions at runtime:
+
+----
+let m1 = map[1, 2, 4, 5]
+let m2 = map[
+  [1],
+  ["a", "b"]
+]
+----
+
+The rationale for map literals to be loose is that we let you put any valid Golo expression, like
+functions returning valid tuples:
+
+----
+let a = -> [1, 'a']
+let b = -> [2, 'b']
+let m = map[a(), b()]
+----
+
 === Operators ===
 
 Golo supports the following <<operators,set of operators>>.
@@ -355,7 +452,8 @@ be invoked on arrays:
 - `iterator()` returns a `java.util.Iterator`,
 - `toString()` delegates to `java.util.Arrays.toString(Object[])`,
 - `asList()` delegates to `java.util.Arrays.asList(Object[])`,
-- `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`.
+- `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`,
+- `getClass()` return the array class.
 
 Given a reference `a` on some array:
 
@@ -381,5 +479,12 @@ Finally, arrays can be created with the `Array` function, as in:
 ----
 let a = Array(1, 2, 3, 4)
 let b = Array("a", "b")
+----
+
+You can of course take advantage of the `array` collection literal, too:
+
+----
+let a = array[1, 2, 3, 4]
+let b = array["a", "b"]
 ----
 

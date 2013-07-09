@@ -381,3 +381,44 @@ augment java.util.Map {
 
 # ............................................................................................... #
 
+augment gololang.Tuple {
+
+  function filter = |this, func| {
+    let matching = list[]
+    foreach element in this {
+      if func(element) {
+        matching: add(element)
+      }
+    }
+    return gololang.Tuple.fromArray(matching: toArray())
+  }
+
+  function map = |this, func| {
+    let values = list[]
+    foreach element in this {
+      values: add(func(element))
+    }
+    return gololang.Tuple.fromArray(values: toArray())
+  }
+
+  function join = |this, separator| {
+    let size = this: size()
+    case {
+      when size == 0 {
+        return ""
+      }
+      when size == 1 {
+        return this: get(0): toString()
+      }
+      otherwise {
+        let buffer = java.lang.StringBuilder(this: get(0): toString())
+        for (var i = 1, i < size, i = i + 1) {
+          buffer: append(separator): append(this: get(i): toString())
+        }
+        return buffer: toString()
+      }
+    }
+  }
+}
+
+# ............................................................................................... #
