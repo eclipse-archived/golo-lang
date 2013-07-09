@@ -93,12 +93,17 @@ public class GoloCompiler {
    */
   public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
     ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(sourceCodeInputStream));
+    throwIfErrorEncountered();
     GoloModule goloModule = check(compilationUnit);
+    throwIfErrorEncountered();
+    JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
+    return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
+  }
+
+  private void throwIfErrorEncountered() {
     if (!getProblems().isEmpty()) {
       exceptionBuilder.doThrow();
     }
-    JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
-    return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
   }
 
   /**
@@ -157,7 +162,6 @@ public class GoloCompiler {
     } catch (ParseException pe) {
       exceptionBuilder.report(pe, compilationUnit);
     }
-
     return compilationUnit;
   }
 
