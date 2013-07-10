@@ -54,7 +54,7 @@ public class MethodInvocationSupport {
     int depth = 0;
     State state = POLYMORPHIC;
     MethodHandle fallback;
-    HashMap<Class, MethodHandle> vtable;
+    WeakHashMap<Class, MethodHandle> vtable;
 
     InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded) {
       super(type);
@@ -199,7 +199,7 @@ public class MethodInvocationSupport {
 
   private static Object installVTableDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
     if (inlineCache.vtable == null) {
-      inlineCache.vtable = new HashMap<>();
+      inlineCache.vtable = new WeakHashMap<>();
     }
     MethodHandle lookup = VTABLE_LOOKUP
         .bindTo(inlineCache)
