@@ -39,7 +39,7 @@ public class MethodInvocationSupport {
    * Remi Forax's JSR292 cookbooks.
    */
 
-  static class InlineCache extends MutableCallSite {
+  static final class InlineCache extends MutableCallSite {
 
     static final int MEGAMORPHIC_THRESHOLD = 5;
 
