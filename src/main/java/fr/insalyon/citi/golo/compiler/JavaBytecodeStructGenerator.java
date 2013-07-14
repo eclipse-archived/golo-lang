@@ -35,8 +35,34 @@ class JavaBytecodeStructGenerator {
     makeFields(classWriter, struct);
     makeAccessors(classWriter, struct);
     makeConstructors(classWriter, struct);
+    makeToString(classWriter, struct);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeToString(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
+    visitor.visitCode();
+    visitor.visitTypeInsn(NEW, "java/lang/StringBuilder");
+    visitor.visitInsn(DUP);
+    visitor.visitLdcInsn("struct " + struct.getPackageAndClass().className() + "{");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
+    boolean first = true;
+    for (String member : struct.getMembers()) {
+      visitor.visitInsn(DUP);
+      visitor.visitLdcInsn((!first ? ", " : "") + member + "=");
+      first = false;
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+      visitor.visitInsn(DUP);
+      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
+    }
+    visitor.visitLdcInsn("}");
+    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
+    visitor.visitInsn(ARETURN);
+    visitor.visitEnd();
   }
 
   private void makeConstructors(ClassWriter classWriter, Struct struct) {
