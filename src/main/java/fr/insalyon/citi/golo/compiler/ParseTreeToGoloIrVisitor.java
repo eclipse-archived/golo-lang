@@ -107,6 +107,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTStructDeclaration node, Object data) {
+    // TODO implement
+    return data;
+  }
+
+  @Override
   public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
     context.augmentation = node.getTarget();
