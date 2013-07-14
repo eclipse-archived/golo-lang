@@ -126,6 +126,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (Map.Entry<String, Set<GoloFunction>> entry : module.getAugmentations().entrySet()) {
       generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
     }
+    if (module.getStructs().size() > 0) {
+      JavaBytecodeStructGenerator structGenerator = new JavaBytecodeStructGenerator();
+      for (Struct struct : module.getStructs()) {
+        generationResults.add(structGenerator.compile(struct, sourceFilename));
+      }
+    }
     writeAugmentsMetaData(module.getAugmentations().keySet());
     classWriter.visitEnd();
   }
