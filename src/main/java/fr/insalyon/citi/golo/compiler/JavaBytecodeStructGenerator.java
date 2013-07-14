@@ -34,8 +34,44 @@ class JavaBytecodeStructGenerator {
         struct.getPackageAndClass().toJVMType(), null, "java/lang/Object", null);
     makeFields(classWriter, struct);
     makeAccessors(classWriter, struct);
+    makeConstructors(classWriter, struct);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeConstructors(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    makeNoArgsConstructor(classWriter);
+    makeAllArgsConstructor(classWriter, struct, owner);
+  }
+
+  private void makeAllArgsConstructor(ClassWriter classWriter, Struct struct, String owner) {
+    StringBuilder signatureBuilder = new StringBuilder("(");
+    for (int i = 0; i < struct.getMembers().size(); i++) {
+      signatureBuilder.append("Ljava/lang/Object;");
+    }
+    signatureBuilder.append(")V");
+    MethodVisitor allArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", signatureBuilder.toString(), null, null);
+    allArgsVisitor.visitCode();
+    allArgsVisitor.visitVarInsn(ALOAD, 0);
+    allArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    int arg = 1;
+    for (String name : struct.getMembers()) {
+      allArgsVisitor.visitVarInsn(ALOAD, 0);
+      allArgsVisitor.visitVarInsn(ALOAD, arg);
+      allArgsVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
+      arg = arg + 1;
+    }
+    allArgsVisitor.visitEnd();
+  }
+
+  private void makeNoArgsConstructor(ClassWriter classWriter) {
+    MethodVisitor noArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    noArgsVisitor.visitCode();
+    noArgsVisitor.visitVarInsn(ALOAD, 0);
+    noArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    noArgsVisitor.visitInsn(RETURN);
+    noArgsVisitor.visitEnd();
   }
 
   private void makeFields(ClassWriter classWriter, Struct struct) {
