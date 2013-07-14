@@ -88,6 +88,7 @@ class JavaBytecodeStructGenerator {
       allArgsVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
       arg = arg + 1;
     }
+    allArgsVisitor.visitInsn(RETURN);
     allArgsVisitor.visitEnd();
   }
 
