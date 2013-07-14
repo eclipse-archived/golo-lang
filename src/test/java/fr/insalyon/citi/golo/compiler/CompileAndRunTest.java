@@ -911,4 +911,19 @@ public class CompileAndRunTest {
     assertThat((String) map.get("foo"), is("bar"));
     assertThat((String) map.get("plop"), is("da plop"));
   }
+
+  @Test
+  public void structs() throws Throwable {
+    try {
+      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
+
+      Method mrbean = moduleClass.getMethod("mrbean");
+      Object result = mrbean.invoke(null);
+      assertThat(result, instanceOf(String.class));
+      assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
+    } catch (Throwable t) {
+      t.getCause().printStackTrace();
+      throw t;
+    }
+  }
 }
