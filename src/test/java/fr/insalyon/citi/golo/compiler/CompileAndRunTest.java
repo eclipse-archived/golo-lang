@@ -38,6 +38,7 @@ import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.fail;
 
 public class CompileAndRunTest {
@@ -915,6 +916,7 @@ public class CompileAndRunTest {
   @Test
   public void structs() throws Throwable {
     try {
+
       Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
 
       Method mrbean = moduleClass.getMethod("mrbean");
@@ -926,6 +928,34 @@ public class CompileAndRunTest {
       result = mrbean_toString.invoke(null);
       assertThat(result, instanceOf(String.class));
       assertThat((String) result, is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+
+      Method mrbean_copy = moduleClass.getMethod("mrbean_copy");
+      result = mrbean_copy.invoke(null);
+      assertThat(result, instanceOf(Tuple.class));
+      Tuple tuple = (Tuple) result;
+      assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+      assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+      assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
+
+      Method mrbean_frozenCopy = moduleClass.getMethod("mrbean_frozenCopy");
+      result = mrbean_frozenCopy.invoke(null);
+      assertThat(result, instanceOf(Tuple.class));
+      tuple = (Tuple) result;
+      assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+      assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+      assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
+      try {
+        Object instance = tuple.get(1);
+        Method name = instance.getClass().getMethod("name", Object.class);
+        name.invoke(instance, "Foo");
+        fail("A frozen struct shall not allow field mutation");
+        name.invoke(tuple.get(0), "Foo");
+      } catch (InvocationTargetException e) {
+        if (!(e.getCause() instanceof IllegalStateException)) {
+          throw e;
+        }
+      }
+
     } catch (Throwable t) {
       t.printStackTrace();
       if (t.getCause() != null) {

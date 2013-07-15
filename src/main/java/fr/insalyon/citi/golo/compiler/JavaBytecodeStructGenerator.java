@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.compiler;
 import fr.insalyon.citi.golo.compiler.ir.Struct;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
@@ -26,6 +27,8 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
 class JavaBytecodeStructGenerator {
+
+  private static final String $_frozen = "$_frozen";
 
   public CodeGenerationResult compile(Struct struct, String sourceFilename) {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
@@ -36,8 +39,30 @@ class JavaBytecodeStructGenerator {
     makeAccessors(classWriter, struct);
     makeConstructors(classWriter, struct);
     makeToString(classWriter, struct);
+    makeCopy(classWriter, struct, false);
+    makeCopy(classWriter, struct, true);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeCopy(ClassWriter classWriter, Struct struct, boolean frozen) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    String methodName = frozen ? "frozenCopy" : "copy";
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, methodName, "()L" + owner + ";", null, null);
+    visitor.visitCode();
+    visitor.visitTypeInsn(NEW, owner);
+    visitor.visitInsn(DUP);
+    for (String member : struct.getMembers()) {
+      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+    }
+    visitor.visitMethodInsn(INVOKESPECIAL, owner, "<init>", allArgsConstructorSignature(struct));
+    visitor.visitInsn(DUP);
+    visitor.visitInsn(frozen ? ICONST_1 : ICONST_0);
+    visitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
+    visitor.visitInsn(ARETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeToString(ClassWriter classWriter, Struct struct) {
@@ -69,17 +94,12 @@ class JavaBytecodeStructGenerator {
 
   private void makeConstructors(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
-    makeNoArgsConstructor(classWriter);
+    makeNoArgsConstructor(classWriter, struct);
     makeAllArgsConstructor(classWriter, struct, owner);
   }
 
   private void makeAllArgsConstructor(ClassWriter classWriter, Struct struct, String owner) {
-    StringBuilder signatureBuilder = new StringBuilder("(");
-    for (int i = 0; i < struct.getMembers().size(); i++) {
-      signatureBuilder.append("Ljava/lang/Object;");
-    }
-    signatureBuilder.append(")V");
-    MethodVisitor allArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", signatureBuilder.toString(), null, null);
+    MethodVisitor allArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", allArgsConstructorSignature(struct), null, null);
     allArgsVisitor.visitCode();
     allArgsVisitor.visitVarInsn(ALOAD, 0);
     allArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
@@ -90,22 +110,38 @@ class JavaBytecodeStructGenerator {
       allArgsVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
       arg = arg + 1;
     }
+    allArgsVisitor.visitVarInsn(ALOAD, 0);
+    allArgsVisitor.visitInsn(ICONST_0);
+    allArgsVisitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
     allArgsVisitor.visitInsn(RETURN);
     allArgsVisitor.visitMaxs(0, 0);
     allArgsVisitor.visitEnd();
   }
 
-  private void makeNoArgsConstructor(ClassWriter classWriter) {
+  private String allArgsConstructorSignature(Struct struct) {
+    StringBuilder signatureBuilder = new StringBuilder("(");
+    for (int i = 0; i < struct.getMembers().size(); i++) {
+      signatureBuilder.append("Ljava/lang/Object;");
+    }
+    signatureBuilder.append(")V");
+    return signatureBuilder.toString();
+  }
+
+  private void makeNoArgsConstructor(ClassWriter classWriter, Struct struct) {
     MethodVisitor noArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
     noArgsVisitor.visitCode();
     noArgsVisitor.visitVarInsn(ALOAD, 0);
     noArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    noArgsVisitor.visitVarInsn(ALOAD, 0);
+    noArgsVisitor.visitInsn(ICONST_0);
+    noArgsVisitor.visitFieldInsn(PUTFIELD, struct.getPackageAndClass().toJVMType(), $_frozen, "Z");
     noArgsVisitor.visitInsn(RETURN);
     noArgsVisitor.visitMaxs(0, 0);
     noArgsVisitor.visitEnd();
   }
 
   private void makeFields(ClassWriter classWriter, Struct struct) {
+    classWriter.visitField(ACC_PRIVATE, $_frozen, "Z", null, null).visitEnd();
     for (String name : struct.getMembers()) {
       FieldVisitor fieldVisitor = classWriter.visitField(ACC_PRIVATE, name, "Ljava/lang/Object;", null, null);
       fieldVisitor.visitEnd();
@@ -123,6 +159,16 @@ class JavaBytecodeStructGenerator {
   private void makeSetter(ClassWriter classWriter, String owner, String name) {
     MethodVisitor setterVisitor = classWriter.visitMethod(ACC_PUBLIC, name, "(Ljava/lang/Object;)Ljava/lang/Object;", null, null);
     setterVisitor.visitCode();
+    setterVisitor.visitVarInsn(ALOAD, 0);
+    setterVisitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
+    Label setLabel = new Label();
+    setterVisitor.visitJumpInsn(IFEQ, setLabel);
+    setterVisitor.visitTypeInsn(NEW, "java/lang/IllegalStateException");
+    setterVisitor.visitInsn(DUP);
+    setterVisitor.visitLdcInsn("The struct instance is frozen");
+    setterVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V");
+    setterVisitor.visitInsn(ATHROW);
+    setterVisitor.visitLabel(setLabel);
     setterVisitor.visitVarInsn(ALOAD, 0);
     setterVisitor.visitVarInsn(ALOAD, 1);
     setterVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");

@@ -10,3 +10,13 @@ function mrbean = {
 function mrbean_toString = {
   return Contact(): name("Mr Bean"): email("mrbean@outlook.com"): toString()
 }
+
+function mrbean_copy = {
+  let bean = Contact(): name("Mr Bean"): email("mrbean@outlook.com")
+  return [bean, bean: copy()]
+}
+
+function mrbean_frozenCopy = {
+  let bean = Contact(): name("Mr Bean"): email("mrbean@outlook.com")
+  return [bean, bean: frozenCopy()]
+}
