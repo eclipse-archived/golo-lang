@@ -43,25 +43,70 @@ class JavaBytecodeStructGenerator {
     makeCopy(classWriter, struct, false);
     makeCopy(classWriter, struct, true);
     makeHashCode(classWriter, struct);
+    makeEquals(classWriter, struct);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeEquals(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);
+    Label notFrozenLabel = new Label();
+    Label falseLabel = new Label();
+    Label sameTypeLabel = new Label();
+    visitor.visitCode();
+
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
+    visitor.visitJumpInsn(IFNE, notFrozenLabel);
+
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+    visitor.visitInsn(IRETURN);
+
+    visitor.visitLabel(notFrozenLabel);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitTypeInsn(INSTANCEOF, owner);
+    visitor.visitJumpInsn(IFNE, sameTypeLabel);
+    visitor.visitJumpInsn(GOTO, falseLabel);
+
+    visitor.visitLabel(sameTypeLabel);
+    for (String member : struct.getMembers()) {
+      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor.visitTypeInsn(CHECKCAST, owner);
+      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+      visitor.visitJumpInsn(IFEQ, falseLabel);
+    }
+    visitor.visitInsn(ICONST_1);
+    visitor.visitInsn(IRETURN);
+
+    visitor.visitLabel(falseLabel);
+    visitor.visitInsn(ICONST_0);
+    visitor.visitInsn(IRETURN);
+
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeHashCode(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "hashCode", "()I", null, null);
-    Label frozenHashCodeLabel = new Label();
+    Label notFrozenLabel = new Label();
     visitor.visitCode();
 
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
 
-    visitor.visitJumpInsn(IFNE, frozenHashCodeLabel);
+    visitor.visitJumpInsn(IFNE, notFrozenLabel);
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "hashCode", "()I");
     visitor.visitInsn(IRETURN);
 
-    visitor.visitLabel(frozenHashCodeLabel);
+    visitor.visitLabel(notFrozenLabel);
     loadInteger(visitor, struct.getMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;

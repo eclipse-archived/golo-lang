@@ -27,3 +27,12 @@ function mrbean_hashCode = -> [
   Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy(),
   Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy()
 ]
+
+function mrbean_equals = -> [
+  Contact("Mr Bean", "mrbean@outlook.com"),
+  Contact("Mr Bean", "mrbean@outlook.com"),
+  Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy(),
+  Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy(),
+  Contact("Mr Bean", "mrbean@gmail.com"): frozenCopy(),
+  Contact("Mr Beanz", "mrbean@outlook.com"): frozenCopy()
+]

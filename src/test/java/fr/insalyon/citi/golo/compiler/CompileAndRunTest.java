@@ -963,6 +963,16 @@ public class CompileAndRunTest {
       assertThat(tuple.get(0).hashCode(), not(tuple.get(1).hashCode()));
       assertThat(tuple.get(2).hashCode(), is(tuple.get(3).hashCode()));
 
+      Method mrbean_equals = moduleClass.getMethod("mrbean_equals");
+      result = mrbean_equals.invoke(null);
+      assertThat(result, instanceOf(Tuple.class));
+      tuple = (Tuple) result;
+      assertThat(tuple.get(0), not(tuple.get(1)));
+      assertThat(tuple.get(0), not(new Object()));
+      assertThat(tuple.get(2), is(tuple.get(3)));
+      assertThat(tuple.get(2), not(tuple.get(4)));
+      assertThat(tuple.get(2), not(tuple.get(5)));
+
     } catch (Throwable t) {
       t.printStackTrace();
       if (t.getCause() != null) {
