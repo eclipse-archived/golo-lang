@@ -956,6 +956,13 @@ public class CompileAndRunTest {
         }
       }
 
+      Method mrbean_hashCode = moduleClass.getMethod("mrbean_hashCode");
+      result = mrbean_hashCode.invoke(null);
+      assertThat(result, instanceOf(Tuple.class));
+      tuple = (Tuple) result;
+      assertThat(tuple.get(0).hashCode(), not(tuple.get(1).hashCode()));
+      assertThat(tuple.get(2).hashCode(), is(tuple.get(3).hashCode()));
+
     } catch (Throwable t) {
       t.printStackTrace();
       if (t.getCause() != null) {

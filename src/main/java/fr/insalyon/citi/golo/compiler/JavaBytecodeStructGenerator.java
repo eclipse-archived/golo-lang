@@ -22,6 +22,7 @@ import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
+import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadInteger;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -41,8 +42,42 @@ class JavaBytecodeStructGenerator {
     makeToString(classWriter, struct);
     makeCopy(classWriter, struct, false);
     makeCopy(classWriter, struct, true);
+    makeHashCode(classWriter, struct);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeHashCode(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "hashCode", "()I", null, null);
+    Label frozenHashCodeLabel = new Label();
+    visitor.visitCode();
+
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
+
+    visitor.visitJumpInsn(IFNE, frozenHashCodeLabel);
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "hashCode", "()I");
+    visitor.visitInsn(IRETURN);
+
+    visitor.visitLabel(frozenHashCodeLabel);
+    loadInteger(visitor, struct.getMembers().size());
+    visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+    int i = 0;
+    for (String member : struct.getMembers()) {
+      visitor.visitInsn(DUP);
+      loadInteger(visitor, i);
+      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitInsn(AASTORE);
+      i = i + 1;
+    }
+    visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I");
+    visitor.visitInsn(IRETURN);
+
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeCopy(ClassWriter classWriter, Struct struct, boolean frozen) {

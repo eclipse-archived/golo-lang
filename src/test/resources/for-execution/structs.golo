@@ -20,3 +20,10 @@ function mrbean_frozenCopy = {
   let bean = Contact(): name("Mr Bean"): email("mrbean@outlook.com")
   return [bean, bean: frozenCopy()]
 }
+
+function mrbean_hashCode = -> [
+  Contact("Mr Bean", "mrbean@outlook.com"),
+  Contact("Mr Bean", "mrbean@outlook.com"),
+  Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy(),
+  Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy()
+]
