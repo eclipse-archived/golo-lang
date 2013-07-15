@@ -55,22 +55,21 @@ class JavaBytecodeStructGenerator {
     Label falseLabel = new Label();
     Label sameTypeLabel = new Label();
     visitor.visitCode();
-
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
     visitor.visitJumpInsn(IFNE, notFrozenLabel);
-
+    // super.equals()
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
     visitor.visitInsn(IRETURN);
-
+    // The receiver is frozen
     visitor.visitLabel(notFrozenLabel);
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitTypeInsn(INSTANCEOF, owner);
     visitor.visitJumpInsn(IFNE, sameTypeLabel);
     visitor.visitJumpInsn(GOTO, falseLabel);
-
+    // The argument is of the same type, too, and not frozen
     visitor.visitLabel(sameTypeLabel);
     for (String member : struct.getMembers()) {
       visitor.visitVarInsn(ALOAD, 0);
@@ -83,11 +82,10 @@ class JavaBytecodeStructGenerator {
     }
     visitor.visitInsn(ICONST_1);
     visitor.visitInsn(IRETURN);
-
+    // False
     visitor.visitLabel(falseLabel);
     visitor.visitInsn(ICONST_0);
     visitor.visitInsn(IRETURN);
-
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
   }
@@ -97,15 +95,14 @@ class JavaBytecodeStructGenerator {
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "hashCode", "()I", null, null);
     Label notFrozenLabel = new Label();
     visitor.visitCode();
-
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
-
     visitor.visitJumpInsn(IFNE, notFrozenLabel);
+    // super.hashCode()
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "hashCode", "()I");
     visitor.visitInsn(IRETURN);
-
+    // The receiver is frozen
     visitor.visitLabel(notFrozenLabel);
     loadInteger(visitor, struct.getMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
@@ -120,7 +117,6 @@ class JavaBytecodeStructGenerator {
     }
     visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I");
     visitor.visitInsn(IRETURN);
-
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
   }
