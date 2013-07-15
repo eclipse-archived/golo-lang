@@ -969,9 +969,11 @@ public class CompileAndRunTest {
       tuple = (Tuple) result;
       assertThat(tuple.get(0), not(tuple.get(1)));
       assertThat(tuple.get(0), not(new Object()));
+      assertThat(tuple.get(0), not(tuple.get(2)));
       assertThat(tuple.get(2), is(tuple.get(3)));
       assertThat(tuple.get(2), not(tuple.get(4)));
       assertThat(tuple.get(2), not(tuple.get(5)));
+      assertThat(tuple.get(2), not(tuple.get(0)));
 
     } catch (Throwable t) {
       t.printStackTrace();

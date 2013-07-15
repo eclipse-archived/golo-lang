@@ -69,8 +69,13 @@ class JavaBytecodeStructGenerator {
     visitor.visitTypeInsn(INSTANCEOF, owner);
     visitor.visitJumpInsn(IFNE, sameTypeLabel);
     visitor.visitJumpInsn(GOTO, falseLabel);
-    // The argument is of the same type, too, and not frozen
+    // The argument is of the same type, too
     visitor.visitLabel(sameTypeLabel);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitTypeInsn(CHECKCAST, owner);
+    visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
+    visitor.visitJumpInsn(IFEQ, falseLabel);
+    // The argument is not frozen
     for (String member : struct.getMembers()) {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
