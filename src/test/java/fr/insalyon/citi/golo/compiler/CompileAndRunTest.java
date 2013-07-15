@@ -921,8 +921,16 @@ public class CompileAndRunTest {
       Object result = mrbean.invoke(null);
       assertThat(result, instanceOf(String.class));
       assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
+
+      Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
+      result = mrbean_toString.invoke(null);
+      assertThat(result, instanceOf(String.class));
+      assertThat((String) result, is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
     } catch (Throwable t) {
-      t.getCause().printStackTrace();
+      t.printStackTrace();
+      if (t.getCause() != null) {
+        t.getCause().printStackTrace();
+      }
       throw t;
     }
   }

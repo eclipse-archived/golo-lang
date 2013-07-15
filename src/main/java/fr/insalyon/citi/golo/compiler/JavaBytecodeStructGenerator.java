@@ -55,6 +55,7 @@ class JavaBytecodeStructGenerator {
       first = false;
       visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
       visitor.visitInsn(DUP);
+      visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
       visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
     }
@@ -62,6 +63,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
     visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
     visitor.visitInsn(ARETURN);
+    visitor.visitMaxs(0, 0);
     visitor.visitEnd();
   }
 
@@ -89,6 +91,7 @@ class JavaBytecodeStructGenerator {
       arg = arg + 1;
     }
     allArgsVisitor.visitInsn(RETURN);
+    allArgsVisitor.visitMaxs(0, 0);
     allArgsVisitor.visitEnd();
   }
 
@@ -98,6 +101,7 @@ class JavaBytecodeStructGenerator {
     noArgsVisitor.visitVarInsn(ALOAD, 0);
     noArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
     noArgsVisitor.visitInsn(RETURN);
+    noArgsVisitor.visitMaxs(0, 0);
     noArgsVisitor.visitEnd();
   }
 
@@ -124,6 +128,7 @@ class JavaBytecodeStructGenerator {
     setterVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
     setterVisitor.visitVarInsn(ALOAD, 0);
     setterVisitor.visitInsn(ARETURN);
+    setterVisitor.visitMaxs(0, 0);
     setterVisitor.visitEnd();
   }
 
@@ -133,6 +138,7 @@ class JavaBytecodeStructGenerator {
     getterVisitor.visitVarInsn(ALOAD, 0);
     getterVisitor.visitFieldInsn(GETFIELD, owner, name, "Ljava/lang/Object;");
     getterVisitor.visitInsn(ARETURN);
+    getterVisitor.visitMaxs(0, 0);
     getterVisitor.visitEnd();
   }
 }
