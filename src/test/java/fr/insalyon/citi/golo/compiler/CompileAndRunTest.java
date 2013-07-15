@@ -38,7 +38,6 @@ import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.testng.Assert.assertNotSame;
 import static org.testng.Assert.fail;
 
 public class CompileAndRunTest {
@@ -915,72 +914,62 @@ public class CompileAndRunTest {
 
   @Test
   public void structs() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
+
+    Method mrbean = moduleClass.getMethod("mrbean");
+    Object result = mrbean.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
+
+    Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
+    result = mrbean_toString.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+
+    Method mrbean_copy = moduleClass.getMethod("mrbean_copy");
+    result = mrbean_copy.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
+
+    Method mrbean_frozenCopy = moduleClass.getMethod("mrbean_frozenCopy");
+    result = mrbean_frozenCopy.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
     try {
-
-      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
-
-      Method mrbean = moduleClass.getMethod("mrbean");
-      Object result = mrbean.invoke(null);
-      assertThat(result, instanceOf(String.class));
-      assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
-
-      Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
-      result = mrbean_toString.invoke(null);
-      assertThat(result, instanceOf(String.class));
-      assertThat((String) result, is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-
-      Method mrbean_copy = moduleClass.getMethod("mrbean_copy");
-      result = mrbean_copy.invoke(null);
-      assertThat(result, instanceOf(Tuple.class));
-      Tuple tuple = (Tuple) result;
-      assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-      assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-      assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
-
-      Method mrbean_frozenCopy = moduleClass.getMethod("mrbean_frozenCopy");
-      result = mrbean_frozenCopy.invoke(null);
-      assertThat(result, instanceOf(Tuple.class));
-      tuple = (Tuple) result;
-      assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-      assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-      assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
-      try {
-        Object instance = tuple.get(1);
-        Method name = instance.getClass().getMethod("name", Object.class);
-        name.invoke(instance, "Foo");
-        fail("A frozen struct shall not allow field mutation");
-        name.invoke(tuple.get(0), "Foo");
-      } catch (InvocationTargetException e) {
-        if (!(e.getCause() instanceof IllegalStateException)) {
-          throw e;
-        }
+      Object instance = tuple.get(1);
+      Method name = instance.getClass().getMethod("name", Object.class);
+      name.invoke(instance, "Foo");
+      fail("A frozen struct shall not allow field mutation");
+      name.invoke(tuple.get(0), "Foo");
+    } catch (InvocationTargetException e) {
+      if (!(e.getCause() instanceof IllegalStateException)) {
+        throw e;
       }
-
-      Method mrbean_hashCode = moduleClass.getMethod("mrbean_hashCode");
-      result = mrbean_hashCode.invoke(null);
-      assertThat(result, instanceOf(Tuple.class));
-      tuple = (Tuple) result;
-      assertThat(tuple.get(0).hashCode(), not(tuple.get(1).hashCode()));
-      assertThat(tuple.get(2).hashCode(), is(tuple.get(3).hashCode()));
-
-      Method mrbean_equals = moduleClass.getMethod("mrbean_equals");
-      result = mrbean_equals.invoke(null);
-      assertThat(result, instanceOf(Tuple.class));
-      tuple = (Tuple) result;
-      assertThat(tuple.get(0), not(tuple.get(1)));
-      assertThat(tuple.get(0), not(new Object()));
-      assertThat(tuple.get(0), not(tuple.get(2)));
-      assertThat(tuple.get(2), is(tuple.get(3)));
-      assertThat(tuple.get(2), not(tuple.get(4)));
-      assertThat(tuple.get(2), not(tuple.get(5)));
-      assertThat(tuple.get(2), not(tuple.get(0)));
-
-    } catch (Throwable t) {
-      t.printStackTrace();
-      if (t.getCause() != null) {
-        t.getCause().printStackTrace();
-      }
-      throw t;
     }
+
+    Method mrbean_hashCode = moduleClass.getMethod("mrbean_hashCode");
+    result = mrbean_hashCode.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0).hashCode(), not(tuple.get(1).hashCode()));
+    assertThat(tuple.get(2).hashCode(), is(tuple.get(3).hashCode()));
+
+    Method mrbean_equals = moduleClass.getMethod("mrbean_equals");
+    result = mrbean_equals.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0), not(tuple.get(1)));
+    assertThat(tuple.get(0), not(new Object()));
+    assertThat(tuple.get(0), not(tuple.get(2)));
+    assertThat(tuple.get(2), is(tuple.get(3)));
+    assertThat(tuple.get(2), not(tuple.get(4)));
+    assertThat(tuple.get(2), not(tuple.get(5)));
+    assertThat(tuple.get(2), not(tuple.get(0)));
   }
 }
