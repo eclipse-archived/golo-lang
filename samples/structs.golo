@@ -16,6 +16,17 @@ module StructDemo
 
 struct Point = { x, y }
 
+augment StructDemo.types.Point {
+
+  function move = |this, offsetX, offsetY| {
+    this: x(this: x() + offsetX)
+    this: y(this: y() + offsetY)
+    return this
+  }
+
+  function relative = |this, offsetX, offsetY| -> Point(this: x() + offsetX, this: y() + offsetY)
+}
+
 function main = |args| {
   
   let p1 = Point(1, 2)
@@ -43,6 +54,8 @@ function main = |args| {
   }
 
   println("p1: set(\"x\", 10) " + p1: set("x", 10))
+  println("p1: move(10, 5) " + p1: move(10, 5))
+  println("p1: relative(11, 6) " + p1: relative(11, 6))
 }
 
 
