@@ -927,14 +927,29 @@ public class CompileAndRunTest {
     result = mrbean_struct.invoke(null);
     assertThat(result, instanceOf(GoloStruct.class));
     GoloStruct struct = (GoloStruct) result;
+
     Tuple tuple = struct.members();
     assertThat(tuple.size(), is(2));
     assertThat(tuple.get(0), is((Object) "name"));
     assertThat(tuple.get(1), is((Object) "email"));
+
     tuple = struct.values();
     assertThat(tuple.size(), is(2));
     assertThat(tuple.get(0), is((Object) "Mr Bean"));
     assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
+
+    Iterator<Tuple> structIterator = struct.iterator();
+    assertThat(structIterator.hasNext(), is(true));
+    tuple = structIterator.next();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "name"));
+    assertThat(tuple.get(1), is((Object) "Mr Bean"));
+    assertThat(structIterator.hasNext(), is(true));
+    tuple = structIterator.next();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "email"));
+    assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
+    assertThat(structIterator.hasNext(), is(false));
 
     Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
     result = mrbean_toString.invoke(null);

@@ -16,7 +16,9 @@
 
 package gololang;
 
-public abstract class GoloStruct {
+import java.util.Iterator;
+
+public abstract class GoloStruct implements Iterable<Tuple> {
 
   protected String[] members;
 
@@ -29,4 +31,28 @@ public abstract class GoloStruct {
   }
 
   public abstract Tuple values();
+
+  @Override
+  public Iterator<Tuple> iterator() {
+    return new Iterator<Tuple>() {
+
+      final Iterator<?> memberIterator = members().iterator();
+      final Iterator<?> valuesIterator = values().iterator();
+
+      @Override
+      public boolean hasNext() {
+        return memberIterator.hasNext();
+      }
+
+      @Override
+      public Tuple next() {
+        return new Tuple(memberIterator.next(), valuesIterator.next());
+      }
+
+      @Override
+      public void remove() {
+        throw new UnsupportedOperationException();
+      }
+    };
+  }
 }
