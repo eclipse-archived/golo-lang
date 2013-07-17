@@ -35,6 +35,14 @@ function main = |args| {
   println("#p2 " + p2: hashCode())
   println("#p3 " + p3: hashCode())
   println("#p4 " + p4: hashCode())
+
+  println("p1: members() " + p1: members())
+  println("p1: values() " + p1: values())
+  foreach item in p1 {
+    println(item: get(0) + " -> " + item: get(1))
+  }
+
+  println("p1: set(\"x\", 10) " + p1: set("x", 10))
 }
 
 

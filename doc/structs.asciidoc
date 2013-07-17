@@ -46,11 +46,9 @@ a class `sample.types.Point` is being generated.
 
 It is important to note that:
 
-1. all method parameter and return types are `java.lang.Object`,
-2. each `struct` class is `final`,
-3. each `struct` class inherits from `java.lang.Object`,
-4. no *marker* interfaces are being used.
-5. proper definitions of `toString()`, `hashCode()` and `equals()` are being provided.
+1. each `struct` class is `final`,
+2. each `struct` class inherits from `gololang.GoloStruct`,
+3. proper definitions of `toString()`, `hashCode()` and `equals()` are being provided.
 
 === `toString()` behavior ===
 
@@ -135,4 +133,14 @@ p3 == p4 true
 
 TIP: It is recommended that you use `frozenCopy()` when you can, especially when storing values into
 collections.
+
+=== Helper methods ===
+
+A number of helper methods are being generated:
+
+- `members()` returns a tuple of the member names,
+- `values()` returns a tuple with the current member values,
+- `iterator()` provides an iterator over a structure where each element is a tuple `[member, value]`,
+- `get(name)` returns the value of a member by its name,
+- `set(name, value)` updates the value of a member by its name, and returns the same structure.
 
