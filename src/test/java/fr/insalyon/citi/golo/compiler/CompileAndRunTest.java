@@ -21,7 +21,6 @@ import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import gololang.GoloStruct;
-import gololang.Predefined;
 import gololang.Tuple;
 import org.testng.annotations.Test;
 
@@ -950,6 +949,14 @@ public class CompileAndRunTest {
     assertThat(tuple.get(0), is((Object) "email"));
     assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
     assertThat(structIterator.hasNext(), is(false));
+
+    assertThat(struct.get("name"), is((Object) "Mr Bean"));
+    assertThat(struct.get("email"), is((Object) "mrbean@outlook.com"));
+    try {
+      struct.get("foo");
+      fail("An IllegalArgumentException was expected");
+    } catch (IllegalArgumentException ignored) {
+    }
 
     Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
     result = mrbean_toString.invoke(null);

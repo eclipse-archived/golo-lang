@@ -32,6 +32,8 @@ public abstract class GoloStruct implements Iterable<Tuple> {
 
   public abstract Tuple values();
 
+  public abstract Object get(String member);
+
   @Override
   public Iterator<Tuple> iterator() {
     return new Iterator<Tuple>() {
