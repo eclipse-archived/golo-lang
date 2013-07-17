@@ -958,6 +958,22 @@ public class CompileAndRunTest {
     } catch (IllegalArgumentException ignored) {
     }
 
+    struct = struct.copy();
+    struct.set("name", "John");
+    assertThat(struct.get("name"), is((Object) "John"));
+    try {
+      struct.set("foo", "bar");
+      fail("An IllegalArgumentException was expected");
+    } catch (IllegalArgumentException ignored) {
+    }
+
+    struct = struct.frozenCopy();
+    try {
+      struct.set("name", "John");
+      fail("An IllegalStateException was expected");
+    } catch (IllegalStateException ignored) {
+    }
+
     Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
     result = mrbean_toString.invoke(null);
     assertThat(result, instanceOf(String.class));

@@ -46,8 +46,34 @@ class JavaBytecodeStructGenerator {
     makeEquals(classWriter, struct);
     makeValuesMethod(classWriter, struct);
     makeGetMethod(classWriter, struct);
+    makeSetMethod(classWriter, struct);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeSetMethod(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "set", "(Ljava/lang/String;Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
+    visitor.visitCode();
+    Label nextCase = new Label();
+    for (String member : struct.getMembers()) {
+      visitor.visitLdcInsn(member);
+      visitor.visitVarInsn(ALOAD, 1);
+      visitor.visitJumpInsn(IF_ACMPNE, nextCase);
+      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitVarInsn(ALOAD, 2);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "(Ljava/lang/Object;)Lgololang/GoloStruct;");
+      visitor.visitInsn(ARETURN);
+      visitor.visitLabel(nextCase);
+      nextCase = new Label();
+    }
+    visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+    visitor.visitInsn(DUP);
+    visitor.visitLdcInsn("Unknown member in " + struct.getPackageAndClass().toString());
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitInsn(ATHROW);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeGetMethod(ClassWriter classWriter, Struct struct) {
@@ -176,7 +202,7 @@ class JavaBytecodeStructGenerator {
   private void makeCopy(ClassWriter classWriter, Struct struct, boolean frozen) {
     String owner = struct.getPackageAndClass().toJVMType();
     String methodName = frozen ? "frozenCopy" : "copy";
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, methodName, "()L" + owner + ";", null, null);
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, methodName, "()Lgololang/GoloStruct;", null, null);
     visitor.visitCode();
     visitor.visitTypeInsn(NEW, owner);
     visitor.visitInsn(DUP);
@@ -304,7 +330,7 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeSetter(ClassWriter classWriter, String owner, String name) {
-    MethodVisitor setterVisitor = classWriter.visitMethod(ACC_PUBLIC, name, "(Ljava/lang/Object;)Ljava/lang/Object;", null, null);
+    MethodVisitor setterVisitor = classWriter.visitMethod(ACC_PUBLIC, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
     setterVisitor.visitCode();
     setterVisitor.visitVarInsn(ALOAD, 0);
     setterVisitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
