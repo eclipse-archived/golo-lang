@@ -35,7 +35,7 @@ class JavaBytecodeStructGenerator {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER | ACC_FINAL,
-        struct.getPackageAndClass().toJVMType(), null, "java/lang/Object", null);
+        struct.getPackageAndClass().toJVMType(), null, "gololang/GoloStruct", null);
     makeFields(classWriter, struct);
     makeAccessors(classWriter, struct);
     makeConstructors(classWriter, struct);
@@ -44,8 +44,30 @@ class JavaBytecodeStructGenerator {
     makeCopy(classWriter, struct, true);
     makeHashCode(classWriter, struct);
     makeEquals(classWriter, struct);
+    makeValuesMethod(classWriter, struct);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+  }
+
+  private void makeValuesMethod(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "values", "()Lgololang/Tuple;", null, null);
+    visitor.visitCode();
+    loadInteger(visitor, struct.getMembers().size());
+    visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+    int index = 0;
+    for (String member : struct.getMembers()) {
+      visitor.visitInsn(DUP);
+      loadInteger(visitor, index);
+      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitInsn(AASTORE);
+      index = index + 1;
+    }
+    visitor.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;");
+    visitor.visitInsn(ARETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeEquals(ClassWriter classWriter, Struct struct) {
@@ -183,7 +205,7 @@ class JavaBytecodeStructGenerator {
     MethodVisitor allArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", allArgsConstructorSignature(struct), null, null);
     allArgsVisitor.visitCode();
     allArgsVisitor.visitVarInsn(ALOAD, 0);
-    allArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    allArgsVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
     int arg = 1;
     for (String name : struct.getMembers()) {
       allArgsVisitor.visitVarInsn(ALOAD, 0);
@@ -191,12 +213,29 @@ class JavaBytecodeStructGenerator {
       allArgsVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
       arg = arg + 1;
     }
+    initMembersField(struct, owner, allArgsVisitor);
     allArgsVisitor.visitVarInsn(ALOAD, 0);
     allArgsVisitor.visitInsn(ICONST_0);
     allArgsVisitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
     allArgsVisitor.visitInsn(RETURN);
     allArgsVisitor.visitMaxs(0, 0);
     allArgsVisitor.visitEnd();
+  }
+
+  private void initMembersField(Struct struct, String owner, MethodVisitor visitor) {
+    int arg;
+    visitor.visitVarInsn(ALOAD, 0);
+    loadInteger(visitor, struct.getMembers().size());
+    visitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+    arg = 0;
+    for (String name : struct.getMembers()) {
+      visitor.visitInsn(DUP);
+      loadInteger(visitor, arg);
+      visitor.visitLdcInsn(name);
+      visitor.visitInsn(AASTORE);
+      arg = arg + 1;
+    }
+    visitor.visitFieldInsn(PUTFIELD, owner, "members", "[Ljava/lang/String;");
   }
 
   private String allArgsConstructorSignature(Struct struct) {
@@ -209,13 +248,15 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeNoArgsConstructor(ClassWriter classWriter, Struct struct) {
+    String owner = struct.getPackageAndClass().toJVMType();
     MethodVisitor noArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
     noArgsVisitor.visitCode();
     noArgsVisitor.visitVarInsn(ALOAD, 0);
-    noArgsVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "<init>", "()V");
+    noArgsVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
     noArgsVisitor.visitVarInsn(ALOAD, 0);
     noArgsVisitor.visitInsn(ICONST_0);
     noArgsVisitor.visitFieldInsn(PUTFIELD, struct.getPackageAndClass().toJVMType(), $_frozen, "Z");
+    initMembersField(struct, owner, noArgsVisitor);
     noArgsVisitor.visitInsn(RETURN);
     noArgsVisitor.visitMaxs(0, 0);
     noArgsVisitor.visitEnd();

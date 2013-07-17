@@ -20,6 +20,8 @@ import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import gololang.GoloStruct;
+import gololang.Predefined;
 import gololang.Tuple;
 import org.testng.annotations.Test;
 
@@ -921,6 +923,19 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
 
+    Method mrbean_struct = moduleClass.getMethod("mrbean_struct");
+    result = mrbean_struct.invoke(null);
+    assertThat(result, instanceOf(GoloStruct.class));
+    GoloStruct struct = (GoloStruct) result;
+    Tuple tuple = struct.members();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "name"));
+    assertThat(tuple.get(1), is((Object) "email"));
+    tuple = struct.values();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "Mr Bean"));
+    assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
+
     Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
     result = mrbean_toString.invoke(null);
     assertThat(result, instanceOf(String.class));
@@ -929,7 +944,7 @@ public class CompileAndRunTest {
     Method mrbean_copy = moduleClass.getMethod("mrbean_copy");
     result = mrbean_copy.invoke(null);
     assertThat(result, instanceOf(Tuple.class));
-    Tuple tuple = (Tuple) result;
+    tuple = (Tuple) result;
     assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
     assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
     assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));

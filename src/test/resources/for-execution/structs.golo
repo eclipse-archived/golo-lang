@@ -7,6 +7,8 @@ function mrbean = {
   return bean: name() + " <" + bean: email() + ">"
 }
 
+function mrbean_struct = -> Contact(): name("Mr Bean"): email("mrbean@outlook.com")
+
 function mrbean_toString = {
   return Contact(): name("Mr Bean"): email("mrbean@outlook.com"): toString()
 }
