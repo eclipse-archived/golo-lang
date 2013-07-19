@@ -314,7 +314,7 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeFields(ClassWriter classWriter, Struct struct) {
-    classWriter.visitField(ACC_PRIVATE, $_frozen, "Z", null, null).visitEnd();
+    classWriter.visitField(ACC_PRIVATE | ACC_FINAL, $_frozen, "Z", null, null).visitEnd();
     for (String name : struct.getMembers()) {
       FieldVisitor fieldVisitor = classWriter.visitField(ACC_PRIVATE, name, "Ljava/lang/Object;", null, null);
       fieldVisitor.visitEnd();
