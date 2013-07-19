@@ -253,24 +253,24 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeAllArgsConstructor(ClassWriter classWriter, Struct struct, String owner) {
-    MethodVisitor allArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", allArgsConstructorSignature(struct), null, null);
-    allArgsVisitor.visitCode();
-    allArgsVisitor.visitVarInsn(ALOAD, 0);
-    allArgsVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", allArgsConstructorSignature(struct), null, null);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
     int arg = 1;
     for (String name : struct.getMembers()) {
-      allArgsVisitor.visitVarInsn(ALOAD, 0);
-      allArgsVisitor.visitVarInsn(ALOAD, arg);
-      allArgsVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
+      visitor.visitVarInsn(ALOAD, 0);
+      visitor.visitVarInsn(ALOAD, arg);
+      visitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
       arg = arg + 1;
     }
-    initMembersField(struct, owner, allArgsVisitor);
-    allArgsVisitor.visitVarInsn(ALOAD, 0);
-    allArgsVisitor.visitInsn(ICONST_0);
-    allArgsVisitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
-    allArgsVisitor.visitInsn(RETURN);
-    allArgsVisitor.visitMaxs(0, 0);
-    allArgsVisitor.visitEnd();
+    initMembersField(struct, owner, visitor);
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitInsn(ICONST_0);
+    visitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
+    visitor.visitInsn(RETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void initMembersField(Struct struct, String owner, MethodVisitor visitor) {
@@ -300,17 +300,17 @@ class JavaBytecodeStructGenerator {
 
   private void makeNoArgsConstructor(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
-    MethodVisitor noArgsVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
-    noArgsVisitor.visitCode();
-    noArgsVisitor.visitVarInsn(ALOAD, 0);
-    noArgsVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
-    noArgsVisitor.visitVarInsn(ALOAD, 0);
-    noArgsVisitor.visitInsn(ICONST_0);
-    noArgsVisitor.visitFieldInsn(PUTFIELD, struct.getPackageAndClass().toJVMType(), $_frozen, "Z");
-    initMembersField(struct, owner, noArgsVisitor);
-    noArgsVisitor.visitInsn(RETURN);
-    noArgsVisitor.visitMaxs(0, 0);
-    noArgsVisitor.visitEnd();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitInsn(ICONST_0);
+    visitor.visitFieldInsn(PUTFIELD, struct.getPackageAndClass().toJVMType(), $_frozen, "Z");
+    initMembersField(struct, owner, visitor);
+    visitor.visitInsn(RETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeFields(ClassWriter classWriter, Struct struct) {
@@ -341,34 +341,34 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeSetter(ClassWriter classWriter, String owner, String name) {
-    MethodVisitor setterVisitor = classWriter.visitMethod(ACC_PUBLIC, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
-    setterVisitor.visitCode();
-    setterVisitor.visitVarInsn(ALOAD, 0);
-    setterVisitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
     Label setLabel = new Label();
-    setterVisitor.visitJumpInsn(IFEQ, setLabel);
-    setterVisitor.visitTypeInsn(NEW, "java/lang/IllegalStateException");
-    setterVisitor.visitInsn(DUP);
-    setterVisitor.visitLdcInsn("The struct instance is frozen");
-    setterVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V");
-    setterVisitor.visitInsn(ATHROW);
-    setterVisitor.visitLabel(setLabel);
-    setterVisitor.visitVarInsn(ALOAD, 0);
-    setterVisitor.visitVarInsn(ALOAD, 1);
-    setterVisitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
-    setterVisitor.visitVarInsn(ALOAD, 0);
-    setterVisitor.visitInsn(ARETURN);
-    setterVisitor.visitMaxs(0, 0);
-    setterVisitor.visitEnd();
+    visitor.visitJumpInsn(IFEQ, setLabel);
+    visitor.visitTypeInsn(NEW, "java/lang/IllegalStateException");
+    visitor.visitInsn(DUP);
+    visitor.visitLdcInsn("The struct instance is frozen");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitInsn(ATHROW);
+    visitor.visitLabel(setLabel);
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitInsn(ARETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeGetter(ClassWriter classWriter, String owner, String name) {
-    MethodVisitor getterVisitor = classWriter.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
-    getterVisitor.visitCode();
-    getterVisitor.visitVarInsn(ALOAD, 0);
-    getterVisitor.visitFieldInsn(GETFIELD, owner, name, "Ljava/lang/Object;");
-    getterVisitor.visitInsn(ARETURN);
-    getterVisitor.visitMaxs(0, 0);
-    getterVisitor.visitEnd();
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitFieldInsn(GETFIELD, owner, name, "Ljava/lang/Object;");
+    visitor.visitInsn(ARETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 }
