@@ -36,6 +36,7 @@ package fr.insalyon.citi.golo.compiler.parser;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.Collections;
 
 import fr.insalyon.citi.golo.compiler.utils.StringUnescaping;
@@ -169,6 +170,8 @@ TOKEN :
   < BREAK: "break" >
   |
   < CONTINUE: "continue" >
+  |
+  < STRUCT: "struct" >
 }
 
 // Operators
@@ -514,8 +517,7 @@ void ToplevelDeclaration():
   ASTFunctionDeclaration functionDecl;
   Token local = null;
 }
-{
-  
+{ 
   AugmentDeclaration() 
   | 
   (local=<LOCAL>)? functionDecl=FunctionDeclaration()
@@ -523,6 +525,33 @@ void ToplevelDeclaration():
     if (local != null) {
       functionDecl.setLocal(true);
     }
+  }
+  |
+  StructDeclaration()
+}
+
+void StructDeclaration():
+{
+  Token name;
+  Token member;
+  LinkedHashSet<String> members = new LinkedHashSet<String>();
+}
+{
+  <STRUCT> name=<IDENTIFIER> "=" "{" BlankLines()
+    member=<IDENTIFIER> BlankLines()
+    {
+      members.add(member.image);
+    }
+    (
+      "," BlankLines() member=<IDENTIFIER> BlankLines()
+      {
+        members.add(member.image);
+      }
+    )*
+  "}"
+  {
+    jjtThis.setName(name.image);
+    jjtThis.setMembers(members);
   }
 }
 

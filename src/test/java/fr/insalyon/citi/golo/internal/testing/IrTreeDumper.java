@@ -46,6 +46,16 @@ public class IrTreeDumper implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
+    for (Struct struct : module.getStructs()) {
+      incr();
+      space();
+      System.out.println("Struct " + struct.getPackageAndClass().className());
+      space();
+      System.out.println(" - target class = " + struct.getPackageAndClass());
+      space();
+      System.out.println(" - members = " + struct.getMembers());
+      decr();
+    }
     for (String augmentation : module.getAugmentations().keySet()) {
       incr();
       space();

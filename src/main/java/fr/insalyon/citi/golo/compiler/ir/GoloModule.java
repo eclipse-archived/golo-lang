@@ -32,6 +32,7 @@ public final class GoloModule extends GoloElement {
   private final Set<ModuleImport> imports = new HashSet<>();
   private final Set<GoloFunction> functions = new HashSet<>();
   private final Map<String, Set<GoloFunction>> augmentations = new HashMap<>();
+  private final Set<Struct> structs = new HashSet<>();
 
   public static final ModuleImport PREDEF = new ModuleImport(
       PackageAndClass.fromString("gololang.Predefined"));
@@ -61,6 +62,10 @@ public final class GoloModule extends GoloElement {
     return unmodifiableMap(augmentations);
   }
 
+  public Set<Struct> getStructs() {
+    return unmodifiableSet(structs);
+  }
+
   public void addImport(ModuleImport moduleImport) {
     imports.add(moduleImport);
   }
@@ -78,6 +83,10 @@ public final class GoloModule extends GoloElement {
       bag = augmentations.get(target);
     }
     bag.add(function);
+  }
+
+  public void addStruct(Struct struct) {
+    structs.add(struct);
   }
 
   public Set<GoloFunction> getFunctions() {
