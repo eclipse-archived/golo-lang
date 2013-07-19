@@ -83,6 +83,9 @@ Instances of a structure provide copying methods:
 Trying to invoke any setter methods on an instance obtained through `frozenCopy()` raises a
 `java.lang.IllegalStateException`.
 
+IMPORTANT: The result of calling `copy()` on a frozen instance **is a mutable** copy, not a frozen
+copy.
+
 === `equals()` and `hashCode()` semantics ===
 
 Golo structures honor the contract of Java objects regarding equality and hash codes.

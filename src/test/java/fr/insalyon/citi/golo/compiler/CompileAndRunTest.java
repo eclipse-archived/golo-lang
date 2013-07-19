@@ -970,6 +970,7 @@ public class CompileAndRunTest {
     assertThat(struct.isFrozen(), is(false));
     struct = struct.frozenCopy();
     assertThat(struct.isFrozen(), is(true));
+    assertThat(struct.copy().isFrozen(), is(false));
     try {
       struct.set("name", "John");
       fail("An IllegalStateException was expected");
