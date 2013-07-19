@@ -1,0 +1,150 @@
+== Structs ==
+
+Golo allows the definition of simple structures using the `struct` keyword. They resemble structures
+in procedural languages such as C `struct` or Pascal *records*. They are useful to store data when
+the set of named entries is fixed.
+
+=== Definition ===
+
+Structures are defined at the module-level:
+
+----
+module sample
+
+struct Person = { name, age, email }
+
+function main = |args| {
+  let p1 = Person("Mr Bean", 54, "bean@gmail.com")
+  println(p1: name())
+  let p2 = Person(): name("John"): age(32): email("john@b-root.com")
+  println(p2: age())
+}
+----
+
+When declaring a structure, it also defines two factory functions: one with no arguments, and one
+with all arguments in their order of declaration in the `struct` statement. When not initialized,
+member values are `null`.
+
+Each member yields a *getter* and a *setter* method: given a member `a`, the getter is method `a()`
+while the setter is method `a(newValue)`. It should be noted that setter methods return the
+structure instance which makes it possible to chain calls as illustrated in the previous example
+while building `p2`.
+
+=== JVM existence ===
+
+Each `struct` is compiled to a self-contained JVM class.
+
+Given:
+
+----
+module sample
+
+struct Point = { x, y }
+----
+
+a class `sample.types.Point` is being generated.
+
+It is important to note that:
+
+1. each `struct` class is `final`,
+2. each `struct` class inherits from `gololang.GoloStruct`,
+3. proper definitions of `toString()`, `hashCode()` and `equals()` are being provided.
+
+=== `toString()` behavior ===
+
+The `toString()` method is being overridden to provide a meaningful description of a structure
+content.
+
+Given the following program:
+
+----
+module test
+
+struct Point = { x, y }
+
+function main = |args| {
+  println(Point(1, 2))  
+}
+----
+
+running it prints the following console output:
+
+----
+struct Point{x=1, y=2}
+----
+
+=== Copying ===
+
+Instances of a structure provide copying methods:
+
+- `copy()` returns a *shallow* copy of the structure instance, and
+- `frozenCopy()` returns a read-only *shallow* copy.
+
+Trying to invoke any setter methods on an instance obtained through `frozenCopy()` raises a
+`java.lang.IllegalStateException`.
+
+IMPORTANT: The result of calling `copy()` on a frozen instance **is a mutable** copy, not a frozen
+copy.
+
+=== `equals()` and `hashCode()` semantics ===
+
+Golo structures honor the contract of Java objects regarding equality and hash codes.
+
+By default, `equals()` and `hashCode()` are the ones of `java.lang.Object`. Indeed, structure
+members can be changed, so they cannot be used to compute stable values.
+
+Nevertheless, structure instances returned by `frozenCopy()` have stable members, and members are
+being used.
+
+Consider the following program:
+
+----
+module test
+
+struct Point = { x, y }
+
+function main = |args| {
+  
+  let p1 = Point(1, 2)
+  let p2 = Point(1, 2)
+  let p3 = p1: frozenCopy()
+  let p4 = p1: frozenCopy()
+
+  println("p1 == p2 " + (p1 == p2))
+  println("p1 == p3 " + (p1 == p3))
+  println("p3 == p4 " + (p3 == p4))
+
+  println("#p1 " + p1: hashCode())
+  println("#p2 " + p2: hashCode())
+  println("#p3 " + p3: hashCode())
+  println("#p4 " + p4: hashCode())
+}
+----
+
+the console output is the following:
+
+----
+p1 == p2 false
+p1 == p3 false
+p3 == p4 true
+#p1 1555845260
+#p2 104739310
+#p3 994
+#p4 994
+----
+
+
+TIP: It is recommended that you use `frozenCopy()` when you can, especially when storing values into
+collections.
+
+=== Helper methods ===
+
+A number of helper methods are being generated:
+
+- `members()` returns a tuple of the member names,
+- `values()` returns a tuple with the current member values,
+- `isFrozen()` returns a boolean to check for frozen structure instances,
+- `iterator()` provides an iterator over a structure where each element is a tuple `[member, value]`,
+- `get(name)` returns the value of a member by its name,
+- `set(name, value)` updates the value of a member by its name, and returns the same structure.
+

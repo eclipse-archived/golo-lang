@@ -20,6 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import gololang.GoloStruct;
 import gololang.Tuple;
 import org.testng.annotations.Test;
 
@@ -910,5 +911,121 @@ public class CompileAndRunTest {
     assertThat(map.size(), is(2));
     assertThat((String) map.get("foo"), is("bar"));
     assertThat((String) map.get("plop"), is("da plop"));
+  }
+
+  @Test
+  public void structs() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
+
+    Method mrbean = moduleClass.getMethod("mrbean");
+    Object result = mrbean.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
+
+    Method mrbean_struct = moduleClass.getMethod("mrbean_struct");
+    result = mrbean_struct.invoke(null);
+    assertThat(result, instanceOf(GoloStruct.class));
+    GoloStruct struct = (GoloStruct) result;
+
+    Tuple tuple = struct.members();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "name"));
+    assertThat(tuple.get(1), is((Object) "email"));
+
+    tuple = struct.values();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "Mr Bean"));
+    assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
+
+    Iterator<Tuple> structIterator = struct.iterator();
+    assertThat(structIterator.hasNext(), is(true));
+    tuple = structIterator.next();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "name"));
+    assertThat(tuple.get(1), is((Object) "Mr Bean"));
+    assertThat(structIterator.hasNext(), is(true));
+    tuple = structIterator.next();
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "email"));
+    assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
+    assertThat(structIterator.hasNext(), is(false));
+
+    assertThat(struct.get("name"), is((Object) "Mr Bean"));
+    assertThat(struct.get("email"), is((Object) "mrbean@outlook.com"));
+    try {
+      struct.get("foo");
+      fail("An IllegalArgumentException was expected");
+    } catch (IllegalArgumentException ignored) {
+    }
+
+    struct = struct.copy();
+    struct.set("name", "John");
+    assertThat(struct.get("name"), is((Object) "John"));
+    try {
+      struct.set("foo", "bar");
+      fail("An IllegalArgumentException was expected");
+    } catch (IllegalArgumentException ignored) {
+    }
+
+    assertThat(struct.isFrozen(), is(false));
+    struct = struct.frozenCopy();
+    assertThat(struct.isFrozen(), is(true));
+    assertThat(struct.copy().isFrozen(), is(false));
+    try {
+      struct.set("name", "John");
+      fail("An IllegalStateException was expected");
+    } catch (IllegalStateException ignored) {
+    }
+
+    Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
+    result = mrbean_toString.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+
+    Method mrbean_copy = moduleClass.getMethod("mrbean_copy");
+    result = mrbean_copy.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
+
+    Method mrbean_frozenCopy = moduleClass.getMethod("mrbean_frozenCopy");
+    result = mrbean_frozenCopy.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
+    assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
+    try {
+      Object instance = tuple.get(1);
+      Method name = instance.getClass().getMethod("name", Object.class);
+      name.invoke(instance, "Foo");
+      fail("A frozen struct shall not allow field mutation");
+      name.invoke(tuple.get(0), "Foo");
+    } catch (InvocationTargetException e) {
+      if (!(e.getCause() instanceof IllegalStateException)) {
+        throw e;
+      }
+    }
+
+    Method mrbean_hashCode = moduleClass.getMethod("mrbean_hashCode");
+    result = mrbean_hashCode.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0).hashCode(), not(tuple.get(1).hashCode()));
+    assertThat(tuple.get(2).hashCode(), is(tuple.get(3).hashCode()));
+
+    Method mrbean_equals = moduleClass.getMethod("mrbean_equals");
+    result = mrbean_equals.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0), not(tuple.get(1)));
+    assertThat(tuple.get(0), not(new Object()));
+    assertThat(tuple.get(0), not(tuple.get(2)));
+    assertThat(tuple.get(2), is(tuple.get(3)));
+    assertThat(tuple.get(2), not(tuple.get(4)));
+    assertThat(tuple.get(2), not(tuple.get(5)));
+    assertThat(tuple.get(2), not(tuple.get(0)));
   }
 }

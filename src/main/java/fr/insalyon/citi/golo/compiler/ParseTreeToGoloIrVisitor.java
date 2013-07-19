@@ -107,6 +107,38 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTStructDeclaration node, Object data) {
+    Context context = (Context) data;
+    GoloModule module = context.module;
+
+    PackageAndClass structClass = new PackageAndClass(
+        module.getPackageAndClass().toString() + ".types",
+        node.getName());
+    module.addStruct(new Struct(structClass, node.getMembers()));
+
+    GoloFunction factory = new GoloFunction(node.getName(), PUBLIC, MODULE);
+    Block block = new Block(context.referenceTableStack.peek().fork());
+    factory.setBlock(block);
+    block.addStatement(new ReturnStatement(new FunctionInvocation(structClass.toString())));
+    module.addFunction(factory);
+
+    factory = new GoloFunction(node.getName(), PUBLIC, MODULE);
+    factory.setParameterNames(new LinkedList<>(node.getMembers()));
+    FunctionInvocation call = new FunctionInvocation(structClass.toString());
+    ReferenceTable table = context.referenceTableStack.peek().fork();
+    block = new Block(table);
+    for (String member : node.getMembers()) {
+      call.addArgument(new ReferenceLookup(member));
+      table.add(new LocalReference(CONSTANT, member));
+    }
+    factory.setBlock(block);
+    block.addStatement(new ReturnStatement(call));
+    module.addFunction(factory);
+
+    return data;
+  }
+
+  @Override
   public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
     context.augmentation = node.getTarget();
