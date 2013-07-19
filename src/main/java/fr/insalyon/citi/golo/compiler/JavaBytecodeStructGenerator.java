@@ -334,7 +334,7 @@ class JavaBytecodeStructGenerator {
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "isFrozen", "()Z", null, null);
     visitor.visitCode();
     visitor.visitVarInsn(ALOAD, 0);
-    visitor.visitFieldInsn(GETFIELD, owner, "$_frozen", "Z");
+    visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
     visitor.visitInsn(IRETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
