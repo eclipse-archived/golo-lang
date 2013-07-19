@@ -140,6 +140,7 @@ A number of helper methods are being generated:
 
 - `members()` returns a tuple of the member names,
 - `values()` returns a tuple with the current member values,
+- `isFrozen()` returns a boolean to check for frozen structure instances,
 - `iterator()` provides an iterator over a structure where each element is a tuple `[member, value]`,
 - `get(name)` returns the value of a member by its name,
 - `set(name, value)` updates the value of a member by its name, and returns the same structure.

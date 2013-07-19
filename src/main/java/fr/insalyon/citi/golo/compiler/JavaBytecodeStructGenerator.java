@@ -327,6 +327,17 @@ class JavaBytecodeStructGenerator {
       makeGetter(classWriter, owner, name);
       makeSetter(classWriter, owner, name);
     }
+    makeFrozenGetter(classWriter, owner);
+  }
+
+  private void makeFrozenGetter(ClassWriter classWriter, String owner) {
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "isFrozen", "()Z", null, null);
+    visitor.visitCode();
+    visitor.visitVarInsn(ALOAD, 0);
+    visitor.visitFieldInsn(GETFIELD, owner, "$_frozen", "Z");
+    visitor.visitInsn(IRETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
   }
 
   private void makeSetter(ClassWriter classWriter, String owner, String name) {

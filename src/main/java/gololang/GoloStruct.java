@@ -38,6 +38,13 @@ public abstract class GoloStruct implements Iterable<Tuple> {
   }
 
   /**
+   * Tells whether the instance is frozen or not.
+   *
+   * @return {@code true} if frozen, {@code false} otherwise.
+   */
+  public abstract boolean isFrozen();
+
+  /**
    * Gets the member names as a tuple of strings.
    *
    * @return a tuple of member names.

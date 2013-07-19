@@ -967,7 +967,9 @@ public class CompileAndRunTest {
     } catch (IllegalArgumentException ignored) {
     }
 
+    assertThat(struct.isFrozen(), is(false));
     struct = struct.frozenCopy();
+    assertThat(struct.isFrozen(), is(true));
     try {
       struct.set("name", "John");
       fail("An IllegalStateException was expected");
