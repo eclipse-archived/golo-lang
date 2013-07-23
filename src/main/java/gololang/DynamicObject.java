@@ -26,6 +26,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static java.lang.invoke.MethodHandles.*;
+import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 /**
@@ -37,8 +38,8 @@ import static java.lang.invoke.MethodType.methodType;
  */
 public class DynamicObject {
 
-  private final Map<String, Set<SwitchPoint>> switchPoints = new HashMap<>();
-  private final Map<String, Object> properties = new HashMap<>();
+  private final HashMap<String, Set<SwitchPoint>> switchPoints = new HashMap<>();
+  private final HashMap<String, Object> properties = new HashMap<>();
   private boolean frozen = false;
 
   /**
@@ -132,20 +133,91 @@ public class DynamicObject {
     return this;
   }
 
+  // New stuff
+  private static final MethodHandle MAP_GET;
+  private static final MethodHandle MAP_PUT;
+  private static final MethodHandle IS_MH;
+
+  // Old stuff
   private static final MethodHandle PROPERTY_MISSING;
   private static final MethodHandle DEFINE;
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
+
+      // New stuff
+      MAP_GET = lookup.findSpecial(DynamicObject.class, "get", methodType(Object.class, Object.class), DynamicObject.class);
+      MAP_PUT = lookup.findSpecial(DynamicObject.class, "put", methodType(Object.class, String.class, Object.class), DynamicObject.class);
+      IS_MH = lookup.findStatic(DynamicObject.class, "isMethodHandle", methodType(boolean.class, Object.class));
+
+      // Old stuff
       PROPERTY_MISSING = lookup.findStatic(DynamicObject.class, "propertyMissing",
           methodType(Object.class, String.class, Object[].class));
       DEFINE = lookup.findVirtual(DynamicObject.class, "define",
           methodType(DynamicObject.class, String.class, Object.class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
+      e.printStackTrace();
       throw new Error("Could not bootstrap the required method handles");
     }
   }
+
+  // New stuff
+
+
+  private Object put(String key, Object value) {
+    return properties.put(key, value);
+  }
+
+  private Object get(Object key) {
+    return properties.get(key);
+  }
+
+  public MethodHandle invoker(String property, MethodType type) {
+    switch (type.parameterCount()) {
+      case 1:
+        return getterStyleInvoker(property, type);
+      case 2:
+        return setterStyleInvoker(property, type);
+      default:
+        return anyInvoker(property, type);
+    }
+  }
+
+  private MethodHandle anyInvoker(String property, MethodType type) {
+    MethodHandle get_mh = insertArguments(MAP_GET, 1, property);
+    get_mh = get_mh.asType(get_mh.type().changeParameterType(0, Object.class));
+    MethodHandle invoker_mh = exactInvoker(type);
+    invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
+    return foldArguments(invoker_mh, get_mh);
+  }
+
+  private MethodHandle setterStyleInvoker(String property, MethodType type) {
+    MethodHandle get_mh = insertArguments(MAP_GET, 1, property);
+    get_mh = get_mh.asType(get_mh.type().changeParameterType(0, Object.class));
+    MethodHandle put_mh = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
+    put_mh = put_mh.asType(put_mh.type().changeParameterType(1, Object.class));
+    MethodHandle invoker_mh = exactInvoker(type);
+    invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
+    MethodHandle gwt_mh = guardWithTest(IS_MH, invoker_mh, put_mh);
+    return foldArguments(gwt_mh, get_mh);
+  }
+
+  private MethodHandle getterStyleInvoker(String property, MethodType type) {
+    MethodHandle get_mh = insertArguments(MAP_GET, 1, property);
+    get_mh = get_mh.asType(get_mh.type().changeParameterType(0, Object.class));
+    MethodHandle echo_mh = dropArguments(identity(Object.class), 1, type.parameterArray());
+    MethodHandle invoker_mh = exactInvoker(type);
+    invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
+    MethodHandle gwt_mh = guardWithTest(IS_MH, invoker_mh, echo_mh);
+    return foldArguments(gwt_mh, get_mh);
+  }
+
+  private static boolean isMethodHandle(Object obj) {
+    return obj instanceof MethodHandle;
+  }
+
+  // Old stuff
 
   public static Object propertyMissing(String name, Object[] args) throws NoSuchMethodException {
     throw new NoSuchMethodException("Missing DynamicObject definition for " + name);

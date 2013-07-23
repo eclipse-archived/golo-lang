@@ -22,7 +22,10 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.invoke.MutableCallSite;
+import java.util.Arrays;
+import java.util.List;
 
+import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -30,6 +33,73 @@ import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 
 public class DynamicObjectTest {
+
+  // New stuff
+
+  static Object foo(Object receiver) {
+    return "(Foo)";
+  }
+
+  static Object echo(Object receiver, Object arg) {
+    return arg;
+  }
+
+  static Object inAList(Object receiver, Object a, Object b) {
+    return Arrays.asList(receiver, a, b);
+  }
+
+  @Test
+  public void invoker_get_value() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    object.define("foo", "bar");
+    MethodHandle invoker = object.invoker("foo", genericMethodType(1));
+    assertThat(invoker.invoke(object), is((Object) "bar"));
+  }
+
+  @Test
+  public void invoker_get_method() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    object.define("foo", lookup().findStatic(DynamicObjectTest.class, "foo", genericMethodType(1)));
+    MethodHandle invoker = object.invoker("foo", genericMethodType(1));
+    assertThat(invoker.invoke(object), is((Object) "(Foo)"));
+  }
+
+  @Test
+  public void invoker_set_value() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle invoker = object.invoker("foo", genericMethodType(2));
+    invoker.invoke(object, "bar");
+    assertThat(object.get("foo"), is((Object) "bar"));
+  }
+
+  @Test
+  public void invoker_set_method() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle invoker = object.invoker("foo", genericMethodType(2));
+    invoker.invoke(object, lookup().findStatic(DynamicObjectTest.class, "foo", genericMethodType(1)));
+    MethodHandle callInvoker = object.invoker("foo", genericMethodType(1));
+    assertThat(callInvoker.invoke(object), is((Object) "(Foo)"));
+  }
+
+  @Test
+  public void invoker_set_echo() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle invoker = object.invoker("foo", genericMethodType(2));
+    invoker.invoke(object, lookup().findStatic(DynamicObjectTest.class, "echo", genericMethodType(2)));
+    Object result = invoker.invoke(object, "plop");
+    assertThat(result, is((Object) "plop"));
+  }
+
+  @Test
+  public void invoker_call_any() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle invoker = object.invoker("foo", genericMethodType(3));
+    object.define("foo", lookup().findStatic(DynamicObjectTest.class, "inAList", genericMethodType(3)));
+    Object result = invoker.invoke(object, "plop", "daplop");
+    assertThat(result, instanceOf(List.class));
+  }
+
+  // Old stuff
 
   static Object same(Object receiver, Object a, Object b) {
     return a == b;
@@ -51,7 +121,7 @@ public class DynamicObjectTest {
   static final MethodHandle FALLBACK;
 
   static {
-    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    MethodHandles.Lookup lookup = lookup();
     try {
       FALLBACK = lookup.findStatic(
           DynamicObjectTest.class,
@@ -135,7 +205,7 @@ public class DynamicObjectTest {
   @Test
   public void plug_function() throws Throwable {
     MethodType type = genericMethodType(3);
-    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    MethodHandles.Lookup lookup = lookup();
     MethodHandle same = lookup.findStatic(DynamicObjectTest.class, "same", type);
 
     DynamicObject dynamicObject = new DynamicObject();
