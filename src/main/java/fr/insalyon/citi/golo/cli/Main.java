@@ -129,7 +129,7 @@ public class Main {
     @Parameter(names = "--format", description = "Documentation output format (html, markdown)")
     String format = "html";
 
-    @Parameter(names = "--output", description = "The compiled classes output directory")
+    @Parameter(names = "--output", description = "The documentation output directory")
     String output = ".";
 
     @Parameter(description = "Golo source files (*.golo)")
