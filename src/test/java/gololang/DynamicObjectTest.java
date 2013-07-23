@@ -48,6 +48,11 @@ public class DynamicObjectTest {
     return Arrays.asList(receiver, a, b);
   }
 
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void invoker_with_no_args() throws Throwable {
+    new DynamicObject().invoker("any", genericMethodType(0));
+  }
+
   @Test
   public void invoker_get_value() throws Throwable {
     DynamicObject object = new DynamicObject();

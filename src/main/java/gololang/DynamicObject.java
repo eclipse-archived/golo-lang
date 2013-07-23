@@ -175,6 +175,8 @@ public class DynamicObject {
 
   public MethodHandle invoker(String property, MethodType type) {
     switch (type.parameterCount()) {
+      case 0:
+        throw new IllegalArgumentException("A dynamic object invoker type needs at least 1 argument (the receiver)");
       case 1:
         return getterStyleInvoker(property, type);
       case 2:
