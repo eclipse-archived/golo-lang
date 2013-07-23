@@ -60,6 +60,8 @@ public class DocumentationRendererTest {
     assertThat(result, containsString("<h1>Documentation for Documented</h1>"));
     assertThat(result, containsString("<h3>with_doc(a, b)"));
     assertThat(result, containsString("<pre><code>println(\"foo\": yop())"));
+    assertThat(result, containsString("<h3>Point</h3>"));
+    assertThat(result, containsString("<code>x</code> and <code>y</code>"));
 
     Path tempDir = Files.createTempDirectory("foo");
     processor.process(Arrays.asList(compilationUnit), tempDir);
@@ -78,7 +80,7 @@ public class DocumentationRendererTest {
     assertThat(contents, containsString("<a href='Documented.html'>Documented</a>"));
   }
 
-  @Test(enabled = false)
+  @Test
   public void render_markdown() throws Throwable {
     GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
@@ -88,6 +90,8 @@ public class DocumentationRendererTest {
     assertThat(result, containsString("# Documentation for `Documented`"));
     assertThat(result, containsString("### `with_doc(a, b)`"));
     assertThat(result, containsString("println(\"foo\": yop())"));
+    assertThat(result, containsString("### `Point`"));
+    assertThat(result, containsString("`x` and `y`"));
 
     File tempFile = File.createTempFile("plop", "markdown");
     renderer.renderTo(tempFile, compilationUnit, "markdown");

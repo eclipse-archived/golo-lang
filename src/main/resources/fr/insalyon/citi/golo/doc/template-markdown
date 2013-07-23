@@ -18,3 +18,9 @@
 <%= funcDoc: documentation() %>
 <% } %>
 <% } %>
+
+## Structs
+<% foreach structName in doc: structs(): keySet() { %>
+### `<%= structName %>`
+<%= doc: structs(): get(structName) %>
+<% } %>

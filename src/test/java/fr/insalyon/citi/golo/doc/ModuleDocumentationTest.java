@@ -56,5 +56,9 @@ public class ModuleDocumentationTest {
     assertThat(first.arguments.size(), is(1));
     assertThat(first.arguments.get(0), is("this"));
     assertThat(first.documentation, is("\n"));
+
+    assertThat(doc.structs().size(), is(1));
+    assertThat(doc.structs(), hasKey("Point"));
+    assertThat(doc.structs().get("Point"), containsString("`x` and `y` coordinates"));
   }
 }

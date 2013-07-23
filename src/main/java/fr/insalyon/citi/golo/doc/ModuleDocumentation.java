@@ -43,6 +43,7 @@ class ModuleDocumentation {
   private TreeSet<FunctionDocumentation> functions = new TreeSet<>();
   private final TreeMap<String, String> augmentations = new TreeMap<>();
   private final TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions = new TreeMap<>();
+  private final TreeMap<String, String> structs = new TreeMap<>();
 
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -51,6 +52,10 @@ class ModuleDocumentation {
 
   public TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions() {
     return augmentationFunctions;
+  }
+
+  public TreeMap<String, String> structs() {
+    return structs;
   }
 
   public TreeSet<FunctionDocumentation> functions() {
@@ -65,7 +70,7 @@ class ModuleDocumentation {
     return moduleDocumentation;
   }
 
-  public Map<String, String> augmentations() {
+  public TreeMap<String, String> augmentations() {
     return augmentations;
   }
 
@@ -109,6 +114,12 @@ class ModuleDocumentation {
     @Override
     public Object visit(ASTToplevelDeclaration node, Object data) {
       node.childrenAccept(this, data);
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTStructDeclaration node, Object data) {
+      structs.put(node.getName(), documentationOrNothing(node.getDocumentation()));
       return data;
     }
 
@@ -211,6 +222,11 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTLiteral node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTCollectionLiteral node, Object data) {
       return data;
     }
 

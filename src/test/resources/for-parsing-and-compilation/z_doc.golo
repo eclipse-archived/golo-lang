@@ -49,3 +49,10 @@ augment java.lang.String {
   function yop = |this| -> "Yop: " + this
 }
 
+----
+A point, with `x` and `y` coordinates.
+
+Do not hesitate to provide an augmentation for `Documented.types.Point` if you
+would like to add *methods* to it.
+----
+struct Point = { x, y }

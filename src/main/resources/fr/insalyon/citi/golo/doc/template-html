@@ -8,6 +8,9 @@
 <body>
 
 <h1>Documentation for <%= doc: moduleName() %></h1>
+<div>
+  <%= process(doc: moduleDocumentation()) %>
+</div>
 
 <h2>Functions</h2>
 
@@ -31,6 +34,15 @@
       <%= process(funcDoc: documentation()) %>
     </div>
   <% } %>
+<% } %>
+
+<h2>Structs</h2>
+
+<% foreach structName in doc: structs(): keySet() { %>
+  <h3><%= structName %></h3>
+  <div>
+    <%= process(doc: structs(): get(structName)) %>
+  </div>
 <% } %>
 
 </body>
