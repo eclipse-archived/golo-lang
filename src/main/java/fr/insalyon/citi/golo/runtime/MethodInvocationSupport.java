@@ -152,17 +152,22 @@ public class MethodInvocationSupport {
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = inlineCache.vtable.get(receiverClass);
     if (target == null) {
-      target = findTarget(receiverClass, inlineCache, args);
+      target = lookupTarget(receiverClass, inlineCache, args);
       inlineCache.vtable.put(receiverClass, target);
     }
     return target;
   }
 
-  public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
-
+  private static MethodHandle lookupTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
     if (isCallOnDynamicObject(inlineCache, args[0])) {
-      return installDynamicObjectDispatch(inlineCache, args);
+      DynamicObject dynamicObject = (DynamicObject) args[0];
+      return dynamicObject.invoker(inlineCache.name, inlineCache.type());
+    } else {
+      return findTarget(receiverClass, inlineCache, args);
     }
+  }
+
+  public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
 
     if (inlineCache.isMegaMorphic()) {
       return installVTableDispatch(inlineCache, args);
@@ -173,10 +178,10 @@ public class MethodInvocationSupport {
     }
 
     Class<?> receiverClass = args[0].getClass();
-    MethodHandle target = findTarget(receiverClass, inlineCache, args);
+    MethodHandle target = lookupTarget(receiverClass, inlineCache, args);
 
     MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
-    MethodHandle fallback = (inlineCache.state == POLYMORPHIC) ? inlineCache.getTarget() : inlineCache.fallback;
+    MethodHandle fallback = inlineCache.getTarget();
     MethodHandle root = guardWithTest(guard, target, fallback);
     if (inlineCache.nullSafeGuarded) {
       root = makeNullSafeGuarded(root);
