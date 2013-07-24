@@ -24,7 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.DYNAMIC_OBJECT;
 import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.POLYMORPHIC;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.*;
@@ -220,16 +219,6 @@ public class MethodInvocationSupport {
       return null;
     }
     return vtableTarget.invokeWithArguments(args);
-  }
-
-  private static Object installDynamicObjectDispatch(InlineCache inlineCache, Object[] args) throws Throwable {
-    DynamicObject dynamicObject = (DynamicObject) args[0];
-    MethodHandle target = dynamicObject.plug(inlineCache.name, inlineCache.type(), inlineCache.fallback);
-    MethodHandle guard = INSTANCE_GUARD.bindTo(dynamicObject);
-    MethodHandle root = guardWithTest(guard, target, inlineCache.fallback);
-    inlineCache.state = DYNAMIC_OBJECT;
-    inlineCache.resetWith(root);
-    return target.invokeWithArguments(args);
   }
 
   private static boolean isCallOnDynamicObject(InlineCache inlineCache, Object arg) {
