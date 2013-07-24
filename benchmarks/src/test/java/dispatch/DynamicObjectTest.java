@@ -26,6 +26,11 @@ public class DynamicObjectTest extends GoloBenchmark {
   }
 
   @Test
+  public void java() throws Throwable {
+    LikeDynamicObject.run();
+  }
+
+  @Test
   public void golo() throws Throwable {
     GoloModule.getMethod("run").invoke(null);
   }
