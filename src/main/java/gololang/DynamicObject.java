@@ -181,32 +181,32 @@ public final class DynamicObject {
   }
 
   private MethodHandle anyInvoker(String property, MethodType type) {
-    MethodHandle get_mh = insertArguments(MAP_GET, 1, property);
-    get_mh = get_mh.asType(get_mh.type().changeParameterType(0, Object.class));
-    MethodHandle invoker_mh = exactInvoker(type);
-    invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
-    return foldArguments(invoker_mh, get_mh);
+    MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
+    mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
+    MethodHandle invoker = exactInvoker(type);
+    invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
+    return foldArguments(invoker, mapGet);
   }
 
   private MethodHandle setterStyleInvoker(String property, MethodType type) {
-    MethodHandle get_mh = insertArguments(MAP_GET, 1, property);
-    get_mh = get_mh.asType(get_mh.type().changeParameterType(0, Object.class));
-    MethodHandle put_mh = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
-    put_mh = put_mh.asType(put_mh.type().changeParameterType(1, Object.class));
-    MethodHandle invoker_mh = exactInvoker(type);
-    invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
-    MethodHandle gwt_mh = guardWithTest(IS_MH_2, invoker_mh, put_mh);
-    return foldArguments(gwt_mh, get_mh);
+    MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
+    mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
+    MethodHandle mapPut = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
+    mapPut = mapPut.asType(mapPut.type().changeParameterType(1, Object.class));
+    MethodHandle invoker = exactInvoker(type);
+    invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
+    MethodHandle gwt = guardWithTest(IS_MH_2, invoker, mapPut);
+    return foldArguments(gwt, mapGet);
   }
 
   private MethodHandle getterStyleInvoker(String property, MethodType type) {
-    MethodHandle get_mh = insertArguments(MAP_GET, 1, property);
-    get_mh = get_mh.asType(get_mh.type().changeParameterType(0, Object.class));
-    MethodHandle echo_mh = dropArguments(identity(Object.class), 1, type.parameterArray());
-    MethodHandle invoker_mh = exactInvoker(type);
-    invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
-    MethodHandle gwt_mh = guardWithTest(IS_MH_1, invoker_mh, echo_mh);
-    return foldArguments(gwt_mh, get_mh);
+    MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
+    mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
+    MethodHandle identity = dropArguments(identity(Object.class), 1, type.parameterArray());
+    MethodHandle invoker = exactInvoker(type);
+    invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
+    MethodHandle gwt = guardWithTest(IS_MH_1, invoker, identity);
+    return foldArguments(gwt, mapGet);
   }
 
   private static boolean isMethodHandle_1(Object obj) {
