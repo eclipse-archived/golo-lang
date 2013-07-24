@@ -24,7 +24,6 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.*;
 
-import static fr.insalyon.citi.golo.runtime.MethodInvocationSupport.InlineCache.State.POLYMORPHIC;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
@@ -42,17 +41,11 @@ public class MethodInvocationSupport {
 
     static final int MEGAMORPHIC_THRESHOLD = 5;
 
-    static enum State {
-      DYNAMIC_OBJECT, POLYMORPHIC
-    }
-
     final MethodHandles.Lookup callerLookup;
     final String name;
     final boolean nullSafeGuarded;
 
     int depth = 0;
-    State state = POLYMORPHIC;
-    MethodHandle fallback;
     WeakHashMap<Class, MethodHandle> vtable;
 
     InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded) {
@@ -65,22 +58,15 @@ public class MethodInvocationSupport {
     boolean isMegaMorphic() {
       return depth > MEGAMORPHIC_THRESHOLD;
     }
-
-    void resetWith(MethodHandle target) {
-      setTarget(target);
-    }
   }
 
   private static final MethodHandle CLASS_GUARD;
-  private static final MethodHandle INSTANCE_GUARD;
   private static final MethodHandle FALLBACK;
   private static final MethodHandle VTABLE_LOOKUP;
-  private static final MethodHandle NOT_DYNAMIC_OBJECT;
 
   private static final Set<String> DYNAMIC_OBJECT_RESERVED_METHOD_NAMES = new HashSet<String>() {
     {
       add("get");
-      add("plug");
       add("define");
       add("undefine");
       add("mixin");
@@ -99,11 +85,6 @@ public class MethodInvocationSupport {
           "classGuard",
           methodType(boolean.class, Class.class, Object.class));
 
-      INSTANCE_GUARD = lookup.findStatic(
-          MethodInvocationSupport.class,
-          "instanceGuard",
-          methodType(boolean.class, Object.class, Object.class));
-
       FALLBACK = lookup.findStatic(
           MethodInvocationSupport.class,
           "fallback",
@@ -113,11 +94,6 @@ public class MethodInvocationSupport {
           MethodInvocationSupport.class,
           "vtableLookup",
           methodType(MethodHandle.class, InlineCache.class, Object[].class));
-
-      NOT_DYNAMIC_OBJECT = lookup.findStatic(
-          MethodInvocationSupport.class,
-          "notDynamicObject",
-          methodType(boolean.class, Object.class));
 
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
@@ -130,21 +106,12 @@ public class MethodInvocationSupport {
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
         .asType(type);
-    callSite.fallback = fallbackHandle;
     callSite.setTarget(fallbackHandle);
     return callSite;
   }
 
   public static boolean classGuard(Class<?> expected, Object receiver) {
     return receiver.getClass() == expected;
-  }
-
-  public static boolean instanceGuard(Object expected, Object receiver) {
-    return expected == receiver;
-  }
-
-  public static boolean notDynamicObject(Object receiver) {
-    return receiver.getClass() != DynamicObject.class;
   }
 
   public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {
@@ -158,11 +125,11 @@ public class MethodInvocationSupport {
   }
 
   private static MethodHandle lookupTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
-    if (isCallOnDynamicObject(inlineCache, args[0])) {
+    if (!isCallOnDynamicObject(inlineCache, args[0])) {
+      return findTarget(receiverClass, inlineCache, args);
+    } else {
       DynamicObject dynamicObject = (DynamicObject) args[0];
       return dynamicObject.invoker(inlineCache.name, inlineCache.type());
-    } else {
-      return findTarget(receiverClass, inlineCache, args);
     }
   }
 
@@ -186,7 +153,6 @@ public class MethodInvocationSupport {
       root = makeNullSafeGuarded(root);
     }
     inlineCache.setTarget(root);
-    inlineCache.state = POLYMORPHIC;
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
   }
@@ -210,11 +176,10 @@ public class MethodInvocationSupport {
         .asCollector(Object[].class, args.length);
     MethodHandle exactInvoker = exactInvoker(inlineCache.type());
     MethodHandle vtableTarget = foldArguments(exactInvoker, lookup);
-    MethodHandle gwt = guardWithTest(NOT_DYNAMIC_OBJECT, vtableTarget, inlineCache.fallback);
     if (inlineCache.nullSafeGuarded) {
-      gwt = makeNullSafeGuarded(gwt);
+      vtableTarget = makeNullSafeGuarded(vtableTarget);
     }
-    inlineCache.setTarget(gwt);
+    inlineCache.setTarget(vtableTarget);
     if (shouldReturnNull(inlineCache, args[0])) {
       return null;
     }
