@@ -64,7 +64,7 @@ public class MethodInvocationSupport {
   private static final MethodHandle FALLBACK;
   private static final MethodHandle VTABLE_LOOKUP;
 
-  private static final Set<String> DYNAMIC_OBJECT_RESERVED_METHOD_NAMES = new HashSet<String>() {
+  private static final HashSet<String> DYNAMIC_OBJECT_RESERVED_METHOD_NAMES = new HashSet<String>() {
     {
       add("get");
       add("define");
@@ -140,10 +140,12 @@ public class MethodInvocationSupport {
       return installVTableDispatch(inlineCache, args);
     }
 
-    if (shouldReturnNull(inlineCache, args[0])) {
-      return null;
-    } else if (args[0] == null) {
-      throw new NullPointerException("On method: " + inlineCache.name + " " + inlineCache.type().dropParameterTypes(0, 1));
+    if (args[0] == null) {
+      if (shouldReturnNull(inlineCache, args[0])) {
+        return null;
+      } else {
+        throw new NullPointerException("On method: " + inlineCache.name + " " + inlineCache.type().dropParameterTypes(0, 1));
+      }
     }
 
     Class<?> receiverClass = args[0].getClass();
