@@ -166,7 +166,8 @@ public class DynamicObject {
 
 
   private Object put(String key, Object value) {
-    return properties.put(key, value);
+    properties.put(key, value);
+    return this;
   }
 
   private Object get(Object key) {

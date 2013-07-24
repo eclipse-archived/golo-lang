@@ -51,6 +51,7 @@ function mrfriz = {
   }
   try {
     foo: a(666)
+    return "freeze had no effect"
   } catch (e) {
     return match {
       when e oftype java.lang.IllegalStateException.class then "OK"
