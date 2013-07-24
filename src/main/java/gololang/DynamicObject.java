@@ -51,9 +51,7 @@ public class DynamicObject {
    * @throws IllegalStateException if the dynamic object is frozen.
    */
   public DynamicObject define(String name, Object value) {
-    if (frozen) {
-      throw new IllegalStateException("the object is frozen");
-    }
+    frozenMutationCheck();
     properties.put(name, value);
     if (switchPoints.containsKey(name)) {
       invalidate(name);
@@ -61,6 +59,12 @@ public class DynamicObject {
       switchPoints.put(name, new HashSet<SwitchPoint>());
     }
     return this;
+  }
+
+  private void frozenMutationCheck() {
+    if (frozen) {
+      throw new IllegalStateException("the object is frozen");
+    }
   }
 
   /**
@@ -166,6 +170,7 @@ public class DynamicObject {
 
 
   private Object put(String key, Object value) {
+    frozenMutationCheck();
     properties.put(key, value);
     return this;
   }

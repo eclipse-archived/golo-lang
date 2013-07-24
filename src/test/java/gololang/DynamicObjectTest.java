@@ -104,6 +104,16 @@ public class DynamicObjectTest {
     assertThat(result, instanceOf(List.class));
   }
 
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void invoker_set_value_frozen() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle invoker = object.invoker("foo", genericMethodType(2));
+    invoker.invoke(object, "bar");
+    assertThat(object.get("foo"), is((Object) "bar"));
+    object.freeze();
+    invoker.invoke(object, 666);
+  }
+
   // Old stuff
 
   static Object same(Object receiver, Object a, Object b) {
