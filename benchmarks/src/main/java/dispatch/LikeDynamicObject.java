@@ -41,4 +41,20 @@ public class LikeDynamicObject {
     }
     return obj.get("acc");
   }
+
+  public static Object run_boxedloop() throws Throwable {
+    Random random = new Random();
+    HashMap<String, Object> obj = new HashMap<>();
+    obj.put("acc", 0);
+    obj.put("rand", new IntegerProvider());
+
+    Object i = Integer.valueOf(0);
+    while ((Integer) i < Integer.valueOf(5_000_000)) {
+      int accValue = (Integer) obj.get("acc");
+      IntegerProvider provider = (IntegerProvider) obj.get("rand");
+      obj.put("acc", accValue + ((Integer) provider.next(random)));
+      i = (Integer) i + 1;
+    }
+    return obj.get("acc");
+  }
 }

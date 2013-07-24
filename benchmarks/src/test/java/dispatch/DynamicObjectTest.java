@@ -31,6 +31,11 @@ public class DynamicObjectTest extends GoloBenchmark {
   }
 
   @Test
+  public void java_boxing() throws Throwable {
+    LikeDynamicObject.run_boxedloop();
+  }
+
+  @Test
   public void golo() throws Throwable {
     GoloModule.getMethod("run").invoke(null);
   }
