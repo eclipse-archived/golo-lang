@@ -52,12 +52,6 @@ public final class DynamicObject {
     return this;
   }
 
-  private void frozenMutationCheck() {
-    if (frozen) {
-      throw new IllegalStateException("the object is frozen");
-    }
-  }
-
   /**
    * @return a view of all properties.
    */
@@ -119,7 +113,37 @@ public final class DynamicObject {
     return this;
   }
 
-  // New stuff
+  /**
+   * Gives an invoker method handle for a given property.
+   * <p>
+   * While this method may be useful in itself, it is mostly relevant for the Golo runtime internals so as
+   * to allow calling "methods" on dynamic objects, as in:
+   * <pre>
+   * # obj is some dynamic object...
+   * obj: foo("bar")
+   * println(foo: bar())
+   *
+   * obj: define("plop", |this| -> "Plop!")
+   * println(obj: plop())
+   * </pre>
+   *
+   * @param property the name of a property.
+   * @param type     the expected invoker type with at least one parameter (the dynamic object as a receiver).
+   * @return a method handle.
+   */
+  public MethodHandle invoker(String property, MethodType type) {
+    switch (type.parameterCount()) {
+      case 0:
+        throw new IllegalArgumentException("A dynamic object invoker type needs at least 1 argument (the receiver)");
+      case 1:
+        return getterStyleInvoker(property, type);
+      case 2:
+        return setterStyleInvoker(property, type);
+      default:
+        return anyInvoker(property, type);
+    }
+  }
+
   private static final MethodHandle MAP_GET;
   private static final MethodHandle MAP_PUT;
   private static final MethodHandle IS_MH_1;
@@ -140,6 +164,12 @@ public final class DynamicObject {
     }
   }
 
+  private void frozenMutationCheck() {
+    if (frozen) {
+      throw new IllegalStateException("the object is frozen");
+    }
+  }
+
   private Object put(String key, Object value) {
     frozenMutationCheck();
     properties.put(key, value);
@@ -148,19 +178,6 @@ public final class DynamicObject {
 
   private Object get(Object key) {
     return properties.get(key);
-  }
-
-  public MethodHandle invoker(String property, MethodType type) {
-    switch (type.parameterCount()) {
-      case 0:
-        throw new IllegalArgumentException("A dynamic object invoker type needs at least 1 argument (the receiver)");
-      case 1:
-        return getterStyleInvoker(property, type);
-      case 2:
-        return setterStyleInvoker(property, type);
-      default:
-        return anyInvoker(property, type);
-    }
   }
 
   private MethodHandle anyInvoker(String property, MethodType type) {
