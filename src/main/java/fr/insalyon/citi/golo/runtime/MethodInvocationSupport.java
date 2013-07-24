@@ -141,6 +141,8 @@ public class MethodInvocationSupport {
 
     if (shouldReturnNull(inlineCache, args[0])) {
       return null;
+    } else if (args[0] == null) {
+      throw new NullPointerException("On method: " + inlineCache.name + " " + inlineCache.type().dropParameterTypes(0, 1));
     }
 
     Class<?> receiverClass = args[0].getClass();
