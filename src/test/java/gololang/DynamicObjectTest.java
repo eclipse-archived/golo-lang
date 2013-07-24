@@ -18,10 +18,7 @@ package gololang;
 
 import org.testng.annotations.Test;
 
-import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
-import java.lang.invoke.MutableCallSite;
+import java.lang.invoke.*;
 import java.util.Arrays;
 import java.util.List;
 
@@ -33,8 +30,6 @@ import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 
 public class DynamicObjectTest {
-
-  // New stuff
 
   static Object foo(Object receiver) {
     return "(Foo)";
@@ -59,6 +54,8 @@ public class DynamicObjectTest {
     object.define("foo", "bar");
     MethodHandle invoker = object.invoker("foo", genericMethodType(1));
     assertThat(invoker.invoke(object), is((Object) "bar"));
+    object.undefine("foo");
+    assertThat(invoker.invoke(object), nullValue());
   }
 
   @Test
@@ -131,5 +128,13 @@ public class DynamicObjectTest {
     invoker.invoke(object, 666);
     MethodHandle callInvoker = object.invoker("foo", genericMethodType(1));
     assertThat(callInvoker.invoke(object), is((Object) 666));
+  }
+
+  @Test(expectedExceptions = WrongMethodTypeException.class)
+  public void invoker_call_any_type_mismatch() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle invoker = object.invoker("foo", genericMethodType(4));
+    object.define("foo", lookup().findStatic(DynamicObjectTest.class, "inAList", genericMethodType(3)));
+    invoker.invoke(object, "plop", "da", "plop");
   }
 }
