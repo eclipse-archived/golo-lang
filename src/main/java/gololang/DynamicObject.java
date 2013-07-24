@@ -141,6 +141,8 @@ public class DynamicObject {
   private static final MethodHandle MAP_GET;
   private static final MethodHandle MAP_PUT;
   private static final MethodHandle IS_MH;
+  private static final MethodHandle IS_MH_1;
+  private static final MethodHandle IS_MH_2;
 
   // Old stuff
   private static final MethodHandle PROPERTY_MISSING;
@@ -154,6 +156,8 @@ public class DynamicObject {
       MAP_GET = lookup.findSpecial(DynamicObject.class, "get", methodType(Object.class, Object.class), DynamicObject.class);
       MAP_PUT = lookup.findSpecial(DynamicObject.class, "put", methodType(Object.class, String.class, Object.class), DynamicObject.class);
       IS_MH = lookup.findStatic(DynamicObject.class, "isMethodHandle", methodType(boolean.class, Object.class));
+      IS_MH_1 = lookup.findStatic(DynamicObject.class, "isMethodHandle_1", methodType(boolean.class, Object.class));
+      IS_MH_2 = lookup.findStatic(DynamicObject.class, "isMethodHandle_2", methodType(boolean.class, Object.class));
 
       // Old stuff
       PROPERTY_MISSING = lookup.findStatic(DynamicObject.class, "propertyMissing",
@@ -207,7 +211,7 @@ public class DynamicObject {
     put_mh = put_mh.asType(put_mh.type().changeParameterType(1, Object.class));
     MethodHandle invoker_mh = exactInvoker(type);
     invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
-    MethodHandle gwt_mh = guardWithTest(IS_MH, invoker_mh, put_mh);
+    MethodHandle gwt_mh = guardWithTest(IS_MH_2, invoker_mh, put_mh);
     return foldArguments(gwt_mh, get_mh);
   }
 
@@ -217,12 +221,20 @@ public class DynamicObject {
     MethodHandle echo_mh = dropArguments(identity(Object.class), 1, type.parameterArray());
     MethodHandle invoker_mh = exactInvoker(type);
     invoker_mh = invoker_mh.asType(invoker_mh.type().changeParameterType(0, Object.class));
-    MethodHandle gwt_mh = guardWithTest(IS_MH, invoker_mh, echo_mh);
+    MethodHandle gwt_mh = guardWithTest(IS_MH_1, invoker_mh, echo_mh);
     return foldArguments(gwt_mh, get_mh);
   }
 
   private static boolean isMethodHandle(Object obj) {
     return obj instanceof MethodHandle;
+  }
+
+  private static boolean isMethodHandle_1(Object obj) {
+    return obj instanceof MethodHandle && ((MethodHandle) obj).type().parameterCount() == 1;
+  }
+
+  private static boolean isMethodHandle_2(Object obj) {
+    return obj instanceof MethodHandle && ((MethodHandle) obj).type().parameterCount() == 2;
   }
 
   // Old stuff

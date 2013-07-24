@@ -114,6 +114,26 @@ public class DynamicObjectTest {
     invoker.invoke(object, 666);
   }
 
+  @Test
+  public void invoker_get_method_type_mismatch() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle handle = lookup().findStatic(DynamicObjectTest.class, "echo", genericMethodType(2));
+    object.define("foo", handle);
+    MethodHandle invoker = object.invoker("foo", genericMethodType(1));
+    assertThat(invoker.invoke(object), is((Object) handle));
+  }
+
+  @Test
+  public void invoker_set_method_type_mismatch() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    object.define("foo", lookup().findStatic(DynamicObjectTest.class, "inAList", genericMethodType(3)));
+    MethodHandle invoker = object.invoker("foo", genericMethodType(2));
+    invoker.invoke(object, 666);
+    MethodHandle callInvoker = object.invoker("foo", genericMethodType(1));
+    assertThat(callInvoker.invoke(object), is((Object) 666));
+  }
+
+
   // Old stuff
 
   static Object same(Object receiver, Object a, Object b) {
