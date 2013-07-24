@@ -73,6 +73,7 @@ public class MethodInvocationSupport {
       add("copy");
       add("freeze");
       add("properties");
+      add("invoker");
     }
   };
 
