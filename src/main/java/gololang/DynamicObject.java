@@ -90,7 +90,7 @@ public final class DynamicObject {
   public DynamicObject copy() {
     DynamicObject copy = new DynamicObject();
     for (Map.Entry<String, Object> entry : properties.entrySet()) {
-      define(entry.getKey(), entry.getValue());
+      copy.properties.put(entry.getKey(), entry.getValue());
     }
     return copy;
   }
@@ -102,8 +102,9 @@ public final class DynamicObject {
    * @return the same dynamic object.
    */
   public DynamicObject mixin(DynamicObject other) {
+    frozenMutationCheck();
     for (Map.Entry<String, Object> entry : other.properties.entrySet()) {
-      define(entry.getKey(), entry.getValue());
+      properties.put(entry.getKey(), entry.getValue());
     }
     return this;
   }
