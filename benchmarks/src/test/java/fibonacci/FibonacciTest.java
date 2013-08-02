@@ -27,7 +27,11 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 import org.junit.Test;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+
 import static org.jruby.javasupport.JavaEmbedUtils.javaToRuby;
+import static org.junit.Assume.assumeNotNull;
 
 @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 15, benchmarkRounds = 5)
 @BenchmarkMethodChart(filePrefix = "fibonacci")
@@ -39,10 +43,12 @@ public class FibonacciTest extends GoloBenchmark {
   private static final Var ClojureFibonacci = clojureReference("fibonacci.clj", "fibonacci", "fib");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyFibonacci;
+  private static final ScriptEngine NashornEngine;
 
   static {
     JRubyContainer = new ScriptingContainer();
     JRubyFibonacci = jrubyEvalUnit(JRubyContainer, "fibonacci.rb");
+    NashornEngine = nashorn("fibonacci.js");
   }
 
   private void goloFibonacci(int n) throws Throwable {
@@ -144,5 +150,26 @@ public class FibonacciTest extends GoloBenchmark {
   public void jruby_fibonacci_40() throws Throwable {
     JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 40));
     JRubyFibonacci.run();
+  }
+
+  @Test
+  public void nashorn_fibonacci_30() throws Throwable {
+    assumeNotNull(NashornEngine);
+    Invocable invocable = (Invocable) NashornEngine;
+    invocable.invokeFunction("fib", 30);
+  }
+
+  @Test
+  public void nashorn_fibonacci_38() throws Throwable {
+    assumeNotNull(NashornEngine);
+    Invocable invocable = (Invocable) NashornEngine;
+    invocable.invokeFunction("fib", 38);
+  }
+
+  @Test
+  public void nashorn_fibonacci_40() throws Throwable {
+    assumeNotNull(NashornEngine);
+    Invocable invocable = (Invocable) NashornEngine;
+    invocable.invokeFunction("fib", 40);
   }
 }

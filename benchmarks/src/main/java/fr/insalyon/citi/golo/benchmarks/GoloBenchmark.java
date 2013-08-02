@@ -22,6 +22,8 @@ import groovy.lang.GroovyClassLoader;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.io.*;
 
 public class GoloBenchmark extends AbstractBenchmark {
@@ -30,6 +32,7 @@ public class GoloBenchmark extends AbstractBenchmark {
   public static final String GROOVY_SRC_DIR = "src/main/groovy/";
   public static final String CLOJURE_SRC_DIR = "src/main/clojure/";
   public static final String RUBY_SRC_DIR = "src/main/ruby/";
+  public static final String JS_SRC_DIR = "src/main/js/";
 
   private static GoloClassLoader goloClassLoader;
   private static GroovyClassLoader groovyClassLoader;
@@ -80,6 +83,18 @@ public class GoloBenchmark extends AbstractBenchmark {
       return scriptingContainer.parse(in, rubySourceFilename);
     } catch (IOException e) {
       throw new RuntimeException(e);
+    }
+  }
+
+  public static ScriptEngine nashorn(String jsFile) {
+    try {
+      ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+      if (engine != null) {
+        engine.eval(new FileReader(JS_SRC_DIR + jsFile));
+      }
+      return engine;
+    } catch (Throwable t) {
+      throw new RuntimeException(t);
     }
   }
 }
