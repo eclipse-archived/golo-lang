@@ -21,7 +21,7 @@ end
 
 desc "Clean history"
 task :clean_history do
-  Dir["*.{json,html}"].each {|f| rm_f f }
+  Dir["*.{jsonp,html}"].each {|f| rm_f f }
   rm_f '.benchmarks.h2.db'
 end
 
