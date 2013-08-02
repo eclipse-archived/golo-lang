@@ -27,8 +27,12 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 import org.junit.Test;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
 import java.util.LinkedList;
 import java.util.List;
+
+import static org.junit.Assume.assumeNotNull;
 
 @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 20, benchmarkRounds = 10)
 @BenchmarkMethodChart(filePrefix = "filter-map-reduce")
@@ -41,10 +45,12 @@ public class FilterMapReduceTest extends GoloBenchmark {
   private static final EmbedEvalUnit JRubyScript;
   private static final Var ClojureRunScript = clojureReference("filter-map-reduce.clj", "bench", "run");
   private static final Var ClojureLazyRunScript = clojureReference("filter-map-reduce.clj", "bench", "lazy");
+  private static final ScriptEngine NashornEngine;
 
   static {
     JRubyContainer = new ScriptingContainer();
     JRubyScript = jrubyEvalUnit(JRubyContainer, "filter-map-reduce.rb");
+    NashornEngine = nashorn("filter-map-reduce.js");
   }
 
   private static final List<Integer> javaList;
@@ -80,5 +86,12 @@ public class FilterMapReduceTest extends GoloBenchmark {
   @Test
   public void clojure_lazy() throws Throwable {
     Object result = ClojureLazyRunScript.invoke();
+  }
+
+  @Test
+  public void nashorn() throws Throwable {
+    assumeNotNull(NashornEngine);
+    Invocable invocable = (Invocable) NashornEngine;
+    invocable.invokeFunction("run");
   }
 }
