@@ -24,7 +24,13 @@ import com.carrotsearch.junitbenchmarks.annotation.LabelType;
 import fr.insalyon.citi.golo.benchmarks.GoloBenchmark;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
+import org.junit.Assume;
 import org.junit.Test;
+
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+
+import static org.junit.Assume.assumeNotNull;
 
 @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 10, benchmarkRounds = 5)
 @BenchmarkMethodChart(filePrefix = "call-closure")
@@ -35,10 +41,12 @@ public class CallClosureTest extends GoloBenchmark {
   private static final Class<?> GroovyClass = loadGroovyClass("CallClosure.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
+  private static final ScriptEngine NashornEngine;
 
   static {
     JRubyContainer = new ScriptingContainer();
     JRubyScript = jrubyEvalUnit(JRubyContainer, "callclosure.rb");
+    NashornEngine = nashorn("callclosure.js");
   }
 
   @Test
@@ -64,5 +72,12 @@ public class CallClosureTest extends GoloBenchmark {
   @Test
   public void jruby() throws Throwable {
     JRubyScript.run();
+  }
+
+  @Test
+  public void nashorn() throws Throwable {
+    assumeNotNull(NashornEngine);
+    Invocable invocable = (Invocable) NashornEngine;
+    invocable.invokeFunction("run");
   }
 }
