@@ -3,7 +3,8 @@
 This Maven project contains a bunch of *micro-benchmarks* for Golo.
 
 They stress some very specific points of the bytecode generation and runtime strategies. The
-benchmarks also check how Golo fares agains *other* JVM languages.
+benchmarks also check how Golo fares against *other* JVM languages with *more or less* similar
+constructions.
 
 ## Running the benchmarks
 
@@ -46,4 +47,9 @@ better.
 use language tricks that are known to improve performance.**
 
 We will gladly consider suggestions to improve the benchmark suite as long as fairness is the goal.
+
+We are well-aware that this set of micro-benchmarks is far from being perfect, and that no
+definitive conclusions may be drawn from it. In any case, we always focused on a specific point in
+Golo, then tried to replicate the same test in other languages. Sometimes the comparison is fair,
+sometimes not, but cross-language micro and macro benchmarking is *hard*.
 
