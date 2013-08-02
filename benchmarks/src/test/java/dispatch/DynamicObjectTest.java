@@ -10,6 +10,11 @@ import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 import org.junit.Test;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+
+import static org.junit.Assume.assumeNotNull;
+
 @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 20, benchmarkRounds = 5)
 @BenchmarkMethodChart(filePrefix = "dynamicobject-dispatch")
 @BenchmarkHistoryChart(filePrefix = "dynamicobject-dispatch-history", labelWith = LabelType.TIMESTAMP)
@@ -19,10 +24,12 @@ public class DynamicObjectTest extends GoloBenchmark {
   private static final Class<?> GroovyClass = loadGroovyClass("DynamicObjects.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
+  private static final ScriptEngine NashornEngine;
 
   static {
     JRubyContainer = new ScriptingContainer();
     JRubyScript = jrubyEvalUnit(JRubyContainer, "dynamicobjects.rb");
+    NashornEngine = nashorn("dynamicobjects.js");
   }
 
   @Test
@@ -48,5 +55,12 @@ public class DynamicObjectTest extends GoloBenchmark {
   @Test
   public void jruby() throws Throwable {
     JRubyScript.run();
+  }
+
+  @Test
+  public void nashorn() throws Throwable {
+    assumeNotNull(NashornEngine);
+    Invocable invocable = (Invocable) NashornEngine;
+    invocable.invokeFunction("run");
   }
 }
