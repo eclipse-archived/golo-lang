@@ -38,6 +38,7 @@ public class MonomorphicTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("Monomorphic.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("Monomorphic.groovy");
+  private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("Monomorphic.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
@@ -66,6 +67,21 @@ public class MonomorphicTest extends GoloBenchmark {
   @Test
   public void groovy() throws Throwable {
     GroovyClass.getMethod("run").invoke(null);
+  }
+
+  @Test
+  public void groovy_nullsafe() throws Throwable {
+    GroovyClass.getMethod("run_nullsafe").invoke(null);
+  }
+
+  @Test
+  public void groovy_indy() throws Throwable {
+    GroovyIndyClass.getMethod("run").invoke(null);
+  }
+
+  @Test
+  public void groovy_indy_nullsafe() throws Throwable {
+    GroovyIndyClass.getMethod("run_nullsafe").invoke(null);
   }
 
   @Test

@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.benchmarks;
 import com.carrotsearch.junitbenchmarks.AbstractBenchmark;
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import groovy.lang.GroovyClassLoader;
+import org.codehaus.groovy.control.CompilerConfiguration;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
 
@@ -36,6 +37,7 @@ public class GoloBenchmark extends AbstractBenchmark {
 
   private static GoloClassLoader goloClassLoader;
   private static GroovyClassLoader groovyClassLoader;
+  private static GroovyClassLoader groovyIndyClassLoader;
 
   public static GoloClassLoader goloClassLoader() {
     if (goloClassLoader == null) {
@@ -46,7 +48,17 @@ public class GoloBenchmark extends AbstractBenchmark {
 
   public static GroovyClassLoader groovyClassLoader() {
     if (groovyClassLoader == null) {
-      groovyClassLoader = new GroovyClassLoader();
+      groovyClassLoader = new GroovyClassLoader(GoloBenchmark.class.getClassLoader());
+    }
+    return groovyClassLoader;
+  }
+
+  public static GroovyClassLoader groovyIndyClassLoader() {
+    if (groovyIndyClassLoader == null) {
+      CompilerConfiguration.DEFAULT.getOptimizationOptions().put("indy", true);
+      CompilerConfiguration configuration = new CompilerConfiguration();
+      configuration.getOptimizationOptions().put("indy", true);
+      groovyClassLoader = new GroovyClassLoader(GoloBenchmark.class.getClassLoader(), configuration);
     }
     return groovyClassLoader;
   }
@@ -62,6 +74,14 @@ public class GoloBenchmark extends AbstractBenchmark {
   public static Class<?> loadGroovyClass(String groovySourceFilename) {
     try {
       return groovyClassLoader().parseClass(new File(GROOVY_SRC_DIR + groovySourceFilename));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public static Class<?> loadGroovyIndyClass(String groovySourceFilename) {
+    try {
+      return groovyIndyClassLoader().parseClass(new File(GROOVY_SRC_DIR + groovySourceFilename));
     } catch (IOException e) {
       throw new RuntimeException(e);
     }

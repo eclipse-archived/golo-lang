@@ -41,6 +41,7 @@ public class FilterMapReduceTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("FilterMapReduce.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("FilterMapReduce.groovy");
+  private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("FilterMapReduce.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final Var ClojureRunScript = clojureReference("filter-map-reduce.clj", "bench", "run");
@@ -70,6 +71,11 @@ public class FilterMapReduceTest extends GoloBenchmark {
   @Test
   public void groovy() throws Throwable {
     Object result = GroovyClass.getMethod("run", Object.class).invoke(null, javaList);
+  }
+
+  @Test
+  public void groovy_indy() throws Throwable {
+    Object result = GroovyIndyClass.getMethod("run", Object.class).invoke(null, javaList);
   }
 
   @Test

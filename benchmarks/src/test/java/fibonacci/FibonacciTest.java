@@ -40,6 +40,7 @@ public class FibonacciTest extends GoloBenchmark {
 
   private static final Class<?> FibonacciModule = loadGoloModule("Fibonacci.golo");
   private static final Class<?> GroovyFibonacci = loadGroovyClass("GroovyFibonacci.groovy");
+  private static final Class<?> GroovyIndyFibonacci = loadGroovyIndyClass("GroovyFibonacci.groovy");
   private static final Var ClojureFibonacci = clojureReference("fibonacci.clj", "fibonacci", "fib");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyFibonacci;
@@ -59,115 +60,134 @@ public class FibonacciTest extends GoloBenchmark {
     GroovyFibonacci.getMethod("fib", Object.class).invoke(null, n);
   }
 
+  private void groovyIndyFibonacci(int n) throws Throwable {
+    GroovyIndyFibonacci.getMethod("fib", Object.class).invoke(null, n);
+  }
+
   @Test
-  public void java_object_boxing_reference_30() {
+  public void java_boxing_30() {
     Fibonacci.fib_boxed(30);
   }
 
   @Test
-  public void java_object_boxing_reference_38() {
+  public void java_boxing_38() {
     Fibonacci.fib_boxed(38);
   }
 
   @Test
-  public void java_object_boxing_reference_40() {
+  public void java_boxing_40() {
     Fibonacci.fib_boxed(40);
   }
 
   @Test
-  public void java_unboxed_reference_30() {
+  public void java_unboxed_30() {
     Fibonacci.fib_unboxed(30);
   }
 
   @Test
-  public void java_unboxed_reference_38() {
+  public void java_unboxed_38() {
     Fibonacci.fib_unboxed(38);
   }
 
   @Test
-  public void java_unboxed_reference_40() {
+  public void java_unboxed_40() {
     Fibonacci.fib_unboxed(40);
   }
 
   @Test
-  public void golo_fibonacci_30() throws Throwable {
+  public void golo_30() throws Throwable {
     goloFibonacci(30);
   }
 
   @Test
-  public void golo_fibonacci_38() throws Throwable {
+  public void golo_38() throws Throwable {
     goloFibonacci(38);
   }
 
   @Test
-  public void golo_fibonacci_40() throws Throwable {
+  public void golo_40() throws Throwable {
     goloFibonacci(40);
   }
 
   @Test
-  public void groovy_fibonacci_30() throws Throwable {
+  public void groovy_30() throws Throwable {
     groovyFibonacci(30);
   }
 
   @Test
-  public void groovy_fibonacci_38() throws Throwable {
+  public void groovy_38() throws Throwable {
     groovyFibonacci(38);
   }
 
   @Test
-  public void groovy_fibonacci_40() throws Throwable {
+  public void groovy_40() throws Throwable {
     groovyFibonacci(40);
   }
 
   @Test
-  public void clojure_fibonacci_30() throws Throwable {
+  public void groovy_indy_30() throws Throwable {
+    groovyIndyFibonacci(30);
+  }
+
+  @Test
+  public void groovy_indy_38() throws Throwable {
+    groovyIndyFibonacci(38);
+  }
+
+  @Test
+  public void groovy_indy_40() throws Throwable {
+    groovyIndyFibonacci(40);
+  }
+
+  @Test
+  public void clojure_30() throws Throwable {
     ClojureFibonacci.invoke(30);
   }
 
   @Test
-  public void clojure_fibonacci_38() throws Throwable {
+  public void clojure_38() throws Throwable {
     ClojureFibonacci.invoke(38);
   }
 
   @Test
-  public void clojure_fibonacci_40() throws Throwable {
+  public void clojure_40() throws Throwable {
     ClojureFibonacci.invoke(40);
   }
 
   @Test
-  public void jruby_fibonacci_30() throws Throwable {
+  public void jruby_30() throws Throwable {
     JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 30));
     JRubyFibonacci.run();
   }
 
   @Test
-  public void jruby_fibonacci_38() throws Throwable {
+  public void jruby_38() throws Throwable {
     JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 38));
     JRubyFibonacci.run();
   }
 
   @Test
-  public void jruby_fibonacci_40() throws Throwable {
+  public void jruby_40() throws Throwable {
     JRubyContainer.put("@goal", javaToRuby(JRubyContainer.getProvider().getRuntime(), 40));
     JRubyFibonacci.run();
   }
 
   @Test
-  public void nashorn_fibonacci_30() throws Throwable {
+  public void nashorn_30() throws Throwable {
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("fib", 30);
   }
 
   @Test
-  public void nashorn_fibonacci_38() throws Throwable {
+  public void nashorn_38() throws Throwable {
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("fib", 38);
   }
 
   @Test
-  public void nashorn_fibonacci_40() throws Throwable {
+  public void nashorn_40() throws Throwable {
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("fib", 40);

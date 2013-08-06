@@ -22,6 +22,7 @@ public class DynamicObjectTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("DynamicObjects.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("DynamicObjects.groovy");
+  private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("DynamicObjects.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
@@ -50,6 +51,11 @@ public class DynamicObjectTest extends GoloBenchmark {
   @Test
   public void groovy() throws Throwable {
     GroovyClass.getMethod("run").invoke(null);
+  }
+
+  @Test
+  public void groovy_indy() throws Throwable {
+    GroovyIndyClass.getMethod("run").invoke(null);
   }
 
   @Test

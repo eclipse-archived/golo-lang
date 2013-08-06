@@ -24,4 +24,13 @@ class Monomorphic {
         }
         return result
     }
+
+    static def run_nullsafe() {
+        def max = 5000000
+        def result = null
+        for (def i = 0; i < max; i = i + 1) {
+            result = i?.toString()
+        }
+        return result
+    }
 }

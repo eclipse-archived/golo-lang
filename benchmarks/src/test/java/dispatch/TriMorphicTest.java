@@ -38,6 +38,7 @@ public class TriMorphicTest extends GoloBenchmark {
 
   private static final Class<?> GoloModule = loadGoloModule("TriMorphic.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("TriMorphic.groovy");
+  private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("TriMorphic.groovy");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
@@ -66,6 +67,11 @@ public class TriMorphicTest extends GoloBenchmark {
   @Test
   public void groovy() throws Throwable {
     GroovyClass.getMethod("run").invoke(null);
+  }
+
+  @Test
+  public void groovy_indy() throws Throwable {
+    GroovyIndyClass.getMethod("run").invoke(null);
   }
 
   @Test
