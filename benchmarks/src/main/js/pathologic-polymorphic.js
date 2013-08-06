@@ -4,7 +4,7 @@ function run() {
               new java.lang.IllegalStateException(), new java.lang.Object(), new java.lang.Exception()];
   var length = data.length;
   var result = null;
-  for (var i = 0; i < 10000; i = i + 1) {
+  for (var i = 0; i < 200000; i = i + 1) {
     for (var j = 0; j < length; j = j + 1) {
       result = data[j].toString();
      }

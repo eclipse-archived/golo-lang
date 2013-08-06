@@ -81,7 +81,7 @@ public class PathologicPolymorphicTest extends GoloBenchmark {
   }
 
   @Test
-  public void nashorn_SLOW_SCALED_DOWN_FACTOR_20() throws Throwable {
+  public void nashorn() throws Throwable {
     assumeSlowTests();
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
