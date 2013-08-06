@@ -71,6 +71,7 @@ public class PathologicPolymorphicTest extends GoloBenchmark {
 
   @Test
   public void groovy_indy() throws Throwable {
+    assumeSlowTests();
     GroovyIndyClass.getMethod("run").invoke(null);
   }
 
@@ -81,6 +82,7 @@ public class PathologicPolymorphicTest extends GoloBenchmark {
 
   @Test
   public void nashorn_SLOW_SCALED_DOWN_FACTOR_20() throws Throwable {
+    assumeSlowTests();
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("run");

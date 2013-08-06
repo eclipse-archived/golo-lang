@@ -71,6 +71,7 @@ public class TriMorphicTest extends GoloBenchmark {
 
   @Test
   public void groovy_indy() throws Throwable {
+    assumeSlowTests();
     GroovyIndyClass.getMethod("run").invoke(null);
   }
 

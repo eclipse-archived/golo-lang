@@ -15,6 +15,14 @@ To run all benchmarks:
 
     mvn test
 
+To run specific benchmarks:
+
+    mvn test -Dtest=NameOfTest
+
+To disable the awfully slow tests:
+
+    mvn test -DslowTests=false
+
 After *a few minutes* the result shall be available as HTML files. Most web browsers have issues with the JSON data files being served from the local file system, so it is best using a local web server. You can use the provided Ruby script:
 
     ./http_server.rb

@@ -22,10 +22,14 @@ import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.jruby.embed.EmbedEvalUnit;
 import org.jruby.embed.ScriptingContainer;
+import org.junit.Assume;
 
 import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import java.io.*;
+
+import static org.hamcrest.CoreMatchers.not;
+import static org.junit.Assume.assumeThat;
 
 public class GoloBenchmark extends AbstractBenchmark {
 
@@ -38,6 +42,10 @@ public class GoloBenchmark extends AbstractBenchmark {
   private static GoloClassLoader goloClassLoader;
   private static GroovyClassLoader groovyClassLoader;
   private static GroovyClassLoader groovyIndyClassLoader;
+
+  public void assumeSlowTests() {
+    assumeThat(System.getProperty("slowTests"), not("false"));
+  }
 
   public static GoloClassLoader goloClassLoader() {
     if (goloClassLoader == null) {
