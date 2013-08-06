@@ -70,6 +70,7 @@ public class TriMorphicTest extends GoloBenchmark {
   }
 
   @Test
+  @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 1, benchmarkRounds = 1)
   public void groovy_indy() throws Throwable {
     assumeSlowTests();
     GroovyIndyClass.getMethod("run").invoke(null);
