@@ -16,6 +16,7 @@
 
 package dispatch;
 
+import clojure.lang.Var;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.Clock;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
@@ -39,6 +40,7 @@ public class TriMorphicTest extends GoloBenchmark {
   private static final Class<?> GoloModule = loadGoloModule("TriMorphic.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("TriMorphic.groovy");
   private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("TriMorphic.groovy");
+  private static final Var ClojureRun = clojureReference("trimorphic.clj", "trimorphic", "run");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
@@ -70,7 +72,7 @@ public class TriMorphicTest extends GoloBenchmark {
   }
 
   @Test
-  @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 1, benchmarkRounds = 1)
+  @BenchmarkOptions(warmupRounds = 1, benchmarkRounds = 1)
   public void groovy_indy() throws Throwable {
     assumeSlowTests();
     GroovyIndyClass.getMethod("run").invoke(null);
@@ -86,5 +88,12 @@ public class TriMorphicTest extends GoloBenchmark {
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("run");
+  }
+
+  @Test
+  @BenchmarkOptions(warmupRounds = 1, benchmarkRounds = 2)
+  public void clojure() {
+    assumeSlowTests();
+    ClojureRun.invoke();
   }
 }

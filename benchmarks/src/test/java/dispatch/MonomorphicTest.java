@@ -16,6 +16,7 @@
 
 package dispatch;
 
+import clojure.lang.Var;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.Clock;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
@@ -40,6 +41,7 @@ public class MonomorphicTest extends GoloBenchmark {
   private static final Class<?> GroovyClass = loadGroovyClass("Monomorphic.groovy");
   private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("Monomorphic.groovy");
   private static final ScriptingContainer JRubyContainer;
+  private static final Var ClojureRun = clojureReference("monomorphic.clj", "monomorphic", "run");
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
 
@@ -104,5 +106,10 @@ public class MonomorphicTest extends GoloBenchmark {
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("run");
+  }
+
+  @Test
+  public void clojure() {
+    ClojureRun.invoke();
   }
 }

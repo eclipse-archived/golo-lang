@@ -16,6 +16,7 @@
 
 package dispatch;
 
+import clojure.lang.Var;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.Clock;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
@@ -39,6 +40,7 @@ public class PathologicPolymorphicTest extends GoloBenchmark {
   private static final Class<?> GoloModule = loadGoloModule("PathologicPolymorphic.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("PathologicPolymorphic.groovy");
   private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("PathologicPolymorphic.groovy");
+  private static final Var ClojureRun = clojureReference("pathologic-polymorphic.clj", "megamorphic", "run");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
@@ -70,7 +72,7 @@ public class PathologicPolymorphicTest extends GoloBenchmark {
   }
 
   @Test
-  @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 1, benchmarkRounds = 1)
+  @BenchmarkOptions(warmupRounds = 1, benchmarkRounds = 1)
   public void groovy_indy() throws Throwable {
     assumeSlowTests();
     GroovyIndyClass.getMethod("run").invoke(null);
@@ -82,11 +84,16 @@ public class PathologicPolymorphicTest extends GoloBenchmark {
   }
 
   @Test
-  @BenchmarkOptions(clock = Clock.NANO_TIME, warmupRounds = 1, benchmarkRounds = 1)
+  @BenchmarkOptions(warmupRounds = 1, benchmarkRounds = 1)
   public void nashorn() throws Throwable {
     assumeSlowTests();
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("run");
+  }
+
+  @Test
+  public void clojure() {
+    ClojureRun.invoke();
   }
 }
