@@ -1,5 +1,6 @@
 package dispatch;
 
+import clojure.lang.Var;
 import com.carrotsearch.junitbenchmarks.BenchmarkOptions;
 import com.carrotsearch.junitbenchmarks.Clock;
 import com.carrotsearch.junitbenchmarks.annotation.BenchmarkHistoryChart;
@@ -23,6 +24,7 @@ public class DynamicObjectTest extends GoloBenchmark {
   private static final Class<?> GoloModule = loadGoloModule("DynamicObjects.golo");
   private static final Class<?> GroovyClass = loadGroovyClass("DynamicObjects.groovy");
   private static final Class<?> GroovyIndyClass = loadGroovyIndyClass("DynamicObjects.groovy");
+  private static final Var ClojureRun = clojureReference("dynamicobjects.clj", "dynobjs", "run");
   private static final ScriptingContainer JRubyContainer;
   private static final EmbedEvalUnit JRubyScript;
   private static final ScriptEngine NashornEngine;
@@ -68,5 +70,10 @@ public class DynamicObjectTest extends GoloBenchmark {
     assumeNotNull(NashornEngine);
     Invocable invocable = (Invocable) NashornEngine;
     invocable.invokeFunction("run");
+  }
+
+  @Test
+  public void clojure() {
+    ClojureRun.invoke();
   }
 }
