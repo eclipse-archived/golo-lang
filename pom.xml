@@ -283,7 +283,7 @@
         <version>${maven-assembly-plugin.version}</version>
         <configuration>
           <tarLongFileMode>gnu</tarLongFileMode>
-          <attach>false</attach>
+          <attach>true</attach>
           <descriptors>
             <descriptor>src/main/assembly/distribution.xml</descriptor>
           </descriptors>
