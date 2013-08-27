@@ -46,9 +46,34 @@ function dans_la_case = | obj | {
   }
 }
 
+function dans_la_case_il_y_a_de_l_espace = | obj | {
+  case {
+
+    when obj oftype String.class {
+      return "String"
+    }
+    #Comment or blank lines can be inserted
+    when obj oftype Integer.class {
+      return "Integer"
+    }
+
+    otherwise {
+      return "alien"
+    }
+  }
+}
+
 function dans_ton_match = |obj| -> match {
   when obj oftype String.class then "String"
   when obj oftype Integer.class then "Integer"
+  otherwise "alien"
+}
+
+function dans_ton_match_il_y_a_de_l_espace = |obj| -> match {
+
+  when obj oftype String.class then "String"
+  when obj oftype Integer.class then "Integer"
+  #Comment or blank lines can be inserted
   otherwise "alien"
 }
 
