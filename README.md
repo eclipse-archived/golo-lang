@@ -16,9 +16,8 @@ Golo is being developed as part of the research activities of the
 * Website: [http://golo-lang.org/](http://golo-lang.org/)
 * Twitter: [@golo_lang](https://twitter.com/golo_lang)
 * GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
-* Sourceforge: [http://sourceforge.net/projects/golo-lang/](http://sourceforge.net/projects/golo-lang/)
+* Mailing-list: [http://groups.google.com/group/golo-lang](http://groups.google.com/group/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
-* Forums: [at Sourceforge, (email subscriptions are possible)](https://sourceforge.net/p/golo-lang/discussion/)
 * IRC: [`#golo-lang` on Freenode](https://webchat.freenode.net/)
 
 ## Building Golo
