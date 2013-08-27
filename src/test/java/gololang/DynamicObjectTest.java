@@ -18,16 +18,15 @@ package gololang;
 
 import org.testng.annotations.Test;
 
-import java.lang.invoke.*;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.WrongMethodTypeException;
 import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.genericMethodType;
-import static java.lang.invoke.MethodType.methodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
-import static org.testng.Assert.fail;
 
 public class DynamicObjectTest {
 
@@ -41,6 +40,14 @@ public class DynamicObjectTest {
 
   static Object inAList(Object receiver, Object a, Object b) {
     return Arrays.asList(receiver, a, b);
+  }
+
+  static Object varargs(Object receiver, Object... args) {
+    int acc = 0;
+    for (Object arg : args) {
+      acc = acc + (int) arg;
+    }
+    return acc;
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
@@ -136,5 +143,21 @@ public class DynamicObjectTest {
     MethodHandle invoker = object.invoker("foo", genericMethodType(4));
     object.define("foo", lookup().findStatic(DynamicObjectTest.class, "inAList", genericMethodType(3)));
     invoker.invoke(object, "plop", "da", "plop");
+  }
+
+  @Test
+  public void invoker_call_varargs() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle handle = lookup().findStatic(DynamicObjectTest.class, "varargs", genericMethodType(1, true));
+    object.define("foo", handle);
+
+    MethodHandle invoker = object.invoker("foo", genericMethodType(1));
+    assertThat(invoker.invoke(object), is((Object) 0));
+
+    invoker = object.invoker("foo", genericMethodType(2));
+    assertThat(invoker.invoke(object, 1), is((Object) 1));
+
+    invoker = object.invoker("foo", genericMethodType(3));
+    assertThat(invoker.invoke(object, 1, 2), is((Object) 3));
   }
 }
