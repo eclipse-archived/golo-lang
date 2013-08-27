@@ -396,5 +396,16 @@ public class Predefined {
     Files.write(path, str.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE);
   }
 
+  /**
+  * Check if a file exists.
+  *
+  * @param file     the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
+  * @return true if the file exists, false if it doesn't
+  * 
+  */
+  public static boolean fileExists(Object file) {
+    return Files.exists(pathFrom(file));
+  }
+  
   // ...................................................................................................................
 }

@@ -196,6 +196,18 @@ The `textToFile` function overwrites existing files, and creates new ones if nee
 These functions are provided for convenience, so if you need more fine-grained control over reading and writing text
 then we suggest that you look into the `java.nio.file` package.
 
+In addition, if you need to verify that a file exists, you can use the `fileExists` function.
+
+[source,text]
+----
+if fileExists("/foo/bar.txt") {
+  println("file found!")
+}
+----
+
+As in the other File I/O methods, the parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`.
+The `fileExists` function will return true if the file exists, false if it doesn't.
+
 === Misc. ===
 
 `mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:
