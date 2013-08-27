@@ -183,7 +183,7 @@ public final class DynamicObject {
   private MethodHandle anyInvoker(String property, MethodType type) {
     MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
-    MethodHandle invoker = exactInvoker(type);
+    MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     return foldArguments(invoker, mapGet);
   }
@@ -193,7 +193,7 @@ public final class DynamicObject {
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
     MethodHandle mapPut = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
     mapPut = mapPut.asType(mapPut.type().changeParameterType(1, Object.class));
-    MethodHandle invoker = exactInvoker(type);
+    MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     MethodHandle gwt = guardWithTest(IS_MH_2, invoker, mapPut);
     return foldArguments(gwt, mapGet);
@@ -203,17 +203,28 @@ public final class DynamicObject {
     MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
     MethodHandle identity = dropArguments(identity(Object.class), 1, type.parameterArray());
-    MethodHandle invoker = exactInvoker(type);
+    MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     MethodHandle gwt = guardWithTest(IS_MH_1, invoker, identity);
     return foldArguments(gwt, mapGet);
   }
 
   private static boolean isMethodHandle_1(Object obj) {
-    return obj instanceof MethodHandle && ((MethodHandle) obj).type().parameterCount() == 1;
+    if (obj instanceof MethodHandle) {
+      MethodHandle handle = (MethodHandle) obj;
+      if (handle.isVarargsCollector()) {
+        return handle.type().parameterCount() == 2;
+      }
+      return handle.type().parameterCount() == 1;
+    }
+    return false;
   }
 
   private static boolean isMethodHandle_2(Object obj) {
-    return obj instanceof MethodHandle && ((MethodHandle) obj).type().parameterCount() == 2;
+    if (obj instanceof MethodHandle) {
+      MethodHandle handle = (MethodHandle) obj;
+      return handle.type().parameterCount() == 2;
+    }
+    return false;
   }
 }
