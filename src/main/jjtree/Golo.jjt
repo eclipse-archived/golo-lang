@@ -988,18 +988,18 @@ void ConditionalBranching(): {}
 
 void Case(): {}
 {
-  <CASE> "{" (BlankLine())?
-    ( <WHEN> ExpressionStatement() Block() (BlankLine())? )+
-    <OTHERWISE> Block() (BlankLine())?
+  <CASE> "{" BlankLines()
+    ( <WHEN> ExpressionStatement() Block() BlankLines() )+
+    <OTHERWISE> Block() BlankLines()
   "}"
 }
 
 void Match(): {}
 {
-  <MATCH> "{" (BlankLine())?
-    ( <WHEN> (BlankLine())? ExpressionStatement() (BlankLine())? 
-      <THEN> (BlankLine())? ExpressionStatement() (BlankLine())? )+
-    <OTHERWISE>  (BlankLine())? ExpressionStatement() (BlankLine())?
+  <MATCH> "{" BlankLines()
+    ( <WHEN> BlankLines() ExpressionStatement() BlankLines()
+      <THEN> BlankLines() ExpressionStatement() BlankLines() )+
+    <OTHERWISE>  BlankLines() ExpressionStatement() BlankLines()
   "}"
 }
 
