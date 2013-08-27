@@ -158,4 +158,10 @@ public class PredefinedTest {
     String text = (String) Predefined.fileToText(tempFile, "UTF-8");
     assertThat(text, is(message));
   }
+
+  @Test
+  public void test_fileExists() throws Throwable {
+    File tempFile = File.createTempFile("this_exists", "test");
+    assert(Predefined.fileExists(tempFile));
+  }
 }
