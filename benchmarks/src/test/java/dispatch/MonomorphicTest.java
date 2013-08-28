@@ -97,6 +97,11 @@ public class MonomorphicTest extends GoloBenchmark {
   }
 
   @Test
+  public void java_reflective() throws Throwable {
+    Monomorphic.run_reflective();
+  }
+
+  @Test
   public void jruby() throws Throwable {
     JRubyScript.run();
   }

@@ -16,6 +16,8 @@
 
 package dispatch;
 
+import java.lang.reflect.Method;
+
 public class Monomorphic {
 
   public static Object run_boxed() {
@@ -24,6 +26,17 @@ public class Monomorphic {
     while ((Integer) i < Integer.valueOf(5000000)) {
       result = i.toString();
       i = (Integer) i + 1;
+    }
+    return result;
+  }
+
+  public static Object run_reflective() throws Throwable {
+    Method toStringMethod = Integer.class.getMethod("toString");
+    int i = 0;
+    String result = "";
+    while (i < 5000000) {
+      result = (String) toStringMethod.invoke(Integer.valueOf(i));
+      i = i + 1;
     }
     return result;
   }
