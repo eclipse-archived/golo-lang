@@ -16,7 +16,19 @@
 
 package fibonacci;
 
+import java.lang.reflect.Method;
+
 public class Fibonacci {
+
+  private static final Method fibMethod;
+
+  static {
+    try {
+      fibMethod = Fibonacci.class.getMethod("fib_reflective", int.class);
+    } catch (NoSuchMethodException e) {
+      throw new Error(e);
+    }
+  }
 
   public static int fib_unboxed(int n) {
     if (n < 2) {
@@ -32,6 +44,14 @@ public class Fibonacci {
       return n;
     } else {
       return ((Integer) fib_boxed(n - 1)) + ((Integer) fib_boxed(n - 2));
+    }
+  }
+
+  public static int fib_reflective(int n) throws Throwable {
+    if (n < 2) {
+      return n;
+    } else {
+      return ((int) fibMethod.invoke(null, n - 1)) + ((int) fibMethod.invoke(null, n - 2));
     }
   }
 }

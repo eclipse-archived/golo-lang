@@ -95,6 +95,21 @@ public class FibonacciTest extends GoloBenchmark {
   }
 
   @Test
+  public void java_reflective_30() throws Throwable {
+    Fibonacci.fib_reflective(30);
+  }
+
+  @Test
+  public void java_reflective_38() throws Throwable {
+    Fibonacci.fib_reflective(38);
+  }
+
+  @Test
+  public void java_reflective_40() throws Throwable {
+    Fibonacci.fib_reflective(40);
+  }
+
+  @Test
   public void golo_30() throws Throwable {
     goloFibonacci(30);
   }
