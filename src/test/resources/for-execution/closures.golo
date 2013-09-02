@@ -135,3 +135,14 @@ function scoping_check = {
   }
   return acc + f() + delta
 }
+
+function closure_self_reference = {
+  let fun = |n| {
+    if n < 3 {
+      return fun(n + 1)
+    } else {
+      return 1
+    }
+  }
+  return fun(0)
+}

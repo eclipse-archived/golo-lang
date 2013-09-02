@@ -83,6 +83,16 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       reference.setIndex(nextAssignmentIndex());
     }
     function.getBlock().accept(this);
+    String selfName = function.getSyntheticSelfName();
+    if (function.isSynthetic() && selfName != null) {
+      LocalReference self = function.getBlock().getReferenceTable().get(selfName);
+      ClosureReference closureReference = new ClosureReference(function);
+      for (String syntheticRef : function.getSyntheticParameterNames()) {
+        closureReference.addCapturedReferenceName(syntheticRef);
+      }
+      AssignmentStatement assign = new AssignmentStatement(self, closureReference);
+      function.getBlock().prependStatement(assign);
+    }
     functionStack.pop();
   }
 

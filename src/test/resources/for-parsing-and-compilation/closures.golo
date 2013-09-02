@@ -102,3 +102,20 @@ function closure_with_varargs_and_capture = {
   let obj = fr.insalyon.citi.golo.runtime.MethodInvocationSupportTest$VarargsChecking()
   return |args...| -> obj: defaultConcat(args)
 }
+
+function self_ref = {
+  let a = 1
+  let fun = |n| {
+    fun(n + a)
+  }
+}
+
+function self_fib = {
+  let fib = |n| {
+    if n < 2 {
+      return n
+    } else {
+      return fib(n - 1) + fib(n - 2)
+    }
+  }
+}

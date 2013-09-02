@@ -685,6 +685,9 @@ public class CompileAndRunTest {
 
     Method scoping_check = moduleClass.getMethod("scoping_check");
     assertThat((Integer) scoping_check.invoke(null), is(120));
+
+    Method closure_self_reference = moduleClass.getMethod("closure_self_reference");
+    assertThat((Integer) closure_self_reference.invoke(null), is(1));
   }
 
   @Test
