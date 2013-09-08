@@ -103,6 +103,9 @@ augment java.lang.String {
 
   function toInteger = |this| ->
     java.lang.Integer.parseInt(this)
+
+  function toDouble = |this| ->
+    java.lang.Double.parseDouble(this)
 }
 
 # ............................................................................................... #
