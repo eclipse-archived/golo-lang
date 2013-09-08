@@ -109,6 +109,9 @@ augment java.lang.String {
 
   function toFloat = |this| ->
     java.lang.Float.parseFloat(this)
+
+  function toLong = |this| ->
+    java.lang.Long.parseLong(this)
 }
 
 # ............................................................................................... #
