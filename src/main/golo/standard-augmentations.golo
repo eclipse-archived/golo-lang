@@ -97,6 +97,12 @@ augment java.lang.String {
       return java.lang.String.format(this, args)
     }
   }
+
+  function toInt = |this| ->
+    java.lang.Integer.parseInt(this)
+
+  function toInteger = |this| ->
+    java.lang.Integer.parseInt(this)
 }
 
 # ............................................................................................... #
