@@ -277,6 +277,33 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void stringToInt() throws Throwable {
+    Method str_to_int = moduleClass.getMethod("str_to_int");
+    assertThat((Integer) str_to_int.invoke(null), is(42));
+
+    Method str_to_integer = moduleClass.getMethod("str_to_integer");
+    assertThat((Integer) str_to_integer.invoke(null), is(42));
+  }
+
+  @Test
+  public void stringToDouble() throws Throwable {
+    Method str_to_double = moduleClass.getMethod("str_to_double");
+    assertThat((Double) str_to_double.invoke(null), is(42.0));
+  }
+
+  @Test
+  public void stringToFloat() throws Throwable {
+    Method str_to_float = moduleClass.getMethod("str_to_float");
+    assertThat((Float) str_to_float.invoke(null), is(1.42e-42f));
+  }
+
+  @Test
+  public void stringToLong() throws Throwable {
+    Method str_to_long = moduleClass.getMethod("str_to_long");
+    assertThat((Long) str_to_long.invoke(null), is(424242424242L));
+  }
+
+  @Test
   public void number_repeaters() throws Throwable {
     Method number_repeaters = moduleClass.getMethod("number_repeaters");
     assertThat((String) number_repeaters.invoke(null), is("..012101112121110"));
