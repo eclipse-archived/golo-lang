@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package fr.insalyon.citi.golo.internal.testing;
-
-import fr.insalyon.citi.golo.compiler.ir.*;
+package fr.insalyon.citi.golo.compiler.ir;
 
 import java.util.Set;
 

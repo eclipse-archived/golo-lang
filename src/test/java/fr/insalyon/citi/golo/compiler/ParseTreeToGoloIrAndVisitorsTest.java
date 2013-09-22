@@ -20,7 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
-import fr.insalyon.citi.golo.internal.testing.IrTreeDumper;
+import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.internal.testing.TestUtils;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
