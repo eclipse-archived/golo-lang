@@ -166,8 +166,6 @@ public class Main {
     try {
       Class<?> module = Class.forName(golo.module);
       callRun(module, golo.arguments.toArray(new Object[golo.arguments.size()]));
-      Method main = module.getMethod("main", Object.class);
-      main.invoke(null, (Object) golo.arguments.toArray());
     } catch (ClassNotFoundException e) {
       System.out.println("The module " + golo.module + " could not be loaded.");
     } catch (NoSuchMethodException e) {
