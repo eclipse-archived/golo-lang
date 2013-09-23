@@ -56,7 +56,8 @@ commands, notably:
 - `version` to query the Golo version,
 - `compile` to compile some Golo code to JVM classes,
 - `run` to execute some already compiled Golo code, and
-- `golo` to directly execute Golo code from source files.
+- `golo` to directly execute Golo code from source files, and
+- `diagnose` to print compiler internal diagnosis information.
 
 The complete commands usage instructions can be listed by running `golo --help`.
 
