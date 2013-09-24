@@ -149,7 +149,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   private void makeArguments(GoloFunction function, Set<String> refs) {
     Set<String> existing = new HashSet<>(function.getParameterNames());
     for (String ref : refs) {
-      if (!existing.contains(ref)) {
+      if (!existing.contains(ref) && !ref.equals(function.getSyntheticSelfName())) {
         function.addSyntheticParameter(ref);
       }
     }
@@ -201,6 +201,14 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       locallyDeclared(name);
     }
     assignmentStatement.getExpressionStatement().accept(this);
+    if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
+      ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();
+      GoloFunction target = closure.getTarget();
+      if (target.getSyntheticParameterNames().contains(name)) {
+        target.removeSyntheticParameter(name);
+        target.setSyntheticSelfName(name);
+      }
+    }
   }
 
   @Override

@@ -95,4 +95,12 @@ public class TemplateEngineTest {
     MethodHandle tpl = engine.compile(template);
     assertThat((String) tpl.invoke(null), is("2"));
   }
+
+  @Test
+  public void quote_delimiting_text() throws Throwable {
+    TemplateEngine engine = new TemplateEngine();
+    String template = "<%@params url %><a href=\"<%= url %>\">Link</a>";
+    MethodHandle tpl = engine.compile(template);
+    assertThat((String) tpl.invoke("http://foo.bar/"), is("<a href=\"http://foo.bar/\">Link</a>"));
+  }
 }

@@ -16,6 +16,7 @@
 
 package dispatch;
 
+import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.TreeSet;
@@ -23,7 +24,48 @@ import java.util.TreeSet;
 public class PathologicPolymorphic {
 
   public static Object run() {
-    Object[] data = new Object[]{
+    Object[] data = data();
+    Object result = null;
+    for (int i = 0; i < 200000; i++) {
+      for (int j = 0; j < data.length; j++) {
+        result = data[j].toString();
+      }
+    }
+    return result;
+  }
+
+  public static Object run_reflective_object() throws Throwable {
+    Method toStringMethod = Object.class.getMethod("toString");
+    Object[] data = data();
+    Object result = null;
+    for (int i = 0; i < 200000; i++) {
+      for (int j = 0; j < data.length; j++) {
+        result = toStringMethod.invoke(data[j]);
+      }
+    }
+    return result;
+  }
+
+  public static Object run_reflective_pic() throws Throwable {
+    HashMap<Class, Method> vtable = new HashMap<>();
+    Object[] data = data();
+    Object result = null;
+    for (int i = 0; i < 200000; i++) {
+      for (int j = 0; j < data.length; j++) {
+        Class<?> type = data[j].getClass();
+        Method target = vtable.get(type);
+        if (target == null) {
+          target = type.getMethod("toString");
+          vtable.put(type, target);
+        }
+        result = target.invoke(data[j]);
+      }
+    }
+    return result;
+  }
+
+  private static Object[] data() {
+    return new Object[]{
         "foo",
         666,
         new Object(),
@@ -38,12 +80,5 @@ public class PathologicPolymorphic {
         new Object(),
         new Exception()
     };
-    Object result = null;
-    for (int i = 0; i < 200000; i++) {
-      for (int j = 0; j < data.length; j++) {
-        result = data[j].toString();
-      }
-    }
-    return result;
   }
 }

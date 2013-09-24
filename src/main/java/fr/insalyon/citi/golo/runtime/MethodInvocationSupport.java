@@ -290,7 +290,8 @@ public class MethodInvocationSupport {
         }
         try {
           return inlineCache.callerLookup.findStatic(
-              Arrays.class, "asList", methodType(List.class, Object[].class)).asType(type);
+              Arrays.class, "asList", methodType(List.class, Object[].class))
+              .asFixedArity().asType(type);
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }

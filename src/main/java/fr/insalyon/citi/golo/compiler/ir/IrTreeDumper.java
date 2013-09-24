@@ -14,9 +14,7 @@
  * limitations under the License.
  */
 
-package fr.insalyon.citi.golo.internal.testing;
-
-import fr.insalyon.citi.golo.compiler.ir.*;
+package fr.insalyon.citi.golo.compiler.ir;
 
 import java.util.Set;
 
@@ -85,10 +83,12 @@ public class IrTreeDumper implements GoloIrVisitor {
     }
     System.out.print("|");
     if (function.isSynthetic()) {
-      System.out.println(" (synthetic, " + function.getSyntheticParameterCount() + " synthetic parameters)");
-    } else {
-      System.out.println();
+      System.out.print(" (synthetic, " + function.getSyntheticParameterCount() + " synthetic parameters)");
+      if (function.getSyntheticSelfName() != null) {
+        System.out.print(" (selfname: " + function.getSyntheticSelfName() + ")");
+      }
     }
+    System.out.println();
     function.getBlock().accept(this);
     decr();
   }

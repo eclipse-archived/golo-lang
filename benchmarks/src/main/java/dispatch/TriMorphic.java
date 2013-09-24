@@ -16,30 +16,13 @@
 
 package dispatch;
 
+import java.lang.reflect.Method;
+import java.util.HashMap;
+
 public class TriMorphic {
 
   public static Object run() {
-    Object[] data = new Object[]{
-        "foo",
-        666,
-        "bar",
-        999,
-        "plop",
-        "da",
-        "plop",
-        "for",
-        "ever",
-        1,
-        2,
-        3,
-        4,
-        5,
-        6,
-        new Object(),
-        new Object(),
-        new Object(),
-        new Object(),
-    };
+    Object[] data = data();
     Object result = null;
     for (int i = 0; i < 200000; i++) {
       for (int j = 0; j < data.length; j++) {
@@ -47,5 +30,59 @@ public class TriMorphic {
       }
     }
     return result;
+  }
+
+  public static Object run_reflective_object() throws Throwable {
+    Method toStringMethod = Object.class.getMethod("toString");
+    Object[] data = data();
+    Object result = null;
+    for (int i = 0; i < 200000; i++) {
+      for (int j = 0; j < data.length; j++) {
+        result = toStringMethod.invoke(data[j]);
+      }
+    }
+    return result;
+  }
+
+  public static Object run_reflective_pic() throws Throwable {
+    HashMap<Class, Method> vtable = new HashMap<>();
+    Object[] data = data();
+    Object result = null;
+    for (int i = 0; i < 200000; i++) {
+      for (int j = 0; j < data.length; j++) {
+        Class<?> type = data[j].getClass();
+        Method target = vtable.get(type);
+        if (target == null) {
+          target = type.getMethod("toString");
+          vtable.put(type, target);
+        }
+        result = target.invoke(data[j]);
+      }
+    }
+    return result;
+  }
+
+  private static Object[] data() {
+    return new Object[]{
+          "foo",
+          666,
+          "bar",
+          999,
+          "plop",
+          "da",
+          "plop",
+          "for",
+          "ever",
+          1,
+          2,
+          3,
+          4,
+          5,
+          6,
+          new Object(),
+          new Object(),
+          new Object(),
+          new Object(),
+      };
   }
 }

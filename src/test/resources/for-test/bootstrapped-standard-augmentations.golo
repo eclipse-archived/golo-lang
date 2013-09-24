@@ -118,6 +118,15 @@ function maps_each = {
 function str_format1 = -> "%s": format("plop")
 function str_format2 = -> "%s %s": format("plop", "da plop")
 
+function str_to_int = -> "40": toInt() + 2
+function str_to_integer = -> "40": toInteger() + 2
+
+function str_to_double = -> "-40.25": toDouble() + 82.25
+
+function str_to_float = -> "1.42e-42": toFloat()
+
+function str_to_long = -> "424242424242": toLong()
+
 # ............................................................................................... #
 
 function number_repeaters = {

@@ -57,6 +57,16 @@ public class TriMorphicTest extends GoloBenchmark {
   }
 
   @Test
+  public void java_reflective_object() throws Throwable {
+    TriMorphic.run_reflective_object();
+  }
+
+  @Test
+  public void java_reflective_pic() throws Throwable {
+    TriMorphic.run_reflective_pic();
+  }
+
+  @Test
   public void golo() throws Throwable {
     GoloModule.getMethod("run").invoke(null);
   }

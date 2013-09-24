@@ -85,7 +85,19 @@ public class TemplateEngine {
     int startIndex = 0;
     while (matcher.find()) {
       String text = template.substring(startIndex, matcher.start());
-      builder.append("  _$result: append(\"\"\"").append(text).append("\"\"\")\n");
+      int lowerBound = 0;
+      int upperBound = text.length();
+      if (text.startsWith("\"")) {
+        lowerBound = 1;
+        builder.append("  _$result: append(\"\\\"\")\n");
+      }
+      if (text.endsWith("\"")) {
+        upperBound = text.length() - 1;
+      }
+      builder.append("  _$result: append(\"\"\"").append(text.substring(lowerBound, upperBound)).append("\"\"\")\n");
+      if (text.endsWith("\"")) {
+        builder.append("  _$result: append(\"\\\"\")\n");
+      }
       String code = matcher.group();
       code = code.substring(2, code.length() - 2);
       if (code.startsWith("=")) {

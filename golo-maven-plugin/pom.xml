@@ -21,7 +21,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo-maven-plugin</artifactId>
-  <version>0-preview7-SNAPSHOT</version>
+  <version>0-preview8-SNAPSHOT</version>
 
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -71,7 +71,7 @@
 
   <properties>
 
-    <gololang.version>0-preview7-SNAPSHOT</gololang.version>
+    <gololang.version>0-preview8-SNAPSHOT</gololang.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
 

@@ -41,6 +41,7 @@ public final class GoloFunction extends GoloElement {
   private boolean varargs;
   private Block block;
   private boolean synthetic = false;
+  private String syntheticSelfName = null;
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
@@ -75,6 +76,11 @@ public final class GoloFunction extends GoloElement {
     this.syntheticParameterCount = this.syntheticParameterCount + 1;
   }
 
+  public void removeSyntheticParameter(String name) {
+    this.syntheticParameterNames.remove(name);
+    this.syntheticParameterCount = this.syntheticParameterCount - 1;
+  }
+
   public void setVarargs(boolean varargs) {
     this.varargs = varargs;
   }
@@ -89,6 +95,14 @@ public final class GoloFunction extends GoloElement {
 
   public void setSynthetic(boolean synthetic) {
     this.synthetic = synthetic;
+  }
+
+  public String getSyntheticSelfName() {
+    return syntheticSelfName;
+  }
+
+  public void setSyntheticSelfName(String syntheticSelfName) {
+    this.syntheticSelfName = syntheticSelfName;
   }
 
   public Visibility getVisibility() {

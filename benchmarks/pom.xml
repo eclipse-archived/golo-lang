@@ -21,7 +21,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo-benchmarks</artifactId>
-  <version>0-preview7-SNAPSHOT</version>
+  <version>0-preview8-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
@@ -64,7 +64,7 @@
 
   <properties>
 
-    <gololang.version>0-preview7-SNAPSHOT</gololang.version>
+    <gololang.version>0-preview8-SNAPSHOT</gololang.version>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
 
