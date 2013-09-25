@@ -3,6 +3,8 @@ package fr.insalyon.citi.golo.doc;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import gololang.Predefined;
+import org.testng.SkipException;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -18,6 +20,13 @@ import static org.hamcrest.MatcherAssert.assertThat;
 public class DocumentationRendererTest {
 
   public static final String SRC = "src/test/resources/for-parsing-and-compilation/";
+
+  @BeforeMethod
+  public void check_bootstrapped() throws Throwable {
+    if (System.getenv("golo.bootstrapped") == null) {
+      throw new SkipException("Golo is in a bootstrap build execution");
+    }
+  }
 
   @Test
   public void markdown_processor() throws Throwable {
