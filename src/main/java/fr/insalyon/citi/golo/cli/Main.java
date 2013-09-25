@@ -304,8 +304,8 @@ public class Main {
     //Build map of script params (Unix-like, $0 is the script itself)
     Map<Integer, Object> args = new TreeMap<>();
     args.put(0, script.file);
-    for(int i=1; i < script.arguments.size(); i++) {
-          args.put(i, script.arguments.get(i));
+    for(int i=0; i < script.arguments.size(); i++) {
+          args.put(i+1, script.arguments.get(i));
     }
 
     //Context params
