@@ -71,3 +71,18 @@ function propz = {
   }
   return result
 }
+
+function with_varargs = {
+  let prefix = "@"
+  let result = java.lang.StringBuilder()
+  let obj = DynamicObject(): define("fun", |this, args...| {
+    result: append("|")
+    foreach arg in args {
+      result: append(prefix): append(arg)
+    }
+  })
+  obj: fun()
+  obj: fun(1)
+  obj: fun(2, 3)
+  return result: toString()
+}

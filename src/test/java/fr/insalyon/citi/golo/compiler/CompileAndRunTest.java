@@ -777,6 +777,9 @@ public class CompileAndRunTest {
     Method propz = moduleClass.getMethod("propz");
     // Damn ordering on sets...
     assertThat((String) propz.invoke(null), either(is("foo:foobar:bar")).or(is("bar:barfoo:foo")));
+
+    Method with_varargs = moduleClass.getMethod("with_varargs");
+    assertThat((String) with_varargs.invoke(null), is("||@1|@2@3"));
   }
 
   @Test
