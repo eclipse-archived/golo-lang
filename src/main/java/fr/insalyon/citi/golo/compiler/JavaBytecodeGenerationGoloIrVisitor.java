@@ -19,16 +19,12 @@ package fr.insalyon.citi.golo.compiler;
 import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.runtime.OperatorType;
-import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.Handle;
-import org.objectweb.asm.Label;
-import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.util.*;
 
-import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.between;
 import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadInteger;
 import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadLong;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
@@ -681,6 +677,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           "java/lang/invoke/MethodHandles",
           "insertArguments",
           "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;");
+      if (isVarArgs) {
+        methodVisitor.visitInsn(DUP);
+        methodVisitor.visitLdcInsn(Type.getType(Object[].class));
+        methodVisitor.visitMethodInsn(
+            INVOKEVIRTUAL,
+            "java/lang/invoke/MethodHandle",
+            "asVarargsCollector",
+            "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandle;");
+      }
     }
   }
 
