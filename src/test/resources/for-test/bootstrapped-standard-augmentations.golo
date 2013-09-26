@@ -28,6 +28,10 @@ local function list_data = {
 
 function lists_filter = -> list_data(): filter(|v| -> (v % 2) is 0): unmodifiableView()
 
+function list_find = -> list_data(): find(|v| -> v is 2)
+
+function list_not_find = -> list_data(): find(|v| -> v is "a")
+
 function lists_map = -> list_data(): map(|v| -> v * 10): unmodifiableView()
 
 function lists_reduce = {
@@ -82,6 +86,10 @@ function sets_has_many = -> set_data(): has(2, 3)
 function sets_has_many_not = -> set_data(): has(2, 30)
 
 function sets_filter = -> set_data(): filter(|v| -> (v % 2) is 0): unmodifiableView()
+
+function sets_find = -> set_data(): find(|v| -> v is 3)
+function sets_not_find = -> set_data(): find(|v| -> v is 10)
+
 function sets_map = -> set_data(): map(|v| -> v * 10): unmodifiableView()
 function sets_reduce = -> set_data(): reduce(0, |acc, v| -> acc + v)
 
@@ -104,6 +112,10 @@ function maps_addIfAbsent = -> map_data(): addIfAbsent("b", 666): get("b")
 function maps_getOrElse = -> map_data(): delete("b"): unmodifiableView(): getOrElse("b", 666)
 
 function maps_filter = -> map_data(): filter(|k, v| -> k isnt "b")
+
+function maps_find = -> map_data(): find(|k, v| -> k is "a")
+function maps_not_find = -> map_data(): find(|k, v| -> k is "d")
+
 function maps_map = -> map_data(): map(|k, v| -> mapEntry(k, v * 10)): unmodifiableView()
 function maps_reduce = -> map_data(): reduce("", |acc, k, v| -> acc + k + v)
 
@@ -131,10 +143,12 @@ function number_repeaters = {
 
 # ............................................................................................... #
 
-function tupled = {
-  let t = [1, 2, 3, 4, 5]
-  return t: filter(|n| -> (n % 2) == 0): map(|n| -> n * 10): reduce(0, |acc, n| -> acc + n)
+local function tuple_data = -> [1, 2, 3, 4, 5]
 
-}
+function tupled = -> tuple_data(): filter(|n| -> (n % 2) == 0): map(|n| -> n * 10): reduce(0, |acc, n| -> acc + n)
+
+function tuple_find = -> tuple_data(): find(|v| -> v is 4)
+function tuple_not_find = -> tuple_data(): find(|v| -> v is 10)
+
 
 # ............................................................................................... #
