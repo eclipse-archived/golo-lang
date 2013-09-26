@@ -181,6 +181,15 @@ augment java.util.List {
   function tail = |this| -> this: subList(1, this: size())
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableList(this)
 
+  function find = |this, pred| {
+    foreach (element in this) {
+      if pred(element) {
+        return element
+      }
+    }
+    return null
+  }
+
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
     foreach (element in this) {
@@ -293,6 +302,15 @@ augment java.util.Set {
 
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableSet(this)
 
+  function find = |this, pred| {
+    foreach (element in this) {
+      if pred(element) {
+        return element
+      }
+    }
+    return null
+  }
+
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
     foreach (element in this) {
@@ -353,6 +371,17 @@ augment java.util.Map {
 
   function newWithSameType = |this| -> _newWithSameType(this)
 
+  function find = |this, pred| {
+    foreach (entry in this: entrySet()) {
+      let key = entry: getKey()
+      let value = entry: getValue()
+      if pred(key, value) {
+        return entry
+      }
+    }
+    return null
+  }
+
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
     foreach (entry in this: entrySet()) {
@@ -397,6 +426,15 @@ augment java.util.Map {
 # ............................................................................................... #
 
 augment gololang.Tuple {
+
+  function find = |this, pred| {
+    foreach (element in this) {
+      if pred(element) {
+        return element
+      }
+    }
+    return null
+  }
 
   function filter = |this, func| {
     let matching = list[]
