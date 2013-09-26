@@ -678,7 +678,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           "insertArguments",
           "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;");
       if (isVarArgs) {
-        methodVisitor.visitInsn(DUP);
         methodVisitor.visitLdcInsn(Type.getType(Object[].class));
         methodVisitor.visitMethodInsn(
             INVOKEVIRTUAL,
