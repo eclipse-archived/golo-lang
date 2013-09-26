@@ -24,15 +24,19 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import gololang.EvaluationEnvironment;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Method;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -91,6 +95,16 @@ public class Main {
     List<String> files = new LinkedList<>();
   }
 
+  @Parameters(commandDescription = "Run a  Golo script (as an anonymous module)")
+  static class ScriptCommand {
+
+    @Parameter(names = "--file", description = "The Golo script to run", required = true)
+    String file;
+
+    @Parameter(names = "--args", variableArity = true, description = "Program arguments")
+    List<String> arguments = new LinkedList<>();
+  }
+
   public static class DiagnoseModeValidator implements IParameterValidator {
 
     @Override
@@ -119,6 +133,9 @@ public class Main {
     cmd.addCommand("golo", gologolo);
     DiagnoseCommand diagnose = new DiagnoseCommand();
     cmd.addCommand("diagnose", diagnose);
+    ScriptCommand script = new ScriptCommand();
+    cmd.addCommand("script", script);
+
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -139,6 +156,9 @@ public class Main {
             break;
           case "diagnose":
             diagnose(diagnose);
+            break;
+            case "script":
+            script(script);
             break;
           default:
             throw new AssertionError("WTF?");
@@ -250,12 +270,7 @@ public class Main {
     Class<?> lastClass = null;
     for (String goloFile : gologolo.files) {
       File file = new File(goloFile);
-      if (!file.exists()) {
-        System.out.println("Error: " + file + " does not exist.");
-        return;
-      }
-      if (!file.isFile()) {
-        System.out.println("Error: " + file + " is not a file.");
+      if (!isValidFile(file)) {
         return;
       }
       try (FileInputStream in = new FileInputStream(file)) {
@@ -265,5 +280,39 @@ public class Main {
       }
     }
     callRun(lastClass, gologolo.arguments.toArray(new Object[gologolo.arguments.size()]));
+  }
+
+  private static boolean isValidFile(File file){
+    if (!file.exists()) {
+      System.out.println("Error: " + file + " does not exist.");
+      return false;
+    }
+    if (!file.isFile()) {
+      System.out.println("Error: " + file + " is not a file.");
+      return false;
+    }
+    return true;
+  }
+
+  private static void script(ScriptCommand script) throws Throwable {
+    File file = new File(script.file);
+    if (!isValidFile(file)) {
+      return;
+    }
+    String source = new String(Files.readAllBytes(file.toPath()), Charset.defaultCharset());
+
+    //Build map of script params (Unix-like, $0 is the script itself)
+    Map<Integer, Object> args = new TreeMap<>();
+    args.put(0, script.file);
+    for(int i=0; i < script.arguments.size(); i++) {
+          args.put(i+1, script.arguments.get(i));
+    }
+
+    //Context params
+    Map<String, Object> context = new TreeMap<>();
+    context.put("args", args);
+
+    EvaluationEnvironment env = new EvaluationEnvironment();
+    env.run(source, context);
   }
 }
