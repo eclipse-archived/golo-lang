@@ -73,7 +73,7 @@ public class ClosureCallSupport {
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, MethodHandle.class);
     MethodType type = invoker.type();
     if (type.parameterType(type.parameterCount() - 1) == Object[].class) {
-      invoker = invoker.asCollector(Object[].class, args.length - 1);
+      invoker = invoker.asCollector(Object[].class, callSite.type().parameterCount() - target.type().parameterCount());
     }
     MethodHandle guard = GUARD.bindTo(target);
     MethodHandle root = guardWithTest(guard, invoker, callSite.fallback);
