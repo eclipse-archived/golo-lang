@@ -114,6 +114,15 @@ public final class DynamicObject {
   }
 
   /**
+   * Tells whether the dynamic object is frozen or not.
+   *
+   * @return {@code true} if frozen, {@code false} otherwise.
+   */
+  public boolean isFrozen() {
+    return frozen;
+  }
+
+  /**
    * Gives an invoker method handle for a given property.
    * <p>
    * While this method may be useful in itself, it is mostly relevant for the Golo runtime internals so as
