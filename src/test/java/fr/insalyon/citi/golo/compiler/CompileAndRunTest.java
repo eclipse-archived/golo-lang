@@ -688,6 +688,9 @@ public class CompileAndRunTest {
 
     Method closure_self_reference = moduleClass.getMethod("closure_self_reference");
     assertThat((Integer) closure_self_reference.invoke(null), is(1));
+
+    Method closure_with_trailing_varargs_and_capture = moduleClass.getMethod("closure_with_trailing_varargs_and_capture");
+    assertThat((String) closure_with_trailing_varargs_and_capture.invoke(null), is("|1|12|123"));
   }
 
   @Test
