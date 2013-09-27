@@ -84,6 +84,20 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_find() throws Throwable {
+    Method list_find = moduleClass.getMethod("list_find");
+    Object result = list_find.invoke(null);
+    assertThat((Integer) result, is(2));
+  }
+
+  @Test
+  public void list_not_find() throws Throwable {
+    Method list_not_find = moduleClass.getMethod("list_not_find");
+    Object result = list_not_find.invoke(null);
+    assertThat(result, nullValue());
+  }
+
+  @Test
   public void lists_map() throws Throwable {
     Method lists_map = moduleClass.getMethod("lists_map");
     Object result = lists_map.invoke(null);
@@ -196,6 +210,20 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void sets_find() throws Throwable {
+    Method sets_find = moduleClass.getMethod("sets_find");
+    Object result = sets_find.invoke(null);
+    assertThat((Integer) result, is(3));
+  }
+
+  @Test
+  public void sets_not_find() throws Throwable {
+    Method sets_not_find = moduleClass.getMethod("sets_not_find");
+    Object result = sets_not_find.invoke(null);
+    assertThat(result, nullValue());
+  }
+
+  @Test
   public void sets_map() throws Throwable {
     Method sets_map = moduleClass.getMethod("sets_map");
     Object result = sets_map.invoke(null);
@@ -241,6 +269,22 @@ public class StandardAugmentationsTest {
     assertThat(map, hasEntry("a", 1));
     assertThat(map, hasEntry("c", 3));
     assertThat(map.size(), is(2));
+  }
+
+  @Test
+  public void maps_find() throws Throwable {
+    Method maps_find = moduleClass.getMethod("maps_find");
+    Object result = maps_find.invoke(null);
+    Map.Entry<String, Integer> entry = (Map.Entry<String, Integer>) result;
+    assertThat(entry.getKey(), is("a"));
+    assertThat(entry.getValue(), is(1));
+  }
+
+  @Test
+  public void maps_not_find() throws Throwable {
+    Method maps_not_find = moduleClass.getMethod("maps_not_find");
+    Object result = maps_not_find.invoke(null);
+    assertThat(result, nullValue());
   }
 
   @Test
@@ -313,5 +357,19 @@ public class StandardAugmentationsTest {
   public void tupled() throws Throwable {
     Method tupled = moduleClass.getMethod("tupled");
     assertThat((Integer) tupled.invoke(null), is(60));
+  }
+
+  @Test
+  public void tuple_find() throws Throwable {
+    Method tuple_find = moduleClass.getMethod("tuple_find");
+    Object result = tuple_find.invoke(null);
+    assertThat((Integer) result, is(4));
+  }
+
+  @Test
+  public void tuple_not_find() throws Throwable {
+    Method tuple_not_find = moduleClass.getMethod("tuple_not_find");
+    Object result = tuple_not_find.invoke(null);
+    assertThat(result, nullValue());
   }
 }
