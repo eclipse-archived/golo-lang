@@ -21,6 +21,7 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 - `mixin(dynobj)` mixes in all the properties of the dynamic object `dynobj`, and
 - `copy()` gives a copy of a dynamic object, and
 - `freeze()` locks an object, and calling `define` will raise an `IllegalStateException`, and
+- `isFrozen()` checks whether a dynamic object is frozen or not, and
 - `properties()` gives the set of entries in the dynamic object, and
 - `invoker(name, type)` which is mostly used by the Golo runtime internals.
 
