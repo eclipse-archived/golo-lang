@@ -397,15 +397,48 @@ public class Predefined {
   }
 
   /**
-  * Check if a file exists.
-  *
-  * @param file     the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
-  * @return true if the file exists, false if it doesn't
-  * 
-  */
+   * Check if a file exists.
+   *
+   * @param file the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
+   * @return true if the file exists, false if it doesn't
+   */
   public static boolean fileExists(Object file) {
     return Files.exists(pathFrom(file));
   }
-  
+
+  // ...................................................................................................................
+
+  /**
+   * Checks if an object is a (JVM) array or not.
+   *
+   * @param object the object to check.
+   * @return {@code true} if {@code object} is an array, {@code false} otherwise or if {@code null}.
+   */
+  public static boolean isArray(Object object) {
+    return (object != null) && object.getClass().isArray();
+  }
+
+  /**
+   * Function to obtain the {@code Object[].class} reference.
+   *
+   * @return {@code Object[].class}
+   */
+  public static Class<?> objectArrayType() {
+    return Object[].class;
+  }
+
+  /**
+   * Returns an array class given a type class.
+   *
+   * @param klass the array type.
+   * @return the class of the array of type {@code klass}, i.e., {@code klass[]}.
+   * @throws ClassNotFoundException if the type could not be found.
+   */
+  public static Class<?> arrayTypeOf(Object klass) throws ClassNotFoundException {
+    require(klass instanceof Class<?>, "klass must be a class");
+    Class<?> type = (Class<?>) klass;
+    return Class.forName("[L" + type.getName() + ";", true, type.getClassLoader());
+  }
+
   // ...................................................................................................................
 }
