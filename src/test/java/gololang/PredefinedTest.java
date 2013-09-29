@@ -162,6 +162,19 @@ public class PredefinedTest {
   @Test
   public void test_fileExists() throws Throwable {
     File tempFile = File.createTempFile("this_exists", "test");
-    assert(Predefined.fileExists(tempFile));
+    assertThat(Predefined.fileExists(tempFile), is(true));
+  }
+
+  @Test
+  public void test_isArray() {
+    assertThat(Predefined.isArray(null), is(false));
+    assertThat(Predefined.isArray(Object.class), is(false));
+    assertThat(Predefined.isArray(new Object[]{}), is(true));
+  }
+
+  @Test
+  public void test_arrayOfType() throws ClassNotFoundException {
+    assertThat((Class) Predefined.arrayTypeOf(Object.class), sameInstance((Class) Object[].class));
+    assertThat((Class) Predefined.objectArrayType(), sameInstance((Class) Object[].class));
   }
 }

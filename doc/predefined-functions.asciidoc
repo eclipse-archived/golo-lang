@@ -208,6 +208,16 @@ if fileExists("/foo/bar.txt") {
 As in the other File I/O methods, the parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`.
 The `fileExists` function will return true if the file exists, false if it doesn't.
 
+=== Array types ===
+
+Golo does not provide a literal syntax for array types, such as `Object[].class` in Java.
+
+Instead, we provide 3 helper functions.
+
+* `isArray(object)`: returns a boolean if `object` is an array.
+* `objectArrayType()`: returns `Object[].class`.
+* `arrayTypeOf(type)`: given `type` as a `java.lang.Class`, returns an array of type `type[]`.
+
 === Misc. ===
 
 `mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:
