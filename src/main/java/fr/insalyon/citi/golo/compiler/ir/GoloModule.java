@@ -18,10 +18,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
 
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
@@ -29,10 +26,10 @@ import static java.util.Collections.unmodifiableSet;
 public final class GoloModule extends GoloElement {
 
   private final PackageAndClass packageAndClass;
-  private final Set<ModuleImport> imports = new HashSet<>();
-  private final Set<GoloFunction> functions = new HashSet<>();
-  private final Map<String, Set<GoloFunction>> augmentations = new HashMap<>();
-  private final Set<Struct> structs = new HashSet<>();
+  private final Set<ModuleImport> imports = new LinkedHashSet<>();
+  private final Set<GoloFunction> functions = new LinkedHashSet<>();
+  private final Map<String, Set<GoloFunction>> augmentations = new LinkedHashMap<>();
+  private final Set<Struct> structs = new LinkedHashSet<>();
 
   public static final ModuleImport PREDEF = new ModuleImport(
       PackageAndClass.fromString("gololang.Predefined"));
