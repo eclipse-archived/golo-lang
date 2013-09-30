@@ -24,7 +24,7 @@ import static java.util.Collections.unmodifiableSet;
 public final class ReferenceTable {
 
   private ReferenceTable parent;
-  private final Map<String, LocalReference> table = new HashMap<>();
+  private final Map<String, LocalReference> table = new LinkedHashMap<>();
 
   public ReferenceTable() {
     this(null);
@@ -67,7 +67,7 @@ public final class ReferenceTable {
   }
 
   public Set<String> symbols() {
-    HashSet<String> localSymbols = new HashSet<>(table.keySet());
+    LinkedHashSet<String> localSymbols = new LinkedHashSet<>(table.keySet());
     if (parent != null) {
       localSymbols.addAll(parent.symbols());
     }
@@ -75,7 +75,7 @@ public final class ReferenceTable {
   }
 
   public Collection<LocalReference> references() {
-    Collection<LocalReference> localReferences = new HashSet<>(table.values());
+    Collection<LocalReference> localReferences = new LinkedHashSet<>(table.values());
     if (parent != null) {
       for (LocalReference ref : parent.references()) {
         if (!table.containsKey(ref.getName())) {
