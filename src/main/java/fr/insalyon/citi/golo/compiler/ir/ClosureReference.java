@@ -16,13 +16,13 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public class ClosureReference extends ExpressionStatement {
 
   private final GoloFunction target;
-  private final Set<String> capturedReferenceNames = new HashSet<>();
+  private final Set<String> capturedReferenceNames = new LinkedHashSet<>();
 
   public ClosureReference(GoloFunction target) {
     super();
