@@ -25,8 +25,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodType;
 import java.util.*;
 
-import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadInteger;
-import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadLong;
+import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.runtime.OperatorType.*;
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -230,6 +229,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         signature,
         null, null);
     methodVisitor.visitCode();
+    visitLine(function, methodVisitor);
     context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     function.getBlock().accept(this);
     methodVisitor.visitMaxs(0, 0);
@@ -265,6 +265,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       }
     }
     for (GoloStatement statement : block.getStatements()) {
+      visitLine(statement, methodVisitor);
       statement.accept(this);
       insertMissingPop(statement);
     }
