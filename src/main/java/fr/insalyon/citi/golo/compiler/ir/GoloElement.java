@@ -31,6 +31,10 @@ public class GoloElement {
     return nodeRef.get();
   }
 
+  public boolean hasASTNode() {
+    return (nodeRef != null) && (nodeRef.get() != null);
+  }
+
   public PositionInSourceCode getPositionInSourceCode() {
     GoloASTNode node = getASTNode();
     if (node == null) {

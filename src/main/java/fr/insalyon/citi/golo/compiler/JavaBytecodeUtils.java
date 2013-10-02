@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.compiler;
 
+import fr.insalyon.citi.golo.compiler.ir.GoloElement;
+import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.objectweb.asm.Opcodes.*;
@@ -51,6 +53,14 @@ class JavaBytecodeUtils {
       methodVisitor.visitInsn(LCONST_1);
     } else {
       methodVisitor.visitLdcInsn(value);
+    }
+  }
+
+  static void visitLine(GoloElement element, MethodVisitor visitor) {
+    if (element.hasASTNode()) {
+      Label label = new Label();
+      visitor.visitLabel(label);
+      visitor.visitLineNumber(element.getPositionInSourceCode().getLine(), label);
     }
   }
 }
