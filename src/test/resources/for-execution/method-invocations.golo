@@ -68,3 +68,9 @@ function elvis_indirect = {
   str = str + map: get("bar") ?: toString()
   return str
 }
+
+function funky = {
+  let obj = DynamicObject():
+    define("adder", |this, x| -> |y| -> |z| -> x + y + z)
+  return obj: adder(1)(2)(3)
+}
