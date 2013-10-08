@@ -703,7 +703,7 @@ void TryCatchFinally():
 
 void ExpressionStatement() #void: {}
 {
-  CommutativeExpression() 
+  CommutativeExpression()
 }
 
 void TerminalExpression() #void: {}
@@ -782,6 +782,7 @@ void MethodInvocation():
 }
 {
   token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
+  (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(token.image);
   }
@@ -962,12 +963,18 @@ void Expressions() #void: {}
   ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
 }
 
+void AnonymousFunctionInvocation(): {}
+{
+  "(" (BlankLine())? (Expressions())? ")"
+}
+
 void FunctionInvocation():
 {
   String name;
 }
 {
   name=QualifiedName() "(" (BlankLine())? (Expressions())? ")"
+  (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(name);
   }

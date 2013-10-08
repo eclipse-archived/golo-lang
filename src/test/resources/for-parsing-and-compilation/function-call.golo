@@ -25,3 +25,5 @@ function var_arg_ed = |index, args...| {
   return aget(args,
               index)
 }
+
+function functional = -> foo(1)(2)(3)

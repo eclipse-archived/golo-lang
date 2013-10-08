@@ -14,36 +14,25 @@
  * limitations under the License.
  */
 
-package fr.insalyon.citi.golo.compiler.ir;
+package fr.insalyon.citi.golo.compiler.parser;
 
-public class FunctionInvocation extends AbstractInvocation {
+public class ASTAnonymousFunctionInvocation extends GoloASTNode {
 
-  private boolean onReference = false;
-  private boolean anonymous = false;
-
-  public FunctionInvocation() {
-    super("anonymous");
-    anonymous = true;
+  public ASTAnonymousFunctionInvocation(int id) {
+    super(id);
   }
 
-  public FunctionInvocation(String name) {
-    super(name);
-  }
-
-  public boolean isOnReference() {
-    return onReference;
-  }
-
-  public void setOnReference(boolean onReference) {
-    this.onReference = onReference;
-  }
-
-  public boolean isAnonymous() {
-    return anonymous;
+  public ASTAnonymousFunctionInvocation(GoloParser p, int id) {
+    super(p, id);
   }
 
   @Override
-  public void accept(GoloIrVisitor visitor) {
-    visitor.visitFunctionInvocation(this);
+  public Object jjtAccept(GoloParserVisitor visitor, Object data) {
+    return visitor.visit(this, data);
+  }
+
+  @Override
+  public String toString() {
+    return "ASTAnonymousFunctionInvocation{}";
   }
 }
