@@ -18,13 +18,16 @@ import java.util
 
 function main = |args| {
 
-  # Data model, will be better the day we have literals for common collections
-  let contacts = HashMap():
-    add("mrbean",
-      HashMap(): add("email", "bean@gmail.com"):
-                 add("url", "http://mrbean.com")):
-    add("larry",
-      HashMap(): add("email", "larry@iamricherthanyou.com"))
+  # Data model
+  let contacts = map[
+    ["mrbean", map[
+      ["email", "bean@gmail.com"],
+      ["url", "http://mrbean.com"]
+    ]],
+    ["larry", map[
+      ["email", "larry@iamricherthanyou.com"]
+    ]]
+  ]
 
   # MrBean and Larry
   let mrbean = contacts: get("mrbean")
