@@ -25,6 +25,11 @@ function main = |args| {
   println(addToTen: invokeWithArguments(2))
   println(addToTen(2))
 
+  let adding = |x| -> |y| -> adder(x, y)
+  let addingTen = adding(10)
+  println(addingTen(4))
+  println(adding(2)(4))
+
   println(sayHello("Julien"))
 
   let list = java.util.LinkedList()
