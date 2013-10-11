@@ -244,4 +244,51 @@ let f = (|x| -> x + 1): andThen(|x| -> x - 10): andThen(|x| -> x * 100)
 println(f(4))
 ----
 
+=== Calling functions that return functions ===
+
+Given that functions are first-class objects in Golo, you may define functions (or closures) that
+return functions, as in:
+
+[source,text]
+----
+let f = |x| -> |y| -> |z| -> -> x + y + z
+----
+
+You could use intermediate references to use the `f` function above:
+
+[source,text]
+----
+let f1 = f(1)
+let f2 = f1(2)
+let f3 = f2(3)
+
+# Prints '6'
+println(f3())
+----
+
+Golo supports a nicer syntax if you don't need intermediate references:
+
+[source,text]
+----
+# Prints '6'
+println(f(1)(2)(3)())
+----
+
+[IMPORTANT]
+====
+This syntax only works following a function or method invocation, not on expressions. This means
+that:
+
+----
+foo: bar()("baz")
+----
+
+is valid, while:
+
+----
+(foo: bar())("baz")
+----
+
+is not. Let us say that "It is not a bug, it is a feature".
+====
 

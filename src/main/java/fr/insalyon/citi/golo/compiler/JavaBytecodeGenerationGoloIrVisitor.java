@@ -385,6 +385,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (functionInvocation.isOnReference()) {
       ReferenceTable table = context.referenceTableStack.peek();
       methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
+    }
+    if (functionInvocation.isAnonymous() || functionInvocation.isOnReference()) {
       methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/invoke/MethodHandle");
       MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, MethodHandle.class);
       visitInvocationArguments(functionInvocation, CLOSURE_INVOCATION_HANDLE, type.toMethodDescriptorString());
@@ -399,6 +401,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           goloFunctionSignature(functionInvocation.getArity()),
           FUNCTION_INVOCATION_HANDLE);
     }
+    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
+    }
   }
 
   @Override
@@ -409,7 +414,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         goloFunctionSignature(methodInvocation.getArity() + 1),
         METHOD_INVOCATION_HANDLE,
         methodInvocation.isNullSafeGuarded());
-
+    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
+    }
   }
 
   @Override

@@ -474,20 +474,33 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTFunctionInvocation node, Object data) {
     Context context = (Context) data;
     FunctionInvocation functionInvocation = new FunctionInvocation(node.getName());
-    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+    int i = 0;
+    final int numChildren = node.jjtGetNumChildren();
+    for (i = 0; i < numChildren; i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
+      if (argumentNode instanceof ASTAnonymousFunctionInvocation) {
+        break;
+      }
       argumentNode.jjtAccept(this, data);
       functionInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
     }
     context.objectStack.push(functionInvocation);
     node.setIrElement(functionInvocation);
+    if (i < numChildren) {
+      for (; i < numChildren; i++) {
+        ASTAnonymousFunctionInvocation invocationNode = (ASTAnonymousFunctionInvocation) node.jjtGetChild(i);
+        invocationNode.jjtAccept(this, data);
+        FunctionInvocation invocation = (FunctionInvocation) context.objectStack.pop();
+        functionInvocation.addAnonymousFunctionInvocation(invocation);
+      }
+    }
     return data;
   }
 
   @Override
-  public Object visit(ASTMethodInvocation node, Object data) {
+  public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
     Context context = (Context) data;
-    MethodInvocation invocation = new MethodInvocation(node.getName());
+    FunctionInvocation invocation = new FunctionInvocation();
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
       argumentNode.jjtAccept(this, data);
@@ -495,6 +508,33 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     context.objectStack.push(invocation);
     node.setIrElement(invocation);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTMethodInvocation node, Object data) {
+    Context context = (Context) data;
+    MethodInvocation methodInvocation = new MethodInvocation(node.getName());
+    int i = 0;
+    final int numChildren = node.jjtGetNumChildren();
+    for (i = 0; i < numChildren; i++) {
+      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
+      if (argumentNode instanceof ASTAnonymousFunctionInvocation) {
+        break;
+      }
+      argumentNode.jjtAccept(this, data);
+      methodInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
+    }
+    context.objectStack.push(methodInvocation);
+    node.setIrElement(methodInvocation);
+    if (i < numChildren) {
+      for (; i < numChildren; i++) {
+        ASTAnonymousFunctionInvocation invocationNode = (ASTAnonymousFunctionInvocation) node.jjtGetChild(i);
+        invocationNode.jjtAccept(this, data);
+        FunctionInvocation invocation = (FunctionInvocation) context.objectStack.pop();
+        methodInvocation.addAnonymousFunctionInvocation(invocation);
+      }
+    }
     return data;
   }
 

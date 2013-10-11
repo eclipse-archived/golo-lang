@@ -135,9 +135,14 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("Function call: " + functionInvocation.getName()
-        + " on reference? -> " + functionInvocation.isOnReference());
+        + " on reference? -> " + functionInvocation.isOnReference()
+        + ", anonymous? -> " + functionInvocation.isAnonymous());
     for (ExpressionStatement argument : functionInvocation.getArguments()) {
+      space();
       argument.accept(this);
+    }
+    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
     }
     decr();
   }
@@ -216,6 +221,9 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println("Method invocation: " + methodInvocation.getName() + ", null safe? -> " + methodInvocation.isNullSafeGuarded());
     for (ExpressionStatement argument : methodInvocation.getArguments()) {
       argument.accept(this);
+    }
+    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
     }
     decr();
   }

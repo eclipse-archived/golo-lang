@@ -159,3 +159,8 @@ function closure_self_reference = {
   }
   return fun(0)
 }
+
+function funky = {
+  let adder = |x| -> |y| -> |z| -> x + y + z
+  return adder(1)(2)(3)
+}

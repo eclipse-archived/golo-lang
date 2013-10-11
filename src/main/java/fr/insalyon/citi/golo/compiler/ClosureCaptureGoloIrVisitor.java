@@ -188,6 +188,9 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     for (ExpressionStatement statement : functionInvocation.getArguments()) {
       statement.accept(this);
     }
+    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
+    }
   }
 
   @Override
@@ -254,6 +257,9 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
     for (ExpressionStatement statement : methodInvocation.getArguments()) {
       statement.accept(this);
+    }
+    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
     }
   }
 

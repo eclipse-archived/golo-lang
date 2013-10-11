@@ -140,6 +140,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     for (ExpressionStatement argument : functionInvocation.getArguments()) {
       argument.accept(this);
     }
+    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
+    }
   }
 
   @Override
@@ -208,6 +211,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
     for (ExpressionStatement argument : methodInvocation.getArguments()) {
       argument.accept(this);
+    }
+    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
+      invocation.accept(this);
     }
   }
 
