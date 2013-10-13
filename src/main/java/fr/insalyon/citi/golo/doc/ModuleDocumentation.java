@@ -251,6 +251,11 @@ class ModuleDocumentation {
     }
 
     @Override
+    public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
+      return data;
+    }
+
+    @Override
     public Object visit(ASTFunctionInvocation node, Object data) {
       return data;
     }

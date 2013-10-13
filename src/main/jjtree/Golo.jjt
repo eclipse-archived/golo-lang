@@ -549,6 +549,7 @@ void ToplevelDeclaration():
 {
   ASTFunctionDeclaration functionDecl;
   ASTAugmentDeclaration augmentDecl;
+  ASTStructDeclaration structDecl;
   Token local = null;
   String documentation = null;
 }
@@ -567,13 +568,15 @@ void ToplevelDeclaration():
       }
       functionDecl.setDocumentation(documentation);
     }
+    |
+    structDecl=StructDeclaration()
+    {
+      structDecl.setDocumentation(documentation);
+    }
   )
-  }
-  |
-  StructDeclaration()
 }
 
-void StructDeclaration():
+ASTStructDeclaration StructDeclaration():
 {
   Token name;
   Token member;
@@ -595,10 +598,10 @@ void StructDeclaration():
   {
     jjtThis.setName(name.image);
     jjtThis.setMembers(members);
+    return jjtThis;
   }
 }
 
-void AugmentDeclaration():
 ASTAugmentDeclaration AugmentDeclaration():
 {
   String target;

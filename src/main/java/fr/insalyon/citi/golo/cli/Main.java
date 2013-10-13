@@ -170,9 +170,6 @@ public class Main {
           case "golo":
             golo(gologolo);
             break;
-          case "doc":
-            doc(doc);
-            break;
           case "diagnose":
             diagnose(diagnose);
             break;
