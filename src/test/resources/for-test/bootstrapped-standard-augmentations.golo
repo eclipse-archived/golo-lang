@@ -69,6 +69,22 @@ function list_sorted_reverse = {
   return list_data(): ordered(java.util.Collections.reverseOrder())
 }
 
+function list_count = {
+ return list_data(): count(|item| -> item >= 2)
+}
+
+function list_count_zero = {
+ return list_data(): count(|item| -> item >= 5)
+}
+
+function list_exists = {
+ return list_data(): exists(|item| -> item == 2)
+}
+
+function list_not_exists = {
+ return list_data(): exists(|item| -> item >= 5)
+}
+
 # ............................................................................................... #
 
 local function set_data = {
@@ -123,6 +139,22 @@ function maps_each = {
   let int = AtomicInteger(0)
   map_data(): each(|k, v| -> int: addAndGet(v))
   return int: get()
+}
+
+function maps_count = {
+ return map_data(): count(|key, item| -> item >= 2)
+}
+
+function maps_count_zero = {
+ return map_data(): count(|key, item| -> item >= 5)
+}
+
+function maps_exists = {
+ return map_data(): exists(|key, item| -> item == 2)
+}
+
+function maps_not_exists = {
+ return map_data(): exists(|key, item| -> item >= 5)
 }
 
 # ............................................................................................... #

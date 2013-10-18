@@ -177,6 +177,34 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_count() throws Throwable {
+    Method list_count = moduleClass.getMethod("list_count");
+    Object result = list_count.invoke(null);
+    assertThat((Integer) result, is(3));
+  }
+
+  @Test
+  public void list_count_zero() throws Throwable {
+    Method list_count_zero = moduleClass.getMethod("list_count_zero");
+    Object result = list_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
+  public void list_exists() throws Throwable {
+    Method list_exists = moduleClass.getMethod("list_exists");
+    Object result = list_exists.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void list_not_exists() throws Throwable {
+    Method list_not_exists = moduleClass.getMethod("list_not_exists");
+    Object result = list_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }
+
+  @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
     assertThat((Boolean) sets_has_single.invoke(null), is(true));
@@ -309,6 +337,34 @@ public class StandardAugmentationsTest {
   public void maps_each() throws Throwable {
     Method maps_each = moduleClass.getMethod("maps_each");
     assertThat((Integer) maps_each.invoke(null), is(6));
+  }
+
+  @Test
+  public void maps_count() throws Throwable {
+    Method maps_count = moduleClass.getMethod("maps_count");
+    Object result = maps_count.invoke(null);
+    assertThat((Integer) result, is(2));
+  }
+
+  @Test
+  public void maps_count_zero() throws Throwable {
+    Method maps_count_zero = moduleClass.getMethod("maps_count_zero");
+    Object result = maps_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
+  public void maps_exists() throws Throwable {
+    Method maps_exists = moduleClass.getMethod("maps_exists");
+    Object result = maps_exists.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void maps_not_exists() throws Throwable {
+    Method maps_not_exists = moduleClass.getMethod("maps_not_exists");
+    Object result = maps_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
   }
 
   @Test
