@@ -16,17 +16,5 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
-public class ClassGenerationDefinitionProblem extends RuntimeException {
-
-  public ClassGenerationDefinitionProblem(String message) {
-    super(message);
-  }
-
-  public ClassGenerationDefinitionProblem(Throwable cause) {
-    super(cause);
-  }
-
-  public ClassGenerationDefinitionProblem(String message, Throwable cause) {
-    super(message, cause);
-  }
+public class JavaBytecodeAdapterGenerator {
 }

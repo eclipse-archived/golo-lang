@@ -25,7 +25,7 @@ import static java.lang.reflect.Modifier.*;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
-public final class ClassGenerationDefinition {
+public final class AdapterDefinition {
 
   private final ClassLoader classLoader;
   private final String name;
@@ -34,7 +34,7 @@ public final class ClassGenerationDefinition {
   private final LinkedHashMap<String, MethodHandle> implementations = new LinkedHashMap<>();
   private final LinkedHashMap<String, MethodHandle> overrides = new LinkedHashMap<>();
 
-  public ClassGenerationDefinition(ClassLoader classLoader, String name, String parent) {
+  public AdapterDefinition(ClassLoader classLoader, String name, String parent) {
     this.classLoader = classLoader;
     this.name = name;
     this.parent = parent;
@@ -64,19 +64,19 @@ public final class ClassGenerationDefinition {
     return unmodifiableMap(overrides);
   }
 
-  public ClassGenerationDefinition implementsInterface(String iface) {
+  public AdapterDefinition implementsInterface(String iface) {
     interfaces.add(iface);
     return this;
   }
 
-  public ClassGenerationDefinition implementsMethod(String name, MethodHandle target) throws ClassGenerationDefinitionProblem {
+  public AdapterDefinition implementsMethod(String name, MethodHandle target) throws AdapterDefinitionProblem {
     checkForImplementation(target);
     checkStarImplementationType(name, target);
     implementations.put(name, target);
     return this;
   }
 
-  public ClassGenerationDefinition overridesMethod(String name, MethodHandle target) throws ClassGenerationDefinitionProblem {
+  public AdapterDefinition overridesMethod(String name, MethodHandle target) throws AdapterDefinitionProblem {
     checkForOverriding(target);
     checkStarOverrideType(name, target);
     overrides.put(name, target);
@@ -91,7 +91,7 @@ public final class ClassGenerationDefinition {
     return overrides.containsKey("*");
   }
 
-  public ClassGenerationDefinition validate() throws ClassGenerationDefinitionProblem {
+  public AdapterDefinition validate() throws AdapterDefinitionProblem {
     checkSuperTypesExistence();
     checkStarConflict();
     checkMethodsToBeImplemented();
@@ -103,20 +103,20 @@ public final class ClassGenerationDefinition {
   private void checkOverridesImplementationsConflict() {
     for (String key : implementations.keySet()) {
       if (!"*".equals(key) && overrides.containsKey(key)) {
-        throw new ClassGenerationDefinitionProblem("Conflict: there is both an implementation and an override for method " + key);
+        throw new AdapterDefinitionProblem("Conflict: there is both an implementation and an override for method " + key);
       }
     }
   }
 
   private void checkStarImplementationType(String name, MethodHandle target) {
     if ("*".equals(name) && !target.type().equals(genericMethodType(0, true))) {
-      throw new ClassGenerationDefinitionProblem("A * implementation must be of type (Object...)Object: " + target);
+      throw new AdapterDefinitionProblem("A * implementation must be of type (Object...)Object: " + target);
     }
   }
 
   private void checkStarOverrideType(String name, MethodHandle target) {
     if ("*".equals(name) && !target.type().equals(genericMethodType(1, true))) {
-      throw new ClassGenerationDefinitionProblem("A * override must be of type (Object, Object...)Object: " + target);
+      throw new AdapterDefinitionProblem("A * override must be of type (Object, Object...)Object: " + target);
     }
   }
 
@@ -134,7 +134,7 @@ public final class ClassGenerationDefinition {
       }
       for (String key : overrides.keySet()) {
         if (!"*".equals(key) && !canBeOverridden.contains(key)) {
-          throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be overridden in " + parentClass);
+          throw new AdapterDefinitionProblem("There is no method named " + key + " to be overridden in " + parentClass);
         }
       }
       for (String iface : interfaces) {
@@ -144,11 +144,11 @@ public final class ClassGenerationDefinition {
       }
       for (String key : implementations.keySet()) {
         if (!"*".equals(key) && !canBeOverridden.contains(key)) {
-          throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be implemented in " + parentClass + " or interfaces " + interfaces);
+          throw new AdapterDefinitionProblem("There is no method named " + key + " to be implemented in " + parentClass + " or interfaces " + interfaces);
         }
       }
     } catch (ClassNotFoundException e) {
-      throw new ClassGenerationDefinitionProblem(e);
+      throw new AdapterDefinitionProblem(e);
     }
   }
 
@@ -177,23 +177,23 @@ public final class ClassGenerationDefinition {
       for (Method abstractMethod : abstractMethods) {
         String name = abstractMethod.getName();
         if (!implementations.containsKey(name) && !hasStarImplementation()) {
-          throw new ClassGenerationDefinitionProblem("There is no implementation or override for: " + abstractMethod);
+          throw new AdapterDefinitionProblem("There is no implementation or override for: " + abstractMethod);
         }
         if (implementations.containsKey(name)) {
           MethodHandle target = implementations.get(name);
           if (argsDifferForImplementation(abstractMethod, target) || varargsMismatch(abstractMethod, target)) {
-            throw new ClassGenerationDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
+            throw new AdapterDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
           }
         }
         if (overrides.containsKey(name)) {
           MethodHandle target = overrides.get(name);
           if (argsDifferForOverride(abstractMethod, target) || varargsMismatch(abstractMethod, target)) {
-            throw new ClassGenerationDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
+            throw new AdapterDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
           }
         }
       }
     } catch (ClassNotFoundException e) {
-      throw new ClassGenerationDefinitionProblem(e);
+      throw new AdapterDefinitionProblem(e);
     }
   }
 
@@ -211,7 +211,7 @@ public final class ClassGenerationDefinition {
 
   private void checkStarConflict() {
     if (hasStarImplementation() && hasStarOverride()) {
-      throw new ClassGenerationDefinitionProblem("Having both a star implementation and a star override is forbidden.");
+      throw new AdapterDefinitionProblem("Having both a star implementation and a star override is forbidden.");
     }
   }
 
@@ -222,19 +222,19 @@ public final class ClassGenerationDefinition {
         Class.forName(iface, true, classLoader);
       }
     } catch (ClassNotFoundException e) {
-      throw new ClassGenerationDefinitionProblem(e);
+      throw new AdapterDefinitionProblem(e);
     }
   }
 
-  private void checkForImplementation(MethodHandle target) throws ClassGenerationDefinitionProblem {
+  private void checkForImplementation(MethodHandle target) throws AdapterDefinitionProblem {
     if (target.type().parameterCount() < 1) {
-      throw new ClassGenerationDefinitionProblem("An implemented method target must take at least 1 argument (the receiver): " + target);
+      throw new AdapterDefinitionProblem("An implemented method target must take at least 1 argument (the receiver): " + target);
     }
   }
 
-  private void checkForOverriding(MethodHandle target) throws ClassGenerationDefinitionProblem {
+  private void checkForOverriding(MethodHandle target) throws AdapterDefinitionProblem {
     if (target.type().parameterCount() < 2) {
-      throw new ClassGenerationDefinitionProblem("An overriden method target must take at least 2 arguments (the 'super' method handle followed by the receiver): " + target);
+      throw new AdapterDefinitionProblem("An overriden method target must take at least 2 arguments (the 'super' method handle followed by the receiver): " + target);
     }
   }
 }

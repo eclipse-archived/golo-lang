@@ -27,7 +27,7 @@ import java.util.Iterator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
-public class ClassGenerationDefinitionTest {
+public class AdapterDefinitionTest {
 
   static class HandleProvider {
 
@@ -57,7 +57,7 @@ public class ClassGenerationDefinitionTest {
   private static final MethodHandle b_mh;
   private static final MethodHandle c_mh;
   private static final MethodHandle d_mh;
-  private static final ClassLoader LOADER = ClassGenerationDefinitionTest.class.getClassLoader();
+  private static final ClassLoader LOADER = AdapterDefinitionTest.class.getClassLoader();
 
   static {
     try {
@@ -74,14 +74,14 @@ public class ClassGenerationDefinitionTest {
 
   @Test
   public void simple_object_subclasses() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .validate();
 
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("java.io.Serializable")
         .validate();
 
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("java.io.Serializable")
         .implementsInterface("java.lang.Runnable")
         .implementsMethod("run", a_mh)
@@ -90,7 +90,7 @@ public class ClassGenerationDefinitionTest {
 
   @Test
   public void interface_ordering() {
-    ClassGenerationDefinition def = new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    AdapterDefinition def = new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("some.Coolness")
         .implementsInterface("awesome.Thing")
         .implementsInterface("cool.Thing");
@@ -101,36 +101,36 @@ public class ClassGenerationDefinitionTest {
     assertThat(iterator.hasNext(), is(false));
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void bad_superclass() {
-    new ClassGenerationDefinition(LOADER, "foo", "this.is.Broken")
+    new AdapterDefinition(LOADER, "foo", "this.is.Broken")
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void bad_interface() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("this.is.Broken")
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void bad_implementation_argcount() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("toString", z_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void bad_override_argcount() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .overridesMethod("toString", a_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void star_conflict() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("*", c_mh)
         .overridesMethod("*", d_mh)
         .validate();
@@ -138,59 +138,59 @@ public class ClassGenerationDefinitionTest {
 
   @Test
   public void star_implements() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("*", c_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void star_implements_bad_target_type() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("*", a_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void star_override_bad_target_type() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .overridesMethod("*", b_mh)
         .validate();
   }
 
   @Test
   public void star_overrides() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .overridesMethod("*", d_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void bad_implementation_target() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("java.io.Serializable")
         .implementsInterface("java.lang.Runnable")
         .implementsMethod("run", b_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void missing_implementation_target() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("java.io.Serializable")
         .implementsInterface("java.lang.Runnable")
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void overriding_nonexistent_method() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .overridesMethod("foo", b_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void bad_override_target() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("java.io.Serializable")
         .implementsInterface("java.lang.Runnable")
         .implementsMethod("run", a_mh)
@@ -200,7 +200,7 @@ public class ClassGenerationDefinitionTest {
 
   @Test
   public void good_override_target() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsInterface("java.io.Serializable")
         .implementsInterface("java.lang.Runnable")
         .implementsMethod("run", a_mh)
@@ -208,23 +208,23 @@ public class ClassGenerationDefinitionTest {
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void implement_missing_method() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("run", a_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void override_missing_method() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("run", a_mh)
         .validate();
   }
 
-  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
   public void override_implementation_conflict() {
-    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+    new AdapterDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("toString", a_mh)
         .overridesMethod("toString", b_mh)
         .validate();
