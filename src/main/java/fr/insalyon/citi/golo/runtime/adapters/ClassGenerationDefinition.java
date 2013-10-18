@@ -96,17 +96,17 @@ public class ClassGenerationDefinition {
   private void checkAllOverridesExist() {
     try {
       Class<?> parentClass = Class.forName(parent, true, classLoader);
-      HashSet<String> canBeOverriden = new HashSet<>();
+      HashSet<String> canBeOverridden = new HashSet<>();
       for (Method method : parentClass.getMethods()) {
-        canBeOverriden.add(method.getName());
+        canBeOverridden.add(method.getName());
       }
       for (Method method : parentClass.getDeclaredMethods()) {
         if (isPublic(method.getModifiers()) || isProtected(method.getModifiers())) {
-          canBeOverriden.add(method.getName());
+          canBeOverridden.add(method.getName());
         }
       }
       for (String key : overrides.keySet()) {
-        if (!"*".equals(key) && !canBeOverriden.contains(key)) {
+        if (!"*".equals(key) && !canBeOverridden.contains(key)) {
           throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be overriden in parent class " + parentClass);
         }
       }
