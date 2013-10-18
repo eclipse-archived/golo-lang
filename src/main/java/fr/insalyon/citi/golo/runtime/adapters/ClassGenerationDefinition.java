@@ -21,18 +21,16 @@ import java.lang.reflect.Method;
 import java.util.*;
 
 import static java.lang.invoke.MethodType.genericMethodType;
-import static java.lang.reflect.Modifier.isAbstract;
-import static java.lang.reflect.Modifier.isProtected;
-import static java.lang.reflect.Modifier.isPublic;
-import static java.util.Collections.unmodifiableList;
+import static java.lang.reflect.Modifier.*;
 import static java.util.Collections.unmodifiableMap;
+import static java.util.Collections.unmodifiableSet;
 
 public final class ClassGenerationDefinition {
 
   private final ClassLoader classLoader;
   private final String name;
   private final String parent;
-  private final LinkedList<String> interfaces = new LinkedList<>();
+  private final TreeSet<String> interfaces = new TreeSet<>();
   private final LinkedHashMap<String, MethodHandle> implementations = new LinkedHashMap<>();
   private final LinkedHashMap<String, MethodHandle> overrides = new LinkedHashMap<>();
 
@@ -50,8 +48,8 @@ public final class ClassGenerationDefinition {
     return parent;
   }
 
-  public List<String> getInterfaces() {
-    return unmodifiableList(interfaces);
+  public Set<String> getInterfaces() {
+    return unmodifiableSet(interfaces);
   }
 
   public Map<String, MethodHandle> getImplementations() {
@@ -89,11 +87,12 @@ public final class ClassGenerationDefinition {
     return overrides.containsKey("*");
   }
 
-  public void validate() throws ClassGenerationDefinitionProblem {
+  public ClassGenerationDefinition validate() throws ClassGenerationDefinitionProblem {
     checkSuperTypesExistence();
     checkStarConflict();
     checkMethodsToBeImplemented();
     checkAllOverridesExist();
+    return this;
   }
 
   private void checkStarImplementationType(String name, MethodHandle target) {

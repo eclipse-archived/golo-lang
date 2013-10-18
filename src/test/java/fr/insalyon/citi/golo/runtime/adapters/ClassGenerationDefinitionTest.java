@@ -16,12 +16,17 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
+import org.hamcrest.collection.IsArrayContainingInAnyOrder;
 import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Iterator;
+
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class ClassGenerationDefinitionTest {
 
@@ -82,6 +87,19 @@ public class ClassGenerationDefinitionTest {
         .implementsInterface("java.lang.Runnable")
         .implementsMethod("run", a_mh)
         .validate();
+  }
+
+  @Test
+  public void interface_ordering() {
+    ClassGenerationDefinition def = new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsInterface("some.Coolness")
+        .implementsInterface("awesome.Thing")
+        .implementsInterface("cool.Thing");
+    Iterator<String> iterator = def.getInterfaces().iterator();
+    assertThat(iterator.next(), is("awesome.Thing"));
+    assertThat(iterator.next(), is("cool.Thing"));
+    assertThat(iterator.next(), is("some.Coolness"));
+    assertThat(iterator.hasNext(), is(false));
   }
 
   @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
