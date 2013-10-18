@@ -70,11 +70,11 @@ function list_sorted_reverse = {
 }
 
 function list_count = {
- return list_data(): count(|item| -> item >=2)
+ return list_data(): count(|item| -> item >= 2)
 }
 
 function list_exists = {
- return list_data(): exists(|item| -> item ==2)
+ return list_data(): exists(|item| -> item == 2)
 }
 # ............................................................................................... #
 
@@ -133,11 +133,11 @@ function maps_each = {
 }
 
 function maps_count = {
- return map_data(): count(|key, item| -> item >=2)
+ return map_data(): count(|key, item| -> item >= 2)
 }
 
 function maps_exists = {
- return map_data(): exists(|key, item| -> item ==2)
+ return map_data(): exists(|key, item| -> item == 2)
 }
 
 # ............................................................................................... #
