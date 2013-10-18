@@ -17,11 +17,12 @@
 package fr.insalyon.citi.golo.runtime.adapters;
 
 import java.lang.invoke.MethodHandle;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.lang.reflect.Method;
+import java.util.*;
 
+import static java.lang.reflect.Modifier.isAbstract;
+import static java.lang.reflect.Modifier.isProtected;
+import static java.lang.reflect.Modifier.isPublic;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
@@ -88,6 +89,87 @@ public class ClassGenerationDefinition {
   public void validate() throws ClassGenerationDefinitionProblem {
     checkSuperTypesExistence();
     checkStarConflict();
+    checkMethodsToBeImplemented();
+    checkAllOverridesExist();
+  }
+
+  private void checkAllOverridesExist() {
+    try {
+      Class<?> parentClass = Class.forName(parent, true, classLoader);
+      HashSet<String> canBeOverriden = new HashSet<>();
+      for (Method method : parentClass.getMethods()) {
+        canBeOverriden.add(method.getName());
+      }
+      for (Method method : parentClass.getDeclaredMethods()) {
+        if (isPublic(method.getModifiers()) || isProtected(method.getModifiers())) {
+          canBeOverriden.add(method.getName());
+        }
+      }
+      for (String key : overrides.keySet()) {
+        if (!"*".equals(key) && !canBeOverriden.contains(key)) {
+          throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be overriden in parent class " + parentClass);
+        }
+      }
+    } catch (ClassNotFoundException e) {
+      throw new ClassGenerationDefinitionProblem(e);
+    }
+  }
+
+  private Set<Method> abstractMethodsIn(Class<?> klass) {
+    LinkedHashSet<Method> abstractMethods = new LinkedHashSet<>();
+    for (Method method : klass.getMethods()) {
+      if (isAbstract(method.getModifiers())) {
+        abstractMethods.add(method);
+      }
+    }
+    for (Method method : klass.getDeclaredMethods()) {
+      if (isAbstract(method.getModifiers())) {
+        abstractMethods.add(method);
+      }
+    }
+    return abstractMethods;
+  }
+
+  private void checkMethodsToBeImplemented() {
+    try {
+      LinkedHashSet<Method> abstractMethods = new LinkedHashSet<>();
+      abstractMethods.addAll(abstractMethodsIn(Class.forName(parent, true, classLoader)));
+      for (String iface : interfaces) {
+        abstractMethods.addAll(abstractMethodsIn(Class.forName(iface, true, classLoader)));
+      }
+      for (Method abstractMethod : abstractMethods) {
+        String name = abstractMethod.getName();
+        if (!implementations.containsKey(name) && !overrides.containsKey(name)) {
+          throw new ClassGenerationDefinitionProblem("There is no implementation or override for: " + abstractMethod);
+        }
+        if (implementations.containsKey(name)) {
+          MethodHandle target = implementations.get(name);
+          if (argsDifferForImplementation(abstractMethod, target) || varargsMismatch(abstractMethod, target)) {
+            throw new ClassGenerationDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
+          }
+        }
+        if (overrides.containsKey(name)) {
+          MethodHandle target = overrides.get(name);
+          if (argsDifferForOverride(abstractMethod, target) || varargsMismatch(abstractMethod, target)) {
+            throw new ClassGenerationDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
+          }
+        }
+      }
+    } catch (ClassNotFoundException e) {
+      throw new ClassGenerationDefinitionProblem(e);
+    }
+  }
+
+  private boolean varargsMismatch(Method abstractMethod, MethodHandle target) {
+    return abstractMethod.isVarArgs() != target.isVarargsCollector();
+  }
+
+  private boolean argsDifferForImplementation(Method abstractMethod, MethodHandle target) {
+    return (target.type().parameterCount() - 1 != abstractMethod.getParameterTypes().length);
+  }
+
+  private boolean argsDifferForOverride(Method abstractMethod, MethodHandle target) {
+    return (target.type().parameterCount() - 2 != abstractMethod.getParameterTypes().length);
   }
 
   private void checkStarConflict() {

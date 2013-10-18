@@ -132,4 +132,48 @@ public class ClassGenerationDefinitionTest {
         .overridesMethod("*", b_mh)
         .validate();
   }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void bad_implementation_target() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsInterface("java.io.Serializable")
+        .implementsInterface("java.lang.Runnable")
+        .implementsMethod("run", b_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void missing_implementation_target() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsInterface("java.io.Serializable")
+        .implementsInterface("java.lang.Runnable")
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void overriding_nonexistent_method() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .overridesMethod("foo", b_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void bad_override_target() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsInterface("java.io.Serializable")
+        .implementsInterface("java.lang.Runnable")
+        .implementsMethod("run", a_mh)
+        .overridesMethod("toString", a_mh)
+        .validate();
+  }
+
+  @Test
+  public void good_override_target() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsInterface("java.io.Serializable")
+        .implementsInterface("java.lang.Runnable")
+        .implementsMethod("run", a_mh)
+        .overridesMethod("toString", b_mh)
+        .validate();
+  }
 }
