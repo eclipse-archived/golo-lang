@@ -73,9 +73,18 @@ function list_count = {
  return list_data(): count(|item| -> item >= 2)
 }
 
+function list_count_zero = {
+ return list_data(): count(|item| -> item >= 5)
+}
+
 function list_exists = {
  return list_data(): exists(|item| -> item == 2)
 }
+
+function list_not_exists = {
+ return list_data(): exists(|item| -> item >= 5)
+}
+
 # ............................................................................................... #
 
 local function set_data = {
@@ -136,8 +145,16 @@ function maps_count = {
  return map_data(): count(|key, item| -> item >= 2)
 }
 
+function maps_count_zero = {
+ return map_data(): count(|key, item| -> item >= 5)
+}
+
 function maps_exists = {
  return map_data(): exists(|key, item| -> item == 2)
+}
+
+function maps_not_exists = {
+ return map_data(): exists(|key, item| -> item >= 5)
 }
 
 # ............................................................................................... #

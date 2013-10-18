@@ -184,10 +184,24 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_count_zero() throws Throwable {
+    Method list_count_zero = moduleClass.getMethod("list_count_zero");
+    Object result = list_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
   public void list_exists() throws Throwable {
     Method list_exists = moduleClass.getMethod("list_exists");
     Object result = list_exists.invoke(null);
     assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void list_not_exists() throws Throwable {
+    Method list_not_exists = moduleClass.getMethod("list_not_exists");
+    Object result = list_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
   }
 
   @Test
@@ -333,10 +347,24 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void maps_count_zero() throws Throwable {
+    Method maps_count_zero = moduleClass.getMethod("maps_count_zero");
+    Object result = maps_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
   public void maps_exists() throws Throwable {
     Method maps_exists = moduleClass.getMethod("maps_exists");
     Object result = maps_exists.invoke(null);
     assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void maps_not_exists() throws Throwable {
+    Method maps_not_exists = moduleClass.getMethod("maps_not_exists");
+    Object result = maps_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
   }
 
   @Test
