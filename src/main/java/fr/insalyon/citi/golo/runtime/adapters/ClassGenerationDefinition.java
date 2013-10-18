@@ -27,7 +27,7 @@ import static java.lang.reflect.Modifier.isPublic;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.unmodifiableMap;
 
-public class ClassGenerationDefinition {
+public final class ClassGenerationDefinition {
 
   private final ClassLoader classLoader;
   private final String name;
