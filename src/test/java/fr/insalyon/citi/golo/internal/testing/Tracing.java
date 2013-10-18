@@ -16,6 +16,11 @@
 
 package fr.insalyon.citi.golo.internal.testing;
 
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.util.TraceClassVisitor;
+
+import java.io.PrintWriter;
+
 public class Tracing {
 
   public static final boolean shouldTrace = System.getProperty("golo.test.trace", "no").equals("yes");
@@ -30,5 +35,11 @@ public class Tracing {
 
   public static void println(Object obj) {
     System.out.println(obj);
+  }
+
+  public static void traceBytecode(byte[] bytecode) {
+    ClassReader reader = new ClassReader(bytecode);
+    TraceClassVisitor tracer = new TraceClassVisitor(new PrintWriter(System.out));
+    reader.accept(tracer, 0);
   }
 }
