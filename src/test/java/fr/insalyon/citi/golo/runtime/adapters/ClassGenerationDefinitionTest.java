@@ -16,7 +16,6 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
-import org.hamcrest.collection.IsArrayContainingInAnyOrder;
 import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
@@ -205,6 +204,28 @@ public class ClassGenerationDefinitionTest {
         .implementsInterface("java.io.Serializable")
         .implementsInterface("java.lang.Runnable")
         .implementsMethod("run", a_mh)
+        .overridesMethod("toString", b_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void implement_missing_method() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsMethod("run", a_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void override_missing_method() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsMethod("run", a_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void override_implementation_conflict() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsMethod("toString", a_mh)
         .overridesMethod("toString", b_mh)
         .validate();
   }

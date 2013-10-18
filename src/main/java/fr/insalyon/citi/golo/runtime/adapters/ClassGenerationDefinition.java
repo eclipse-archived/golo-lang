@@ -91,8 +91,17 @@ public final class ClassGenerationDefinition {
     checkSuperTypesExistence();
     checkStarConflict();
     checkMethodsToBeImplemented();
-    checkAllOverridesExist();
+    checkOverridesImplementationsConflict();
+    checkAllOverridesAndImplementationsExist();
     return this;
+  }
+
+  private void checkOverridesImplementationsConflict() {
+    for (String key : implementations.keySet()) {
+      if (!"*".equals(key) && overrides.containsKey(key)) {
+        throw new ClassGenerationDefinitionProblem("Conflict: there is both an implementation and an override for method " + key);
+      }
+    }
   }
 
   private void checkStarImplementationType(String name, MethodHandle target) {
@@ -107,7 +116,7 @@ public final class ClassGenerationDefinition {
     }
   }
 
-  private void checkAllOverridesExist() {
+  private void checkAllOverridesAndImplementationsExist() {
     try {
       Class<?> parentClass = Class.forName(parent, true, classLoader);
       HashSet<String> canBeOverridden = new HashSet<>();
@@ -121,7 +130,17 @@ public final class ClassGenerationDefinition {
       }
       for (String key : overrides.keySet()) {
         if (!"*".equals(key) && !canBeOverridden.contains(key)) {
-          throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be overriden in parent class " + parentClass);
+          throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be overridden in " + parentClass);
+        }
+      }
+      for (String iface : interfaces) {
+        for (Method method : Class.forName(iface, true, classLoader).getMethods()) {
+          canBeOverridden.add(method.getName());
+        }
+      }
+      for (String key : implementations.keySet()) {
+        if (!"*".equals(key) && !canBeOverridden.contains(key)) {
+          throw new ClassGenerationDefinitionProblem("There is no method named " + key + " to be implemented in " + parentClass + " or interfaces " + interfaces);
         }
       }
     } catch (ClassNotFoundException e) {
