@@ -40,6 +40,10 @@ public final class ClassGenerationDefinition {
     this.parent = parent;
   }
 
+  public ClassLoader getClassLoader() {
+    return classLoader;
+  }
+
   public String getName() {
     return name;
   }
