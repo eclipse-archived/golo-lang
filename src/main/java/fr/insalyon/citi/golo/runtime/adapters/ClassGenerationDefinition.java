@@ -20,6 +20,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.*;
 
+import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.isAbstract;
 import static java.lang.reflect.Modifier.isProtected;
 import static java.lang.reflect.Modifier.isPublic;
@@ -68,12 +69,14 @@ public class ClassGenerationDefinition {
 
   public ClassGenerationDefinition implementsMethod(String name, MethodHandle target) throws ClassGenerationDefinitionProblem {
     checkForImplementation(target);
+    checkStarImplementationType(name, target);
     implementations.put(name, target);
     return this;
   }
 
   public ClassGenerationDefinition overridesMethod(String name, MethodHandle target) throws ClassGenerationDefinitionProblem {
     checkForOverriding(target);
+    checkStarOverrideType(name, target);
     overrides.put(name, target);
     return this;
   }
@@ -91,6 +94,18 @@ public class ClassGenerationDefinition {
     checkStarConflict();
     checkMethodsToBeImplemented();
     checkAllOverridesExist();
+  }
+
+  private void checkStarImplementationType(String name, MethodHandle target) {
+    if ("*".equals(name) && !target.type().equals(genericMethodType(0, true))) {
+      throw new ClassGenerationDefinitionProblem("A * implementation must be of type (Object...)Object: " + target);
+    }
+  }
+
+  private void checkStarOverrideType(String name, MethodHandle target) {
+    if ("*".equals(name) && !target.type().equals(genericMethodType(1, true))) {
+      throw new ClassGenerationDefinitionProblem("A * override must be of type (Object, Object...)Object: " + target);
+    }
   }
 
   private void checkAllOverridesExist() {
@@ -139,7 +154,7 @@ public class ClassGenerationDefinition {
       }
       for (Method abstractMethod : abstractMethods) {
         String name = abstractMethod.getName();
-        if (!implementations.containsKey(name) && !overrides.containsKey(name)) {
+        if (!implementations.containsKey(name) && !hasStarImplementation()) {
           throw new ClassGenerationDefinitionProblem("There is no implementation or override for: " + abstractMethod);
         }
         if (implementations.containsKey(name)) {

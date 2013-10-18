@@ -39,11 +39,11 @@ public class ClassGenerationDefinitionTest {
       return null;
     }
 
-    static Object c(Object receiver, Object a1) {
+    static Object c(Object... args) {
       return null;
     }
 
-    static Object d(Object superMethod, Object receiver, Object a1) {
+    static Object d(Object superMethod, Object... args) {
       return null;
     }
   }
@@ -61,8 +61,8 @@ public class ClassGenerationDefinitionTest {
       z_mh = lookup.findStatic(HandleProvider.class, "z", MethodType.genericMethodType(0));
       a_mh = lookup.findStatic(HandleProvider.class, "a", MethodType.genericMethodType(1));
       b_mh = lookup.findStatic(HandleProvider.class, "b", MethodType.genericMethodType(2));
-      c_mh = lookup.findStatic(HandleProvider.class, "c", MethodType.genericMethodType(2));
-      d_mh = lookup.findStatic(HandleProvider.class, "d", MethodType.genericMethodType(3));
+      c_mh = lookup.findStatic(HandleProvider.class, "c", MethodType.genericMethodType(0, true));
+      d_mh = lookup.findStatic(HandleProvider.class, "d", MethodType.genericMethodType(1, true));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new TestNGException(e);
     }
@@ -114,22 +114,36 @@ public class ClassGenerationDefinitionTest {
   @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
   public void star_conflict() {
     new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
-        .implementsMethod("*", a_mh)
-        .overridesMethod("*", b_mh)
+        .implementsMethod("*", c_mh)
+        .overridesMethod("*", d_mh)
         .validate();
   }
 
   @Test
   public void star_implements() {
     new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .implementsMethod("*", c_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void star_implements_bad_target_type() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
         .implementsMethod("*", a_mh)
+        .validate();
+  }
+
+  @Test(expectedExceptions = ClassGenerationDefinitionProblem.class)
+  public void star_override_bad_target_type() {
+    new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
+        .overridesMethod("*", b_mh)
         .validate();
   }
 
   @Test
   public void star_overrides() {
     new ClassGenerationDefinition(LOADER, "foo", "java.lang.Object")
-        .overridesMethod("*", b_mh)
+        .overridesMethod("*", d_mh)
         .validate();
   }
 
