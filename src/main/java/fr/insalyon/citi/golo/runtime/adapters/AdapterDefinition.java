@@ -125,10 +125,12 @@ public final class AdapterDefinition {
       Class<?> parentClass = Class.forName(parent, true, classLoader);
       HashSet<String> canBeOverridden = new HashSet<>();
       for (Method method : parentClass.getMethods()) {
-        canBeOverridden.add(method.getName());
+        if (!isStatic(method.getModifiers())) {
+          canBeOverridden.add(method.getName());
+        }
       }
       for (Method method : parentClass.getDeclaredMethods()) {
-        if (isPublic(method.getModifiers()) || isProtected(method.getModifiers())) {
+        if (!isStatic(method.getModifiers())) {
           canBeOverridden.add(method.getName());
         }
       }
