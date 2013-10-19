@@ -26,7 +26,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.*;
 
 public class JavaBytecodeAdapterGeneratorTest {
 
@@ -43,11 +43,17 @@ public class JavaBytecodeAdapterGeneratorTest {
     public static Object wrongEquals(Object receiver, Object other) {
       return !(receiver == other) && !other.equals(receiver);
     }
+
+    public static Object decorateToString(Object superTarget, Object receiver) throws Throwable {
+      MethodHandle super_mh = (MethodHandle) superTarget;
+      return "{{" + super_mh.invoke(receiver) + "}}";
+    }
   }
 
   private static final MethodHandle evilCall_mh;
   private static final MethodHandle evilCatchAll_mh;
   private static final MethodHandle wrongEquals_mh;
+  private static final MethodHandle decorateToString_mh;
 
   private static final AtomicInteger ID = new AtomicInteger(0);
 
@@ -57,6 +63,7 @@ public class JavaBytecodeAdapterGeneratorTest {
       evilCall_mh = lookup.findStatic(Functions.class, "evilCall", genericMethodType(1));
       evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(0, true));
       wrongEquals_mh = lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2));
+      decorateToString_mh = lookup.findStatic(Functions.class, "decorateToString", genericMethodType(2));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
@@ -119,5 +126,19 @@ public class JavaBytecodeAdapterGeneratorTest {
     assertThat(object.equals(666), is(true));
     assertThat(object.equals("123"), is(true));
     assertThat(object.equals(object), is(false));
+  }
+
+  @Test
+  public void decorateToString_implement() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.lang.Object")
+        .overridesMethod("toString", decorateToString_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    Object object = adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
+    String repr = object.toString();
+    assertThat(repr, both(startsWith("{{")).and(endsWith("}}")));
   }
 }
