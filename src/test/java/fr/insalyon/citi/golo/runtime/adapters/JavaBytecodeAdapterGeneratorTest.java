@@ -21,6 +21,7 @@ import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.util.ArrayList;
 import java.util.concurrent.Callable;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -140,5 +141,22 @@ public class JavaBytecodeAdapterGeneratorTest {
     adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
     String repr = object.toString();
     assertThat(repr, both(startsWith("{{")).and(endsWith("}}")));
+  }
+
+  @Test
+  public void decorateToString_arraylist_implement() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.util.ArrayList")
+        .overridesMethod("toString", decorateToString_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    @SuppressWarnings("unchecked")
+    ArrayList<Integer> list = (ArrayList<Integer>) adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(list, definition);
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    assertThat(list.toString(), is("{{[1, 2, 3]}}"));
   }
 }
