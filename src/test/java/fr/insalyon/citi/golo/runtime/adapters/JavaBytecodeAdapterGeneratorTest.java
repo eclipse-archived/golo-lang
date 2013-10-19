@@ -120,19 +120,4 @@ public class JavaBytecodeAdapterGeneratorTest {
     assertThat(object.equals("123"), is(true));
     assertThat(object.equals(object), is(false));
   }
-
-  @Test
-  public void wrongEquals_implement_star() throws Throwable {
-    AdapterDefinition definition = new AdapterDefinition(
-        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.lang.Object")
-        .implementsMethod("equals", wrongEquals_mh)
-        .validate();
-    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
-    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
-    Object object = adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
-    assertThat(object.equals(666), is(true));
-    assertThat(object.equals("123"), is(true));
-    assertThat(object.equals(object), is(false));
-  }
 }
