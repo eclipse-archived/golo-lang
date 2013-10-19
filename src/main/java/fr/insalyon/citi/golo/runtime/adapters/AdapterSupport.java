@@ -62,6 +62,9 @@ public class AdapterSupport {
     AdapterDefinition definition = (AdapterDefinition) receiverClass.getField(DEFINITION_FIELD).get(args[0]);
     Map<String, MethodHandle> implementations = definition.getImplementations();
     MethodHandle target = implementations.get(callSite.name);
+    if (target == null) {
+      target = implementations.get("*");
+    }
     callSite.setTarget(target.asType(callSite.type()));
     return target.invokeWithArguments(args);
   }
