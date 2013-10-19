@@ -219,7 +219,10 @@ public final class AdapterDefinition {
 
   private void checkSuperTypesExistence() {
     try {
-      Class.forName(parent, true, classLoader);
+      Class<?> parentClass = Class.forName(parent, true, classLoader);
+      if (parentClass.isInterface()) {
+        throw new AdapterDefinitionProblem("The parent class cannot be an interface: " + parentClass.getName());
+      }
       for (String iface : interfaces) {
         Class.forName(iface, true, classLoader);
       }

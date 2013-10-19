@@ -229,4 +229,10 @@ public class AdapterDefinitionTest {
         .overridesMethod("toString", b_mh)
         .validate();
   }
+
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
+  public void extend_interface() {
+    new AdapterDefinition(LOADER, "foo", "java.lang.Runnable")
+        .validate();
+  }
 }

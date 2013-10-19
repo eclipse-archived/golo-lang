@@ -16,16 +16,53 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
-import java.lang.invoke.CallSite;
-import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
+import java.lang.invoke.*;
+import java.util.Map;
 
 public class AdapterSupport {
 
   public static final String DEFINITION_FIELD = "_$_$adapter_$definition";
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
+  private static final MethodHandle FALLBACK;
 
-    return null;
+  static {
+    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    try {
+      FALLBACK = lookup.findStatic(AdapterSupport.class, "fallback", MethodType.methodType(Object.class, AdapterCallSite.class, Object[].class));
+    } catch (NoSuchMethodException | IllegalAccessException e) {
+      throw new Error("Could not bootstrap the required method handles", e);
+    }
+  }
+
+  static final class AdapterCallSite extends MutableCallSite {
+
+    final MethodHandles.Lookup callerLookup;
+    final String name;
+
+    AdapterCallSite(MethodType type, MethodHandles.Lookup callerLookup, String name) {
+      super(type);
+      this.callerLookup = callerLookup;
+      this.name = name;
+    }
+  }
+
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
+    AdapterCallSite callSite = new AdapterCallSite(type, caller, name);
+    MethodHandle fallbackHandle = FALLBACK
+        .bindTo(callSite)
+        .asCollector(Object[].class, type.parameterCount())
+        .asType(type);
+    callSite.setTarget(fallbackHandle);
+    return callSite;
+  }
+
+  public static Object fallback(AdapterCallSite callSite, Object[] args) throws Throwable {
+    Class<?> receiverClass = args[0].getClass();
+    Class<?> receiverParentClass = receiverClass.getSuperclass();
+    AdapterDefinition definition = (AdapterDefinition) receiverClass.getField(DEFINITION_FIELD).get(args[0]);
+    Map<String, MethodHandle> implementations = definition.getImplementations();
+    MethodHandle target = implementations.get(callSite.name);
+    callSite.setTarget(target.asType(callSite.type()));
+    return target.invokeWithArguments(args);
   }
 }

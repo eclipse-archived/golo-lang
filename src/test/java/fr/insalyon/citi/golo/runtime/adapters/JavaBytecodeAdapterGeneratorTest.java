@@ -19,7 +19,32 @@ package fr.insalyon.citi.golo.runtime.adapters;
 import fr.insalyon.citi.golo.internal.testing.Tracing;
 import org.testng.annotations.Test;
 
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
+import java.util.concurrent.Callable;
+
+import static java.lang.invoke.MethodType.genericMethodType;
+
 public class JavaBytecodeAdapterGeneratorTest {
+
+  public static class CallableProvider {
+
+    public static Object evilCall(Object receiver) {
+      return 666;
+    }
+  }
+
+  private static final MethodHandle evilCall_mh;
+
+  static {
+    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    try {
+      evilCall_mh = lookup.findStatic(CallableProvider.class, "evilCall", genericMethodType(1));
+    } catch (Throwable t) {
+      throw new RuntimeException(t);
+    }
+  }
 
   @Test
   public void trace_check() {
@@ -31,5 +56,20 @@ public class JavaBytecodeAdapterGeneratorTest {
     Class<?> Foo = generator.generateIntoDefinitionClassloader(definition);
     byte[] bytecode = generator.generate(definition);
     Tracing.traceBytecode(bytecode);
+  }
+
+  @Test
+  public void callable_check() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$1", "java.lang.Object")
+        .implementsInterface("java.util.concurrent.Callable")
+        .implementsMethod("call", evilCall_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+//    Tracing.traceBytecode(generator.generate(definition));
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    Callable<?> callable = (Callable<?>) adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(callable, definition);
+    System.out.println(callable.call());
   }
 }

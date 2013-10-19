@@ -197,7 +197,7 @@ public class JavaBytecodeAdapterGenerator {
       if (type == Integer.TYPE) {
         methodVisitor.visitInsn(IRETURN);
       } else if (type == Void.TYPE) {
-        methodVisitor.visitInsn(ARETURN);
+        methodVisitor.visitInsn(RETURN);
       } else if (type == Boolean.TYPE) {
         methodVisitor.visitInsn(IRETURN);
       } else if (type == Byte.TYPE) {
