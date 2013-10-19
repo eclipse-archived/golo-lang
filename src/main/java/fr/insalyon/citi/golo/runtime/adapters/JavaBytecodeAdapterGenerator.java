@@ -22,13 +22,15 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Type;
 
 import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
-import java.util.LinkedList;
+import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
-import static java.lang.reflect.Modifier.isPublic;
-import static java.lang.reflect.Modifier.isStatic;
+import static fr.insalyon.citi.golo.runtime.adapters.AdapterSupport.DEFINITION_FIELD;
+import static java.lang.reflect.Modifier.*;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -38,7 +40,7 @@ public class JavaBytecodeAdapterGenerator {
   private static final Handle ADAPTER_HANDLE;
 
   static {
-    String bootstrapOwner = "tbd";
+    String bootstrapOwner = "fr/insalyon/citi/golo/runtime/adapters/AdapterSupport";
     String bootstrapMethod = "bootstrap";
     String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
     ADAPTER_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
@@ -64,10 +66,30 @@ public class JavaBytecodeAdapterGenerator {
         adapterDefinition.getName(), null,
         jvmType(adapterDefinition.getParent()),
         interfaceTypesArray(adapterDefinition.getInterfaces()));
+    makeDefinitionField(classWriter);
     makeConstructors(classWriter, adapterDefinition);
     makeFrontendOverrides(classWriter, adapterDefinition);
     classWriter.visitEnd();
     return classWriter.toByteArray();
+  }
+
+  public Class<?> generateIntoDefinitionClassloader(AdapterDefinition adapterDefinition) {
+    try {
+      byte[] bytecode = generate(adapterDefinition);
+      ClassLoader classLoader = adapterDefinition.getClassLoader();
+      Method defineClass = ClassLoader.class.getDeclaredMethod("defineClass", String.class, byte[].class, int.class, int.class);
+      if (!defineClass.isAccessible()) {
+        defineClass.setAccessible(true);
+      }
+      return (Class<?>) defineClass.invoke(classLoader, adapterDefinition.getName(), bytecode, 0, bytecode.length);
+    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  private void makeDefinitionField(ClassWriter classWriter) {
+    classWriter.visitField(ACC_PUBLIC, DEFINITION_FIELD,
+        "Lfr/insalyon/citi/golo/runtime/adapters/AdapterDefinition;", null, null).visitEnd();
   }
 
   private void makeFrontendOverrides(ClassWriter classWriter, AdapterDefinition adapterDefinition) {
@@ -97,17 +119,17 @@ public class JavaBytecodeAdapterGenerator {
     }
   }
 
-  private LinkedList<Method> getAllVirtualMethods(AdapterDefinition adapterDefinition) {
+  private HashSet<Method> getAllVirtualMethods(AdapterDefinition adapterDefinition) {
     try {
-      LinkedList<Method> methods = new LinkedList<>();
+      HashSet<Method> methods = new HashSet<>();
       Class<?> parentClass = Class.forName(adapterDefinition.getParent(), true, adapterDefinition.getClassLoader());
       for (Method method : parentClass.getMethods()) {
-        if (!isStatic(method.getModifiers())) {
+        if (!isStatic(method.getModifiers()) && !isFinal(method.getModifiers())) {
           methods.add(method);
         }
       }
       for (Method method : parentClass.getDeclaredMethods()) {
-        if (!isStatic(method.getModifiers())) {
+        if (!isStatic(method.getModifiers()) && !isPrivate(method.getModifiers()) && !isFinal(method.getModifiers())) {
           methods.add(method);
         }
       }

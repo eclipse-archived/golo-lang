@@ -16,20 +16,16 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
-import fr.insalyon.citi.golo.internal.testing.Tracing;
-import org.testng.annotations.Test;
+import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodType;
 
-public class JavaBytecodeAdapterGeneratorTest {
+public class AdapterSupport {
 
-  @Test
-  public void trace_check() {
-    AdapterDefinition definition = new AdapterDefinition(
-        JavaBytecodeAdapterGenerator.class.getClassLoader(), "FooFutureTask","java.util.concurrent.FutureTask")
-        .implementsInterface("java.io.Serializable")
-        .validate();
-    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
-    Class<?> Foo = generator.generateIntoDefinitionClassloader(definition);
-    byte[] bytecode = generator.generate(definition);
-    Tracing.traceBytecode(bytecode);
+  public static final String DEFINITION_FIELD = "_$_$adapter_$definition";
+
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
+
+    return null;
   }
 }
