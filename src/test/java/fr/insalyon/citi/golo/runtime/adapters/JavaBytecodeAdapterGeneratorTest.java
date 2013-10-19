@@ -49,12 +49,26 @@ public class JavaBytecodeAdapterGeneratorTest {
       MethodHandle super_mh = (MethodHandle) superTarget;
       return "{{" + super_mh.invoke(receiver) + "}}";
     }
+
+    public static Object proxyList(Object superTarget, Object name, Object... args) throws Throwable {
+      MethodHandle super_mh = (MethodHandle) superTarget;
+      String method = (String) name;
+      switch (method) {
+        case "add":
+          return super_mh.invoke(args[0], args[1] + "!");
+        case "toString":
+          return "{{" + super_mh.invoke(args[0]) + "}}";
+        default:
+          return super_mh.invokeWithArguments(args);
+      }
+    }
   }
 
   private static final MethodHandle evilCall_mh;
   private static final MethodHandle evilCatchAll_mh;
   private static final MethodHandle wrongEquals_mh;
   private static final MethodHandle decorateToString_mh;
+  private static final MethodHandle proxyList_mh;
 
   private static final AtomicInteger ID = new AtomicInteger(0);
 
@@ -65,6 +79,7 @@ public class JavaBytecodeAdapterGeneratorTest {
       evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(0, true));
       wrongEquals_mh = lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2));
       decorateToString_mh = lookup.findStatic(Functions.class, "decorateToString", genericMethodType(2));
+      proxyList_mh = lookup.findStatic(Functions.class, "proxyList", genericMethodType(2, true));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
@@ -144,7 +159,7 @@ public class JavaBytecodeAdapterGeneratorTest {
   }
 
   @Test
-  public void decorateToString_arraylist_implement() throws Throwable {
+  public void decorateToString_arraylist_override() throws Throwable {
     AdapterDefinition definition = new AdapterDefinition(
         JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.util.ArrayList")
         .overridesMethod("toString", decorateToString_mh)
@@ -158,5 +173,22 @@ public class JavaBytecodeAdapterGeneratorTest {
     list.add(2);
     list.add(3);
     assertThat(list.toString(), is("{{[1, 2, 3]}}"));
+  }
+
+  @Test
+  public void proxyList_override_star() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.util.ArrayList")
+        .overridesMethod("*", proxyList_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    @SuppressWarnings("unchecked")
+    ArrayList<Integer> list = (ArrayList<Integer>) adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(list, definition);
+    list.add(1);
+    list.add(2);
+    list.add(3);
+    assertThat(list.toString(), is("{{[1!, 2!, 3!]}}"));
   }
 }

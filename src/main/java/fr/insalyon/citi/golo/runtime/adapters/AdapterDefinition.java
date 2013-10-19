@@ -115,7 +115,7 @@ public final class AdapterDefinition {
   }
 
   private void checkStarOverrideType(String name, MethodHandle target) {
-    if ("*".equals(name) && !target.type().equals(genericMethodType(1, true))) {
+    if ("*".equals(name) && !target.type().equals(genericMethodType(2, true))) {
       throw new AdapterDefinitionProblem("A * override must be of type (Object, Object...)Object: " + target);
     }
   }

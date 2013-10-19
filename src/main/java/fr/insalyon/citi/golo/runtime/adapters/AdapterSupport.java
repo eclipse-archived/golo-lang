@@ -69,13 +69,19 @@ public class AdapterSupport {
       Map<String, MethodHandle> overrides = definition.getOverrides();
       MethodHandle superTarget = callSite.callerLookup.findSpecial(receiverParentClass, callSite.name, callSite.type().dropParameterTypes(0, 1), receiverClass);
       target = overrides.get(callSite.name);
+      boolean star = false;
       if (target == null) {
         target = overrides.get("*");
+        star = true;
       }
       if (target == null) {
         target = superTarget;
       } else {
         target = target.bindTo(superTarget);
+        if (star) {
+          target = target.bindTo(callSite.name);
+          target = target.asVarargsCollector(Object[].class);
+        }
       }
     }
     callSite.setTarget(target.asType(callSite.type()));
