@@ -21,14 +21,16 @@ import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.concurrent.Callable;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static java.lang.invoke.MethodType.genericMethodType;
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.is;
 
 public class JavaBytecodeAdapterGeneratorTest {
 
-  public static class CallableProvider {
+  public static class Functions {
 
     public static Object evilCall(Object receiver) {
       return 666;
@@ -37,25 +39,33 @@ public class JavaBytecodeAdapterGeneratorTest {
     public static Object evilCatchAll(Object... args) {
       return 666;
     }
+
+    public static Object wrongEquals(Object receiver, Object other) {
+      return !(receiver == other) && !other.equals(receiver);
+    }
   }
 
   private static final MethodHandle evilCall_mh;
   private static final MethodHandle evilCatchAll_mh;
+  private static final MethodHandle wrongEquals_mh;
+
+  private static final AtomicInteger ID = new AtomicInteger(0);
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
-      evilCall_mh = lookup.findStatic(CallableProvider.class, "evilCall", genericMethodType(1));
-      evilCatchAll_mh = lookup.findStatic(CallableProvider.class, "evilCatchAll", genericMethodType(0, true));
+      evilCall_mh = lookup.findStatic(Functions.class, "evilCall", genericMethodType(1));
+      evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(0, true));
+      wrongEquals_mh = lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
   }
 
-  @Test
+  @Test(enabled = false)
   public void trace_check() {
     AdapterDefinition definition = new AdapterDefinition(
-        JavaBytecodeAdapterGenerator.class.getClassLoader(), "FooFutureTask","java.util.concurrent.FutureTask")
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "FooFutureTask", "java.util.concurrent.FutureTask")
         .implementsInterface("java.io.Serializable")
         .validate();
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
@@ -65,18 +75,64 @@ public class JavaBytecodeAdapterGeneratorTest {
   }
 
   @Test
-  public void callable_check() throws Throwable {
+  public void evil_callable_implement() throws Throwable {
     AdapterDefinition definition = new AdapterDefinition(
-        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$1", "java.lang.Object")
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.lang.Object")
         .implementsInterface("java.util.concurrent.Callable")
-//        .implementsMethod("call", evilCall_mh)
-        .implementsMethod("*", evilCatchAll_mh)
+        .implementsMethod("call", evilCall_mh)
         .validate();
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
-//    Tracing.traceBytecode(generator.generate(definition));
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
     Callable<?> callable = (Callable<?>) adapter.newInstance();
     adapter.getField(AdapterSupport.DEFINITION_FIELD).set(callable, definition);
-    System.out.println(callable.call());
+    assertThat(callable.call(), is((Object) 666));
+    assertThat(callable.call(), is((Object) 666));
+    assertThat(callable.call(), is((Object) 666));
+  }
+
+  @Test
+  public void evil_callable_implement_star() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.lang.Object")
+        .implementsInterface("java.util.concurrent.Callable")
+        .implementsMethod("*", evilCatchAll_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    Callable<?> callable = (Callable<?>) adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(callable, definition);
+    assertThat(callable.call(), is((Object) 666));
+    assertThat(callable.call(), is((Object) 666));
+    assertThat(callable.call(), is((Object) 666));
+  }
+
+  @Test
+  public void wrongEquals_implement() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.lang.Object")
+        .implementsMethod("equals", wrongEquals_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    Object object = adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
+    assertThat(object.equals(666), is(true));
+    assertThat(object.equals("123"), is(true));
+    assertThat(object.equals(object), is(false));
+  }
+
+  @Test
+  public void wrongEquals_implement_star() throws Throwable {
+    AdapterDefinition definition = new AdapterDefinition(
+        JavaBytecodeAdapterGenerator.class.getClassLoader(), "$Callable$Adapter$" + ID.getAndIncrement(), "java.lang.Object")
+        .implementsMethod("equals", wrongEquals_mh)
+        .validate();
+    JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
+    Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
+    Object object = adapter.newInstance();
+    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
+    assertThat(object.equals(666), is(true));
+    assertThat(object.equals("123"), is(true));
+    assertThat(object.equals(object), is(false));
   }
 }
