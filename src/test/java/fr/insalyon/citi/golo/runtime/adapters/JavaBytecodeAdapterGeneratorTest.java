@@ -106,8 +106,7 @@ public class JavaBytecodeAdapterGeneratorTest {
         .validate();
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
-    Callable<?> callable = (Callable<?>) adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(callable, definition);
+    Callable<?> callable = (Callable<?>) adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
     assertThat(callable.call(), is((Object) 666));
     assertThat(callable.call(), is((Object) 666));
     assertThat(callable.call(), is((Object) 666));
@@ -122,8 +121,7 @@ public class JavaBytecodeAdapterGeneratorTest {
         .validate();
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
-    Callable<?> callable = (Callable<?>) adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(callable, definition);
+    Callable<?> callable = (Callable<?>) adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
     assertThat(callable.call(), is((Object) 666));
     assertThat(callable.call(), is((Object) 666));
     assertThat(callable.call(), is((Object) 666));
@@ -137,8 +135,7 @@ public class JavaBytecodeAdapterGeneratorTest {
         .validate();
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
-    Object object = adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
+    Object object = adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
     assertThat(object.equals(666), is(true));
     assertThat(object.equals("123"), is(true));
     assertThat(object.equals(object), is(false));
@@ -152,8 +149,7 @@ public class JavaBytecodeAdapterGeneratorTest {
         .validate();
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
-    Object object = adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(object, definition);
+    Object object = adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
     String repr = object.toString();
     assertThat(repr, both(startsWith("{{")).and(endsWith("}}")));
   }
@@ -167,8 +163,7 @@ public class JavaBytecodeAdapterGeneratorTest {
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
     @SuppressWarnings("unchecked")
-    ArrayList<Integer> list = (ArrayList<Integer>) adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(list, definition);
+    ArrayList<Integer> list = (ArrayList<Integer>) adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
     list.add(1);
     list.add(2);
     list.add(3);
@@ -184,8 +179,7 @@ public class JavaBytecodeAdapterGeneratorTest {
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
     @SuppressWarnings("unchecked")
-    ArrayList<Integer> list = (ArrayList<Integer>) adapter.newInstance();
-    adapter.getField(AdapterSupport.DEFINITION_FIELD).set(list, definition);
+    ArrayList<Integer> list = (ArrayList<Integer>) adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
     list.add(1);
     list.add(2);
     list.add(3);

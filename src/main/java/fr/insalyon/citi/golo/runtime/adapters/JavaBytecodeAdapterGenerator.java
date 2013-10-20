@@ -88,7 +88,7 @@ public class JavaBytecodeAdapterGenerator {
   }
 
   private void makeDefinitionField(ClassWriter classWriter) {
-    classWriter.visitField(ACC_PUBLIC, DEFINITION_FIELD,
+    classWriter.visitField(ACC_FINAL | ACC_PUBLIC, DEFINITION_FIELD,
         "Lfr/insalyon/citi/golo/runtime/adapters/AdapterDefinition;", null, null).visitEnd();
   }
 
@@ -149,15 +149,24 @@ public class JavaBytecodeAdapterGenerator {
       Class<?> parentClass = Class.forName(adapterDefinition.getParent(), true, adapterDefinition.getClassLoader());
       for (Constructor constructor : parentClass.getConstructors()) {
         if (Modifier.isPublic(constructor.getModifiers())) {
-          String descriptor = Type.getConstructorDescriptor(constructor);
+          Class[] parameterTypes = constructor.getParameterTypes();
+          Type[] adapterParameterTypes = new Type[parameterTypes.length + 1];
+          adapterParameterTypes[0] = Type.getType(AdapterDefinition.class);
+          for (int i = 1; i < adapterParameterTypes.length; i++) {
+            adapterParameterTypes[i] = Type.getType(parameterTypes[i - 1]);
+          }
+          String descriptor = Type.getMethodDescriptor(Type.VOID_TYPE, adapterParameterTypes);
           MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
           methodVisitor.visitCode();
           methodVisitor.visitVarInsn(ALOAD, 0);
-          Class[] parameterTypes = constructor.getParameterTypes();
           for (int i = 0; i < parameterTypes.length; i++) {
-            loadArgument(methodVisitor, parameterTypes[i], i + 1);
+            loadArgument(methodVisitor, parameterTypes[i], i + 2);
           }
-          methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", descriptor);
+          methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", Type.getConstructorDescriptor(constructor));
+          methodVisitor.visitVarInsn(ALOAD, 0);
+          methodVisitor.visitVarInsn(ALOAD, 1);
+          methodVisitor.visitFieldInsn(PUTFIELD, jvmType(adapterDefinition.getName()), DEFINITION_FIELD,
+              "Lfr/insalyon/citi/golo/runtime/adapters/AdapterDefinition;");
           methodVisitor.visitInsn(RETURN);
           methodVisitor.visitMaxs(0, 0);
           methodVisitor.visitEnd();
