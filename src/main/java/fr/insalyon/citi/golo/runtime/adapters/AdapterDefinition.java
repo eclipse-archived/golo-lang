@@ -109,14 +109,14 @@ public final class AdapterDefinition {
   }
 
   private void checkStarImplementationType(String name, MethodHandle target) {
-    if ("*".equals(name) && !target.type().equals(genericMethodType(0, true))) {
-      throw new AdapterDefinitionProblem("A * implementation must be of type (Object...)Object: " + target);
+    if ("*".equals(name) && !target.type().equals(genericMethodType(1, true))) {
+      throw new AdapterDefinitionProblem("A * implementation must be of type (Object methodName, Object... args)Object: " + target);
     }
   }
 
   private void checkStarOverrideType(String name, MethodHandle target) {
     if ("*".equals(name) && !target.type().equals(genericMethodType(2, true))) {
-      throw new AdapterDefinitionProblem("A * override must be of type (Object, Object...)Object: " + target);
+      throw new AdapterDefinitionProblem("A * override must be of type (Object superHandle, Object methodName, Object... args)Object: " + target);
     }
   }
 

@@ -43,7 +43,7 @@ public class AdapterDefinitionTest {
       return null;
     }
 
-    static Object c(Object... args) {
+    static Object c(Object name, Object... args) {
       return null;
     }
 
@@ -65,7 +65,7 @@ public class AdapterDefinitionTest {
       z_mh = lookup.findStatic(HandleProvider.class, "z", MethodType.genericMethodType(0));
       a_mh = lookup.findStatic(HandleProvider.class, "a", MethodType.genericMethodType(1));
       b_mh = lookup.findStatic(HandleProvider.class, "b", MethodType.genericMethodType(2));
-      c_mh = lookup.findStatic(HandleProvider.class, "c", MethodType.genericMethodType(0, true));
+      c_mh = lookup.findStatic(HandleProvider.class, "c", MethodType.genericMethodType(1, true));
       d_mh = lookup.findStatic(HandleProvider.class, "d", MethodType.genericMethodType(2, true));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new TestNGException(e);

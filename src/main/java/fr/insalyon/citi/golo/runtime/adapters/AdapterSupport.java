@@ -64,6 +64,9 @@ public class AdapterSupport {
     MethodHandle target = implementations.get(callSite.name);
     if (target == null) {
       target = implementations.get("*");
+      if (target != null) {
+        target = target.bindTo(callSite.name).asVarargsCollector(Object[].class);
+      }
     }
     if (target == null) {
       Map<String, MethodHandle> overrides = definition.getOverrides();

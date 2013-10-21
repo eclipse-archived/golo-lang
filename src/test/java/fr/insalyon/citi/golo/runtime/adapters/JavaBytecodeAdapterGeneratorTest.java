@@ -37,8 +37,8 @@ public class JavaBytecodeAdapterGeneratorTest {
       return 666;
     }
 
-    public static Object evilCatchAll(Object... args) {
-      return 666;
+    public static Object evilCatchAll(Object name, Object... args) {
+      return String.format("%s%d", name, 666);
     }
 
     public static Object wrongEquals(Object receiver, Object other) {
@@ -76,7 +76,7 @@ public class JavaBytecodeAdapterGeneratorTest {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
       evilCall_mh = lookup.findStatic(Functions.class, "evilCall", genericMethodType(1));
-      evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(0, true));
+      evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(1, true));
       wrongEquals_mh = lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2));
       decorateToString_mh = lookup.findStatic(Functions.class, "decorateToString", genericMethodType(2));
       proxyList_mh = lookup.findStatic(Functions.class, "proxyList", genericMethodType(2, true));
@@ -122,9 +122,9 @@ public class JavaBytecodeAdapterGeneratorTest {
     JavaBytecodeAdapterGenerator generator = new JavaBytecodeAdapterGenerator();
     Class<?> adapter = generator.generateIntoDefinitionClassloader(definition);
     Callable<?> callable = (Callable<?>) adapter.getConstructor(AdapterDefinition.class).newInstance(definition);
-    assertThat(callable.call(), is((Object) 666));
-    assertThat(callable.call(), is((Object) 666));
-    assertThat(callable.call(), is((Object) 666));
+    assertThat(callable.call(), is((Object) "call666"));
+    assertThat(callable.call(), is((Object) "call666"));
+    assertThat(callable.call(), is((Object) "call666"));
   }
 
   @Test
