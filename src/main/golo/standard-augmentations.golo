@@ -133,6 +133,12 @@ augment java.lang.Iterable {
     return this
   }
 
+  function count = |this, pred| ->
+    this: filter(pred): size()
+
+  function exists = |this, pred| ->
+    this: filter(pred): size() > 0
+
 }
 
 # ............................................................................................... #
@@ -253,12 +259,6 @@ augment java.util.List {
     sortedList: addAll(this)
     return sortedList: order(comparator)
   }
-
-  function count = |this, pred| ->
-    this: filter(pred): size()
-
-  function exists = |this, pred| ->
-    this: filter(pred): size() > 0
 }
 
 # ............................................................................................... #

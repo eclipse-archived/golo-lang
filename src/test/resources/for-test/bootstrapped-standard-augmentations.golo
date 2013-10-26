@@ -115,6 +115,22 @@ function sets_each = {
   return int: get()
 }
 
+function sets_count = {
+ return set_data(): count(|item| -> item >= 2)
+}
+
+function sets_count_zero = {
+ return set_data(): count(|item| -> item >= 5)
+}
+
+function sets_exists = {
+ return set_data(): exists(|item| -> item == 2)
+}
+
+function sets_not_exists = {
+ return set_data(): exists(|item| -> item >= 5)
+}
+
 # ............................................................................................... #
 
 local function map_data = {
@@ -191,5 +207,40 @@ function tupled = -> tuple_data(): filter(|n| -> (n % 2) == 0): map(|n| -> n * 1
 function tuple_find = -> tuple_data(): find(|v| -> v is 4)
 function tuple_not_find = -> tuple_data(): find(|v| -> v is 10)
 
+function tuple_count = {
+ return tuple_data(): count(|item| -> item >= 2)
+}
+
+function tuple_count_zero = {
+ return tuple_data(): count(|item| -> item >= 6)
+}
+
+function tuple_exists = {
+ return tuple_data(): exists(|item| -> item == 2)
+}
+
+function tuple_not_exists = {
+ return tuple_data(): exists(|item| -> item >= 6)
+}
+
+# ............................................................................................... #
+
+local function vector_data = -> vector[1, 2, 3, 4, 5]
+
+function vector_count = {
+ return vector_data(): count(|item| -> item >= 2)
+}
+
+function vector_count_zero = {
+ return vector_data(): count(|item| -> item >= 6)
+}
+
+function vector_exists = {
+ return vector_data(): exists(|item| -> item == 2)
+}
+
+function vector_not_exists = {
+ return vector_data(): exists(|item| -> item >= 6)
+}
 
 # ............................................................................................... #
