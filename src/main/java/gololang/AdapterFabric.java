@@ -46,7 +46,7 @@ public final class AdapterFabric {
   }
 
   public AdapterFabric() {
-    this(new ClassLoader() {
+    this(new ClassLoader(Thread.currentThread().getContextClassLoader()) {
     });
   }
 
