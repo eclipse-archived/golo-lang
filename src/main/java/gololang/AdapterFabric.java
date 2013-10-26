@@ -99,7 +99,7 @@ public final class AdapterFabric {
       @SuppressWarnings("unchecked")
       Map<String, MethodHandle> overrides = (Map<String, MethodHandle>) configuration.get("overrides");
       for (Map.Entry<String, MethodHandle> override : overrides.entrySet()) {
-        definition.implementsMethod(override.getKey(), override.getValue());
+        definition.overridesMethod(override.getKey(), override.getValue());
       }
     }
     definition.validate();
