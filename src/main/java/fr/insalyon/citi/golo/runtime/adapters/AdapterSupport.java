@@ -19,6 +19,8 @@ package fr.insalyon.citi.golo.runtime.adapters;
 import java.lang.invoke.*;
 import java.util.Map;
 
+import static java.lang.invoke.MethodType.genericMethodType;
+
 public class AdapterSupport {
 
   public static final String DEFINITION_FIELD = "_$_$adapter_$definition";
@@ -71,6 +73,11 @@ public class AdapterSupport {
     if (target == null) {
       Map<String, MethodHandle> overrides = definition.getOverrides();
       MethodHandle superTarget = callSite.callerLookup.findSpecial(receiverParentClass, callSite.name, callSite.type().dropParameterTypes(0, 1), receiverClass);
+      if (superTarget.isVarargsCollector()) {
+        superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount() - 1, true));
+      } else {
+        superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount()));
+      }
       target = overrides.get(callSite.name);
       boolean star = false;
       if (target == null) {
