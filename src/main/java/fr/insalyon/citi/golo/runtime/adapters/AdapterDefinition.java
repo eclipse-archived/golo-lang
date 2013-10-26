@@ -223,6 +223,9 @@ public final class AdapterDefinition {
       if (parentClass.isInterface()) {
         throw new AdapterDefinitionProblem("The parent class cannot be an interface: " + parentClass.getName());
       }
+      if (isFinal(parentClass.getModifiers())) {
+        throw new AdapterDefinitionProblem("The parent class is final: " + parentClass.getName());
+      }
       for (String iface : interfaces) {
         Class.forName(iface, true, classLoader);
       }

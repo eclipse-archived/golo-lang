@@ -235,4 +235,10 @@ public class AdapterDefinitionTest {
     new AdapterDefinition(LOADER, "foo", "java.lang.Runnable")
         .validate();
   }
+
+  @Test(expectedExceptions = AdapterDefinitionProblem.class)
+  public void extend_final_class() {
+    new AdapterDefinition(LOADER, "plop", "java.lang.String")
+        .validate();
+  }
 }
