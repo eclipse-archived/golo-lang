@@ -17,7 +17,9 @@
 package gololang;
 
 import fr.insalyon.citi.golo.runtime.adapters.AdapterDefinition;
+import fr.insalyon.citi.golo.runtime.adapters.JavaBytecodeAdapterGenerator;
 
+import java.lang.invoke.MethodHandle;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -40,6 +42,7 @@ public final class AdapterFabric {
 
   private final ClassLoader classLoader;
   private final AtomicLong nextId = new AtomicLong();
+  private final JavaBytecodeAdapterGenerator adapterGenerator = new JavaBytecodeAdapterGenerator();
 
   public AdapterFabric(ClassLoader classLoader) {
     this.classLoader = classLoader;
@@ -56,6 +59,36 @@ public final class AdapterFabric {
   }
 
   public Maker maker(Map<String, Object> configuration) {
-    throw new UnsupportedOperationException("Not yet, come back later!");
+    String parent = "java.lang.Object";
+    if (configuration.containsKey("parent")) {
+      parent = (String) configuration.get("parent");
+    }
+    String name = "$Golo$Adapter$" + nextId.getAndIncrement();
+    AdapterDefinition definition = new AdapterDefinition(classLoader, name, parent);
+
+    if (configuration.containsKey("interfaces")) {
+      @SuppressWarnings("unchecked")
+      Iterable<String> interfaces = (Iterable<String>) configuration.get("interfaces");
+      for (String iface : interfaces) {
+        definition.implementsInterface(iface);
+      }
+    }
+    if (configuration.containsKey("implements")) {
+      @SuppressWarnings("unchecked")
+      Map<String, MethodHandle> implementations = (Map<String, MethodHandle>) configuration.get("implements");
+      for (Map.Entry<String, MethodHandle> implementation : implementations.entrySet()) {
+        definition.implementsMethod(implementation.getKey(), implementation.getValue());
+      }
+    }
+    if (configuration.containsKey("overrides")) {
+      @SuppressWarnings("unchecked")
+      Map<String, MethodHandle> overrides = (Map<String, MethodHandle>) configuration.get("overrides");
+      for (Map.Entry<String, MethodHandle> override : overrides.entrySet()) {
+        definition.implementsMethod(override.getKey(), override.getValue());
+      }
+    }
+    definition.validate();
+    Class<?> adapterClass = adapterGenerator.generateIntoDefinitionClassloader(definition);
+    return new Maker(definition, adapterClass);
   }
 }
