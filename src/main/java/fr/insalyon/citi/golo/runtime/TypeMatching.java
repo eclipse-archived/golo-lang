@@ -21,7 +21,7 @@ import java.lang.reflect.Method;
 import java.util.HashMap;
 import java.util.Map;
 
-class TypeMatching {
+public class TypeMatching {
 
   private static final Map<Class, Class> PRIMITIVE_MAP = new HashMap<Class, Class>() {
     {
@@ -36,19 +36,19 @@ class TypeMatching {
     }
   };
 
-  static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor constructor, Class<?>[] parameterTypes) {
+  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor constructor, Class<?>[] parameterTypes) {
     return constructor.isVarArgs() && (arguments.length >= parameterTypes.length);
   }
 
-  static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Method method, Class<?>[] parameterTypes) {
+  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Method method, Class<?>[] parameterTypes) {
     return method.isVarArgs() && (arguments.length >= (parameterTypes.length - 1));
   }
 
-  static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
+  public static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
     return parameterTypes.length == arguments.length;
   }
 
-  static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
+  public static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
     if (types.length == 0 || arguments.length == 0) {
       return true;
     }
@@ -67,11 +67,11 @@ class TypeMatching {
     return valueAndTypeMatch(types[last], arguments[last]);
   }
 
-  private static boolean valueAndTypeMatch(Class<?> type, Object value) {
+  public static boolean valueAndTypeMatch(Class<?> type, Object value) {
     return primitiveCompatible(type, value) || (type.isInstance(value) || value == null);
   }
 
-  private static boolean primitiveCompatible(Class<?> type, Object value) {
+  public static boolean primitiveCompatible(Class<?> type, Object value) {
     if (!type.isPrimitive() || value == null) {
       return false;
     }

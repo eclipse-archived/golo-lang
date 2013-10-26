@@ -16,10 +16,14 @@
 
 package gololang;
 
+import fr.insalyon.citi.golo.runtime.TypeMatching;
 import fr.insalyon.citi.golo.runtime.adapters.AdapterDefinition;
 import fr.insalyon.citi.golo.runtime.adapters.JavaBytecodeAdapterGenerator;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Arrays;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
@@ -35,8 +39,19 @@ public final class AdapterFabric {
       this.adapterClass = adapterClass;
     }
 
-    public Object newInstance(Object... args) {
-      throw new UnsupportedOperationException("Not yet, come back later!");
+    public Object newInstance(Object... args) throws ReflectiveOperationException {
+      Object[] cargs = new Object[args.length + 1];
+      cargs[0] = adapterDefinition;
+      System.arraycopy(args, 0, cargs, 1, args.length);
+      for (Constructor constructor : adapterClass.getConstructors()) {
+        Class[] parameterTypes = constructor.getParameterTypes();
+        if ((cargs.length == parameterTypes.length) || (constructor.isVarArgs() && (cargs.length >= parameterTypes.length))) {
+          if (TypeMatching.canAssign(parameterTypes, cargs, constructor.isVarArgs())) {
+            return constructor.newInstance(cargs);
+          }
+        }
+      }
+      throw new IllegalArgumentException("Could not create an instance for arguments " + Arrays.toString(cargs));
     }
   }
 
