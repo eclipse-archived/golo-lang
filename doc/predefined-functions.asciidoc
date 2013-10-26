@@ -19,7 +19,9 @@ println("Hey")
 
 `readln()` or `readln(strMessage)` reads a single line of text from the console. It always returns a string.
 
-`readpwd()` or `readpwd(strPassword)` reads a password from the console with echoing disabled. It always returns a string.
+`readPassword()` or `readPassword(strPassword)` reads a password from the console with echoing
+disabled. It always returns a string.  There are also `secureReadPassword()` and
+`secureReadPassword(strPassword)` variants that return a `char[]` array.
 
 [source,text]
 ----
@@ -38,13 +40,7 @@ message as a string, and one with a message and a cause.
 ----
 raise("Somehow something is wrong")
 
-try {
-  ...
-} catch (e) {
-  ...
-  raise("Something was wrong, and here is the cause", e)
-}
-----
+try { ...  } catch (e) { ...  raise("Something was wrong, and here is the cause", e) } ----
 
 === Preconditions ===
 

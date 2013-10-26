@@ -114,7 +114,7 @@ public class Predefined {
    *
    * @return a String.
    */
-  public static String readpwd() throws IOException {
+  public static String readPassword() throws IOException {
     return String.valueOf(System.console().readPassword());
   }
 
@@ -124,10 +124,31 @@ public class Predefined {
    * @param message displays a prompt message.
    * @return a String.
    */
-  public static String readpwd(String message) throws IOException {
+  public static String readPassword(String message) throws IOException {
     System.out.print(message);
-    return readpwd();
+    return readPassword();
   }
+
+  /**
+   * Reads a password from the console with echoing disabled, returning an {@code char[]} array.
+   *
+   * @return a character array.
+   */
+  public static char[] secureReadPassword() throws IOException {
+    return System.console().readPassword();
+  }
+
+  /**
+   * Reads a password from the console with echoing disabled, returning an {@code char[]} array.
+   *
+   * @param message displays a prompt message.
+   * @return a character array.
+   */
+  public static char[] secureReadPassword(String message) throws IOException {
+    System.out.print(message);
+    return secureReadPassword();
+  }
+
 
   // ...................................................................................................................
 
