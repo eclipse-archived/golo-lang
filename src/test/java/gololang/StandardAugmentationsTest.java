@@ -277,6 +277,34 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void sets_count() throws Throwable {
+    Method sets_count = moduleClass.getMethod("sets_count");
+    Object result = sets_count.invoke(null);
+    assertThat((Integer) result, is(3));
+  }
+
+  @Test
+  public void sets_count_zero() throws Throwable {
+    Method sets_count_zero = moduleClass.getMethod("sets_count_zero");
+    Object result = sets_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
+  public void sets_exists() throws Throwable {
+    Method sets_exists = moduleClass.getMethod("sets_exists");
+    Object result = sets_exists.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void sets_not_exists() throws Throwable {
+    Method sets_not_exists = moduleClass.getMethod("sets_not_exists");
+    Object result = sets_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }  
+  
+  @Test
   public void maps_addIfAbsent() throws Throwable {
     Method maps_addIfAbsent = moduleClass.getMethod("maps_addIfAbsent");
     assertThat((Integer) maps_addIfAbsent.invoke(null), is(2));
@@ -428,4 +456,61 @@ public class StandardAugmentationsTest {
     Object result = tuple_not_find.invoke(null);
     assertThat(result, nullValue());
   }
+
+  @Test
+  public void tuple_count() throws Throwable {
+    Method tuple_count = moduleClass.getMethod("tuple_count");
+    Object result = tuple_count.invoke(null);
+    assertThat((Integer) result, is(4));
+  }
+
+  @Test
+  public void tuple_count_zero() throws Throwable {
+    Method tuple_count_zero = moduleClass.getMethod("tuple_count_zero");
+    Object result = tuple_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
+  public void tuple_exists() throws Throwable {
+    Method tuple_exists = moduleClass.getMethod("tuple_exists");
+    Object result = tuple_exists.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void tuple_not_exists() throws Throwable {
+    Method tuple_not_exists = moduleClass.getMethod("tuple_not_exists");
+    Object result = tuple_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }
+
+  @Test
+  public void vector_count() throws Throwable {
+    Method vector_count = moduleClass.getMethod("vector_count");
+    Object result = vector_count.invoke(null);
+    assertThat((Integer) result, is(4));
+  }
+
+  @Test
+  public void vector_count_zero() throws Throwable {
+    Method vector_count_zero = moduleClass.getMethod("vector_count_zero");
+    Object result = vector_count_zero.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
+  public void vector_exists() throws Throwable {
+    Method vector_exists = moduleClass.getMethod("vector_exists");
+    Object result = vector_exists.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void vector_not_exists() throws Throwable {
+    Method vector_not_exists = moduleClass.getMethod("vector_not_exists");
+    Object result = vector_not_exists.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }
+
 }
