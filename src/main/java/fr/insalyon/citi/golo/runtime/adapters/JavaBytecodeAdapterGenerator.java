@@ -26,7 +26,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.Set;
 
 import static fr.insalyon.citi.golo.runtime.adapters.AdapterSupport.DEFINITION_FIELD;
@@ -147,8 +146,8 @@ public class JavaBytecodeAdapterGenerator {
   private void makeConstructors(ClassWriter classWriter, AdapterDefinition adapterDefinition) {
     try {
       Class<?> parentClass = Class.forName(adapterDefinition.getParent(), true, adapterDefinition.getClassLoader());
-      for (Constructor constructor : parentClass.getConstructors()) {
-        if (Modifier.isPublic(constructor.getModifiers())) {
+      for (Constructor constructor : parentClass.getDeclaredConstructors()) {
+        if (Modifier.isPublic(constructor.getModifiers()) || Modifier.isProtected(constructor.getModifiers())) {
           Class[] parameterTypes = constructor.getParameterTypes();
           Type[] adapterParameterTypes = new Type[parameterTypes.length + 1];
           adapterParameterTypes[0] = Type.getType(AdapterDefinition.class);
