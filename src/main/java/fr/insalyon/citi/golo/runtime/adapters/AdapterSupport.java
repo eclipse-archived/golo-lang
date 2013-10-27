@@ -67,7 +67,7 @@ public class AdapterSupport {
     if (target == null) {
       target = implementations.get("*");
       if (target != null) {
-        target = target.bindTo(callSite.name).asVarargsCollector(Object[].class);
+        target = target.bindTo(callSite.name).asCollector(Object[].class, args.length);
       }
     }
     if (target == null) {
@@ -90,7 +90,7 @@ public class AdapterSupport {
         target = target.bindTo(superTarget);
         if (star) {
           target = target.bindTo(callSite.name);
-          target = target.asVarargsCollector(Object[].class);
+          target = target.asCollector(Object[].class, args.length);
         }
       }
     }
