@@ -201,6 +201,7 @@
           <runOrder>random</runOrder>
           <systemPropertyVariables>
             <golo.test.trace>no</golo.test.trace>
+            <java.awt.headless>true</java.awt.headless>
           </systemPropertyVariables>
         </configuration>
       </plugin>
