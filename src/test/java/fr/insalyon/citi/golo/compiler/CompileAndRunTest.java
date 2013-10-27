@@ -229,6 +229,20 @@ public class CompileAndRunTest {
     }
   }
 
+  @Test(expectedExceptions = GoloCompilationException.class)
+  public void test_missing_ref_in_closure() throws Throwable {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-missing-ref-in-closure.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      Problem problem = problems.get(0);
+      assertThat(problem.getType(), is(UNDECLARED_REFERENCE));
+      throw expected;
+    }
+  }
+
   @Test
   public void test_conditionals() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "conditionals.golo");

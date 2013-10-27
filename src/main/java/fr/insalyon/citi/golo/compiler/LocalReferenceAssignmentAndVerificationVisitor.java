@@ -78,9 +78,12 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     for (String parameterName : function.getParameterNames()) {
       LocalReference reference = table.get(parameterName);
       if (reference == null) {
-        throw new IllegalStateException("[please report this bug] " + parameterName + " is not declared in the references of function " + function.getName());
+        if (!function.isSynthetic()) {
+          throw new IllegalStateException("[please report this bug] " + parameterName + " is not declared in the references of function " + function.getName());
+        }
+      } else {
+        reference.setIndex(nextAssignmentIndex());
       }
-      reference.setIndex(nextAssignmentIndex());
     }
     function.getBlock().accept(this);
     String selfName = function.getSyntheticSelfName();
