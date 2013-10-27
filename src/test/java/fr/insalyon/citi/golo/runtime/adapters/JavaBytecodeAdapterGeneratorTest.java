@@ -37,7 +37,7 @@ public class JavaBytecodeAdapterGeneratorTest {
       return 666;
     }
 
-    public static Object evilCatchAll(Object name, Object... args) {
+    public static Object evilCatchAll(Object name, Object args) {
       return String.format("%s%d", name, 666);
     }
 
@@ -50,16 +50,17 @@ public class JavaBytecodeAdapterGeneratorTest {
       return "{{" + super_mh.invoke(receiver) + "}}";
     }
 
-    public static Object proxyList(Object superTarget, Object name, Object... args) throws Throwable {
+    public static Object proxyList(Object superTarget, Object name, Object args) throws Throwable {
       MethodHandle super_mh = (MethodHandle) superTarget;
+      Object[] aargs = (Object[]) args;
       String method = (String) name;
       switch (method) {
         case "add":
-          return super_mh.invoke(args[0], args[1] + "!");
+          return super_mh.invoke(aargs[0], aargs[1] + "!");
         case "toString":
-          return "{{" + super_mh.invoke(args[0]) + "}}";
+          return "{{" + super_mh.invoke(aargs[0]) + "}}";
         default:
-          return super_mh.invokeWithArguments(args);
+          return super_mh.invokeWithArguments(aargs);
       }
     }
   }
@@ -76,10 +77,10 @@ public class JavaBytecodeAdapterGeneratorTest {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
       evilCall_mh = lookup.findStatic(Functions.class, "evilCall", genericMethodType(1));
-      evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(1, true));
+      evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(2));
       wrongEquals_mh = lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2));
       decorateToString_mh = lookup.findStatic(Functions.class, "decorateToString", genericMethodType(2));
-      proxyList_mh = lookup.findStatic(Functions.class, "proxyList", genericMethodType(2, true));
+      proxyList_mh = lookup.findStatic(Functions.class, "proxyList", genericMethodType(3));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }
