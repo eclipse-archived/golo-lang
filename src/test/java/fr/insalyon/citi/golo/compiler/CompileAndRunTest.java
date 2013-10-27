@@ -144,6 +144,7 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void test_variable_assignments() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "variable-assignments.golo");
 
@@ -524,6 +525,7 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void test_method_invocations() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "method-invocations.golo");
 
@@ -667,7 +669,6 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(MethodHandle.class));
     handle = (MethodHandle) result;
     assertThat(handle.type(), is(genericMethodType(1)));
-    result = handle.invokeWithArguments(2);
     assertThat((Integer) handle.invoke(2), is(3));
 
     Method in_a_map = moduleClass.getMethod("in_a_map");
@@ -735,7 +736,7 @@ public class CompileAndRunTest {
     Method exclamation = moduleClass.getMethod("exclamation", Object.class);
     assertThat((String) exclamation.invoke(null, "hey"), is("hey!"));
 
-    Class<?> importedModuleClass = compileAndLoadGoloModule(SRC, "augmentations-external-source.golo", goloClassLoader);
+    compileAndLoadGoloModule(SRC, "augmentations-external-source.golo", goloClassLoader);
     Method externalAugmentation = moduleClass.getMethod("externalAugmentation");
     assertThat((String) externalAugmentation.invoke(null), is("(abc)"));
 
@@ -816,7 +817,7 @@ public class CompileAndRunTest {
   @Test
   public void failure_invalid_break() throws Throwable {
     try {
-      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "failure-invalid-break.golo");
+      compileAndLoadGoloModule(SRC, "failure-invalid-break.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));
@@ -853,7 +854,7 @@ public class CompileAndRunTest {
   @Test
   public void failure_trailing_underscore() throws Throwable {
     try {
-      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "failure-numeric-trailing-underscore.golo");
+      compileAndLoadGoloModule(SRC, "failure-numeric-trailing-underscore.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));
@@ -865,7 +866,7 @@ public class CompileAndRunTest {
   @Test
   public void failure_double_underscore() throws Throwable {
     try {
-      Class<?> moduleClass = compileAndLoadGoloModule(SRC, "failure-numeric-double-underscore.golo");
+      compileAndLoadGoloModule(SRC, "failure-numeric-double-underscore.golo");
       fail("A GoloCompilationException was expected");
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));

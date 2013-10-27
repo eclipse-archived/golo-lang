@@ -106,6 +106,7 @@ public class PredefinedTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void test_asInterfaceInstance() throws Throwable {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     MethodHandle handle = lookup.findStatic(MyCallable.class, "hello", genericMethodType(0));

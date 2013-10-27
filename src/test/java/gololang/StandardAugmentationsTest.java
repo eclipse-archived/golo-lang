@@ -75,6 +75,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void lists_filter() throws Throwable {
     Method lists_filter = moduleClass.getMethod("lists_filter");
     Object result = lists_filter.invoke(null);
@@ -98,6 +99,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void lists_map() throws Throwable {
     Method lists_map = moduleClass.getMethod("lists_map");
     Object result = lists_map.invoke(null);
@@ -123,6 +125,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_reverse() throws Throwable {
     Method list_reverse = moduleClass.getMethod("list_reverse");
     Object result = list_reverse.invoke(null);
@@ -132,6 +135,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_reversed() throws Throwable {
     Method list_reversed = moduleClass.getMethod("list_reversed");
     Object result = list_reversed.invoke(null);
@@ -141,6 +145,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_sort() throws Throwable {
     Method list_sort = moduleClass.getMethod("list_sort");
     Object result = list_sort.invoke(null);
@@ -150,6 +155,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_sorted() throws Throwable {
     Method list_sorted = moduleClass.getMethod("list_sorted");
     Object result = list_sorted.invoke(null);
@@ -159,6 +165,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_sort_reverse() throws Throwable {
     Method list_sort_reverse = moduleClass.getMethod("list_sort_reverse");
     Object result = list_sort_reverse.invoke(null);
@@ -168,6 +175,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_sorted_reverse() throws Throwable {
     Method list_sorted_reverse = moduleClass.getMethod("list_sorted_reverse");
     Object result = list_sorted_reverse.invoke(null);
@@ -229,6 +237,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void sets_filter() throws Throwable {
     Method sets_filter = moduleClass.getMethod("sets_filter");
     Object result = sets_filter.invoke(null);
@@ -252,6 +261,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void sets_map() throws Throwable {
     Method sets_map = moduleClass.getMethod("sets_map");
     Object result = sets_map.invoke(null);
@@ -317,6 +327,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void maps_filter() throws Throwable {
     Method maps_filter = moduleClass.getMethod("maps_filter");
     Object result = maps_filter.invoke(null);
@@ -328,6 +339,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void maps_find() throws Throwable {
     Method maps_find = moduleClass.getMethod("maps_find");
     Object result = maps_find.invoke(null);
@@ -344,6 +356,7 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void maps_map() throws Throwable {
     Method maps_map = moduleClass.getMethod("maps_map");
     Object result = maps_map.invoke(null);
