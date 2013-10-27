@@ -75,8 +75,8 @@ public final class AdapterFabric {
 
   public Maker maker(Map<String, Object> configuration) {
     String parent = "java.lang.Object";
-    if (configuration.containsKey("parent")) {
-      parent = (String) configuration.get("parent");
+    if (configuration.containsKey("extends")) {
+      parent = (String) configuration.get("extends");
     }
     String name = "$Golo$Adapter$" + nextId.getAndIncrement();
     AdapterDefinition definition = new AdapterDefinition(classLoader, name, parent);
