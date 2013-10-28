@@ -245,7 +245,9 @@ public class Main {
 
   private static void run(RunCommand golo) throws Throwable {
     try {
-      Class<?> module = Class.forName(golo.module, true, primaryClassLoader(golo.classpath));
+      URLClassLoader primaryClassLoader = primaryClassLoader(golo.classpath);
+      Thread.currentThread().setContextClassLoader(primaryClassLoader);
+      Class<?> module = Class.forName(golo.module, true, primaryClassLoader);
       callRun(module, golo.arguments.toArray(new Object[golo.arguments.size()]));
     } catch (ClassNotFoundException e) {
       System.out.println("The module " + golo.module + " could not be loaded.");
@@ -265,7 +267,9 @@ public class Main {
   }
 
   private static void golo(GoloGoloCommand gologolo) throws Throwable {
-    GoloClassLoader loader = new GoloClassLoader(primaryClassLoader(gologolo.classpath));
+    URLClassLoader primaryClassLoader = primaryClassLoader(gologolo.classpath);
+    Thread.currentThread().setContextClassLoader(primaryClassLoader);
+    GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
     Class<?> lastClass = null;
     for (String goloFile : gologolo.files) {
       File file = new File(goloFile);
