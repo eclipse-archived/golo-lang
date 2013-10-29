@@ -1090,5 +1090,12 @@ public class CompileAndRunTest {
     ArrayList<String> arrayList = (ArrayList<String>) result;
     assertThat(arrayList.size(), is(3));
     assertThat(arrayList, contains("foo", "bar", "baz"));
+
+    Method add_arraylist = moduleClass.getMethod("add_arraylist");
+    result = add_arraylist.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<String> strList= (List<String>) result;
+    assertThat(strList.size(), is(3));
+    assertThat(strList, contains("foo", "bar", "baz"));
   }
 }

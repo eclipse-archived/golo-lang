@@ -39,3 +39,27 @@ function construct_arraylist = {
   ]
   return AdapterFabric(): maker(conf): newInstance(list["foo", "bar", "baz"])
 }
+
+function add_arraylist = {
+  let carbonCopy = list[]
+  let conf = map[
+    ["extends", "java.util.ArrayList"],
+    ["overrides", map[
+      ["*", |super, name, args| {
+        if name == "add" {
+          if args: length() == 2 {
+            carbonCopy: add(args: get(1))
+          } else {
+            carbonCopy: add(args: get(1), args: get(2))
+          }
+        }
+        return super: spread(args)
+      }
+    ]]
+  ]]
+  let list = AdapterFabric(): maker(conf): newInstance()
+  list: add("bar")
+  list: add(0, "foo")
+  list: add("baz")
+  return carbonCopy
+}
