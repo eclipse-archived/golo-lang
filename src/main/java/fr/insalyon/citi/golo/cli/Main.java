@@ -31,6 +31,9 @@ import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -69,6 +72,9 @@ public class Main {
 
     @Parameter(description = "Program arguments")
     List<String> arguments = new LinkedList<>();
+
+    @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
+    List<String> classpath = new LinkedList<>();
   }
 
   @Parameters(commandDescription = "Dynamically loads and runs from Golo source files")
@@ -79,6 +85,9 @@ public class Main {
 
     @Parameter(names = "--args", variableArity = true, description = "Program arguments")
     List<String> arguments = new LinkedList<>();
+
+    @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
+    List<String> classpath = new LinkedList<>();
   }
 
   @Parameters(commandDescription = "Diagnosis for the Golo compiler internals")
@@ -236,7 +245,9 @@ public class Main {
 
   private static void run(RunCommand golo) throws Throwable {
     try {
-      Class<?> module = Class.forName(golo.module);
+      URLClassLoader primaryClassLoader = primaryClassLoader(golo.classpath);
+      Thread.currentThread().setContextClassLoader(primaryClassLoader);
+      Class<?> module = Class.forName(golo.module, true, primaryClassLoader);
       callRun(module, golo.arguments.toArray(new Object[golo.arguments.size()]));
     } catch (ClassNotFoundException e) {
       System.out.println("The module " + golo.module + " could not be loaded.");
@@ -245,8 +256,20 @@ public class Main {
     }
   }
 
+  private static URLClassLoader primaryClassLoader(List<String> classpath) throws MalformedURLException {
+    URL[] urls = new URL[classpath.size()];
+    int index = 0;
+    for (String element : classpath) {
+      urls[index] = new File(element).toURI().toURL();
+      index = index + 1;
+    }
+    return new URLClassLoader(urls);
+  }
+
   private static void golo(GoloGoloCommand gologolo) throws Throwable {
-    GoloClassLoader loader = new GoloClassLoader();
+    URLClassLoader primaryClassLoader = primaryClassLoader(gologolo.classpath);
+    Thread.currentThread().setContextClassLoader(primaryClassLoader);
+    GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
     Class<?> lastClass = null;
     for (String goloFile : gologolo.files) {
       File file = new File(goloFile);
