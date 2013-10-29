@@ -1061,6 +1061,7 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void adapters() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "adapters.golo");
 
@@ -1081,5 +1082,13 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     String str = result.toString();
     assertThat(str, both(startsWith(">>>")).and(containsString("@")));
+
+    Method construct_arraylist = moduleClass.getMethod("construct_arraylist");
+    result = construct_arraylist.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(ArrayList.class));
+    ArrayList<String> arrayList = (ArrayList<String>) result;
+    assertThat(arrayList.size(), is(3));
+    assertThat(arrayList, contains("foo", "bar", "baz"));
   }
 }

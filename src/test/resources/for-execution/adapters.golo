@@ -32,3 +32,10 @@ function override_toString = {
   ]
   return AdapterFabric(): maker(conf): newInstance()
 }
+
+function construct_arraylist = {
+  let conf = map[
+    ["extends", "java.util.ArrayList"]
+  ]
+  return AdapterFabric(): maker(conf): newInstance(list["foo", "bar", "baz"])
+}
