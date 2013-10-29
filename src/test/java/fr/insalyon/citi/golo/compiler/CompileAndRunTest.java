@@ -25,6 +25,7 @@ import gololang.Tuple;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
@@ -1057,5 +1058,28 @@ public class CompileAndRunTest {
     assertThat(tuple.get(2), not(tuple.get(4)));
     assertThat(tuple.get(2), not(tuple.get(5)));
     assertThat(tuple.get(2), not(tuple.get(0)));
+  }
+
+  @Test
+  public void adapters() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "adapters.golo");
+
+    Method serializable = moduleClass.getMethod("serializable");
+    Object result = serializable.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(Serializable.class));
+
+    Method runnable = moduleClass.getMethod("runnable");
+    result = runnable.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(Object[].class));
+    Object[] array = (Object[]) result;
+    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, (Object) 12, (Object) 13)));
+
+    Method override_toString = moduleClass.getMethod("override_toString");
+    result = override_toString.invoke(null);
+    assertThat(result, notNullValue());
+    String str = result.toString();
+    assertThat(str, both(startsWith(">>>")).and(containsString("@")));
   }
 }
