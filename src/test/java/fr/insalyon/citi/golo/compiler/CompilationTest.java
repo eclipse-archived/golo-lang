@@ -18,8 +18,7 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.internal.testing.TestUtils;
-import org.objectweb.asm.ClassReader;
-import org.objectweb.asm.util.TraceClassVisitor;
+import fr.insalyon.citi.golo.internal.testing.Tracing;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -27,7 +26,6 @@ import org.testng.annotations.Test;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.PrintWriter;
 import java.nio.file.Files;
 import java.util.Iterator;
 import java.util.List;
@@ -35,6 +33,7 @@ import java.util.List;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
 import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
+import static fr.insalyon.citi.golo.internal.testing.Tracing.traceBytecode;
 import static org.hamcrest.CoreMatchers.*;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -70,7 +69,7 @@ public class CompilationTest {
       assertThat(result.getPackageAndClass(), notNullValue());
 
       if (shouldTrace) {
-        visit(result.getBytecode());
+        traceBytecode(result.getBytecode());
       }
 
     /*
@@ -88,9 +87,4 @@ public class CompilationTest {
     }
   }
 
-  private void visit(byte[] bytecode) {
-    ClassReader reader = new ClassReader(bytecode);
-    TraceClassVisitor tracer = new TraceClassVisitor(new PrintWriter(System.out));
-    reader.accept(tracer, 0);
-  }
 }

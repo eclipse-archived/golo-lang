@@ -1,0 +1,162 @@
+== Adapters
+
+There is already much you can do while in Golo land using functions, closures, structs,
+augmentations and dynamic objects.
+
+Yet, the JVM is a wider ecosystem and you will soon be tempted to integrate existing Java libraries
+into your code. Calling Java libraries from Golo is quite easy, but happens when you need to
+subclass classes or provide objects that implement specific interfaces?
+
+As you can easily guess, this is all what adapters are about: they allow the definition of objects
+at runtime that can extend and inherit Java types.
+
+=== A simple example
+
+Let us get started with a simple example of a web application based on the nice
+http://www.sparkjava.com/[Spark micro-framework].
+
+Spark requires route handlers to extend an abstract base class called `spark.Route`. The following
+code snippet does just that:
+
+[source,text]
+----
+module sparky
+
+import spark
+import spark.Spark
+
+function main = |args| {
+  let conf = map[   <1>
+    ["extends", "spark.Route"],   <2>
+    ["implements", map[   <3>
+      ["handle", |this, request, response| {  <4>
+        return "Golo, world!"
+      }]
+    ]]
+  ]
+  let fabric = AdapterFabric()  <5>
+  let routeMaker = fabric: maker(conf)  <6>
+  let route = routeMaker: newInstance("/hello")   <7>
+  get(route)  <8>
+}
+----
+
+<1> An adapter configuration is provided by a map object.
+<2> The `extends` key allows specifying the name of the parent class (`java.lang.Object` by
+    default).
+<3> The `implements` provides a map of method implementations.
+<4> The implementation is given by a closure whose signature matches the parent class definition,
+    and where the first argument is the receiver object that is going to be the adapter instance.
+<5> An adapter fabric provides context for creating adapters. It manages its own class loader.
+<6> An adapter maker creates instances based on a configuration.
+<7> The `newInstance()` method calls the right constructor based on the parent class constructors
+    and provided argument types.
+<8> The `spark.Spark.get()` static is method is happy as we feed it a subclass of `spark.Route`.
+
+NOTE: Adapter objects implement the `gololang.GoloAdapter` marker interface, so you can do type
+checks on them a in: `(foo oftype gololang.GoloAdapter.class)`.
+
+=== Implementing interfaces
+
+This is as easy as providing a `java.lang.Iterable` as part of the configuration:
+
+[source,text]
+----
+let result = array[1, 2, 3]                                      
+let conf = map[                                                  
+  ["interfaces", ["java.io.Serializable", "java.lang.Runnable"]],
+  ["implements", map[                                            
+    ["run", |this| {                                             
+      for (var i = 0, i < result: length(), i = i + 1) {         
+        result: set(i, result: get(i) + 10)                      
+      }                                                          
+    }]                                                           
+  ]]                                                             
+]                                                                
+let runner = AdapterFabric(): maker(conf): newInstance()         
+runner: run() <1>
+----
+
+<1> As you may guess, this changes the `result` array values to `[11, 12, 13]`.
+
+=== Overrides
+
+Implementations are great, but what happens if you need to call the parent class implementation of a
+method? In Java, you would use a `super` reference, but Golo does not provide that.
+
+Instead, you can override methods, and have the parent class implementation given to you as a
+method handle parameter:
+
+[source,text]
+----
+let conf = map[                                        
+  ["overrides", map[                                   
+    ["toString", |super, this| -> ">>> " + super(this)]
+  ]]                                                   
+]                                                      
+println(AdapterFabric(): maker(conf): newInstance(): toString()) <1>
+----
+
+<1> This prints something like: `>>> $Golo$Adapter$0@12fc7ceb`.
+
+NOTE: You can mix both implementations and overrides in an adapter configuration.
+
+=== Star implementations and overrides
+
+You can pass `*` as a name for implementations or overrides. In such cases, the provided closure
+become the dispatch targets for all methods that do not have an implementation or override. Note
+that providing both a star implementation and a star override is an error.
+
+Let us see a concrete example:
+
+[source,text]
+----
+let carbonCopy = list[] <1>                              
+let conf = map[                                       
+  ["extends", "java.util.ArrayList"],                 
+  ["overrides", map[                                  
+    ["*", |super, name, args| { <2>
+      if name == "add" {                              
+        if args: length() == 2 {                      
+          carbonCopy: add(args: get(1))  <3>             
+        } else {                                      
+          carbonCopy: add(args: get(1), args: get(2)) <4>
+        }                                             
+      }                                               
+      return super: spread(args)  <5>                    
+    }                                                 
+  ]]                                                  
+]]                                                    
+let list = AdapterFabric(): maker(conf): newInstance()
+list: add("bar")                                      
+list: add(0, "foo")                                   
+list: add("baz")  <6>                                    
+----
+
+<1> We create an empty list, more on that later.
+<2> A star override takes 3 parameters: the parent class implementation, the method name and the
+    arguments into an array (the element at index 0 is the receiver).
+<3> We copy into `carbonCopy`.
+<4> Same here, but we dispatch to a different method
+<5> We just call the parent class implementation of whatever method it is. Note that `spread` allows
+    to dispatch a closure call with an array of arguments.
+<6> At this point `carbonCopy` contains `["foo", "bar", "baz"]` (and so does `list`, too).
+
+The case of star implementation is similar, except that the closure takes only 2 parameters:
+`|name, args|`.
+
+=== Misc.
+
+The `AdapterFabric` constructor can also take a class loader as a parameter. When none is provided,
+the current thread context class loader is being used as a parent for an `AdapterFabric`-internal
+classloader. There is also a static method `withParentClassLoader(classloader)` to obtain a fabric
+whose class loader is based on a provided parent.
+
+As it is often the case for dynamic languages on the JVM, overloaded methods with the same name but
+different methods are painful. In such cases, we suggest that you take advantage of
+star-implementations or star-overrides as illustrated above on a `ArrayList` subclass where the 2
+`add(obj)` and `add(index, obj)` methods are being intercepted.
+
+Finally we do not encourage you to use adapters as part of Golo code outside of providing bridges to
+third-party APIs.
+

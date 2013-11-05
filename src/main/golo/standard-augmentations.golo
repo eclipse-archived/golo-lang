@@ -84,6 +84,10 @@ augment java.lang.invoke.MethodHandle {
 
   function bindAt = |this, pos, val| ->
     java.lang.invoke.MethodHandles.insertArguments(this, pos, val)
+
+  function spread = |this, args| -> this:
+    asSpreader(objectArrayType(), args: length()):
+    invokeWithArguments(args)
 }
 
 # ............................................................................................... #
