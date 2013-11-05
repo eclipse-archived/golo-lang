@@ -53,6 +53,9 @@ function main = |args| {
     and provided argument types.
 <8> The `spark.Spark.get()` static is method is happy as we feed it a subclass of `spark.Route`.
 
+NOTE: Adapter objects implement the `gololang.GoloAdapter` marker interface, so you can do type
+checks on them a in: `(foo oftype gololang.GoloAdapter.class)`.
+
 === Implementing interfaces
 
 This is as easy as providing a `java.lang.Iterable` as part of the configuration:
