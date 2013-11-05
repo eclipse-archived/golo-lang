@@ -27,6 +27,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static fr.insalyon.citi.golo.runtime.adapters.AdapterSupport.DEFINITION_FIELD;
 import static java.lang.reflect.Modifier.*;
@@ -61,10 +62,12 @@ public class JavaBytecodeAdapterGenerator {
 
   public byte[] generate(AdapterDefinition adapterDefinition) {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
+    TreeSet<String> interfaces = new TreeSet<>(adapterDefinition.getInterfaces());
+    interfaces.add("gololang.GoloAdapter");
     classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER | ACC_FINAL | ACC_SYNTHETIC,
         adapterDefinition.getName(), null,
         jvmType(adapterDefinition.getParent()),
-        interfaceTypesArray(adapterDefinition.getInterfaces()));
+        interfaceTypesArray(interfaces));
     makeDefinitionField(classWriter);
     makeConstructors(classWriter, adapterDefinition);
     makeFrontendOverrides(classWriter, adapterDefinition);

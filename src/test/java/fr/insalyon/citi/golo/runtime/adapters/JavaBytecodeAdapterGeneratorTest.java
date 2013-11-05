@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.runtime.adapters;
 
 import fr.insalyon.citi.golo.internal.testing.Tracing;
+import gololang.GoloAdapter;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -111,6 +112,7 @@ public class JavaBytecodeAdapterGeneratorTest {
     assertThat(callable.call(), is((Object) 666));
     assertThat(callable.call(), is((Object) 666));
     assertThat(callable.call(), is((Object) 666));
+    assertThat(callable, instanceOf(GoloAdapter.class));
   }
 
   @Test
