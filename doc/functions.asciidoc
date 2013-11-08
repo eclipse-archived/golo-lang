@@ -120,11 +120,11 @@ println(elementAt(1, 1, 2, 3))
 
 === Functions from other modules and imports ===
 
-Suppose that we have a module `Foo.Bar`:
+Suppose that we have a module `foo.Bar`:
 
 [source,text]
 ----
-module Foo.Bar
+module foo.Bar
 
 function f = {
   return "f()"
@@ -136,7 +136,7 @@ name:
 
 [source,text]
 ----
-let r = Foo.Bar.f()
+let r = foo.Bar.f()
 ----
 
 Of course, we may also take advantage of an `import` statement:
@@ -145,7 +145,7 @@ Of course, we may also take advantage of an `import` statement:
 ----
 module Somewhere.Else
 
-import Foo.Bar
+import foo.Bar
 
 function plop = {
   return f()
@@ -167,12 +167,12 @@ equivalent:
 ----
 module Somewhere.Else
 
-import Foo.Bar
+import foo.Bar
 
 function plop = {
   let result = f()
   let result_bis = Bar.f()
-  let result_full = Foo.Bar.f()
+  let result_full = foo.Bar.f()
   return result
 }
 ----
