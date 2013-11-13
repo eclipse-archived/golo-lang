@@ -268,10 +268,23 @@
           <repositoryName>lib</repositoryName>
           <repositoryLayout>flat</repositoryLayout>
           <licenseHeaderFile>${project.basedir}/LICENSE-header</licenseHeaderFile>
-          <extraJvmArguments>-server -Xms1024M -Xmx1024M -XX:-TieredCompilation -XX:+AggressiveOpts</extraJvmArguments>
           <programs>
             <program>
               <name>golo</name>
+              <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
+              <jvmSettings>
+                <initialMemorySize>256m</initialMemorySize>
+                <maxMemorySize>1024M</maxMemorySize>
+                <maxStackSize>1024M</maxStackSize>
+                <extraArguments>
+                  <extraArgument>-server</extraArgument>
+                  <extraArgument>-XX:-TieredCompilation</extraArgument>
+                  <extraArgument>-XX:+AggressiveOpts</extraArgument>
+                </extraArguments>
+              </jvmSettings>
+            </program>
+            <program>
+              <name>vanilla-golo</name>
               <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
             </program>
           </programs>

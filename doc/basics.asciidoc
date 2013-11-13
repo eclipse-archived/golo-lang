@@ -62,6 +62,10 @@ commands, notably:
 
 The complete commands usage instructions can be listed by running `golo --help`.
 
+IMPORTANT: The `golo` script comes with JVM tuning settings that may not be appropriate to your
+environment. We also provide a `vanilla-golo` script with no tuning. You may use the `$JAVA_OPTS`
+environment variable to provide custom JVM tuning to `vanilla-golo`.
+
 Provided that `golo` is available from your current `$PATH`, you may run the program above as
 follows:
 

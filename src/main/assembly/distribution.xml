@@ -58,10 +58,11 @@
       <fileMode>0755</fileMode>
       <lineEnding>unix</lineEnding>
       <includes>
-        <include>golo*</include>
+        <include>golo</include>
+        <include>vanilla-golo</include>
       </includes>
       <excludes>
-        <exclude>golo*.bat</exclude>
+        <exclude>*.bat</exclude>
       </excludes>
     </fileSet>
     <fileSet>
@@ -69,7 +70,7 @@
       <outputDirectory>/bin</outputDirectory>
       <lineEnding>dos</lineEnding>
       <includes>
-        <include>golo*.bat</include>
+        <include>*.bat</include>
       </includes>
     </fileSet>
   </fileSets>
