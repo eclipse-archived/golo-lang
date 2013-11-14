@@ -115,17 +115,17 @@ public final class FunctionCallSupport {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
-    handle = insertSAMFilter(handle, types);
+    handle = insertSAMFilter(handle, types, 0);
 
     callSite.setTarget(handle);
     return handle.invokeWithArguments(args);
   }
 
-  public static MethodHandle insertSAMFilter(MethodHandle handle, Class[] types) {
+  public static MethodHandle insertSAMFilter(MethodHandle handle, Class[] types, int startIndex) {
     if (types != null) {
       for (int i = 0; i < types.length; i++) {
         if (isSAM(types[i])) {
-          handle = MethodHandles.filterArguments(handle, i, SAM_FILTER.bindTo(types[i]));
+          handle = MethodHandles.filterArguments(handle, startIndex + i, SAM_FILTER.bindTo(types[i]));
         }
       }
     }
