@@ -43,7 +43,8 @@ public enum OperatorType {
   ORIFNULL("orIfNull"),
 
   METHOD_CALL(":"),
-  ELVIS_METHOD_CALL("?:");
+  ELVIS_METHOD_CALL("?:"),
+  SPREAD_METHOD_CALL("*:");
 
   private final String symbol;
 

@@ -44,15 +44,17 @@ public class MethodInvocationSupport {
     final MethodHandles.Lookup callerLookup;
     final String name;
     final boolean nullSafeGuarded;
+    final boolean spreaded;
 
     int depth = 0;
     WeakHashMap<Class, MethodHandle> vtable;
 
-    InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded) {
+    InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded, boolean spreaded) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
       this.nullSafeGuarded = nullSafeGuarded;
+      this.spreaded = spreaded;
     }
 
     boolean isMegaMorphic() {
@@ -62,6 +64,7 @@ public class MethodInvocationSupport {
 
   private static final MethodHandle CLASS_GUARD;
   private static final MethodHandle FALLBACK;
+  private static final MethodHandle FALLBACK_SPREADED;
   private static final MethodHandle VTABLE_LOOKUP;
 
   private static final HashSet<String> DYNAMIC_OBJECT_RESERVED_METHOD_NAMES = new HashSet<String>() {
@@ -82,31 +85,38 @@ public class MethodInvocationSupport {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
 
       CLASS_GUARD = lookup.findStatic(
-          MethodInvocationSupport.class,
-          "classGuard",
-          methodType(boolean.class, Class.class, Object.class));
+              MethodInvocationSupport.class,
+              "classGuard",
+              methodType(boolean.class, Class.class, Object.class));
 
       FALLBACK = lookup.findStatic(
-          MethodInvocationSupport.class,
-          "fallback",
-          methodType(Object.class, InlineCache.class, Object[].class));
+              MethodInvocationSupport.class,
+              "fallback",
+              methodType(Object.class, InlineCache.class, Object[].class));
+
+      FALLBACK_SPREADED = lookup.findStatic(
+              MethodInvocationSupport.class,
+              "fallbackSpreaded",
+              methodType(Object.class, InlineCache.class, Object[].class));
 
       VTABLE_LOOKUP = lookup.findStatic(
-          MethodInvocationSupport.class,
-          "vtableLookup",
-          methodType(MethodHandle.class, InlineCache.class, Object[].class));
+              MethodInvocationSupport.class,
+              "vtableLookup",
+              methodType(MethodHandle.class, InlineCache.class, Object[].class));
 
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
   }
 
-  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int nullSafeGuarded) {
-    InlineCache callSite = new InlineCache(caller, name, type, (nullSafeGuarded != 0));
-    MethodHandle fallbackHandle = FALLBACK
-        .bindTo(callSite)
-        .asCollector(Object[].class, type.parameterCount())
-        .asType(type);
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int nullSafeGuarded, int spreaded) {
+    InlineCache callSite = new InlineCache(caller, name, type, (nullSafeGuarded != 0), (spreaded != 0));
+
+    MethodHandle fallback = (callSite.spreaded) ? FALLBACK_SPREADED : FALLBACK;
+    MethodHandle fallbackHandle = fallback
+            .bindTo(callSite)
+            .asCollector(Object[].class, type.parameterCount())
+            .asType(type);
     callSite.setTarget(fallbackHandle);
     return callSite;
   }
@@ -161,10 +171,26 @@ public class MethodInvocationSupport {
     inlineCache.depth = inlineCache.depth + 1;
     return target.invokeWithArguments(args);
   }
+  public static Object fallbackSpreaded(InlineCache inlineCache, Object[] args) throws Throwable {
+    InlineCache uniqueCallSite = new InlineCache(inlineCache.callerLookup, inlineCache.name, inlineCache.type(),inlineCache.nullSafeGuarded, false);
+    Object[] arguments = (Object[]) args[0];
+    List results = new ArrayList();
+    for(int i = 0; i < arguments.length; i++){
+      results.add(fallback(uniqueCallSite, new Object[]{arguments[i]}));
+    }
 
-  private static MethodHandle makeNullSafeGuarded(MethodHandle root) {
+    return results.toArray();
+  }
+
+
+    private static MethodHandle makeNullSafeGuarded(MethodHandle root) {
     MethodHandle catchThenNull = dropArguments(constant(Object.class, null), 0, NullPointerException.class);
     root = catchException(root, NullPointerException.class, catchThenNull);
+    return root;
+  }
+
+  private static MethodHandle makeSpreaded(Class<?> receiverClass, MethodHandle root) {
+    root = root.asSpreader(receiverClass, root.type().parameterCount());
     return root;
   }
 
@@ -177,8 +203,8 @@ public class MethodInvocationSupport {
       inlineCache.vtable = new WeakHashMap<>();
     }
     MethodHandle lookup = VTABLE_LOOKUP
-        .bindTo(inlineCache)
-        .asCollector(Object[].class, args.length);
+            .bindTo(inlineCache)
+            .asCollector(Object[].class, args.length);
     MethodHandle exactInvoker = exactInvoker(inlineCache.type());
     MethodHandle vtableTarget = foldArguments(exactInvoker, lookup);
     if (inlineCache.nullSafeGuarded) {
@@ -260,7 +286,7 @@ public class MethodInvocationSupport {
         }
         try {
           return inlineCache.callerLookup.findStatic(
-              Array.class, "getLength", methodType(int.class, Object.class)).asType(type);
+                  Array.class, "getLength", methodType(int.class, Object.class)).asType(type);
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
@@ -270,7 +296,7 @@ public class MethodInvocationSupport {
         }
         try {
           return inlineCache.callerLookup.findConstructor(
-              PrimitiveArrayIterator.class, methodType(void.class, Object[].class)).asType(type);
+                  PrimitiveArrayIterator.class, methodType(void.class, Object[].class)).asType(type);
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
@@ -280,7 +306,7 @@ public class MethodInvocationSupport {
         }
         try {
           return inlineCache.callerLookup.findStatic(
-              Arrays.class, "toString", methodType(String.class, Object[].class)).asType(type);
+                  Arrays.class, "toString", methodType(String.class, Object[].class)).asType(type);
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
@@ -290,8 +316,8 @@ public class MethodInvocationSupport {
         }
         try {
           return inlineCache.callerLookup.findStatic(
-              Arrays.class, "asList", methodType(List.class, Object[].class))
-              .asFixedArity().asType(type);
+                  Arrays.class, "asList", methodType(List.class, Object[].class))
+                  .asFixedArity().asType(type);
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
@@ -301,7 +327,7 @@ public class MethodInvocationSupport {
         }
         try {
           return inlineCache.callerLookup.findStatic(
-              Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class)).asType(type);
+                  Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class)).asType(type);
         } catch (NoSuchMethodException | IllegalAccessException e) {
           throw new Error(e);
         }
