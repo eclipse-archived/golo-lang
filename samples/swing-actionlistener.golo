@@ -27,10 +27,15 @@ function main = |args| {
 
   let button = JButton("Click me!")
   button: setFont(button: getFont(): deriveFont(96.0_F))
+
+  # Using a helper function
   button: addActionListener(listener(|event| -> println("Clicked!")))
 
   # Using a standard augmentation: MethodHandle::to(Class)
   button: addActionListener((|event| -> println("[click]")): to(ActionListener.class))
+
+  # Straight closure passing
+  button: addActionListener(|event| -> println("( )"))
 
   frame: getContentPane(): add(button)
   frame: pack()
