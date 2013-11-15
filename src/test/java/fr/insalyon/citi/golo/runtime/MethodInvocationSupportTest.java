@@ -16,6 +16,7 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.Tuple;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
@@ -294,8 +295,8 @@ public class MethodInvocationSupportTest {
 
     MethodHandle invoker = toString.dynamicInvoker();
 //    assertThat(invoker.invoke(null), nullValue());
-    Object[] shouted = (Object[]) invoker.invoke(new String[]{"a", "b", "c"});
-    assertThat((String) shouted[0], is("A"));
+    Tuple shouted = (Tuple) invoker.invoke(new String[]{"a", "b", "c"});
+    assertThat((String) shouted.get(0), is("A"));
 //    assertThat((String) invoker.invoke("b"), is("b"));
 //    assertThat(invoker.invoke(null), nullValue());
   }

@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.runtime;
 
 import gololang.DynamicObject;
+import gololang.Tuple;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Array;
@@ -172,14 +173,13 @@ public class MethodInvocationSupport {
     return target.invokeWithArguments(args);
   }
   public static Object fallbackSpreaded(InlineCache inlineCache, Object[] args) throws Throwable {
-    InlineCache uniqueCallSite = new InlineCache(inlineCache.callerLookup, inlineCache.name, inlineCache.type(),inlineCache.nullSafeGuarded, false);
     Object[] arguments = (Object[]) args[0];
-    List results = new ArrayList();
+    Object[] results = new Object[arguments.length];
     for(int i = 0; i < arguments.length; i++){
-      results.add(fallback(uniqueCallSite, new Object[]{arguments[i]}));
+      results[i] = fallback(inlineCache, new Object[]{arguments[i]});
     }
 
-    return results.toArray();
+    return Tuple.fromArray(results);
   }
 
 
