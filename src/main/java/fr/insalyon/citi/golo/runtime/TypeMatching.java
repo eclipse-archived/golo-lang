@@ -16,6 +16,7 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -68,7 +69,15 @@ public class TypeMatching {
   }
 
   public static boolean valueAndTypeMatch(Class<?> type, Object value) {
-    return primitiveCompatible(type, value) || (type.isInstance(value) || value == null);
+    return primitiveCompatible(type, value) || (type.isInstance(value) || value == null || samAssignment(type, value));
+  }
+
+  public static boolean samAssignment(Class<?> type, Object value) {
+    return (value instanceof MethodHandle) && isSAM(type);
+  }
+
+  public static boolean isSAM(Class<?> type) {
+    return type.isInterface() && (type.getMethods().length == 1);
   }
 
   public static boolean primitiveCompatible(Class<?> type, Object value) {

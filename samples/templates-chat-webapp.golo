@@ -20,8 +20,6 @@ import java.net.InetSocketAddress
 import com.sun.net.httpserver
 import com.sun.net.httpserver.HttpServer
 
-local function handler = |func| -> func: to(HttpHandler.class)
-
 local function redirect = |exchange, to| {
   exchange: getResponseHeaders(): set("Location", to)
   exchange: sendResponseHeaders(303, 0)
@@ -86,6 +84,7 @@ function main = |args| {
   let index_tpl = gololang.TemplateEngine(): compile(index_template())
   let posts = java.util.concurrent.ConcurrentLinkedDeque()
   let server = HttpServer.create(InetSocketAddress("localhost", 8081), 0)
-  server: createContext("/", handler(^index: bindTo(posts): bindTo(index_tpl)))
+  server: createContext("/", ^index: bindTo(posts): bindTo(index_tpl))
   server: start()
+  println(">>> http://localhost:8081/")
 }

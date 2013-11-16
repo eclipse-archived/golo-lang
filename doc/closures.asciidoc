@@ -161,6 +161,22 @@ function give_me_hey = {
 }
 ----
 
+=== Direct closure passing works ===
+
+When a function or method parameter of a Java API expects a single method interface type, you
+can pass a closure directly, as in:
+
+[source,text]
+----
+# (...)
+let button = JButton("Click me!")
+button: addActionListener(|event| -> println("Clicked!"))
+----
+
+Note that this causes the creation of a method handle proxy object for each function or method
+invocation. For performance-sensitive contexts, we suggest that you use either `asInterfaceInstance`
+or the `to` conversion method described hereafter. 
+
 === Conversion to single-method interfaces ===
 
 Instead of using `asInterfaceInstance`, you may use a *class augmentation* which is described later in this

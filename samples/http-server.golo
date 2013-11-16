@@ -19,13 +19,11 @@ import java.net.InetSocketAddress
 import com.sun.net.httpserver
 import com.sun.net.httpserver.HttpServer
 
-local function handler = |func| -> func: to(HttpHandler.class)
-
 function main = |args| {
 
   let server = HttpServer.create(InetSocketAddress("localhost", 8081), 0)
   
-  server: createContext("/", handler(|exchange| {
+  server: createContext("/", |exchange| {
     let headers = exchange: getResponseHeaders()
     let response = StringBuilder():
       append("Requested URI: "):
@@ -39,16 +37,17 @@ function main = |args| {
     exchange: sendResponseHeaders(200, response: length())
     exchange: getResponseBody(): write(response: getBytes())
     exchange: close()
-  }))
+  })
 
-  server: createContext("/shutdown", handler(|exchange| {
+  server: createContext("/shutdown", |exchange| {
     let response = "Ok, thanks, bye!"
     exchange: getResponseHeaders(): set("Content-Type", "text/plain")
     exchange: sendResponseHeaders(200, response: length())
     exchange: getResponseBody(): write(response: getBytes())
     exchange: close()
     server: stop(5)
-  }))
+  })
 
   server: start()
+  println(">>> http://localhost:8081/")
 }

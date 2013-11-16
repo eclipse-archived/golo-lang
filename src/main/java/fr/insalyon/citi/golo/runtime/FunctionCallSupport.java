@@ -42,6 +42,7 @@ public final class FunctionCallSupport {
   }
 
   private static final MethodHandle FALLBACK;
+  private static final MethodHandle SAM_FILTER;
 
   static {
     try {
@@ -50,9 +51,20 @@ public final class FunctionCallSupport {
           FunctionCallSupport.class,
           "fallback",
           methodType(Object.class, FunctionCallSite.class, Object[].class));
+      SAM_FILTER = lookup.findStatic(
+          FunctionCallSupport.class,
+          "samFilter",
+          methodType(Object.class, Class.class, Object.class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
+  }
+
+  public static Object samFilter(Class<?> type, Object value) {
+    if (value instanceof MethodHandle) {
+      return MethodHandleProxies.asInterfaceInstance(type, (MethodHandle) value);
+    }
+    return value;
   }
 
   public static CallSite bootstrap(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
@@ -88,20 +100,36 @@ public final class FunctionCallSupport {
     if (result == null) {
       throw new NoSuchMethodError(functionName);
     }
+
+    Class[] types = null;
     if (result instanceof Method) {
       Method method = (Method) result;
       checkLocalFunctionCallFromSameModuleAugmentation(method, callerClass.getName());
       handle = caller.unreflect(method).asType(type);
+      types = method.getParameterTypes();
     } else if (result instanceof Constructor) {
       Constructor constructor = (Constructor) result;
       handle = caller.unreflectConstructor(constructor).asType(type);
+      types = constructor.getParameterTypes();
     } else {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
+    handle = insertSAMFilter(handle, types, 0);
 
     callSite.setTarget(handle);
     return handle.invokeWithArguments(args);
+  }
+
+  public static MethodHandle insertSAMFilter(MethodHandle handle, Class[] types, int startIndex) {
+    if (types != null) {
+      for (int i = 0; i < types.length; i++) {
+        if (isSAM(types[i])) {
+          handle = MethodHandles.filterArguments(handle, startIndex + i, SAM_FILTER.bindTo(types[i]));
+        }
+      }
+    }
+    return handle;
   }
 
   private static void checkLocalFunctionCallFromSameModuleAugmentation(Method method, String callerClassName) {

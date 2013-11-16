@@ -1100,4 +1100,18 @@ public class CompileAndRunTest {
       assertThat(strList, contains("foo", "bar", "baz"));
     }
   }
+
+  @Test
+  public void sam_support() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "sam.golo");
+
+    Method func = moduleClass.getMethod("func");
+    assertThat((String) func.invoke(null), is("Hey!Hey!"));
+
+    Method ctor = moduleClass.getMethod("ctor");
+    assertThat((String) ctor.invoke(null), is("Plop!"));
+
+    Method meth = moduleClass.getMethod("meth");
+    assertThat((String) meth.invoke(null), is("Yeah"));
+  }
 }
