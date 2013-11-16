@@ -75,6 +75,26 @@ NOTE: The runtime implementation of `null`-safe method invocations is *optimisti
 like a `try` block catching a `NullPointerException`. Performance is good unless most invocations
 happen to be on `null`, in which case using `?:` is probably not a great idea.
 
+=== Spread method invocation ===
+
+Golo is able to spread a method call on all items of an iterable object.
+
+[source,text]
+------------------------------------------------------
+["Golo", "is", "cool"]*: toUpperCase()
+# equivalent to
+["Golo", "is", "cool"]: map(|it| -> it: toUpperCase())
+------------------------------------------------------
+
+The spread invocation returns a *`gololang.Tuple`* aggregating the results of each unitary invocation call.
+
+[source,text]
+--------------------------------------------------------------------------------------------------
+let shouted = ["Golo", "is", "cool"]*: toUpperCase()
+require(shouted oftype gololang.Tuple.class, "A spread invocation returns a tuple")
+require(shouted == ["GOLO", "IS", "COOL"], "Spread invocation == aggregation of each child call")
+--------------------------------------------------------------------------------------------------
+
 === Creating objects ===
 
 Golo doesn't have an instantiation operator like `new` in Java. Instead, creating an object and
