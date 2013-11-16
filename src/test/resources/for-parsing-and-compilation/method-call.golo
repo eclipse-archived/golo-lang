@@ -41,3 +41,5 @@ function escaped = {
 function elvis = -> null ?: foo() ?: bar() : baz()
 
 function functional = |foo| -> foo: f(1, 2)(3)(): g()
+
+function spread = -> ["golo", "is", "cool"]*: toUpperCase()

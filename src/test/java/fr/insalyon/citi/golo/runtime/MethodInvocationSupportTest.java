@@ -22,6 +22,7 @@ import org.testng.annotations.Test;
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandle;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -290,14 +291,67 @@ public class MethodInvocationSupportTest {
   }
 
   @Test
-  public void spread_invocation() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+  public void spread_invocation_on_array() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
 
-    MethodHandle invoker = toString.dynamicInvoker();
-//    assertThat(invoker.invoke(null), nullValue());
     Tuple shouted = (Tuple) invoker.invoke(new String[]{"a", "b", "c"});
+
+    assertThat(shouted.size(), is(3));
     assertThat((String) shouted.get(0), is("A"));
-//    assertThat((String) invoker.invoke("b"), is("b"));
-//    assertThat(invoker.invoke(null), nullValue());
+  }
+
+  @Test
+  public void spread_invocation_on_primitive_array() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "byteValue", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    Tuple shouted = (Tuple) invoker.invoke(new int[]{1, 2, 3});
+
+    assertThat(shouted.size(), is(3));
+    assertThat((byte) shouted.get(0), is((byte) 1));
+  }
+
+  @Test
+  public void spread_invocation_on_iterables() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+    List myStringList = new ArrayList();
+    myStringList.add("a");
+    myStringList.add("b");
+    myStringList.add("c");
+
+    Tuple shouted = (Tuple) invoker.invoke(myStringList);
+
+    assertThat(shouted.size(), is(3));
+    assertThat((String) shouted.get(0), is("A"));
+  }
+
+  @Test(expectedExceptions = NoSuchMethodError.class, expectedExceptionsMessageRegExp = ".*Integer::toUpperCase.*")
+  public void spread_invocation_on_iterables_with_different_types() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+    List myStringList = new ArrayList();
+    myStringList.add("a");
+    myStringList.add(1);
+    myStringList.add("c");
+
+    Tuple shouted = (Tuple) invoker.invoke(myStringList);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class, expectedExceptionsMessageRegExp = ".*not iterable")
+  public void spread_invocation_on_non_iterable_object() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    invoker.invoke(new Object());
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void spread_invocation_on_null() throws Throwable{
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    invoker.invoke(null);
   }
 }

@@ -173,7 +173,25 @@ public class MethodInvocationSupport {
     return target.invokeWithArguments(args);
   }
   public static Object fallbackSpreaded(InlineCache inlineCache, Object[] args) throws Throwable {
-    Object[] arguments = (Object[]) args[0];
+
+    Object[] arguments = null;
+    if(args[0].getClass().isArray()){
+      int size = Array.getLength(args[0]);
+      arguments = new Object[size];
+      for(int i = 0; i < size; i++){
+        arguments[i] = Array.get(args[0],i);
+      }
+    } else if(args[0] instanceof Iterable){
+      Iterator it = ((Iterable) args[0]).iterator();
+      List list = new ArrayList();
+      while(it.hasNext()){
+        list.add(it.next());
+      }
+      arguments = list.toArray();
+    } else {
+      throw new UnsupportedOperationException(args[0].getClass() + " is not iterable");
+    }
+
     Object[] results = new Object[arguments.length];
     for(int i = 0; i < arguments.length; i++){
       results[i] = fallback(inlineCache, new Object[]{arguments[i]});
