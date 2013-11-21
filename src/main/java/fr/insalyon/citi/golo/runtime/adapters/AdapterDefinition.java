@@ -134,6 +134,11 @@ public final class AdapterDefinition {
           canBeOverridden.add(method.getName());
         }
       }
+      for (Method method : parentClass.getMethods()) {
+        if (!isStatic(method.getModifiers())) {
+          canBeOverridden.add(method.getName());
+        }
+      }
       for (String key : overrides.keySet()) {
         if (!"*".equals(key) && !canBeOverridden.contains(key)) {
           throw new AdapterDefinitionProblem("There is no method named " + key + " to be overridden in " + parentClass);
