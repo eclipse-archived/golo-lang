@@ -16,11 +16,13 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.Tuple;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.MethodHandle;
 import java.math.BigInteger;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,7 +108,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_to_string() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0, 0);
     String result = (String) toString.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
     assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr'}"));
@@ -114,7 +116,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_set_name() throws Throwable {
-    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "setName", methodType(Object.class, Object.class, Object.class), 0);
+    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "setName", methodType(Object.class, Object.class, Object.class), 0, 0);
     Person julien = julien();
     setName.dynamicInvoker().invokeWithArguments(julien, "Julien Ponge");
     assertThat(julien.name, is("Julien Ponge"));
@@ -122,7 +124,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_equals() throws Throwable {
-    CallSite equals = MethodInvocationSupport.bootstrap(lookup(), "equals", methodType(Object.class, Object.class, Object.class), 0);
+    CallSite equals = MethodInvocationSupport.bootstrap(lookup(), "equals", methodType(Object.class, Object.class, Object.class), 0, 0);
     Person julien = julien();
     Boolean result = (Boolean) equals.dynamicInvoker().invokeWithArguments(julien, julien);
     assertThat(result, is(true));
@@ -130,7 +132,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_field_read() throws Throwable {
-    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class), 0);
+    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class), 0, 0);
     String result = (String) name.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
     assertThat(result, is("Julien"));
@@ -138,13 +140,13 @@ public class MethodInvocationSupportTest {
 
   @Test(expectedExceptions = NoSuchMethodError.class)
   public void check_bogus() throws Throwable {
-    CallSite bogus = MethodInvocationSupport.bootstrap(lookup(), "bogus", methodType(Object.class, Object.class), 0);
+    CallSite bogus = MethodInvocationSupport.bootstrap(lookup(), "bogus", methodType(Object.class, Object.class), 0, 0);
     bogus.dynamicInvoker().invokeWithArguments(julien());
   }
 
   @Test
   public void check_many_to_string() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0, 0);
     MethodHandle toStringMH = toString.dynamicInvoker();
 
     for (int i = 0; i < 5; i++) {
@@ -195,7 +197,7 @@ public class MethodInvocationSupportTest {
   @Test
   public void check_primitive_argument_allowance() throws Throwable {
     List<String> list = Arrays.asList("a", "b", "c");
-    CallSite get = MethodInvocationSupport.bootstrap(lookup(), "get", methodType(Object.class, Object.class, Object.class), 0);
+    CallSite get = MethodInvocationSupport.bootstrap(lookup(), "get", methodType(Object.class, Object.class, Object.class), 0, 0);
 
     MethodHandle handle = get.dynamicInvoker();
     assertThat(((String) handle.invokeWithArguments(list, 0)), is("a"));
@@ -205,7 +207,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_varags() throws Throwable {
-    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "concat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class), 0);
+    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "concat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class, Object.class), 0, 0);
     VarargsChecking receiver = varargsChecking();
 
     Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "-", "a", "b", "c");
@@ -216,7 +218,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_varags_only() throws Throwable {
-    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class), 0);
+    CallSite concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class, Object.class, Object.class), 0, 0);
     VarargsChecking receiver = varargsChecking();
 
     Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "a", "b", "c");
@@ -224,18 +226,18 @@ public class MethodInvocationSupportTest {
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("a-b-c"));
 
-    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class), 0);
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class), 0, 0);
     receiver = varargsChecking();
     assertThat((String) concat.dynamicInvoker().invokeWithArguments(receiver, "a"), is("a"));
 
-    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class), 0);
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class), 0, 0);
     receiver = varargsChecking();
     assertThat((String) concat.dynamicInvoker().invokeWithArguments(receiver), is(""));
   }
 
   @Test
   public void check_field_getter() throws Throwable {
-    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class), 0);
+    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class), 0, 0);
     FieldAccessors receiver = new FieldAccessors();
     receiver.property = "foo";
 
@@ -247,7 +249,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_field_setter() throws Throwable {
-    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class, Object.class), 0);
+    CallSite property = MethodInvocationSupport.bootstrap(lookup(), "property", methodType(Object.class, Object.class, Object.class), 0, 0);
     FieldAccessors receiver = new FieldAccessors();
     receiver.property = "undefined";
 
@@ -257,13 +259,13 @@ public class MethodInvocationSupportTest {
 
   @Test(expectedExceptions = NullPointerException.class)
   public void not_nullsafe_invocation() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0, 0);
     toString.dynamicInvoker().invoke(null);
   }
 
   @Test
   public void nullsafe_invocation() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 1);
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 1, 0);
 
     MethodHandle invoker = toString.dynamicInvoker();
     assertThat(invoker.invoke(null), nullValue());
@@ -274,7 +276,7 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void nullsafe_megamorphic_invocation() throws Throwable {
-    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 1);
+    CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 1, 0);
     MethodInvocationSupport.InlineCache pic = (MethodInvocationSupport.InlineCache) toString;
     pic.depth = MethodInvocationSupport.InlineCache.MEGAMORPHIC_THRESHOLD + 10;
 
@@ -286,5 +288,70 @@ public class MethodInvocationSupportTest {
     assertThat((String) invoker.invoke(Arrays.asList()), is("[]"));
     assertThat((String) invoker.invoke(new Object()), startsWith("java.lang.Object"));
     assertThat(invoker.invoke(null), nullValue());
+  }
+
+  @Test
+  public void spread_invocation_on_array() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    Tuple shouted = (Tuple) invoker.invoke(new String[]{"a", "b", "c"});
+
+    assertThat(shouted.size(), is(3));
+    assertThat((String) shouted.get(0), is("A"));
+  }
+
+  @Test
+  public void spread_invocation_on_primitive_array() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "byteValue", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    Tuple shouted = (Tuple) invoker.invoke(new int[]{1, 2, 3});
+
+    assertThat(shouted.size(), is(3));
+    assertThat((byte) shouted.get(0), is((byte) 1));
+  }
+
+  @Test
+  public void spread_invocation_on_iterables() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+    List myStringList = new ArrayList();
+    myStringList.add("a");
+    myStringList.add("b");
+    myStringList.add("c");
+
+    Tuple shouted = (Tuple) invoker.invoke(myStringList);
+
+    assertThat(shouted.size(), is(3));
+    assertThat((String) shouted.get(0), is("A"));
+  }
+
+  @Test(expectedExceptions = NoSuchMethodError.class, expectedExceptionsMessageRegExp = ".*Integer::toUpperCase.*")
+  public void spread_invocation_on_iterables_with_different_types() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+    List myStringList = new ArrayList();
+    myStringList.add("a");
+    myStringList.add(1);
+    myStringList.add("c");
+
+    Tuple shouted = (Tuple) invoker.invoke(myStringList);
+  }
+
+  @Test(expectedExceptions = UnsupportedOperationException.class, expectedExceptionsMessageRegExp = ".*not iterable")
+  public void spread_invocation_on_non_iterable_object() throws Throwable {
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    invoker.invoke(new Object());
+  }
+
+  @Test(expectedExceptions = NullPointerException.class)
+  public void spread_invocation_on_null() throws Throwable{
+    CallSite toUpperCase = MethodInvocationSupport.bootstrap(lookup(), "toUpperCase", methodType(Object.class, Object.class), 0, 1);
+    MethodHandle invoker = toUpperCase.dynamicInvoker();
+
+    invoker.invoke(null);
   }
 }

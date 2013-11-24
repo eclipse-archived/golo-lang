@@ -188,7 +188,7 @@ TOKEN :
   |
   < UNARY_OPERATOR: "not" >
   |
-  < INVOCATION: (":" | "?:") >
+  < INVOCATION: (":" | "?:" | "*:") >
 }
 
 // References

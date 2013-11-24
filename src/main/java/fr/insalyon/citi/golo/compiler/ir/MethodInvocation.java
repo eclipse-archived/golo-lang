@@ -20,8 +20,18 @@ public class MethodInvocation extends AbstractInvocation {
 
   private boolean nullSafeGuarded = false;
 
+  private boolean spreaded = false;
+
   public MethodInvocation(String name) {
     super(name);
+  }
+
+  public void setSpreaded(boolean spreaded) {
+    this.spreaded = spreaded;
+  }
+
+  public boolean isSpreaded() {
+    return spreaded;
   }
 
   public void setNullSafeGuarded(boolean nullSafeGuarded) {

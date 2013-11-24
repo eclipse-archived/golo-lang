@@ -69,6 +69,11 @@ function elvis_indirect = {
   return str
 }
 
+function spread = {
+ let sentence = ["golo", "is", "fun"]
+ return sentence *: toUpperCase()
+}
+
 function funky = {
   let obj = DynamicObject():
     define("adder", |this, x| -> |y| -> |z| -> x + y + z)

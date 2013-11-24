@@ -575,6 +575,11 @@ public class CompileAndRunTest {
 
     Method funky = moduleClass.getMethod("funky");
     assertThat((Integer) funky.invoke(null), is(6));
+
+    Method spread = moduleClass.getMethod("spread");
+    Tuple shouted = (Tuple) spread.invoke(null);
+    assertThat((String) shouted.get(0), is("GOLO"));
+
   }
 
   @Test
