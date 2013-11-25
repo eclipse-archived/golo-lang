@@ -43,7 +43,7 @@ public abstract class AbstractProcessor {
     if (templateCache.containsKey(key)) {
       return templateCache.get(key);
     }
-    InputStream in = DocumentationRenderer.class.getResourceAsStream("/fr/insalyon/citi/golo/doc/" + name + "-" + format);
+    InputStream in = AbstractProcessor.class.getResourceAsStream("/fr/insalyon/citi/golo/doc/" + name + "-" + format);
     if (in == null) {
       throw new IllegalArgumentException("There is no template " + name + " for format: " + format);
     }
