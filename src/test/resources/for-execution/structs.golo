@@ -23,6 +23,10 @@ function mrbean_frozenCopy = {
   return [bean, bean: frozenCopy()]
 }
 
+function immutable_factory = {
+  return [ImmutableContact("Mr Bean", "mrbean@outlook.com"), Contact("Mr Bean", "mrbean@outlook.com"): frozenCopy()]
+}
+
 function mrbean_hashCode = -> [
   Contact("Mr Bean", "mrbean@outlook.com"),
   Contact("Mr Bean", "mrbean@outlook.com"),

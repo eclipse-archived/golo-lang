@@ -73,6 +73,30 @@ running it prints the following console output:
 struct Point{x=1, y=2}
 ----
 
+=== Immutable structs ===
+
+Structure instances are mutable by default. Golo generates a factory function with the `Immutable`
+prefix to directly build immutable instances:
+
+----
+module test
+
+struct Point = { x, y }
+
+function main = |args| {
+
+  let p = ImmutablePoint(1, 2)
+  println(p)
+
+  try {
+    # Fails! (p is immutable)
+    p: x(100)
+  } catch (expected) {
+    println(expected: getMessage())
+  }
+}
+----
+
 === Copying ===
 
 Instances of a structure provide copying methods:
@@ -133,9 +157,8 @@ p3 == p4 true
 #p4 994
 ----
 
-
-TIP: It is recommended that you use `frozenCopy()` when you can, especially when storing values into
-collections.
+TIP: It is recommended that you use `Immutable<name of struct>(...)` or `frozenCopy()` when you can,
+especially when storing values into collections.
 
 === Helper methods ===
 

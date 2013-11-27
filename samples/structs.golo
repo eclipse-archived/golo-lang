@@ -56,6 +56,14 @@ function main = |args| {
   println("p1: set(\"x\", 10) " + p1: set("x", 10))
   println("p1: move(10, 5) " + p1: move(10, 5))
   println("p1: relative(11, 6) " + p1: relative(11, 6))
+
+  let p5 = ImmutablePoint(10, 20)
+  println("p5: " + p5)
+  try {
+    p5: x(100)
+  } catch (expected) {
+    println("p5 is immutable, so... " + expected: getMessage())
+  }
 }
 
 
