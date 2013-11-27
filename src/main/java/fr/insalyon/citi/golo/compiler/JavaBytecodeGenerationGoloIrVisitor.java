@@ -249,27 +249,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitBlock(Block block) {
     ReferenceTable referenceTable = block.getReferenceTable();
     context.referenceTableStack.push(referenceTable);
-    LabelRange labelRange;
     if (context.labelRangeStack.isEmpty()) {
-      labelRange = new LabelRange(new Label(), new Label());
-    } else {
-      labelRange = context.labelRangeStack.pop();
+      context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     }
-    // TODO: understand why this doesn't work...
-    // methodVisitor.visitLabel(labelRange.begin);
-    final int lastParameterIndex = context.methodArityStack.peek() - 1;
+    LabelRange labelRange = context.labelRangeStack.pop();
     for (LocalReference localReference : referenceTable.ownedReferences()) {
-      if (localReference.getIndex() > lastParameterIndex) {
-        methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
-            labelRange.begin, labelRange.end, localReference.getIndex());
-      }
+      methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
+          labelRange.begin, labelRange.end, localReference.getIndex());
     }
     for (GoloStatement statement : block.getStatements()) {
       visitLine(statement, methodVisitor);
       statement.accept(this);
       insertMissingPop(statement);
     }
-    // methodVisitor.visitLabel(labelRange.end);
     context.referenceTableStack.pop();
   }
 
