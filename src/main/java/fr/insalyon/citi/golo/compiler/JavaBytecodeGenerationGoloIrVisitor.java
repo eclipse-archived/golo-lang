@@ -236,14 +236,16 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     context.referenceTableStack.push(referenceTable);
     Label blockStart = new Label();
     Label blockEnd = new Label();
-    for (LocalReference localReference : referenceTable.ownedReferences()) {
-      methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
-          blockStart, blockEnd, localReference.getIndex());
-    }
+    methodVisitor.visitLabel(blockStart);
     for (GoloStatement statement : block.getStatements()) {
       visitLine(statement, methodVisitor);
       statement.accept(this);
       insertMissingPop(statement);
+    }
+    methodVisitor.visitLabel(blockEnd);
+    for (LocalReference localReference : referenceTable.ownedReferences()) {
+      methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
+          blockStart, blockEnd, localReference.getIndex());
     }
     context.referenceTableStack.pop();
   }
