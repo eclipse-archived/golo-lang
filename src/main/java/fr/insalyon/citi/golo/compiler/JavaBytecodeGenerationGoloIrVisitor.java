@@ -86,20 +86,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private static class Context {
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
-    private final Deque<Integer> methodArityStack = new LinkedList<>();
-    private final Deque<LabelRange> labelRangeStack = new LinkedList<>();
     private final Map<LoopStatement, Label> loopStartMap = new HashMap<>();
     private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
-  }
-
-  private static class LabelRange {
-    final Label begin;
-    final Label end;
-
-    private LabelRange(Label begin, Label end) {
-      this.begin = begin;
-      this.end = end;
-    }
   }
 
   public List<CodeGenerationResult> generateBytecode(GoloModule module, String sourceFilename) {
@@ -222,7 +210,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (function.isSynthetic()) {
       accessFlags = accessFlags | ACC_SYNTHETIC;
     }
-    context.methodArityStack.push(function.getArity());
     methodVisitor = classWriter.visitMethod(
         accessFlags | ACC_STATIC,
         function.getName(),
@@ -230,11 +217,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         null, null);
     methodVisitor.visitCode();
     visitLine(function, methodVisitor);
-    context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     function.getBlock().accept(this);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
-    context.methodArityStack.pop();
   }
 
   private String goloFunctionSignature(int arity) {
@@ -249,13 +234,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitBlock(Block block) {
     ReferenceTable referenceTable = block.getReferenceTable();
     context.referenceTableStack.push(referenceTable);
-    if (context.labelRangeStack.isEmpty()) {
-      context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
-    }
-    LabelRange labelRange = context.labelRangeStack.pop();
+    Label blockStart = new Label();
+    Label blockEnd = new Label();
     for (LocalReference localReference : referenceTable.ownedReferences()) {
       methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
-          labelRange.begin, labelRange.end, localReference.getIndex());
+          blockStart, blockEnd, localReference.getIndex());
     }
     for (GoloStatement statement : block.getStatements()) {
       visitLine(statement, methodVisitor);
@@ -362,11 +345,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ATHROW);
   }
 
-  private void visitInvocationArguments(AbstractInvocation invocation, Handle boostrap, int arity) {
-    visitInvocationArguments(invocation, boostrap, goloFunctionSignature(arity));
-  }
-
-  private void visitInvocationArguments(AbstractInvocation invocation, Handle bootstrap, String signature) {
+  private void visitInvocationArguments(AbstractInvocation invocation) {
     for (ExpressionStatement statement : invocation.getArguments()) {
       statement.accept(this);
     }
@@ -381,13 +360,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (functionInvocation.isAnonymous() || functionInvocation.isOnReference()) {
       methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/invoke/MethodHandle");
       MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, MethodHandle.class);
-      visitInvocationArguments(functionInvocation, CLOSURE_INVOCATION_HANDLE, type.toMethodDescriptorString());
+      visitInvocationArguments(functionInvocation);
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           type.toMethodDescriptorString(),
           CLOSURE_INVOCATION_HANDLE);
     } else {
-      visitInvocationArguments(functionInvocation, FUNCTION_INVOCATION_HANDLE, functionInvocation.getArity());
+      visitInvocationArguments(functionInvocation);
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           goloFunctionSignature(functionInvocation.getArity()),
@@ -400,7 +379,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void acceptMethodInvocation(MethodInvocation methodInvocation) {
-    visitInvocationArguments(methodInvocation, METHOD_INVOCATION_HANDLE, methodInvocation.getArity() + 1);
+    visitInvocationArguments(methodInvocation);
     methodVisitor.visitInvokeDynamicInsn(
         methodInvocation.getName().replaceAll("\\.", "#"),
         goloFunctionSignature(methodInvocation.getArity() + 1),
@@ -425,21 +404,17 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
-    Label startLabel = new Label();
-    Label endLabel = new Label();
     Label branchingElseLabel = new Label();
     Label branchingExitLabel = new Label();
     conditionalBranching.getCondition().accept(this);
     asmBooleanValue();
     methodVisitor.visitJumpInsn(IFEQ, branchingElseLabel);
-    context.labelRangeStack.push(new LabelRange(startLabel, endLabel));
     conditionalBranching.getTrueBlock().accept(this);
     if (conditionalBranching.hasFalseBlock()) {
       if (!conditionalBranching.getTrueBlock().hasReturn()) {
         methodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
       }
       methodVisitor.visitLabel(branchingElseLabel);
-      context.labelRangeStack.push(new LabelRange(endLabel, new Label()));
       conditionalBranching.getFalseBlock().accept(this);
       methodVisitor.visitLabel(branchingExitLabel);
     } else if (conditionalBranching.hasElseConditionalBranching()) {
@@ -468,7 +443,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     loopStatement.getConditionStatement().accept(this);
     asmBooleanValue();
     methodVisitor.visitJumpInsn(IFEQ, loopEnd);
-    context.labelRangeStack.push(new LabelRange(new Label(), new Label()));
     loopStatement.getBlock().accept(this);
     if (loopStatement.hasPostStatement()) {
       loopStatement.getPostStatement().accept(this);
