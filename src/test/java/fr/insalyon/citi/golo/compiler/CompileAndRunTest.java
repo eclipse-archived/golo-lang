@@ -1058,6 +1058,12 @@ public class CompileAndRunTest {
     assertThat(tuple.get(2), not(tuple.get(4)));
     assertThat(tuple.get(2), not(tuple.get(5)));
     assertThat(tuple.get(2), not(tuple.get(0)));
+
+    Method immutable_factory = moduleClass.getMethod("immutable_factory");
+    result = immutable_factory.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    tuple = (Tuple) result;
+    assertThat(tuple.get(0), is(tuple.get(1)));
   }
 
   @Test

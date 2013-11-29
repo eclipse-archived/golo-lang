@@ -135,6 +135,19 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     block.addStatement(new ReturnStatement(call));
     module.addFunction(factory);
 
+    factory = new GoloFunction("Immutable" + node.getName(), PUBLIC, MODULE);
+    factory.setParameterNames(new LinkedList<>(node.getMembers()));
+    call = new FunctionInvocation(structClass.toString() + "." + JavaBytecodeStructGenerator.IMMUTABLE_FACTORY_METHOD);
+    table = context.referenceTableStack.peek().fork();
+    block = new Block(table);
+    for (String member : node.getMembers()) {
+      call.addArgument(new ReferenceLookup(member));
+      table.add(new LocalReference(CONSTANT, member));
+    }
+    factory.setBlock(block);
+    block.addStatement(new ReturnStatement(call));
+    module.addFunction(factory);
+
     return data;
   }
 

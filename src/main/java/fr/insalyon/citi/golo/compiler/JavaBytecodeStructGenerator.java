@@ -30,6 +30,7 @@ import static org.objectweb.asm.Opcodes.*;
 class JavaBytecodeStructGenerator {
 
   private static final String $_frozen = "$_frozen";
+  public static final String IMMUTABLE_FACTORY_METHOD = "$_immutable";
 
   public CodeGenerationResult compile(Struct struct, String sourceFilename) {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
@@ -39,6 +40,7 @@ class JavaBytecodeStructGenerator {
     makeFields(classWriter, struct);
     makeAccessors(classWriter, struct);
     makeConstructors(classWriter, struct);
+    makeImmutableFactory(classWriter, struct);
     makeToString(classWriter, struct);
     makeCopy(classWriter, struct, false);
     makeCopy(classWriter, struct, true);
@@ -269,6 +271,29 @@ class JavaBytecodeStructGenerator {
     visitor.visitInsn(ICONST_0);
     visitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
     visitor.visitInsn(RETURN);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
+  }
+
+  private void makeImmutableFactory(ClassWriter classWriter, Struct struct) {
+    String constructorDesc = allArgsConstructorSignature(struct);
+    String desc = constructorDesc.substring(0, constructorDesc.length() - 1);
+    String classType = struct.getPackageAndClass().toJVMType();
+    desc = desc + "L" + classType + ";";
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC | ACC_STATIC, IMMUTABLE_FACTORY_METHOD, desc, null, null);
+    visitor.visitCode();
+    visitor.visitTypeInsn(NEW, classType);
+    visitor.visitInsn(DUP);
+    int arg = 0;
+    for (String name : struct.getMembers()) {
+      visitor.visitVarInsn(ALOAD, arg);
+      arg = arg + 1;
+    }
+    visitor.visitMethodInsn(INVOKESPECIAL, classType, "<init>", constructorDesc);
+    visitor.visitInsn(DUP);
+    visitor.visitInsn(ICONST_1);
+    visitor.visitFieldInsn(PUTFIELD, classType, $_frozen, "Z");
+    visitor.visitInsn(ARETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
   }
