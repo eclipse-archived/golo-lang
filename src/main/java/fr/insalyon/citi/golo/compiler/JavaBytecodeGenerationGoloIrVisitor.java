@@ -339,7 +339,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitReturnStatement(ReturnStatement returnStatement) {
     returnStatement.getExpressionStatement().accept(this);
-    if (returnStatement.isReturnVoid()) {
+    if (returnStatement.isReturningVoid()) {
       methodVisitor.visitInsn(RETURN);
     } else {
       methodVisitor.visitInsn(ARETURN);

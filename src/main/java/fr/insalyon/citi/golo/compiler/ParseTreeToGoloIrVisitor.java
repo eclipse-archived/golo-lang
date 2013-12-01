@@ -119,7 +119,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction factory = new GoloFunction(node.getName(), PUBLIC, MODULE);
     Block block = new Block(context.referenceTableStack.peek().fork());
     factory.setBlock(block);
-    block.addStatement(new ReturnStatement(new FunctionInvocation(structClass.toString()), false));
+    block.addStatement(new ReturnStatement(new FunctionInvocation(structClass.toString())));
     module.addFunction(factory);
 
     factory = new GoloFunction(node.getName(), PUBLIC, MODULE);
@@ -132,7 +132,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       table.add(new LocalReference(CONSTANT, member));
     }
     factory.setBlock(block);
-    block.addStatement(new ReturnStatement(call, false));
+    block.addStatement(new ReturnStatement(call));
     module.addFunction(factory);
 
     factory = new GoloFunction("Immutable" + node.getName(), PUBLIC, MODULE);
@@ -145,7 +145,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       table.add(new LocalReference(CONSTANT, member));
     }
     factory.setBlock(block);
-    block.addStatement(new ReturnStatement(call, false));
+    block.addStatement(new ReturnStatement(call));
     module.addFunction(factory);
 
     return data;
@@ -243,10 +243,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private void insertMissingReturnStatement(GoloFunction function) {
     Block block = function.getBlock();
     if (!block.hasReturn()) {
-      block.addStatement(
-          new ReturnStatement(
-              new ConstantStatement(
-                  null), function.isMain()));
+      ReturnStatement missingReturnStatement = new ReturnStatement(
+              new ConstantStatement(null));
+      if (function.isMain()) {
+         missingReturnStatement.returningVoid();
+      }
+      block.addStatement(missingReturnStatement);
     }
   }
 
@@ -441,7 +443,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       context.objectStack.push(new ConstantStatement(null));
     }
     ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
-    ReturnStatement returnStatement = new ReturnStatement(statement, false);
+    ReturnStatement returnStatement = new ReturnStatement(statement);
     context.objectStack.push(returnStatement);
     node.setIrElement(returnStatement);
     return data;

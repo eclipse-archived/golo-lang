@@ -42,13 +42,11 @@ public final class GoloFunction extends GoloElement {
   private Block block;
   private boolean synthetic = false;
   private String syntheticSelfName = null;
-  private boolean main = false;
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
     this.visibility = visibility;
     this.scope = scope;
-    this.main = this.name.equals("main");
   }
 
   public Scope getScope() {
@@ -128,7 +126,7 @@ public final class GoloFunction extends GoloElement {
   }
 
   public boolean isMain() {
-    return main;
+    return name.equals("main") && getArity() == 1;
   }
 
   public void accept(GoloIrVisitor visitor) {
