@@ -201,7 +201,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitFunction(GoloFunction function) {
     int accessFlags = (function.getVisibility() == PUBLIC) ? ACC_PUBLIC : ACC_PRIVATE;
     String signature;
-    if (function.isVarargs()) {
+    if (function.isMain()) {
+      signature = "([Ljava/lang/String;)V";
+    } else if (function.isVarargs()) {
       accessFlags = accessFlags | ACC_VARARGS;
       signature = goloVarargsFunctionSignature(function.getArity());
     } else {
@@ -337,7 +339,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitReturnStatement(ReturnStatement returnStatement) {
     returnStatement.getExpressionStatement().accept(this);
-    methodVisitor.visitInsn(ARETURN);
+    if (returnStatement.isReturnVoid()) {
+      methodVisitor.visitInsn(RETURN);
+    } else {
+      methodVisitor.visitInsn(ARETURN);
+    }
+
   }
 
   @Override

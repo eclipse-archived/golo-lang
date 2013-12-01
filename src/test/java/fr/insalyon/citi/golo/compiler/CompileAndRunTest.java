@@ -110,6 +110,11 @@ public class CompileAndRunTest {
 
     Method raw_code = moduleClass.getMethod("raw_code");
     assertThat((String) raw_code.invoke(null), is("println(\"Hello!\\n\")"));
+
+    Method main = moduleClass.getMethod("main", String[].class);
+    assertThat(main, notNullValue());
+    assertThat(main.getReturnType().toString(), is("void"));
+    assertThat(main.invoke(null, new String[1]), nullValue());
   }
 
   @Test

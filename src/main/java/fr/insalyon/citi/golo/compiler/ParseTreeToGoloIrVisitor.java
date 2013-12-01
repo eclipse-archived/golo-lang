@@ -119,7 +119,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction factory = new GoloFunction(node.getName(), PUBLIC, MODULE);
     Block block = new Block(context.referenceTableStack.peek().fork());
     factory.setBlock(block);
-    block.addStatement(new ReturnStatement(new FunctionInvocation(structClass.toString())));
+    block.addStatement(new ReturnStatement(new FunctionInvocation(structClass.toString()), false));
     module.addFunction(factory);
 
     factory = new GoloFunction(node.getName(), PUBLIC, MODULE);
@@ -132,7 +132,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       table.add(new LocalReference(CONSTANT, member));
     }
     factory.setBlock(block);
-    block.addStatement(new ReturnStatement(call));
+    block.addStatement(new ReturnStatement(call, false));
     module.addFunction(factory);
 
     factory = new GoloFunction("Immutable" + node.getName(), PUBLIC, MODULE);
@@ -145,7 +145,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       table.add(new LocalReference(CONSTANT, member));
     }
     factory.setBlock(block);
-    block.addStatement(new ReturnStatement(call));
+    block.addStatement(new ReturnStatement(call, false));
     module.addFunction(factory);
 
     return data;
@@ -246,7 +246,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       block.addStatement(
           new ReturnStatement(
               new ConstantStatement(
-                  null)));
+                  null), function.isMain()));
     }
   }
 
@@ -441,7 +441,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       context.objectStack.push(new ConstantStatement(null));
     }
     ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
-    ReturnStatement returnStatement = new ReturnStatement(statement);
+    ReturnStatement returnStatement = new ReturnStatement(statement, false);
     context.objectStack.push(returnStatement);
     node.setIrElement(returnStatement);
     return data;
