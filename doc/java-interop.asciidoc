@@ -3,28 +3,31 @@
 Golo aims at providing a seamless 2-way interoperability with the Java programming language.
 
 === Main function Java compliance ===
+
 If the Golo compiler find a unary function named `main`, it will be compiled to a `void(String[])` static method.
 This `main` method can servers as a JVM entry point.
 
 Suppose that we have the following Golo module:
+
 [source,text]
-------------------------
+----
 module mainEntryPoint
 
 
 function main = |args| {
   println("-> " + args: get(0))
 }
-------------------------
+----
 
 Once compiled, we may invoke it as follows:
+
 [source,console]
-------------------------------------------
+----
 $ golo compile mainEntryPoint.golo
 $ java -cp ".:golo.jar" mainEntryPoint GoloRocks
 -> GoloRocks
 $
-------------------------------------------
+----
 
 === Calling static methods ===
 
