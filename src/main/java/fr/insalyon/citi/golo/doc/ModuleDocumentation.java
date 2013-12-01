@@ -18,10 +18,7 @@ package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.*;
 
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
-import java.util.TreeSet;
+import java.util.*;
 
 class ModuleDocumentation {
 
@@ -44,6 +41,7 @@ class ModuleDocumentation {
   private final TreeMap<String, String> augmentations = new TreeMap<>();
   private final TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions = new TreeMap<>();
   private final TreeMap<String, String> structs = new TreeMap<>();
+  private final TreeMap<String, LinkedHashSet<String>> structMembers = new TreeMap<>();
 
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -56,6 +54,10 @@ class ModuleDocumentation {
 
   public TreeMap<String, String> structs() {
     return structs;
+  }
+
+  public TreeMap<String, LinkedHashSet<String>> structMembers() {
+    return structMembers;
   }
 
   public TreeSet<FunctionDocumentation> functions() {
@@ -120,6 +122,7 @@ class ModuleDocumentation {
     @Override
     public Object visit(ASTStructDeclaration node, Object data) {
       structs.put(node.getName(), documentationOrNothing(node.getDocumentation()));
+      structMembers.put(node.getName(), node.getMembers());
       return data;
     }
 

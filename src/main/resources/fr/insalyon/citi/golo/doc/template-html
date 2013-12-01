@@ -12,17 +12,18 @@
   <%= process(doc: moduleDocumentation()) %>
 </div>
 
+<% if not doc: functions(): isEmpty() { %>
 <h2>Functions</h2>
-
 <% foreach funcDoc in doc: functions() { %>
   <h3><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
   <div>
     <%= process(funcDoc: documentation()) %>
   </div>
 <% } %>
+<% } %>
 
+<% if not doc: augmentations(): isEmpty() { %>
 <h2>Augmentations</h2>
-
 <% foreach augmentation in doc: augmentations(): keySet() { %>
   <h3><%= augmentation %></h3>
   <div>
@@ -35,14 +36,22 @@
     </div>
   <% } %>
 <% } %>
+<% } %>
 
+<% if not doc: structs(): isEmpty() { %>
 <h2>Structs</h2>
-
 <% foreach structName in doc: structs(): keySet() { %>
   <h3><%= structName %></h3>
+  <p>Members:</p>
+  <ul>
+  <% foreach member in doc: structMembers(): get(structName) { %>
+    <li><code><%= member %></code></li>
+  <% } %>
+  </ul>
   <div>
     <%= process(doc: structs(): get(structName)) %>
   </div>
+<% } %>
 <% } %>
 
 </body>
