@@ -213,6 +213,55 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_sum_int() throws Throwable {
+    Method list_sum_int = moduleClass.getMethod("list_sum_int");
+    Object result = list_sum_int.invoke(null);
+    assertThat((Integer) result, is(6));
+  }
+
+  @Test
+  public void list_sum_double() throws Throwable {
+    Method list_sum_double = moduleClass.getMethod("list_sum_double");
+    Object result = list_sum_double.invoke(null);
+    assertThat((Double) result, is(6.0));
+  }
+
+  @Test
+  public void list_sum_string() throws Throwable {
+    Method list_sum_string = moduleClass.getMethod("list_sum_string");
+    Object result = list_sum_string.invoke(null);
+    assertThat((String) result, is("123"));
+  }
+
+  @Test
+  public void list_sum_string_int() throws Throwable {
+    Method list_sum_string_int = moduleClass.getMethod("list_sum_string_int");
+    Object result = list_sum_string_int.invoke(null);
+    assertThat((String) result, is("123"));
+  }
+
+  @Test
+  public void list_sum_int_string() throws Throwable {
+    Method list_sum_int_string = moduleClass.getMethod("list_sum_int_string");
+    Object result = list_sum_int_string.invoke(null);
+    assertThat((String) result, is("33"));
+  }
+
+  @Test
+  public void list_product_int() throws Throwable {
+    Method list_product_int = moduleClass.getMethod("list_product_int");
+    Object result = list_product_int.invoke(null);
+    assertThat((Integer) result, is(24));
+  }
+
+  @Test
+  public void list_product_double() throws Throwable {
+    Method list_product_double = moduleClass.getMethod("list_product_double");
+    Object result = list_product_double.invoke(null);
+    assertThat((Double) result, is(24.0));
+  }
+
+  @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
     assertThat((Boolean) sets_has_single.invoke(null), is(true));
@@ -406,6 +455,55 @@ public class StandardAugmentationsTest {
     Method maps_not_exists = moduleClass.getMethod("maps_not_exists");
     Object result = maps_not_exists.invoke(null);
     assertThat((Boolean) result, is(false));
+  }
+
+  @Test
+  public void maps_sum_int() throws Throwable {
+    Method maps_sum_int = moduleClass.getMethod("maps_sum_int");
+    Object result = maps_sum_int.invoke(null);
+    assertThat((Integer) result, is(6));
+  }
+
+  @Test
+  public void maps_sum_double() throws Throwable {
+    Method maps_sum_double = moduleClass.getMethod("maps_sum_double");
+    Object result = maps_sum_double.invoke(null);
+    assertThat((Double) result, is(6.0));
+  }
+
+  @Test
+  public void maps_sum_string() throws Throwable {
+    Method maps_sum_string = moduleClass.getMethod("maps_sum_string");
+    Object result = maps_sum_string.invoke(null);
+    assertThat((String) result, is("321"));
+  }
+
+  @Test
+  public void maps_sum_string_int() throws Throwable {
+    Method maps_sum_string_int = moduleClass.getMethod("maps_sum_string_int");
+    Object result = maps_sum_string_int.invoke(null);
+    assertThat((String) result, is("321"));
+  }
+
+  @Test
+  public void maps_sum_int_string() throws Throwable {
+    Method maps_sum_int_string = moduleClass.getMethod("maps_sum_int_string");
+    Object result = maps_sum_int_string.invoke(null);
+    assertThat((String) result, is("51"));
+  }
+
+  @Test
+  public void maps_product_int() throws Throwable {
+    Method maps_product_int = moduleClass.getMethod("maps_product_int");
+    Object result = maps_product_int.invoke(null);
+    assertThat((Integer) result, is(24));
+  }
+
+  @Test
+  public void maps_product_double() throws Throwable {
+    Method maps_product_double = moduleClass.getMethod("maps_product_double");
+    Object result = maps_product_double.invoke(null);
+    assertThat((Double) result, is(24.0));
   }
 
   @Test

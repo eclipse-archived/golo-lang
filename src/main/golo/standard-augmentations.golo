@@ -143,6 +143,22 @@ augment java.lang.Iterable {
   function exists = |this, pred| ->
     this: filter(pred): size() > 0
 
+  function sum = |this| {
+    let start = {
+      case {
+        when this: get(0) oftype java.lang.Number.class { return 0 }
+        otherwise {
+          return ""
+        }
+      }
+    }
+    return this: reduce(start(), |initial, next| -> initial + next)
+  }
+
+  function product = |this| {
+    return this: reduce(1, |initial, next| -> initial * next)
+  }
+
 }
 
 # ............................................................................................... #
@@ -437,6 +453,26 @@ augment java.util.Map {
 
   function exists = |this, pred| ->
     this: filter(pred): size() > 0
+
+  function sum = |this| {
+    let start = |what| {
+      case {
+        when what oftype java.lang.Number.class { return 0 }
+        otherwise {
+          return ""
+        }
+      }
+    }
+    foreach (entry in this: entrySet()) {
+      return this: reduce(start(entry: getValue()), |initial, key, value| -> initial + value)
+      break
+    }
+  }
+
+  function product = |this| {
+    return this: reduce(1, |initial, key, value| -> initial * value)
+  }
+
 }
 
 # ............................................................................................... #

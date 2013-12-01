@@ -85,6 +85,20 @@ function list_not_exists = {
  return list_data(): exists(|item| -> item >= 5)
 }
 
+function list_sum_int = -> list[1, 2, 3]: sum()
+
+function list_sum_double = -> list[1.0, 2.0, 3.0]: sum()
+
+function list_sum_string = -> list["1", "2", "3"]: sum()
+
+function list_sum_string_int = -> list["1", 2, 3]: sum()
+
+function list_sum_int_string = -> list[1, 2, "3"]: sum()
+
+function list_product_int = -> list[1, 2, 3, 4]: product()
+
+function list_product_double = -> list[1.0, 2.0, 3.0, 4.0]: product()
+
 # ............................................................................................... #
 
 local function set_data = {
@@ -172,6 +186,20 @@ function maps_exists = {
 function maps_not_exists = {
  return map_data(): exists(|key, item| -> item >= 5)
 }
+
+function maps_sum_int = -> map[[1,3],[2,2],[3,1]]: sum()
+
+function maps_sum_double = -> map[[1,3.0],[2,2.0],[3,1.0]]: sum()
+
+function maps_sum_string = -> map[[1,"3"],[2,"2"],[3,"1"]]: sum()
+
+function maps_sum_string_int = -> map[[1,"3"],[2,2],[3,1]]: sum()
+
+function maps_sum_int_string = -> map[[1,3],[2,2],[3,"1"]]: sum()
+
+function maps_product_int = -> map[[1,4],[2,3],[3,2],[4,1]]: product()
+
+function maps_product_double = -> map[[1,4.0],[2,3.0],[3,2.0],[4,1.0]]: product()
 
 # ............................................................................................... #
 
