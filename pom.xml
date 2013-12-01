@@ -110,6 +110,7 @@
 
     <asm.version>4.2</asm.version>
     <jcommander.version>1.32</jcommander.version>
+    <txtmark.version>0.11</txtmark.version>
     <hamcrest-all.version>1.3</hamcrest-all.version>
     <testng.version>6.8.7</testng.version>
 
@@ -122,7 +123,6 @@
     <animal-sniffer-maven-plugin.version>1.9</animal-sniffer-maven-plugin.version>
     <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
     <maven-bundle-plugin.version>2.4.0</maven-bundle-plugin.version>
-    <txtmark.version>0.9</txtmark.version>
   </properties>
 
   <dependencies>
