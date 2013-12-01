@@ -110,8 +110,9 @@ public class JavaBytecodeAdapterGenerator {
       Type[] indyTypes = new Type[parameterTypes.length + 1];
       indyTypes[0] = Type.getType(Object.class);
       methodVisitor.visitVarInsn(ALOAD, 0);
+      int argIndex = 1;
       for (int i = 0; i < parameterTypes.length; i++) {
-        loadArgument(methodVisitor, parameterTypes[i], i + 1);
+        argIndex = loadArgument(methodVisitor, parameterTypes[i], argIndex);
         indyTypes[i + 1] = Type.getType(parameterTypes[i]);
       }
       methodVisitor.visitInvokeDynamicInsn(method.getName(), Type.getMethodDescriptor(Type.getReturnType(method), indyTypes), ADAPTER_HANDLE);
@@ -161,14 +162,15 @@ public class JavaBytecodeAdapterGenerator {
           MethodVisitor methodVisitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", descriptor, null, null);
           methodVisitor.visitCode();
           methodVisitor.visitVarInsn(ALOAD, 0);
-          for (int i = 0; i < parameterTypes.length; i++) {
-            loadArgument(methodVisitor, parameterTypes[i], i + 2);
-          }
-          methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", Type.getConstructorDescriptor(constructor));
-          methodVisitor.visitVarInsn(ALOAD, 0);
           methodVisitor.visitVarInsn(ALOAD, 1);
           methodVisitor.visitFieldInsn(PUTFIELD, jvmType(adapterDefinition.getName()), DEFINITION_FIELD,
               "Lfr/insalyon/citi/golo/runtime/adapters/AdapterDefinition;");
+          methodVisitor.visitVarInsn(ALOAD, 0);
+          int argIndex = 2;
+          for (Class parameterType : parameterTypes) {
+            argIndex = loadArgument(methodVisitor, parameterType, argIndex);
+          }
+          methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", Type.getConstructorDescriptor(constructor));
           methodVisitor.visitInsn(RETURN);
           methodVisitor.visitMaxs(0, 0);
           methodVisitor.visitEnd();
@@ -179,27 +181,36 @@ public class JavaBytecodeAdapterGenerator {
     }
   }
 
-  private void loadArgument(MethodVisitor methodVisitor, Class<?> type, int index) {
+  private int loadArgument(MethodVisitor methodVisitor, Class<?> type, int index) {
     if (type.isPrimitive()) {
       if (type == Integer.TYPE) {
         methodVisitor.visitVarInsn(ILOAD, index);
+        return index + 1;
       } else if (type == Boolean.TYPE) {
         methodVisitor.visitVarInsn(ILOAD, index);
+        return index + 1;
       } else if (type == Byte.TYPE) {
         methodVisitor.visitVarInsn(ILOAD, index);
+        return index + 1;
       } else if (type == Character.TYPE) {
         methodVisitor.visitVarInsn(ILOAD, index);
+        return index + 1;
       } else if (type == Short.TYPE) {
         methodVisitor.visitVarInsn(ILOAD, index);
+        return index + 1;
       } else if (type == Double.TYPE) {
         methodVisitor.visitVarInsn(DLOAD, index);
+        return index + 2;
       } else if (type == Float.TYPE) {
         methodVisitor.visitVarInsn(FLOAD, index);
+        return index + 1;
       } else {
         methodVisitor.visitVarInsn(LLOAD, index);
+        return index + 2;
       }
     } else {
       methodVisitor.visitVarInsn(ALOAD, index);
+      return index + 1;
     }
   }
 
