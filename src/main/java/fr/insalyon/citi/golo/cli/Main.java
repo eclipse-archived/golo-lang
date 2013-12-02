@@ -31,12 +31,8 @@ import fr.insalyon.citi.golo.doc.AbstractProcessor;
 import fr.insalyon.citi.golo.doc.HtmlProcessor;
 import fr.insalyon.citi.golo.doc.MarkdownProcessor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -109,6 +105,13 @@ public class Main {
     List<String> files = new LinkedList<>();
   }
 
+  @Parameters(commandDescription = "Generate new Golo projects")
+  static class InitCommand {
+
+    @Parameter(description = "Names of the new Golo projects")
+    List<String> names = new LinkedList<>();
+  }
+
   public static class DiagnoseModeValidator implements IParameterValidator {
 
     @Override
@@ -166,6 +169,8 @@ public class Main {
     cmd.addCommand("diagnose", diagnose);
     DocCommand doc = new DocCommand();
     cmd.addCommand("doc", doc);
+    InitCommand init = new InitCommand();
+    cmd.addCommand("new", init);
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -190,6 +195,9 @@ public class Main {
           case "doc":
             doc(doc);
             break;
+          case "new":
+            init(init);
+            break;
           default:
             throw new AssertionError("WTF?");
         }
@@ -198,6 +206,9 @@ public class Main {
       System.err.println(exception.getMessage());
       System.out.println();
       cmd.usage();
+    } catch (IOException exception) {
+      System.err.println(exception.getMessage());
+      System.exit(1);
     }
   }
 
@@ -218,6 +229,44 @@ public class Main {
     } catch (GoloCompilationException e) {
       handleCompilationException(e);
     }
+  }
+
+  private static void init(InitCommand init) throws IOException {
+      if (init.names.isEmpty()) {
+          // default project name
+          init.names.add("Golo");
+      }
+      for (String name : init.names) {
+          initProject(name);
+      }
+  }
+
+  private static void initProject(String projectName) throws IOException {
+      System.out.println("Generating a new project named " + projectName + "...");
+      final File projectDir = new File(projectName);
+      if (projectDir.exists()) {
+          throw new IOException("[error] The directory " + projectName + " already exists.");
+      }
+      if (!projectDir.mkdir()) {
+          throw new IOException("[error] Unable to create directory " + projectName + ".");
+      }
+      new File(projectDir, "imports").mkdir();
+      new File(projectDir, "jars").mkdir();
+      final File mainGoloFile = new File(projectDir, "main.golo");
+      PrintWriter writer;
+      try {
+          writer = new PrintWriter(mainGoloFile, "UTF-8");
+          writer.println("module " + projectName);
+          writer.println("");
+          writer.println("function main = |args| {");
+          writer.println("  println(\"Hello " + projectName + "!\")");
+          writer.println("}");
+          writer.close();
+      } catch (FileNotFoundException e) {
+          System.err.println(e.getMessage());
+      } catch (UnsupportedEncodingException e) {
+          System.err.println(e.getMessage());
+      }
   }
 
   private static void dumpASTs(List<String> files) throws FileNotFoundException {
