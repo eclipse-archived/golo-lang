@@ -19,14 +19,24 @@ package fr.insalyon.citi.golo.compiler.ir;
 public class ReturnStatement extends GoloStatement {
 
   private final GoloStatement expressionStatement;
+  private boolean returningVoid;
 
   public ReturnStatement(ExpressionStatement expressionStatement) {
     super();
     this.expressionStatement = expressionStatement;
+    this.returningVoid = false;
   }
 
   public GoloStatement getExpressionStatement() {
     return expressionStatement;
+  }
+
+  public boolean isReturningVoid() {
+    return returningVoid;
+  }
+
+  public void returningVoid() {
+    this.returningVoid = true;
   }
 
   @Override

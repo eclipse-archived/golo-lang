@@ -243,10 +243,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private void insertMissingReturnStatement(GoloFunction function) {
     Block block = function.getBlock();
     if (!block.hasReturn()) {
-      block.addStatement(
-          new ReturnStatement(
-              new ConstantStatement(
-                  null)));
+      ReturnStatement missingReturnStatement = new ReturnStatement(
+              new ConstantStatement(null));
+      if (function.isMain()) {
+         missingReturnStatement.returningVoid();
+      }
+      block.addStatement(missingReturnStatement);
     }
   }
 

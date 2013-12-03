@@ -30,3 +30,5 @@ function nasty_multiline = {
 function raw_code = {
   return """println("Hello!\n")"""
 }
+
+function main = |args| {}

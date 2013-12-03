@@ -125,6 +125,10 @@ public final class GoloFunction extends GoloElement {
     this.block = block;
   }
 
+  public boolean isMain() {
+    return name.equals("main") && getArity() == 1;
+  }
+
   public void accept(GoloIrVisitor visitor) {
     visitor.visitFunction(this);
   }
