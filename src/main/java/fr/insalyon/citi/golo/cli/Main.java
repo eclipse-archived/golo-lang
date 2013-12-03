@@ -24,8 +24,6 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
-import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
-import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.doc.AbstractProcessor;
 import fr.insalyon.citi.golo.doc.HtmlProcessor;
@@ -36,13 +34,11 @@ import java.lang.invoke.MethodHandle;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
-import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 public class Main {
@@ -107,6 +103,9 @@ public class Main {
 
   @Parameters(commandDescription = "Generate new Golo projects")
   static class InitCommand {
+
+    @Parameter(names = "--type", description = "Type of project: {maven, simple}")
+    String type = "simple";
 
     @Parameter(description = "Names of the new Golo projects")
     List<String> names = new LinkedList<>();
@@ -232,41 +231,88 @@ public class Main {
   }
 
   private static void init(InitCommand init) throws IOException {
-      if (init.names.isEmpty()) {
-          // default project name
-          init.names.add("Golo");
-      }
-      for (String name : init.names) {
-          initProject(name);
-      }
+    if (init.names.isEmpty()) {
+      init.names.add("Golo");
+    }
+    for (String name : init.names) {
+      initProject(name, init.type);
+    }
   }
 
-  private static void initProject(String projectName) throws IOException {
-      System.out.println("Generating a new project named " + projectName + "...");
-      final File projectDir = new File(projectName);
-      if (projectDir.exists()) {
-          throw new IOException("[error] The directory " + projectName + " already exists.");
-      }
-      if (!projectDir.mkdir()) {
-          throw new IOException("[error] Unable to create directory " + projectName + ".");
-      }
-      new File(projectDir, "imports").mkdir();
-      new File(projectDir, "jars").mkdir();
-      final File mainGoloFile = new File(projectDir, "main.golo");
-      PrintWriter writer;
-      try {
-          writer = new PrintWriter(mainGoloFile, "UTF-8");
-          writer.println("module " + projectName);
-          writer.println("");
-          writer.println("function main = |args| {");
-          writer.println("  println(\"Hello " + projectName + "!\")");
-          writer.println("}");
-          writer.close();
-      } catch (FileNotFoundException e) {
-          System.err.println(e.getMessage());
-      } catch (UnsupportedEncodingException e) {
-          System.err.println(e.getMessage());
-      }
+  private static void initProject(String projectName, String type) throws IOException {
+    switch (type) {
+      case "simple":
+        initSimpleProject(projectName);
+        break;
+      case "maven":
+        initMavenProject(projectName);
+        break;
+      default:
+        throw new AssertionError("The type of project must be one of {maven, simple}");
+    }
+  }
+
+  private static void initSimpleProject(String projectName) throws IOException {
+    System.out.println("Generating a new simple project named " + projectName + "...");
+    File projectDir = createProjectDir(projectName);
+    mkdir(new File(projectDir, "imports"));
+    mkdir(new File(projectDir, "jars"));
+    createMainGoloFile(projectDir, projectName);
+  }
+
+  private static void initMavenProject(String projectName) throws IOException {
+    System.out.println("Generating a new maven project named " + projectName + "...");
+    File projectDir = createProjectDir(projectName);
+    createPomFile(projectDir, projectName);
+    File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
+    mkdirs(sourcesDir);
+    File sourcesGolo = new File(sourcesDir, "golo");
+    mkdir(sourcesGolo);
+    createMainGoloFile(sourcesGolo, projectName);
+  }
+
+  private static File createProjectDir(String projectName) throws IOException {
+    File projectDir = new File(projectName);
+    if (projectDir.exists()) {
+      throw new IOException("[error] The directory " + projectName + " already exists.");
+    }
+    mkdir(projectDir);
+    return projectDir;
+  }
+
+  private static void createMainGoloFile(File intoDir, String projectName) throws FileNotFoundException, UnsupportedEncodingException {
+    File mainGoloFile = new File(intoDir, "main.golo");
+    PrintWriter writer = new PrintWriter(mainGoloFile, "UTF-8");
+    writer.println("module " + projectName);
+    writer.println("");
+    writer.println("function main = |args| {");
+    writer.println("  println(\"Hello " + projectName + "!\")");
+    writer.println("}");
+    writer.close();
+  }
+
+  private static void createPomFile(File intoDir, String projectName) throws IOException {
+    InputStream pomInputStream = Main.class.getClassLoader().getResourceAsStream("new-project/maven/pom.xml");
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pomInputStream));
+    File pomFile = new File(intoDir, "pom.xml");
+    PrintWriter writer = new PrintWriter(pomFile, "UTF-8");
+    String line;
+    while ((line = bufferedReader.readLine()) != null) {
+      writer.println(line.replace("{{projectName}}", projectName));
+    }
+    writer.close();
+  }
+
+  private static void mkdir(File directory) throws IOException {
+    if (!directory.mkdir()) {
+      throw new IOException("[error] Unable to create directory " + directory + ".");
+    }
+  }
+
+  private static void mkdirs(File directory) throws IOException {
+    if (!directory.mkdirs()) {
+      throw new IOException("[error] Unable to create directory " + directory + ".");
+    }
   }
 
   private static void dumpASTs(List<String> files) throws FileNotFoundException {
