@@ -39,6 +39,7 @@ import java.util.List;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.genericMethodType;
+import static java.lang.invoke.MethodType.methodType;
 
 public class Main {
 
@@ -238,8 +239,8 @@ public class Main {
     }
   }
 
-  private static void callRun(Class<?> klass, Object arguments) throws Throwable {
-    MethodHandle main = publicLookup().findStatic(klass, "main", genericMethodType(1));
+  private static void callRun(Class<?> klass, String[] arguments) throws Throwable {
+    MethodHandle main = publicLookup().findStatic(klass, "main", methodType(void.class, String[].class));
     main.invoke(arguments);
   }
 
@@ -248,7 +249,7 @@ public class Main {
       URLClassLoader primaryClassLoader = primaryClassLoader(golo.classpath);
       Thread.currentThread().setContextClassLoader(primaryClassLoader);
       Class<?> module = Class.forName(golo.module, true, primaryClassLoader);
-      callRun(module, golo.arguments.toArray(new Object[golo.arguments.size()]));
+      callRun(module, golo.arguments.toArray(new String[golo.arguments.size()]));
     } catch (ClassNotFoundException e) {
       System.out.println("The module " + golo.module + " could not be loaded.");
     } catch (NoSuchMethodException e) {
@@ -287,6 +288,6 @@ public class Main {
         handleCompilationException(e);
       }
     }
-    callRun(lastClass, gologolo.arguments.toArray(new Object[gologolo.arguments.size()]));
+    callRun(lastClass, gologolo.arguments.toArray(new String[gologolo.arguments.size()]));
   }
 }
