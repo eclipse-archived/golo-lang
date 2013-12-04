@@ -126,7 +126,7 @@ public class Main {
   @Parameters(commandDescription = "Generate documentation from Golo source files")
   private static class DocCommand {
 
-    @Parameter(names = "--format", description = "Documentation output format (html, markdown)")
+    @Parameter(names = "--format", description = "Documentation output format (html, markdown)", validateWith = DocFormatValidator.class)
     String format = "html";
 
     @Parameter(names = "--output", description = "The documentation output directory")
@@ -134,6 +134,20 @@ public class Main {
 
     @Parameter(description = "Golo source files (*.golo)")
     List<String> sources = new LinkedList<>();
+  }
+
+  public static class DocFormatValidator implements IParameterValidator {
+
+    @Override
+    public void validate(String name, String value) throws ParameterException {
+      switch (value) {
+        case "html":
+        case "markdown":
+          return;
+        default:
+          throw new ParameterException("Output format must be in: {html, markdown}");
+      }
+    }
   }
 
   public static void main(String... args) throws Throwable {
@@ -327,8 +341,7 @@ public class Main {
         processor = new HtmlProcessor();
         break;
       default:
-        System.out.println("Error: " + options.format + " is not supported");
-        return;
+        throw new AssertionError("WTF?");
     }
     LinkedList<ASTCompilationUnit> units = new LinkedList<>();
     for (String source : options.sources) {
