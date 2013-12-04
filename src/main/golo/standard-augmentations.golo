@@ -513,18 +513,30 @@ augment java.util.List {
 
 # ............................................................................................... #
 
+----
+Augmentations over set collections.
+----
 augment java.util.Set {
    
+  ----
+  Alias for `add` that returns the set.
+  ----
   function include = |this, element| {
     this: add(element)
     return this
   }
 
+  ----
+  Alias for `remove` that returns the set.
+  ----
   function exclude = |this, element| {
     this: remove(element)
     return this
   }
 
+  ----
+  Includes a variable number of elements, and returns the set.
+  ----
   function include = |this, first, rest...| {
     this: add(first)
     foreach (element in rest) {
@@ -533,6 +545,9 @@ augment java.util.Set {
     return this
   }
 
+  ----
+  Excludes a variable number of elements, and returns the set.
+  ----
   function exclude = |this, first, rest...| {
     this: remove(first)
     foreach (element in rest) {
@@ -541,8 +556,14 @@ augment java.util.Set {
     return this
   }
 
+  ----
+  Alias for `contains`.
+  ----
   function has = |this, element| -> this: contains(element)
 
+  ----
+  Alias for `contains` over a variable number of elements.
+  ----
   function has = |this, first, rest...| {
     if not(this: contains(first)) {
       return false
@@ -556,8 +577,15 @@ augment java.util.Set {
     return true
   }
 
+  ----
+  Convenience wrapper for `java.util.Collections.unmodifiableSet(...)`.
+  ----
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableSet(this)
 
+  ----
+  Finds the first element that satisfies a predicate `pred`, and returns it, or `null` if no element
+  matches.
+  ----
   function find = |this, pred| {
     foreach (element in this) {
       if pred(element) {
@@ -567,6 +595,9 @@ augment java.util.Set {
     return null
   }
 
+  ----
+  Filters the elements using a predicate, and returns a new collection.
+  ----
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
     foreach (element in this) {
@@ -577,6 +608,9 @@ augment java.util.Set {
     return filtered
   }
 
+  ----
+  Transform each value using the `func` function, and returns a new set.
+  ----
   function map = |this, func| {
     let mapped = this: newWithSameType()
     foreach (element in this) {
@@ -588,18 +622,45 @@ augment java.util.Set {
 
 # ............................................................................................... #
 
+----
+Augmentations over maps.
+----
 augment java.util.Map {
 
+  ----
+  Alias for `put` that returns the map.
+  ----
   function add = |this, key, value| {
     this: put(key, value)
     return this
   }
 
+  ----
+  Alias for `remove` that returns the map.
+  ----
   function delete = |this, key| {
     this: remove(key)
     return this
   }
 
+  ----
+  Adds an element to the map only if there is no entry for that key.
+
+  * `this`: a map.
+  * `key`: the element key.
+  * `value`: the element value or a function to evaluate to get a value.
+
+  The fact that `value` can be a function allows for delayed evaluation which can be useful for
+  performance reasons. So instead of:
+
+      map: putIfAbsent(key, expensiveOperation())
+
+  one may delay the evaluation as follows:
+
+      map: putIfAbsent(key, -> expensiveOperation())
+
+  `addIfAbsent` returns the map.
+  ----
   function addIfAbsent = |this, key, value| {
     if not(this: containsKey(key)) {
       if isClosure(value) {
@@ -611,6 +672,21 @@ augment java.util.Map {
     return this
   }
 
+  ----
+  Returns a value from a key or a default value if the entry is not defined.
+
+  * `this`: a map.
+  * `key`: the key to look for.
+  * `replacement`: the default value, or a function giving the default value.
+
+  As it is the case for `addIfAbsent`, one can take advantage of delayed evaluation:
+
+      println(map: getOrElse(key, "n/a"))
+      println(map: getOrElse(key, -> expensiveOperation())
+
+  Note that `replacement` yields the return value also when there is an entry for `key` but the
+  value is `null`.
+  ----
   function getOrElse = |this, key, replacement| {
     let value = this: get(key)
     if value isnt null {
@@ -623,10 +699,21 @@ augment java.util.Map {
     }
   }
 
+  ----
+  Wrapper for `java.util.Collections.unmodifiableMap(...)`.
+  ----
   function unmodifiableView = |this| -> java.util.Collections.unmodifiableMap(this)
 
+  ----
+  Returns a new empty map of the same type.
+  ----
   function newWithSameType = |this| -> _newWithSameType(this)
 
+  ----
+  Returns the first element that satisfies a predicate, or `null` if none matches.
+
+  `pred` takes 2 arguments: a key and a value, and returns a boolean.
+  ----
   function find = |this, pred| {
     foreach (entry in this: entrySet()) {
       let key = entry: getKey()
@@ -638,6 +725,11 @@ augment java.util.Map {
     return null
   }
 
+  ----
+  Filters elements using a predicate, and returns a new map.
+
+  `pred` takes 2 arguments: a key and a value, and returns a boolean.
+  ----
   function filter = |this, pred| {
     let filtered = this: newWithSameType()
     foreach (entry in this: entrySet()) {
@@ -650,6 +742,13 @@ augment java.util.Map {
     return filtered
   }
 
+  ----
+  Maps entries of the map using a function.
+
+  `func` takes 2 arguments: a key and a value. The returned value must have `getKey()` and
+  getValue()` to represent a map entry. We suggest using the predefined `mapEntry(key, value)`
+  function as it returns such object.
+  ----
   function map = |this, func| {
     let mapped = this: newWithSameType()
     foreach (entry in this: entrySet()) {
@@ -661,6 +760,15 @@ augment java.util.Map {
     return mapped
   }
 
+  ----
+  Reduces the entries of a map.
+
+  `func` takes 3 arguments:
+
+  * an accumulator whose initial value is `initialValue`,
+  * a key for the next entry,
+  * a value for the next entry.
+  ----
   function reduce = |this, initialValue, func| {
     var acc = initialValue
     foreach (entry in this: entrySet()) {
@@ -671,6 +779,11 @@ augment java.util.Map {
     return acc
   }
 
+  ----
+  Iterates over each entry of a map.
+
+  `func` takes 2 arguments: the entry key and its value.
+  ----
   function each = |this, func| {
     foreach (entry in this: entrySet()) {
       func(entry: getKey(), entry: getValue())
@@ -678,17 +791,29 @@ augment java.util.Map {
     return this
   }
 
+  ----
+  Counts the number of elements satisfying a predicate.
+  ----
   function count = |this, pred| ->
     this: filter(pred): size()
 
+  ----
+  Returns `true` if there is any value satisfying `pred`, `false` otherwise.
+  ----
   function exists = |this, pred| ->
     this: filter(pred): size() > 0
 }
 
 # ............................................................................................... #
 
+----
+Augmentations for Golo tuples.
+----
 augment gololang.Tuple {
 
+  ----
+  Returns the first element that satisfies a predicate, or `null` if none matches.
+  ----
   function find = |this, pred| {
     foreach (element in this) {
       if pred(element) {
@@ -698,6 +823,9 @@ augment gololang.Tuple {
     return null
   }
 
+  ----
+  Filters elements using a predicate, returning a new tuple.
+  ----
   function filter = |this, func| {
     let matching = list[]
     foreach element in this {
@@ -708,6 +836,9 @@ augment gololang.Tuple {
     return gololang.Tuple.fromArray(matching: toArray())
   }
 
+  ----
+  Maps the elements of a tuple, and returns a tuple with the transformed values.
+  ----
   function map = |this, func| {
     let values = list[]
     foreach element in this {
@@ -716,6 +847,9 @@ augment gololang.Tuple {
     return gololang.Tuple.fromArray(values: toArray())
   }
 
+  ----
+  Joins the elements of a tuple into a string and using a separator.
+  ----
   function join = |this, separator| {
     let size = this: size()
     case {
