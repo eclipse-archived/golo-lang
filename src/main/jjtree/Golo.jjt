@@ -89,13 +89,6 @@ public class GoloParser {
       return "FunctionRef{module=" + module + ",name=" + name + "}";
     }
   }
-  
-  public static void main(String[] args) throws Throwable {
-    GoloParser parser = new GoloParser(System.in);    
-    // ASTCompilationUnit unit = parser.CompilationUnit();
-    ASTFunctionDeclaration unit = parser.FunctionDeclaration();
-    unit.dump("% ");
-  }
 }
 
 PARSER_END(GoloParser)
