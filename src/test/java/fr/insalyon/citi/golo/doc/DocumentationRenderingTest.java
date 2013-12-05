@@ -30,7 +30,7 @@ public class DocumentationRenderingTest {
 
   @Test
   public void markdown_processor() throws Throwable {
-    GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
+    GoloParser parser = new GoloParser(new FileInputStream(SRC + "doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
 
     MarkdownProcessor processor = new MarkdownProcessor();
@@ -61,7 +61,7 @@ public class DocumentationRenderingTest {
 
   @Test
   public void html_processor() throws Throwable {
-    GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
+    GoloParser parser = new GoloParser(new FileInputStream(SRC + "doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
 
     HtmlProcessor processor = new HtmlProcessor();

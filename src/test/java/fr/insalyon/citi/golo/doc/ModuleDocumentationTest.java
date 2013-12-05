@@ -32,7 +32,7 @@ public class ModuleDocumentationTest {
 
   @Test
   public void check() throws Throwable {
-    GoloParser parser = new GoloParser(new FileInputStream(SRC + "z_doc.golo"));
+    GoloParser parser = new GoloParser(new FileInputStream(SRC + "doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ModuleDocumentation doc = new ModuleDocumentation(compilationUnit);
 
