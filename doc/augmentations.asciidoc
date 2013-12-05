@@ -133,13 +133,20 @@ taste* (for what it means).
 
 === Standard augmentations ===
 
-Golo comes with a set of pre-defined augmentations.
+Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
 
-CAUTION: Until we have a tool to extract the documentation from Golo source files, their documentation will
-simply be the inclusion of that file content.
+These augmentation do not require a special import, and they are defined in the
+`gololang.StandardAugmentations` module.
 
-[source,text]
+Here is an example:
+
 ----
-include::../src/main/golo/standard-augmentations.golo[]
+let odd = [1, 2, 3, 4, 5]: filter(|n| -> (n % 2) == 0)
+
+let m = map[]
+println(m: getOrElse("foo", -> "bar"))
 ----
+
+The full set of standard augmentations is documented in the generated *golodoc* (hint: look for
+`doc/golodoc` in the Golo distribution).
 
