@@ -44,7 +44,7 @@ task :doc do
 end
 
 desc "Deploy snapshots"
-task :deploy => [:clean, :build] do
+task :deploy => [:clean, :build, :doc] do
   MAGIC = "mvn deploy"
   sh MAGIC
   Dir.chdir("golo-maven-plugin") do
