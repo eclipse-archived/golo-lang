@@ -24,7 +24,6 @@ import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
@@ -51,6 +50,7 @@ public class GolodocMojo extends AbstractMojo {
   @Override
   public void execute() throws MojoExecutionException, MojoFailureException {
     Path root = Paths.get(goloSourceDirectory);
+    getLog().info("Generating documentation info " + outputDirectory);
     if (!Files.exists(root)) {
       getLog().warn(root.toAbsolutePath() + " does not exist");
       return;
@@ -68,13 +68,12 @@ public class GolodocMojo extends AbstractMojo {
   private class GolodocFileVisitor extends SimpleFileVisitor<Path> {
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.golo");
-    private final File targetDirectory = Paths.get(outputDirectory).toFile();
     private final LinkedList<ASTCompilationUnit> units = new LinkedList<>();
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
       if (matcher.matches(file)) {
-        try (FileInputStream in = new FileInputStream(targetDirectory)) {
+        try (FileInputStream in = new FileInputStream(file.toFile())) {
           units.add(new GoloParser(in).CompilationUnit());
         } catch (IOException | ParseException e) {
           throw new RuntimeException("Parsing or I/O error on " + file, e);

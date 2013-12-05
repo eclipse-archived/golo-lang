@@ -396,16 +396,6 @@
                   <goal>goloc</goal>
                 </goals>
               </execution>
-              <execution>
-                <id>golodoc</id>
-                <phase>site</phase>
-                <goals>
-                  <goal>golodoc</goal>
-                </goals>
-                <configuration>
-                  <outputDirectory>doc/output/golodoc</outputDirectory>
-                </configuration>
-              </execution>
             </executions>
           </plugin>
           <plugin>
