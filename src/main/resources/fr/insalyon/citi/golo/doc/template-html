@@ -100,7 +100,11 @@
     <%= process(doc: augmentations(): get(augmentation)) %>
   </div>
   <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
-    <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h4>
+    <% if funcDoc: varargs() { %>
+      <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)</h4>
+    <% } else { %>
+      <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h4>
+    <% } %>
     <div>
       <%= process(funcDoc: documentation()) %>
     </div>

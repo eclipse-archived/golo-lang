@@ -27,10 +27,15 @@ class ModuleDocumentation {
     public String documentation;
     public List<String> arguments;
     public boolean augmentation;
+    public boolean varargs;
 
     @Override
     public int compareTo(FunctionDocumentation o) {
-      return name.compareTo(o.name);
+      int c = name.compareTo(o.name);
+      if (c == 0) {
+        return arguments.size() < arguments.size() ? -1 : 1;
+      }
+      return c;
     }
   }
 
@@ -218,6 +223,7 @@ class ModuleDocumentation {
         } else {
           functions.add(currentFunctionDocumentation);
         }
+        currentFunctionDocumentation.varargs = node.isVarargs();
         currentFunctionDocumentation = null;
       }
       return data;
