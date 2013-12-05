@@ -40,6 +40,7 @@ task :doc do
   Dir.chdir("doc") do
     sh "rake clean all"
   end
+  sh "mvn org.golo-lang:golo-maven-plugin:golodoc"
 end
 
 desc "Deploy snapshots"
