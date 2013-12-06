@@ -1,0 +1,23 @@
+apply plugin: 'golo'
+
+buildscript {
+    repositories {
+        mavenCentral()
+    }
+
+    dependencies {
+        classpath 'org.golo-lang:gradle-golo-plugin:0.1'
+    }
+}
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    golo 'org.golo-lang:golo:${project.version}'
+}
+
+golo {
+    mainModule = '{{projectName}}'
+}
