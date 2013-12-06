@@ -25,6 +25,7 @@ limitations under the License.
 ----
 
 include::basics.asciidoc[]
+include::new-project.asciidoc[]
 include::functions.asciidoc[]
 include::java-interop.asciidoc[]
 include::control-flow.asciidoc[]
