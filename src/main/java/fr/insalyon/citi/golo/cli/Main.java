@@ -266,7 +266,7 @@ public class Main {
   private static void initMavenProject(String projectName) throws IOException {
     System.out.println("Generating a new maven project named " + projectName + "...");
     File projectDir = createProjectDir(projectName);
-    createPomFile(projectDir, projectName);
+    writeProjectFile(projectDir, projectName, "new-project/maven/pom.xml", "pom.xml");
     File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
     mkdirs(sourcesDir);
     File sourcesGolo = new File(sourcesDir, "golo");
@@ -277,7 +277,7 @@ public class Main {
   private static void initGradleProject(String projectName) throws IOException {
     System.out.println("Generating a new gradle project named " + projectName + "...");
     File projectDir = createProjectDir(projectName);
-    createBuildGradleFile(projectDir, projectName);
+    writeProjectFile(projectDir, projectName, "new-project/gradle/build.gradle", "build.gradle");
     File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
     mkdirs(sourcesDir);
     File sourcesGolo = new File(sourcesDir, "golo");
@@ -305,23 +305,11 @@ public class Main {
     writer.close();
   }
 
-  private static void createPomFile(File intoDir, String projectName) throws IOException {
-    InputStream pomInputStream = Main.class.getClassLoader().getResourceAsStream("new-project/maven/pom.xml");
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pomInputStream));
-    File pomFile = new File(intoDir, "pom.xml");
-    PrintWriter writer = new PrintWriter(pomFile, "UTF-8");
-    String line;
-    while ((line = bufferedReader.readLine()) != null) {
-      writer.println(line.replace("{{projectName}}", projectName));
-    }
-    writer.close();
-  }
-
-  private static void createBuildGradleFile(File intoDir, String projectName) throws IOException {
-    InputStream pomInputStream = Main.class.getClassLoader().getResourceAsStream("new-project/gradle/build.gradle");
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(pomInputStream));
-    File pomFile = new File(intoDir, "build.gradle");
-    PrintWriter writer = new PrintWriter(pomFile, "UTF-8");
+  private static void writeProjectFile(File intoDir, String projectName, String sourcePath, String fileName) throws IOException {
+    InputStream sourceInputStream = Main.class.getClassLoader().getResourceAsStream(sourcePath);
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream));
+    File projectFile = new File(intoDir, fileName);
+    PrintWriter writer = new PrintWriter(projectFile, "UTF-8");
     String line;
     while ((line = bufferedReader.readLine()) != null) {
       writer.println(line.replace("{{projectName}}", projectName));
