@@ -23,6 +23,16 @@ For example if you want to create a Maven-driven project, just add `--type maven
 $ golo new Foo --type maven
 ----
 
+By default we create the project directory where the `golo` command is run.
+If you need to create your project directory elsewhere you can use the `--path` command argument:
+
+[source,console]
+----
+$ golo new Bar --path /opt/golo
+----
+
+This will create the project directory named `Bar` in `/opt/golo`.
+
 === Free-form project
 
 The structure of a free-form project is as follow:

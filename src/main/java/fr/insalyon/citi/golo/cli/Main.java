@@ -104,6 +104,9 @@ public class Main {
   @Parameters(commandDescription = "Generate new Golo projects")
   static class InitCommand {
 
+    @Parameter(names = "--path", description = "Path for the new projects")
+    String path = ".";
+
     @Parameter(names = "--type", description = "Type of project: {maven, gradle, simple}")
     String type = "simple";
 
@@ -235,37 +238,37 @@ public class Main {
       init.names.add("Golo");
     }
     for (String name : init.names) {
-      initProject(name, init.type);
+      initProject(init.path, name, init.type);
     }
   }
 
-  private static void initProject(String projectName, String type) throws IOException {
+  private static void initProject(String projectPath, String projectName, String type) throws IOException {
     switch (type) {
       case "simple":
-        initSimpleProject(projectName);
+        initSimpleProject(projectPath, projectName);
         break;
       case "maven":
-        initMavenProject(projectName);
+        initMavenProject(projectPath, projectName);
         break;
       case "gradle":
-        initGradleProject(projectName);
+        initGradleProject(projectPath, projectName);
         break;
       default:
         throw new AssertionError("The type of project must be one of {maven, gradle, simple}");
     }
   }
 
-  private static void initSimpleProject(String projectName) throws IOException {
+  private static void initSimpleProject(String projectPath, String projectName) throws IOException {
     System.out.println("Generating a new simple project named " + projectName + "...");
-    File projectDir = createProjectDir(projectName);
+    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
     mkdir(new File(projectDir, "imports"));
     mkdir(new File(projectDir, "jars"));
     createMainGoloFile(projectDir, projectName);
   }
 
-  private static void initMavenProject(String projectName) throws IOException {
+  private static void initMavenProject(String projectPath, String projectName) throws IOException {
     System.out.println("Generating a new maven project named " + projectName + "...");
-    File projectDir = createProjectDir(projectName);
+    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
     writeProjectFile(projectDir, projectName, "new-project/maven/pom.xml", "pom.xml");
     File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
     mkdirs(sourcesDir);
@@ -274,9 +277,9 @@ public class Main {
     createMainGoloFile(sourcesGolo, projectName);
   }
 
-  private static void initGradleProject(String projectName) throws IOException {
+  private static void initGradleProject(String projectPath, String projectName) throws IOException {
     System.out.println("Generating a new gradle project named " + projectName + "...");
-    File projectDir = createProjectDir(projectName);
+    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
     writeProjectFile(projectDir, projectName, "new-project/gradle/build.gradle", "build.gradle");
     File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
     mkdirs(sourcesDir);
