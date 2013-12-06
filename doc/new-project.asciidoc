@@ -1,0 +1,78 @@
+== Creating new project(s)
+
+The `golo new` command can create new Golo project(s):
+
+[source,console]
+----
+$ golo new Foo
+----
+
+The command will create a new Golo module named `Foo` in a `main.golo` file with a simple __function__ named `main` that takes an argument for the JVM program arguments.
+
+By default we create a new free-form project but you can specify the type of project with the `--type` command argument.
+
+For example if you want to create a Maven-driven project, just add `--type maven`:
+
+[source,console]
+----
+$ golo new Foo --type maven
+----
+
+=== Free-form project
+
+The structure of a free-form project is as follow:
+
+[source,console]
+----
+$ tree Foo
+Foo
+├── imports
+├── jars
+└── main.golo
+----
+
+=== Maven-driven project
+
+The structure of a Maven-driven project is as follow:
+
+[source,console]
+----
+$ tree Foo
+Foo
+├── pom.xml
+└── src
+    └── main
+        └── golo
+            └── main.golo
+----
+
+The project can be built and package with Maven using the following command:
+[source,console]
+----
+$ mvn package
+----
+
+You can now run the module `Foo` with:
+
+ * `mvn`
+
+[source,console]
+----
+$ mvn exec:java
+----
+
+ * `java`
+
+[source,console]
+----
+$ java -jar target/Foo-*-jar-with-dependencies.jar
+----
+
+ * `golo`
+
+[source,console]
+----
+$ cd target/classes
+$ golo run --module Foo
+----
+
