@@ -54,14 +54,14 @@ public class GolocMojo extends AbstractMojo {
       return;
     }
     try {
-      Files.walkFileTree(root, new GoloFileVisitor());
+      Files.walkFileTree(root, new GolocFileVisitor());
     } catch (IOException e) {
       getLog().error(e);
       throw new MojoFailureException("I/O error", e);
     }
   }
 
-  private class GoloFileVisitor extends SimpleFileVisitor<Path> {
+  private class GolocFileVisitor extends SimpleFileVisitor<Path> {
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.golo");
     private final GoloCompiler compiler = new GoloCompiler();

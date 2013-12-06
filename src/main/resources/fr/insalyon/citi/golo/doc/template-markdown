@@ -1,0 +1,26 @@
+<%@params doc %>
+# Documentation for `<%= doc: moduleName() %>`
+
+<%= doc: moduleDocumentation() %>
+
+## Functions
+<% foreach funcDoc in doc: functions() { %>
+### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
+<%= funcDoc: documentation() %>
+<% } %>
+
+## Augmentations
+<% foreach augmentation in doc: augmentations(): keySet() { %>
+### `<%= augmentation %>`
+<%= doc: augmentations(): get(augmentation) %>
+<% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
+<%= funcDoc: documentation() %>
+<% } %>
+<% } %>
+
+## Structs
+<% foreach structName in doc: structs(): keySet() { %>
+### `<%= structName %>`
+<%= doc: structs(): get(structName) %>
+<% } %>

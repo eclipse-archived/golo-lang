@@ -1,0 +1,70 @@
+== Documenting Golo code
+
+Of course you can document your code using comments (`#`), but who reads source code?
+
+=== Documentation blocks
+
+Golo provides a support for documentation blocks on modules, functions, augmentations and structs.
+Blocks are delimited by `----` and contain free-form
+http://daringfireball.net/projects/markdown/syntax[Markdown text].
+
+Here is a quick example:
+
+[listing]
+....
+----
+This is a *nice* module that does a bunch of useless things.
+
+See more at [our website](http://www.typeunsafe.org).
+----
+module Hello
+
+----
+Adds 2 elements, which is quite surprising given the name.
+
+* `x` is the first argument,
+* `y` is the second argument.
+
+The following snipped prints `3`:
+
+    let result = adder(1, 2)
+    println(result)
+
+Impressive!
+----
+function adder = |x, y| -> x + y
+....
+
+=== Rendering documentation
+
+The `golo doc` command can render documentation in `html` (the default) or `markdown` format:
+
+[source,console]
+----
+$ golo doc --output target/documentation src/**/*.golo
+----
+
+Please consult `golo help` for more details.
+
+=== Alignment
+
+It is sometimes necessary to indent documentation blocks to match the surrounding code format.
+Documentation blocks erase indentation based on the indentation level of the opening block:
+
+[listing]
+....
+----
+The most useful augmentation *ever*.
+----
+augment java.lang.String {
+
+  ----
+  Creates a URL from a string, as in: `let url = "http://foo.bar/plop": toURL()`.
+  ----
+  function toURL = |this| -> java.net.URL(this)
+}
+....
+
+When generating documentation from the code above, the documentation block of the `toURL` function
+is unindented of 2 spaces.
+

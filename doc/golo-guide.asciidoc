@@ -38,5 +38,6 @@ include::adapters.asciidoc[]
 include::dynamic-evaluation.asciidoc[]
 include::workers.asciidoc[]
 include::templates.asciidoc[]
+include::documenting.asciidoc[]
 include::pitfalls.asciidoc[]
 

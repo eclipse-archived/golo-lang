@@ -687,7 +687,7 @@ public class OperatorSupport {
 
   public static Object plus_fallback(Object a, Object b) {
     if (isNotNullAndString(a) || isNotNullAndString(b)) {
-      return new StringBuilder().append(a).append(b).toString();
+      return String.valueOf(a) + b;
     }
     return reject(a, b, "plus");
   }

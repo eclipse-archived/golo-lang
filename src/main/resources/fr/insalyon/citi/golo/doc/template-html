@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<%@params doc %>
+<%@import com.github.rjeschke.txtmark.Processor %>
+<html>
+<head>
+  <title>Documentation for <%= doc: moduleName() %></title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      font-family: Helvetica, Arial, sans-serif;
+      color: #333;
+      background-color: #fff;
+      border-color: #999999;
+      border-width: 2px;
+      line-height: 1.5;
+      margin: 2em 3em;
+      text-align: left;
+      padding: 0 100px 0 100px;
+    }
+    pre {
+      background-color: #eee;
+      padding: 10px;
+      -webkit-border-radius: 5px;
+      -moz-border-radius: 5px;
+      border-radius: 5px;
+      overflow: auto;
+    }
+    code {
+      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+      font-size: 80%;
+      background-color: #eee;
+      padding: 1px 3px;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+    }
+    pre code {
+      padding-left: 0px;
+      padding-right: 0px;
+    }
+    li p {
+      margin: 0.3em;
+    }
+    ul > li {
+      list-style-type: disc;
+    }
+    a:link, a:visited {
+      color: #33e;
+      text-decoration: none;
+    }
+    a:hover {
+      color: #00f;
+      text-decoration:underline;
+    }
+    h1 {
+      color: #999;
+      font-weight: 400;
+      font-size: 36px;
+    }
+    h2 {
+      border-bottom: 1px dotted #aaa;
+      margin-bottom: 1em;
+      color: #333;
+      font-size: 30px;
+    }
+    h3 {
+      color: #666;
+      font-size: 24px;
+    }
+    h4 {
+      font-size: 21px;
+    }
+    h5 {
+      font-size: 18px;
+    }
+  </style>
+</head>
+<body>
+
+<h1>Documentation for <%= doc: moduleName() %></h1>
+<div>
+  <%= process(doc: moduleDocumentation()) %>
+</div>
+
+<% if not doc: functions(): isEmpty() { %>
+<h2>Functions</h2>
+<% foreach funcDoc in doc: functions() { %>
+  <h3><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
+  <div>
+    <%= process(funcDoc: documentation()) %>
+  </div>
+<% } %>
+<% } %>
+
+<% if not doc: augmentations(): isEmpty() { %>
+<h2>Augmentations</h2>
+<% foreach augmentation in doc: augmentations(): keySet() { %>
+  <h3><%= augmentation %></h3>
+  <div>
+    <%= process(doc: augmentations(): get(augmentation)) %>
+  </div>
+  <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
+    <% if funcDoc: varargs() { %>
+      <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)</h4>
+    <% } else { %>
+      <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h4>
+    <% } %>
+    <div>
+      <%= process(funcDoc: documentation()) %>
+    </div>
+  <% } %>
+<% } %>
+<% } %>
+
+<% if not doc: structs(): isEmpty() { %>
+<h2>Structs</h2>
+<% foreach structName in doc: structs(): keySet() { %>
+  <h3><%= structName %></h3>
+  <p>Members:</p>
+  <ul>
+  <% foreach member in doc: structMembers(): get(structName) { %>
+    <li><code><%= member %></code></li>
+  <% } %>
+  </ul>
+  <div>
+    <%= process(doc: structs(): get(structName)) %>
+  </div>
+<% } %>
+<% } %>
+
+</body>
+</html>
