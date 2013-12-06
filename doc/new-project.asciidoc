@@ -10,6 +10,11 @@ $ golo new Foo
 The command will create a new Golo module named `Foo` in a `main.golo` file with a simple __function__ named `main` that takes an argument for the JVM program arguments.
 
 By default we create a new free-form project but you can specify the type of project with the `--type` command argument.
+Three types of projects are currently available:
+
+ * Free-form project
+ * Maven-driven project
+ * Gradle-driven project
 
 For example if you want to create a Maven-driven project, just add `--type maven`:
 
@@ -76,3 +81,40 @@ $ cd target/classes
 $ golo run --module Foo
 ----
 
+=== Gradle-driven project
+
+The structure of a Gradle-driven project is as follow:
+
+[source,console]
+----
+$ tree Foo
+Foo
+├── build.gradle
+└── src
+    └── main
+        └── golo
+            └── main.golo
+----
+
+The project can be built and package with Gradle using the following command:
+[source,console]
+----
+$ gradle build
+----
+
+You can now run the module `Foo` with:
+
+ * `gradle`
+
+[source,console]
+----
+$ gradle run
+----
+
+ * `golo`
+
+[source,console]
+----
+$ cd build/classes/main
+$ golo run --module Foo
+----
