@@ -1,0 +1,71 @@
+_golo ()
+{
+	local cur prev special i
+	
+	COMPREPLY=()
+	_get_comp_words_by_ref cur prev
+	
+	# Find out if we have a special word and our previous flag.
+	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(compile|run|golo|diagnose|doc|version) ]]; then
+			special=${COMP_WORDS[i]}
+		fi
+		if [[ ${COMP_WORDS[i]} == -* ]]; then
+			lastflag=${COMP_WORDS[i]}
+		fi
+	done
+	
+	# We know the special and that we're not trying to use a flag.
+	# We probably want to show files.
+	if [[ $cur != -* && ! -z ${special} ]]; then
+		case "${lastflag}" in
+			--files|--classpath|--output)
+				_filedir
+				return 0
+				;;
+		esac
+	fi
+	
+	# Our special wasn't defined. We need to start there.
+	if [ -z ${special} ]; then
+		COMPREPLY=( $( compgen -W 'version compile run golo doc diagnose --help' -- "$cur" ) )
+		return 0
+	fi
+	
+	# Match against flags with specific options.
+	case "$prev" in
+		--format)
+			COMPREPLY=( $( compgen -W 'html markdown' -- "$cur" ) )
+			return 0
+			;;
+		--tool)
+			COMPREPLY=( $( compgen -W 'ast ir' -- "$cur" ) )
+			return 0
+			;;
+	esac
+	
+	# We know a special, but we're looking to learn the flags.	
+	case "${special}" in
+		compile)
+			COMPREPLY=( $( compgen -W '--output' -- "$cur" ) )
+			;;
+		version)
+			COMPREPLY=( $( compgen -W '--full' -- "$cur" ) )
+			;;
+		run)
+			COMPREPLY=( $( compgen -W '--module --classpath' -- "$cur" ) )
+			;;
+		golo)
+			COMPREPLY=( $( compgen -W '--files --args --classpath' -- "$cur" ) )
+			;;
+		diagnose)
+			COMPREPLY=( $( compgen -W '--tool' ) )
+			;;
+		doc)
+			COMPREPLY=( $( compgen -W '--format --output' -- "$cur" ) )
+			;;
+	esac
+	return 0
+}
+
+complete -F _golo golo
