@@ -266,7 +266,7 @@ TOKEN :
 
 MORE :
 {
-  < "----" (" " | "\t")* "\n" > : WithinDocumentation
+  < "----" (" " | "\t")* ("\n" | "\r" | "\r\n") > : WithinDocumentation
 }
 
 <WithinDocumentation>
@@ -278,7 +278,7 @@ MORE :
 <WithinDocumentation>
 TOKEN :
 {
-  < DOCUMENTATION : "----" (" " | "\t")* "\n" > : DEFAULT
+  < DOCUMENTATION : "----" (" " | "\t")* ("\n" | "\r" | "\r\n") > : DEFAULT
 }
 
 // ............................................................................................. //
