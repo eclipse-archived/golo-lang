@@ -7,7 +7,7 @@ _golo ()
 	
 	# Find out if we have a special word and our previous flag.
 	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
-		if [[ ${COMP_WORDS[i]} == @(compile|run|golo|diagnose|doc|version) ]]; then
+		if [[ ${COMP_WORDS[i]} == @(compile|run|golo|diagnose|doc|version|new) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
 		if [[ ${COMP_WORDS[i]} == -* ]]; then
@@ -19,7 +19,7 @@ _golo ()
 	# We probably want to show files.
 	if [[ $cur != -* && ! -z ${special} ]]; then
 		case "${lastflag}" in
-			--files|--classpath|--output)
+			--files|--classpath|--output|--path)
 				_filedir
 				return 0
 				;;
@@ -28,7 +28,7 @@ _golo ()
 	
 	# Our special wasn't defined. We need to start there.
 	if [ -z ${special} ]; then
-		COMPREPLY=( $( compgen -W 'version compile run golo doc diagnose --help' -- "$cur" ) )
+		COMPREPLY=( $( compgen -W 'version compile run golo new doc diagnose --help' -- "$cur" ) )
 		return 0
 	fi
 	
@@ -40,6 +40,14 @@ _golo ()
 			;;
 		--tool)
 			COMPREPLY=( $( compgen -W 'ast ir' -- "$cur" ) )
+			return 0
+			;;
+		--type)
+			COMPREPLY=( $( compgen -W 'maven gradle simple' -- "$cur" ) )
+			return 0
+			;;
+		new)
+			_filedir
 			return 0
 			;;
 	esac
@@ -59,7 +67,10 @@ _golo ()
 			COMPREPLY=( $( compgen -W '--files --args --classpath' -- "$cur" ) )
 			;;
 		diagnose)
-			COMPREPLY=( $( compgen -W '--tool' ) )
+			COMPREPLY=( $( compgen -W '--tool' -- "$cur" ) )
+			;;
+		new)
+			COMPREPLY=( $( compgen -W '--type --path' -- "$cur" ) )
 			;;
 		doc)
 			COMPREPLY=( $( compgen -W '--format --output' -- "$cur" ) )
