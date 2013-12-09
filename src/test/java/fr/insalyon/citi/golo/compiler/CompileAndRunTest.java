@@ -410,6 +410,8 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
+      assertThat(problems.get(0).getFirstToken(), notNullValue());
+      assertThat(problems.get(0).getLastToken(), notNullValue());
       throw expected;
     }
   }
