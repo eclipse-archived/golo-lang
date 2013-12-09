@@ -7,35 +7,36 @@ The `golo new` command can create new Golo project(s):
 $ golo new Foo
 ----
 
-The command will create a new Golo module named `Foo` in a `main.golo` file with a simple __function__ named `main` that takes an argument for the JVM program arguments.
+The command creates a new Golo module named `Foo` in a `main.golo` file with a simple __function__
+named `main` that takes an argument for the JVM program arguments.
 
-By default we create a new free-form project but you can specify the type of project with the `--type` command argument.
-Three types of projects are currently available:
+By default we create a new free-form project but you can specify the type of project with the
+`--type` command argument. Three types of projects are currently available:
 
- * Free-form project
- * Maven-driven project
- * Gradle-driven project
+ * Free-form project,
+ * Maven-driven project,
+ * Gradle-driven project.
 
-For example if you want to create a Maven-driven project, just add `--type maven`:
+As an example if you want to create a Maven-driven project, just add `--type maven`:
 
 [source,console]
 ----
 $ golo new Foo --type maven
 ----
 
-By default we create the project directory where the `golo` command is run.
-If you need to create your project directory elsewhere you can use the `--path` command argument:
+By default we create the project directory where the `golo` command is run. If you need to create
+your project directory elsewhere you can use the `--path` command argument:
 
 [source,console]
 ----
 $ golo new Bar --path /opt/golo
 ----
 
-This will create the project directory named `Bar` in `/opt/golo`.
+This creates the project directory named `Bar` in `/opt/golo`.
 
 === Free-form project
 
-The structure of a free-form project is as follow:
+The structure of a free-form project is as follows:
 
 [source,console]
 ----
@@ -48,7 +49,7 @@ Foo
 
 === Maven-driven project
 
-The structure of a Maven-driven project is as follow:
+The structure of a Maven-driven project is as follows:
 
 [source,console]
 ----
@@ -61,7 +62,7 @@ Foo
             └── main.golo
 ----
 
-The project can be built and package with Maven using the following command:
+The project can be built and packaged with Maven using the following command:
 [source,console]
 ----
 $ mvn package
@@ -93,7 +94,7 @@ $ golo run --module Foo
 
 === Gradle-driven project
 
-The structure of a Gradle-driven project is as follow:
+The structure of a Gradle-driven project is as follows:
 
 [source,console]
 ----
@@ -106,7 +107,7 @@ Foo
             └── main.golo
 ----
 
-The project can be built and package with Gradle using the following command:
+The project can be built and packaged with Gradle using the following command:
 [source,console]
 ----
 $ gradle build
