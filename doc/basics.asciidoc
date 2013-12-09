@@ -59,7 +59,8 @@ commands, notably:
 - `run` to execute some already compiled Golo code, and
 - `golo` to directly execute Golo code from source files, and
 - `diagnose` to print compiler internal diagnosis information, and
-- `doc` to generate module(s) documentation.
+- `doc` to generate module(s) documentation, and
+- `new` to generate new project(s).
 
 The complete commands usage instructions can be listed by running `golo --help`.
 

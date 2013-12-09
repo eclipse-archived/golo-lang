@@ -24,29 +24,21 @@ import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
-import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
-import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.doc.AbstractProcessor;
 import fr.insalyon.citi.golo.doc.HtmlProcessor;
 import fr.insalyon.citi.golo.doc.MarkdownProcessor;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.IOException;
+import java.io.*;
 import java.lang.invoke.MethodHandle;
-import java.lang.reflect.Method;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
-import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 public class Main {
@@ -109,6 +101,19 @@ public class Main {
     List<String> files = new LinkedList<>();
   }
 
+  @Parameters(commandDescription = "Generate new Golo projects")
+  static class InitCommand {
+
+    @Parameter(names = "--path", description = "Path for the new projects")
+    String path = ".";
+
+    @Parameter(names = "--type", description = "Type of project: {maven, gradle, simple}")
+    String type = "simple";
+
+    @Parameter(description = "Names of the new Golo projects")
+    List<String> names = new LinkedList<>();
+  }
+
   public static class DiagnoseModeValidator implements IParameterValidator {
 
     @Override
@@ -166,6 +171,8 @@ public class Main {
     cmd.addCommand("diagnose", diagnose);
     DocCommand doc = new DocCommand();
     cmd.addCommand("doc", doc);
+    InitCommand init = new InitCommand();
+    cmd.addCommand("new", init);
     try {
       cmd.parse(args);
       if (global.help || cmd.getParsedCommand() == null) {
@@ -190,6 +197,9 @@ public class Main {
           case "doc":
             doc(doc);
             break;
+          case "new":
+            init(init);
+            break;
           default:
             throw new AssertionError("WTF?");
         }
@@ -198,6 +208,9 @@ public class Main {
       System.err.println(exception.getMessage());
       System.out.println();
       cmd.usage();
+    } catch (IOException exception) {
+      System.err.println(exception.getMessage());
+      System.exit(1);
     }
   }
 
@@ -217,6 +230,105 @@ public class Main {
       System.err.println(e.getMessage());
     } catch (GoloCompilationException e) {
       handleCompilationException(e);
+    }
+  }
+
+  private static void init(InitCommand init) throws IOException {
+    if (init.names.isEmpty()) {
+      init.names.add("Golo");
+    }
+    for (String name : init.names) {
+      initProject(init.path, name, init.type);
+    }
+  }
+
+  private static void initProject(String projectPath, String projectName, String type) throws IOException {
+    switch (type) {
+      case "simple":
+        initSimpleProject(projectPath, projectName);
+        break;
+      case "maven":
+        initMavenProject(projectPath, projectName);
+        break;
+      case "gradle":
+        initGradleProject(projectPath, projectName);
+        break;
+      default:
+        throw new AssertionError("The type of project must be one of {maven, gradle, simple}");
+    }
+  }
+
+  private static void initSimpleProject(String projectPath, String projectName) throws IOException {
+    System.out.println("Generating a new simple project named " + projectName + "...");
+    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
+    mkdir(new File(projectDir, "imports"));
+    mkdir(new File(projectDir, "jars"));
+    createMainGoloFile(projectDir, projectName);
+  }
+
+  private static void initMavenProject(String projectPath, String projectName) throws IOException {
+    System.out.println("Generating a new maven project named " + projectName + "...");
+    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
+    writeProjectFile(projectDir, projectName, "new-project/maven/pom.xml", "pom.xml");
+    File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
+    mkdirs(sourcesDir);
+    File sourcesGolo = new File(sourcesDir, "golo");
+    mkdir(sourcesGolo);
+    createMainGoloFile(sourcesGolo, projectName);
+  }
+
+  private static void initGradleProject(String projectPath, String projectName) throws IOException {
+    System.out.println("Generating a new gradle project named " + projectName + "...");
+    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
+    writeProjectFile(projectDir, projectName, "new-project/gradle/build.gradle", "build.gradle");
+    File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
+    mkdirs(sourcesDir);
+    File sourcesGolo = new File(sourcesDir, "golo");
+    mkdir(sourcesGolo);
+    createMainGoloFile(sourcesGolo, projectName);
+  }
+
+  private static File createProjectDir(String projectName) throws IOException {
+    File projectDir = new File(projectName);
+    if (projectDir.exists()) {
+      throw new IOException("[error] The directory " + projectName + " already exists.");
+    }
+    mkdir(projectDir);
+    return projectDir;
+  }
+
+  private static void createMainGoloFile(File intoDir, String projectName) throws FileNotFoundException, UnsupportedEncodingException {
+    File mainGoloFile = new File(intoDir, "main.golo");
+    PrintWriter writer = new PrintWriter(mainGoloFile, "UTF-8");
+    writer.println("module " + projectName);
+    writer.println("");
+    writer.println("function main = |args| {");
+    writer.println("  println(\"Hello " + projectName + "!\")");
+    writer.println("}");
+    writer.close();
+  }
+
+  private static void writeProjectFile(File intoDir, String projectName, String sourcePath, String fileName) throws IOException {
+    InputStream sourceInputStream = Main.class.getClassLoader().getResourceAsStream(sourcePath);
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream));
+    File projectFile = new File(intoDir, fileName);
+    PrintWriter writer = new PrintWriter(projectFile, "UTF-8");
+    String line;
+    while ((line = bufferedReader.readLine()) != null) {
+      writer.println(line.replace("{{projectName}}", projectName));
+    }
+    writer.close();
+  }
+
+  private static void mkdir(File directory) throws IOException {
+    if (!directory.mkdir()) {
+      throw new IOException("[error] Unable to create directory " + directory + ".");
+    }
+  }
+
+  private static void mkdirs(File directory) throws IOException {
+    if (!directory.mkdirs()) {
+      throw new IOException("[error] Unable to create directory " + directory + ".");
     }
   }
 
