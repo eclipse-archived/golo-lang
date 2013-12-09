@@ -6,7 +6,7 @@ _golo ()
 	_get_comp_words_by_ref cur prev
 	
 	# Find out if we have a special word and our previous flag.
-	for (( i=0; i < ${#COMP_WORDS[@]}-1; i++ )); do
+	for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
 		if [[ ${COMP_WORDS[i]} == @(compile|run|golo|diagnose|doc|version|new) ]]; then
 			special=${COMP_WORDS[i]}
 		fi
