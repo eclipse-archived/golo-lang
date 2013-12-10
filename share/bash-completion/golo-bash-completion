@@ -1,0 +1,99 @@
+###################################################################################
+# Copyright 2012-2013 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+###################################################################################
+
+_golo ()
+{
+	local cur prev special i
+	
+	COMPREPLY=()
+	_get_comp_words_by_ref cur prev
+	
+	# Find out if we have a special word and our previous flag.
+	for (( i=1; i < ${#COMP_WORDS[@]}-1; i++ )); do
+		if [[ ${COMP_WORDS[i]} == @(compile|run|golo|diagnose|doc|version|new) ]]; then
+			special=${COMP_WORDS[i]}
+		fi
+		if [[ ${COMP_WORDS[i]} == -* ]]; then
+			lastflag=${COMP_WORDS[i]}
+		fi
+	done
+	
+	# We know the special and that we're not trying to use a flag.
+	# We probably want to show files.
+	if [[ $cur != -* && ! -z ${special} ]]; then
+		case "${lastflag}" in
+			--files|--classpath|--output|--path)
+				_filedir
+				return 0
+				;;
+		esac
+	fi
+	
+	# Our special wasn't defined. We need to start there.
+	if [ -z ${special} ]; then
+		COMPREPLY=( $( compgen -W 'version compile run golo new doc diagnose --help' -- "$cur" ) )
+		return 0
+	fi
+	
+	# Match against flags with specific options.
+	case "$prev" in
+		--format)
+			COMPREPLY=( $( compgen -W 'html markdown' -- "$cur" ) )
+			return 0
+			;;
+		--tool)
+			COMPREPLY=( $( compgen -W 'ast ir' -- "$cur" ) )
+			return 0
+			;;
+		--type)
+			COMPREPLY=( $( compgen -W 'maven gradle simple' -- "$cur" ) )
+			return 0
+			;;
+		new)
+			_filedir
+			return 0
+			;;
+	esac
+	
+	# We know a special, but we're looking to learn the flags.	
+	case "${special}" in
+		compile)
+			COMPREPLY=( $( compgen -W '--output' -- "$cur" ) )
+			;;
+		version)
+			COMPREPLY=( $( compgen -W '--full' -- "$cur" ) )
+			;;
+		run)
+			COMPREPLY=( $( compgen -W '--module --classpath' -- "$cur" ) )
+			;;
+		golo)
+			COMPREPLY=( $( compgen -W '--files --args --classpath' -- "$cur" ) )
+			;;
+		diagnose)
+			COMPREPLY=( $( compgen -W '--tool' -- "$cur" ) )
+			;;
+		new)
+			COMPREPLY=( $( compgen -W '--type --path' -- "$cur" ) )
+			;;
+		doc)
+			COMPREPLY=( $( compgen -W '--format --output' -- "$cur" ) )
+			;;
+	esac
+	return 0
+}
+
+complete -F _golo golo
+complete -F _golo vanilla-golo
