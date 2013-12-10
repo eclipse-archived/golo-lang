@@ -40,5 +40,6 @@ include::dynamic-evaluation.asciidoc[]
 include::workers.asciidoc[]
 include::templates.asciidoc[]
 include::documenting.asciidoc[]
+include::terminal-completion.asciidoc[]
 include::pitfalls.asciidoc[]
 
