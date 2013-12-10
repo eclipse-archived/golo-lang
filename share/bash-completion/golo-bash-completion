@@ -96,3 +96,4 @@ _golo ()
 }
 
 complete -F _golo golo
+complete -F _golo vanilla-golo
