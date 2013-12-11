@@ -172,6 +172,16 @@ $ golo golo --files samples/fibonacci.golo
 $ JAVA_OPTS=-XX:+PrintCompilation golo golo --files samples/fibonacci.golo
 ----
 
+=== Bash autocompletion ===
+
+A bash script can be found in `share/shell-completion/` called `golo-bash-completion` that will provide autocomplete support for the `golo` and `vanilla-golo` CLI scripts. You may either `source` the script, or drop the script into your `bash_completion.d/` folder and restart your terminal.
+
+TIP: Not sure where your `bash_completion.d/` folder is? Try `/etc/bash_completion.d/` on Linux or `/usr/local/etc/bash_completion.d/` for Mac Homebrew users. 
+
+=== Zsh autocompletion ===
+
+A zsh script can be found in `share/shell-completion/` called `golo-zsh-completion` that works using the `golo-bash-completion` to provide autocomplete support using the bash autocomplete support provided by zsh. Place both files into the same directory and `source golo-zsh-completion` from your terminal or `.zshrc` to give it a try!
+
 === Comments ===
 
 Golo comments start with a `#`, just like in Bash, Python or Ruby:
