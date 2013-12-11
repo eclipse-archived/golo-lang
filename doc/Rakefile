@@ -20,17 +20,27 @@ def is_mac?
   `uname`.chomp == 'Darwin'
 end
 
+def using_homebrew?
+  `brew` != ""
+end
+
+def using_macports?
+  `port` != ""
+end
+
 def brew_prefix
   `brew --prefix asciidoc`
 end
 
 def icons_dir
-  if is_mac?
-    "#{`brew --prefix asciidoc`.chomp}/etc/asciidoc/images/icons"
+  base_icon_dir = '/etc/asciidoc/images/icons'
+  if is_mac? && using_homebrew?
+    "#{`brew --prefix asciidoc`.chomp}#{base_icon_dir}"
+  elsif is_mac? && using_macports?
+    "/opt/local/#{base_icon_dir}"
   else
-    "/etc/asciidoc/images/icons"
+    "#{base_icon_dir}"
   end
-  
 end
 
 task :default => [:all]
