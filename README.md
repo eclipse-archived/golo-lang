@@ -58,9 +58,9 @@ output using:
 
     rake html
 
-#### Building documentation on Ubuntu
+#### Building documentation on Ubuntu Linux
 
-You'll need to perform the following steps before building the golo-lang on Ubuntu:
+You'll need to perform the following steps before building the golo-lang docs on Ubuntu:
 
 1.  Perform *sudo apt-get install asciidoc python-pygments fop* to get the required dependencies.
 2.  Uncomment a line in /etc/asciidoc/asciidoc.conf to allow use of pygments highligher:
@@ -69,6 +69,14 @@ You'll need to perform the following steps before building the golo-lang on Ubun
 #Uncomment to use the Pygments source highlighter instead of GNU highlighter.
 #pygments=
 ```
+
+#### Building documentation on Fedora Linux
+
+You'll need to install the following packages before building the golo-lang docs on Fedora:
+
+*  asciidoc
+*  python-pygments
+*  fop
 
 ## License
 
