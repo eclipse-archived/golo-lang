@@ -65,8 +65,10 @@ You'll need to perform the following steps before building the golo-lang on Ubun
 1.  Perform *sudo apt-get install asciidoc python-pygments fop* to get the required dependencies.
 2.  Uncomment a line in /etc/asciidoc/asciidoc.conf to allow use of pygments highligher:
 
-	#Uncomment to use the Pygments source highlighter instead of GNU highlighter.
-	#pygments=
+```
+#Uncomment to use the Pygments source highlighter instead of GNU highlighter.
+#pygments=
+```
 
 ## License
 
