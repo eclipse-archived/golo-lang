@@ -15,6 +15,24 @@
 OUTPUT = 'output'
 MAIN = 'golo-guide.asciidoc'
 
+# Some helpers to help us determine where to look for the images.
+def is_mac?
+  `uname`.chomp == 'Darwin'
+end
+
+def brew_prefix
+  `brew --prefix asciidoc`
+end
+
+def icons_dir
+  if is_mac?
+    "#{`brew --prefix asciidoc`.chomp}/etc/asciidoc/images/icons"
+  else
+    "/etc/asciidoc/images/icons"
+  end
+  
+end
+
 task :default => [:all]
 
 task :prepare do
@@ -23,12 +41,12 @@ end
 
 desc "generates the HTML documentation"
 task :html => [:prepare] do
-  sh "asciidoc -b html5 -a icons -a toc2 -a iconsdir=`brew --prefix asciidoc`/etc/asciidoc/images/icons -a data-uri -a theme=flask -a source-highlighter=pygments -o output/index.html #{MAIN}"
+  sh "asciidoc -b html5 -a icons -a toc2 -a iconsdir=#{icons_dir} -a data-uri -a theme=flask -a source-highlighter=pygments -o output/index.html #{MAIN}"
 end
 
 desc "generates the PDF documentation"
 task :pdf => [:prepare] do
-  sh "a2x --verbose -L -f pdf --fop -D output --icons --icons-dir=`brew --prefix asciidoc`/etc/asciidoc/images/icons #{MAIN}"
+  sh "a2x --verbose -L -f pdf --fop -D output --icons --icons-dir=#{icons_dir} #{MAIN}"
 end
 
 desc "generates the HTML chunked documentation"
