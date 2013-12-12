@@ -74,6 +74,7 @@ public class MethodInvocationSupport {
       add("freeze");
       add("properties");
       add("invoker");
+      add("hasMethod");
     }
   };
 

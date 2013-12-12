@@ -153,6 +153,20 @@ public final class DynamicObject {
     }
   }
 
+  /**
+   * Verify if a method is defined for the dynamic object.
+   *
+   * @param method the method name.
+   * @return {@code true} if method is defined, {@code false} otherwise.
+   */
+  public boolean hasMethod(String method) {
+    Object obj = properties.get(method);
+    if (obj != null) {
+      return (obj instanceof MethodHandle);
+    }
+    return false;
+  }
+
   private static final MethodHandle MAP_GET;
   private static final MethodHandle MAP_PUT;
   private static final MethodHandle IS_MH_1;
