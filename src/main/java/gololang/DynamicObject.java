@@ -161,11 +161,10 @@ public final class DynamicObject {
    */
   public boolean hasMethod(String method) {
     Object obj = properties.get(method);
-    if(obj != null) {
+    if (obj != null) {
       return (obj instanceof MethodHandle);
-    } else {
-      return false;
     }
+    return false;
   }
 
   private static final MethodHandle MAP_GET;
