@@ -33,6 +33,7 @@
         <include>CONTRIB*</include>
         <include>THIRD-PARTY*</include>
         <include>samples/**/*</include>
+        <include>share/**/*</include>
       </includes>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
