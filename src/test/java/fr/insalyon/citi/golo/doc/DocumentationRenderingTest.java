@@ -1,8 +1,10 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import gololang.Predefined;
+
 import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -30,7 +32,7 @@ public class DocumentationRenderingTest {
 
   @Test
   public void markdown_processor() throws Throwable {
-    GoloParser parser = new GoloParser(new FileInputStream(SRC + "doc.golo"));
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
 
     MarkdownProcessor processor = new MarkdownProcessor();
@@ -61,7 +63,7 @@ public class DocumentationRenderingTest {
 
   @Test
   public void html_processor() throws Throwable {
-    GoloParser parser = new GoloParser(new FileInputStream(SRC + "doc.golo"));
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
 
     HtmlProcessor processor = new HtmlProcessor();

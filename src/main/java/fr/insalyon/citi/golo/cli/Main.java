@@ -17,13 +17,14 @@
 package fr.insalyon.citi.golo.cli;
 
 import com.beust.jcommander.*;
+
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import fr.insalyon.citi.golo.compiler.GoloCompiler;
 import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
-import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.doc.AbstractProcessor;
 import fr.insalyon.citi.golo.doc.HtmlProcessor;
@@ -336,7 +337,7 @@ public class Main {
     GoloCompiler compiler = new GoloCompiler();
     for (String file : files) {
       System.out.println(">>> AST for: " + file);
-      ASTCompilationUnit ast = compiler.parse(file, new GoloParser(new FileInputStream(file)));
+      ASTCompilationUnit ast = compiler.parse(file, new GoloOffsetParser(new FileInputStream(file)));
       ast.dump("% ");
       System.out.println();
     }
@@ -347,7 +348,7 @@ public class Main {
     IrTreeDumper dumper = new IrTreeDumper();
     for (String file : files) {
       System.out.println(">>> IR for: " + file);
-      ASTCompilationUnit ast = compiler.parse(file, new GoloParser(new FileInputStream(file)));
+      ASTCompilationUnit ast = compiler.parse(file, new GoloOffsetParser(new FileInputStream(file)));
       GoloModule module = compiler.check(ast);
       dumper.visitModule(module);
       System.out.println();
@@ -458,7 +459,7 @@ public class Main {
     LinkedList<ASTCompilationUnit> units = new LinkedList<>();
     for (String source : options.sources) {
       try (FileInputStream in = new FileInputStream(source)) {
-        units.add(new GoloParser(in).CompilationUnit());
+        units.add(new GoloOffsetParser(in).CompilationUnit());
       } catch (IOException e) {
         System.out.println("[error] " + source + " does not exist or could not be opened.");
       } catch (ParseException e) {
