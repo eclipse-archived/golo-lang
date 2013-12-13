@@ -25,40 +25,27 @@ import java.io.Reader;
 public class GoloOffsetParser extends GoloParser {
 
   private void hookInputs() {
-      jj_input_stream = new JavaOffsetCharStream(jj_input_stream);
-      token_source = new GoloOffsetParserTokenManager(jj_input_stream);
+    jj_input_stream = new JavaOffsetCharStream(jj_input_stream);
+    token_source = new GoloOffsetParserTokenManager(jj_input_stream);
   }
-  
-  /**
-   * @param stream
-   */
+
   public GoloOffsetParser(InputStream stream) {
-      super(stream);
-      hookInputs();
+    super(stream);
+    hookInputs();
   }
 
-  /**
-   * @param stream
-   * @param encoding
-   */
   public GoloOffsetParser(InputStream stream, String encoding) {
-      super(stream, encoding);
-      hookInputs();
+    super(stream, encoding);
+    hookInputs();
   }
 
-  /**
-   * @param stream
-   */
   public GoloOffsetParser(Reader stream) {
-      super(stream);
-      hookInputs();
+    super(stream);
+    hookInputs();
   }
 
-  /**
-   * @param tm
-   */
   public GoloOffsetParser(GoloParserTokenManager tm) {
-      super(tm);
-      hookInputs();
+    super(tm);
+    hookInputs();
   }
 }

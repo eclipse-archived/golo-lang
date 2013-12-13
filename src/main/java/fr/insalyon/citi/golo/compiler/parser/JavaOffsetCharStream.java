@@ -23,46 +23,46 @@ import java.io.IOException;
  */
 public class JavaOffsetCharStream extends JavaCharStream {
 
-    private int beginOffset;
-    
-    private int currentOffset;
-    
-    public JavaOffsetCharStream(final JavaCharStream delegate) {
-        super(delegate.inputStream);
-    }
+  private int beginOffset;
 
-    @Override
-    public char BeginToken() throws IOException {
-       /*
-        * JavaCC use a pre fetch buffer and may not call readChar causing our
-        * offset not to be updated
-        */
-        if (inBuf > 0) {
-          currentOffset++;
-        }
-        char c = super.BeginToken();
-        beginOffset = currentOffset;
-        return c;
-    }
+  private int currentOffset;
 
-    @Override
-    public char readChar() throws IOException {
-        char c = super.readChar();
-        currentOffset++;
-        return c;
-    }
+  public JavaOffsetCharStream(final JavaCharStream delegate) {
+    super(delegate.inputStream);
+  }
 
-    @Override
-    public void backup(int amount) {
-      super.backup(amount);
-      currentOffset -= amount;
+  @Override
+  public char BeginToken() throws IOException {
+    /*
+     * JavaCC use a pre fetch buffer and may not call readChar causing our
+     * offset not to be updated
+     */
+    if (inBuf > 0) {
+      currentOffset++;
     }
-    
-    public int getBeginOffset() {
-        return beginOffset;
-    }
-    
-    public int getCurrentOffset() {
-        return currentOffset;
-    }
+    char c = super.BeginToken();
+    beginOffset = currentOffset;
+    return c;
+  }
+
+  @Override
+  public char readChar() throws IOException {
+    char c = super.readChar();
+    currentOffset++;
+    return c;
+  }
+
+  @Override
+  public void backup(int amount) {
+    super.backup(amount);
+    currentOffset -= amount;
+  }
+
+  public int getBeginOffset() {
+    return beginOffset;
+  }
+
+  public int getCurrentOffset() {
+    return currentOffset;
+  }
 }

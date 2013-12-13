@@ -21,28 +21,21 @@ package fr.insalyon.citi.golo.compiler.parser;
  */
 public class GoloOffsetParserTokenManager extends GoloParserTokenManager {
 
-  /**
-   * @param stream
-   */
   public GoloOffsetParserTokenManager(JavaCharStream stream) {
-      super(new JavaOffsetCharStream(stream));
+    super(new JavaOffsetCharStream(stream));
   }
 
-  /**
-   * @param stream
-   * @param lexState
-   */
   public GoloOffsetParserTokenManager(JavaCharStream stream, int lexState) {
-      super(new JavaOffsetCharStream(stream), lexState);
+    super(new JavaOffsetCharStream(stream), lexState);
   }
 
   @Override
   protected Token jjFillToken() {
-      Token t = super.jjFillToken();
-      if (input_stream instanceof JavaOffsetCharStream) {
-          t.startOffset = ((JavaOffsetCharStream)input_stream).getBeginOffset() - 1;
-          t.endOffset = ((JavaOffsetCharStream)input_stream).getCurrentOffset();
-      }
-      return t;
+    Token t = super.jjFillToken();
+    if (input_stream instanceof JavaOffsetCharStream) {
+      t.startOffset = ((JavaOffsetCharStream)input_stream).getBeginOffset() - 1;
+      t.endOffset = ((JavaOffsetCharStream)input_stream).getCurrentOffset();
+    }
+    return t;
   }
 }
