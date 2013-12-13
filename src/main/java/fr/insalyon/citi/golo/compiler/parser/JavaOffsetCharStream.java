@@ -33,6 +33,13 @@ public class JavaOffsetCharStream extends JavaCharStream {
 
     @Override
     public char BeginToken() throws IOException {
+       /*
+        * JavaCC use a pre fetch buffer and may not call readChar causing our
+        * offset not to be updated
+        */
+        if (inBuf > 0) {
+          currentOffset++;
+        }
         char c = super.BeginToken();
         beginOffset = currentOffset;
         return c;
