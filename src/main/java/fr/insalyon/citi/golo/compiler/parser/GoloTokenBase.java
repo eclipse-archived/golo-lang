@@ -17,7 +17,7 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 public class GoloTokenBase {
-  public int startOffset;
-  public int endOffset;
+  public int startOffset = -1;
+  public int endOffset = -1;
   public Token previousToken;
 }

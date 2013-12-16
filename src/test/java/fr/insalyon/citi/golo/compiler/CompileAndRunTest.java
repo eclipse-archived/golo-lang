@@ -411,7 +411,11 @@ public class CompileAndRunTest {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
       assertThat(problems.get(0).getFirstToken(), notNullValue());
+      assertThat(problems.get(0).getFirstToken().startOffset, greaterThan(-1));
+      assertThat(problems.get(0).getFirstToken().endOffset, greaterThan(-1));
       assertThat(problems.get(0).getLastToken(), notNullValue());
+      assertThat(problems.get(0).getLastToken().startOffset, greaterThan(-1));
+      assertThat(problems.get(0).getLastToken().endOffset, greaterThan(-1));
       throw expected;
     }
   }

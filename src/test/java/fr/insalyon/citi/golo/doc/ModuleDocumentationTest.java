@@ -17,7 +17,9 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
+
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
@@ -32,7 +34,7 @@ public class ModuleDocumentationTest {
 
   @Test
   public void check() throws Throwable {
-    GoloParser parser = new GoloParser(new FileInputStream(SRC + "doc.golo"));
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ModuleDocumentation doc = new ModuleDocumentation(compilationUnit);
 

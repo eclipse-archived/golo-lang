@@ -18,10 +18,12 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.compiler.ir.IrTreeDumper;
 import fr.insalyon.citi.golo.internal.testing.TestUtils;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -44,7 +46,7 @@ public class ParseTreeToGoloIrAndVisitorsTest {
 
   @Test(dataProvider = "golo-files")
   public void convert_then_apply_visitors(File goloFile) throws FileNotFoundException, ParseException {
-    GoloParser parser = new GoloParser(new FileInputStream(goloFile));
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(goloFile));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ParseTreeToGoloIrVisitor visitor = new ParseTreeToGoloIrVisitor();
 

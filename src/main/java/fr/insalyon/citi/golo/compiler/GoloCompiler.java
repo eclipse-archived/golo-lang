@@ -18,6 +18,7 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloModule;
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import fr.insalyon.citi.golo.compiler.parser.GoloOffsetParser;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 
@@ -192,6 +193,6 @@ public class GoloCompiler {
    * @return the parser for <code>sourceReader</code>.
    */
   protected GoloParser createGoloParser(Reader sourceReader) {
-    return new GoloParser(sourceReader);
+    return new GoloOffsetParser(sourceReader);
   }
 }
