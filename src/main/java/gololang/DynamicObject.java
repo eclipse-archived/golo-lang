@@ -167,8 +167,28 @@ public final class DynamicObject {
     return false;
   }
 
+  /**
+   * Let the user define a fallback behavior
+   *
+   * @param value the fallback value
+   * @return the current object
+   */
+  public DynamicObject fallback(Object value) {
+    return define("fallback", value);
+  }
+
+  /**
+   * Verify a fallback property exists
+   *
+   * @return {@code true} if a fallback behavior is defined, {@code false} otherwise.
+   */
+  private boolean hasFallback(){
+    return properties.get("fallback") != null;
+  }
+
   private static final MethodHandle MAP_GET;
   private static final MethodHandle MAP_PUT;
+  private static final MethodHandle MAP_HAS;
   private static final MethodHandle IS_MH_1;
   private static final MethodHandle IS_MH_2;
 
@@ -178,6 +198,7 @@ public final class DynamicObject {
 
       MAP_GET = lookup.findSpecial(DynamicObject.class, "get", methodType(Object.class, Object.class), DynamicObject.class);
       MAP_PUT = lookup.findSpecial(DynamicObject.class, "put", methodType(Object.class, String.class, Object.class), DynamicObject.class);
+      MAP_HAS = lookup.findStatic(DynamicObject.class, "has", methodType(boolean.class, Object.class, Object.class));
       IS_MH_1 = lookup.findStatic(DynamicObject.class, "isMethodHandle_1", methodType(boolean.class, Object.class));
       IS_MH_2 = lookup.findStatic(DynamicObject.class, "isMethodHandle_2", methodType(boolean.class, Object.class));
 
@@ -208,6 +229,9 @@ public final class DynamicObject {
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
+    if (hasFallback()) {
+      return fallback(foldArguments(invoker, mapGet), property, type);
+    }
     return foldArguments(invoker, mapGet);
   }
 
@@ -229,7 +253,19 @@ public final class DynamicObject {
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     MethodHandle gwt = guardWithTest(IS_MH_1, invoker, identity);
+    if (hasFallback()) {
+      return fallback(foldArguments(gwt, mapGet), property, type);
+    }
     return foldArguments(gwt, mapGet);
+  }
+
+  private MethodHandle fallback(MethodHandle target, String property, MethodType type) {
+    MethodHandle fallbackHandle = (MethodHandle) properties.get("fallback");
+    fallbackHandle = insertArguments(fallbackHandle, 1, property);
+    fallbackHandle = fallbackHandle.asType(fallbackHandle.type().changeParameterType(0, Object.class));
+    fallbackHandle = fallbackHandle.asCollector(Object[].class, target.type().parameterCount() - 1);
+    MethodHandle has = insertArguments(MAP_HAS, 1, property);
+    return guardWithTest(has, target, fallbackHandle);
   }
 
   private static boolean isMethodHandle_1(Object obj) {
@@ -250,4 +286,13 @@ public final class DynamicObject {
     }
     return false;
   }
+
+  private static boolean has(Object obj, Object property) {
+    if(obj instanceof DynamicObject) {
+      DynamicObject receiver = (DynamicObject) obj;
+      return receiver.properties.containsKey(property);
+    }
+    return false;
+  }
+
 }

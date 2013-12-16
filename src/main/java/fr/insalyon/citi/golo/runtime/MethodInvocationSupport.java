@@ -75,6 +75,7 @@ public class MethodInvocationSupport {
       add("properties");
       add("invoker");
       add("hasMethod");
+      add("fallback");
     }
   };
 

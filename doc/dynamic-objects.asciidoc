@@ -24,7 +24,8 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 - `isFrozen()` checks whether a dynamic object is frozen or not, and
 - `properties()` gives the set of entries in the dynamic object, and
 - `hasMethod(name)` checks if a method is defined or not in the dynamic object, and
-- `invoker(name, type)` which is mostly used by the Golo runtime internals.
+- `invoker(name, type)` which is mostly used by the Golo runtime internals, and
+- `fallback(value)` defines a fallback behavior for property invocation.
 
 === Defining values ===
 
@@ -138,4 +139,28 @@ function dump = |obj| {
 
 Because dynamic object entries mix both values and method handles, do not forget that the predefined
 `isClosure(obj)` function can be useful to distinguish them.
+
+=== Defining a fallback behavior ===
+
+The `fallback(value)` method let the user define a method invoked whenever the initial method dispatch failed.
+Here is an example of how define a fallback.
+*Note: Calling a setter method for a non-existent property defines it, thus the fallback is not applicable for setters.*
+
+[source,text]
+-------------
+let dynob = DynamicObject():
+fallback(|this, method, args...| -> "Dispatch failed for method: " + method + ", with args:" + args: asList(): join(" "))
+
+println(dynob: casperGetter())
+#Setter-like invocation creates the property, thus the fallback can't be invoked.
+println(dynob: casperSetter("foo"))
+println(dynob: casperMethod("foo", "bar"))
+-------------
+
+[source,console]
+----------------
+Dispatch failed for method: casperGetter, with args:
+gololang.DynamicObject@56d5525
+Dispatch failed for method: casperMethod, with args:foo bar
+----------------
 
