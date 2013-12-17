@@ -53,14 +53,30 @@ Of course you can just call Maven directly if you like.
 
 The documentation is located in `doc/` and is built using [AsciiDoc](http://asciidoc.org).
 
-The current configuration depends on MacOSX + Homebrew specific paths. We know this is very bad,
-and we promise to solve this *at some point*. Or maybe we'll just switch to
-[AsciiDoctor](http://asciidoctor.org) *at some point*.
-
 The documentation can be built using the provided `Rakefile`. For instance one may build a HTML
 output using:
 
     rake html
+
+#### Building documentation on Ubuntu Linux
+
+You'll need to perform the following steps before building the golo-lang docs on Ubuntu:
+
+1.  Perform *sudo apt-get install asciidoc python-pygments fop* to get the required dependencies.
+2.  Uncomment a line in /etc/asciidoc/asciidoc.conf to allow use of pygments highligher:
+
+```
+#Uncomment to use the Pygments source highlighter instead of GNU highlighter.
+#pygments=
+```
+
+#### Building documentation on Fedora Linux
+
+You'll need to install the following packages before building the golo-lang docs on Fedora:
+
+*  asciidoc
+*  python-pygments
+*  fop
 
 ## License
 
