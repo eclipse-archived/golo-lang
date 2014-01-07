@@ -1,5 +1,6 @@
 package org.gololang.microbenchmarks.support;
 
+import clojure.lang.Var;
 import org.junit.Test;
 
 import java.lang.invoke.MethodHandle;
@@ -41,5 +42,12 @@ public class CodeLoaderTest {
 
     MethodHandle incr = loader.groovy_indy("Check", "incr", genericMethodType(1));
     assertEquals(42, (Object) incr.invokeExact((Object) 41));
+  }
+
+  @Test
+  public void test_clojure_loading() throws Throwable {
+    CodeLoader loader = new CodeLoader();
+    Var incrementer = loader.clojure("check", "check", "incrementer");
+    assertEquals(11L, incrementer.invoke(10L));
   }
 }

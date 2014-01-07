@@ -1,5 +1,6 @@
 package org.gololang.microbenchmarks.fibonacci;
 
+import clojure.lang.Var;
 import org.gololang.microbenchmarks.support.CodeLoader;
 import org.openjdk.jmh.annotations.*;
 
@@ -53,6 +54,16 @@ public class FibonacciMicroBenchmark {
     }
   }
 
+  @State(Scope.Thread)
+  static public class ClojureState {
+    Var fib;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      fib = new CodeLoader().clojure("fibonacci", "fibonacci", "fib");
+    }
+  }
+
   @GenerateMicroBenchmark
   public long baseline_java_30(State30 state) {
     return JavaRecursiveFibonacci.withPrimitives(state.n);
@@ -79,6 +90,13 @@ public class FibonacciMicroBenchmark {
   }
 
   @GenerateMicroBenchmark
+  public Object clojure_30(State30 state30, ClojureState clojureState) {
+    return clojureState.fib.invoke(state30.n);
+  }
+
+  /* ................................................................................................................ */
+
+  @GenerateMicroBenchmark
   public long baseline_java_40(State40 state) {
     return JavaRecursiveFibonacci.withPrimitives(state.n);
   }
@@ -101,5 +119,10 @@ public class FibonacciMicroBenchmark {
   @GenerateMicroBenchmark
   public Object groovy_indy_40(State40 state40, GroovyIndyState groovyState) throws Throwable {
     return groovyState.fib.invokeExact((Object) state40.n);
+  }
+
+  @GenerateMicroBenchmark
+  public Object clojure_40(State40 state40, ClojureState clojureState) {
+    return clojureState.fib.invoke(state40.n);
   }
 }

@@ -4,6 +4,7 @@ import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
 
+import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -47,6 +48,19 @@ public class CodeLoader {
     try {
       return LOOKUP.findStatic(klass, method, type);
     } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+  }
+
+  public clojure.lang.Var clojure(String file, String namespace, String ref) {
+    try {
+      // Damn you Clojure 1.5, somehow RT needs to be loaded in a way or the other
+      Class.forName("clojure.lang.RT");
+      String filename = "snippets/clojure/" + file + ".clj";
+      InputStreamReader reader = new InputStreamReader(CodeLoader.class.getResourceAsStream("/" + filename));
+      clojure.lang.Compiler.load(reader);
+      return clojure.lang.RT.var(namespace, ref);
+    } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
   }
