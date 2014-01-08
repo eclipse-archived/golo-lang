@@ -3,6 +3,9 @@ package org.gololang.microbenchmarks.support;
 import clojure.lang.Var;
 import org.junit.Test;
 
+import javax.script.Invocable;
+import javax.script.ScriptEngine;
+import javax.script.ScriptException;
 import java.lang.invoke.MethodHandle;
 
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -56,5 +59,14 @@ public class CodeLoaderTest {
     JRubyContainerAndReceiver check = loader.jruby("check");
     assertEquals((Object) 42, check.container().callMethod(check.receiver(), "truth", Integer.class));
     assertEquals((Object) 11, check.container().callMethod(check.receiver(), "incrementing", new Object[]{10}, Integer.class));
+  }
+
+  @Test
+  public void test_nashorn_loading() throws Throwable {
+    CodeLoader loader = new CodeLoader();
+    ScriptEngine check = loader.nashorn("check");
+    Invocable invocable = (Invocable) check;
+    assertEquals(42, invocable.invokeFunction("truth"));
+    assertEquals(11, invocable.invokeFunction("incr", 10));
   }
 }

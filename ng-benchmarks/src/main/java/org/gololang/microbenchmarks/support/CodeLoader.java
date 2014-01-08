@@ -5,6 +5,8 @@ import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.jruby.embed.ScriptingContainer;
 
+import javax.script.ScriptEngine;
+import javax.script.ScriptEngineManager;
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -69,5 +71,17 @@ public class CodeLoader {
     String filename = "snippets/jruby/" + file + ".rb";
     return new JRubyContainerAndReceiver(container,
         container.runScriptlet(CodeLoader.class.getResourceAsStream("/" + filename), filename));
+  }
+
+  public ScriptEngine nashorn(String file) {
+    try {
+      ScriptEngine engine = new ScriptEngineManager().getEngineByName("nashorn");
+      if (engine != null) {
+        engine.eval(new InputStreamReader(CodeLoader.class.getResourceAsStream("/snippets/js/" + file + ".js")));
+      }
+      return engine;
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
   }
 }

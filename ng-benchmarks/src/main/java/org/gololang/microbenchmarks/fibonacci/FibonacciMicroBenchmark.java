@@ -5,8 +5,8 @@ import org.gololang.microbenchmarks.support.CodeLoader;
 import org.gololang.microbenchmarks.support.JRubyContainerAndReceiver;
 import org.openjdk.jmh.annotations.*;
 
+import javax.script.Invocable;
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -75,6 +75,16 @@ public class FibonacciMicroBenchmark {
     }
   }
 
+  @State(Scope.Thread)
+  static public class NashornState {
+    Invocable invocable;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      invocable = (Invocable) new CodeLoader().nashorn("fibonacci");
+    }
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -113,6 +123,11 @@ public class FibonacciMicroBenchmark {
         .callMethod(jRubyState.containerAndReceiver.receiver(), "fib", state30.n, Long.class);
   }
 
+  @GenerateMicroBenchmark
+  public Object nashorn_30(State30 state30, NashornState nashornState) throws Throwable {
+    return nashornState.invocable.invokeFunction("fib", state30.n);
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -149,5 +164,10 @@ public class FibonacciMicroBenchmark {
   public Object jruby_40(State40 state40, JRubyState jRubyState) {
     return jRubyState.containerAndReceiver.container()
         .callMethod(jRubyState.containerAndReceiver.receiver(), "fib", state40.n, Long.class);
+  }
+
+  @GenerateMicroBenchmark
+  public Object nashorn_40(State40 state40, NashornState nashornState) throws Throwable {
+    return nashornState.invocable.invokeFunction("fib", state40.n);
   }
 }
