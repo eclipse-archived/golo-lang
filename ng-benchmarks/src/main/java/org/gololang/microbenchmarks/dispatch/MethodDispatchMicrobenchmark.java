@@ -1,5 +1,7 @@
 package org.gololang.microbenchmarks.dispatch;
 
+import clojure.core.IVecImpl;
+import clojure.lang.*;
 import org.gololang.microbenchmarks.support.CodeLoader;
 import org.gololang.microbenchmarks.support.JRubyContainerAndReceiver;
 import org.openjdk.jmh.annotations.*;
@@ -69,6 +71,23 @@ public class MethodDispatchMicrobenchmark {
     @Setup(Level.Trial)
     public void prepare() {
       dispatch = new CodeLoader().jruby("dispatch");
+    }
+  }
+
+  @State(Scope.Thread)
+  static public class ClojureState {
+
+    private Var dispatcher;
+    private PersistentVector vector;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      dispatcher = new CodeLoader().clojure("dispatch", "dispatch", "dispatch");
+    }
+
+    @TearDown
+    public void cleanup() {
+      vector = null;
     }
   }
 
@@ -170,6 +189,14 @@ public class MethodDispatchMicrobenchmark {
             Object.class);
   }
 
+  @GenerateMicroBenchmark
+  public Object monomorphic_clojure(ClojureState clojureState, MonomorphicState monomorphicState) {
+    if (clojureState.vector == null) {
+      clojureState.vector = PersistentVector.create(monomorphicState.data);
+    }
+    return clojureState.dispatcher.invoke(clojureState.vector);
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -204,6 +231,14 @@ public class MethodDispatchMicrobenchmark {
             Object.class);
   }
 
+  @GenerateMicroBenchmark
+  public Object trimorphic_clojure(ClojureState clojureState, TriMorphicState triMorphicState) {
+    if (clojureState.vector == null) {
+      clojureState.vector = PersistentVector.create(triMorphicState.data);
+    }
+    return clojureState.dispatcher.invoke(clojureState.vector);
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -236,5 +271,13 @@ public class MethodDispatchMicrobenchmark {
             "dispatch",
             (Object) polyMorphicState.data,
             Object.class);
+  }
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_clojure(ClojureState clojureState, PolyMorphicState polyMorphicState) {
+    if (clojureState.vector == null) {
+      clojureState.vector = PersistentVector.create(polyMorphicState.data);
+    }
+    return clojureState.dispatcher.invoke(clojureState.vector);
   }
 }
