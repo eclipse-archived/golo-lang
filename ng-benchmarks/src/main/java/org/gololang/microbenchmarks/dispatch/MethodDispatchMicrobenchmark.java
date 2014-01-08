@@ -1,12 +1,14 @@
 package org.gololang.microbenchmarks.dispatch;
 
 import org.gololang.microbenchmarks.support.CodeLoader;
+import org.gololang.microbenchmarks.support.JRubyContainerAndReceiver;
 import org.openjdk.jmh.annotations.*;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Random;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.invoke.MethodType.methodType;
@@ -60,6 +62,17 @@ public class MethodDispatchMicrobenchmark {
   }
 
   @State(Scope.Thread)
+  static public class JRubyState {
+
+    private JRubyContainerAndReceiver dispatch;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      dispatch = new CodeLoader().jruby("dispatch");
+    }
+  }
+
+  @State(Scope.Thread)
   static public class MonomorphicState {
     Object[] data;
 
@@ -98,6 +111,31 @@ public class MethodDispatchMicrobenchmark {
     }
   }
 
+  @State(Scope.Thread)
+  static public class PolyMorphicState {
+    Object[] data;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      Object[] objects = new Object[]{
+          1,
+          "Hey!",
+          new Object(),
+          new RuntimeException("Plop"),
+          new ArrayList<Object>(),
+          new HashMap<Object, Object>(),
+          123.666D,
+          new TreeSet<Object>(),
+          new IllegalStateException(),
+          true
+      };
+      data = new Object[N];
+      for (int i = 0; i < N; i++) {
+        data[i] = objects[i % objects.length];
+      }
+    }
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -120,6 +158,18 @@ public class MethodDispatchMicrobenchmark {
     return groovyState.dispatcher.invokeExact(monomorphicState.data);
   }
 
+  @GenerateMicroBenchmark
+  public Object monomorphic_jruby(JRubyState jRubyState, MonomorphicState monomorphicState) {
+    return jRubyState
+        .dispatch
+        .container()
+        .callMethod(
+            jRubyState.dispatch.receiver(),
+            "dispatch",
+            (Object) monomorphicState.data,
+            Object.class);
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -130,5 +180,61 @@ public class MethodDispatchMicrobenchmark {
   @GenerateMicroBenchmark
   public Object trimorphic_golo(GoloState goloState, TriMorphicState triMorphicState) throws Throwable {
     return goloState.dispatcher.invokeExact((Object) triMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object trimorphic_groovy(GroovyState groovyState, TriMorphicState triMorphicState) throws Throwable {
+    return groovyState.dispatcher.invokeExact(triMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object trimorphic_groovy_indy(GroovyIndyState groovyState, TriMorphicState triMorphicState) throws Throwable {
+    return groovyState.dispatcher.invokeExact(triMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object trimorphic_jruby(JRubyState jRubyState, TriMorphicState triMorphicState) {
+    return jRubyState
+        .dispatch
+        .container()
+        .callMethod(
+            jRubyState.dispatch.receiver(),
+            "dispatch",
+            (Object) triMorphicState.data,
+            Object.class);
+  }
+
+  /* ................................................................................................................ */
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_baseline_java(JavaState javaState, PolyMorphicState polyMorphicState) {
+    return javaState.dispatcher.dispatch(polyMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_golo(GoloState goloState, PolyMorphicState polyMorphicState) throws Throwable {
+    return goloState.dispatcher.invokeExact((Object) polyMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_groovy(GroovyState groovyState, PolyMorphicState polyMorphicState) throws Throwable {
+    return groovyState.dispatcher.invokeExact(polyMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_groovy_indy(GroovyIndyState groovyState, PolyMorphicState polyMorphicState) throws Throwable {
+    return groovyState.dispatcher.invokeExact(polyMorphicState.data);
+  }
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_jruby(JRubyState jRubyState, PolyMorphicState polyMorphicState) {
+    return jRubyState
+        .dispatch
+        .container()
+        .callMethod(
+            jRubyState.dispatch.receiver(),
+            "dispatch",
+            (Object) polyMorphicState.data,
+            Object.class);
   }
 }
