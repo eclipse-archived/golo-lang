@@ -4,7 +4,6 @@ import clojure.lang.Var;
 import org.junit.Test;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodType;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 import static org.junit.Assert.assertEquals;
@@ -49,5 +48,13 @@ public class CodeLoaderTest {
     CodeLoader loader = new CodeLoader();
     Var incrementer = loader.clojure("check", "check", "incrementer");
     assertEquals(11L, incrementer.invoke(10L));
+  }
+
+  @Test
+  public void test_jruby_loading() {
+    CodeLoader loader = new CodeLoader();
+    JRubyContainerAndReceiver check = loader.jruby("check");
+    assertEquals((Object) 42, check.container().callMethod(check.receiver(), "truth", Integer.class));
+    assertEquals((Object) 11, check.container().callMethod(check.receiver(), "incrementing", new Object[]{10}, Integer.class));
   }
 }

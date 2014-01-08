@@ -2,6 +2,7 @@ package org.gololang.microbenchmarks.fibonacci;
 
 import clojure.lang.Var;
 import org.gololang.microbenchmarks.support.CodeLoader;
+import org.gololang.microbenchmarks.support.JRubyContainerAndReceiver;
 import org.openjdk.jmh.annotations.*;
 
 import java.lang.invoke.MethodHandle;
@@ -64,6 +65,18 @@ public class FibonacciMicroBenchmark {
     }
   }
 
+  @State(Scope.Thread)
+  static public class JRubyState {
+    JRubyContainerAndReceiver containerAndReceiver;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      containerAndReceiver = new CodeLoader().jruby("fibonacci");
+    }
+  }
+
+  /* ................................................................................................................ */
+
   @GenerateMicroBenchmark
   public long baseline_java_30(State30 state) {
     return JavaRecursiveFibonacci.withPrimitives(state.n);
@@ -92,6 +105,12 @@ public class FibonacciMicroBenchmark {
   @GenerateMicroBenchmark
   public Object clojure_30(State30 state30, ClojureState clojureState) {
     return clojureState.fib.invoke(state30.n);
+  }
+
+  @GenerateMicroBenchmark
+  public Object jruby_30(State30 state30, JRubyState jRubyState) {
+    return jRubyState.containerAndReceiver.container()
+        .callMethod(jRubyState.containerAndReceiver.receiver(), "fib", state30.n, Long.class);
   }
 
   /* ................................................................................................................ */
@@ -124,5 +143,11 @@ public class FibonacciMicroBenchmark {
   @GenerateMicroBenchmark
   public Object clojure_40(State40 state40, ClojureState clojureState) {
     return clojureState.fib.invoke(state40.n);
+  }
+
+  @GenerateMicroBenchmark
+  public Object jruby_40(State40 state40, JRubyState jRubyState) {
+    return jRubyState.containerAndReceiver.container()
+        .callMethod(jRubyState.containerAndReceiver.receiver(), "fib", state40.n, Long.class);
   }
 }

@@ -3,6 +3,7 @@ package org.gololang.microbenchmarks.support;
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 import groovy.lang.GroovyClassLoader;
 import org.codehaus.groovy.control.CompilerConfiguration;
+import org.jruby.embed.ScriptingContainer;
 
 import java.io.InputStreamReader;
 import java.lang.invoke.MethodHandle;
@@ -10,8 +11,6 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 public class CodeLoader {
-
-  public static final Class<?>[] NO_ARGS = {};
 
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
 
@@ -63,5 +62,12 @@ public class CodeLoader {
     } catch (ClassNotFoundException e) {
       throw new RuntimeException(e);
     }
+  }
+
+  public JRubyContainerAndReceiver jruby(String file) {
+    ScriptingContainer container = new ScriptingContainer();
+    String filename = "snippets/jruby/" + file + ".rb";
+    return new JRubyContainerAndReceiver(container,
+        container.runScriptlet(CodeLoader.class.getResourceAsStream("/" + filename), filename));
   }
 }
