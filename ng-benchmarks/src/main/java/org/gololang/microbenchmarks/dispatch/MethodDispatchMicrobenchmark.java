@@ -1,11 +1,13 @@
 package org.gololang.microbenchmarks.dispatch;
 
-import clojure.core.IVecImpl;
-import clojure.lang.*;
+import clojure.lang.PersistentVector;
+import clojure.lang.Var;
 import org.gololang.microbenchmarks.support.CodeLoader;
 import org.gololang.microbenchmarks.support.JRubyContainerAndReceiver;
+import org.jruby.runtime.builtin.IRubyObject;
 import org.openjdk.jmh.annotations.*;
 
+import javax.script.Invocable;
 import java.lang.invoke.MethodHandle;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -14,15 +16,21 @@ import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 
 import static java.lang.invoke.MethodType.methodType;
+import static org.jruby.javasupport.JavaUtil.convertJavaArrayToRuby;
 
 @BenchmarkMode(Mode.AverageTime)
 @OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class MethodDispatchMicrobenchmark {
 
-  private static final int N = 20;
+  /* ................................................................................................................ */
+
+  private static final int N = 1024;
+
+  /* ................................................................................................................ */
 
   @State(Scope.Thread)
   static public class JavaState {
+
     JavaDispatch dispatcher;
 
     @Setup(Level.Trial)
@@ -33,6 +41,7 @@ public class MethodDispatchMicrobenchmark {
 
   @State(Scope.Thread)
   static public class GoloState {
+
     MethodHandle dispatcher;
 
     @Setup(Level.Trial)
@@ -44,7 +53,7 @@ public class MethodDispatchMicrobenchmark {
   @State(Scope.Thread)
   static public class GroovyState {
 
-    private MethodHandle dispatcher;
+    MethodHandle dispatcher;
 
     @Setup(Level.Trial)
     public void prepare() {
@@ -55,7 +64,7 @@ public class MethodDispatchMicrobenchmark {
   @State(Scope.Thread)
   static public class GroovyIndyState {
 
-    private MethodHandle dispatcher;
+    MethodHandle dispatcher;
 
     @Setup(Level.Trial)
     public void prepare() {
@@ -66,19 +75,25 @@ public class MethodDispatchMicrobenchmark {
   @State(Scope.Thread)
   static public class JRubyState {
 
-    private JRubyContainerAndReceiver dispatch;
+    JRubyContainerAndReceiver dispatch;
+    IRubyObject[] array;
 
     @Setup(Level.Trial)
     public void prepare() {
       dispatch = new CodeLoader().jruby("dispatch");
+    }
+
+    @TearDown
+    public void cleanup() {
+      array = null;
     }
   }
 
   @State(Scope.Thread)
   static public class ClojureState {
 
-    private Var dispatcher;
-    private PersistentVector vector;
+    Var dispatcher;
+    PersistentVector vector;
 
     @Setup(Level.Trial)
     public void prepare() {
@@ -92,7 +107,21 @@ public class MethodDispatchMicrobenchmark {
   }
 
   @State(Scope.Thread)
+  static public class NashornState {
+
+    Invocable script;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      script = (Invocable) new CodeLoader().nashorn("dispatch");
+    }
+  }
+
+  /* ................................................................................................................ */
+
+  @State(Scope.Thread)
   static public class MonomorphicState {
+
     Object[] data;
 
     @Setup(Level.Trial)
@@ -107,6 +136,7 @@ public class MethodDispatchMicrobenchmark {
 
   @State(Scope.Thread)
   static public class TriMorphicState {
+
     Object[] data;
 
     @Setup(Level.Trial)
@@ -132,6 +162,7 @@ public class MethodDispatchMicrobenchmark {
 
   @State(Scope.Thread)
   static public class PolyMorphicState {
+
     Object[] data;
 
     @Setup(Level.Trial)
@@ -141,10 +172,10 @@ public class MethodDispatchMicrobenchmark {
           "Hey!",
           new Object(),
           new RuntimeException("Plop"),
-          new ArrayList<Object>(),
-          new HashMap<Object, Object>(),
+          new ArrayList<>(),
+          new HashMap<>(),
           123.666D,
-          new TreeSet<Object>(),
+          new TreeSet<>(),
           new IllegalStateException(),
           true
       };
@@ -179,13 +210,16 @@ public class MethodDispatchMicrobenchmark {
 
   @GenerateMicroBenchmark
   public Object monomorphic_jruby(JRubyState jRubyState, MonomorphicState monomorphicState) {
+    if (jRubyState.array == null) {
+      jRubyState.array = convertJavaArrayToRuby(jRubyState.dispatch.container().getProvider().getRuntime(), monomorphicState.data);
+    }
     return jRubyState
         .dispatch
         .container()
         .callMethod(
             jRubyState.dispatch.receiver(),
             "dispatch",
-            (Object) monomorphicState.data,
+            (Object) jRubyState.array,
             Object.class);
   }
 
@@ -195,6 +229,11 @@ public class MethodDispatchMicrobenchmark {
       clojureState.vector = PersistentVector.create(monomorphicState.data);
     }
     return clojureState.dispatcher.invoke(clojureState.vector);
+  }
+
+  @GenerateMicroBenchmark
+  public Object monomorphic_nashorn(NashornState nashornState, MonomorphicState monomorphicState) throws Throwable {
+    return nashornState.script.invokeFunction("dispatch", (Object) monomorphicState.data);
   }
 
   /* ................................................................................................................ */
@@ -221,13 +260,16 @@ public class MethodDispatchMicrobenchmark {
 
   @GenerateMicroBenchmark
   public Object trimorphic_jruby(JRubyState jRubyState, TriMorphicState triMorphicState) {
+    if (jRubyState.array == null) {
+      jRubyState.array = convertJavaArrayToRuby(jRubyState.dispatch.container().getProvider().getRuntime(), triMorphicState.data);
+    }
     return jRubyState
         .dispatch
         .container()
         .callMethod(
             jRubyState.dispatch.receiver(),
             "dispatch",
-            (Object) triMorphicState.data,
+            (Object) jRubyState.array,
             Object.class);
   }
 
@@ -237,6 +279,11 @@ public class MethodDispatchMicrobenchmark {
       clojureState.vector = PersistentVector.create(triMorphicState.data);
     }
     return clojureState.dispatcher.invoke(clojureState.vector);
+  }
+
+  @GenerateMicroBenchmark
+  public Object trimorphic_nashorn(NashornState nashornState, TriMorphicState triMorphicState) throws Throwable {
+    return nashornState.script.invokeFunction("dispatch", (Object) triMorphicState.data);
   }
 
   /* ................................................................................................................ */
@@ -263,13 +310,16 @@ public class MethodDispatchMicrobenchmark {
 
   @GenerateMicroBenchmark
   public Object polymorphic_jruby(JRubyState jRubyState, PolyMorphicState polyMorphicState) {
+    if (jRubyState.array == null) {
+      jRubyState.array = convertJavaArrayToRuby(jRubyState.dispatch.container().getProvider().getRuntime(), polyMorphicState.data);
+    }
     return jRubyState
         .dispatch
         .container()
         .callMethod(
             jRubyState.dispatch.receiver(),
             "dispatch",
-            (Object) polyMorphicState.data,
+            (Object) jRubyState.array,
             Object.class);
   }
 
@@ -280,4 +330,11 @@ public class MethodDispatchMicrobenchmark {
     }
     return clojureState.dispatcher.invoke(clojureState.vector);
   }
+
+  @GenerateMicroBenchmark
+  public Object polymorphic_nashorn(NashornState nashornState, PolyMorphicState polyMorphicState) throws Throwable {
+    return nashornState.script.invokeFunction("dispatch", (Object) polyMorphicState.data);
+  }
+
+  /* ................................................................................................................ */
 }
