@@ -23,8 +23,10 @@ public class ClosureDispatchMicroBenchmark {
     Object argument;
 
     FunkyFunction funkyFunction;
-    Method funkyMethod;
-    MethodHandle funkyMethodHandle;
+    Method funkyStaticMethod;
+    MethodHandle funkyStaticMethodHandle;
+    Method funkyVirtualMethod;
+    MethodHandle funkyVirtualMethodHandle;
 
     MethodHandle goloMethodHandle;
     FunkyFunction goloFunkyFunction;
@@ -38,6 +40,10 @@ public class ClosureDispatchMicroBenchmark {
       };
     }
 
+    public Object virtualStringify(Object object) {
+      return object.toString();
+    }
+
     public static Object stringify(Object object) {
       return object.toString();
     }
@@ -47,8 +53,10 @@ public class ClosureDispatchMicroBenchmark {
       try {
         argument = new Random().nextInt();
         funkyFunction = anonymousImplementation();
-        funkyMethod = FunkyState.class.getMethod("stringify", Object.class);
-        funkyMethodHandle = LOOKUP.findStatic(FunkyState.class, "stringify", genericMethodType(1));
+        funkyStaticMethod = FunkyState.class.getMethod("stringify", Object.class);
+        funkyStaticMethodHandle = LOOKUP.findStatic(FunkyState.class, "stringify", genericMethodType(1));
+        funkyVirtualMethod = FunkyState.class.getMethod("virtualStringify", Object.class);
+        funkyVirtualMethodHandle = LOOKUP.findVirtual(FunkyState.class, "virtualStringify", genericMethodType(1));
         goloMethodHandle = (MethodHandle) new CodeLoader().golo("dispatch", "funky_function_handle", 0).invoke();
         goloFunkyFunction = (FunkyFunction) new CodeLoader().golo("dispatch", "funky_function", 0).invoke();
       } catch (Throwable t) {
@@ -63,18 +71,33 @@ public class ClosureDispatchMicroBenchmark {
   }
 
   @GenerateMicroBenchmark
+  public Object baseline_java_virtual(FunkyState state) {
+    return state.virtualStringify(state.argument);
+  }
+
+  @GenerateMicroBenchmark
   public Object baseline_java_static(FunkyState state) {
     return FunkyState.stringify(state.argument);
   }
 
   @GenerateMicroBenchmark
   public Object baseline_java_static_reflection(FunkyState state) throws Throwable {
-    return state.funkyMethod.invoke(null, state.argument);
+    return state.funkyStaticMethod.invoke(null, state.argument);
   }
 
   @GenerateMicroBenchmark
   public Object baseline_java_static_methodhandle(FunkyState state) throws Throwable {
-    return state.funkyMethodHandle.invokeExact(state.argument);
+    return state.funkyStaticMethodHandle.invokeExact(state.argument);
+  }
+
+  @GenerateMicroBenchmark
+  public Object baseline_java_virtual_reflection(FunkyState state) throws Throwable {
+    return state.funkyVirtualMethod.invoke(state, state.argument);
+  }
+
+  @GenerateMicroBenchmark
+  public Object baseline_java_virtual_methodhandle(FunkyState state) throws Throwable {
+    return state.funkyVirtualMethodHandle.invokeExact(state, state.argument);
   }
 
   @GenerateMicroBenchmark
