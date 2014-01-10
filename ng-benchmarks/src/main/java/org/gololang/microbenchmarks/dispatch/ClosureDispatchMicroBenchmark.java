@@ -22,7 +22,9 @@ public class ClosureDispatchMicroBenchmark {
 
     Object argument;
 
+    FunkyFunction anonymousFunkyFunction;
     FunkyFunction funkyFunction;
+
     Method funkyStaticMethod;
     MethodHandle funkyStaticMethodHandle;
     Method funkyVirtualMethod;
@@ -31,13 +33,21 @@ public class ClosureDispatchMicroBenchmark {
     MethodHandle goloMethodHandle;
     FunkyFunction goloFunkyFunction;
 
-    FunkyFunction anonymousImplementation() {
+    public FunkyFunction anonymousImplementation() {
       return new FunkyFunction() {
         @Override
         public Object apply(Object object) {
           return object.toString();
         }
       };
+    }
+
+    public static class ToStringFunkyFunction implements FunkyFunction {
+
+      @Override
+      public Object apply(Object object) {
+        return object.toString();
+      }
     }
 
     public Object virtualStringify(Object object) {
@@ -52,7 +62,8 @@ public class ClosureDispatchMicroBenchmark {
     public void prepare() {
       try {
         argument = new Random().nextInt();
-        funkyFunction = anonymousImplementation();
+        anonymousFunkyFunction = anonymousImplementation();
+        funkyFunction = new ToStringFunkyFunction();
         funkyStaticMethod = FunkyState.class.getMethod("stringify", Object.class);
         funkyStaticMethodHandle = LOOKUP.findStatic(FunkyState.class, "stringify", genericMethodType(1));
         funkyVirtualMethod = FunkyState.class.getMethod("virtualStringify", Object.class);
@@ -68,6 +79,11 @@ public class ClosureDispatchMicroBenchmark {
   @GenerateMicroBenchmark
   public Object baseline_java_interface(FunkyState state) {
     return state.funkyFunction.apply(state.argument);
+  }
+
+  @GenerateMicroBenchmark
+  public Object baseline_java_anonymous_interface(FunkyState state) {
+    return state.anonymousFunkyFunction.apply(state.argument);
   }
 
   @GenerateMicroBenchmark
