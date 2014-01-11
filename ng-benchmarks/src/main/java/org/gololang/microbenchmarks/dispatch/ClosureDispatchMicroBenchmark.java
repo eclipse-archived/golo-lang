@@ -11,8 +11,12 @@ import java.util.concurrent.TimeUnit;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 
-@BenchmarkMode(Mode.Throughput)
-@OutputTimeUnit(TimeUnit.MILLISECONDS)
+/*
+ * To be erased and rewritten differently. Cannot get meaningful data out of it...
+ */
+
+@BenchmarkMode(Mode.AverageTime)
+@OutputTimeUnit(TimeUnit.NANOSECONDS)
 public class ClosureDispatchMicroBenchmark {
 
   private static final MethodHandles.Lookup LOOKUP = MethodHandles.lookup();
