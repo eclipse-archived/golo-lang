@@ -168,7 +168,7 @@ public final class DynamicObject {
   }
 
   /**
-   * Let the user define a fallback behavior
+   * Let the user define a fallback behavior.
    *
    * @param value the fallback value
    * @return the current object
@@ -178,12 +178,12 @@ public final class DynamicObject {
   }
 
   /**
-   * Verify a fallback property exists
+   * Verify a fallback property exists.
    *
    * @return {@code true} if a fallback behavior is defined, {@code false} otherwise.
    */
   private boolean hasFallback(){
-    return properties.get("fallback") != null;
+    return properties.containsKey("fallback");
   }
 
   private static final MethodHandle MAP_GET;
