@@ -106,16 +106,16 @@ public class MethodDispatchMicroBenchmark {
     }
   }
 
-  @State(Scope.Thread)
-  static public class NashornState {
+    @State(Scope.Thread)
+    static public class NashornState {
 
-    Invocable script;
+      Invocable script;
 
-    @Setup(Level.Trial)
-    public void prepare() {
-      script = (Invocable) new CodeLoader().nashorn("dispatch");
+      @Setup(Level.Trial)
+      public void prepare() {
+        script = (Invocable) new CodeLoader().nashorn("dispatch");
+      }
     }
-  }
 
   /* ................................................................................................................ */
 
