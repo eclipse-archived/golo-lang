@@ -50,6 +50,16 @@ public class DynamicObjectTest {
     return acc;
   }
 
+  static Object fallbackHandle(Object receiver, Object property, Object... args) {
+    StringBuilder buffer = new StringBuilder();
+    buffer.append(property).append(" ");
+    buffer.append(args[0]);
+    for(int i = 1; i < args.length; i++) {
+      buffer.append(" ").append(args[i]);
+    }
+    return buffer.toString();
+  }
+
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void invoker_with_no_args() throws Throwable {
     new DynamicObject().invoker("any", genericMethodType(0));
@@ -160,4 +170,26 @@ public class DynamicObjectTest {
     invoker = object.invoker("foo", genericMethodType(3));
     assertThat(invoker.invoke(object, 1, 2), is((Object) 3));
   }
+
+  @Test
+  public void invoker_call_fallback() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle fallbackHandle = lookup().findStatic(DynamicObjectTest.class, "fallbackHandle", genericMethodType(2, true));
+    object.fallback(fallbackHandle);
+    MethodHandle invoker = object.invoker("casper", genericMethodType(3));
+    Object result = invoker.invoke(object, "foo", "bar");
+    assertThat(result, notNullValue());
+    assertThat(result, is((Object) "casper foo bar"));
+  }
+
+  @Test
+  public void invoker_call_fallback_on_setter() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    MethodHandle fallbackHandle = lookup().findStatic(DynamicObjectTest.class, "fallbackHandle", genericMethodType(2, true));
+    object.fallback(fallbackHandle);
+    MethodHandle invoker = object.invoker("foo", genericMethodType(2));
+    invoker.invoke(object, "bar");
+    assertThat(object.get("foo"), is((Object) "bar"));
+  }
+
 }
