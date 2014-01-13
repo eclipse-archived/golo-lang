@@ -21,6 +21,8 @@ import static org.jruby.javasupport.JavaUtil.convertJavaArrayToRuby;
 @OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class FilterMapReduceMicroBenchmark {
 
+  /* ................................................................................................................ */
+
   @State(Scope.Thread)
   static public class DataState {
 
@@ -151,6 +153,8 @@ public class FilterMapReduceMicroBenchmark {
     }
   }
 
+  /* ................................................................................................................ */
+
   @GenerateMicroBenchmark
   public Object baseline_java_copying(JavaState javaState, DataState dataState) {
     return
@@ -207,4 +211,6 @@ public class FilterMapReduceMicroBenchmark {
     }
     return nashornState.script.invokeFunction("run", (Object) nashornState.array);
   }
+
+  /* ................................................................................................................ */
 }
