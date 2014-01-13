@@ -19,7 +19,7 @@ import static java.lang.invoke.MethodType.methodType;
 import static org.jruby.javasupport.JavaUtil.convertJavaArrayToRuby;
 
 @BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.NANOSECONDS)
+@OutputTimeUnit(TimeUnit.MICROSECONDS)
 public class MethodDispatchMicroBenchmark {
 
   /* ................................................................................................................ */
