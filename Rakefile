@@ -118,7 +118,7 @@ namespace :special do
     Dir.chdir("golo-maven-plugin") do
       sh CMD
     end
-    Dir.chdir("benchmarks") do
+    Dir.chdir("jmh-benchmarks") do
       sh CMD
     end
   end
@@ -130,7 +130,7 @@ namespace :special do
     Dir.chdir("golo-maven-plugin") do
       sh CMD
     end
-    Dir.chdir("benchmarks") do
+    Dir.chdir("jmh-benchmarks") do
       sh CMD
     end
   end
