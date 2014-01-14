@@ -15,6 +15,8 @@ import static java.lang.invoke.MethodType.methodType;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class GoloDispatchMicroBenchmark {
 
+  /* ................................................................................................................ */
+
   public static class Plop {
 
     private static final Random random = new Random();
@@ -24,9 +26,13 @@ public class GoloDispatchMicroBenchmark {
     }
   }
 
+  /* ................................................................................................................ */
+
   public static Object dispatchPlop(Plop plop) {
     return plop.plop();
   }
+
+  /* ................................................................................................................ */
 
   @State(Scope.Thread)
   static public class JavaState {
@@ -95,6 +101,8 @@ public class GoloDispatchMicroBenchmark {
     }
   }
 
+  /* ................................................................................................................ */
+
   @GenerateMicroBenchmark
   public Object baseline_java_virtual_call(JavaState javaState) throws Throwable {
     return javaState.plopDispatcherHandle.invokeExact(javaState.plop);
@@ -119,4 +127,6 @@ public class GoloDispatchMicroBenchmark {
   public Object golo_dynamic_object_random_in_property(GoloDynamicObjectState state) throws Throwable {
     return state.target.invokeExact(state.statefulPlop);
   }
+
+  /* ................................................................................................................ */
 }
