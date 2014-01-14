@@ -101,6 +101,44 @@ public class GoloDispatchMicroBenchmark {
     }
   }
 
+  @State(Scope.Thread)
+  static public class GroovyState {
+
+    MethodHandle target;
+    Object plop;
+    Object concretePlop;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      try {
+        plop = new CodeLoader().groovy("Expando", "provide", genericMethodType(0)).invoke();
+        concretePlop = new CodeLoader().groovy("Expando", "provide_concrete_class", genericMethodType(0)).invoke();
+        target = new CodeLoader().groovy("Expando", "dispatch", genericMethodType(1));
+      } catch (Throwable throwable) {
+        throw new AssertionError(throwable);
+      }
+    }
+  }
+
+  @State(Scope.Thread)
+  static public class GroovyIndyState {
+
+    MethodHandle target;
+    Object plop;
+    Object concretePlop;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      try {
+        plop = new CodeLoader().groovy_indy("Expando", "provide", genericMethodType(0)).invoke();
+        concretePlop = new CodeLoader().groovy_indy("Expando", "provide_concrete_class", genericMethodType(0)).invoke();
+        target = new CodeLoader().groovy_indy("Expando", "dispatch", genericMethodType(1));
+      } catch (Throwable throwable) {
+        throw new AssertionError(throwable);
+      }
+    }
+  }
+
   /* ................................................................................................................ */
 
   @GenerateMicroBenchmark
@@ -126,6 +164,26 @@ public class GoloDispatchMicroBenchmark {
   @GenerateMicroBenchmark
   public Object golo_dynamic_object_random_in_property(GoloDynamicObjectState state) throws Throwable {
     return state.target.invokeExact(state.statefulPlop);
+  }
+
+  @GenerateMicroBenchmark
+  public Object baseline_groovy_concrete_class(GroovyState groovyState) throws Throwable {
+    return groovyState.target.invokeExact(groovyState.concretePlop);
+  }
+
+  @GenerateMicroBenchmark
+  public Object groovy_expando(GroovyState groovyState) throws Throwable {
+    return groovyState.target.invokeExact(groovyState.plop);
+  }
+
+  @GenerateMicroBenchmark
+  public Object baseline_groovy_indy_concrete_class(GroovyIndyState groovyState) throws Throwable {
+    return groovyState.target.invokeExact(groovyState.concretePlop);
+  }
+
+  @GenerateMicroBenchmark
+  public Object groovy_indy_expando(GroovyIndyState groovyState) throws Throwable {
+    return groovyState.target.invokeExact(groovyState.plop);
   }
 
   /* ................................................................................................................ */
