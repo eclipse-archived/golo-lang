@@ -1,76 +1,127 @@
+<?xml version="1.0" encoding="UTF-8"?>
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
   <modelVersion>4.0.0</modelVersion>
 
   <groupId>org.golo-lang</groupId>
   <artifactId>ng-benchmarks</artifactId>
   <version>0-preview11-SNAPSHOT</version>
+
   <packaging>jar</packaging>
 
-  <name>Auto-generated JMH benchmark</name>
+  <name>Golo micro-benchmarks suite</name>
+  <url>http://golo-lang.org/</url>
+
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+
+  <scm>
+    <connection>scm:git:git@github.com:golo-lang/golo-lang.git</connection>
+    <url>scm:git:git@github.com:golo-lang/golo-lang.git</url>
+    <developerConnection>scm:git:git@github.com:golo-lang/golo-lang.git</developerConnection>
+  </scm>
+
+  <developers>
+    <developer>
+      <id>jponge</id>
+      <name>Julien Ponge</name>
+      <email>julien.ponge@insa-lyon.fr</email>
+      <url>http://julien.ponge.org/</url>
+      <organization>INSA-Lyon</organization>
+    </developer>
+  </developers>
+
+  <organization>
+    <name>Institut National des Sciences Appliquées de Lyon (INSA-Lyon)</name>
+    <url>http://www.insa-lyon.fr/</url>
+  </organization>
+
+  <prerequisites>
+    <maven>3.0</maven>
+  </prerequisites>
+
+  <properties>
+
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+
+    <jmh-core.version>1.0-SNAPSHOT</jmh-core.version>
+    <groovy-all.version>2.2.0</groovy-all.version>
+    <clojure.version>1.5.1</clojure.version>
+    <jruby-complete.version>1.7.9</jruby-complete.version>
+    <junit.version>4.11</junit.version>
+
+    <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
+    <maven-shade-plugin.version>2.2</maven-shade-plugin.version>
+    <maven-compiler-plugin.compilerVersion>1.7</maven-compiler-plugin.compilerVersion>
+
+  </properties>
 
   <dependencies>
 
     <dependency>
       <groupId>org.openjdk.jmh</groupId>
       <artifactId>jmh-core</artifactId>
-      <version>1.0-SNAPSHOT</version>
+      <version>${jmh-core.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.golo-lang</groupId>
       <artifactId>golo</artifactId>
-      <version>0-preview11-SNAPSHOT</version>
+      <version>${project.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.codehaus.groovy</groupId>
       <artifactId>groovy-all</artifactId>
-      <version>2.2.0</version>
+      <version>${groovy-all.version}</version>
       <classifier>indy</classifier>
     </dependency>
 
     <dependency>
       <groupId>org.clojure</groupId>
       <artifactId>clojure</artifactId>
-      <version>1.5.1</version>
+      <version>${clojure.version}</version>
     </dependency>
 
     <dependency>
       <groupId>org.jruby</groupId>
       <artifactId>jruby-complete</artifactId>
-      <version>1.7.9</version>
+      <version>${jruby-complete.version}</version>
     </dependency>
 
     <dependency>
       <groupId>junit</groupId>
       <artifactId>junit</artifactId>
-      <version>4.11</version>
+      <version>${junit.version}</version>
       <scope>test</scope>
     </dependency>
 
   </dependencies>
 
-  <properties>
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-  </properties>
-
   <build>
     <plugins>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-compiler-plugin</artifactId>
-        <version>3.1</version>
+        <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <compilerVersion>1.7</compilerVersion>
+          <compilerVersion>${maven-compiler-plugin.compilerVersion}</compilerVersion>
           <source>1.7</source>
           <target>1.7</target>
         </configuration>
       </plugin>
+
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-shade-plugin</artifactId>
-        <version>2.2</version>
+        <version>${maven-shade-plugin.version}</version>
         <executions>
           <execution>
             <phase>package</phase>
