@@ -5,6 +5,7 @@ import org.openjdk.jmh.annotations.*;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
@@ -34,6 +35,17 @@ public class GoloDispatchMicroBenchmark {
 
   /* ................................................................................................................ */
 
+  public static Object dispatchHashMap(HashMap<String, Object> map, String handleKey, String argKey) throws Throwable {
+    MethodHandle handle = (MethodHandle) map.get(handleKey);
+    return handle.invokeExact((Object) map.get(argKey));
+  }
+
+  public static Object callNextInt(Object obj) {
+    return ((Random) obj).nextInt();
+  }
+
+  /* ................................................................................................................ */
+
   @State(Scope.Thread)
   static public class JavaState {
 
@@ -45,6 +57,27 @@ public class GoloDispatchMicroBenchmark {
       plop = new Plop();
       try {
         plopDispatcherHandle = MethodHandles.lookup().findStatic(GoloDispatchMicroBenchmark.class, "dispatchPlop", methodType(Object.class, Plop.class));
+      } catch (NoSuchMethodException | IllegalAccessException e) {
+        throw new AssertionError(e);
+      }
+    }
+  }
+
+  @State(Scope.Thread)
+  static public class JavaHashMapState {
+
+    MethodHandle dispatcher;
+    HashMap<String, Object> map;
+
+    @Setup(Level.Trial)
+    public void prepare() {
+      map = new HashMap<>();
+      map.put("random", new Random());
+      try {
+        MethodHandles.Lookup lookup = MethodHandles.lookup();
+        dispatcher = lookup.findStatic(GoloDispatchMicroBenchmark.class, "dispatchHashMap", methodType(Object.class, HashMap.class, String.class, String.class));
+        MethodHandle callNextIntHandle = lookup.findStatic(GoloDispatchMicroBenchmark.class, "callNextInt", genericMethodType(1));
+        map.put("plop", callNextIntHandle);
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
       }
@@ -144,6 +177,11 @@ public class GoloDispatchMicroBenchmark {
   @GenerateMicroBenchmark
   public Object baseline_java_virtual_call(JavaState javaState) throws Throwable {
     return javaState.plopDispatcherHandle.invokeExact(javaState.plop);
+  }
+
+  @GenerateMicroBenchmark
+  public Object baseline_java_hashmap_malleable_object(JavaHashMapState state) throws Throwable {
+    return state.dispatcher.invokeExact(state.map, "plop", "random");
   }
 
   @GenerateMicroBenchmark
