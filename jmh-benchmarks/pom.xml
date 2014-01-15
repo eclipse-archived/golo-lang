@@ -26,6 +26,7 @@
   <packaging>jar</packaging>
 
   <name>Golo micro-benchmarks suite</name>
+  <description>A suite a micro-benchmarks to stress the Golo runtime and compilation result.</description>
   <url>http://golo-lang.org/</url>
 
   <licenses>
