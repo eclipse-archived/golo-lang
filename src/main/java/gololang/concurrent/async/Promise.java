@@ -16,6 +16,8 @@
 
 package gololang.concurrent.async;
 
+import java.util.concurrent.TimeUnit;
+
 public final class Promise {
 
   private Object lock = new Object();
@@ -34,6 +36,23 @@ public final class Promise {
     return value;
   }
 
+  public Object blockingGet(long duration, TimeUnit unit) {
+    synchronized (lock) {
+      while (!resolved) {
+        try {
+          lock.wait(unit.toMillis(duration));
+        } catch (InterruptedException ignored) {
+          Thread.currentThread().interrupt();
+        }
+      }
+      return value;
+    }
+  }
+
+  public Object blockingGet() {
+    return blockingGet(0, TimeUnit.SECONDS);
+  }
+
   public Promise set(Object value) {
     if (resolved) {
       return this;
@@ -42,6 +61,7 @@ public final class Promise {
       if (!resolved) {
         this.value = value;
         this.resolved = true;
+        lock.notifyAll();
       }
     }
     return this;

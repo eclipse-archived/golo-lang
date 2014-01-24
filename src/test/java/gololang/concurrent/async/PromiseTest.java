@@ -18,10 +18,10 @@ package gololang.concurrent.async;
 
 import org.testng.annotations.Test;
 
+import java.util.concurrent.CountDownLatch;
+
 import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.instanceOf;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.nullValue;
+import static org.hamcrest.Matchers.*;
 
 public class PromiseTest {
 
@@ -46,5 +46,26 @@ public class PromiseTest {
     assertThat(p.isResolved(), is(true));
     assertThat(p.isFailed(), is(true));
     assertThat(p.get(), instanceOf(RuntimeException.class));
+  }
+
+  @Test(timeOut = 5000)
+  public void basics_blocking() throws InterruptedException {
+    final Promise p = new Promise();
+    final CountDownLatch latch = new CountDownLatch(2);
+    new Thread() {
+      @Override
+      public void run() {
+        latch.countDown();
+        try {
+          latch.await();
+        } catch (InterruptedException e) {
+          Thread.currentThread().interrupt();
+        }
+        p.set("Yes!");
+      }
+    }.start();
+    latch.countDown();
+    Object result = p.blockingGet();
+    assertThat(result, is((Object) "Yes!"));
   }
 }
