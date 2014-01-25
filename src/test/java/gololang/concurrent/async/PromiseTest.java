@@ -19,6 +19,7 @@ package gololang.concurrent.async;
 import org.testng.annotations.Test;
 
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -55,17 +56,43 @@ public class PromiseTest {
     new Thread() {
       @Override
       public void run() {
-        latch.countDown();
         try {
+          latch.countDown();
           latch.await();
+          p.set("Yes!");
         } catch (InterruptedException e) {
           Thread.currentThread().interrupt();
         }
-        p.set("Yes!");
       }
     }.start();
     latch.countDown();
     Object result = p.blockingGet();
     assertThat(result, is((Object) "Yes!"));
+  }
+
+  @Test
+  public void observe_monothread_set_after() {
+    final Promise p = new Promise();
+    final AtomicInteger i = new AtomicInteger(0);
+    p.future().onSet(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.addAndGet((Integer) value);
+      }
+    }).onSet(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.addAndGet(100);
+      }
+    }).onFail(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.set(666);
+      }
+    });
+    p.set(10);
+    assertThat(p.future().isResolved(), is(true));
+    assertThat(p.future().get(), is((Object) 10));
+    assertThat(i.get(), is(110));
   }
 }

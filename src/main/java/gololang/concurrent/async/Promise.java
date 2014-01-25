@@ -16,11 +16,16 @@
 
 package gololang.concurrent.async;
 
+import java.util.HashSet;
+
 public final class Promise {
 
-  private Object lock = new Object();
   private volatile boolean resolved = false;
   private volatile Object value;
+
+  private final Object lock = new Object();
+  private final HashSet<Future.Observer> setObservers = new HashSet<>();
+  private final HashSet<Future.Observer> failObservers = new HashSet<>();
 
   public boolean isResolved() {
     return resolved;
@@ -54,10 +59,62 @@ public final class Promise {
         lock.notifyAll();
       }
     }
+    HashSet<Future.Observer> observers = isFailed() ? failObservers : setObservers;
+    for (Future.Observer observer : observers) {
+      observer.apply(value);
+    }
     return this;
   }
 
   public Promise fail(Throwable throwable) {
     return set(throwable);
+  }
+
+  public Future future() {
+    return new Future() {
+      @Override
+      public Object get() {
+        return Promise.this.get();
+      }
+
+      @Override
+      public Object blockingGet() throws InterruptedException {
+        return Promise.this.blockingGet();
+      }
+
+      @Override
+      public boolean isResolved() {
+        return Promise.this.isResolved();
+      }
+
+      @Override
+      public boolean isFailed() {
+        return Promise.this.isFailed();
+      }
+
+      @Override
+      public Future onSet(Observer observer) {
+        synchronized (lock) {
+          if (resolved && !Promise.this.isFailed()) {
+            observer.apply(value);
+          } else {
+            setObservers.add(observer);
+          }
+        }
+        return this;
+      }
+
+      @Override
+      public Future onFail(Observer observer) {
+        synchronized (lock) {
+          if (resolved && Promise.this.isFailed()) {
+            observer.apply(value);
+          } else {
+            failObservers.add(observer);
+          }
+        }
+        return this;
+      }
+    };
   }
 }
