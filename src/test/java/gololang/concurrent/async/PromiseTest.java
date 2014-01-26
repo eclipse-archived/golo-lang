@@ -74,17 +74,17 @@ public class PromiseTest {
   public void observe_monothread_set_after() {
     final Promise p = new Promise();
     final AtomicInteger i = new AtomicInteger(0);
-    p.future().onSet(new Future.Observer() {
+    p.future().onSet(new Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet((Integer) value);
       }
-    }).onSet(new Future.Observer() {
+    }).onSet(new Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onFail(new Future.Observer() {
+    }).onFail(new Observer() {
       @Override
       public void apply(Object value) {
         i.set(666);
@@ -101,17 +101,17 @@ public class PromiseTest {
     final Promise p = new Promise();
     final AtomicInteger i = new AtomicInteger(0);
     p.set(10);
-    p.future().onSet(new Future.Observer() {
+    p.future().onSet(new Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet((Integer) value);
       }
-    }).onSet(new Future.Observer() {
+    }).onSet(new Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onFail(new Future.Observer() {
+    }).onFail(new Observer() {
       @Override
       public void apply(Object value) {
         i.set(666);
@@ -128,12 +128,12 @@ public class PromiseTest {
     final AtomicInteger i = new AtomicInteger(0);
     final Future future = p.future();
     final CountDownLatch latch = new CountDownLatch(1);
-    future.onFail(new Future.Observer() {
+    future.onFail(new Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onSet(new Future.Observer() {
+    }).onSet(new Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(666);

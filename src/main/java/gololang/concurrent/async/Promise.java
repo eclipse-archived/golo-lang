@@ -24,8 +24,8 @@ public final class Promise {
   private volatile Object value;
 
   private final Object lock = new Object();
-  private final HashSet<Future.Observer> setObservers = new HashSet<>();
-  private final HashSet<Future.Observer> failObservers = new HashSet<>();
+  private final HashSet<Observer> setObservers = new HashSet<>();
+  private final HashSet<Observer> failObservers = new HashSet<>();
 
   public boolean isResolved() {
     return resolved;
@@ -59,8 +59,8 @@ public final class Promise {
         lock.notifyAll();
       }
     }
-    HashSet<Future.Observer> observers = isFailed() ? failObservers : setObservers;
-    for (Future.Observer observer : observers) {
+    HashSet<Observer> observers = isFailed() ? failObservers : setObservers;
+    for (Observer observer : observers) {
       observer.apply(value);
     }
     return this;

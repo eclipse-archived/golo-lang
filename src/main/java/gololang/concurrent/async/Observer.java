@@ -16,17 +16,6 @@
 
 package gololang.concurrent.async;
 
-public interface Future {
-
-  Object get();
-
-  Object blockingGet() throws InterruptedException;
-
-  boolean isResolved();
-
-  boolean isFailed();
-
-  Future onSet(Observer observer);
-
-  Future onFail(Observer observer);
+public interface Observer {
+  void apply(Object value);
 }
