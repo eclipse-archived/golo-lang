@@ -95,4 +95,64 @@ public class PromiseTest {
     assertThat(p.future().get(), is((Object) 10));
     assertThat(i.get(), is(110));
   }
+
+  @Test
+  public void observe_monothread_set_before() {
+    final Promise p = new Promise();
+    final AtomicInteger i = new AtomicInteger(0);
+    p.set(10);
+    p.future().onSet(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.addAndGet((Integer) value);
+      }
+    }).onSet(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.addAndGet(100);
+      }
+    }).onFail(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.set(666);
+      }
+    });
+    assertThat(p.future().isResolved(), is(true));
+    assertThat(p.future().get(), is((Object) 10));
+    assertThat(i.get(), is(110));
+  }
+
+  @Test(timeOut = 5000)
+  public void observe_threaded_set() {
+    final Promise p = new Promise();
+    final AtomicInteger i = new AtomicInteger(0);
+    final Future future = p.future();
+    final CountDownLatch latch = new CountDownLatch(1);
+    future.onFail(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.addAndGet(100);
+      }
+    }).onSet(new Future.Observer() {
+      @Override
+      public void apply(Object value) {
+        i.addAndGet(666);
+      }
+    });
+    new Thread() {
+      @Override
+      public void run() {
+        p.fail(new RuntimeException("Plop"));
+        latch.countDown();
+      }
+    }.start();
+    try {
+      latch.await();
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+    }
+    assertThat(future.isFailed(), is(true));
+    assertThat(i.get(), is(100));
+    assertThat(future.get(), instanceOf(RuntimeException.class));
+  }
 }
