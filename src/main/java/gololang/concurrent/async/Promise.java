@@ -17,6 +17,7 @@
 package gololang.concurrent.async;
 
 import java.util.HashSet;
+import java.util.NoSuchElementException;
 
 public final class Promise {
 
@@ -24,8 +25,8 @@ public final class Promise {
   private volatile Object value;
 
   private final Object lock = new Object();
-  private final HashSet<Observer> setObservers = new HashSet<>();
-  private final HashSet<Observer> failObservers = new HashSet<>();
+  private final HashSet<Functions.Observer> setObservers = new HashSet<>();
+  private final HashSet<Functions.Observer> failObservers = new HashSet<>();
 
   public boolean isResolved() {
     return resolved;
@@ -59,8 +60,8 @@ public final class Promise {
         lock.notifyAll();
       }
     }
-    HashSet<Observer> observers = isFailed() ? failObservers : setObservers;
-    for (Observer observer : observers) {
+    HashSet<Functions.Observer> observers = isFailed() ? failObservers : setObservers;
+    for (Functions.Observer observer : observers) {
       observer.apply(value);
     }
     return this;
@@ -93,7 +94,7 @@ public final class Promise {
       }
 
       @Override
-      public Future onSet(Observer observer) {
+      public Future onSet(Functions.Observer observer) {
         synchronized (lock) {
           if (resolved && !Promise.this.isFailed()) {
             observer.apply(value);
@@ -105,7 +106,7 @@ public final class Promise {
       }
 
       @Override
-      public Future onFail(Observer observer) {
+      public Future onFail(Functions.Observer observer) {
         synchronized (lock) {
           if (resolved && Promise.this.isFailed()) {
             observer.apply(value);
@@ -114,6 +115,44 @@ public final class Promise {
           }
         }
         return this;
+      }
+
+      @Override
+      public Future map(final Functions.Transformer transformer) {
+        final Promise promise = new Promise();
+        this.onSet(new Functions.Observer() {
+          @Override
+          public void apply(Object value) {
+            promise.set(transformer.apply(value));
+          }
+        }).onFail(new Functions.Observer() {
+          @Override
+          public void apply(Object value) {
+            promise.fail((Throwable) value);
+          }
+        });
+        return promise.future();
+      }
+
+      @Override
+      public Future filter(final Functions.Filter filter) {
+        final Promise promise = new Promise();
+        this.onSet(new Functions.Observer() {
+          @Override
+          public void apply(Object value) {
+            if (filter.apply(value)) {
+              promise.set(value);
+            } else {
+              promise.fail(new NoSuchElementException());
+            }
+          }
+        }).onFail(new Functions.Observer() {
+          @Override
+          public void apply(Object value) {
+            promise.fail((Throwable) value);
+          }
+        });
+        return promise.future();
       }
     };
   }

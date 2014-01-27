@@ -16,6 +16,17 @@
 
 package gololang.concurrent.async;
 
-public interface Observer {
-  void apply(Object value);
+public class Functions {
+
+  public static interface Observer {
+    void apply(Object value);
+  }
+
+  public static interface Transformer {
+    Object apply(Object value);
+  }
+
+  public static interface Filter {
+    boolean apply(Object value);
+  }
 }

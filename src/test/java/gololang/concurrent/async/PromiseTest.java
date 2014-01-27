@@ -18,6 +18,7 @@ package gololang.concurrent.async;
 
 import org.testng.annotations.Test;
 
+import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -74,17 +75,17 @@ public class PromiseTest {
   public void observe_monothread_set_after() {
     final Promise p = new Promise();
     final AtomicInteger i = new AtomicInteger(0);
-    p.future().onSet(new Observer() {
+    p.future().onSet(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet((Integer) value);
       }
-    }).onSet(new Observer() {
+    }).onSet(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onFail(new Observer() {
+    }).onFail(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.set(666);
@@ -101,17 +102,17 @@ public class PromiseTest {
     final Promise p = new Promise();
     final AtomicInteger i = new AtomicInteger(0);
     p.set(10);
-    p.future().onSet(new Observer() {
+    p.future().onSet(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet((Integer) value);
       }
-    }).onSet(new Observer() {
+    }).onSet(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onFail(new Observer() {
+    }).onFail(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.set(666);
@@ -128,12 +129,12 @@ public class PromiseTest {
     final AtomicInteger i = new AtomicInteger(0);
     final Future future = p.future();
     final CountDownLatch latch = new CountDownLatch(1);
-    future.onFail(new Observer() {
+    future.onFail(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onSet(new Observer() {
+    }).onSet(new Functions.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(666);
@@ -154,5 +155,78 @@ public class PromiseTest {
     assertThat(future.isFailed(), is(true));
     assertThat(i.get(), is(100));
     assertThat(future.get(), instanceOf(RuntimeException.class));
+  }
+
+  @Test
+  public void map_future() {
+    Promise p = new Promise();
+    Future mapped = p.future().map(new Functions.Transformer() {
+      @Override
+      public Object apply(Object value) {
+        return value + "!";
+      }
+    });
+    p.set("Hey");
+    assertThat(mapped.isResolved(), is(true));
+    assertThat(mapped.get(), is((Object) "Hey!"));
+  }
+
+  @Test
+  public void map_future_fail() {
+    Promise p = new Promise();
+    Future mapped = p.future().map(new Functions.Transformer() {
+      @Override
+      public Object apply(Object value) {
+        return value + "!";
+      }
+    });
+    p.fail(new IllegalArgumentException("Plop da plop"));
+    assertThat(mapped.isResolved(), is(true));
+    assertThat(mapped.isFailed(), is(true));
+    assertThat(mapped.get(), instanceOf(IllegalArgumentException.class));
+  }
+
+  @Test
+  public void filter_future() {
+    Promise p = new Promise();
+    Future filtered = p.future().filter(new Functions.Filter() {
+      @Override
+      public boolean apply(Object value) {
+        return value instanceof String;
+      }
+    });
+    p.set("Hey!");
+    assertThat(filtered.isResolved(), is(true));
+    assertThat(filtered.get(), is((Object) "Hey!"));
+  }
+
+  @Test
+  public void filter_future_false() {
+    Promise p = new Promise();
+    Future filtered = p.future().filter(new Functions.Filter() {
+      @Override
+      public boolean apply(Object value) {
+        return value instanceof String;
+      }
+    });
+    p.set(1);
+    assertThat(filtered.isResolved(), is(true));
+    assertThat(filtered.isFailed(), is(true));
+    assertThat(filtered.get(), instanceOf(NoSuchElementException.class));
+  }
+
+  @Test
+  public void filter_future_fail() {
+    Promise p = new Promise();
+    Future filtered = p.future().filter(new Functions.Filter() {
+      @Override
+      public boolean apply(Object value) {
+        return value instanceof String;
+      }
+    });
+    p.fail(new IllegalArgumentException("Plop da plop"));
+    assertThat(filtered.isResolved(), is(true));
+    assertThat(filtered.isFailed(), is(true));
+    assertThat(filtered.get(), instanceOf(IllegalArgumentException.class));
   }
 }

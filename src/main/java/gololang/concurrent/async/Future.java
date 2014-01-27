@@ -26,7 +26,11 @@ public interface Future {
 
   boolean isFailed();
 
-  Future onSet(Observer observer);
+  Future onSet(Functions.Observer observer);
 
-  Future onFail(Observer observer);
+  Future onFail(Functions.Observer observer);
+
+  Future map(Functions.Transformer transformer);
+
+  Future filter(Functions.Filter filter);
 }
