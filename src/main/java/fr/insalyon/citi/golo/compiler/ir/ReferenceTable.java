@@ -96,9 +96,9 @@ public final class ReferenceTable {
     for (LocalReference reference : references()) {
       String refName = reference.getName();
       if (turnIntoConstants && !tableSymbols.contains(refName)) {
-        referenceTable.add(new LocalReference(LocalReference.Kind.CONSTANT, refName));
+        referenceTable.add(new LocalReference(LocalReference.Kind.CONSTANT, refName, reference.isSynthetic()));
       } else {
-        referenceTable.add(new LocalReference(reference.getKind(), refName));
+        referenceTable.add(new LocalReference(reference.getKind(), refName, reference.isSynthetic()));
       }
     }
     return referenceTable;

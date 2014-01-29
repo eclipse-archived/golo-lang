@@ -43,7 +43,8 @@ public class GoloCompilationException extends RuntimeException {
       AUGMENT_FUNCTION_NO_ARGS,
       UNDECLARED_REFERENCE,
       ASSIGN_CONSTANT,
-      BREAK_OR_CONTINUE_OUTSIDE_LOOP
+      BREAK_OR_CONTINUE_OUTSIDE_LOOP,
+      REFERENCE_ALREADY_DECLARED_IN_BLOCK
     }
 
     private final Type type;

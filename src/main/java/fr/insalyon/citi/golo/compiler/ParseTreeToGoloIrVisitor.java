@@ -699,7 +699,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     localTable.add(elementReference);
 
     String iteratorId = "$$__iterator__$$__" + System.currentTimeMillis();
-    LocalReference iteratorReference = new LocalReference(VARIABLE, iteratorId);
+    LocalReference iteratorReference = new LocalReference(VARIABLE, iteratorId, true);
     localTable.add(iteratorReference);
 
     context.referenceTableStack.push(localTable);

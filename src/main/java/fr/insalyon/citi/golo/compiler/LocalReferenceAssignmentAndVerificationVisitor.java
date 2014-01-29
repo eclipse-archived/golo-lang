@@ -151,18 +151,36 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
     LocalReference reference = assignmentStatement.getLocalReference();
-    if (reference.getKind().equals(LocalReference.Kind.CONSTANT)) {
-      Set<LocalReference> assignedReferences = assignmentStack.peek();
-      if (assignedReferences.contains(reference)) {
-        getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
-            "Assigning `" + reference.getName() +
-                "` at " + assignmentStatement.getPositionInSourceCode() +
-                " but it is a constant reference");
-      } else {
-        assignedReferences.add(reference);
+    Set<LocalReference> assignedReferences = assignmentStack.peek();
+    if (assigningConstant(reference, assignedReferences)) {
+      getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
+          "Assigning `" + reference.getName() +
+              "` at " + assignmentStatement.getPositionInSourceCode() +
+              " but it is a constant reference");
+    } else if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
+      getExceptionBuilder().report(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
+          "Declaring a duplicate reference `" + reference.getName() +
+              "` at " + assignmentStatement.getPositionInSourceCode());
+    }
+    assignedReferences.add(reference);
+    assignmentStatement.getExpressionStatement().accept(this);
+  }
+
+  private boolean redeclaringReferenceInBlock(AssignmentStatement assignmentStatement, LocalReference reference, Set<LocalReference> assignedReferences) {
+    return !reference.isSynthetic() && assignmentStatement.isDeclaring() && referenceNameExists(reference, assignedReferences);
+  }
+
+  private boolean assigningConstant(LocalReference reference, Set<LocalReference> assignedReferences) {
+    return reference.getKind().equals(LocalReference.Kind.CONSTANT) && assignedReferences.contains(reference);
+  }
+
+  private boolean referenceNameExists(LocalReference reference, Set<LocalReference> referencesInBlock) {
+    for (LocalReference ref : referencesInBlock) {
+      if ((ref != null) && ref.getName().equals(reference.getName())) {
+        return true;
       }
     }
-    assignmentStatement.getExpressionStatement().accept(this);
+    return false;
   }
 
   @Override

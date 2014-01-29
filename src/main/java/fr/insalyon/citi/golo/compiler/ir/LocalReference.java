@@ -24,12 +24,20 @@ public final class LocalReference {
 
   private final Kind kind;
   private final String name;
+  private final boolean synthetic;
 
   private int index = -1;
 
   public LocalReference(Kind kind, String name) {
     this.kind = kind;
     this.name = name;
+    this.synthetic = false;
+  }
+
+  public LocalReference(Kind kind, String name, boolean synthetic) {
+    this.kind = kind;
+    this.name = name;
+    this.synthetic = synthetic;
   }
 
   public Kind getKind() {
@@ -38,6 +46,10 @@ public final class LocalReference {
 
   public String getName() {
     return name;
+  }
+
+  public boolean isSynthetic() {
+    return synthetic;
   }
 
   public int getIndex() {

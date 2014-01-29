@@ -250,6 +250,20 @@ public class CompileAndRunTest {
     }
   }
 
+  @Test(expectedExceptions = GoloCompilationException.class)
+  public void test_double_declaration() throws Throwable {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-double-declaration.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      Problem problem = problems.get(0);
+      assertThat(problem.getType(), is(REFERENCE_ALREADY_DECLARED_IN_BLOCK));
+      throw expected;
+    }
+  }
+
   @Test
   public void test_conditionals() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "conditionals.golo");
