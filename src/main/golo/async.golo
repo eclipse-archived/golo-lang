@@ -1,6 +1,13 @@
 module gololang.Async
 
-function promise = -> gololang.concurrent.async.Promise()
+function promise = -> 
+  gololang.concurrent.async.Promise()
+
+function setFuture = |value| -> 
+  gololang.concurrent.async.AssignedFuture.setFuture(value)
+
+function failedFuture = |throwable| ->
+  gololang.concurrent.async.AssignedFuture.failedFuture(throwable)
 
 augment gololang.concurrent.async.Future {
 
