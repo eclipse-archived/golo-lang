@@ -116,44 +116,6 @@ public final class Promise {
         }
         return this;
       }
-
-      @Override
-      public Future map(final Functions.Transformer transformer) {
-        final Promise promise = new Promise();
-        this.onSet(new Functions.Observer() {
-          @Override
-          public void apply(Object value) {
-            promise.set(transformer.apply(value));
-          }
-        }).onFail(new Functions.Observer() {
-          @Override
-          public void apply(Object value) {
-            promise.fail((Throwable) value);
-          }
-        });
-        return promise.future();
-      }
-
-      @Override
-      public Future filter(final Functions.Filter filter) {
-        final Promise promise = new Promise();
-        this.onSet(new Functions.Observer() {
-          @Override
-          public void apply(Object value) {
-            if (filter.apply(value)) {
-              promise.set(value);
-            } else {
-              promise.fail(new NoSuchElementException());
-            }
-          }
-        }).onFail(new Functions.Observer() {
-          @Override
-          public void apply(Object value) {
-            promise.fail((Throwable) value);
-          }
-        });
-        return promise.future();
-      }
     };
   }
 }

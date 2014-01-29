@@ -29,8 +29,4 @@ public interface Future {
   Future onSet(Functions.Observer observer);
 
   Future onFail(Functions.Observer observer);
-
-  Future map(Functions.Transformer transformer);
-
-  Future filter(Functions.Filter filter);
 }

@@ -16,8 +16,6 @@
 
 package gololang;
 
-import gololang.concurrent.async.Promise;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -461,19 +459,6 @@ public class Predefined {
     require(klass instanceof Class<?>, "klass must be a class");
     Class<?> type = (Class<?>) klass;
     return Class.forName("[L" + type.getName() + ";", true, type.getClassLoader());
-  }
-
-  // ...................................................................................................................
-
-  /**
-   * Creates a promise object.
-   *
-   * @return A new promise object.
-   * @see gololang.concurrent.async.Promise
-   * @see gololang.concurrent.async.Future
-   */
-  public static Promise promise() {
-    return new Promise();
   }
 
   // ...................................................................................................................

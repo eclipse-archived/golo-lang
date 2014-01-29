@@ -157,76 +157,76 @@ public class PromiseTest {
     assertThat(future.get(), instanceOf(RuntimeException.class));
   }
 
-  @Test
-  public void map_future() {
-    Promise p = new Promise();
-    Future mapped = p.future().map(new Functions.Transformer() {
-      @Override
-      public Object apply(Object value) {
-        return value + "!";
-      }
-    });
-    p.set("Hey");
-    assertThat(mapped.isResolved(), is(true));
-    assertThat(mapped.get(), is((Object) "Hey!"));
-  }
-
-  @Test
-  public void map_future_fail() {
-    Promise p = new Promise();
-    Future mapped = p.future().map(new Functions.Transformer() {
-      @Override
-      public Object apply(Object value) {
-        return value + "!";
-      }
-    });
-    p.fail(new IllegalArgumentException("Plop da plop"));
-    assertThat(mapped.isResolved(), is(true));
-    assertThat(mapped.isFailed(), is(true));
-    assertThat(mapped.get(), instanceOf(IllegalArgumentException.class));
-  }
-
-  @Test
-  public void filter_future() {
-    Promise p = new Promise();
-    Future filtered = p.future().filter(new Functions.Filter() {
-      @Override
-      public boolean apply(Object value) {
-        return value instanceof String;
-      }
-    });
-    p.set("Hey!");
-    assertThat(filtered.isResolved(), is(true));
-    assertThat(filtered.get(), is((Object) "Hey!"));
-  }
-
-  @Test
-  public void filter_future_false() {
-    Promise p = new Promise();
-    Future filtered = p.future().filter(new Functions.Filter() {
-      @Override
-      public boolean apply(Object value) {
-        return value instanceof String;
-      }
-    });
-    p.set(1);
-    assertThat(filtered.isResolved(), is(true));
-    assertThat(filtered.isFailed(), is(true));
-    assertThat(filtered.get(), instanceOf(NoSuchElementException.class));
-  }
-
-  @Test
-  public void filter_future_fail() {
-    Promise p = new Promise();
-    Future filtered = p.future().filter(new Functions.Filter() {
-      @Override
-      public boolean apply(Object value) {
-        return value instanceof String;
-      }
-    });
-    p.fail(new IllegalArgumentException("Plop da plop"));
-    assertThat(filtered.isResolved(), is(true));
-    assertThat(filtered.isFailed(), is(true));
-    assertThat(filtered.get(), instanceOf(IllegalArgumentException.class));
-  }
+//  @Test
+//  public void map_future() {
+//    Promise p = new Promise();
+//    Future mapped = p.future().map(new Functions.Transformer() {
+//      @Override
+//      public Object apply(Object value) {
+//        return value + "!";
+//      }
+//    });
+//    p.set("Hey");
+//    assertThat(mapped.isResolved(), is(true));
+//    assertThat(mapped.get(), is((Object) "Hey!"));
+//  }
+//
+//  @Test
+//  public void map_future_fail() {
+//    Promise p = new Promise();
+//    Future mapped = p.future().map(new Functions.Transformer() {
+//      @Override
+//      public Object apply(Object value) {
+//        return value + "!";
+//      }
+//    });
+//    p.fail(new IllegalArgumentException("Plop da plop"));
+//    assertThat(mapped.isResolved(), is(true));
+//    assertThat(mapped.isFailed(), is(true));
+//    assertThat(mapped.get(), instanceOf(IllegalArgumentException.class));
+//  }
+//
+//  @Test
+//  public void filter_future() {
+//    Promise p = new Promise();
+//    Future filtered = p.future().filter(new Functions.Filter() {
+//      @Override
+//      public boolean apply(Object value) {
+//        return value instanceof String;
+//      }
+//    });
+//    p.set("Hey!");
+//    assertThat(filtered.isResolved(), is(true));
+//    assertThat(filtered.get(), is((Object) "Hey!"));
+//  }
+//
+//  @Test
+//  public void filter_future_false() {
+//    Promise p = new Promise();
+//    Future filtered = p.future().filter(new Functions.Filter() {
+//      @Override
+//      public boolean apply(Object value) {
+//        return value instanceof String;
+//      }
+//    });
+//    p.set(1);
+//    assertThat(filtered.isResolved(), is(true));
+//    assertThat(filtered.isFailed(), is(true));
+//    assertThat(filtered.get(), instanceOf(NoSuchElementException.class));
+//  }
+//
+//  @Test
+//  public void filter_future_fail() {
+//    Promise p = new Promise();
+//    Future filtered = p.future().filter(new Functions.Filter() {
+//      @Override
+//      public boolean apply(Object value) {
+//        return value instanceof String;
+//      }
+//    });
+//    p.fail(new IllegalArgumentException("Plop da plop"));
+//    assertThat(filtered.isResolved(), is(true));
+//    assertThat(filtered.isFailed(), is(true));
+//    assertThat(filtered.get(), instanceOf(IllegalArgumentException.class));
+//  }
 }
