@@ -33,7 +33,7 @@ public class AssignedFutureTest {
     assertThat(future.get(), is((Object) 666));
     assertThat(future.blockingGet(), is((Object) 666));
     final HashSet<Object> set = new HashSet<>();
-    future.onSet(new Functions.Observer() {
+    future.onSet(new Future.Observer() {
       @Override
       public void apply(Object value) {
         set.add("Ok");
@@ -51,7 +51,7 @@ public class AssignedFutureTest {
     assertThat(future.get(), is((Object) omg));
     assertThat(future.blockingGet(), is((Object) omg));
     final HashSet<Object> set = new HashSet<>();
-    future.onFail(new Functions.Observer() {
+    future.onFail(new Future.Observer() {
       @Override
       public void apply(Object value) {
         set.add("Ok");

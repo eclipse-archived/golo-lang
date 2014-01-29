@@ -53,7 +53,7 @@ public final class AssignedFuture implements Future {
   }
 
   @Override
-  public Future onSet(Functions.Observer observer) {
+  public Future onSet(Observer observer) {
     if (!isFailed()) {
       observer.apply(value);
     }
@@ -61,7 +61,7 @@ public final class AssignedFuture implements Future {
   }
 
   @Override
-  public Future onFail(Functions.Observer observer) {
+  public Future onFail(Observer observer) {
     if (isFailed()) {
       observer.apply(value);
     }

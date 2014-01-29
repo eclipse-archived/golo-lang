@@ -17,7 +17,6 @@
 package gololang.concurrent.async;
 
 import java.util.HashSet;
-import java.util.NoSuchElementException;
 
 public final class Promise {
 
@@ -25,8 +24,8 @@ public final class Promise {
   private volatile Object value;
 
   private final Object lock = new Object();
-  private final HashSet<Functions.Observer> setObservers = new HashSet<>();
-  private final HashSet<Functions.Observer> failObservers = new HashSet<>();
+  private final HashSet<Future.Observer> setObservers = new HashSet<>();
+  private final HashSet<Future.Observer> failObservers = new HashSet<>();
 
   public boolean isResolved() {
     return resolved;
@@ -60,8 +59,8 @@ public final class Promise {
         lock.notifyAll();
       }
     }
-    HashSet<Functions.Observer> observers = isFailed() ? failObservers : setObservers;
-    for (Functions.Observer observer : observers) {
+    HashSet<Future.Observer> observers = isFailed() ? failObservers : setObservers;
+    for (Future.Observer observer : observers) {
       observer.apply(value);
     }
     return this;
@@ -94,7 +93,7 @@ public final class Promise {
       }
 
       @Override
-      public Future onSet(Functions.Observer observer) {
+      public Future onSet(Observer observer) {
         synchronized (lock) {
           if (resolved && !Promise.this.isFailed()) {
             observer.apply(value);
@@ -106,7 +105,7 @@ public final class Promise {
       }
 
       @Override
-      public Future onFail(Functions.Observer observer) {
+      public Future onFail(Observer observer) {
         synchronized (lock) {
           if (resolved && Promise.this.isFailed()) {
             observer.apply(value);

@@ -26,7 +26,11 @@ public interface Future {
 
   boolean isFailed();
 
-  Future onSet(Functions.Observer observer);
+  Future onSet(Observer observer);
 
-  Future onFail(Functions.Observer observer);
+  Future onFail(Observer observer);
+
+  public static interface Observer {
+    void apply(Object value);
+  }
 }

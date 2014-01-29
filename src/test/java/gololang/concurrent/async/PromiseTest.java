@@ -18,7 +18,6 @@ package gololang.concurrent.async;
 
 import org.testng.annotations.Test;
 
-import java.util.NoSuchElementException;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -75,17 +74,17 @@ public class PromiseTest {
   public void observe_monothread_set_after() {
     final Promise p = new Promise();
     final AtomicInteger i = new AtomicInteger(0);
-    p.future().onSet(new Functions.Observer() {
+    p.future().onSet(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet((Integer) value);
       }
-    }).onSet(new Functions.Observer() {
+    }).onSet(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onFail(new Functions.Observer() {
+    }).onFail(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.set(666);
@@ -102,17 +101,17 @@ public class PromiseTest {
     final Promise p = new Promise();
     final AtomicInteger i = new AtomicInteger(0);
     p.set(10);
-    p.future().onSet(new Functions.Observer() {
+    p.future().onSet(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet((Integer) value);
       }
-    }).onSet(new Functions.Observer() {
+    }).onSet(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onFail(new Functions.Observer() {
+    }).onFail(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.set(666);
@@ -129,12 +128,12 @@ public class PromiseTest {
     final AtomicInteger i = new AtomicInteger(0);
     final Future future = p.future();
     final CountDownLatch latch = new CountDownLatch(1);
-    future.onFail(new Functions.Observer() {
+    future.onFail(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(100);
       }
-    }).onSet(new Functions.Observer() {
+    }).onSet(new Future.Observer() {
       @Override
       public void apply(Object value) {
         i.addAndGet(666);
