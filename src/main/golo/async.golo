@@ -77,3 +77,20 @@ function any = |futures| {
   return p: future()
 }
 
+function reduce = |futures, init, reducer| {
+  let p = promise()
+  all(futures): onSet(|results| {
+    var acc = init
+    foreach result in results {
+      if result oftype java.lang.Throwable.class {
+        p: fail(result)
+        return
+      } else {
+        acc = reducer(acc, result)
+      }
+    }
+    p: set(acc)
+  })
+  return p: future()
+}
+
