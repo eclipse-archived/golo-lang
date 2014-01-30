@@ -55,13 +55,14 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(6));
+    assertThat(imports.size(), is(7));
     assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("gololang.StandardAugmentations"));
     assertThat(imports, hasItem("gololang"));
     assertThat(imports, hasItem("java.util.List"));
     assertThat(imports, hasItem("java.util.LinkedList"));
     assertThat(imports, hasItem("java.lang.System"));
+    assertThat(imports, hasItem("java.lang"));
   }
 
   @Test
@@ -535,6 +536,7 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void test_call_java_objects() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "call-java-objects.golo");
 
@@ -545,7 +547,12 @@ public class CompileAndRunTest {
     assertThat((Integer) new_integer_from_imports.invoke(null), is(666));
 
     Method make_a_list = moduleClass.getMethod("make_a_list");
-    @SuppressWarnings("unchecked") List<Integer> resultList = (List<Integer>) make_a_list.invoke(null);
+    List<Integer> resultList = (List<Integer>) make_a_list.invoke(null);
+    assertThat(resultList.size(), is(3));
+    assertThat(resultList, hasItems(1, 2, 3));
+
+    Method make_another_list = moduleClass.getMethod("make_another_list");
+    resultList = (List<Integer>) make_another_list.invoke(null);
     assertThat(resultList.size(), is(3));
     assertThat(resultList, hasItems(1, 2, 3));
   }

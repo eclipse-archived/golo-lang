@@ -186,11 +186,16 @@ public final class FunctionCallSupport {
     }
     for (String importClassName : imports) {
       try {
-        Class<?> importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
-        String lookup = functionName;
-        if ((classAndMethod != null) && (importClassName.endsWith(classAndMethod[0]))) {
-          lookup = classAndMethod[1];
+        Class<?> importClass;
+        try {
+          importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
+        } catch (ClassNotFoundException expected) {
+          if (classAndMethod == null) {
+            throw expected;
+          }
+          importClass = Class.forName(importClassName + "." + classAndMethod[0], true, callerClass.getClassLoader());
         }
+        String lookup = (classAndMethod == null) ? functionName : classAndMethod[1];
         Object result = findStaticMethodOrField(importClass, lookup, args);
         if (result != null) {
           return result;

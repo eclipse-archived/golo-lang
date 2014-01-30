@@ -1,7 +1,7 @@
 module golotest.execution.CallJavaObjects
 
 import java.lang
-import java.util
+import java
 import java.util.Arrays
 
 function new_integer = {
@@ -13,5 +13,9 @@ function new_integer_from_imports = {
 }
 
 function make_a_list = {
-  return LinkedList(asList(1, 2, 3))
+  return util.LinkedList(asList(1, 2, 3))
+}
+
+function make_another_list = {
+  return util.LinkedList(util.Arrays.asList(1, 2, 3))
 }

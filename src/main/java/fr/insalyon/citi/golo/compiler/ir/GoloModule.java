@@ -40,11 +40,15 @@ public final class GoloModule extends GoloElement {
   public static final ModuleImport GOLOLANG = new ModuleImport(
       PackageAndClass.fromString("gololang"));
 
+  public static final ModuleImport JAVALANG = new ModuleImport(
+      PackageAndClass.fromString("java.lang"));
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
     imports.add(STD_AUGMENTATIONS);
     imports.add(GOLOLANG);
+    imports.add(JAVALANG);
   }
 
   public PackageAndClass getPackageAndClass() {
