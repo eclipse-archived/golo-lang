@@ -68,9 +68,9 @@ function all = |futures| {
   let size = futures: size()
   let vector = java.util.ArrayList(size)
   let p = promise()
-  let i = java.util.concurrent.atomic.AtomicInteger(0)
+  let c = java.util.concurrent.atomic.AtomicInteger(0)
   let trigger = {
-    if i: incrementAndGet() == size {
+    if c: incrementAndGet() == size {
       p: set(vector)
     }
   }
