@@ -177,6 +177,13 @@ function plop = {
 }
 ----
 
+Golo modules have a set of implicit imports: 
+
+* `gololang.Predefined`,
+* `gololang.StandardAugmentations`,
+* `gololang`,
+* `java.lang`.
+
 === Local functions ===
 
 By default, functions are visible outside of their module. You may
