@@ -716,12 +716,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
                 iterableExpressionStatement,
                 new MethodInvocation("iterator")));
     init.setDeclaring(true);
+    init.setASTNode(node);
 
     ExpressionStatement condition =
         new BinaryOperation(
             OperatorType.METHOD_CALL,
             new ReferenceLookup(iteratorId),
             new MethodInvocation("hasNext"));
+    condition.setASTNode(node);
 
     AssignmentStatement next = new AssignmentStatement(
         elementReference,
@@ -730,6 +732,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
             new ReferenceLookup(iteratorId),
             new MethodInvocation("next")));
     next.setDeclaring(true);
+    next.setASTNode(node);
     block.prependStatement(next);
 
     LoopStatement loopStatement = new LoopStatement(init, condition, block, null);
