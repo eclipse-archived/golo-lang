@@ -1248,4 +1248,18 @@ public class CompileAndRunTest {
     assertThat(tuple.get(1), instanceOf(NoSuchElementException.class));
     assertThat(tuple.get(2), instanceOf(RuntimeException.class));
   }
+
+  @Test
+  public void async_features_fallbackTo() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_fallbackTo = moduleClass.getMethod("check_fallbackTo");
+    Object result = check_fallbackTo.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(3));
+    assertThat(tuple.get(0), is((Object) "Ok"));
+    assertThat(tuple.get(1), is((Object) "Yeah"));
+    assertThat(tuple.get(2), instanceOf(AssertionError.class));
+  }
 }

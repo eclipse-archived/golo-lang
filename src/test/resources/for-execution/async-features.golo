@@ -23,3 +23,10 @@ function check_filter = {
   let failed = failedFuture(except()): filter(pred): get()
   return [ok, bam, failed]
 }
+
+function check_fallbackTo = {
+  let ok = setFuture("Ok"): fallbackTo(setFuture("Bam")): get()
+  let failover = failedFuture(except()): fallbackTo(setFuture("Yeah")): get()
+  let bigfail = failedFuture(except()): fallbackTo(failedFuture(java.lang.AssertionError())): get()
+  return [ok, failover, bigfail]
+}
