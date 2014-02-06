@@ -30,3 +30,22 @@ function check_fallbackTo = {
   let bigfail = failedFuture(except()): fallbackTo(failedFuture(java.lang.AssertionError())): get()
   return [ok, failover, bigfail]
 }
+
+function check_all = ->
+  all([setFuture("foo"), setFuture("bar"), failedFuture(except())]): get()
+
+function check_any = ->
+  any([failedFuture(except()), failedFuture(except()), setFuture("ok"), failedFuture(except())]): get()
+
+function check_any_none = ->
+  any([failedFuture(except()), failedFuture(except()), failedFuture(except())]): get()
+
+function check_reduce = {
+  let f1 = [setFuture("a"), setFuture("b"), setFuture("c")]
+  let f2 = [setFuture("a"), failedFuture(except()), setFuture("c")]
+  let reducer = |acc, next| -> acc + next
+  return [
+    reduce(f1, "", reducer): get(),
+    reduce(f2, "", reducer): get()
+  ]
+}
