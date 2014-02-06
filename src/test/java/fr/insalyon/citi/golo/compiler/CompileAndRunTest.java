@@ -1208,4 +1208,30 @@ public class CompileAndRunTest {
     Method meth = moduleClass.getMethod("meth");
     assertThat((String) meth.invoke(null), is("Yeah"));
   }
+
+  @Test
+  public void async_features_map() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_map = moduleClass.getMethod("check_map");
+    Object result = check_map.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "Ok!"));
+    assertThat(tuple.get(1), instanceOf(RuntimeException.class));
+  }
+
+  @Test
+  public void async_features_flatMap() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_map = moduleClass.getMethod("check_flatMap");
+    Object result = check_map.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "Ok!"));
+    assertThat(tuple.get(1), instanceOf(RuntimeException.class));
+  }
 }
