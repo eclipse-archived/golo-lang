@@ -1226,12 +1226,26 @@ public class CompileAndRunTest {
   public void async_features_flatMap() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
-    Method check_map = moduleClass.getMethod("check_flatMap");
-    Object result = check_map.invoke(null);
+    Method check_flatMap = moduleClass.getMethod("check_flatMap");
+    Object result = check_flatMap.invoke(null);
     assertThat(result, instanceOf(Tuple.class));
     Tuple tuple = (Tuple) result;
     assertThat(tuple.size(), is(2));
     assertThat(tuple.get(0), is((Object) "Ok!"));
     assertThat(tuple.get(1), instanceOf(RuntimeException.class));
+  }
+
+  @Test
+  public void async_features_filter() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_filter = moduleClass.getMethod("check_filter");
+    Object result = check_filter.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(3));
+    assertThat(tuple.get(0), is((Object) "Ok"));
+    assertThat(tuple.get(1), instanceOf(NoSuchElementException.class));
+    assertThat(tuple.get(2), instanceOf(RuntimeException.class));
   }
 }
