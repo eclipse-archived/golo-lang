@@ -1185,7 +1185,7 @@ public class CompileAndRunTest {
     assertThat(arrayList.size(), is(3));
     assertThat(arrayList, contains("foo", "bar", "baz"));
 
-    if (System.getenv("golo.bootstrapped") != null) {
+    if (!bootstraping()) {
       Method add_arraylist = moduleClass.getMethod("add_arraylist");
       result = add_arraylist.invoke(null);
       assertThat(result, instanceOf(List.class));
@@ -1211,6 +1211,9 @@ public class CompileAndRunTest {
 
   @Test
   public void async_features_map() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_map = moduleClass.getMethod("check_map");
@@ -1224,6 +1227,9 @@ public class CompileAndRunTest {
 
   @Test
   public void async_features_flatMap() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_flatMap = moduleClass.getMethod("check_flatMap");
@@ -1235,8 +1241,15 @@ public class CompileAndRunTest {
     assertThat(tuple.get(1), instanceOf(RuntimeException.class));
   }
 
+  private static boolean bootstraping() {
+    return System.getenv("golo.bootstrapped") == null;
+  }
+
   @Test
   public void async_features_filter() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_filter = moduleClass.getMethod("check_filter");
@@ -1251,6 +1264,9 @@ public class CompileAndRunTest {
 
   @Test
   public void async_features_fallbackTo() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_fallbackTo = moduleClass.getMethod("check_fallbackTo");
@@ -1266,6 +1282,9 @@ public class CompileAndRunTest {
   @Test
   @SuppressWarnings("unchecked")
   public void async_features_all() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_all = moduleClass.getMethod("check_all");
@@ -1280,6 +1299,9 @@ public class CompileAndRunTest {
 
   @Test
   public void async_features_any() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_any = moduleClass.getMethod("check_any");
@@ -1294,6 +1316,9 @@ public class CompileAndRunTest {
 
   @Test
   public void async_features_reduce() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
 
     Method check_reduce = moduleClass.getMethod("check_reduce");
