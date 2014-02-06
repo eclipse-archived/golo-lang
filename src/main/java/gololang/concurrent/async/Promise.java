@@ -117,4 +117,12 @@ public final class Promise {
       }
     };
   }
+
+  @Override
+  public String toString() {
+    return "Promise{" +
+        "resolved=" + resolved +
+        ", value=" + value +
+        '}';
+  }
 }

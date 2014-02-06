@@ -67,4 +67,11 @@ public final class AssignedFuture implements Future {
     }
     return this;
   }
+
+  @Override
+  public String toString() {
+    return "AssignedFuture{" +
+        "value=" + value +
+        '}';
+  }
 }
