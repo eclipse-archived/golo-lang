@@ -49,7 +49,7 @@ public class PromiseTest {
     assertThat(p.get(), instanceOf(RuntimeException.class));
   }
 
-  @Test(timeOut = 5000)
+  @Test(timeOut = 5000, invocationCount = 100)
   public void basics_blocking() throws InterruptedException {
     final Promise p = new Promise();
     final CountDownLatch latch = new CountDownLatch(2);
@@ -66,6 +66,7 @@ public class PromiseTest {
       }
     }.start();
     latch.countDown();
+    latch.await();
     Object result = p.blockingGet();
     assertThat(result, is((Object) "Yes!"));
   }
