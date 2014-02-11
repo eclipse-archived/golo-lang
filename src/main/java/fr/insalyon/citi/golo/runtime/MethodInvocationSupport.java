@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.runtime;
 
 import gololang.DynamicObject;
+import gololang.GoloStruct;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Array;

@@ -19,16 +19,24 @@ package fr.insalyon.citi.golo.compiler.ir;
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
 
 import java.util.Collections;
+import java.util.LinkedHashSet;
 import java.util.Set;
 
 public final class Struct {
 
   private final PackageAndClass packageAndClass;
   private final Set<String> members;
+  private final Set<String> publicMembers;
 
   public Struct(PackageAndClass packageAndClass, Set<String> members) {
     this.packageAndClass = packageAndClass;
     this.members = members;
+    this.publicMembers = new LinkedHashSet<>();
+    for (String member : members) {
+      if (!member.startsWith("_")) {
+        publicMembers.add(member);
+      }
+    }
   }
 
   public PackageAndClass getPackageAndClass() {
@@ -37,5 +45,9 @@ public final class Struct {
 
   public Set<String> getMembers() {
     return Collections.unmodifiableSet(members);
+  }
+
+  public Set<String> getPublicMembers() {
+    return Collections.unmodifiableSet(publicMembers);
   }
 }
