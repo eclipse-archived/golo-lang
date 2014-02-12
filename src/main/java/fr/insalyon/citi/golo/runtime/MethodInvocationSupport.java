@@ -320,9 +320,19 @@ public class MethodInvocationSupport {
   }
 
   private static boolean isValidPrivateStructAccess(Object receiver, Method method, InlineCache inlineCache) {
+    if (!(receiver instanceof GoloStruct)) {
+      return false;
+    }
     String receiverClassName = receiver.getClass().getName();
     String callerClassName = inlineCache.callerLookup.lookupClass().getName();
-    return (receiver instanceof GoloStruct) && method.getName().equals(inlineCache.name) && isPrivate(methodModifiers()) && receiverClassName.startsWith(callerClassName);
+    return method.getName().equals(inlineCache.name) &&
+        isPrivate(methodModifiers()) &&
+        (receiverClassName.startsWith(callerClassName) ||
+            callerClassName.equals(reverseStructAugmentation(receiverClassName)));
+  }
+
+  private static String reverseStructAugmentation(String receiverClassName) {
+    return receiverClassName.substring(0, receiverClassName.indexOf(".types")) + "$" + receiverClassName.replace('.', '$');
   }
 
   private static Object findMethodOrField(Class<?> receiverClass, InlineCache inlineCache, Class<?>[] argumentTypes, Object[] args) {
