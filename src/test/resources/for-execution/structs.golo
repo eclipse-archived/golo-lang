@@ -1,5 +1,7 @@
 module golotest.execution.Structs
 
+# ............................................................................................... #
+
 struct Contact = { name, email }
 
 function mrbean = {
@@ -42,3 +44,15 @@ function mrbean_equals = -> [
   Contact("Mr Bean", "mrbean@gmail.com"): frozenCopy(),
   Contact("Mr Beanz", "mrbean@outlook.com"): frozenCopy()
 ]
+
+# ............................................................................................... #
+
+struct FooBarBaz = { foo, _bar, baz }
+
+augment golotest.execution.Structs.types.FooBarBaz {
+  function leak = |this| -> this: _bar()
+}
+
+function fun_foo_bar_baz = -> FooBarBaz(): foo(1): _bar(2): baz(3)
+
+function augmented_foo_bar_baz = -> FooBarBaz(1, 2, 3): leak()

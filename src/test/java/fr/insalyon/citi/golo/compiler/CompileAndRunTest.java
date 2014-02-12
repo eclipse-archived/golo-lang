@@ -1096,6 +1096,30 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(Tuple.class));
     tuple = (Tuple) result;
     assertThat(tuple.get(0), is(tuple.get(1)));
+
+    Method fun_foo_bar_baz = moduleClass.getMethod("fun_foo_bar_baz");
+    result = fun_foo_bar_baz.invoke(null);
+    assertThat(result, instanceOf(GoloStruct.class));
+    struct = (GoloStruct) result;
+    assertThat(struct.members().size(), is(2));
+    assertThat(struct.values().size(), is(2));
+    structIterator = struct.iterator();
+    assertThat(structIterator.hasNext(), is(true));
+    assertThat(structIterator.next(), is(new Tuple("foo", 1)));
+    assertThat(structIterator.hasNext(), is(true));
+    assertThat(structIterator.next(), is(new Tuple("baz", 3)));
+    assertThat(structIterator.hasNext(), is(false));
+    assertThat(struct.get("foo"), is((Object) 1));
+    try {
+      struct.get("_bar");
+      fail("An IllegalArgumentException was expected");
+    } catch (IllegalArgumentException expected) {
+    }
+    assertThat(struct.copy().members().size(), is(2));
+
+    Method augmented_foo_bar_baz = moduleClass.getMethod("augmented_foo_bar_baz");
+    result = augmented_foo_bar_baz.invoke(null);
+    assertThat(result, is((Object) 2));
   }
 
   @Test
