@@ -1123,6 +1123,38 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void structs_outside_encapsulation() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    compileAndLoadGoloModule(SRC, "structs.golo", goloClassLoader);
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs-outside.golo", goloClassLoader);
+
+    Method smoke_test = moduleClass.getMethod("smoke_test");
+    Object result = smoke_test.invoke(null);
+    assertThat(result, instanceOf(GoloStruct.class));
+    GoloStruct struct = (GoloStruct) result;
+    assertThat(struct.get("name"), is((Object) "foo"));
+    assertThat(struct.get("email"), is((Object) "bar"));
+
+    Method bam = moduleClass.getMethod("bam");
+    try {
+      bam.invoke(null);
+      fail("An InvocationTargetException was expected");
+    } catch (InvocationTargetException e) {
+      assertThat(e.getCause(), instanceOf(NoSuchMethodError.class));
+      assertThat(e.getCause().getMessage(), containsString("FooBarBaz::_bar"));
+    }
+
+    Method augmented = moduleClass.getMethod("augmented");
+    try {
+      augmented.invoke(null);
+      fail("An InvocationTargetException was expected");
+    } catch (InvocationTargetException e) {
+      assertThat(e.getCause(), instanceOf(NoSuchMethodError.class));
+      assertThat(e.getCause().getMessage(), containsString("FooBarBaz::_bar"));
+    }
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   public void adapters() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "adapters.golo");
