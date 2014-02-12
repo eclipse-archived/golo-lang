@@ -207,12 +207,12 @@ public class MethodInvocationSupport {
       return findArraySpecialMethod(receiverClass, inlineCache, args, type);
     }
 
-    Object searchResult = findMethodOrField(receiverClass, inlineCache.name, type.parameterArray(), args);
+    Object searchResult = findMethodOrField(receiverClass, inlineCache, type.parameterArray(), args);
     if (searchResult != null) {
       try {
         if (searchResult.getClass() == Method.class) {
           Method method = (Method) searchResult;
-          if (makeAccessible) {
+          if (makeAccessible || isValidPrivateStructAccess(args[0], method, inlineCache)) {
             method.setAccessible(true);
           }
           target = inlineCache.callerLookup.unreflect(method).asType(type);
@@ -319,11 +319,22 @@ public class MethodInvocationSupport {
     }
   }
 
-  private static Object findMethodOrField(Class<?> receiverClass, String name, Class<?>[] argumentTypes, Object[] args) {
+  private static boolean isValidPrivateStructAccess(Object receiver, Method method, InlineCache inlineCache) {
+    String receiverClassName = receiver.getClass().getName();
+    String callerClassName = inlineCache.callerLookup.lookupClass().getName();
+    return (receiver instanceof GoloStruct) && method.getName().equals(inlineCache.name) && isPrivate(methodModifiers()) && receiverClassName.startsWith(callerClassName);
+  }
+
+  private static Object findMethodOrField(Class<?> receiverClass, InlineCache inlineCache, Class<?>[] argumentTypes, Object[] args) {
 
     List<Method> candidates = new LinkedList<>();
-    for (Method method : receiverClass.getMethods()) {
-      if (isCandidateMethod(name, method)) {
+    HashSet<Method> methods = new HashSet<>();
+    Collections.addAll(methods, receiverClass.getMethods());
+    Collections.addAll(methods, receiverClass.getDeclaredMethods());
+    for (Method method : methods) {
+      if (isCandidateMethod(inlineCache.name, method)) {
+        candidates.add(method);
+      } else if (isValidPrivateStructAccess(args[0], method, inlineCache)) {
         candidates.add(method);
       }
     }
@@ -346,12 +357,12 @@ public class MethodInvocationSupport {
 
     if (argumentTypes.length <= 2) {
       for (Field field : receiverClass.getDeclaredFields()) {
-        if (isMatchingField(name, field)) {
+        if (isMatchingField(inlineCache.name, field)) {
           return field;
         }
       }
       for (Field field : receiverClass.getFields()) {
-        if (isMatchingField(name, field)) {
+        if (isMatchingField(inlineCache.name, field)) {
           return field;
         }
       }
