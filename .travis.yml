@@ -1,9 +1,15 @@
 language: java
 
-# oraclejdk7 is broken in 1.7.0_45-b18
 jdk:
   - openjdk7
+  - oraclejdk7
   - oraclejdk8
+
+matrix:
+  fast_finish: true
+  allow_failures:
+    - jdk: oraclejdk7
+    - jdk: openjdk7
 
 install: "rake special:bootstrap"
 
