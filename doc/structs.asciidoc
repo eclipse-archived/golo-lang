@@ -171,3 +171,31 @@ A number of helper methods are being generated:
 - `get(name)` returns the value of a member by its name,
 - `set(name, value)` updates the value of a member by its name, and returns the same structure.
 
+=== Private members ===
+
+By default, all members in a struct can be accessed. It is possible to make some elements private by
+prefixing them with `_`, as in:
+
+----
+struct Foo = { a, _b, c }
+
+# (...)
+
+let foo = Foo(1, 2, 3)
+----
+
+In this case, `_b` is a private struct member. This means that `foo: _b()` and `foo: _b(666)` are
+valid calls only if made from:
+
+- a function from the declaring module, or
+- an augmentation defined in the declaring module.
+
+Any call to, say, `foo: _b()` from another module will yield a `NoSuchMethodError` exception.
+
+Private struct members also have the following impact:
+
+- they do not appear in `members()` and `values()` calls, and
+- they are not iterated through `iterator()`-provided iterators, and
+- they are being used like other members in `equals()` and `hashCode()`, and
+- they do not appear in `toString()` representations.
+

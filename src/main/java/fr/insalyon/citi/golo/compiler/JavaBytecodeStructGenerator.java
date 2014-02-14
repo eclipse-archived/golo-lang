@@ -57,6 +57,7 @@ class JavaBytecodeStructGenerator {
     String owner = struct.getPackageAndClass().toJVMType();
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "set", "(Ljava/lang/String;Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
     visitor.visitCode();
+    insertPrivateElementCheck(struct, visitor);
     Label nextCase = new Label();
     for (String member : struct.getMembers()) {
       visitor.visitLdcInsn(member);
@@ -69,11 +70,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitLabel(nextCase);
       nextCase = new Label();
     }
-    visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
-    visitor.visitInsn(DUP);
-    visitor.visitLdcInsn("Unknown member in " + struct.getPackageAndClass().toString());
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V");
-    visitor.visitInsn(ATHROW);
+    insertUnknowElementCode(struct, visitor);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
   }
@@ -82,6 +79,7 @@ class JavaBytecodeStructGenerator {
     String owner = struct.getPackageAndClass().toJVMType();
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "get", "(Ljava/lang/String;)Ljava/lang/Object;", null, null);
     visitor.visitCode();
+    insertPrivateElementCheck(struct, visitor);
     Label nextCase = new Label();
     for (String member : struct.getMembers()) {
       visitor.visitLdcInsn(member);
@@ -93,23 +91,41 @@ class JavaBytecodeStructGenerator {
       visitor.visitLabel(nextCase);
       nextCase = new Label();
     }
+    insertUnknowElementCode(struct, visitor);
+    visitor.visitMaxs(0, 0);
+    visitor.visitEnd();
+  }
+
+  private void insertPrivateElementCheck(Struct struct, MethodVisitor visitor) {
+    Label afterPrivateCheck = new Label();
+    visitor.visitVarInsn(ALOAD, 1);
+    visitor.visitLdcInsn("_");
+    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
+    visitor.visitJumpInsn(IFEQ, afterPrivateCheck);
+    visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
+    visitor.visitInsn(DUP);
+    visitor.visitLdcInsn("Private member of " + struct.getPackageAndClass().toString());
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitInsn(ATHROW);
+    visitor.visitLabel(afterPrivateCheck);
+  }
+
+  private void insertUnknowElementCode(Struct struct, MethodVisitor visitor) {
     visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
     visitor.visitInsn(DUP);
     visitor.visitLdcInsn("Unknown member in " + struct.getPackageAndClass().toString());
     visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V");
     visitor.visitInsn(ATHROW);
-    visitor.visitMaxs(0, 0);
-    visitor.visitEnd();
   }
 
   private void makeValuesMethod(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "values", "()Lgololang/Tuple;", null, null);
     visitor.visitCode();
-    loadInteger(visitor, struct.getMembers().size());
+    loadInteger(visitor, struct.getPublicMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int index = 0;
-    for (String member : struct.getMembers()) {
+    for (String member : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
       loadInteger(visitor, index);
       visitor.visitVarInsn(ALOAD, 0);
@@ -230,7 +246,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitLdcInsn("struct " + struct.getPackageAndClass().className() + "{");
     visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
     boolean first = true;
-    for (String member : struct.getMembers()) {
+    for (String member : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
       visitor.visitLdcInsn((!first ? ", " : "") + member + "=");
       first = false;
@@ -301,10 +317,10 @@ class JavaBytecodeStructGenerator {
   private void initMembersField(Struct struct, String owner, MethodVisitor visitor) {
     int arg;
     visitor.visitVarInsn(ALOAD, 0);
-    loadInteger(visitor, struct.getMembers().size());
+    loadInteger(visitor, struct.getPublicMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
     arg = 0;
-    for (String name : struct.getMembers()) {
+    for (String name : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
       loadInteger(visitor, arg);
       visitor.visitLdcInsn(name);
@@ -366,7 +382,8 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeSetter(ClassWriter classWriter, String owner, String name) {
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
+    int accessFlag = name.startsWith("_") ? ACC_PRIVATE : ACC_PUBLIC;
+    MethodVisitor visitor = classWriter.visitMethod(accessFlag, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
     visitor.visitCode();
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
@@ -388,7 +405,8 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeGetter(ClassWriter classWriter, String owner, String name) {
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, name, "()Ljava/lang/Object;", null, null);
+    int accessFlag = name.startsWith("_") ? ACC_PRIVATE : ACC_PUBLIC;
+    MethodVisitor visitor = classWriter.visitMethod(accessFlag, name, "()Ljava/lang/Object;", null, null);
     visitor.visitCode();
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitFieldInsn(GETFIELD, owner, name, "Ljava/lang/Object;");
