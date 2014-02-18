@@ -16,25 +16,70 @@
 #
 # ............................................................................................... #
 
+----
+This module offers asynchronous programming helpers, especially execution context agnostic promises
+and futures. The provided APIs are orthogonal to the execution strategy: it is up to you to execute
+code from the same thread, from a separate thread, or by pushing new tasks to a service executor.
+
+The functions and augmentations in this module often delegate to Java classes from
+`gololang.concurrent.async`.
+----
 module gololang.Async
 
+----
+Returns a new promise. Promise objects have the following useful methods.
+
+* `set(value)`: sets the promise value. The value is ignored if the promise has already been set.
+* `fail(exception)`: set the value to an exception.
+* `get()`: returns the promise value. It returns a bogus `null` value if the promise is still
+  undefined.
+* `blockingGet()`: waits until the promise is set or failed, and returns the value.
+* `future()`: returns a new future object on a promise.
+* `isResolved()` and `isFailed()` query the promise status.
+
+Future objects have the following methods.
+
+* `onSet(|v| {...})`: registers a callback when the value is set, or executes it right now if it
+  has already been set.
+* `onFail(|e| {...})`: registers a callback when the corresponding promise fails with an exception.
+* `isResolved()`, `isFailed()` `get()` and `blockingGet()` delegate to the promise implementation.
+----
 function promise = -> 
   gololang.concurrent.async.Promise()
 
+----
+Returns a future set to `value`.
+----
 function setFuture = |value| -> 
   gololang.concurrent.async.AssignedFuture.setFuture(value)
 
+----
+Returns a failed future to a `throwable` exception.
+----
 function failedFuture = |throwable| ->
   gololang.concurrent.async.AssignedFuture.failedFuture(throwable)
 
+----
+Augementation on the base `Future` objects provided by the `gololang.concurrent.async.Future` Java
+class.
+----
 augment gololang.concurrent.async.Future {
 
+  ----
+  Returns a future whose value is mapped through the `fun` function. 
+  
+  If this future is set to `v`, then the returned future is set to `fun(v)`. If it fails, the
+  returned future is also failed with the same exception.
+  ----
   function map = |this, fun| {
     let p = promise()
     this: onSet(|v| -> p: set(fun(v))): onFail(|t| -> p: fail(t))
     return p: future()
   }
 
+  ----
+  Similar to `map`, except that `fun` returns a future, not a value.
+  ----
   function flatMap = |this, fun| {
     let p = promise()
     this: onSet(|v| ->
@@ -43,6 +88,16 @@ augment gololang.concurrent.async.Future {
     return p: future()
   }
 
+  ----
+  Returns a future that filters this future through the `pred` predicate function.
+
+  Suppose that this future is set to `v`:
+
+  * if `pred(v)` is `true`, then the result future is set to `v`,
+  * if `pred(v)` is `false`, then the result is failed to a `java.util.NoSuchElementException`.
+
+  If this future fails, so does the returned future.
+  ----
   function filter = |this, pred| {
     let p = promise()
     this: onSet(|v| {
@@ -55,6 +110,12 @@ augment gololang.concurrent.async.Future {
     return p: future()
   }
 
+  ----
+  Returns a fallback future:
+
+  * when this future is set, the returned future is set to the same value,
+  * when it fails, the returned future matches the success or failure of `future`.
+  ----
   function fallbackTo = |this, future| {
     let p = promise()
     this: onSet(|v| -> p: set(v)): onFail(|t| {
@@ -64,6 +125,21 @@ augment gololang.concurrent.async.Future {
   }
 }
 
+----
+Given a collection of futures, returns a future whose value is eventually avector with the 
+results of these futures.
+
+Given:
+
+    all([ setFuture(1), failedFuture(e) ])
+
+this yields a future whose eventual value is:
+
+    vector[1, e]
+
+Results are accumulated as futures get resolved. The last completed future triggers the calls to
+`onSet`-registered listeners on the same thread.
+----
 function all = |futures| {
   let size = futures: size()
   let vector = java.util.ArrayList(size)
@@ -88,6 +164,11 @@ function all = |futures| {
   return p: future()
 }
 
+----
+Given a collection of futures, returns a future whose value is set to the first completing future.
+
+If all futures fail, then the returned future fails to a `java.util.NoSuchElementException`.
+----
 function any = |futures| {
   let size = futures: size()
   let p = promise()
@@ -102,6 +183,17 @@ function any = |futures| {
   return p: future()
 }
 
+----
+Returns a future whose value is set to the *reduction* of a collection of futures.
+
+* `futures` is a collection of futures, and
+* `init` is the initial value, and
+* `reducer` is the reducing function of the form `|acc, next| {...}`.
+
+If any future fails, then the result future fails, too. Otherwise, the returned future is set to the
+accumulation of the values. Listeners callbacks get executed on the thread of the completing future
+which is either the last successful future or the first future to fail.
+----
 function reduce = |futures, init, reducer| {
   let p = promise()
   all(futures): onSet(|results| {
