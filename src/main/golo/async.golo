@@ -211,3 +211,66 @@ function reduce = |futures, init, reducer| {
   return p: future()
 }
 
+----
+Bridge structure to hold a reference to a Golo future and a Java future.
+
+Instances of this struct are being returned by the `enqueue` augmentation on `ExecutorService`
+instances. This essentially adds the ability to:
+
+* use the Golo future for its composability, and
+* use tha Java future to cancel a job.
+----
+struct FutureBridge = {
+  goloFuture,
+  javaFuture
+}
+
+----
+Augmentations for `ExecutorService`.
+----
+augment java.util.concurrent.ExecutorService {
+
+  ----
+  Submits a function `fun` to be executed by this scheduler, and returns a `FutureBridge`.
+
+  `fun` takes no parameters, and its return value is used as a future value.
+
+  The returned `FutureBridge` values are as follows:
+
+  * `goloFuture` is a future from this API that supports composition, and
+  * `javaFuture` is the `java.util.concurrent.Future` returned by `this: submit(...)`.
+
+  Here is a sample usage:
+
+      # Enqueue some elaborated work
+      let f = executor: enqueue({
+        Thread.sleep(1000_L)
+        return 666
+      })
+
+      # Watch what could happen
+      f: goloFuture():
+        onSet(|v| -> println(v)): 
+        onFail(|e| -> println(e: getMessage()))
+
+      # ...but make it fail unless the CPU was too slow
+      f: javaFuture(): cancel(true)
+  ----
+  function enqueue = |this, fun| {
+    let callable = fun: to(java.util.concurrent.Callable.class)
+    let javaFuture = this: submit(callable)
+    let result = promise()
+    this: submit({
+      try {
+        result: set(javaFuture: get())
+      } catch (e) {
+        result: fail(e)
+        if e oftype java.lang.InterruptedException.class {
+          java.lang.Thread.currentThread(): interrupt()
+        }
+      }
+    })
+    return ImmutableFutureBridge(result: future(), javaFuture)
+  }
+}
+

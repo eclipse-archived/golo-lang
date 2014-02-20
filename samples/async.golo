@@ -31,6 +31,16 @@ function main = |args| {
   let executor = newCachedThreadPool()
   println("Let's do some useless asynchronous operations...")
 
+  let f = executor: enqueue({
+    Thread.sleep(1000_L)
+    return 666
+  })
+  f: goloFuture():
+    onSet(|v| -> println(">>> #slow -> " + v)): 
+    onFail(|e| -> println(">>> #fail -> " + e))
+  f: javaFuture():
+    cancel(true)
+
   let fib_10 = promise()
   let fib_20 = promise()
   let fib_30 = promise()
