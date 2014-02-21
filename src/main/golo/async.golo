@@ -221,8 +221,37 @@ instances. This essentially adds the ability to:
 * use tha Java future to cancel a job.
 ----
 struct FutureBridge = {
-  goloFuture,
-  javaFuture
+  _goloFuture,
+  _javaFuture
+}
+
+----
+A set of forwarding augmentations for `FutureBridge` instances.
+
+The provided functions all forward to Golo futures, while `cancel` forwards to a Java future.
+----
+augment gololang.Async.types.FutureBridge {
+
+  function onSet = |this, listener| -> 
+    this: _goloFuture(): onSet(listener)
+
+  function onFail = |this, listener| -> 
+    this: _goloFuture(): onFail(listener)
+
+  function map = |this, fun| -> 
+    this: _goloFuture(): map(fun)
+
+  function flatMap = |this, fun| ->
+    this: _goloFuture(): flatMap(fun)
+
+  function filter = |this, pred| -> 
+    this: _goloFuture(): filter(pred)
+
+  function fallbackTo = |this, future| -> 
+    this: _goloFuture(): fallbackTo(future)
+
+  function cancel = |this, mayInterruptIfRunning| -> 
+    this: _javaFuture(): cancel(mayInterruptIfRunning)
 }
 
 ----
@@ -235,10 +264,8 @@ augment java.util.concurrent.ExecutorService {
 
   `fun` takes no parameters, and its return value is used as a future value.
 
-  The returned `FutureBridge` values are as follows:
-
-  * `goloFuture` is a future from this API that supports composition, and
-  * `javaFuture` is the `java.util.concurrent.Future` returned by `this: submit(...)`.
+  The returned `FutureBridge` behaves both as a composable Golo future and as a Java future that can be
+  cancelled.
 
   Here is a sample usage:
 
@@ -249,12 +276,11 @@ augment java.util.concurrent.ExecutorService {
       })
 
       # Watch what could happen
-      f: goloFuture():
-        onSet(|v| -> println(v)): 
-        onFail(|e| -> println(e: getMessage()))
+      f: onSet(|v| -> println(v)): 
+         onFail(|e| -> println(e: getMessage()))
 
       # ...but make it fail unless the CPU was too slow
-      f: javaFuture(): cancel(true)
+      f: cancel(true)
   ----
   function enqueue = |this, fun| {
     let callable = fun: to(java.util.concurrent.Callable.class)
