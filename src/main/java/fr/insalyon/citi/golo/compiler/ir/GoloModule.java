@@ -97,4 +97,18 @@ public final class GoloModule extends GoloElement {
   public void accept(GoloIrVisitor visitor) {
     visitor.visitModule(this);
   }
+
+  public void internStructAugmentations() {
+    HashSet<String> structNames = new HashSet<>();
+    for (Struct struct : structs) {
+      structNames.add(struct.getPackageAndClass().className());
+    }
+    for (String augmentation : augmentations.keySet()) {
+      if (structNames.contains(augmentation)) {
+        augmentations.put(packageAndClass + ".types." + augmentation, augmentations.get(augmentation));
+        augmentations.remove(augmentation);
+      }
+    }
+    structNames.clear();
+  }
 }

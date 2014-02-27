@@ -79,7 +79,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTCompilationUnit node, Object data) {
-    return node.childrenAccept(this, data);
+    Context context = (Context) data;
+    Object ret = node.childrenAccept(this, data);
+    context.module.internStructAugmentations();
+    return ret;
   }
 
   @Override

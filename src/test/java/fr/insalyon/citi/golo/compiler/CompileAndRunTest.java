@@ -1155,6 +1155,16 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void structs_concise_augmentation() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
+
+    Method check_concision = moduleClass.getMethod("check_concision");
+    Object result = check_concision.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, is((Object) "{x=1,y=2}"));
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   public void adapters() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "adapters.golo");
