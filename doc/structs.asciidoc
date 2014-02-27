@@ -199,3 +199,37 @@ Private struct members also have the following impact:
 - they are being used like other members in `equals()` and `hashCode()`, and
 - they do not appear in `toString()` representations.
 
+=== Augmenting structs ===
+
+Structs provide a simple data model, especially with private members for encapsulation.
+
+Augmenting structs is encouraged, as in:
+
+----
+module Plop
+
+struct Point = { _id, x, y }
+
+augment Plop.types.Point {
+
+  function str = |this| -> "{id=" + this: _id() + ",x=" + this: x() + ",y=" + this: y() + "}"
+}
+----
+
+When an augmentation on a struct is defined **within the same module**, then you can omit the full
+type name of the struct:
+
+----
+module Plop
+
+struct Point = { _id, x, y }
+
+augment Point {
+
+  function str = |this| -> "{id=" + this: _id() + ",x=" + this: x() + ",y=" + this: y() + "}"
+}
+----
+
+Again, it is important to note that augmentations can only access private struct members when they
+originate from the same module.
+
