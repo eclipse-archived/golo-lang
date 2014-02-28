@@ -233,3 +233,37 @@ augment Point {
 Again, it is important to note that augmentations can only access private struct members when they
 originate from the same module.
 
+[WARNING]
+.Don't do this at home
+====
+Of course doing the following is a bad idea, with the concise augmentation taking over the
+fully-qualified one:
+
+----
+module Foo
+
+struct Value = { v }
+
+augment Foo.types.Value {
+
+  function a = |this| -> "a"
+}
+
+# This will discard the previous augmentation...
+augment Value {
+
+  function b = |this| -> "a"
+}
+
+function check = {
+  let v = Value(666)
+
+  # Ok
+  v: b()
+
+  # Fails, the concise augmentation overrides the fully-qualifed one
+  v: a()
+}
+----
+====
+
