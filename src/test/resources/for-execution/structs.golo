@@ -56,3 +56,13 @@ augment golotest.execution.Structs.types.FooBarBaz {
 function fun_foo_bar_baz = -> FooBarBaz(): foo(1): _bar(2): baz(3)
 
 function augmented_foo_bar_baz = -> FooBarBaz(1, 2, 3): leak()
+
+# ............................................................................................... #
+
+struct Point = { x, y }
+
+augment Point {
+  function str = |this| -> "{x=" + this: x() + ",y=" + this: y() + "}"
+}
+
+function check_concision = -> Point(1, 2): str()
