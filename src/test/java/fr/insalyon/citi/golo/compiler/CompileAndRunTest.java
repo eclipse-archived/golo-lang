@@ -1195,7 +1195,7 @@ public class CompileAndRunTest {
     assertThat(arrayList.size(), is(3));
     assertThat(arrayList, contains("foo", "bar", "baz"));
 
-    if (System.getenv("golo.bootstrapped") != null) {
+    if (!bootstraping()) {
       Method add_arraylist = moduleClass.getMethod("add_arraylist");
       result = add_arraylist.invoke(null);
       assertThat(result, instanceOf(List.class));
@@ -1217,5 +1217,126 @@ public class CompileAndRunTest {
 
     Method meth = moduleClass.getMethod("meth");
     assertThat((String) meth.invoke(null), is("Yeah"));
+  }
+
+  @Test
+  public void async_features_map() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_map = moduleClass.getMethod("check_map");
+    Object result = check_map.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "Ok!"));
+    assertThat(tuple.get(1), instanceOf(RuntimeException.class));
+  }
+
+  @Test
+  public void async_features_flatMap() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_flatMap = moduleClass.getMethod("check_flatMap");
+    Object result = check_flatMap.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "Ok!"));
+    assertThat(tuple.get(1), instanceOf(RuntimeException.class));
+  }
+
+  private static boolean bootstraping() {
+    return System.getenv("golo.bootstrapped") == null;
+  }
+
+  @Test
+  public void async_features_filter() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_filter = moduleClass.getMethod("check_filter");
+    Object result = check_filter.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(3));
+    assertThat(tuple.get(0), is((Object) "Ok"));
+    assertThat(tuple.get(1), instanceOf(NoSuchElementException.class));
+    assertThat(tuple.get(2), instanceOf(RuntimeException.class));
+  }
+
+  @Test
+  public void async_features_fallbackTo() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_fallbackTo = moduleClass.getMethod("check_fallbackTo");
+    Object result = check_fallbackTo.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(3));
+    assertThat(tuple.get(0), is((Object) "Ok"));
+    assertThat(tuple.get(1), is((Object) "Yeah"));
+    assertThat(tuple.get(2), instanceOf(AssertionError.class));
+  }
+
+  @Test
+  @SuppressWarnings("unchecked")
+  public void async_features_all() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_all = moduleClass.getMethod("check_all");
+    Object result = check_all.invoke(null);
+    assertThat(result, instanceOf(ArrayList.class));
+    ArrayList<Object> results = (ArrayList<Object>) result;
+    assertThat(results.size(), is(3));
+    assertThat(results.get(0), is((Object) "foo"));
+    assertThat(results.get(1), is((Object) "bar"));
+    assertThat(results.get(2), instanceOf(RuntimeException.class));
+  }
+
+  @Test
+  public void async_features_any() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_any = moduleClass.getMethod("check_any");
+    Object result = check_any.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "ok"));
+
+    Method check_any_none = moduleClass.getMethod("check_any_none");
+    result = check_any_none.invoke(null);
+    assertThat(result, instanceOf(NoSuchElementException.class));
+  }
+
+  @Test
+  public void async_features_reduce() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "async-features.golo");
+
+    Method check_reduce = moduleClass.getMethod("check_reduce");
+    Object result = check_reduce.invoke(null);
+    assertThat(result, instanceOf(Tuple.class));
+    Tuple tuple = (Tuple) result;
+    assertThat(tuple.size(), is(2));
+    assertThat(tuple.get(0), is((Object) "abc"));
+    assertThat(tuple.get(1), instanceOf(RuntimeException.class));
   }
 }

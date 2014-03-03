@@ -315,7 +315,7 @@ public class Predefined {
    *
    * @param object the object.
    * @return <code>true</code> if <code>object</code> is an instance of <code>java.lang.invoke.MethodHandle</code>,
-   *         <code>false</code> otherwise.
+   * <code>false</code> otherwise.
    */
   public static Object isClosure(Object object) {
     return object instanceof MethodHandle;
