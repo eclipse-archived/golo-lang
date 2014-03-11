@@ -21,7 +21,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo-maven-plugin</artifactId>
-  <version>0-preview11-SNAPSHOT</version>
+  <version>0-preview11</version>
 
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -71,7 +71,7 @@
 
   <properties>
 
-    <gololang.version>0-preview11-SNAPSHOT</gololang.version>
+    <gololang.version>0-preview11</gololang.version>
     <txtmark.version>0.11</txtmark.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -80,6 +80,7 @@
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
     <maven-plugin-api.version>3.0.5</maven-plugin-api.version>
     <maven-plugin-plugin.version>3.2</maven-plugin-plugin.version>
+    <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
   </properties>
 
   <dependencies>
@@ -126,6 +127,16 @@
           <extractors>
             <extractor>java</extractor>
           </extractors>
+        </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-javadoc-plugin</artifactId>
+        <version>${maven-javadoc-plugin.version}</version>
+        <configuration>
+          <additionalparam>-Xdoclint:none</additionalparam>
+          <failOnError>false</failOnError>
         </configuration>
       </plugin>
 
