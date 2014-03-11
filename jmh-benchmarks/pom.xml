@@ -21,7 +21,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo-jmh-benchmarks</artifactId>
-  <version>0-preview11</version>
+  <version>0-preview12-SNAPSHOT</version>
 
   <packaging>jar</packaging>
 
