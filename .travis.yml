@@ -14,6 +14,3 @@ matrix:
 install: "rake special:bootstrap"
 
 script: "mvn clean install"
-
-notifications:
-  irc: "irc.freenode.org#golo-lang"

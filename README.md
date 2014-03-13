@@ -5,7 +5,7 @@
 
 Golo is a simple dynamic, weakly-typed language for the JVM.
 
-Built from day 1 with `invokedynamic`, Golo takes advantage of the latest advances of 
+Built from day 1 with `invokedynamic`, Golo takes advantage of the latest advances of
 the JVM. It is also a showcase on how to build a language runtime with `invokedynamic`.
 
 Golo is being developed as part of the research activities of the
@@ -18,7 +18,6 @@ Golo is being developed as part of the research activities of the
 * GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
 * Mailing-list: [http://groups.google.com/group/golo-lang](http://groups.google.com/group/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
-* IRC: [`#golo-lang` on Freenode](https://webchat.freenode.net/)
 
 ## Building Golo
 
@@ -108,11 +107,10 @@ Big thanks to our early testers before Golo was made public! *(in random order)*
 
 Pierre Colomb, Olivier Coupelon, Cédric Exbrayat, Frédéric Le Mouel, Nicolas Stouls,
 Henri Gomez, Julien Viet, Philippe Charrière, Ludovic Champenois, Thierry Chantier,
-Daniel Petisme, David Gageot, David Festal, Gildas Cuisinier, Thomas Maurel, 
+Daniel Petisme, David Gageot, David Festal, Gildas Cuisinier, Thomas Maurel,
 Yannick Loiseau, Alexis Plantin, Sylvain Desgrais, William Guyot, Agnès Crépet, Cyril Lacote.
 
 ### Companies
 
-[Serli](http://www.serli.com/), 
+[Serli](http://www.serli.com/),
 [Ninja Squad](http://ninja-squad.com/).
-
