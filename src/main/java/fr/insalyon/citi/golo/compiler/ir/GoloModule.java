@@ -100,14 +100,18 @@ public final class GoloModule extends GoloElement {
 
   public void internStructAugmentations() {
     HashSet<String> structNames = new HashSet<>();
+    HashSet<String> trash = new HashSet<>();
     for (Struct struct : structs) {
       structNames.add(struct.getPackageAndClass().className());
     }
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {
-        augmentations.put(packageAndClass + ".types." + augmentation, augmentations.get(augmentation));
-        augmentations.remove(augmentation);
+        trash.add(augmentation);
       }
+    }
+    for (String trashed : trash) {
+      augmentations.put(packageAndClass + ".types." + trashed, augmentations.get(trashed));
+      augmentations.remove(trashed);
     }
     structNames.clear();
   }
