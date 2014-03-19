@@ -43,3 +43,15 @@ function try_finally = {
 function raising = {
   raise("Hello")
 }
+
+function nested_try = {
+  try {
+    try {
+      raise("a")
+    } catch (ok) {
+      return "ok"
+    }
+  } catch (failed) {
+    return "failed"
+  }
+}

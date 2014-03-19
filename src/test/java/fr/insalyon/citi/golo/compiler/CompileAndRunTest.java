@@ -652,6 +652,9 @@ public class CompileAndRunTest {
     } catch (InvocationTargetException expected) {
       assertThat(expected.getCause().getMessage(), is("Hello"));
     }
+
+    Method nested_try = moduleClass.getMethod("nested_try");
+    assertThat(nested_try.invoke(null), is((Object) "ok"));
   }
 
   @Test
