@@ -53,6 +53,23 @@ local function _closureWithIndexArgument = |target| -> match {
 # ............................................................................................... #
 
 ----
+Object augmentations.
+----
+augment java.lang.Object {
+
+  ----
+  Test if an object isn't equal to an other object:
+
+      while choice: notEquals("exit") {}
+
+  It's the same thing as `while choice: equals("exit") isnt true`
+  ----
+  function notEquals = |this, obj| {
+    return not this: equals(obj)
+  }
+}
+
+----
 Number augmentations.
 ----
 augment java.lang.Number {
