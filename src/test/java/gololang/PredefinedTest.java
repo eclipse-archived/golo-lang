@@ -178,4 +178,23 @@ public class PredefinedTest {
     assertThat((Class) Predefined.arrayTypeOf(Object.class), sameInstance((Class) Object[].class));
     assertThat((Class) Predefined.objectArrayType(), sameInstance((Class) Object[].class));
   }
+  
+  @Test
+  public void test_Array() {
+    int[] intArray = (int[]) Predefined.Array(int.class, 3);  
+    assertThat(intArray, isA(int[].class));
+    assertThat(intArray.length, is(3));
+  }
+  
+  @Test
+  public void test_primitivesArray() {
+    assertThat(Predefined.intArray(0), isA(int[].class));
+    assertThat(Predefined.byteArray(0), isA(byte[].class));
+    assertThat(Predefined.shortArray(0), isA(short[].class));
+    assertThat(Predefined.longArray(0), isA(long[].class));
+    assertThat(Predefined.doubleArray(0), isA(double[].class));
+    assertThat(Predefined.floatArray(0), isA(float[].class));
+    assertThat(Predefined.charArray(0), isA(char[].class));
+    assertThat(Predefined.booleanArray(0), isA(boolean[].class));
+  }
 }

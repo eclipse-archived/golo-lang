@@ -21,6 +21,7 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
+import java.lang.reflect.Array;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.nio.charset.Charset;
@@ -459,6 +460,97 @@ public class Predefined {
     require(klass instanceof Class<?>, "klass must be a class");
     Class<?> type = (Class<?>) klass;
     return Class.forName("[L" + type.getName() + ";", true, type.getClassLoader());
+  }
+  
+   /**
+   * Makes a Java primitive array.
+   *
+   * @param klass the array type
+   * @param length the array length
+   * @return an empty array.
+   */
+  public static Object Array(Class<?> klass, int length) {
+    return Array.newInstance(klass, length);
+  }
+  
+   /**
+   * Makes a Java primitive int array.
+   *
+   * @param length the array length
+   * @return an empty array of ints.
+   */
+  public static int[] intArray(int length) {
+    return (int[]) Array(int.class, length);
+  }
+  
+   /**
+   * Makes a Java primitive byte array.
+   *
+   * @param length the array length
+   * @return an empty array of bytes.
+   */
+  public static byte[] byteArray(int length) {
+    return (byte[]) Array(byte.class, length);
+  }
+
+   /**
+   * Makes a Java primitive short array.
+   *
+   * @param length the array length
+   * @return an empty array of shorts.
+   */
+  public static short[] shortArray(int length) {
+    return (short[]) Array(short.class, length);
+  }
+  
+   /**
+   * Makes a Java primitive long array.
+   *
+   * @param length the array length
+   * @return an empty array of longs.
+   */
+  public static long[] longArray(int length) {
+    return (long[]) Array(long.class, length);
+  }
+
+   /**
+   * Makes a Java primitive double array.
+   *
+   * @param length the array length
+   * @return an empty array of doubles.
+   */
+  public static double[] doubleArray(int length) {
+    return (double[]) Array(double.class, length);
+  }
+  
+   /**
+   * Makes a Java primitive float array.
+   *
+   * @param length the array length
+   * @return an empty array of floats.
+   */
+  public static float[] floatArray(int length) {
+    return (float[]) Array(float.class, length);
+  }
+
+   /**
+   * Makes a Java primitive char array.
+   *
+   * @param length the array length
+   * @return an empty array of chars.
+   */
+  public static char[] charArray(int length) {
+    return (char[]) Array(char.class, length);
+  }
+  
+   /**
+   * Makes a Java primitive boolean array.
+   *
+   * @param length the array length
+   * @return an empty array of booleans.
+   */
+  public static boolean[] booleanArray(int length) {
+    return (boolean[]) Array(boolean.class, length);
   }
 
   // ...................................................................................................................
