@@ -15,7 +15,7 @@ Golo provides a more limited but explicit way to add methods to existing classes
 Let us motivate the value of *augmentations* by starting with the following example. Suppose that we would
 like a function to wrap a string with a left and right string. We could do that in Golo as follows:
 
-[source,text]
+[source,golo]
 ----
 function wrap = |left, str, right| -> left + str + right
 
@@ -31,7 +31,7 @@ method to all instances of `java.lang.String` instead?
 
 Defining an augmentation is a matter of adding a `augment` block in a module:
 
-[source,text]
+[source,golo]
 ----
 module foo
 
@@ -54,7 +54,7 @@ It is a good convention to name the receiver `this`, but you are free to call it
 
 Also, augmentation functions can take variable-arity arguments, as in:
 
-[source,text]
+[source,golo]
 ----
 augment java.lang.String {
 
@@ -74,7 +74,7 @@ function varargs = -> "a": concatWith("b", "c", "d")
 It should be noted that augmentations work with class hierarchies too. The following example adds an
 augmentation to `java.util.Collection`, which also adds it to concrete subclasses such as `java.util.LinkedList`:
 
-[source,text]
+[source,golo]
 ----
 augment java.util.Collection {
   function plop = |this| -> "plop!"
@@ -97,7 +97,7 @@ augmentations can make them available through imports.
 Suppose that you want to define augmentations for dealing with URLs from strings. You could define a
 `string-url-augmentations.golo` module source as follows:
 
-[source,text]
+[source,golo]
 ----
 module my.StringUrlAugmentations
 
@@ -118,7 +118,7 @@ augment java.lang.String {
 
 Then, a module willing to take advantage of those augmentations can simply import their defining module:
 
-[source,text]
+[source,golo]
 ----
 module my.App
 

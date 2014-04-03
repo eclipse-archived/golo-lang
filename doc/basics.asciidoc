@@ -17,7 +17,7 @@ Editor and IDE support for Golo is available for:
 Golo source code need to be placed in _modules_. Module names are
 separated with dots, as in:
 
-[source,text]
+[source,golo]
 ----
 Foo
 foo.Bar
@@ -32,7 +32,7 @@ letter.
 A Golo module can be executable if it has a _function_ named `main` and
 that takes an argument for the JVM program arguments:
 
-[source,text]
+[source,golo]
 ----
 module hello.World
 
@@ -86,7 +86,7 @@ You may also pass arguments to the `main` function by appending `--args`
 on the command line invocation. Suppose that we have a module `EchoArgs`
 as follows:
 
-[source,text]
+[source,golo]
 ----
 module EchoArgs
 
@@ -186,7 +186,7 @@ A zsh script can be found in `share/shell-completion/` called `golo-zsh-completi
 
 Golo comments start with a `#`, just like in Bash, Python or Ruby:
 
-[source,text]
+[source,golo]
 ----
 # This is a comment
 println("WTF?") # it works here, too
@@ -206,7 +206,7 @@ compilation error.
 
 Here are a few examples:
 
-[source,text]
+[source,golo]
 ----
 # Ok
 var i = 3
@@ -223,7 +223,7 @@ var foo
 Valid names contain upper and lower case letters within the `[a..z]` range, underscores (`_`),
 dollar symbols (`$`) and numbers. In any case, an identifier must not start with a number.
 
-[source,text]
+[source,golo]
 ----
 # Ok, but not necessarily great for humans...
 let _$_f_o_$$666 = 666
@@ -452,7 +452,7 @@ invoke instance methods.
 You could for instance call the `toString()` method that any Java object has, and print it out as
 follows:
 
-[source,text]
+[source,golo]
 ----
 println(123: toString())
 println(someObject: toString())
@@ -478,7 +478,7 @@ be invoked on arrays:
 
 Given a reference `a` on some array:
 
-[source,text]
+[source,golo]
 ----
 # Gets the element at index 0
 a: get(0)

@@ -6,7 +6,7 @@ Control flow in Golo is imperative and has the usual constructions found in upst
 
 Golo supports the traditional `if` / `else` constructions, as in:
 
-[source,text]
+[source,golo]
 ----
 if goloIsGreat() {
   println("Golo Golo")
@@ -29,7 +29,7 @@ elaborated expression, though.
 Golo offers a versatile `case` construction for conditional branching. It may be used in place of
 multiple nested `if` / `else` statements, as in:
 
-[source,text]
+[source,golo]
 ----
 function what = |obj| {
   case {
@@ -50,7 +50,7 @@ A `case` statement requires at least 1 `when` clause and a mandatory `otherwise`
 is being associated with a block. It is semantically equivalent to the corresponding `if` / `else`
 chain:
 
-[source,text]
+[source,golo]
 ----
 function what = |obj| {
   if obj oftype String.class {
@@ -74,7 +74,7 @@ other languages it is not fully equivalent, as Golo does not support destructuri
 
 `match` is a great addition to the Golo programmer:
 
-[source,text]
+[source,golo]
 ----
 let item = "foo@bar.com"
 
@@ -99,7 +99,7 @@ clause.
 
 While loops in Golo are straightforward:
 
-[source,text]
+[source,golo]
 ----
 function times = |n| {
   var times = 0
@@ -120,7 +120,7 @@ This is the most versatile loop construction, as it features:
 
 The following function shows a `for` loop:
 
-[source,text]
+[source,golo]
 ----
 function fact = |value, n| {
   var result = 1
@@ -144,7 +144,7 @@ Again, this choice is dictated by the pursue of simplicity.
 Golo provides a "for each" style of iteration over iterable elements. Any object that is an instance
 of `java.lang.Iterable` can be used in `foreach` loops, as in:
 
-[source,text]
+[source,golo]
 ----
 function concat_to_string = |iterable| {
   var result = ""
@@ -176,7 +176,7 @@ Like in Java and many other languages:
 
 Consider the following contrived example:
 
-[source,text]
+[source,golo]
 ----
 module test
  

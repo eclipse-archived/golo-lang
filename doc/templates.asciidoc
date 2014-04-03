@@ -7,7 +7,7 @@ compiles template text into Golo functions.
 
 Consider the following example.
 
-[source,text]
+[source,golo]
 ----
 let template = """
 <%@params posts %>
@@ -36,7 +36,7 @@ let template = """
 
 This multi-line string has a Golo template. It can be compiled into a function as follows:
 
-[source,text]
+[source,golo]
 ----
 let tpl = gololang.TemplateEngine(): compile(template)
 println(tpl(someDataModel: posts()))

@@ -9,7 +9,7 @@ This `main` method can servers as a JVM entry point.
 
 Suppose that we have the following Golo module:
 
-[source,text]
+[source,golo]
 ----
 module mainEntryPoint
 
@@ -33,7 +33,7 @@ $
 
 Golo can invoke public Java static methods by treating them as functions:
 
-[source,text]
+[source,golo]
 ------------------------
 module sample
 
@@ -53,7 +53,7 @@ When you have an object, you may invoke its methods using the `:` operator.
 
 The following would call the `toString` method of any kind, then print it:
 
-[source,text]
+[source,golo]
 ----------------------------------------
 println(">>> " + someObject: toString())
 ----------------------------------------
@@ -78,7 +78,7 @@ This is quite useful when querying data models where `null` values could be retu
 elegantly combined with the `orIfNull` operator to return a default value, as illustrated by the
 following example:
 
-[source,text]
+[source,golo]
 ----
 let person = dao: findByName("Mr Bean")
 let city = person?: address()?: city() orIfNull "n/a"
@@ -86,7 +86,7 @@ let city = person?: address()?: city() orIfNull "n/a"
 
 This is more elegant than, say:
 
-[source,text]
+[source,golo]
 ----
 let person = dao: findByName("Mr Bean")
 var city = "n/a"
@@ -109,7 +109,7 @@ calling its constructor is done as if it was just another function.
 
 As an example, we may allocate a `java.util.LinkedList` as follows:
 
-[source,text]
+[source,golo]
 ---------------------
 module sample
 
@@ -122,7 +122,7 @@ function aList = {
 
 Another example would be using a `java.lang.StringBuilder`.
 
-[source,text]
+[source,golo]
 --------------------------------------
 function str_build = {
   return java.lang.StringBuilder("h"):
@@ -141,7 +141,7 @@ As one would expect, the `str_build` function above gives the `"hello"` string.
 Golo treats public static fields as function, so one could get the maximum value for an `Integer` as
 follows:
 
-[source,text]
+[source,golo]
 --------------------------------------
 module samples.MaxInt
 
@@ -171,7 +171,7 @@ public class Foo {
 
 We can access the `bar` field as follows:
 
-[source,text]
+[source,golo]
 ----
 let foo = Foo()
 
@@ -197,7 +197,7 @@ public class Foo {
 
 We can set all fields by chaining invocations as in:
 
-[source,text]
+[source,golo]
 ----
 let foo = Foo(): bar(1): baz(2)
 ----
@@ -223,7 +223,7 @@ public class Foo {
 **Golo resolves methods first, fields last.** Hence, the following Golo code will resolve the
 `bar()` method, not the `bar` field:
 
-[source,text]
+[source,golo]
 ----
 let foo = Foo()
 
@@ -248,7 +248,7 @@ The rules to deal with them in Golo are as follows.
 
 Let us consider the following example:
 
-[source,text]
+[source,golo]
 --------------------------------------------------------------------------
 module sample.EnumsThreadState
 
@@ -290,7 +290,7 @@ operator tokens.
 However, you may find yourself in a situation where you need to invoke a Java method whose name is
 a Golo operator, such as:
 
-[source,text]
+[source,golo]
 -------------------------------------
 # Function call
 is()
@@ -304,7 +304,7 @@ identifiers.
 
 The solution is to use *escaping*, by prefixing identifiers with a backtick, as in:
 
-[source,text]
+[source,golo]
 ---------------------------------------
 # Function call
 `is()
@@ -335,7 +335,7 @@ public class Foo {
 
 This would work with a Golo module defined as in:
 
-[source,text]
+[source,golo]
 ----
 module foo.Bar
 

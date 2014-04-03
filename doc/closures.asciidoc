@@ -6,7 +6,7 @@ Golo supports *closures*, which means that functions can be treated as first-cla
 
 Defining a closure is straightforward as it derives from the way a function can be defined:
 
-[source,text]
+[source,golo]
 ----
 let adder = |a, b| {
   return a + b
@@ -17,7 +17,7 @@ At runtime, a closure is an instance of `java.lang.invoke.MethodHandle`. This me
 all the operations that method handles support, such as invoking them or inserting arguments as
 illustrated in the following example:
 
-[source,text]
+[source,golo]
 ----
 let adder = |a, b| {
   return a + b
@@ -35,14 +35,14 @@ As one would expect, this prints `3` and `12`.
 Golo supports a compact form of closures for the cases where their body consists of a single
 expression. The example above can be simplified as:
 
-[source,text]
+[source,golo]
 ----
 let adder = |a, b| -> a + b
 ----
 
 You may also use this compact form when defining regular functions, as in:
 
-[source,text]
+[source,golo]
 ----
 module Foo
 
@@ -62,7 +62,7 @@ While you may take advantage of closures being method handles and call them usin
 When you have a reference to a closure, you may simply call it as a regular function. The previous
 `adder` example can be equivalently rewritten as:
 
-[source,text]
+[source,golo]
 ----
 let adder = |a, b| -> a + b
 println(adder(1, 2))
@@ -75,7 +75,7 @@ println(addToTen(2))
 
 Closures have access to the lexical scope of their defining environment. Consider this example:
 
-[source,text]
+[source,golo]
 ----
 function plus_3 = {
   let foo = 3
@@ -89,7 +89,7 @@ expect. The `foo` reference is said to have been *captured* and made available i
 It is important to **note that captured references are constants within the closure**. Consider the
 following example:
 
-[source,text]
+[source,golo]
 ----
 var a = 1
 let f = {
@@ -104,7 +104,7 @@ constant references, this results in a compilation error.
 That being said, a closure has a reference on the same object as its defining environment, so a
 mutable object is a sensible way to pass data back from a closure as a side-effect, as in:
 
-[source,text]
+[source,golo]
 ----
 let list = java.util.LinkedList()
 let pump_it = {
@@ -128,7 +128,7 @@ to an instance of a specific interface.
 
 Here is how one could pass an action listener to a `javax.swing.JButton`:
 
-[source,text]
+[source,golo]
 ----
 let button = JButton("Click me!")
 let handler = |event| -> println("Clicked!")
@@ -138,7 +138,7 @@ button: addActionListener(asInterfaceInstance(ActionListener.class, handler))
 Because the `asInterfaceInstance` call consumes some readability budget, you may refactor it with a
 local function as in:
 
-[source,text]
+[source,golo]
 ----
 local function listener = |handler| -> asInterfaceInstance(ActionListener.class, handler)
 
@@ -150,7 +150,7 @@ button: addActionListener(listener(|event| -> println("Clicked!")))
 Here is another example that uses the `java.util.concurrent` APIs to obtain an executor, pass it a
 task, fetch the result with a `Future` object then shut it down:
 
-[source,text]
+[source,golo]
 ----
 function give_me_hey = {
   let executor = Executors.newSingleThreadExecutor()
@@ -166,7 +166,7 @@ function give_me_hey = {
 When a function or method parameter of a Java API expects a single method interface type, you
 can pass a closure directly, as in:
 
-[source,text]
+[source,golo]
 ----
 # (...)
 let button = JButton("Click me!")
@@ -183,7 +183,7 @@ Instead of using `asInterfaceInstance`, you may use a *class augmentation* which
 documentation. In short, it allows you to call a `to` method on instances of `MethodHandle`, which
 in turn calls `asInterfaceInstance`. Back to the previous examples, the next 2 lines are equivalent:
 
-[source,text]
+[source,golo]
 ----
 # Calling asInterfaceInstance
 future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
@@ -197,7 +197,7 @@ future = executor: submit((-> "hey!"): to(Callable.class))
 You may also take advantage of the predefined `fun` function to obtain a reference to a closure, as
 in:
 
-[source,text]
+[source,golo]
 ----
 import golotest.Closures
 
@@ -217,7 +217,7 @@ function call_local_fun = {
 
 Last but not least, we have an even shorter notation if function are not overridden:
 
-[source,text]
+[source,golo]
 ----
 import golotest.Closures
 
@@ -241,7 +241,7 @@ Because closure references are just instances of `java.lang.invoke.MethodHandle`
 first argument using the `bindTo(value)` method. If you need to bind an argument at another position
 than 0, you may take advantage of the `bindAt(position, value)` augmentation:
 
-[source,text]
+[source,golo]
 ----
 let diff = |a, b| -> a - b
 let minus10 = diff: bindAt(1, 10)
@@ -252,7 +252,7 @@ println(minus10(20))
 
 You may compose function using the `andThen` augmentation method:
 
-[source,text]
+[source,golo]
 ----
 let f = (|x| -> x + 1): andThen(|x| -> x - 10): andThen(|x| -> x * 100)
 
@@ -265,14 +265,14 @@ println(f(4))
 Given that functions are first-class objects in Golo, you may define functions (or closures) that
 return functions, as in:
 
-[source,text]
+[source,golo]
 ----
 let f = |x| -> |y| -> |z| -> -> x + y + z
 ----
 
 You could use intermediate references to use the `f` function above:
 
-[source,text]
+[source,golo]
 ----
 let f1 = f(1)
 let f2 = f1(2)
@@ -284,7 +284,7 @@ println(f3())
 
 Golo supports a nicer syntax if you don't need intermediate references:
 
-[source,text]
+[source,golo]
 ----
 # Prints '6'
 println(f(1)(2)(3)())

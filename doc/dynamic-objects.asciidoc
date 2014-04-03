@@ -7,7 +7,7 @@ think of it as an enhancement over using hash maps and putting closures in them.
 
 Creating a dynamic object is as simple as calling the `DynamicObject` function:
 
-[source,text]
+[source,golo]
 ----
 let foo = DynamicObject()
 ----
@@ -31,7 +31,7 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 
 Defining values also defines getter and setter methods, as illustrated by the next example:
 
-[source,text]
+[source,golo]
 ----
 let person = DynamicObject(): 
   define("name", "MrBean"):
@@ -48,7 +48,7 @@ println(person: name())
 Calling a setter method for a non-existent property defines it, hence the previous example can be
 rewritten as:
 
-[source,text]
+[source,golo]
 ----
 let person = DynamicObject(): name("MrBean"): email("mrbean@gmail.com")
 
@@ -68,7 +68,7 @@ as you want.
 
 Here is an example where we define a `toString`-style of method:
 
-[source,text]
+[source,golo]
 ----
 local function mrbean = -> DynamicObject(): 
   name("Mr Bean"): 
@@ -128,7 +128,7 @@ methods).**
 The `properties()` method returns a set of entries, as instances of `java.util.Map.Entry`. You can
 thus write code such as:
 
-[source,text]
+[source,golo]
 ----
 function dump = |obj| {
   foreach prop in obj: properties() {
@@ -147,7 +147,7 @@ Here is an example of how to define a fallback.
 
 NOTE: Calling a setter method for a non-existent property defines it, thus the fallback is not applicable for setters.
 
-[source,text]
+[source,golo]
 ----
 let dynob = DynamicObject():
   fallback(|this, method, args...| {
