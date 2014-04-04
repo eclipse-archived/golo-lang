@@ -94,6 +94,7 @@ signatures.
 It is strongly recommended that you use `define` to create and update methods.
 Consider the following example:
 
+[source,golo]
 ----
 let obj = DynamicObject():
   plop(|this| -> "Plop!")
@@ -104,6 +105,7 @@ the first call to `plop` creates a property since it is currently missing.
 
 That being said, the following would fail:
 
+[source,golo]
 ----
 obj: plop(|this| -> "Plop it up!")
 ----
@@ -112,6 +114,7 @@ Indeed, when the value of a dynamic object property is a function, it is underst
 hence calling `plop` like it would be a setter method fails because there already exists a property
 that is a function, and it has a different signature. It needs to be updated as in:
 
+[source,golo]
 ----
 obj: define('plop', |this| -> "Plop it up!")
 ----

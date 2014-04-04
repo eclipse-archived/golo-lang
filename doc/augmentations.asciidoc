@@ -140,6 +140,7 @@ These augmentation do not require a special import, and they are defined in the
 
 Here is an example:
 
+[source,golo]
 ----
 let odd = [1, 2, 3, 4, 5]: filter(|n| -> (n % 2) == 0)
 

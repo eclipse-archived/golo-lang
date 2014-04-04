@@ -295,12 +295,14 @@ println(f(1)(2)(3)())
 This syntax only works following a function or method invocation, not on expressions. This means
 that:
 
+[source,golo]
 ----
 foo: bar()("baz")
 ----
 
 is valid, while:
 
+[source,golo]
 ----
 (foo: bar())("baz")
 ----
