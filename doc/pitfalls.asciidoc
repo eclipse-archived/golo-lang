@@ -11,7 +11,7 @@ will make some of the following mistakes early on.
 Golo does not have a `new` operator for allocating objects. Instead, one should just call a
 constructor as a function:
 
-[source,text]
+[source,golo]
 ----
 # Good
 let foo = java.util.LinkedList()
@@ -28,7 +28,7 @@ resolve names of types, functions, and so on.
 You must think of `import` statements as a notational shortcut, nothing else. Golo tries to resolve
 a name as-is, then tries to complete with every import until a match is found.
 
-[source,text]
+[source,golo]
 ----
 import java.util
 import java.util.concurrent.AtomicInteger
@@ -52,7 +52,7 @@ many languages.
 
 This is a common mistake!
 
-[source,text]
+[source,golo]
 ----
 # Calls toString() on foo
 foo: toString()
@@ -66,7 +66,7 @@ foo.toString()
 One thing to keep in mind is that `match` returns a value, and that it is not a closure unless you
 want it to.
 
-[source,text]
+[source,golo]
 ----
 let foo = match {
   case plop then 1

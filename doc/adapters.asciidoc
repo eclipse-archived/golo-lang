@@ -18,7 +18,7 @@ http://www.sparkjava.com/[Spark micro-framework].
 Spark requires route handlers to extend an abstract base class called `spark.Route`. The following
 code snippet does just that:
 
-[source,text]
+[source,golo]
 ----
 module sparky
 
@@ -60,7 +60,7 @@ checks on them a in: `(foo oftype gololang.GoloAdapter.class)`.
 
 This is as easy as providing a `java.lang.Iterable` as part of the configuration:
 
-[source,text]
+[source,golo]
 ----
 let result = array[1, 2, 3]                                      
 let conf = map[                                                  
@@ -87,7 +87,7 @@ method? In Java, you would use a `super` reference, but Golo does not provide th
 Instead, you can override methods, and have the parent class implementation given to you as a
 method handle parameter:
 
-[source,text]
+[source,golo]
 ----
 let conf = map[                                        
   ["overrides", map[                                   
@@ -109,7 +109,7 @@ that providing both a star implementation and a star override is an error.
 
 Let us see a concrete example:
 
-[source,text]
+[source,golo]
 ----
 let carbonCopy = list[] <1>                              
 let conf = map[                                       

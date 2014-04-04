@@ -8,7 +8,7 @@ code, or when used from a polyglot JVM application that embeds Golo.
 
 The code of a complete module can be evaluated by the `asModule` method:
 
-[source,text]
+[source,golo]
 ----
 let env = gololang.EvaluationEnvironment()
 let code =
@@ -34,7 +34,7 @@ class loader cannot load classes with the same name twice.
 The `anonymousModule` method is similar to `asModule`, except that the code to evaluate is free of
 `module` declaration:
 
-[source,text]
+[source,golo]
 ----
 let env = gololang.EvaluationEnvironment()
 let code =
@@ -56,7 +56,7 @@ suitable in cases where the same code is to be re-evaluated several times.
 
 The `asFunction` and `def` methods evaluate function code. Here is how `asFunction` can be used:
 
-[source,text]
+[source,golo]
 ----
 let env = gololang.EvaluationEnvironment()
 let code = "return (a + b) * 2"
@@ -67,7 +67,7 @@ println(f(10, 20))
 It evaluates straight code as the body of a function. Note that `imports` can be used to specify
 `import` statements to be available while evaluation the code:
 
-[source,text]
+[source,golo]
 ----
 env:
   imports("java.util.LinkedList", "java.util.HashMap"):
@@ -77,7 +77,7 @@ let m = HashMap()""")
 
 The `def` method is similar, except that it has the parameters definition in the code to evaluate:
 
-[source,text]
+[source,golo]
 ----
 let env = gololang.EvaluationEnvironment()
 let code = "|a, b| -> (a + b) * 2"
@@ -89,7 +89,7 @@ println(f(10, 20))
 
 The first form of `run` method works as follows:
 
-[source,text]
+[source,golo]
 ----
 let env = gololang.EvaluationEnvironment()
 let code = """println(">>> run")
@@ -102,7 +102,7 @@ println(env: run(code)) # => "w00t"x3 and "666"
 
 The second form allows passing parameter values in a map:
 
-[source,text]
+[source,golo]
 ----
 let env = gololang.EvaluationEnvironment()
 let code = """println(">>> run_map")

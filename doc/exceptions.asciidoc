@@ -13,7 +13,7 @@ Golo provides 2 predefined functions for raising exceptions:
 
 Throwing an exception is thus as easy as:
 
-[source,text]
+[source,golo]
 -----------------------
 if somethingIsWrong() {
   raise("Woops!")
@@ -26,7 +26,7 @@ Of course not every exception shall be an instance of `java.lang.RuntimeExceptio
 specialized type is required, you may simply instantiate a Java exception and throw it using the
 `throw` keyword as in the following example:
 
-[source,text]
+[source,golo]
 ---------------------------------------
 module golotest.execution.Exceptions
 
@@ -45,7 +45,7 @@ regarding the handling of `finally` blocks.
 
 The following snippets show each exception handling form.
 
-[source,text]
+[source,golo]
 --------------------------------------
 # Good old try / catch
 try {

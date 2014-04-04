@@ -51,7 +51,7 @@ the `awaitTermination`, `isShutdown` and `isTerminated` methods whose semantics 
 Worker functions take a single parameter which is the message to be received. To obtain a port, you
 need to call the `spawn(target)` function of a worker environment, as in:
 
-[source,text]
+[source,golo]
 ----
 let env = WorkerEnvironment.builder(): withFixedThreadPool()
 let port = env: spawn(|message| -> println(">>> " + message))
@@ -59,7 +59,7 @@ let port = env: spawn(|message| -> println(">>> " + message))
 
 A port provides a `send(message)` method:
 
-[source,text]
+[source,golo]
 ----
 port: send("hello"): send("world")
 ----
@@ -70,7 +70,7 @@ Messages are being put in a queue, and eventually dispatched to the function tha
 
 To better understand how workers can be used, here is a (fairly useless) example:
 
-[source,text]
+[source,golo]
 ----
 module SampleWithWorkers
 
