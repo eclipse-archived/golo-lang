@@ -8,6 +8,7 @@ the set of named entries is fixed.
 
 Structures are defined at the module-level:
 
+[source,golo]
 ----
 module sample
 
@@ -36,6 +37,7 @@ Each `struct` is compiled to a self-contained JVM class.
 
 Given:
 
+[source,golo]
 ----
 module sample
 
@@ -57,6 +59,7 @@ content.
 
 Given the following program:
 
+[source,golo]
 ----
 module test
 
@@ -69,6 +72,7 @@ function main = |args| {
 
 running it prints the following console output:
 
+[source,golo]
 ----
 struct Point{x=1, y=2}
 ----
@@ -78,6 +82,7 @@ struct Point{x=1, y=2}
 Structure instances are mutable by default. Golo generates a factory function with the `Immutable`
 prefix to directly build immutable instances:
 
+[source,golo]
 ----
 module test
 
@@ -122,6 +127,7 @@ being used.
 
 Consider the following program:
 
+[source,golo]
 ----
 module test
 
@@ -147,6 +153,7 @@ function main = |args| {
 
 the console output is the following:
 
+[source,golo]
 ----
 p1 == p2 false
 p1 == p3 false
@@ -176,6 +183,7 @@ A number of helper methods are being generated:
 By default, all members in a struct can be accessed. It is possible to make some elements private by
 prefixing them with `_`, as in:
 
+[source,golo]
 ----
 struct Foo = { a, _b, c }
 
@@ -205,6 +213,7 @@ Structs provide a simple data model, especially with private members for encapsu
 
 Augmenting structs is encouraged, as in:
 
+[source,golo]
 ----
 module Plop
 
@@ -219,6 +228,7 @@ augment Plop.types.Point {
 When an augmentation on a struct is defined **within the same module**, then you can omit the full
 type name of the struct:
 
+[source,golo]
 ----
 module Plop
 
@@ -239,6 +249,7 @@ originate from the same module.
 Of course doing the following is a bad idea, with the concise augmentation taking over the
 fully-qualified one:
 
+[source,golo]
 ----
 module Foo
 
