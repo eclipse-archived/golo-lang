@@ -51,7 +51,7 @@ public final class Observable {
 
   public Observable filter(final Predicate predicate) {
     final Observable observable = new Observable(null);
-    return observable.onChange(new Observer() {
+    this.onChange(new Observer() {
       @Override
       public void apply(Object newValue) {
         if (predicate.apply(newValue)) {
@@ -59,16 +59,18 @@ public final class Observable {
         }
       }
     });
+    return observable;
   }
 
   public Observable map(final Function function) {
     final Observable observable = new Observable(null);
-    return observable.onChange(new Observer() {
+    this.onChange(new Observer() {
       @Override
       public void apply(Object newValue) {
         observable.set(function.apply(newValue));
       }
     });
+    return observable;
   }
 
   @Override

@@ -65,16 +65,16 @@ public class ObservableTest {
     assertThat(filtering.get(), nullValue());
     assertThat(mapping.get(), nullValue());
 
-//    source.set(2);
-//    assertThat(filtering.get(), is((Object) 2));
-//    assertThat(mapping.get(), is((Object) 20));
-//
-//    source.set(3);
-//    assertThat(filtering.get(), is((Object) 2));
-//    assertThat(mapping.get(), is((Object) 30));
-//
-//    source.set(4);
-//    assertThat(filtering.get(), is((Object) 4));
-//    assertThat(mapping.get(), is((Object) 40));
+    source.set(2);
+    assertThat(filtering.get(), is((Object) 2));
+    assertThat(mapping.get(), is((Object) 20));
+
+    source.set(3);
+    assertThat(filtering.get(), is((Object) 2));
+    assertThat(mapping.get(), is((Object) 30));
+
+    source.set(4);
+    assertThat(filtering.get(), is((Object) 4));
+    assertThat(mapping.get(), is((Object) 40));
   }
 }
