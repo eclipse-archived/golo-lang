@@ -180,7 +180,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+  public void visitBinaryOperation(BinaryOperation binaryOperation) {
     incr();
     space();
     System.out.println("Binary operator: " + binaryOperation.getType());
@@ -215,7 +215,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+  public void visitMethodInvocation(MethodInvocation methodInvocation) {
     incr();
     space();
     System.out.println("Method invocation: " + methodInvocation.getName() + ", null safe? -> " + methodInvocation.isNullSafeGuarded());
@@ -274,7 +274,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+  public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     incr();
     space();
     System.out.println("Loop break flow: " + loopBreakFlowStatement.getType().name());
@@ -282,7 +282,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+  public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
     incr();
     space();
     System.out.println("Collection literal of type: " + collectionLiteral.getType());

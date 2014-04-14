@@ -204,7 +204,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+  public void visitBinaryOperation(BinaryOperation binaryOperation) {
     binaryOperation.getLeftExpression().accept(this);
     binaryOperation.getRightExpression().accept(this);
   }
@@ -229,7 +229,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+  public void visitMethodInvocation(MethodInvocation methodInvocation) {
     for (ExpressionStatement argument : methodInvocation.getArguments()) {
       argument.accept(this);
     }
@@ -263,7 +263,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+  public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     if (loopStack.isEmpty()) {
       getExceptionBuilder().report(BREAK_OR_CONTINUE_OUTSIDE_LOOP,
           loopBreakFlowStatement.getASTNode(),
@@ -274,7 +274,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+  public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
     for (ExpressionStatement statement : collectionLiteral.getExpressions()) {
       statement.accept(this);
     }

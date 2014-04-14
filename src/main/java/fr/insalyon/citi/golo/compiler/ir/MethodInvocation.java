@@ -34,6 +34,6 @@ public class MethodInvocation extends AbstractInvocation {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-    visitor.acceptMethodInvocation(this);
+    visitor.visitMethodInvocation(this);
   }
 }

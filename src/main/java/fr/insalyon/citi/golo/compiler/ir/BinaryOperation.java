@@ -45,6 +45,6 @@ public class BinaryOperation extends ExpressionStatement {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-    visitor.acceptBinaryOperation(this);
+    visitor.visitBinaryOperation(this);
   }
 }

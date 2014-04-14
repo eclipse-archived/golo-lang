@@ -52,6 +52,6 @@ public class LoopBreakFlowStatement extends GoloStatement {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-    visitor.acceptLoopBreakFlowStatement(this);
+    visitor.visitLoopBreakFlowStatement(this);
   }
 }

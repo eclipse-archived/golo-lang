@@ -387,7 +387,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptMethodInvocation(MethodInvocation methodInvocation) {
+  public void visitMethodInvocation(MethodInvocation methodInvocation) {
     visitInvocationArguments(methodInvocation);
     methodVisitor.visitInvokeDynamicInsn(
         methodInvocation.getName().replaceAll("\\.", "#"),
@@ -461,7 +461,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
+  public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     Label jumpTarget;
     if (LoopBreakFlowStatement.Type.BREAK.equals(loopBreakFlowStatement.getType())) {
       jumpTarget = context.loopEndMap.get(loopBreakFlowStatement.getEnclosingLoop());
@@ -475,7 +475,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptCollectionLiteral(CollectionLiteral collectionLiteral) {
+  public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
     // TODO generate bytecode for collections
     switch (collectionLiteral.getType()) {
       case tuple:
@@ -672,7 +672,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void acceptBinaryOperation(BinaryOperation binaryOperation) {
+  public void visitBinaryOperation(BinaryOperation binaryOperation) {
     OperatorType operatorType = binaryOperation.getType();
     if (AND.equals(operatorType)) {
       andOperator(binaryOperation);

@@ -36,13 +36,13 @@ public interface GoloIrVisitor {
 
   void visitConditionalBranching(ConditionalBranching conditionalBranching);
 
-  void acceptBinaryOperation(BinaryOperation binaryOperation);
+  void visitBinaryOperation(BinaryOperation binaryOperation);
 
   void visitUnaryOperation(UnaryOperation unaryOperation);
 
   void visitLoopStatement(LoopStatement loopStatement);
 
-  void acceptMethodInvocation(MethodInvocation methodInvocation);
+  void visitMethodInvocation(MethodInvocation methodInvocation);
 
   void visitThrowStatement(ThrowStatement throwStatement);
 
@@ -50,7 +50,7 @@ public interface GoloIrVisitor {
 
   void visitClosureReference(ClosureReference closureReference);
 
-  void acceptLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement);
+  void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement);
 
-  void acceptCollectionLiteral(CollectionLiteral collectionLiteral);
+  void visitCollectionLiteral(CollectionLiteral collectionLiteral);
 }

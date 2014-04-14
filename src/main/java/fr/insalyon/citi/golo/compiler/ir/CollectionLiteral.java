@@ -42,6 +42,6 @@ public class CollectionLiteral extends ExpressionStatement {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-    visitor.acceptCollectionLiteral(this);
+    visitor.visitCollectionLiteral(this);
   }
 }
