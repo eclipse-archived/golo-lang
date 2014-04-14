@@ -26,18 +26,18 @@ import spark
 import spark.Spark
 
 function main = |args| {
-  let conf = map[   <1>
-    ["extends", "spark.Route"],   <2>
-    ["implements", map[   <3>
-      ["handle", |this, request, response| {  <4>
+  let conf = map[   # <1>
+    ["extends", "spark.Route"],   # <2>
+    ["implements", map[   # <3>
+      ["handle", |this, request, response| {  # <4>
         return "Golo, world!"
       }]
     ]]
   ]
-  let fabric = AdapterFabric()  <5>
-  let routeMaker = fabric: maker(conf)  <6>
-  let route = routeMaker: newInstance("/hello")   <7>
-  get(route)  <8>
+  let fabric = AdapterFabric()  # <5>
+  let routeMaker = fabric: maker(conf)  # <6>
+  let route = routeMaker: newInstance("/hello")   # <7>
+  get(route)  # <8>
 }
 ----
 
@@ -74,7 +74,7 @@ let conf = map[
   ]]                                                             
 ]                                                                
 let runner = AdapterFabric(): maker(conf): newInstance()         
-runner: run() <1>
+runner: run() # <1>
 ----
 
 <1> As you may guess, this changes the `result` array values to `[11, 12, 13]`.
@@ -94,7 +94,7 @@ let conf = map[
     ["toString", |super, this| -> ">>> " + super(this)]
   ]]                                                   
 ]                                                      
-println(AdapterFabric(): maker(conf): newInstance(): toString()) <1>
+println(AdapterFabric(): maker(conf): newInstance(): toString()) # <1>
 ----
 
 <1> This prints something like: `>>> $Golo$Adapter$0@12fc7ceb`.
@@ -111,26 +111,26 @@ Let us see a concrete example:
 
 [source,golo]
 ----
-let carbonCopy = list[] <1>                              
+let carbonCopy = list[] # <1>                              
 let conf = map[                                       
   ["extends", "java.util.ArrayList"],                 
   ["overrides", map[                                  
-    ["*", |super, name, args| { <2>
+    ["*", |super, name, args| { # <2>
       if name == "add" {                              
         if args: length() == 2 {                      
-          carbonCopy: add(args: get(1))  <3>             
+          carbonCopy: add(args: get(1))  # <3>
         } else {                                      
-          carbonCopy: add(args: get(1), args: get(2)) <4>
+          carbonCopy: add(args: get(1), args: get(2)) # <4>
         }                                             
       }                                               
-      return super: spread(args)  <5>                    
+      return super: spread(args)  # <5>
     }                                                 
   ]]                                                  
 ]]                                                    
 let list = AdapterFabric(): maker(conf): newInstance()
 list: add("bar")                                      
 list: add(0, "foo")                                   
-list: add("baz")  <6>                                    
+list: add("baz")  # <6>
 ----
 
 <1> We create an empty list, more on that later.
