@@ -2,6 +2,8 @@
 
 module golo.test.bootstrapped.JSON
 
+import gololang.JSON
+
 # ............................................................................................... #
 
 function roundtrip = {
@@ -38,5 +40,27 @@ function dyobj_parse = ->
   JSON.toDynamicObject(JSON.stringify(map[
     ["a", "1"], ["b", "2"]
   ]))
+
+struct Person = { name, age, email }
+
+function struct_stringify = ->
+  Person("Mr Bean", "mrbean@outlook.com", 64): toJSON()
+
+function struct_fromjson = {
+  let str = JSON.stringify(map[
+    ["name", "Foo"],
+    ["email", "foo@gmail.com"],
+    ["age", 99],
+    ["gender", "N/A"]
+  ])
+  return Person(): updateFromJSON(str)
+}
+
+function stringify_mix_struct_and_dynobj = {
+  let obj = DynamicObject():
+    define("a", "1"):
+    define("b", Person("Mr Bean", "mrbean@outlook.com", 64))
+  return obj: mixin(JSON.dynamicObjectMixin()): toJSON()
+}
 
 # ............................................................................................... #

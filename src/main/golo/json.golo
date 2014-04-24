@@ -18,9 +18,13 @@
 
 module gololang.JSON
 
+# ............................................................................................... #
+
 function stringify = |obj| -> org.json.simple.JSONValue.toJSONString(obj)
 
 function parse = |str| -> org.json.simple.JSONValue.parseWithException(str)
+
+# ............................................................................................... #
 
 function dynamicObjectToJSON = |dynobj| {
   let json = org.json.simple.JSONObject()
@@ -29,6 +33,7 @@ function dynamicObjectToJSON = |dynobj| {
     if not(isClosure(value)) {
       let encodedValue = match {
         when value oftype gololang.DynamicObject.class then dynamicObjectToJSON(value)
+        when value oftype gololang.GoloStruct.class then value: toJSON()
         otherwise value
       }
       json: put(prop: getKey(), encodedValue)
@@ -47,3 +52,26 @@ function toDynamicObject = |str| {
   }
   return obj
 }
+
+# ............................................................................................... #
+
+augment gololang.GoloStruct {
+
+  function toJSON = |this| {
+    let json = org.json.simple.JSONObject()
+    foreach member in this: members() {
+      json: put(member, this: get(member))
+    }
+    return json: toJSONString()
+  }
+
+  function updateFromJSON = |this, str| {
+    let map = parse(str)
+    foreach member in this: members() {
+      this: set(member, map: get(member))
+    }
+    return this
+  }
+}
+
+# ............................................................................................... #

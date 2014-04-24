@@ -91,4 +91,29 @@ public class JSONTest {
     assertThat(obj.get("a"), is((Object) "1"));
     assertThat(obj.get("b"), is((Object) "2"));
   }
+
+  @Test
+  public void struct_stringify() throws Throwable {
+    Method struct_stringify = moduleClass.getMethod("struct_stringify");
+    String json = (String) struct_stringify.invoke(null);
+    assertThat(json, containsString("Mr Bean"));
+    assertThat(json, containsString("email"));
+  }
+
+  @Test
+  public void struct_fromjson() throws Throwable {
+    Method struct_fromjson = moduleClass.getMethod("struct_fromjson");
+    GoloStruct struct = (GoloStruct) struct_fromjson.invoke(null);
+    assertThat(struct.get("name"), is((Object) "Foo"));
+    assertThat(struct.get("email"), is((Object) "foo@gmail.com"));
+    assertThat(struct.get("age"), is((Object) 99L));
+  }
+
+  @Test
+  public void stringify_mix_struct_and_dynobj() throws Throwable {
+    Method stringify_mix_struct_and_dynobj = moduleClass.getMethod("stringify_mix_struct_and_dynobj");
+    String json = (String) stringify_mix_struct_and_dynobj.invoke(null);
+    assertThat(json, containsString("{\\\"name\\\":\\\"Mr Bean\\\""));
+    assertThat(json, containsString("\"a\":\"1\""));
+  }
 }
