@@ -37,11 +37,15 @@ local function isSeq = |obj| ->
 
 local function stringify_walk = |obj| {
   if obj oftype java.util.Map.class {
-    return org.json.simple.JSONObject(obj)
+    let json = org.json.simple.JSONObject()
+    foreach key in obj: keySet() {
+      json: put(key, stringify_walk(obj: get(key)))
+    }
+    return json
   } else if isSeq(obj) {
     let json = org.json.simple.JSONArray()
     foreach value in obj {
-      json: add(value)
+      json: add(stringify_walk(value))
     }
     return json
   } else if obj oftype gololang.DynamicObject.class {
@@ -56,7 +60,7 @@ local function stringify_walk = |obj| {
   } else if (obj oftype gololang.GoloStruct.class) {
     let json = org.json.simple.JSONObject()
     foreach member in obj: members() {
-      json: put(member, obj: get(member))
+      json: put(member, stringify_walk(obj: get(member)))
     }
     return json
   }
