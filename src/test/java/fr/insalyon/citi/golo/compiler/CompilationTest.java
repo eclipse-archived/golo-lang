@@ -18,7 +18,6 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.internal.testing.TestUtils;
-import fr.insalyon.citi.golo.internal.testing.Tracing;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -31,11 +30,11 @@ import java.util.Iterator;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
-import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
-import static fr.insalyon.citi.golo.internal.testing.Tracing.shouldTrace;
-import static fr.insalyon.citi.golo.internal.testing.Tracing.traceBytecode;
-import static org.hamcrest.CoreMatchers.*;
+import static fr.insalyon.citi.golo.internal.testing.Tracing.*;
+import static org.hamcrest.CoreMatchers.is;
+import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.startsWith;
 
 public class CompilationTest {
 
