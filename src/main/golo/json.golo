@@ -21,3 +21,29 @@ module gololang.JSON
 function stringify = |obj| -> org.json.simple.JSONValue.toJSONString(obj)
 
 function parse = |str| -> org.json.simple.JSONValue.parseWithException(str)
+
+function dynamicObjectToJSON = |dynobj| {
+  let json = org.json.simple.JSONObject()
+  foreach prop in dynobj: properties() {
+    let value = prop: getValue()
+    if not(isClosure(value)) {
+      let encodedValue = match {
+        when value oftype gololang.DynamicObject.class then dynamicObjectToJSON(value)
+        otherwise value
+      }
+      json: put(prop: getKey(), encodedValue)
+    }
+  }
+  return json: toJSONString()
+}
+
+function dynamicObjectMixin = -> DynamicObject(): define("toJSON", ^dynamicObjectToJSON)
+
+function toDynamicObject = |str| {
+  let obj = DynamicObject()
+  let map = parse(str)
+  foreach key in map: keySet() {
+    obj: define(key, map: get(key))
+  }
+  return obj
+}

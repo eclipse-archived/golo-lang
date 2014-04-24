@@ -60,11 +60,35 @@ public class JSONTest {
     assertThat(str, containsString("[\"Mr Bean\""));
 
     assertThat(tuple.get(1), instanceOf(Map.class));
-    Map<?, ?> map = (Map<?,?>) tuple.get(1);
+    Map<?, ?> map = (Map<?, ?>) tuple.get(1);
     assertThat(map, hasEntry((Object) "name", (Object) "Somebody"));
     assertThat(map, hasEntry((Object) "age", (Object) 69L));
     assertThat(map, hasKey((Object) "friends"));
     List<?> friends = (List<?>) map.get("friends");
     assertThat(friends, contains((Object) "Mr Bean", "John B", "Larry"));
+  }
+
+  @Test
+  public void dyobj_stringify() throws Throwable {
+    Method dyobj_stringify = moduleClass.getMethod("dyobj_stringify");
+    String json = (String) dyobj_stringify.invoke(null);
+    assertThat(json, containsString("\"foo\":\"bar\""));
+    assertThat(json, containsString("\"nested\":\"{\\\"a\\\":\\\"1\\\",\\\"b\\\":\\\"2\\\"}\""));
+  }
+
+  @Test
+  public void dyobj_stringify_mixin() throws Throwable {
+    Method dyobj_stringify_mixin = moduleClass.getMethod("dyobj_stringify_mixin");
+    String json = (String) dyobj_stringify_mixin.invoke(null);
+    assertThat(json, containsString("\"foo\":\"bar\""));
+    assertThat(json, containsString("\"nested\":\"{\\\"a\\\":\\\"1\\\",\\\"b\\\":\\\"2\\\"}\""));
+  }
+
+  @Test
+  public void dyobj_parse() throws Throwable {
+    Method dyobj_parse = moduleClass.getMethod("dyobj_parse");
+    DynamicObject obj = (DynamicObject) dyobj_parse.invoke(null);
+    assertThat(obj.get("a"), is((Object) "1"));
+    assertThat(obj.get("b"), is((Object) "2"));
   }
 }
