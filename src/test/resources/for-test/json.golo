@@ -31,7 +31,7 @@ function dynobj = {
 }
 
 function dyobj_stringify = ->
-  JSON.dynamicObjectToJSON(dynobj())
+  JSON.stringify(dynobj())
 
 function dyobj_stringify_mixin = ->
   dynobj(): mixin(JSON.dynamicObjectMixin()): toJSON()

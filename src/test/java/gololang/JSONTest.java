@@ -73,7 +73,7 @@ public class JSONTest {
     Method dyobj_stringify = moduleClass.getMethod("dyobj_stringify");
     String json = (String) dyobj_stringify.invoke(null);
     assertThat(json, containsString("\"foo\":\"bar\""));
-    assertThat(json, containsString("\"nested\":\"{\\\"a\\\":\\\"1\\\",\\\"b\\\":\\\"2\\\"}\""));
+    assertThat(json, containsString("\"nested\":{\"a\":\"1\",\"b\":\"2\"}"));
   }
 
   @Test
@@ -81,7 +81,7 @@ public class JSONTest {
     Method dyobj_stringify_mixin = moduleClass.getMethod("dyobj_stringify_mixin");
     String json = (String) dyobj_stringify_mixin.invoke(null);
     assertThat(json, containsString("\"foo\":\"bar\""));
-    assertThat(json, containsString("\"nested\":\"{\\\"a\\\":\\\"1\\\",\\\"b\\\":\\\"2\\\"}\""));
+    assertThat(json, containsString("\"nested\":{\"a\":\"1\",\"b\":\"2\"}"));
   }
 
   @Test
@@ -113,7 +113,7 @@ public class JSONTest {
   public void stringify_mix_struct_and_dynobj() throws Throwable {
     Method stringify_mix_struct_and_dynobj = moduleClass.getMethod("stringify_mix_struct_and_dynobj");
     String json = (String) stringify_mix_struct_and_dynobj.invoke(null);
-    assertThat(json, containsString("{\\\"name\\\":\\\"Mr Bean\\\""));
+    assertThat(json, containsString("{\"name\":\"Mr Bean\""));
     assertThat(json, containsString("\"a\":\"1\""));
   }
 }

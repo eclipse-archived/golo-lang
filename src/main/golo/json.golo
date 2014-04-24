@@ -20,29 +20,55 @@ module gololang.JSON
 
 # ............................................................................................... #
 
-function stringify = |obj| -> org.json.simple.JSONValue.toJSONString(obj)
+function stringify = |obj| {
+  let res = stringify_walk(obj)
+  if (res is null) {
+    return "null"
+  } else {
+    return res: toString()
+  }
+}
+
+local function isSeq = |obj| ->
+  (obj oftype java.util.List.class) or
+  (obj oftype java.util.Set.class) or
+  (obj oftype gololang.Tuple.class) or
+  (isArray(obj))
+
+local function stringify_walk = |obj| {
+  if obj oftype java.util.Map.class {
+    return org.json.simple.JSONObject(obj)
+  } else if isSeq(obj) {
+    let json = org.json.simple.JSONArray()
+    foreach value in obj {
+      json: add(value)
+    }
+    return json
+  } else if obj oftype gololang.DynamicObject.class {
+    let json = org.json.simple.JSONObject()
+    foreach prop in obj: properties() {
+      let value = prop: getValue()
+      if not(isClosure(value)) {
+        json: put(prop: getKey(), stringify_walk(value))
+      }
+    }
+    return json
+  } else if (obj oftype gololang.GoloStruct.class) {
+    let json = org.json.simple.JSONObject()
+    foreach member in obj: members() {
+      json: put(member, obj: get(member))
+    }
+    return json
+  }
+  return obj
+}
 
 function parse = |str| -> org.json.simple.JSONValue.parseWithException(str)
 
 # ............................................................................................... #
 
-function dynamicObjectToJSON = |dynobj| {
-  let json = org.json.simple.JSONObject()
-  foreach prop in dynobj: properties() {
-    let value = prop: getValue()
-    if not(isClosure(value)) {
-      let encodedValue = match {
-        when value oftype gololang.DynamicObject.class then dynamicObjectToJSON(value)
-        when value oftype gololang.GoloStruct.class then value: toJSON()
-        otherwise value
-      }
-      json: put(prop: getKey(), encodedValue)
-    }
-  }
-  return json: toJSONString()
-}
-
-function dynamicObjectMixin = -> DynamicObject(): define("toJSON", ^dynamicObjectToJSON)
+function dynamicObjectMixin = ->
+  DynamicObject(): define("toJSON", |this| -> stringify(this))
 
 function toDynamicObject = |str| {
   let obj = DynamicObject()
@@ -57,13 +83,7 @@ function toDynamicObject = |str| {
 
 augment gololang.GoloStruct {
 
-  function toJSON = |this| {
-    let json = org.json.simple.JSONObject()
-    foreach member in this: members() {
-      json: put(member, this: get(member))
-    }
-    return json: toJSONString()
-  }
+  function toJSON = |this| -> stringify(this)
 
   function updateFromJSON = |this, str| {
     let map = parse(str)
