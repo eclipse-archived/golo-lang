@@ -1,4 +1,4 @@
-== Java interoperability ==
+== Java interoperability
 
 Golo aims at providing a seamless 2-way interoperability with the Java programming language.
 

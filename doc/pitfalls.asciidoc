@@ -1,4 +1,4 @@
-== Common pitfalls ==
+== Common pitfalls
 
 Discovering a new programming language is fun. Yet, we all make mistakes in the beginning, as we
 idiomatically repeat habits from other languages.
@@ -80,4 +80,3 @@ println(foo)
 # Bad! foo is an integer!
 println(foo("abc"))
 ----
-

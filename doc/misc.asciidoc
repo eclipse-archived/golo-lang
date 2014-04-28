@@ -1,0 +1,40 @@
+== Misc. modules
+
+Not everything fits into the main documentation. We encourage you to also look at the _javadocs_
+and _golodocs_.
+
+The next subsections provide summaries of misc. modules found as part of Golo.
+
+=== JSON support (`gololang.JSON`)
+
+Golo includes the https://code.google.com/p/json-simple/[JSON Simple] library to provide JSON
+support.
+
+While `json-simple` only supports encoding from lists and maps, this API brings support for sets,
+arrays, Golo tuples, dynamic objects and structs.
+
+Given a simple data structure, we can obtain a JSON representation:
+
+[source,golo]
+----
+let data = map[
+  ["name", "Somebody"],
+  ["age", 69],
+  ["friends", list[
+    "Mr Bean", "John B", "Larry"
+  ]]
+]
+let asText = JSON.stringify(data)
+----
+
+Given some JSON as text, we can get back a data structure:
+
+[source,golo]
+----
+let data = JSON.parse(text)
+println(data: get("name"))
+----
+
+The `gololang.JSON` module also provides helpers for JSON serialization and deserialization
+with both dynamic objects and structs.
+
