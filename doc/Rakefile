@@ -51,7 +51,7 @@ end
 
 desc "generates the HTML documentation"
 task :html => [:prepare] do
-  sh "asciidoc -b html5 -a icons -a toc2 -a iconsdir=#{icons_dir} -a data-uri -a theme=flask -a source-highlighter=pygments -o output/index.html #{MAIN}"
+  sh "asciidoc -b html5 -a iconsdir=#{icons_dir} -o output/index.html #{MAIN}"
 end
 
 desc "generates the PDF documentation"
