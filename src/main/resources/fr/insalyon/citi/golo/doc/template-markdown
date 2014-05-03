@@ -3,11 +3,11 @@
 
 <%= doc: moduleDocumentation() %>
 
-<% if not doc: functions(): isEmpty() { %>
-## Functions
-<% foreach funcDoc in doc: functions() { %>
-### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
-<%= funcDoc: documentation() %>
+<% if not doc: structs(): isEmpty() { %>
+## Structs
+<% foreach structName in doc: structs(): keySet() { %>
+### `<%= structName %>`
+<%= doc: structs(): get(structName) %>
 <% } %>
 <% } %>
 
@@ -23,10 +23,10 @@
 <% } %>
 <% } %>
 
-<% if not doc: structs(): isEmpty() { %>
-## Structs
-<% foreach structName in doc: structs(): keySet() { %>
-### `<%= structName %>`
-<%= doc: structs(): get(structName) %>
+<% if not doc: functions(): isEmpty() { %>
+## Functions
+<% foreach funcDoc in doc: functions() { %>
+### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
+<%= funcDoc: documentation() %>
 <% } %>
 <% } %>
