@@ -627,6 +627,7 @@ ASTAugmentDeclaration AugmentDeclaration():
           }
           exceptionBuilder.report(GoloCompilationException.Problem.Type.AUGMENT_FUNCTION_NO_ARGS, body, description);
         }
+        documentation = null;
       }
       BlankLines() 
     )* 

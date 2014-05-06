@@ -82,12 +82,18 @@
   <%= process(doc: moduleDocumentation()) %>
 </div>
 
-<% if not doc: functions(): isEmpty() { %>
-<h2>Functions</h2>
-<% foreach funcDoc in doc: functions() { %>
-  <h3><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
+<% if not doc: structs(): isEmpty() { %>
+<h2>Structs</h2>
+<% foreach structName in doc: structs(): keySet() { %>
+  <h3><%= structName %></h3>
+  <p>Members:</p>
+  <ul>
+  <% foreach member in doc: structMembers(): get(structName) { %>
+    <li><code><%= member %></code></li>
+  <% } %>
+  </ul>
   <div>
-    <%= process(funcDoc: documentation()) %>
+    <%= process(doc: structs(): get(structName)) %>
   </div>
 <% } %>
 <% } %>
@@ -112,18 +118,12 @@
 <% } %>
 <% } %>
 
-<% if not doc: structs(): isEmpty() { %>
-<h2>Structs</h2>
-<% foreach structName in doc: structs(): keySet() { %>
-  <h3><%= structName %></h3>
-  <p>Members:</p>
-  <ul>
-  <% foreach member in doc: structMembers(): get(structName) { %>
-    <li><code><%= member %></code></li>
-  <% } %>
-  </ul>
+<% if not doc: functions(): isEmpty() { %>
+<h2>Functions</h2>
+<% foreach funcDoc in doc: functions() { %>
+  <h3><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
   <div>
-    <%= process(doc: structs(): get(structName)) %>
+    <%= process(funcDoc: documentation()) %>
   </div>
 <% } %>
 <% } %>
