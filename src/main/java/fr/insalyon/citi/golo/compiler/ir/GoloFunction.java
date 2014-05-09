@@ -42,6 +42,7 @@ public final class GoloFunction extends GoloElement {
   private Block block;
   private boolean synthetic = false;
   private String syntheticSelfName = null;
+  private LinkedList<Decorator> decorators = new LinkedList<>();
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
     this.name = name;
@@ -123,6 +124,14 @@ public final class GoloFunction extends GoloElement {
 
   public void setBlock(Block block) {
     this.block = block;
+  }
+
+  public void addDecorator(Decorator decorator) {
+    this.decorators.addLast(decorator);
+  }
+
+  public List<Decorator> getDecorators() {
+    return decorators;
   }
 
   public boolean isMain() {

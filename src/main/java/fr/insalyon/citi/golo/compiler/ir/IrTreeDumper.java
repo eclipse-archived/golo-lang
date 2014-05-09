@@ -68,6 +68,9 @@ public class IrTreeDumper implements GoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
+    for(Decorator decorator : function.getDecorators()) {
+      decorator.accept(this);
+    }
     incr();
     space();
     System.out.print("Function " + function.getName());
@@ -93,6 +96,15 @@ public class IrTreeDumper implements GoloIrVisitor {
     }
     System.out.println();
     function.getBlock().accept(this);
+    decr();
+  }
+
+  @Override
+  public void visitDecorator(Decorator decorator) {
+    incr();
+    space();
+    System.out.println("@Decorator");
+    decorator.getExpressionStatement().accept(this);
     decr();
   }
 

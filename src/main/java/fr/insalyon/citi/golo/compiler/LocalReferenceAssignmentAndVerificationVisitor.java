@@ -100,6 +100,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void visitDecorator(Decorator decorator) {
+    decorator.getExpressionStatement().accept(this);
+  }
+
+  @Override
   public void visitBlock(Block block) {
     ReferenceTable table = block.getReferenceTable();
     for (LocalReference reference : table.ownedReferences()) {
