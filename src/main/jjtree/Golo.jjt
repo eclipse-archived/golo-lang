@@ -204,12 +204,6 @@ TOKEN :
   |
   < FLOAT: <FLOATING_NUMBER> "_F" >
   |
-  < STRING: "\"" (
-    (~["\"", "\\", "\n", "\r"])
-    |
-    ("\\" (["n", "t", "b", "r", "f", "\\", "'", "\""]) )
-  )* "\"" >
-  |
   < CHAR: "'" (~["\n", "\r", "\""]) "'" >
   |
   < NULL: "null" >
@@ -223,6 +217,20 @@ TOKEN :
   < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
   |
   < COLL_START: ("array" | "list" | "set" | "map" | "vector" | "tuple" )? "[" >
+}
+
+// String
+TOKEN:
+{
+  < START_QUOTE: "\"" > : WithinString
+}
+
+<WithinString>
+TOKEN:
+{
+  < STRING_PART: (~["\"", "\\", "\n", "\r"]) | ("\\" (["n", "t", "b", "r", "f", "\\", "'", "\""])) >
+  |
+  < END_QUOTE: "\"" > : DEFAULT
 }
 
 // Multiline strings
@@ -365,12 +373,20 @@ List<String> Arguments() #void:
 String StringLiteral() #void:
 {
   Token literal;
+  StringBuilder buffer = new StringBuilder();
 }
 {
   (
-    literal=<STRING>
+    <START_QUOTE>
+    (
+      literal=<STRING_PART>
+      {
+        buffer.append(literal.image);
+      }
+    )*
+    <END_QUOTE>
     {
-      return StringUnescaping.unescape(literal.image.substring(1, literal.image.length() - 1));
+      return StringUnescaping.unescape(buffer.toString());
     }
   )
   |
