@@ -254,14 +254,24 @@ TOKEN :
 }
 
 // Identifiers
-<DEFAULT,ESCAPED>
+<DEFAULT>
 TOKEN :
 {
-  < IDENTIFIER: <LETTER> (<ID_REST>)* > : DEFAULT
+  < IDENTIFIER: <LETTER> (<ID_REST>)* >
   |
   < #LETTER: [ "A"-"Z", "a"-"z", "_", "$" ] >
   |
   < #ID_REST: [ "A"-"Z", "a"-"z", "_", "$", "0"-"9" ] >
+}
+
+<ESCAPED>
+TOKEN :
+{
+  < ESCAPED_IDENTIFIER: <ESCAPED_LETTER> (<ESCAPED_ID_REST>)* > : DEFAULT
+  |
+  < #ESCAPED_LETTER: [ "A"-"Z", "a"-"z", "_", "$" ] >
+  |
+  < #ESCAPED_ID_REST: [ "A"-"Z", "a"-"z", "_", "$", "0"-"9" ] >
 }
 
 // Comments
@@ -316,6 +326,21 @@ void error() {
   throw generateParseException();
 }
 
+Token Identifier() #void:
+{
+  Token token;
+}
+{
+  (
+    token=<IDENTIFIER>
+    |
+    token=<ESCAPED_IDENTIFIER>
+  )
+  {
+    return token;
+  }
+}
+
 void BlankLine() #void:{}
 {
   ( <NEWLINE> | <COMMENT> )
@@ -333,12 +358,12 @@ String QualifiedName() #void:
   StringBuilder nameBuilder;
 }
 {
-  rootToken=<IDENTIFIER>
+  rootToken=Identifier()
   {
     nameBuilder = new StringBuilder(rootToken.image);
   }
   (
-    "." nextToken=<IDENTIFIER>
+    "." nextToken=Identifier()
     {
       nameBuilder.append(".").append(nextToken.image);
     }
@@ -355,12 +380,12 @@ List<String> Arguments() #void:
   List<String> arguments = new LinkedList<String>();
 }
 {
-  rootToken=<IDENTIFIER>
+  rootToken=Identifier()
   {
     arguments.add(rootToken.image);
   }
   (
-    "," (BlankLine())? nextToken=<IDENTIFIER>
+    "," (BlankLine())? nextToken=Identifier()
     {
       arguments.add(nextToken.image);
     }
@@ -599,13 +624,13 @@ ASTStructDeclaration StructDeclaration():
   LinkedHashSet<String> members = new LinkedHashSet<String>();
 }
 {
-  <STRUCT> name=<IDENTIFIER> "=" "{" BlankLines()
-    member=<IDENTIFIER> BlankLines()
+  <STRUCT> name=Identifier() "=" "{" BlankLines()
+    member=Identifier() BlankLines()
     {
       members.add(member.image);
     }
     (
-      "," BlankLines() member=<IDENTIFIER> BlankLines()
+      "," BlankLines() member=Identifier() BlankLines()
       {
         members.add(member.image);
       }
@@ -659,7 +684,7 @@ ASTFunctionDeclaration FunctionDeclaration():
   Token name;
 }
 {
-  <FUNCTION> name=<IDENTIFIER> "=" Function()
+  <FUNCTION> name=Identifier() "=" Function()
   {
     jjtThis.setName(name.image);
     return jjtThis;
@@ -734,9 +759,9 @@ void ForEachLoop():
 {
   <FOREACH>
   (
-    (elementId=<IDENTIFIER> <IN> ExpressionStatement())
+    (elementId=Identifier() <IN> ExpressionStatement())
     |
-    ("(" elementId=<IDENTIFIER> <IN> ExpressionStatement() ")")
+    ("(" elementId=Identifier() <IN> ExpressionStatement() ")")
   )
   Block()
   {
@@ -759,7 +784,7 @@ void TryCatchFinally():
     )
     |
     (
-      <CATCH> "(" exceptionId=<IDENTIFIER> ")" Block()
+      <CATCH> "(" exceptionId=Identifier() ")" Block()
       (<FINALLY> Block() )?
       {
         jjtThis.setExceptionId(exceptionId.image);
@@ -848,7 +873,7 @@ void MethodInvocation():
   Token token;
 }
 {
-  token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
+  token=Identifier() "("  (BlankLine())? (Expressions())? ")"
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(token.image);
@@ -985,7 +1010,7 @@ void CollectionLiteral():
 
 void Reference():{}
 {
-  <IDENTIFIER>
+  Identifier()
   {
     jjtThis.setName(jjtThis.jjtGetFirstToken().image);
   }
@@ -996,13 +1021,13 @@ void LetOrVar():
   Token idToken;
 }
 {
-  <LET> idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
+  <LET> idToken=Identifier() "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.LET);
     jjtThis.setName(idToken.image);
   }
   |
-  <VAR> idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
+  <VAR> idToken=Identifier() "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
     jjtThis.setName(idToken.image);
@@ -1014,7 +1039,7 @@ void Assignment():
   Token idToken;
 }
 {
-  idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
+  idToken=Identifier() "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setName(idToken.image);
   }
