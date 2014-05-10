@@ -240,6 +240,11 @@ class ModuleDocumentation {
     }
 
     @Override
+    public Object visit(ASTStringTemplate node, Object data) {
+      return data;
+    }
+
+    @Override
     public Object visit(ASTReference node, Object data) {
       return data;
     }

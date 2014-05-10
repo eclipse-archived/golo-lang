@@ -220,6 +220,7 @@ TOKEN :
 }
 
 // String
+// String
 TOKEN:
 {
   < START_QUOTE: "\"" > : WithinString
@@ -230,7 +231,15 @@ TOKEN:
 {
   < STRING_PART: (~["\"", "\\", "\n", "\r"]) | ("\\" (["n", "t", "b", "r", "f", "\\", "'", "\""])) >
   |
+  < INTERPOLATION_START: "${" > : WithinInterpolation
+  |
   < END_QUOTE: "\"" > : DEFAULT
+}
+
+<WithinInterpolation>
+TOKEN:
+{
+  <INTERPOLATION_END: "}"> : WithinString
 }
 
 // Multiline strings
@@ -254,7 +263,7 @@ TOKEN :
 }
 
 // Identifiers
-<DEFAULT>
+<DEFAULT,WithinInterpolation>
 TOKEN :
 {
   < IDENTIFIER: <LETTER> (<ID_REST>)* >
@@ -395,7 +404,12 @@ List<String> Arguments() #void:
   }
 }
 
-String StringLiteral() #void:
+void Interpolation() #void : {}
+{
+  <INTERPOLATION_START> ExpressionStatement() <INTERPOLATION_END>
+}
+
+void StringTemplate() :
 {
   Token literal;
   StringBuilder buffer = new StringBuilder();
@@ -408,17 +422,22 @@ String StringLiteral() #void:
       {
         buffer.append(literal.image);
       }
+      |
+      Interpolation()
+      {
+        buffer.append(jjtThis.INTERPOLATION);
+      }
     )*
     <END_QUOTE>
     {
-      return StringUnescaping.unescape(buffer.toString());
+      jjtThis.setTemplate(StringUnescaping.unescape(buffer.toString()));
     }
   )
   |
   (
     literal=<MULTI_STRING>
     {
-      return literal.image.substring(3, literal.image.length() - 3);
+      jjtThis.setTemplate(literal.image.substring(3, literal.image.length() - 3));
     }
   )
 }
@@ -806,6 +825,8 @@ void TerminalExpression() #void: {}
   |
   Match()
   |
+  StringTemplate()
+  |
   Literal()
   |
   Function()
@@ -933,11 +954,6 @@ void Literal():
 {
   (
     value=ClassLiteral()
-    {
-      jjtThis.setLiteralValue(value);
-    }
-    |
-    value=StringLiteral()
     {
       jjtThis.setLiteralValue(value);
     }

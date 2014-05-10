@@ -309,4 +309,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       statement.accept(this);
     }
   }
+
+  @Override
+  public void visitStringTemplate(StringTemplate stringTemplate) {
+    for (ExpressionStatement statement : stringTemplate.getExpressions()) {
+      statement.accept(this);
+    }
+  }
 }

@@ -390,6 +390,27 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTStringTemplate node, Object data) {
+    Context context = (Context) data;
+    List<Object> template = new LinkedList<>();
+    int interpolationCounter = 0;
+    String splitOnInterpolationKeepingDelim = String.format("((?<=%1$s)|(?=%1$s))", node.INTERPOLATION);
+    String[] parts = node.getTemplate().split(splitOnInterpolationKeepingDelim);
+    for(String part : parts) {
+      Object value = part;
+      if(part.equals(node.INTERPOLATION)){
+        GoloASTNode expressionNode = (GoloASTNode) node.jjtGetChild(interpolationCounter);
+        expressionNode.jjtAccept(this, data);
+        value = (ExpressionStatement) context.objectStack.pop();
+        interpolationCounter++;
+      }
+      template.add(value);
+    }
+    context.objectStack.push(new StringTemplate(template));
+    return data;
+  }
+
+  @Override
   public Object visit(ASTReference node, Object data) {
     Context context = (Context) data;
     ReferenceLookup referenceLookup = new ReferenceLookup(node.getName());
