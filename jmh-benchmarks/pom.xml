@@ -87,6 +87,12 @@
     </dependency>
 
     <dependency>
+      <groupId>org.openjdk.jmh</groupId>
+      <artifactId>jmh-generator-annprocess</artifactId>
+      <version>${jmh-core.version}</version>
+    </dependency>
+
+    <dependency>
       <groupId>org.golo-lang</groupId>
       <artifactId>golo</artifactId>
       <version>${project.version}</version>
