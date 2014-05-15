@@ -1342,4 +1342,15 @@ public class CompileAndRunTest {
     assertThat(tuple.get(0), is((Object) "abc"));
     assertThat(tuple.get(1), instanceOf(RuntimeException.class));
   }
+
+  @Test
+  public void variable_interpolation() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "string-interpolation.golo");
+
+    Method variable_interpolation = moduleClass.getMethod("variable_interpolation");
+    Object result = variable_interpolation.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    String value = (String) result;
+    assertThat(value, is("The answer is 42"));
+  }
 }

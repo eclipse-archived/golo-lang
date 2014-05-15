@@ -291,4 +291,16 @@ public class IrTreeDumper implements GoloIrVisitor {
     }
     decr();
   }
+
+  @Override
+  public void visitStringTemplate(StringTemplate stringTemplate) {
+    incr();
+    space();
+    System.out.println("String Template");
+    //TODO
+    for (ExpressionStatement statement : stringTemplate.getExpressions()) {
+      statement.accept(this);
+    }
+    decr();
+  }
 }

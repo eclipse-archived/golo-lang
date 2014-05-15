@@ -578,6 +578,34 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
+  public void visitStringTemplate(StringTemplate stringTemplate) {
+    List<Object> parts = stringTemplate.getParts();
+    if (parts == null) {
+      methodVisitor.visitInsn(ACONST_NULL);
+      return;
+    }
+    if (parts.size() ==1) {
+      methodVisitor.visitLdcInsn(parts.get(0));
+      return;
+    }
+    methodVisitor.visitTypeInsn(NEW, "java/lang/StringBuilder");
+    methodVisitor.visitInsn(DUP);
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "()V");
+    for(Object part: parts){
+      methodVisitor.visitInsn(DUP);
+      if (part instanceof ExpressionStatement) {
+        ExpressionStatement anInterpolation = (ExpressionStatement) part;
+        anInterpolation.accept(this);
+      } else {
+        methodVisitor.visitLdcInsn(part);
+      }
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
+      methodVisitor.visitInsn(POP);
+    }
+    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
+  }
+
+  @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
     Label tryStart = new Label();
     Label tryEnd = new Label();
