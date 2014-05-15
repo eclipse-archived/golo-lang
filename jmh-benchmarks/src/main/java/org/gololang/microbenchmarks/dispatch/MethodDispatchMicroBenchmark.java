@@ -34,8 +34,8 @@ import java.util.concurrent.TimeUnit;
 import static java.lang.invoke.MethodType.methodType;
 import static org.jruby.javasupport.JavaUtil.convertJavaArrayToRuby;
 
-@BenchmarkMode(Mode.AverageTime)
-@OutputTimeUnit(TimeUnit.MICROSECONDS)
+@BenchmarkMode(Mode.Throughput)
+@OutputTimeUnit(TimeUnit.SECONDS)
 public class MethodDispatchMicroBenchmark {
 
   /* ................................................................................................................ */
