@@ -550,30 +550,38 @@ void ToplevelDeclaration():
   ASTFunctionDeclaration functionDecl;
   ASTAugmentDeclaration augmentDecl;
   ASTStructDeclaration structDecl;
+  ASTLetOrVar state;
   Token local = null;
   String documentation = null;
 }
 {
-  (documentation=Documentation())?
   (
-    augmentDecl=AugmentDeclaration()
-    {
-      augmentDecl.setDocumentation(documentation);
-    }
-    |
-    (local=<LOCAL>)? functionDecl=FunctionDeclaration()
-    {
-      if (local != null) {
-        functionDecl.setLocal(true);
+    (documentation=Documentation())?
+    (
+      augmentDecl=AugmentDeclaration()
+      {
+        augmentDecl.setDocumentation(documentation);
       }
-      functionDecl.setDocumentation(documentation);
-    }
-    |
-    structDecl=StructDeclaration()
-    {
-      structDecl.setDocumentation(documentation);
-    }
+      |
+      (local=<LOCAL>)? functionDecl=FunctionDeclaration()
+      {
+        if (local != null) {
+          functionDecl.setLocal(true);
+        }
+        functionDecl.setDocumentation(documentation);
+      }
+      |
+      structDecl=StructDeclaration()
+      {
+        structDecl.setDocumentation(documentation);
+      }
+    )
   )
+  | 
+  state=LetOrVar()
+  {
+    state.setModuleState(true);
+  }
 }
 
 ASTStructDeclaration StructDeclaration():
@@ -975,7 +983,7 @@ void Reference():{}
   }
 }
 
-void LetOrVar():
+ASTLetOrVar LetOrVar():
 {
   Token idToken;
 }
@@ -984,12 +992,14 @@ void LetOrVar():
   {
     jjtThis.setType(ASTLetOrVar.Type.LET);
     jjtThis.setName(idToken.image);
+    return jjtThis;
   }
   |
   <VAR> idToken=<IDENTIFIER> "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
     jjtThis.setName(idToken.image);
+    return jjtThis;
   }
 }
 
