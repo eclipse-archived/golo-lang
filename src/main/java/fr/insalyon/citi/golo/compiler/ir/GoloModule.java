@@ -30,6 +30,8 @@ public final class GoloModule extends GoloElement {
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
   private final Map<String, Set<GoloFunction>> augmentations = new LinkedHashMap<>();
   private final Set<Struct> structs = new LinkedHashSet<>();
+  private final Set<LocalReference> moduleState = new LinkedHashSet<>();
+  private GoloFunction moduleStateInitializer = null;
 
   public static final ModuleImport PREDEF = new ModuleImport(
       PackageAndClass.fromString("gololang.Predefined"));
@@ -51,6 +53,15 @@ public final class GoloModule extends GoloElement {
     imports.add(JAVALANG);
   }
 
+  public void addModuleStateInitializer(ReferenceTable table, AssignmentStatement assignment) {
+    if (moduleStateInitializer == null) {
+      moduleStateInitializer = new GoloFunction("<clinit>", GoloFunction.Visibility.PUBLIC, GoloFunction.Scope.MODULE);
+      moduleStateInitializer.setBlock(new Block(table));
+      functions.add(moduleStateInitializer);
+    }
+    moduleStateInitializer.getBlock().addStatement(assignment);
+  }
+
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
   }
@@ -65,6 +76,10 @@ public final class GoloModule extends GoloElement {
 
   public Set<Struct> getStructs() {
     return unmodifiableSet(structs);
+  }
+
+  public Set<LocalReference> getModuleState() {
+    return unmodifiableSet(moduleState);
   }
 
   public void addImport(ModuleImport moduleImport) {
@@ -88,6 +103,10 @@ public final class GoloModule extends GoloElement {
 
   public void addStruct(Struct struct) {
     structs.add(struct);
+  }
+
+  public void addLocalState(LocalReference reference) {
+    moduleState.add(reference);
   }
 
   public Set<GoloFunction> getFunctions() {

@@ -103,7 +103,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   public void visitBlock(Block block) {
     ReferenceTable table = block.getReferenceTable();
     for (LocalReference reference : table.ownedReferences()) {
-      if (reference.getIndex() < 0) {
+      if (reference.getIndex() < 0 && !isModuleState(reference)) {
         reference.setIndex(nextAssignmentIndex());
       }
     }
@@ -123,6 +123,11 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     }
     tableStack.pop();
     assignmentStack.pop();
+  }
+
+  private boolean isModuleState(LocalReference reference) {
+    return (reference.getKind().equals(LocalReference.Kind.MODULE_VARIABLE)) ||
+        (reference.getKind().equals(LocalReference.Kind.MODULE_CONSTANT));
   }
 
   @Override
@@ -156,11 +161,13 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
           "Assigning `" + reference.getName() +
               "` at " + assignmentStatement.getPositionInSourceCode() +
-              " but it is a constant reference");
+              " but it is a constant reference"
+      );
     } else if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
       getExceptionBuilder().report(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
           "Declaring a duplicate reference `" + reference.getName() +
-              "` at " + assignmentStatement.getPositionInSourceCode());
+              "` at " + assignmentStatement.getPositionInSourceCode()
+      );
     }
     assignedReferences.add(reference);
     assignmentStatement.getExpressionStatement().accept(this);
@@ -171,7 +178,12 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   private boolean assigningConstant(LocalReference reference, Set<LocalReference> assignedReferences) {
-    return reference.getKind().equals(LocalReference.Kind.CONSTANT) && assignedReferences.contains(reference);
+    return (reference.getKind().equals(LocalReference.Kind.MODULE_CONSTANT) && !"<clinit>".equals(functionStack.peek().getName())) ||
+        isConstantReference(reference) && assignedReferences.contains(reference);
+  }
+
+  private boolean isConstantReference(LocalReference reference) {
+    return reference.getKind().equals(LocalReference.Kind.CONSTANT) || reference.getKind().equals(LocalReference.Kind.MODULE_CONSTANT);
   }
 
   private boolean referenceNameExists(LocalReference reference, Set<LocalReference> referencesInBlock) {

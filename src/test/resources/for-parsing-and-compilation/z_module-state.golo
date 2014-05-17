@@ -10,4 +10,5 @@ var d = 0
 
 function woot = {
   d = System.currentTimeMillis() - b
+  return d
 }
