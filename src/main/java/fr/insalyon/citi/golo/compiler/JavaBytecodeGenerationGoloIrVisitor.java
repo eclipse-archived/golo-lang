@@ -79,6 +79,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private ClassWriter classWriter;
   private String klass;
+  private String jvmKlass;
   private MethodVisitor methodVisitor;
   private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
@@ -106,6 +107,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     classWriter.visitSource(sourceFilename, null);
     writeImportMetaData(module.getImports());
     klass = module.getPackageAndClass().toString();
+    jvmKlass = module.getPackageAndClass().toJVMType();
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
@@ -117,6 +119,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       for (Struct struct : module.getStructs()) {
         generationResults.add(structGenerator.compile(struct, sourceFilename));
       }
+    }
+    for (LocalReference moduleState : module.getModuleState()) {
+      classWriter.visitField(ACC_PRIVATE | ACC_STATIC, moduleState.getName(), "Ljava/lang/Object;", null, null).visitEnd();
     }
     writeAugmentsMetaData(module.getAugmentations().keySet());
     classWriter.visitEnd();
@@ -206,6 +211,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     } else if (function.isVarargs()) {
       accessFlags = accessFlags | ACC_VARARGS;
       signature = goloVarargsFunctionSignature(function.getArity());
+    } else if (function.isModuleInit()) {
+      signature = "()V";
     } else {
       signature = goloFunctionSignature(function.getArity());
     }
@@ -220,6 +227,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitCode();
     visitLine(function, methodVisitor);
     function.getBlock().accept(this);
+    if (function.isModuleInit()) {
+      methodVisitor.visitInsn(RETURN);
+    }
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
   }
@@ -246,6 +256,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     methodVisitor.visitLabel(blockEnd);
     for (LocalReference localReference : referenceTable.ownedReferences()) {
+      if (localReference.isModuleState()) {
+        continue;
+      }
       methodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
           blockStart, blockEnd, localReference.getIndex());
     }
@@ -402,13 +415,22 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
     assignmentStatement.getExpressionStatement().accept(this);
-    methodVisitor.visitVarInsn(ASTORE, assignmentStatement.getLocalReference().getIndex());
+    LocalReference reference = assignmentStatement.getLocalReference();
+    if (reference.isModuleState()) {
+      methodVisitor.visitFieldInsn(PUTSTATIC, jvmKlass, reference.getName(), "Ljava/lang/Object;");
+    } else {
+      methodVisitor.visitVarInsn(ASTORE, reference.getIndex());
+    }
   }
 
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
-    methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
+    if (reference.isModuleState()) {
+      methodVisitor.visitFieldInsn(GETSTATIC, jvmKlass, reference.getName(), "Ljava/lang/Object;");
+    } else {
+      methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
+    }
   }
 
   @Override

@@ -129,6 +129,10 @@ public final class GoloFunction extends GoloElement {
     return name.equals("main") && getArity() == 1;
   }
 
+  public boolean isModuleInit() {
+    return "<clinit>".equals(name);
+  }
+
   public void accept(GoloIrVisitor visitor) {
     visitor.visitFunction(this);
   }

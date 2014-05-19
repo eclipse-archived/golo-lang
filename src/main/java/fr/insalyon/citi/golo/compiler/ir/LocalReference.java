@@ -52,6 +52,10 @@ public final class LocalReference {
     return synthetic;
   }
 
+  public boolean isModuleState() {
+    return kind == Kind.MODULE_CONSTANT || kind == Kind.MODULE_VARIABLE;
+  }
+
   public int getIndex() {
     return index;
   }
