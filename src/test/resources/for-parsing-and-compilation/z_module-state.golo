@@ -9,6 +9,7 @@ var c = "Plop"
 var d = 0
 
 function woot = {
-  d = System.currentTimeMillis() - b
+  let diff = System.currentTimeMillis() - b
+  d = diff
   return d
 }

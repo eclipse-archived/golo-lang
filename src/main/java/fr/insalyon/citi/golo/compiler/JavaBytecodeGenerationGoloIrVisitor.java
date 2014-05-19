@@ -393,7 +393,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         methodInvocation.getName().replaceAll("\\.", "#"),
         goloFunctionSignature(methodInvocation.getArity() + 1),
         METHOD_INVOCATION_HANDLE,
-        methodInvocation.isNullSafeGuarded());
+        (Boolean) methodInvocation.isNullSafeGuarded());
     for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);
     }
@@ -640,8 +640,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         methodType(MethodHandle.class).toMethodDescriptorString(),
         CLOSUREREF_HANDLE,
         klass,
-        arity,
-        isVarArgs);
+        (Integer) arity,
+        (Boolean) isVarArgs);
     final int syntheticCount = closureReference.getTarget().getSyntheticParameterCount();
     if (syntheticCount > 0) {
       ReferenceTable table = context.referenceTableStack.peek();
@@ -688,7 +688,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     binaryOperation.getRightExpression().accept(this);
     if (!isMethodCall(binaryOperation)) {
       String name = operatorType.name().toLowerCase();
-      methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, 2);
+      methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, (Integer) 2);
     }
   }
 
@@ -741,6 +741,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitUnaryOperation(UnaryOperation unaryOperation) {
     String name = unaryOperation.getType().name().toLowerCase();
     unaryOperation.getExpressionStatement().accept(this);
-    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, 1);
+    methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);
   }
 }
