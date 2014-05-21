@@ -19,6 +19,8 @@ Golo is being developed as part of the research activities of the
 * Mailing-list: [http://groups.google.com/group/golo-lang](http://groups.google.com/group/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
+Starting from version 1.0.0, Golo adopts the [semantic versioning scheme](http://semver.org).
+
 ## Building Golo
 
 [![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
