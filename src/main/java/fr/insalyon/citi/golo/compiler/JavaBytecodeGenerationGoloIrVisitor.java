@@ -121,10 +121,30 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       }
     }
     for (LocalReference moduleState : module.getModuleState()) {
-      classWriter.visitField(ACC_PRIVATE | ACC_STATIC, moduleState.getName(), "Ljava/lang/Object;", null, null).visitEnd();
+      writeModuleState(moduleState);
     }
     writeAugmentsMetaData(module.getAugmentations().keySet());
     classWriter.visitEnd();
+  }
+
+  private void writeModuleState(LocalReference moduleState) {
+    String name = moduleState.getName();
+    classWriter.visitField(ACC_PRIVATE | ACC_STATIC, name, "Ljava/lang/Object;", null, null).visitEnd();
+
+    MethodVisitor mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "()Ljava/lang/Object;", null, null);
+    mv.visitCode();
+    mv.visitFieldInsn(GETSTATIC, jvmKlass, name, "Ljava/lang/Object;");
+    mv.visitInsn(ARETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "(Ljava/lang/Object;)V", null, null);
+    mv.visitCode();
+    mv.visitVarInsn(ALOAD, 0);
+    mv.visitFieldInsn(PUTSTATIC, jvmKlass, name, "Ljava/lang/Object;");
+    mv.visitInsn(RETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
   }
 
   private void writeImportMetaData(Set<ModuleImport> imports) {
@@ -417,7 +437,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     assignmentStatement.getExpressionStatement().accept(this);
     LocalReference reference = assignmentStatement.getLocalReference();
     if (reference.isModuleState()) {
-      methodVisitor.visitFieldInsn(PUTSTATIC, jvmKlass, reference.getName(), "Ljava/lang/Object;");
+      methodVisitor.visitInvokeDynamicInsn(
+          (klass + "." + reference.getName()).replaceAll("\\.", "#"),
+          "(Ljava/lang/Object;)V",
+          FUNCTION_INVOCATION_HANDLE);
     } else {
       methodVisitor.visitVarInsn(ASTORE, reference.getIndex());
     }
@@ -427,7 +450,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
     if (reference.isModuleState()) {
-      methodVisitor.visitFieldInsn(GETSTATIC, jvmKlass, reference.getName(), "Ljava/lang/Object;");
+      methodVisitor.visitInvokeDynamicInsn(
+          (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
+          "()Ljava/lang/Object;",
+          FUNCTION_INVOCATION_HANDLE);
     } else {
       methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
     }
