@@ -215,3 +215,35 @@ function i_will_crash = {
 }
 ----
 
+=== Module-level state ===
+
+You can declare `let` and `var` references at the module level, as in:
+
+[source,golo]
+----
+module Sample
+
+let a = 1
+
+var b = truth()
+
+local function truth = { 
+  return 42
+}
+----
+
+These references get initialized when the module is being loaded by the Java virtual machine. In
+fact, module-level state is implemented using `private static` fields that get initialized in a
+`<clinit>` method.
+
+Module-level references are only visible from their module, although a function may provide
+accessors to them.
+
+It is important to note that such references get initialized in the order of declaration in the
+source file. Having initialization dependencies between such references would be silly anyway, but
+one should keep it in mind _just in case_.
+
+CAUTION: Global state is a bad thing in general. We strongly advise you to *think twice* before you
+introduce module-level state. Beware of potential memory leaks, just like `static` class fields in
+the Java programming language.
+
