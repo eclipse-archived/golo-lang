@@ -28,8 +28,7 @@ import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Ty
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.LOCAL;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
-import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.CONSTANT;
-import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.VARIABLE;
+import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.*;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.LET;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
 import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
@@ -238,7 +237,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       context.objectStack.pop();
       context.objectStack.push(
           new ClosureReference(
-              function));
+              function)
+      );
     }
     return data;
   }
@@ -402,7 +402,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTLetOrVar node, Object data) {
     Context context = (Context) data;
     LocalReference localReference = new LocalReference(
-        node.getType() == LET ? CONSTANT : VARIABLE,
+        referenceKindOf(node),
         node.getName());
     context.referenceTableStack.peek().add(localReference);
     node.childrenAccept(this, data);
@@ -410,9 +410,22 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         localReference,
         (ExpressionStatement) context.objectStack.pop());
     assignmentStatement.setDeclaring(true);
-    context.objectStack.push(assignmentStatement);
     node.setIrElement(assignmentStatement);
+    if (node.isModuleState()) {
+      context.module.addLocalState(localReference);
+      context.module.addModuleStateInitializer(context.referenceTableStack.peek(), assignmentStatement);
+    } else {
+      context.objectStack.push(assignmentStatement);
+    }
     return data;
+  }
+
+  private LocalReference.Kind referenceKindOf(ASTLetOrVar node) {
+    if (node.isModuleState()) {
+      return node.getType() == LET ? MODULE_CONSTANT : MODULE_VARIABLE;
+    } else {
+      return node.getType() == LET ? CONSTANT : VARIABLE;
+    }
   }
 
   @Override
@@ -423,7 +436,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       getOrCreateExceptionBuilder(context).report(UNDECLARED_REFERENCE, node,
           "Assigning to either a parameter or an undeclared reference `" + node.getName() +
               "` at (line=" + node.getLineInSourceCode() +
-              ", column=" + node.getColumnInSourceCode() + ")");
+              ", column=" + node.getColumnInSourceCode() + ")"
+      );
     }
     node.childrenAccept(this, data);
     if (reference != null) {
@@ -717,7 +731,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
             new BinaryOperation(
                 OperatorType.METHOD_CALL,
                 iterableExpressionStatement,
-                new MethodInvocation("iterator")));
+                new MethodInvocation("iterator"))
+        );
     init.setDeclaring(true);
     init.setASTNode(node);
 
@@ -733,7 +748,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         new BinaryOperation(
             OperatorType.METHOD_CALL,
             new ReferenceLookup(iteratorId),
-            new MethodInvocation("next")));
+            new MethodInvocation("next"))
+    );
     next.setDeclaring(true);
     next.setASTNode(node);
     block.prependStatement(next);

@@ -1342,4 +1342,28 @@ public class CompileAndRunTest {
     assertThat(tuple.get(0), is((Object) "abc"));
     assertThat(tuple.get(1), instanceOf(RuntimeException.class));
   }
+
+  @Test
+  public void module_state() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "module-state.golo");
+
+    Method riseUp = moduleClass.getMethod("riseUp");
+    Object result = riseUp.invoke(null);
+    assertThat(result, is((Object) 1));
+
+    Method display = moduleClass.getMethod("display");
+    result = display.invoke(null);
+    assertThat(result, is((Object) ">>> 1"));
+    riseUp.invoke(null);
+    result = display.invoke(null);
+    assertThat(result, is((Object) ">>> 2"));
+
+    Method for_fun = moduleClass.getMethod("for_fun");
+    result = for_fun.invoke(null);
+    assertThat(result, is((Object) ">>> 12"));
+
+    Method give_foo = moduleClass.getMethod("give_foo");
+    result = give_foo.invoke(null);
+    assertThat(result, is((Object) "Foo!"));
+  }
 }

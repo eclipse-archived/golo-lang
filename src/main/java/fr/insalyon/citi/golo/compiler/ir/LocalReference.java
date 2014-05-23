@@ -19,7 +19,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 public final class LocalReference {
 
   public static enum Kind {
-    CONSTANT, VARIABLE
+    CONSTANT, VARIABLE, MODULE_CONSTANT, MODULE_VARIABLE
   }
 
   private final Kind kind;
@@ -50,6 +50,10 @@ public final class LocalReference {
 
   public boolean isSynthetic() {
     return synthetic;
+  }
+
+  public boolean isModuleState() {
+    return kind == Kind.MODULE_CONSTANT || kind == Kind.MODULE_VARIABLE;
   }
 
   public int getIndex() {

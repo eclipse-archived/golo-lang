@@ -182,7 +182,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       String name = functionInvocation.getName();
       if (context.allReferences.contains(name)) {
         accessed(name);
-        functionInvocation.setOnReference(true);
+        if (context.referenceTableStack.peek().get(name).isModuleState()) {
+          functionInvocation.setOnModuleState(true);
+        } else {
+          functionInvocation.setOnReference(true);
+        }
       }
     }
     for (ExpressionStatement statement : functionInvocation.getArguments()) {

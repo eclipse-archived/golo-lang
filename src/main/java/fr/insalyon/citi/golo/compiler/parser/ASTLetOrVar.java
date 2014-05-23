@@ -24,6 +24,7 @@ public class ASTLetOrVar extends GoloASTNode implements NamedNode {
 
   private Type type;
   private String name;
+  private boolean moduleState = false;
 
   public ASTLetOrVar(int id) {
     super(id);
@@ -51,11 +52,20 @@ public class ASTLetOrVar extends GoloASTNode implements NamedNode {
     this.name = name;
   }
 
+  public boolean isModuleState() {
+    return moduleState;
+  }
+
+  public void setModuleState(boolean moduleState) {
+    this.moduleState = moduleState;
+  }
+
   @Override
   public String toString() {
     return "ASTLetOrVar{" +
         "type=" + type +
         ", name='" + name + '\'' +
+        ", moduleState=" + moduleState +
         '}';
   }
 

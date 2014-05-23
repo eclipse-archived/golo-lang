@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.compiler.ir;
 public class FunctionInvocation extends AbstractInvocation {
 
   private boolean onReference = false;
+  private boolean onModuleState = false;
   private boolean anonymous = false;
 
   public FunctionInvocation() {
@@ -40,6 +41,14 @@ public class FunctionInvocation extends AbstractInvocation {
 
   public boolean isAnonymous() {
     return anonymous;
+  }
+
+  public boolean isOnModuleState() {
+    return onModuleState;
+  }
+
+  public void setOnModuleState(boolean onModuleState) {
+    this.onModuleState = onModuleState;
   }
 
   @Override
