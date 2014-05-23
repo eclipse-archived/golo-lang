@@ -4,6 +4,7 @@ let prefix = ">>> "
 
 var counter = 0
 
+let foo = -> "Foo!"
 
 augment java.lang.Object {
 
@@ -23,4 +24,6 @@ function display = -> prefix + counter
 function for_fun = {
   return 0: raise_it_for_fun()
 }
+
+function give_foo = -> foo()
 

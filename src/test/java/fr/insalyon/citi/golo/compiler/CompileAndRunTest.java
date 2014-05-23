@@ -1361,5 +1361,9 @@ public class CompileAndRunTest {
     Method for_fun = moduleClass.getMethod("for_fun");
     result = for_fun.invoke(null);
     assertThat(result, is((Object) ">>> 12"));
+
+    Method give_foo = moduleClass.getMethod("give_foo");
+    result = give_foo.invoke(null);
+    assertThat(result, is((Object) "Foo!"));
   }
 }

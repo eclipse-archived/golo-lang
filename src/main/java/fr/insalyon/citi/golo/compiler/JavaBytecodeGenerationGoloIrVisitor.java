@@ -399,7 +399,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       ReferenceTable table = context.referenceTableStack.peek();
       methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
     }
-    if (functionInvocation.isAnonymous() || functionInvocation.isOnReference()) {
+    if (functionInvocation.isOnModuleState()) {
+      visitReferenceLookup(new ReferenceLookup(functionInvocation.getName()));
+    }
+    if (functionInvocation.isAnonymous() || functionInvocation.isOnReference() || functionInvocation.isOnModuleState()) {
       methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/invoke/MethodHandle");
       MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, MethodHandle.class);
       visitInvocationArguments(functionInvocation);
