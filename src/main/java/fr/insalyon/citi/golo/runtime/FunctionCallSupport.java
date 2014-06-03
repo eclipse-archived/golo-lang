@@ -105,11 +105,19 @@ public final class FunctionCallSupport {
     if (result instanceof Method) {
       Method method = (Method) result;
       checkLocalFunctionCallFromSameModuleAugmentation(method, callerClass.getName());
-      handle = caller.unreflect(method).asType(type);
+      if (method.isVarArgs() && args.length > 0 && args[args.length -1] instanceof Object[]) {
+        handle = caller.unreflect(method).asFixedArity().asType(type);
+      } else {
+        handle = caller.unreflect(method).asType(type);
+      }
       types = method.getParameterTypes();
     } else if (result instanceof Constructor) {
       Constructor constructor = (Constructor) result;
-      handle = caller.unreflectConstructor(constructor).asType(type);
+      if (constructor.isVarArgs() && args.length > 0 && args[args.length -1] instanceof Object[]) {
+        handle = caller.unreflectConstructor(constructor).asFixedArity().asType(type);
+      } else {
+        handle = caller.unreflectConstructor(constructor).asType(type);
+      }
       types = constructor.getParameterTypes();
     } else {
       Field field = (Field) result;

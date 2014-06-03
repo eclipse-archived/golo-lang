@@ -59,6 +59,9 @@ public class TypeMatching {
       }
     }
     final int last = types.length - 1;
+    if (varArgs && arguments.length == last) {
+      return true;
+    }
     if (last >= arguments.length) {
       return false;
     }

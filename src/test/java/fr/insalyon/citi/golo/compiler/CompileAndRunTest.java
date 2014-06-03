@@ -533,6 +533,21 @@ public class CompileAndRunTest {
 
     Method play_and_return_666 = moduleClass.getMethod("play_and_return_666");
     assertThat((Integer) play_and_return_666.invoke(null), is(666));
+
+    Method var_args_test = moduleClass.getMethod("test_empty");
+    assertThat((String) var_args_test.invoke(null), is("[foo][]"));
+
+    Method test_one_arg = moduleClass.getMethod("test_one_arg");
+    assertThat((String) test_one_arg.invoke(null), is("[foo][1]"));
+
+    Method test_two_args = moduleClass.getMethod("test_two_args");
+    assertThat((String) test_two_args.invoke(null), is("[foo][1, 2]"));
+
+    Method test_array = moduleClass.getMethod("test_array");
+    assertThat((String) test_array.invoke(null), is("[foo][1, 2, 3, 4, 5, 6, 7, 8, 9, 0]"));
+
+    Method test_arrays = moduleClass.getMethod("test_arrays");
+    assertThat((String) test_arrays.invoke(null), is("[foo][[1, 2, 3, 4], [5, 6, 7], [8, 9], 0]"));
   }
 
   @Test
@@ -731,6 +746,9 @@ public class CompileAndRunTest {
     Method closure_with_varargs_and_capture = moduleClass.getMethod("closure_with_varargs_and_capture");
     assertThat((String) closure_with_varargs_and_capture.invoke(null), is("> 6"));
 
+    Method closure_with_varargs_array_and_capture = moduleClass.getMethod("closure_with_varargs_array_and_capture");
+    assertThat((String) closure_with_varargs_array_and_capture.invoke(null), is("> 6"));
+
     Method closure_with_synthetic_refs = moduleClass.getMethod("closure_with_synthetic_refs");
     assertThat((String) closure_with_synthetic_refs.invoke(null), is("012"));
 
@@ -745,6 +763,9 @@ public class CompileAndRunTest {
 
     Method closure_with_trailing_varargs_and_capture = moduleClass.getMethod("closure_with_trailing_varargs_and_capture");
     assertThat((String) closure_with_trailing_varargs_and_capture.invoke(null), is("|1|12|123"));
+
+    Method closure_with_trailing_varargs_array_and_capture = moduleClass.getMethod("closure_with_trailing_varargs_array_and_capture");
+    assertThat((String) closure_with_trailing_varargs_array_and_capture.invoke(null), is("|1|12|123"));
 
     Method funky = moduleClass.getMethod("funky");
     assertThat((Integer) funky.invoke(null), is(6));
