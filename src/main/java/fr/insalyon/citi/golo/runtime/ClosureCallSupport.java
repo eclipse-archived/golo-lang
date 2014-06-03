@@ -20,6 +20,7 @@ import java.lang.invoke.*;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodType.methodType;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isVariableArgumentAnArray;
 
 public class ClosureCallSupport {
 
@@ -73,7 +74,7 @@ public class ClosureCallSupport {
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, MethodHandle.class);
     MethodType type = invoker.type();
     if (type.parameterType(type.parameterCount() - 1) == Object[].class) {
-      if (target.isVarargsCollector() && args.length > 0 && args[args.length - 1] instanceof Object[]) {
+      if (target.isVarargsCollector() && isVariableArgumentAnArray(type.parameterCount(), args)) {
         invoker = invoker.asFixedArity().asType(callSite.type());
       } else {
         invoker = invoker.asCollector(Object[].class, callSite.type().parameterCount() - target.type().parameterCount());

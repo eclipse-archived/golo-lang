@@ -89,4 +89,8 @@ public class TypeMatching {
     }
     return PRIMITIVE_MAP.get(type) == value.getClass();
   }
+
+  public static boolean isVariableArgumentAnArray(int arity, Object[] args){
+    return arity > 0 && args.length == arity && args[arity - 1] instanceof Object[];
+  }
 }
