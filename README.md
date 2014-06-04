@@ -1,3 +1,5 @@
+[![DOI](https://zenodo.org/badge/3726/golo-lang/golo-lang.png)](https://zenodo.org/record/10272)
+
 # Golo, a lightweight dynamic language for the JVM.
 
 > The world didn't need another JVM language.
