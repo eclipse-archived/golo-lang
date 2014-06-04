@@ -163,7 +163,8 @@ augment java.lang.invoke.MethodHandle {
   Returns an argument-spreading function.
   ----
   function spread = |this, args| {
-    if (this:isVarargsCollector() and (this: type(): parameterCount() > 0) and isArray( args: get( this: type(): parameterCount() - 1 ) )) {
+    let arity = this: type(): parameterCount()
+    if (this:isVarargsCollector() and (arity > 0) and isArray( args: get( arity - 1 ) )) {
       return this:
              asFixedArity():
              asSpreader(objectArrayType(), args: length()):
