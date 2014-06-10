@@ -105,6 +105,10 @@ public class FunctionCallSupportTest {
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class, Object.class, Object.class);
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("-", "a", "b", "c"), is("a-b-c"));
+
+    type = MethodType.methodType(Object.class, Object.class, Object.class);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments("-", new String[]{"a", "b", "c"}), is("a-b-c"));
   }
 
   @Test
@@ -123,5 +127,9 @@ public class FunctionCallSupportTest {
     type = MethodType.methodType(Object.class);
     callSite = FunctionCallSupport.bootstrap(lookup, name, type);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments(), is(""));
+
+    type = MethodType.methodType(Object.class, Object.class);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments((Object)new String[]{"a", "b", "c"}), is("a-b-c"));
   }
 }

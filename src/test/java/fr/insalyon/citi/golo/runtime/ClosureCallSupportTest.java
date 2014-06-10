@@ -75,5 +75,10 @@ public class ClosureCallSupportTest {
     callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class));
     invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle), is(""));
+
+    handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class));
+    invoker = callSite.dynamicInvoker();
+    assertThat((String) invoker.invokeWithArguments(handle, new Object[]{1,2}), is("12"));
   }
 }

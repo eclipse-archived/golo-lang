@@ -570,6 +570,11 @@ public class CompileAndRunTest {
     resultList = (List<Integer>) make_another_list.invoke(null);
     assertThat(resultList.size(), is(3));
     assertThat(resultList, hasItems(1, 2, 3));
+
+    Method make_another_list_from_array = moduleClass.getMethod("make_another_list_from_array");
+    resultList = (List<Integer>) make_another_list_from_array.invoke(null);
+    assertThat(resultList.size(), is(3));
+    assertThat(resultList, hasItems(1, 2, 3));
   }
 
   @Test
@@ -800,6 +805,9 @@ public class CompileAndRunTest {
     Method varargs = moduleClass.getMethod("varargs");
     assertThat((String) varargs.invoke(null), is("abcd"));
 
+    Method varargs_array = moduleClass.getMethod("varargs_array");
+    assertThat((String) varargs_array.invoke(null), is("abcd"));
+
     Method polymorphism = moduleClass.getMethod("polymorphism");
     assertThat((String) polymorphism.invoke(null), is("plop!"));
 
@@ -860,7 +868,7 @@ public class CompileAndRunTest {
     assertThat((String) propz.invoke(null), either(is("foo:foobar:bar")).or(is("bar:barfoo:foo")));
 
     Method with_varargs = moduleClass.getMethod("with_varargs");
-    assertThat((String) with_varargs.invoke(null), is("||@1|@2@3"));
+    assertThat((String) with_varargs.invoke(null), is("||@1|@2@3|@4@5|[foo]@1[foo]@2@3[foo]@4@5[foo][fallback:jhon_doe][fallback:jhon_doe]@2@3"));
   }
 
   @Test
@@ -1241,6 +1249,15 @@ public class CompileAndRunTest {
 
     Method meth = moduleClass.getMethod("meth");
     assertThat((String) meth.invoke(null), is("Yeah"));
+
+    Method func_varargs = moduleClass.getMethod("func_varargs");
+    assertThat((String) func_varargs.invoke(null), is("Hey!Hey!"));
+
+    Method ctor_varargs = moduleClass.getMethod("ctor_varargs");
+    assertThat((String) ctor_varargs.invoke(null), is("PlopPlop!"));
+
+    Method meth_varargs = moduleClass.getMethod("meth_varargs");
+    assertThat((String) meth_varargs.invoke(null), is("YeahYeah"));
   }
 
   @Test

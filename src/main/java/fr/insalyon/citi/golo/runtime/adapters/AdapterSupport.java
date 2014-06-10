@@ -74,7 +74,7 @@ public class AdapterSupport {
       Map<String, MethodHandle> overrides = definition.getOverrides();
       MethodHandle superTarget = callSite.callerLookup.findSpecial(receiverParentClass, callSite.name, callSite.type().dropParameterTypes(0, 1), receiverClass);
       if (superTarget.isVarargsCollector()) {
-        superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount() - 1, true));
+        superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount() - 1, true)).asVarargsCollector(Object[].class);
       } else {
         superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount()));
       }

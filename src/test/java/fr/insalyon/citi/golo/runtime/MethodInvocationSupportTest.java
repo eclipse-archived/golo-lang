@@ -212,6 +212,12 @@ public class MethodInvocationSupportTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("a-b-c"));
+
+    concat = MethodInvocationSupport.bootstrap(lookup(), "concat", methodType(Object.class, Object.class, Object.class, Object.class), 0);
+    result = concat.dynamicInvoker().invokeWithArguments(receiver, "-", new String[]{"a", "b", "c"});
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("a-b-c"));
   }
 
   @Test
@@ -220,6 +226,12 @@ public class MethodInvocationSupportTest {
     VarargsChecking receiver = varargsChecking();
 
     Object result = concat.dynamicInvoker().invokeWithArguments(receiver, "a", "b", "c");
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("a-b-c"));
+
+    concat = MethodInvocationSupport.bootstrap(lookup(), "defaultConcat", methodType(Object.class, Object.class, Object.class), 0);
+    result = concat.dynamicInvoker().invokeWithArguments(receiver, new String[]{"a", "b", "c"});
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(String.class));
     assertThat((String) result, is("a-b-c"));
