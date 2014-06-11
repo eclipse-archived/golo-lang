@@ -88,12 +88,12 @@ public class ClosureDispatchMicroBenchmark {
     }
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object baseline_java_mh_invokeExact(JavaState javaState, DataState dataState) throws Throwable {
     return javaState.mhDispatchHandle.invokeExact(javaState.stringifyHandle, dataState.argument);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_closure_dispatch(GoloState goloState, DataState dataState) throws Throwable {
     return goloState.target.invokeExact((Object) goloState.stringifyHandle, dataState.argument);
   }

@@ -171,7 +171,7 @@ public class FilterMapReduceMicroBenchmark {
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object baseline_java_copying(JavaState javaState, DataState dataState) {
     return
         reduce(
@@ -181,22 +181,22 @@ public class FilterMapReduceMicroBenchmark {
             0L, javaState.reduceFunction);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo(GoloState goloState, DataState dataState) throws Throwable {
     return goloState.target.invokeExact((Object) dataState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy(GroovyState groovyState, DataState dataState) throws Throwable {
     return groovyState.target.invokeExact((Object) dataState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_indy(GroovyIndyState groovyIndyState, DataState dataState) throws Throwable {
     return groovyIndyState.target.invokeExact((Object) dataState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object jruby(JRubyState jRubyState, DataState dataState) {
     if (jRubyState.array == null) {
       IRubyObject[] objects = convertJavaArrayToRuby(jRubyState.context.container().getProvider().getRuntime(), dataState.data.toArray());
@@ -212,7 +212,7 @@ public class FilterMapReduceMicroBenchmark {
             Object.class);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object clojure(ClojureState clojureState, DataState dataState) {
     if (clojureState.vector == null) {
       clojureState.vector = PersistentVector.create(dataState.data);
@@ -220,7 +220,7 @@ public class FilterMapReduceMicroBenchmark {
     return clojureState.run.invoke(clojureState.vector);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object nashorn(NashornState nashornState, DataState dataState) throws Throwable {
     if (nashornState.array == null) {
       nashornState.array = nashornState.script.invokeFunction("convert", (Object) dataState.data.toArray());

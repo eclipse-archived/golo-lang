@@ -103,86 +103,86 @@ public class FibonacciMicroBenchmark {
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public long baseline_java_30(State30 state) {
     return JavaRecursiveFibonacci.withPrimitives(state.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public long baseline_java_boxing_30(State30 state) {
     return JavaRecursiveFibonacci.withBoxing(state.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_30(State30 state30, GoloState goloState) throws Throwable {
     return goloState.fib.invokeExact((Object) state30.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_30(State30 state30, GroovyState groovyState) throws Throwable {
     return groovyState.fib.invokeExact((Object) state30.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_indy_30(State30 state30, GroovyIndyState groovyState) throws Throwable {
     return groovyState.fib.invokeExact((Object) state30.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object clojure_30(State30 state30, ClojureState clojureState) {
     return clojureState.fib.invoke(state30.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object jruby_30(State30 state30, JRubyState jRubyState) {
     return jRubyState.containerAndReceiver.container()
         .callMethod(jRubyState.containerAndReceiver.receiver(), "fib", state30.n, Long.class);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object nashorn_30(State30 state30, NashornState nashornState) throws Throwable {
     return nashornState.invocable.invokeFunction("fib", state30.n);
   }
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public long baseline_java_40(State40 state) {
     return JavaRecursiveFibonacci.withPrimitives(state.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public long baseline_java_boxing_40(State40 state) {
     return JavaRecursiveFibonacci.withBoxing(state.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_40(State40 state40, GoloState goloState) throws Throwable {
     return goloState.fib.invokeExact((Object) state40.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_40(State40 state40, GroovyState groovyState) throws Throwable {
     return groovyState.fib.invokeExact((Object) state40.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_indy_40(State40 state40, GroovyIndyState groovyState) throws Throwable {
     return groovyState.fib.invokeExact((Object) state40.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object clojure_40(State40 state40, ClojureState clojureState) {
     return clojureState.fib.invoke(state40.n);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object jruby_40(State40 state40, JRubyState jRubyState) {
     return jRubyState.containerAndReceiver.container()
         .callMethod(jRubyState.containerAndReceiver.receiver(), "fib", state40.n, Long.class);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object nashorn_40(State40 state40, NashornState nashornState) throws Throwable {
     return nashornState.invocable.invokeFunction("fib", state40.n);
   }

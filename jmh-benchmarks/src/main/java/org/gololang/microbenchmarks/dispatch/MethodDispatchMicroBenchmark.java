@@ -204,27 +204,27 @@ public class MethodDispatchMicroBenchmark {
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_baseline_java(JavaState javaState, MonomorphicState monomorphicState) {
     return javaState.dispatcher.dispatch(monomorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_golo(GoloState goloState, MonomorphicState monomorphicState) throws Throwable {
     return goloState.dispatcher.invokeExact((Object) monomorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_groovy(GroovyState groovyState, MonomorphicState monomorphicState) throws Throwable {
     return groovyState.dispatcher.invokeExact(monomorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_groovy_indy(GroovyIndyState groovyState, MonomorphicState monomorphicState) throws Throwable {
     return groovyState.dispatcher.invokeExact(monomorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_jruby(JRubyState jRubyState, MonomorphicState monomorphicState) {
     if (jRubyState.array == null) {
       jRubyState.array = convertJavaArrayToRuby(jRubyState.dispatch.container().getProvider().getRuntime(), monomorphicState.data);
@@ -239,7 +239,7 @@ public class MethodDispatchMicroBenchmark {
             Object.class);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_clojure(ClojureState clojureState, MonomorphicState monomorphicState) {
     if (clojureState.vector == null) {
       clojureState.vector = PersistentVector.create(monomorphicState.data);
@@ -247,34 +247,34 @@ public class MethodDispatchMicroBenchmark {
     return clojureState.dispatcher.invoke(clojureState.vector);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object monomorphic_nashorn(NashornState nashornState, MonomorphicState monomorphicState) throws Throwable {
     return nashornState.script.invokeFunction("dispatch", (Object) monomorphicState.data);
   }
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_baseline_java(JavaState javaState, TriMorphicState triMorphicState) {
     return javaState.dispatcher.dispatch(triMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_golo(GoloState goloState, TriMorphicState triMorphicState) throws Throwable {
     return goloState.dispatcher.invokeExact((Object) triMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_groovy(GroovyState groovyState, TriMorphicState triMorphicState) throws Throwable {
     return groovyState.dispatcher.invokeExact(triMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_groovy_indy(GroovyIndyState groovyState, TriMorphicState triMorphicState) throws Throwable {
     return groovyState.dispatcher.invokeExact(triMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_jruby(JRubyState jRubyState, TriMorphicState triMorphicState) {
     if (jRubyState.array == null) {
       jRubyState.array = convertJavaArrayToRuby(jRubyState.dispatch.container().getProvider().getRuntime(), triMorphicState.data);
@@ -289,7 +289,7 @@ public class MethodDispatchMicroBenchmark {
             Object.class);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_clojure(ClojureState clojureState, TriMorphicState triMorphicState) {
     if (clojureState.vector == null) {
       clojureState.vector = PersistentVector.create(triMorphicState.data);
@@ -297,34 +297,34 @@ public class MethodDispatchMicroBenchmark {
     return clojureState.dispatcher.invoke(clojureState.vector);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object trimorphic_nashorn(NashornState nashornState, TriMorphicState triMorphicState) throws Throwable {
     return nashornState.script.invokeFunction("dispatch", (Object) triMorphicState.data);
   }
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_baseline_java(JavaState javaState, PolyMorphicState polyMorphicState) {
     return javaState.dispatcher.dispatch(polyMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_golo(GoloState goloState, PolyMorphicState polyMorphicState) throws Throwable {
     return goloState.dispatcher.invokeExact((Object) polyMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_groovy(GroovyState groovyState, PolyMorphicState polyMorphicState) throws Throwable {
     return groovyState.dispatcher.invokeExact(polyMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_groovy_indy(GroovyIndyState groovyState, PolyMorphicState polyMorphicState) throws Throwable {
     return groovyState.dispatcher.invokeExact(polyMorphicState.data);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_jruby(JRubyState jRubyState, PolyMorphicState polyMorphicState) {
     if (jRubyState.array == null) {
       jRubyState.array = convertJavaArrayToRuby(jRubyState.dispatch.container().getProvider().getRuntime(), polyMorphicState.data);
@@ -339,7 +339,7 @@ public class MethodDispatchMicroBenchmark {
             Object.class);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_clojure(ClojureState clojureState, PolyMorphicState polyMorphicState) {
     if (clojureState.vector == null) {
       clojureState.vector = PersistentVector.create(polyMorphicState.data);
@@ -347,7 +347,7 @@ public class MethodDispatchMicroBenchmark {
     return clojureState.dispatcher.invoke(clojureState.vector);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object polymorphic_nashorn(NashornState nashornState, PolyMorphicState polyMorphicState) throws Throwable {
     return nashornState.script.invokeFunction("dispatch", (Object) polyMorphicState.data);
   }

@@ -190,52 +190,52 @@ public class GoloDispatchMicroBenchmark {
 
   /* ................................................................................................................ */
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object baseline_java_virtual_call(JavaState javaState) throws Throwable {
     return javaState.plopDispatcherHandle.invokeExact(javaState.plop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object baseline_java_hashmap_malleable_object(JavaHashMapState state) throws Throwable {
     return state.dispatcher.invokeExact(state.map, "plop", "random");
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_method_call(GoloMethodState goloState) throws Throwable {
     return goloState.target.invokeExact(goloState.plop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_struct_with_augmentation_call(GoloStructWithAugmentationState state) throws Throwable {
     return state.target.invokeExact(state.plop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_dynamic_object_random_in_closure(GoloDynamicObjectState state) throws Throwable {
     return state.target.invokeExact(state.plop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object golo_dynamic_object_random_in_property(GoloDynamicObjectState state) throws Throwable {
     return state.target.invokeExact(state.statefulPlop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object baseline_groovy_concrete_class(GroovyState groovyState) throws Throwable {
     return groovyState.target.invokeExact(groovyState.concretePlop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_expando(GroovyState groovyState) throws Throwable {
     return groovyState.target.invokeExact(groovyState.plop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object baseline_groovy_indy_concrete_class(GroovyIndyState groovyState) throws Throwable {
     return groovyState.target.invokeExact(groovyState.concretePlop);
   }
 
-  @GenerateMicroBenchmark
+  @Benchmark
   public Object groovy_indy_expando(GroovyIndyState groovyState) throws Throwable {
     return groovyState.target.invokeExact(groovyState.plop);
   }
