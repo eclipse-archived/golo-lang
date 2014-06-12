@@ -41,7 +41,7 @@ public class ParseTreeToGoloIrAndVisitorsTest {
 
   @DataProvider(name = "golo-files")
   public static Iterator<Object[]> data() {
-    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation".replaceAll("/", File.separator));
+    return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation");
   }
 
   @Test(dataProvider = "golo-files")
