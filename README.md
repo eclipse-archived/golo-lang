@@ -23,6 +23,15 @@ Golo is being developed as part of the research activities of the
 
 Starting from version 1.0.0, Golo adopts the [semantic versioning scheme](http://semver.org).
 
+## Getting Golo
+
+Go to the [Golo downloads page](http://golo-lang.org/download/) for general download instructions.
+
+You can fetch Golo from Maven central under the `org.golo-lang` group.
+
+We also provide [Docker](http://docker.com/) images based on Ubuntu 14.04 and Java SE 8:
+`docker pull jponge/golo-lang`
+
 ## Building Golo
 
 [![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
