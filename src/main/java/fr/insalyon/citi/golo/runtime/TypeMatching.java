@@ -59,10 +59,13 @@ public class TypeMatching {
       }
     }
     final int last = types.length - 1;
+    if (varArgs && arguments.length == last) {
+      return true;
+    }
     if (last >= arguments.length) {
       return false;
     }
-    if (varArgs) {
+    if (varArgs && !(arguments[last] instanceof Object[])) {
       return valueAndTypeMatch(types[last].getComponentType(), arguments[last]);
     }
     return valueAndTypeMatch(types[last], arguments[last]);
@@ -85,5 +88,9 @@ public class TypeMatching {
       return false;
     }
     return PRIMITIVE_MAP.get(type) == value.getClass();
+  }
+
+  public static boolean isLastArgumentAnArray(int index, Object[] args) {
+    return index > 0 && args.length == index && args[index - 1] instanceof Object[];
   }
 }

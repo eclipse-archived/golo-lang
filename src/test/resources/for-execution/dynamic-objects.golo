@@ -75,14 +75,41 @@ function propz = {
 function with_varargs = {
   let prefix = "@"
   let result = java.lang.StringBuilder()
-  let obj = DynamicObject(): define("fun", |this, args...| {
-    result: append("|")
-    foreach arg in args {
-      result: append(prefix): append(arg)
-    }
-  })
-  obj: fun()
-  obj: fun(1)
-  obj: fun(2, 3)
+  let obj = DynamicObject():
+    define("fun1", |this, args...| {
+      result: append("|")
+      foreach arg in args {
+        result: append(prefix): append(arg)
+      }
+    }):
+    define("fun2", |this, str, args...| {
+      result: append("["+str+"]")
+      foreach arg in args {
+        result: append(prefix): append(arg)
+      }
+    }):
+    define("fallback", |this, name, args...| {
+      result: append("[fallback:"+name+"]")
+      foreach arg in args {
+        result: append(prefix): append(arg)
+      }
+    })
+
+  obj: fun1()
+  obj: fun1(1)
+  obj: fun1(2, 3)
+  obj: fun1(array[4, 5])
+  obj: fun1(array[])
+
+  obj: fun2("foo", 1)
+  obj: fun2("foo", 2, 3)
+  obj: fun2("foo", array[4, 5])
+  obj: fun2("foo", array[])
+
+  obj: jhon_doe()
+  obj: jhon_doe(2, 3)
+  obj: jhon_doe(array[4, 5])
+  obj: jhon_doe(array[])
+
   return result: toString()
 }

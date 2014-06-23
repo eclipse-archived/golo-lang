@@ -39,6 +39,8 @@ function externalAugmentation = -> "abc": wrap("(", ")")
 
 function varargs = -> "a": concatWith("b", "c", "d")
 
+function varargs_array = -> "a": concatWith(array["b", "c", "d"])
+
 function polymorphism = -> java.util.LinkedList(): plop()
 
 function closure_in_augmentation = {

@@ -162,9 +162,17 @@ augment java.lang.invoke.MethodHandle {
 
   Returns an argument-spreading function.
   ----
-  function spread = |this, args| -> this:
-    asSpreader(objectArrayType(), args: length()):
-    invokeWithArguments(args)
+  function spread = |this, args| {
+    let arity = this: type(): parameterCount()
+    if (this: isVarargsCollector() and (arity > 0) and isArray(args: get(arity - 1))) {
+      return this:
+             asFixedArity():
+             asSpreader(objectArrayType(), args: length())(args)
+    } else {
+      return this:
+             asSpreader(objectArrayType(), args: length())(args)
+    }
+  }
 }
 
 # ............................................................................................... #

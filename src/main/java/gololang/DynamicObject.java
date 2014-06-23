@@ -25,6 +25,7 @@ import java.util.Set;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
 
 /**
  * A dynamic object is an object whose properties can be dynamically added, changed and removed. Properties can be any
@@ -191,6 +192,7 @@ public final class DynamicObject {
   private static final MethodHandle MAP_HAS;
   private static final MethodHandle IS_MH_1;
   private static final MethodHandle IS_MH_2;
+  private static final MethodHandle VARARGS_COMBINER;
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
@@ -201,6 +203,7 @@ public final class DynamicObject {
       MAP_HAS = lookup.findStatic(DynamicObject.class, "has", methodType(boolean.class, Object.class, Object.class));
       IS_MH_1 = lookup.findStatic(DynamicObject.class, "isMethodHandle_1", methodType(boolean.class, Object.class));
       IS_MH_2 = lookup.findStatic(DynamicObject.class, "isMethodHandle_2", methodType(boolean.class, Object.class));
+      VARARGS_COMBINER = lookup.findStatic(DynamicObject.class, "varargsCombiner", methodType(Object.class, Object.class, Object[].class));
 
     } catch (NoSuchMethodException | IllegalAccessException e) {
       e.printStackTrace();
@@ -227,12 +230,15 @@ public final class DynamicObject {
   private MethodHandle anyInvoker(String property, MethodType type) {
     MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
+    MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
+    MethodHandle mapGetCombined = foldArguments(vaCombiner, mapGet);
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
+    MethodHandle combined = foldArguments(invoker, mapGetCombined);
     if (hasFallback()) {
-      return fallback(foldArguments(invoker, mapGet), property, type);
+      return fallback(combined, property, type);
     }
-    return foldArguments(invoker, mapGet);
+    return combined;
   }
 
   private MethodHandle setterStyleInvoker(String property, MethodType type) {
@@ -240,23 +246,27 @@ public final class DynamicObject {
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
     MethodHandle mapPut = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
     mapPut = mapPut.asType(mapPut.type().changeParameterType(1, Object.class));
+    MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
+    MethodHandle mapGetCombined = foldArguments(vaCombiner,mapGet);
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     MethodHandle gwt = guardWithTest(IS_MH_2, invoker, mapPut);
-    return foldArguments(gwt, mapGet);
+    return foldArguments(gwt, mapGetCombined);
   }
 
   private MethodHandle getterStyleInvoker(String property, MethodType type) {
     MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
+    MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
+    MethodHandle mapGetCombined = foldArguments(vaCombiner,mapGet);
     MethodHandle identity = dropArguments(identity(Object.class), 1, type.parameterArray());
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     MethodHandle gwt = guardWithTest(IS_MH_1, invoker, identity);
     if (hasFallback()) {
-      return fallback(foldArguments(gwt, mapGet), property, type);
+      return fallback(foldArguments(gwt, mapGetCombined), property, type);
     }
-    return foldArguments(gwt, mapGet);
+    return foldArguments(gwt, mapGetCombined);
   }
 
   private MethodHandle fallback(MethodHandle target, String property, MethodType type) {
@@ -266,6 +276,17 @@ public final class DynamicObject {
     fallbackHandle = fallbackHandle.asCollector(Object[].class, target.type().parameterCount() - 1);
     MethodHandle has = insertArguments(MAP_HAS, 1, property);
     return guardWithTest(has, target, fallbackHandle);
+  }
+
+  private static Object varargsCombiner(Object mapEntry, Object... args) {
+    if (mapEntry == null || !(mapEntry instanceof MethodHandle)) {
+      return mapEntry;
+    }
+    MethodHandle target = (MethodHandle)mapEntry;
+    if (target.isVarargsCollector() && isLastArgumentAnArray(target.type().parameterCount(), args)) {
+      return target.asFixedArity();
+    }
+    return target;
   }
 
   private static boolean isMethodHandle_1(Object obj) {

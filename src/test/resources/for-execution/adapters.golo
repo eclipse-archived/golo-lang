@@ -53,7 +53,7 @@ function add_arraylist = {
             carbonCopy: add(args: get(1), args: get(2))
           }
         }
-        return super: spread(args)
+        return super: invokeWithArguments(args)
       }
     ]]
   ]]

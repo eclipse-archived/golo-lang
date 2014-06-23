@@ -215,7 +215,11 @@ public class MethodInvocationSupport {
           if (makeAccessible || isValidPrivateStructAccess(args[0], method, inlineCache)) {
             method.setAccessible(true);
           }
-          target = inlineCache.callerLookup.unreflect(method).asType(type);
+          if ((method.isVarArgs() && isLastArgumentAnArray(type.parameterCount(), args))) {
+            target = inlineCache.callerLookup.unreflect(method).asFixedArity().asType(type);
+          } else {
+            target = inlineCache.callerLookup.unreflect(method).asType(type);
+          }
           target = FunctionCallSupport.insertSAMFilter(target, method.getParameterTypes(), 1);
         } else {
           Field field = (Field) searchResult;
@@ -238,7 +242,7 @@ public class MethodInvocationSupport {
       }
     }
 
-    target = findInAugmentations(receiverClass, inlineCache);
+    target = findInAugmentations(receiverClass, inlineCache, args);
     if (target != null) {
       return target;
     }
@@ -381,7 +385,7 @@ public class MethodInvocationSupport {
     return null;
   }
 
-  private static MethodHandle findInAugmentations(Class<?> receiverClass, InlineCache inlineCache) {
+  private static MethodHandle findInAugmentations(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
     Class<?> callerClass = inlineCache.callerLookup.lookupClass();
     String name = inlineCache.name;
     MethodType type = inlineCache.type();
@@ -396,7 +400,12 @@ public class MethodInvocationSupport {
           Class<?> augmentClass = classLoader.loadClass(augmentClassName(callerClass, augmentedClass));
           for (Method method : augmentClass.getMethods()) {
             if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
-              return lookup.unreflect(method).asType(type);
+              MethodHandle target = lookup.unreflect(method);
+              if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
+                return target.asFixedArity().asType(type);
+              } else {
+                return target.asType(type);
+              }
             }
           }
         }
@@ -415,7 +424,12 @@ public class MethodInvocationSupport {
               Class<?> augmentClass = classLoader.loadClass(augmentClassName(importClass, augmentedClass));
               for (Method method : augmentClass.getMethods()) {
                 if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
-                  return lookup.unreflect(method).asType(type);
+                  MethodHandle target = lookup.unreflect(method);
+                  if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
+                    return target.asFixedArity().asType(type);
+                  } else {
+                    return target.asType(type);
+                  }
                 }
               }
             }

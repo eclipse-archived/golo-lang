@@ -97,6 +97,9 @@ public class JavaBytecodeAdapterGenerator {
   private void makeFrontendOverrides(ClassWriter classWriter, AdapterDefinition adapterDefinition) {
     for (Method method : getAllVirtualMethods(adapterDefinition)) {
       int access = isPublic(method.getModifiers()) ? ACC_PUBLIC : ACC_PROTECTED;
+      if (method.isVarArgs()) {
+        access = access & ACC_VARARGS;
+      }
       String name = method.getName();
       String descriptor = Type.getMethodDescriptor(method);
       Class<?>[] exceptionTypes = method.getExceptionTypes();
