@@ -10,9 +10,6 @@ Julien Ponge <julien.ponge@insa-lyon.fr>
 
 This is the documentation for the Golo programming language.
 
-CAUTION: This is a work in progress. Golo is even far from being feature-complete. You have been
-warned, but hey, you somehow knew it I'm pretty sure.
-
 .Copyright and License Notice
 ----
 Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
