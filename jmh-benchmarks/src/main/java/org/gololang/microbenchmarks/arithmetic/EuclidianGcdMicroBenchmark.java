@@ -156,7 +156,7 @@ public class EuclidianGcdMicroBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-      Random rand = new Random();
+      Random rand = new Random(666L);
       x = new int[N];
       y = new int[N];
       for (int i = 0; i < N; i++) {
