@@ -39,5 +39,18 @@ class Arithmetic {
         }
         return a
     }
+
+    static def sum(x, y) {
+        return x + y
+    }
+
+    static int fast_sum(int x, int y) {
+        return x + y
+    }
+
+    @groovy.transform.CompileStatic
+    static int fastest_sum(int x, int y) {
+        return x + y
+    }
 }
 

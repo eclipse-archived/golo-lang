@@ -12,3 +12,5 @@ function gcd = |x, y| {
   }
   return a
 }
+
+function sum = |x, y| -> x + y

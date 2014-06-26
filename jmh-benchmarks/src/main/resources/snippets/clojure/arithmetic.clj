@@ -13,4 +13,3 @@
     (if (> a b)
       (recur (- a b) b)
       (recur a (- b a)) )))
-
