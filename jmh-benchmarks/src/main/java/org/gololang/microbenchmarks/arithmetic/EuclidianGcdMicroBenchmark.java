@@ -70,8 +70,7 @@ public class EuclidianGcdMicroBenchmark {
 
     @Setup(Level.Trial)
     public void setup() {
-      gcdHandle = new CodeLoader().golo("arithmetic" +
-          "", "gcd", 2);
+      gcdHandle = new CodeLoader().golo("arithmetic", "gcd", 2);
     }
   }
 
