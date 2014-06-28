@@ -166,12 +166,6 @@ public class EuclidianGcdMicroBenchmark {
   }
 
   @Benchmark
-  public int baseline_java_direct(DataSpace dataSpace) {
-    int index = dataSpace.nextIndex();
-    return gcd(dataSpace.x[index], dataSpace.y[index]);
-  }
-
-  @Benchmark
   public Object baseline_java_mh(DataSpace dataSpace, JavaState javaState) throws Throwable {
     int index = dataSpace.nextIndex();
     return javaState.gcdHandle.invoke(dataSpace.x[index], dataSpace.y[index]);
