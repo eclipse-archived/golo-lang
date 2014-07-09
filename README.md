@@ -1,4 +1,4 @@
-[![DOI](https://zenodo.org/badge/3726/golo-lang/golo-lang.png)](https://zenodo.org/record/10272)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.10807.png)](http://dx.doi.org/10.5281/zenodo.10807)
 
 # Golo, a lightweight dynamic language for the JVM.
 
