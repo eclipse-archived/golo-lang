@@ -67,13 +67,13 @@
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 
     <jmh-core.version>1.0-SNAPSHOT</jmh-core.version>
-    <groovy-all.version>2.2.1</groovy-all.version>
-    <clojure.version>1.5.1</clojure.version>
-    <jruby-complete.version>1.7.9</jruby-complete.version>
+    <groovy-all.version>2.3.0</groovy-all.version>
+    <clojure.version>1.6.0</clojure.version>
+    <jruby-complete.version>1.7.13</jruby-complete.version>
     <junit.version>4.11</junit.version>
 
     <maven-compiler-plugin.version>3.1</maven-compiler-plugin.version>
-    <maven-shade-plugin.version>2.2</maven-shade-plugin.version>
+    <maven-shade-plugin.version>2.3</maven-shade-plugin.version>
     <maven-compiler-plugin.compilerVersion>1.7</maven-compiler-plugin.compilerVersion>
 
   </properties>

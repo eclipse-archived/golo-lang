@@ -140,7 +140,7 @@
     <animal-sniffer-maven-plugin.version>1.9</animal-sniffer-maven-plugin.version>
     <maven-jar-plugin.version>2.4</maven-jar-plugin.version>
     <maven-bundle-plugin.version>2.4.0</maven-bundle-plugin.version>
-    <maven-javadoc-plugin.version>2.9</maven-javadoc-plugin.version>
+    <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
   </properties>
 
   <dependencies>
