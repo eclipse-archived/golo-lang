@@ -17,6 +17,7 @@
 package gololang;
 
 import org.hamcrest.Matchers;
+import org.skyscreamer.jsonassert.JSONAssert;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -55,9 +56,7 @@ public class JSONTest {
 
     assertThat(tuple.get(0), instanceOf(String.class));
     String str = (String) tuple.get(0);
-    assertThat(str, containsString("69"));
-    assertThat(str, containsString("\"name\":\"Somebody\""));
-    assertThat(str, containsString("[\"Mr Bean\""));
+    JSONAssert.assertEquals("{\"name\":\"Somebody\",\"age\":69,\"friends\":[\"Mr Bean\",\"John B\",\"Larry\"]}", str, true);
 
     assertThat(tuple.get(1), instanceOf(Map.class));
     Map<?, ?> map = (Map<?, ?>) tuple.get(1);
@@ -72,16 +71,14 @@ public class JSONTest {
   public void dyobj_stringify() throws Throwable {
     Method dyobj_stringify = moduleClass.getMethod("dyobj_stringify");
     String json = (String) dyobj_stringify.invoke(null);
-    assertThat(json, containsString("\"foo\":\"bar\""));
-    assertThat(json, containsString("\"nested\":{\"a\":\"1\",\"b\":\"2\"}"));
+    JSONAssert.assertEquals("{\"foo\":\"bar\",\"bar\":\"baz\",\"nested\":{\"a\":\"1\",\"b\":\"2\"}}", json, true);
   }
 
   @Test
   public void dyobj_stringify_mixin() throws Throwable {
     Method dyobj_stringify_mixin = moduleClass.getMethod("dyobj_stringify_mixin");
     String json = (String) dyobj_stringify_mixin.invoke(null);
-    assertThat(json, containsString("\"foo\":\"bar\""));
-    assertThat(json, containsString("\"nested\":{\"a\":\"1\",\"b\":\"2\"}"));
+    JSONAssert.assertEquals("{\"foo\":\"bar\",\"bar\":\"baz\",\"nested\":{\"a\":\"1\",\"b\":\"2\"}}", json, true);
   }
 
   @Test
@@ -96,8 +93,7 @@ public class JSONTest {
   public void struct_stringify() throws Throwable {
     Method struct_stringify = moduleClass.getMethod("struct_stringify");
     String json = (String) struct_stringify.invoke(null);
-    assertThat(json, containsString("Mr Bean"));
-    assertThat(json, containsString("email"));
+    JSONAssert.assertEquals("{\"name\":\"Mr Bean\",\"email\":\"mrbean@outlook.com\",\"age\":64}", json, true);
   }
 
   @Test
@@ -113,7 +109,6 @@ public class JSONTest {
   public void stringify_mix_struct_and_dynobj() throws Throwable {
     Method stringify_mix_struct_and_dynobj = moduleClass.getMethod("stringify_mix_struct_and_dynobj");
     String json = (String) stringify_mix_struct_and_dynobj.invoke(null);
-    assertThat(json, containsString("{\"name\":\"Mr Bean\""));
-    assertThat(json, containsString("\"a\":\"1\""));
+    JSONAssert.assertEquals("{\"a\":\"1\",\"b\":{\"name\":\"Mr Bean\",\"email\":\"mrbean@outlook.com\",\"age\":64}}", json, true);
   }
 }
