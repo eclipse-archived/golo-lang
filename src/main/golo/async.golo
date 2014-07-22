@@ -60,7 +60,7 @@ function failedFuture = |throwable| ->
   gololang.concurrent.async.AssignedFuture.failedFuture(throwable)
 
 ----
-Augementation on the base `Future` objects provided by the `gololang.concurrent.async.Future` Java
+Augmentation on the base `Future` objects provided by the `gololang.concurrent.async.Future` Java
 class.
 ----
 augment gololang.concurrent.async.Future {
