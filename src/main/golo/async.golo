@@ -126,7 +126,7 @@ augment gololang.concurrent.async.Future {
 }
 
 ----
-Given a collection of futures, returns a future whose value is eventually avector with the 
+Given a collection of futures, returns a future whose value is eventually a vector with the
 results of these futures.
 
 Given:
