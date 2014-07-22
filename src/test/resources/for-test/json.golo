@@ -41,7 +41,7 @@ function dyobj_parse = ->
     ["a", "1"], ["b", "2"]
   ]))
 
-struct Person = { name, age, email }
+struct Person = { name, email, age }
 
 function struct_stringify = ->
   Person("Mr Bean", "mrbean@outlook.com", 64): toJSON()
