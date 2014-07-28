@@ -399,6 +399,7 @@ public class Main {
 
   private static void run(RunCommand golo) throws Throwable {
     try {
+      golo.classpath.add(".");
       URLClassLoader primaryClassLoader = primaryClassLoader(golo.classpath);
       Thread.currentThread().setContextClassLoader(primaryClassLoader);
       Class<?> module = Class.forName(golo.module, true, primaryClassLoader);
