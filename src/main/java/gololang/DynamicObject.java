@@ -19,6 +19,7 @@ package gololang;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -26,6 +27,7 @@ import java.util.Set;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
 import static java.lang.System.arraycopy;
 import static java.lang.invoke.MethodHandles.*;
+import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 
 /**
@@ -130,6 +132,13 @@ public final class DynamicObject {
       Object value = obj.properties.get(property);
       if (value instanceof MethodHandle) {
         MethodHandle handle = (MethodHandle) value;
+        if (handle.isVarargsCollector() && args[args.length - 1] instanceof Object[]) {
+          Object[] trailing = (Object[]) args[args.length - 1];
+          Object[] spreadArgs = new Object[args.length + trailing.length - 1];
+          arraycopy(args, 0, spreadArgs, 0, args.length - 1);
+          arraycopy(trailing, 0, spreadArgs, args.length - 1, trailing.length);
+          return handle.invokeWithArguments(spreadArgs);
+        }
         return handle.invokeWithArguments(args);
       } else {
         throw new UnsupportedOperationException("There is no dynamic object method defined for " + property);
@@ -151,16 +160,17 @@ public final class DynamicObject {
       Object value = object.get(property);
       if (value instanceof MethodHandle) {
         MethodHandle handle = (MethodHandle) value;
-        return handle.invokeWithArguments(object);
-      } else {
-        return value;
+        if (handle.type().parameterCount() == 1 || handle.isVarargsCollector()) {
+          return handle.invokeWithArguments(object);
+        }
       }
+      return value;
     }
     if (object.hasFallback()) {
       MethodHandle handle = (MethodHandle) object.properties.get("fallback");
       return handle.invokeWithArguments(object, property);
     }
-    throw new UnsupportedOperationException("There is neither a dynamic object property defined for " + property + " nor a 'fallback' method");
+    return null;
   }
 
   public static Object dispatchSetterStyle(String property, DynamicObject object, Object arg) throws Throwable {
@@ -168,7 +178,12 @@ public final class DynamicObject {
       Object value = object.get(property);
       if (value instanceof MethodHandle) {
         MethodHandle handle = (MethodHandle) value;
-        return handle.invokeWithArguments(object, arg);
+        if (handle.type().parameterCount() == 2) {
+          if (handle.isVarargsCollector() && arg instanceof Object[]) {
+            return handle.invokeExact((Object) object, (Object[]) arg);
+          }
+          return handle.invokeWithArguments(object, arg);
+        }
       }
     }
     return object.define(property, arg);
@@ -197,11 +212,11 @@ public final class DynamicObject {
       case 0:
         throw new IllegalArgumentException("A dynamic object invoker type needs at least 1 argument (the receiver)");
       case 1:
-        return getterStyleInvoker(property, type);
+        return DISPATCH_GET.bindTo(property).asType(genericMethodType(1));
       case 2:
-        return setterStyleInvoker(property, type);
+        return DISPATCH_SET.bindTo(property).asType(genericMethodType(2));
       default:
-        return anyInvoker(property, type);
+        return DISPATCH_CALL.bindTo(property).asCollector(Object[].class, type.parameterCount());
     }
   }
 

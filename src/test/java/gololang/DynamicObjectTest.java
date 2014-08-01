@@ -233,11 +233,7 @@ public class DynamicObjectTest {
     object.define("bar", 666);
     assertThat(DynamicObject.dispatchGetterStyle("bar", object), is((Object) 666));
 
-    try {
-      DynamicObject.dispatchGetterStyle("baz", object);
-      fail("An UnsupportedOperationException was expected");
-    } catch (UnsupportedOperationException ignored) {
-    }
+    assertThat(DynamicObject.dispatchGetterStyle("baz", object), nullValue());
 
     object.fallback(lookup().findStatic(DynamicObjectTest.class, "fallbackHandle", genericMethodType(2, true)));
     assertThat(DynamicObject.dispatchGetterStyle("baz", object), is((Object) "baz"));
