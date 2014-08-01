@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.DynamicObject;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
@@ -94,6 +96,13 @@ public class MethodInvocationSupportTest {
 
   public static class FieldAccessors {
     public Object property;
+  }
+
+  public static class Ploper {
+
+    public String plop(Object obj) {
+      return obj.toString();
+    }
   }
 
   public Person julien() {
@@ -298,5 +307,34 @@ public class MethodInvocationSupportTest {
     assertThat((String) invoker.invoke(Arrays.asList()), is("[]"));
     assertThat((String) invoker.invoke(new Object()), startsWith("java.lang.Object"));
     assertThat(invoker.invoke(null), nullValue());
+  }
+
+  @Test
+  public void dynamic_object_smoke_tests() throws Throwable {
+    DynamicObject a = new DynamicObject();
+    DynamicObject b = new DynamicObject();
+    CallSite plopper = MethodInvocationSupport.bootstrap(lookup(), "plop", methodType(Object.class, Object.class, Object.class), 1);
+    MethodHandle invoker = plopper.dynamicInvoker();
+
+    invoker.invoke(a, 1);
+    assertThat(a.get("plop"), is((Object) 1));
+
+    invoker.invoke(b, 1);
+    assertThat(b.get("plop"), is((Object) 1));
+
+    invoker.invoke(a, 10);
+    assertThat(a.get("plop"), is((Object) 10));
+    assertThat(b.get("plop"), is((Object) 1));
+
+    assertThat(invoker.invoke(new Ploper(), 666), is((Object) "666"));
+
+// TODO: this shall not fail
+//    b.undefine("plop");
+//    try {
+//      invoker.invoke(b, 1);
+//      Assert.fail("An exception should have been thrown");
+//    } catch (Throwable t) {
+//      t.printStackTrace();
+//    }
   }
 }

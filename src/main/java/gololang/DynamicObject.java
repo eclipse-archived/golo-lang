@@ -245,9 +245,17 @@ public final class DynamicObject {
   private static final MethodHandle IS_MH_2;
   private static final MethodHandle VARARGS_COMBINER;
 
+  public static final MethodHandle DISPATCH_CALL;
+  public static final MethodHandle DISPATCH_GET;
+  public static final MethodHandle DISPATCH_SET;
+
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
+
+      DISPATCH_CALL = lookup.findStatic(DynamicObject.class, "dispatchCall", methodType(Object.class, String.class, Object[].class));
+      DISPATCH_GET = lookup.findStatic(DynamicObject.class, "dispatchGetterStyle", methodType(Object.class, String.class, DynamicObject.class));
+      DISPATCH_SET = lookup.findStatic(DynamicObject.class, "dispatchSetterStyle", methodType(Object.class, String.class, DynamicObject.class, Object.class));
 
       MAP_GET = lookup.findSpecial(DynamicObject.class, "get", methodType(Object.class, Object.class), DynamicObject.class);
       MAP_PUT = lookup.findSpecial(DynamicObject.class, "put", methodType(Object.class, String.class, Object.class), DynamicObject.class);
