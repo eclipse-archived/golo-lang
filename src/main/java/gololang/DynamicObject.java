@@ -23,9 +23,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
+import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
+import static java.lang.System.arraycopy;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
-import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
 
 /**
  * A dynamic object is an object whose properties can be dynamically added, changed and removed. Properties can be any
@@ -123,6 +124,56 @@ public final class DynamicObject {
     return frozen;
   }
 
+  public static Object dispatchCall(String property, Object... args) throws Throwable {
+    DynamicObject obj = (DynamicObject) args[0];
+    if (obj.properties.containsKey(property)) {
+      Object value = obj.properties.get(property);
+      if (value instanceof MethodHandle) {
+        MethodHandle handle = (MethodHandle) value;
+        return handle.invokeWithArguments(args);
+      } else {
+        throw new UnsupportedOperationException("There is no dynamic object method defined for " + property);
+      }
+    }
+    if (obj.hasFallback()) {
+      MethodHandle handle = (MethodHandle) obj.properties.get("fallback");
+      Object[] fallback_args = new Object[args.length + 1];
+      fallback_args[0] = obj;
+      fallback_args[1] = property;
+      arraycopy(args, 1, fallback_args, 2, args.length - 1);
+      return handle.invokeWithArguments(fallback_args);
+    }
+    throw new UnsupportedOperationException("There is neither a dynamic object method defined for " + property + " nor a 'fallback' method");
+  }
+
+  public static Object dispatchGetterStyle(String property, DynamicObject object) throws Throwable {
+    if (object.properties.containsKey(property)) {
+      Object value = object.get(property);
+      if (value instanceof MethodHandle) {
+        MethodHandle handle = (MethodHandle) value;
+        return handle.invokeWithArguments(object);
+      } else {
+        return value;
+      }
+    }
+    if (object.hasFallback()) {
+      MethodHandle handle = (MethodHandle) object.properties.get("fallback");
+      return handle.invokeWithArguments(object, property);
+    }
+    throw new UnsupportedOperationException("There is neither a dynamic object property defined for " + property + " nor a 'fallback' method");
+  }
+
+  public static Object dispatchSetterStyle(String property, DynamicObject object, Object arg) throws Throwable {
+    if (object.properties.containsKey(property)) {
+      Object value = object.get(property);
+      if (value instanceof MethodHandle) {
+        MethodHandle handle = (MethodHandle) value;
+        return handle.invokeWithArguments(object, arg);
+      }
+    }
+    return object.define(property, arg);
+  }
+
   /**
    * Gives an invoker method handle for a given property.
    * <p>
@@ -183,7 +234,7 @@ public final class DynamicObject {
    *
    * @return {@code true} if a fallback behavior is defined, {@code false} otherwise.
    */
-  private boolean hasFallback(){
+  private boolean hasFallback() {
     return properties.containsKey("fallback");
   }
 
@@ -247,7 +298,7 @@ public final class DynamicObject {
     MethodHandle mapPut = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
     mapPut = mapPut.asType(mapPut.type().changeParameterType(1, Object.class));
     MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
-    MethodHandle mapGetCombined = foldArguments(vaCombiner,mapGet);
+    MethodHandle mapGetCombined = foldArguments(vaCombiner, mapGet);
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
     MethodHandle gwt = guardWithTest(IS_MH_2, invoker, mapPut);
@@ -258,7 +309,7 @@ public final class DynamicObject {
     MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
     mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
     MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
-    MethodHandle mapGetCombined = foldArguments(vaCombiner,mapGet);
+    MethodHandle mapGetCombined = foldArguments(vaCombiner, mapGet);
     MethodHandle identity = dropArguments(identity(Object.class), 1, type.parameterArray());
     MethodHandle invoker = MethodHandles.invoker(type);
     invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
@@ -282,7 +333,7 @@ public final class DynamicObject {
     if (mapEntry == null || !(mapEntry instanceof MethodHandle)) {
       return mapEntry;
     }
-    MethodHandle target = (MethodHandle)mapEntry;
+    MethodHandle target = (MethodHandle) mapEntry;
     if (target.isVarargsCollector() && isLastArgumentAnArray(target.type().parameterCount(), args)) {
       return target.asFixedArity();
     }
@@ -309,7 +360,7 @@ public final class DynamicObject {
   }
 
   private static boolean has(Object obj, Object property) {
-    if(obj instanceof DynamicObject) {
+    if (obj instanceof DynamicObject) {
       DynamicObject receiver = (DynamicObject) obj;
       return receiver.properties.containsKey(property);
     }

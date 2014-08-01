@@ -27,6 +27,7 @@ import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
+import static org.testng.Assert.fail;
 
 public class DynamicObjectTest {
 
@@ -52,10 +53,12 @@ public class DynamicObjectTest {
 
   static Object fallbackHandle(Object receiver, Object property, Object... args) {
     StringBuilder buffer = new StringBuilder();
-    buffer.append(property).append(" ");
-    buffer.append(args[0]);
-    for(int i = 1; i < args.length; i++) {
-      buffer.append(" ").append(args[i]);
+    buffer.append(property);
+    if (args.length > 0) {
+      buffer.append(" ").append(args[0]);
+      for (int i = 1; i < args.length; i++) {
+        buffer.append(" ").append(args[i]);
+      }
     }
     return buffer.toString();
   }
@@ -192,4 +195,62 @@ public class DynamicObjectTest {
     assertThat(object.get("foo"), is((Object) "bar"));
   }
 
+  @Test
+  public void dispatch_calls() throws Throwable {
+    DynamicObject object = new DynamicObject();
+
+    object.define("echo", lookup().findStatic(DynamicObjectTest.class, "echo", genericMethodType(2)));
+    assertThat(DynamicObject.dispatchCall("echo", object, "Hello!"), is((Object) "Hello!"));
+
+    object.define("foo", lookup().findStatic(DynamicObjectTest.class, "foo", genericMethodType(1)));
+    assertThat(DynamicObject.dispatchCall("foo", object), is((Object) "(Foo)"));
+
+    object.define("tolist", lookup().findStatic(DynamicObjectTest.class, "inAList", genericMethodType(3)));
+    assertThat(DynamicObject.dispatchCall("tolist", object, 1, 2), instanceOf(List.class));
+
+    object.define("sum", lookup().findStatic(DynamicObjectTest.class, "varargs", genericMethodType(1, true)));
+    assertThat(DynamicObject.dispatchCall("sum", object, 1), is((Object) 1));
+    assertThat(DynamicObject.dispatchCall("sum", object, 1, 2), is((Object) 3));
+    assertThat(DynamicObject.dispatchCall("sum", object, 1, 2, 3), is((Object) 6));
+
+    try {
+      DynamicObject.dispatchCall("plop_da_plop", object, 1, 2);
+      fail("An UnsupportedOperationException was expected");
+    } catch (UnsupportedOperationException ignored) {
+    }
+
+    object.fallback(lookup().findStatic(DynamicObjectTest.class, "fallbackHandle", genericMethodType(2, true)));
+    assertThat(DynamicObject.dispatchCall("plop_da_plop", object, 1, 2), is((Object) "plop_da_plop 1 2"));
+  }
+
+  @Test
+  public void dispatch_getter_style() throws Throwable {
+    DynamicObject object = new DynamicObject();
+
+    object.define("foo", lookup().findStatic(DynamicObjectTest.class, "foo", genericMethodType(1)));
+    assertThat(DynamicObject.dispatchGetterStyle("foo", object), is((Object) "(Foo)"));
+
+    object.define("bar", 666);
+    assertThat(DynamicObject.dispatchGetterStyle("bar", object), is((Object) 666));
+
+    try {
+      DynamicObject.dispatchGetterStyle("baz", object);
+      fail("An UnsupportedOperationException was expected");
+    } catch (UnsupportedOperationException ignored) {
+    }
+
+    object.fallback(lookup().findStatic(DynamicObjectTest.class, "fallbackHandle", genericMethodType(2, true)));
+    assertThat(DynamicObject.dispatchGetterStyle("baz", object), is((Object) "baz"));
+  }
+
+  @Test
+  public void dispatch_setter_style() throws Throwable {
+    DynamicObject object = new DynamicObject();
+
+    DynamicObject.dispatchSetterStyle("foo", object, 666);
+    assertThat(object.get("foo"), is((Object) 666));
+
+    object.define("echo", lookup().findStatic(DynamicObjectTest.class, "echo", genericMethodType(2)));
+    assertThat(DynamicObject.dispatchSetterStyle("echo", object, "Hello!"), is((Object) "Hello!"));
+  }
 }
