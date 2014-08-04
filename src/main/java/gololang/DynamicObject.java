@@ -277,13 +277,6 @@ public final class DynamicObject {
     return properties.containsKey("fallback");
   }
 
-  private static final MethodHandle MAP_GET;
-  private static final MethodHandle MAP_PUT;
-  private static final MethodHandle MAP_HAS;
-  private static final MethodHandle IS_MH_1;
-  private static final MethodHandle IS_MH_2;
-  private static final MethodHandle VARARGS_COMBINER;
-
   public static final MethodHandle DISPATCH_CALL;
   public static final MethodHandle DISPATCH_GET;
   public static final MethodHandle DISPATCH_SET;
@@ -291,18 +284,9 @@ public final class DynamicObject {
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
-
       DISPATCH_CALL = lookup.findStatic(DynamicObject.class, "dispatchCall", methodType(Object.class, String.class, Object[].class));
       DISPATCH_GET = lookup.findStatic(DynamicObject.class, "dispatchGetterStyle", methodType(Object.class, String.class, DynamicObject.class));
       DISPATCH_SET = lookup.findStatic(DynamicObject.class, "dispatchSetterStyle", methodType(Object.class, String.class, DynamicObject.class, Object.class));
-
-      MAP_GET = lookup.findSpecial(DynamicObject.class, "get", methodType(Object.class, Object.class), DynamicObject.class);
-      MAP_PUT = lookup.findSpecial(DynamicObject.class, "put", methodType(Object.class, String.class, Object.class), DynamicObject.class);
-      MAP_HAS = lookup.findStatic(DynamicObject.class, "has", methodType(boolean.class, Object.class, Object.class));
-      IS_MH_1 = lookup.findStatic(DynamicObject.class, "isMethodHandle_1", methodType(boolean.class, Object.class));
-      IS_MH_2 = lookup.findStatic(DynamicObject.class, "isMethodHandle_2", methodType(boolean.class, Object.class));
-      VARARGS_COMBINER = lookup.findStatic(DynamicObject.class, "varargsCombiner", methodType(Object.class, Object.class, Object[].class));
-
     } catch (NoSuchMethodException | IllegalAccessException e) {
       e.printStackTrace();
       throw new Error("Could not bootstrap the required method handles");
@@ -314,104 +298,4 @@ public final class DynamicObject {
       throw new IllegalStateException("the object is frozen");
     }
   }
-
-  private Object put(String key, Object value) {
-    frozenMutationCheck();
-    properties.put(key, value);
-    return this;
-  }
-
-  private Object get(Object key) {
-    return properties.get(key);
-  }
-
-  private MethodHandle anyInvoker(String property, MethodType type) {
-    MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
-    mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
-    MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
-    MethodHandle mapGetCombined = foldArguments(vaCombiner, mapGet);
-    MethodHandle invoker = MethodHandles.invoker(type);
-    invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
-    MethodHandle combined = foldArguments(invoker, mapGetCombined);
-    if (hasFallback()) {
-      return fallback(combined, property, type);
-    }
-    return combined;
-  }
-
-  private MethodHandle setterStyleInvoker(String property, MethodType type) {
-    MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
-    mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
-    MethodHandle mapPut = dropArguments(insertArguments(MAP_PUT, 1, property), 0, Object.class);
-    mapPut = mapPut.asType(mapPut.type().changeParameterType(1, Object.class));
-    MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
-    MethodHandle mapGetCombined = foldArguments(vaCombiner, mapGet);
-    MethodHandle invoker = MethodHandles.invoker(type);
-    invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
-    MethodHandle gwt = guardWithTest(IS_MH_2, invoker, mapPut);
-    return foldArguments(gwt, mapGetCombined);
-  }
-
-  private MethodHandle getterStyleInvoker(String property, MethodType type) {
-    MethodHandle mapGet = insertArguments(MAP_GET, 1, property);
-    mapGet = mapGet.asType(mapGet.type().changeParameterType(0, Object.class));
-    MethodHandle vaCombiner = VARARGS_COMBINER.asCollector(Object[].class, type.parameterCount());
-    MethodHandle mapGetCombined = foldArguments(vaCombiner, mapGet);
-    MethodHandle identity = dropArguments(identity(Object.class), 1, type.parameterArray());
-    MethodHandle invoker = MethodHandles.invoker(type);
-    invoker = invoker.asType(invoker.type().changeParameterType(0, Object.class));
-    MethodHandle gwt = guardWithTest(IS_MH_1, invoker, identity);
-    if (hasFallback()) {
-      return fallback(foldArguments(gwt, mapGetCombined), property, type);
-    }
-    return foldArguments(gwt, mapGetCombined);
-  }
-
-  private MethodHandle fallback(MethodHandle target, String property, MethodType type) {
-    MethodHandle fallbackHandle = (MethodHandle) properties.get("fallback");
-    fallbackHandle = insertArguments(fallbackHandle, 1, property);
-    fallbackHandle = fallbackHandle.asType(fallbackHandle.type().changeParameterType(0, Object.class));
-    fallbackHandle = fallbackHandle.asCollector(Object[].class, target.type().parameterCount() - 1);
-    MethodHandle has = insertArguments(MAP_HAS, 1, property);
-    return guardWithTest(has, target, fallbackHandle);
-  }
-
-  private static Object varargsCombiner(Object mapEntry, Object... args) {
-    if (mapEntry == null || !(mapEntry instanceof MethodHandle)) {
-      return mapEntry;
-    }
-    MethodHandle target = (MethodHandle) mapEntry;
-    if (target.isVarargsCollector() && isLastArgumentAnArray(target.type().parameterCount(), args)) {
-      return target.asFixedArity();
-    }
-    return target;
-  }
-
-  private static boolean isMethodHandle_1(Object obj) {
-    if (obj instanceof MethodHandle) {
-      MethodHandle handle = (MethodHandle) obj;
-      if (handle.isVarargsCollector()) {
-        return handle.type().parameterCount() == 2;
-      }
-      return handle.type().parameterCount() == 1;
-    }
-    return false;
-  }
-
-  private static boolean isMethodHandle_2(Object obj) {
-    if (obj instanceof MethodHandle) {
-      MethodHandle handle = (MethodHandle) obj;
-      return handle.type().parameterCount() == 2;
-    }
-    return false;
-  }
-
-  private static boolean has(Object obj, Object property) {
-    if (obj instanceof DynamicObject) {
-      DynamicObject receiver = (DynamicObject) obj;
-      return receiver.properties.containsKey(property);
-    }
-    return false;
-  }
-
 }

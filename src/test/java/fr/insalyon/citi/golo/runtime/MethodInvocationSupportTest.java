@@ -17,7 +17,6 @@
 package fr.insalyon.citi.golo.runtime;
 
 import gololang.DynamicObject;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
@@ -328,13 +327,9 @@ public class MethodInvocationSupportTest {
 
     assertThat(invoker.invoke(new Ploper(), 666), is((Object) "666"));
 
-// TODO: this shall not fail
-//    b.undefine("plop");
-//    try {
-//      invoker.invoke(b, 1);
-//      Assert.fail("An exception should have been thrown");
-//    } catch (Throwable t) {
-//      t.printStackTrace();
-//    }
+    b.undefine("plop");
+    Object result = invoker.invoke(b, 1);
+    assertThat(result, is((Object) b));
+    assertThat(b.get("plop"), is((Object) 1));
   }
 }
