@@ -19,7 +19,6 @@ package gololang;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -128,8 +127,8 @@ public final class DynamicObject {
 
   public static Object dispatchCall(String property, Object... args) throws Throwable {
     DynamicObject obj = (DynamicObject) args[0];
-    if (obj.properties.containsKey(property)) {
-      Object value = obj.properties.get(property);
+    Object value = obj.properties.get(property);
+    if (value != null) {
       if (value instanceof MethodHandle) {
         MethodHandle handle = (MethodHandle) value;
         if (handle.isVarargsCollector() && args[args.length - 1] instanceof Object[]) {
@@ -156,8 +155,8 @@ public final class DynamicObject {
   }
 
   public static Object dispatchGetterStyle(String property, DynamicObject object) throws Throwable {
-    if (object.properties.containsKey(property)) {
-      Object value = object.get(property);
+    Object value = object.get(property);
+    if (value != null || object.properties.containsKey(property)) {
       if (value instanceof MethodHandle) {
         MethodHandle handle = (MethodHandle) value;
         if (handle.type().parameterCount() == 1 || handle.isVarargsCollector()) {
@@ -174,8 +173,8 @@ public final class DynamicObject {
   }
 
   public static Object dispatchSetterStyle(String property, DynamicObject object, Object arg) throws Throwable {
-    if (object.properties.containsKey(property)) {
-      Object value = object.get(property);
+    Object value = object.get(property);
+    if (value != null || object.properties.containsKey(property)) {
       if (value instanceof MethodHandle) {
         MethodHandle handle = (MethodHandle) value;
         if (handle.type().parameterCount() == 2) {
