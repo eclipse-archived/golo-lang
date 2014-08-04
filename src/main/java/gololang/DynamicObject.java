@@ -125,6 +125,14 @@ public final class DynamicObject {
     return frozen;
   }
 
+  /**
+   * Dispatch dynamic object "methods". The receiver dynamic object is expected to be the first element of {@code args}.
+   *
+   * @param property the method property in the dynamic object.
+   * @param args     the arguments.
+   * @return the return value.
+   * @throws Throwable in case everything is wrong.
+   */
   public static Object dispatchCall(String property, Object... args) throws Throwable {
     DynamicObject obj = (DynamicObject) args[0];
     Object value = obj.properties.get(property);
@@ -154,6 +162,14 @@ public final class DynamicObject {
     throw new UnsupportedOperationException("There is neither a dynamic object method defined for " + property + " nor a 'fallback' method");
   }
 
+  /**
+   * Dispatches getter-style dynamic object methods, i.e., methods with a receiver and no argument.
+   *
+   * @param property the method property in the dynamic object.
+   * @param object   the receiver object.
+   * @return the return value.
+   * @throws Throwable in case everything is wrong.
+   */
   public static Object dispatchGetterStyle(String property, DynamicObject object) throws Throwable {
     Object value = object.get(property);
     if (value != null || object.properties.containsKey(property)) {
@@ -172,6 +188,15 @@ public final class DynamicObject {
     return null;
   }
 
+  /**
+   * Dispatches setter-style dynamic object methods, i.e., methods with a receiver and exactly 1 argument.
+   *
+   * @param property the method property in the dynamic object.
+   * @param object   the receiver object.
+   * @param arg      the arguments.
+   * @return the return value.
+   * @throws Throwable in case everything is wrong.
+   */
   public static Object dispatchSetterStyle(String property, DynamicObject object, Object arg) throws Throwable {
     Object value = object.get(property);
     if (value != null || object.properties.containsKey(property)) {
