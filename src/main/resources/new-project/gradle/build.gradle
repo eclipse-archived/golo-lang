@@ -22,7 +22,7 @@ buildscript {
     }
 
     dependencies {
-        classpath 'org.golo-lang:gradle-golo-plugin:0.1'
+        classpath 'org.golo-lang:gradle-golo-plugin:0.4'
     }
 }
 
