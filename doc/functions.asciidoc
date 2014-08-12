@@ -84,7 +84,7 @@ Here, `c` catches the variable arguments in an array, just like it would
 be the case with Java. You can thus treat `c` as being a Java object of
 type `Object[]`.
 
-Calling variable-arity functions does not requiring wrapping the last
+Calling variable-arity functions does not require wrapping the last
 arguments in an array. While invoking the `foo` function above, the
 following examples are legit:
 
