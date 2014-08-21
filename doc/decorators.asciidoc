@@ -140,12 +140,44 @@ inner function.
 
 === Use Cases and Examples ===
 
-* Aspect oriented programming
-* pre/post conditions checking
-* memoize
-* logging
-* locking
-* generic wrapper of a function (context)
+==== Aspect oriented programming ====
+
+==== Pre/post conditions checking ====
+
+==== Memoization ====
+
+==== Logging ====
+
+==== Locking ====
+
+[source,golo]
+----
+import java.util.concurrent.locks
+
+function withLock = |lock| {
+    return |fun| {
+        return |args...| {
+            lock: lock()
+            try { 
+                return fun: invokeWithArguments(args) 
+            } finally { 
+                lock: unlock() 
+            }
+        }
+    }
+}
+
+let myLock = ReentrantLock()
+
+@withLock(myLock)
+function foo = |a, b| {
+    return a + b
+}
+----
+
+==== Generic context ====
+
+Generic wrapper of a function 
 
 
 
