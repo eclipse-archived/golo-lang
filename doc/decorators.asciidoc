@@ -177,8 +177,96 @@ function foo = |a, b| {
 
 ==== Generic context ====
 
-Generic wrapper of a function 
+Decorators can be used to define a generic wrapper around a function. This
+functionality is provided by the `gololang.Decorators.withContext` standard decorator. This
+decorator take a context, such as the one returned by
+`gololang.Decorators.defaultContext` function.
 
+A context is an object with 4 defined methods:
+
+* `entry`, that takes and returns the function arguments. 
+         This method can be used to check arguments or apply transformation to them;
+* `exit`, that takes and returns the result of the function. 
+          This method can be used to check conditions or transform the result;
+* `catcher`, that deal with exceptions that occurs during function execution. It
+         takes the exception as parameter;
+* `finallizer`, that is called in a `finally` clause after function execution.
+
+The context returned by `gololang.Decorators.withContext` is a void one, that
+is `entry` and `exit` return their parameters unchanged,
+`catcher` rethrow the exception and `finallizer` does nothing.
+
+The workflow of this decorator is as follow:
+
+. the context `entry` method is called on the function arguments;
+. the decorated function is called with arguments returned by `entry`;
+  .. if an exception is raised, `catcher` is called with it as parameter;
+  .. else the result is passed to `exit` and the returned value is returned
+. the `finallizer` method is called.
+
+Any of theses methods can modify the context internal state.
+
+Here is an usage example:
+
+[source,golo]
+----
+module testcontext
+
+import gololang.Decorators
+
+let myContext = defaultContext():
+                    define("entry", |this, args| {
+                        println("hello")
+                        return args
+                    }):
+                    define("exit", |this, result| { 
+                        require(result >= 3, "wrong value")
+                        println("goobye")
+                        return result
+                    }):
+                    define("catcher", |this, e| {
+                        println("Caught " + e)
+                        throw e
+                    }):
+                    define("finallizer", |this| {println("do some cleanup")})
+
+
+@withContext(myContext)
+function foo = |a, b| {
+    println("Hard computation")
+    return a + b
+}
+
+function main = |args| {
+    println(foo(1,2))
+    println("====")
+    println(decorators.withContext(myContext)(|a| -> 2*a)(3))
+    println("====")
+    try {
+        println(foo(1, 1))
+    } catch (e) { }
+}
+----
+
+which prints
+
+----
+hello
+Hard computation
+goobye
+do some cleanup
+3
+====
+hello
+goobye
+do some cleanup
+6
+====
+hello
+Hard computation
+Caught java.lang.AssertionError: wrong value
+do some cleanup
+----
 
 
 === Under the hood ===
