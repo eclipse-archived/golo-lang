@@ -253,7 +253,7 @@ let isPositive = asChecker(|v| -> v > 0, "is not positive")
 
 * `isOfType` is a factory function that returns a function checking types,
    e.g.
-  
+
 [source, golo]
 ----
 let isInteger = isOfType(Integer.class)
@@ -263,6 +263,60 @@ The full set of standard checkers is documented in the generated *golodoc*
 (hint: look for `doc/golodoc` in the Golo distribution).
 
 ==== Memoization ====
+
+Memoization is the optimization technique that stores the results of a expensive
+computation to return them directly on subsequent calls. It is quite easy,
+using decorators, to transform a function into a memoized one. The decorator
+creates a closure on a hashmap, and check the existence of the results before
+delegating to the decorated function, and storing the result in the hashmap if
+needed.
+
+Such a decorator is provided in the `gololang.Decorators` module, presented
+here as an example:
+
+[source, golo]
+----
+function memoizer = {
+  var cache = map[]
+  return |fun| {
+    return |args...| {
+      let key = [fun: hashCode(), Tuple(args)]
+      if (not cache: containsKey(key)) {
+        cache: add(key, fun: invokeWithArguments(args))
+      }
+      return cache: get(key)
+    }
+  }
+}
+----
+
+The cache key is the decorated function
+and its call arguments, thus the decorator can be used for every module
+functions. It must however be put in a module-level state, since in the current
+implementation, the decoration is invoked at each call. For instance:
+
+[source, golo]
+----
+let memo = memoizer()
+
+@memo
+function fib = |n| {
+  if n <= 1 {
+    return n
+  } else {
+    return fib(n - 1) + fib(n - 2)
+  }
+}
+
+@memo
+function fact = |n| {
+  if n == 0 {
+    return 1
+  } else {
+    return n * fact(n - 1)
+  }
+}
+----
 
 ==== Logging ====
 

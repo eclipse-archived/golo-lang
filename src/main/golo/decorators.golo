@@ -226,3 +226,34 @@ function isNegative = -> lessThan(0)
 
 
 # ............................................................................................... #
+# == Memoize == #
+
+----
+Factory function for memoization decorator
+Returns a new memoization decorator. The cache key is the decorated function
+and its call arguments, thus the decorator can be used for every module
+functions. It must however be put in a module-level state, since in the current
+implementation, the decoration is invoked at each call.
+
+    let memo = memoizer()
+
+    @memo
+    function foo = |n| -> ...
+
+    @memo
+    function bar = |a,b| -> ...
+----
+function memoizer = {
+  var cache = map[]
+  return |fun| {
+    return |args...| {
+      let key = [fun: hashCode(), Tuple(args)]
+      if (not cache: containsKey(key)) {
+        cache: add(key, fun: invokeWithArguments(args))
+      }
+      return cache: get(key)
+    }
+  }
+}
+
+# ............................................................................................... #
