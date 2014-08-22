@@ -7,7 +7,7 @@ Golo feature Python-like decorators.
 Decorators are similar in syntax and purpose to Java annotations.
 However, the concepts behind them are very different. Indeed, whereas Java
 annotations are compiler or VM directives, decorators are actually plain
-functions, more precisely higher order functions. 
+functions, more precisely higher order functions.
 
 NOTE: Higher order functions are functions that process functions, i.e. that take a
 function as parameter, and may return a new function.
@@ -19,7 +19,7 @@ after calling the original function.
 To be the most generic, a decorator should be a variable arity function, and
 thus call the decorated function with `invokeWithArguments`.
 
-The name can remind the well known 
+The name can remind the well known
 http://en.wikipedia.org/wiki/Decorator_pattern[GoF pattern], with good reason.
 This pattern describe a design that allow an object to be augmented by wrapping
 it in an other object with the same interface, delegating operations to the
@@ -124,7 +124,7 @@ function main = |args| {
 }
 ----
 
-will print 
+will print
 
 ----
 calling foo
@@ -148,7 +148,7 @@ let sayHello = log("Hello")
 function baz = -> "Goodbye"
 ----
 
-A call to `println(baz())` will print 
+A call to `println(baz())` will print
 
 ----
 Hello
@@ -161,6 +161,106 @@ Goodbye
 ==== Aspect oriented programming ====
 
 ==== Pre/post conditions checking ====
+
+Decorators can be used to check pre-conditions, that is conditions that must
+hold for arguments, and post-conditions, that is conditions that must hold for
+returned values, of a function.
+
+Indeed, a decorated can execute code before delegating to the decorated
+function, of after the delegation.
+
+The module `gololang.Decorators` provide two decorators and several utility
+functions to check pre and post conditions.
+
+`checkResult` is a parametrized decorator taking a checker as parameter. It
+checks that the result of the decorated function is valid.
+
+`checkArguments` is a variable arity function, taking as much checkers as the
+decorated function arguments. It checks that the arguments of the decorated
+function are valid according to the corresponding checker (1st argument checked
+by 1st checker, and so on).
+
+A checker is a function that raises an exception if its argument is not valid
+(e.g. using `require`) or returns it unchanged, allowing checkers to be chained
+using the `andThen` method.
+
+As an example, one can check that the arguments and result of a function are
+integers with:
+
+[source,golo]
+----
+
+function isInteger = |v| {
+  require(v oftype Integer.class, v + "is not an Integer")
+  return v
+}
+
+@checkResult(isInteger)
+@checkArguments(isInteger, isInteger)
+function add = |a, b| -> a + b
+----
+
+or that the argument is a positive integer:
+
+[source, golo]
+----
+
+function isPositive = |v| {
+  require(v > 0, v + "is not > 0")
+  return v
+}
+
+@checkArguments(isInteger: andThen(isPositive))
+function inv = |v| -> 1.0 / v
+----
+
+Of course, again, you can take shortcuts:
+
+[source, golo]
+----
+let isPositiveInt = isInteger: andThen(isPositive)
+
+@checkResult(isPositiveInt)
+@checkArguments(isPositiveInt)
+function double = |v| -> 2 * v
+----
+
+or event
+
+[source, golo]
+----
+let myCheck = checkArguments(isInteger: andThen(isPositive))
+
+@myCheck
+function inv = |v| -> 1.0 / v
+
+@myCheck
+function mul = |v| -> 10 * v
+----
+
+Several factory functions are available in `gololang.Decorators` to ease the
+creation of checkers:
+
+* `any` is a void checker that does nothing. It can used when you need to check
+  only some arguments of a n-ary function.
+* `asChecker` is a factory that takes a boolean function and an error message
+  and returns the corresponding checker. For instance:
+
+[source, golo]
+----
+let isPositive = asChecker(|v| -> v > 0, "is not positive")
+----
+
+* `isOfType` is a factory function that returns a function checking types,
+   e.g.
+  
+[source, golo]
+----
+let isInteger = isOfType(Integer.class)
+----
+
+The full set of standard checkers is documented in the generated *golodoc*
+(hint: look for `doc/golodoc` in the Golo distribution).
 
 ==== Memoization ====
 
@@ -176,10 +276,10 @@ function withLock = |lock| {
   return |fun| {
     return |args...| {
       lock: lock()
-      try { 
-        return fun: invokeWithArguments(args) 
-      } finally { 
-        lock: unlock() 
+      try {
+        return fun: invokeWithArguments(args)
+      } finally {
+        lock: unlock()
       }
     }
   }
@@ -202,9 +302,9 @@ decorator take a context, such as the one returned by
 
 A context is an object with 4 defined methods:
 
-* `entry`, that takes and returns the function arguments. 
+* `entry`, that takes and returns the function arguments.
          This method can be used to check arguments or apply transformation to them;
-* `exit`, that takes and returns the result of the function. 
+* `exit`, that takes and returns the result of the function.
           This method can be used to check conditions or transform the result;
 * `catcher`, that deal with exceptions that occurs during function execution. It
          takes the exception as parameter;
@@ -237,7 +337,7 @@ let myContext = defaultContext():
     println("hello")
     return args
   }):
-  define("exit", |this, result| { 
+  define("exit", |this, result| {
     require(result >= 3, "wrong value")
     println("goobye")
     return result
