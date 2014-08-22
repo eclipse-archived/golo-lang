@@ -21,6 +21,10 @@ This module defines the set of standard decorators and utilies.
 ----
 module gololang.Decorators
 
+
+
+# ............................................................................................... #
+# == Contexts 
 ----
 Returns a void context to be used with the ``withContext`` decorator after
 redefinition of some methods.
@@ -41,10 +45,10 @@ In this default version, `entry` and `exit` return their parameters unchanged,
 `catcher` rethrow the exception and `finallizer` does nothing.
 ----
 function defaultContext = { return DynamicObject():
-    define("entry", |this, args| -> args):
-    define("exit", |this, result| -> result):
-    define("catcher", |this, e| {throw e}):
-    define("finallizer", |this| -> null)
+  define("entry", |this, args| -> args):
+  define("exit", |this, result| -> result):
+  define("catcher", |this, e| {throw e}):
+  define("finallizer", |this| -> null)
 }
 
 ----
@@ -57,17 +61,19 @@ This decorator is a very generic one, all the customization occurs in the
 context object.
 ----
 function withContext = |context| {
-    return |fun| {
-        return |args...| {
-            var result = null
-            try {
-                result = context: exit(fun: invokeWithArguments(context: entry(args)))
-            } catch (e) { 
-                context: catcher(e)
-            } finally {
-                context: finallizer()
-            }
-            return result
-        }
+  return |fun| {
+    return |args...| {
+      var result = null
+      try {
+        result = context: exit(fun: invokeWithArguments(context: entry(args)))
+      } catch (e) { 
+        context: catcher(e)
+      } finally {
+        context: finallizer()
+      }
+      return result
     }
+  }
 }
+
+# ............................................................................................... #
