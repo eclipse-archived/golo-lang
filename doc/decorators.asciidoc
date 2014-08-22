@@ -95,7 +95,7 @@ function baz = |a| -> "baz: " + a
 
 
 Moreover, since decorator are just higher order functions, they can be closure
-on a first argument, as illustrated in the following listing:
+on a first argument, i.e. parametrized decorators, as illustrated in the following listing:
 
 [source,golo]
 ----
@@ -137,6 +137,23 @@ Here, `log` create a closure on the message, and return the decorator function.
 Thus, `log("hello")` is a function that take a function as parameter, and
 return a new function printing the message (`hello`) before delegating to the
 inner function.
+
+Again, since all of this are just functions, you can create shortcuts:
+
+[source,golo]
+----
+let sayHello = log("Hello")
+
+@sayHello
+function baz = -> "Goodbye"
+----
+
+A call to `println(baz())` will print 
+
+----
+Hello
+Goodbye
+----
 
 
 === Use Cases and Examples ===
