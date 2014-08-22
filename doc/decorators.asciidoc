@@ -36,10 +36,10 @@ As in Python, and similarly to Java annotations, a decorator is used with a
 [source,golo]
 ----
 function deco1 = |fun| {
-    return |args...| {
-        print("deco1 + ")
-        return fun: invokeWithArguments(args)
-    }
+  return |args...| {
+    print("deco1 + ")
+    return fun: invokeWithArguments(args)
+  }
 }
 ----
 
@@ -49,7 +49,7 @@ It can be used as:
 ----
 @deco1
 function foo = |a| {
-    return "foo: " + a
+  return "foo: " + a
 }
 ----
 
@@ -64,12 +64,12 @@ as such:
 function bar = |a| -> "bar: " + a
 
 function main = |args| {
-    println(deco1(^bar)(1))
+  println(deco1(^bar)(1))
 
-    let decobar = deco1(^bar)
-    println(decobar(1))
+  let decobar = deco1(^bar)
+  println(decobar(1))
 
-    println(deco1(|a| -> "bar: "+a)(1))
+  println(deco1(|a| -> "bar: "+a)(1))
 }
 ----
 
@@ -80,10 +80,10 @@ Decorator can also be stacked. For instance:
 [source,golo]
 ----
 function deco2 = |fun| {
-    return |args...| {
-        print("deco2 + ")
-        return fun: invokeWithArguments(args)
-    }
+  return |args...| {
+    print("deco2 + ")
+    return fun: invokeWithArguments(args)
+  }
 }
 
 @deco2
@@ -102,25 +102,25 @@ on a first argument, as illustrated in the following listing:
 module testdeco
 
 function log = |msg| {
-    return |fun| {
-        return |args...| {
-            println(msg)
-            return fun: invokeWithArguments(args)
-        }
+  return |fun| {
+    return |args...| {
+      println(msg)
+      return fun: invokeWithArguments(args)
     }
+  }
 }
 
 @log("calling foo")
 function foo = |a| {
-    println("foo got a " + a)
+  println("foo got a " + a)
 }
 
 @log("I'am a bar")
 function bar = |a| -> 2*a
 
 function main = |args| {
-    foo("bar")
-    println(bar(21))
+  foo("bar")
+  println(bar(21))
 }
 ----
 
@@ -137,6 +137,7 @@ Here, `log` create a closure on the message, and return the decorator function.
 Thus, `log("hello")` is a function that take a function as parameter, and
 return a new function printing the message (`hello`) before delegating to the
 inner function.
+
 
 === Use Cases and Examples ===
 
@@ -155,16 +156,16 @@ inner function.
 import java.util.concurrent.locks
 
 function withLock = |lock| {
-    return |fun| {
-        return |args...| {
-            lock: lock()
-            try { 
-                return fun: invokeWithArguments(args) 
-            } finally { 
-                lock: unlock() 
-            }
-        }
+  return |fun| {
+    return |args...| {
+      lock: lock()
+      try { 
+        return fun: invokeWithArguments(args) 
+      } finally { 
+        lock: unlock() 
+      }
     }
+  }
 }
 
 let myLock = ReentrantLock()
@@ -215,36 +216,36 @@ module testcontext
 import gololang.Decorators
 
 let myContext = defaultContext():
-                    define("entry", |this, args| {
-                        println("hello")
-                        return args
-                    }):
-                    define("exit", |this, result| { 
-                        require(result >= 3, "wrong value")
-                        println("goobye")
-                        return result
-                    }):
-                    define("catcher", |this, e| {
-                        println("Caught " + e)
-                        throw e
-                    }):
-                    define("finallizer", |this| {println("do some cleanup")})
+  define("entry", |this, args| {
+    println("hello")
+    return args
+  }):
+  define("exit", |this, result| { 
+    require(result >= 3, "wrong value")
+    println("goobye")
+    return result
+  }):
+  define("catcher", |this, e| {
+    println("Caught " + e)
+    throw e
+  }):
+  define("finallizer", |this| {println("do some cleanup")})
 
 
 @withContext(myContext)
 function foo = |a, b| {
-    println("Hard computation")
-    return a + b
+  println("Hard computation")
+  return a + b
 }
 
 function main = |args| {
-    println(foo(1,2))
-    println("====")
-    println(decorators.withContext(myContext)(|a| -> 2*a)(3))
-    println("====")
-    try {
-        println(foo(1, 1))
-    } catch (e) { }
+  println(foo(1,2))
+  println("====")
+  println(decorators.withContext(myContext)(|a| -> 2*a)(3))
+  println("====")
+  try {
+    println(foo(1, 1))
+  } catch (e) { }
 }
 ----
 
