@@ -13,7 +13,7 @@
       border-color: #999999;
       border-width: 2px;
       line-height: 1.5;
-      margin: 2em 3em;
+      margin: 2em 3em 2em 20%;
       text-align: left;
       padding: 0 100px 0 100px;
     }
@@ -77,7 +77,19 @@
     #toc {
       margin: 0;
       padding: 1em;
-      border: 1px dotted #aaa;
+      border-right: 1px solid #aaa;
+      font-size: 80%;
+      position: fixed;
+      top: 0px;
+      bottom: 0px;
+      left: 0px;
+      width: 20%;
+      overflow: auto;
+      white-space: nowrap;
+    }
+
+    #toc ul {
+        padding-left: 1em;
     }
 
     #toc > li {
@@ -99,7 +111,7 @@
       visibility: hidden;
     }
 
-    h3:hover .permalink {
+    *:hover > .permalink {
       visibility: visible;
     }
 
@@ -124,7 +136,13 @@
     <% if not doc: augmentations(): isEmpty() { %>
     <li><a href="#augmentations">Augmentations</a><ul>
         <% foreach augmentation in doc: augmentations(): keySet() { %>
-        <li><a href="#<%= augmentation %>"><%= augmentation %></a></li>
+        <li><a href="#<%= augmentation %>"><%= augmentation %></a><ul>
+        <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
+          <li><a href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>">
+              <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+          </a></li>
+  <% } %>
+    </ul></li>
     <% } %>
     </ul></li> <% } %>
 
@@ -166,10 +184,11 @@
   </div>
   <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
     <% if funcDoc: varargs() { %>
-      <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)</h4>
+      <h4 id="<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
     <% } else { %>
-      <h4><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h4>
+      <h4 id="<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
     <% } %>
+    <a class="permalink" href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
     <div>
       <%= process(funcDoc: documentation()) %>
     </div>
