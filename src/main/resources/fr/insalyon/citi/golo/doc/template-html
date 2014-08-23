@@ -75,24 +75,33 @@
     }
 
     #toc {
-        margin: 0;
-        padding: 1em;
-        border: 1px dotted #aaa;
+      margin: 0;
+      padding: 1em;
+      border: 1px dotted #aaa;
     }
 
     #toc > li {
-        list-style: none;
-        margin-bottom: 1ex;
+      list-style: none;
+      margin-bottom: 1ex;
     }
 
     #toc > li > a {
-        font-weight: bold;
+      font-weight: bold;
     }
 
     :target {
-        background-color: yellow;
+      background-color: yellow;
     }
 
+    .permalink {
+      margin-left: .3em;
+      font-size: 70%;
+      visibility: hidden;
+    }
+
+    h3:hover .permalink {
+      visibility: visible;
+    }
 
 
   </style>
@@ -133,7 +142,8 @@
 <% if not doc: structs(): isEmpty() { %>
 <h2 id="structs">Structs</h2>
 <% foreach structName in doc: structs(): keySet() { %>
-  <h3 id="<%= structName %>"><%= structName %></h3>
+<h3 id="<%= structName %>"><%= structName %>
+    <a class="permalink" href="#<%= structName %>" title="link to this section">&#182;</a></h3>
   <p>Members:</p>
   <ul>
   <% foreach member in doc: structMembers(): get(structName) { %>
@@ -149,7 +159,8 @@
 <% if not doc: augmentations(): isEmpty() { %>
 <h2 id="augmentations">Augmentations</h2>
 <% foreach augmentation in doc: augmentations(): keySet() { %>
-  <h3 id="<%= augmentation %>"><%= augmentation %></h3>
+  <h3 id="<%= augmentation %>"><%= augmentation %>
+    <a class="permalink" href="#<%= augmentation %>" title="link to this section">&#182;</a></h3>
   <div>
     <%= process(doc: augmentations(): get(augmentation)) %>
   </div>
@@ -169,7 +180,8 @@
 <% if not doc: functions(): isEmpty() { %>
 <h2 id="functions">Functions</h2>
 <% foreach funcDoc in doc: functions() { %>
-  <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
+  <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+    <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h3>
   <div>
     <%= process(funcDoc: documentation()) %>
   </div>
