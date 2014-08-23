@@ -4,7 +4,7 @@ There is already much you can do while in Golo land using functions, closures, s
 augmentations and dynamic objects.
 
 Yet, the JVM is a wider ecosystem and you will soon be tempted to integrate existing Java libraries
-into your code. Calling Java libraries from Golo is quite easy, but happens when you need to
+into your code. Calling Java libraries from Golo is quite easy, but what happens when you need to
 subclass classes or provide objects that implement specific interfaces?
 
 As you can easily guess, this is all what adapters are about: they allow the definition of objects
