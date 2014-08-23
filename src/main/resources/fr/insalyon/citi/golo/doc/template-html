@@ -73,6 +73,28 @@
     h5 {
       font-size: 18px;
     }
+
+    #toc {
+        margin: 0;
+        padding: 1em;
+        border: 1px dotted #aaa;
+    }
+
+    #toc > li {
+        list-style: none;
+        margin-bottom: 1ex;
+    }
+
+    #toc > li > a {
+        font-weight: bold;
+    }
+
+    :target {
+        background-color: yellow;
+    }
+
+
+
   </style>
 </head>
 <body>
