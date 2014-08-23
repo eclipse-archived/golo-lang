@@ -84,18 +84,24 @@
 
 <ul id="toc">
     <% if not doc: structs(): isEmpty() { %>
-    <li><a href="#structs">Structs</a><li>
+    <li><a href="#structs">Structs</a><ul>
+    <% foreach structName in doc: structs(): keySet() { %>
+    <li><a href="#<%= structName %>"><%= structName %></a></li>
     <% } %>
+    </ul></li> <% } %>
 
     <% if not doc: augmentations(): isEmpty() { %>
-    <li><a href="augmentations">Augmentations</a></li>
+    <li><a href="#augmentations">Augmentations</a><ul>
+        <% foreach augmentation in doc: augmentations(): keySet() { %>
+        <li><a href="#<%= augmentation %>"><%= augmentation %></a></li>
     <% } %>
+    </ul></li> <% } %>
 
     <% if not doc: functions(): isEmpty() { %>
     <li><a href="#functions">Functions</a>
         <ul><% foreach funcDoc in doc: functions() { %>
-            <li><a href="#<%= funcDoc: name() %>(<%= funcDoc: arguments():
-                join(", ") %>)"><%= funcDoc: name() %>(<%= funcDoc:
+            <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments():
+                join("_") %>"><%= funcDoc: name() %>(<%= funcDoc:
                 arguments(): join(", ") %>)</a></li>
         <% } %></ul>
     </li><% } %>
@@ -105,7 +111,7 @@
 <% if not doc: structs(): isEmpty() { %>
 <h2 id="structs">Structs</h2>
 <% foreach structName in doc: structs(): keySet() { %>
-  <h3><%= structName %></h3>
+  <h3 id="<%= structName %>"><%= structName %></h3>
   <p>Members:</p>
   <ul>
   <% foreach member in doc: structMembers(): get(structName) { %>
@@ -121,7 +127,7 @@
 <% if not doc: augmentations(): isEmpty() { %>
 <h2 id="augmentations">Augmentations</h2>
 <% foreach augmentation in doc: augmentations(): keySet() { %>
-  <h3><%= augmentation %></h3>
+  <h3 id="<%= augmentation %>"><%= augmentation %></h3>
   <div>
     <%= process(doc: augmentations(): get(augmentation)) %>
   </div>
@@ -141,7 +147,7 @@
 <% if not doc: functions(): isEmpty() { %>
 <h2 id="functions">Functions</h2>
 <% foreach funcDoc in doc: functions() { %>
-  <h3 id="<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
+  <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
   <div>
     <%= process(funcDoc: documentation()) %>
   </div>

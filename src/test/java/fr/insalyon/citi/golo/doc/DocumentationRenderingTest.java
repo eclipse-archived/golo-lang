@@ -83,9 +83,9 @@ public class DocumentationRenderingTest {
     HtmlProcessor processor = new HtmlProcessor();
     String result = processor.render(compilationUnit);
     assertThat(result, containsString("<h1>Documentation for Documented</h1>"));
-    assertThat(result, containsString("<h3>with_doc(a, b)"));
+    assertThat(result, containsString("<h3 id=\"with_doc_a_b\">with_doc(a, b)"));
     assertThat(result, containsString("<pre><code>println(\"foo\": yop())"));
-    assertThat(result, containsString("<h3>Point</h3>"));
+    assertThat(result, containsString("<h3 id=\"Point\">Point</h3>"));
     assertThat(result, containsString("<code>x</code> and <code>y</code>"));
 
     Path tempDir = Files.createTempDirectory("foo");
