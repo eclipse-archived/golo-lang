@@ -82,8 +82,28 @@
   <%= process(doc: moduleDocumentation()) %>
 </div>
 
+<ul id="toc">
+    <% if not doc: structs(): isEmpty() { %>
+    <li><a href="#structs">Structs</a><li>
+    <% } %>
+
+    <% if not doc: augmentations(): isEmpty() { %>
+    <li><a href="augmentations">Augmentations</a></li>
+    <% } %>
+
+    <% if not doc: functions(): isEmpty() { %>
+    <li><a href="#functions">Functions</a>
+        <ul><% foreach funcDoc in doc: functions() { %>
+            <li><a href="#<%= funcDoc: name() %>(<%= funcDoc: arguments():
+                join(", ") %>)"><%= funcDoc: name() %>(<%= funcDoc:
+                arguments(): join(", ") %>)</a></li>
+        <% } %></ul>
+    </li><% } %>
+</ul>
+
+
 <% if not doc: structs(): isEmpty() { %>
-<h2>Structs</h2>
+<h2 id="structs">Structs</h2>
 <% foreach structName in doc: structs(): keySet() { %>
   <h3><%= structName %></h3>
   <p>Members:</p>
@@ -99,7 +119,7 @@
 <% } %>
 
 <% if not doc: augmentations(): isEmpty() { %>
-<h2>Augmentations</h2>
+<h2 id="augmentations">Augmentations</h2>
 <% foreach augmentation in doc: augmentations(): keySet() { %>
   <h3><%= augmentation %></h3>
   <div>
@@ -119,9 +139,9 @@
 <% } %>
 
 <% if not doc: functions(): isEmpty() { %>
-<h2>Functions</h2>
+<h2 id="functions">Functions</h2>
 <% foreach funcDoc in doc: functions() { %>
-  <h3><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
+  <h3 id="<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</h3>
   <div>
     <%= process(funcDoc: documentation()) %>
   </div>
