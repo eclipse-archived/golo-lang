@@ -138,9 +138,7 @@
     <% foreach augmentation in doc: augmentations(): keySet() { %>
     <li><a href="#<%= augmentation %>"><%= augmentation %></a><ul>
       <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
-      <li><a href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>">
-        <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-      </a></li>
+      <li><a href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
       <% } %>
     </ul></li>
     <% } %>
@@ -150,9 +148,7 @@
   <% if not doc: functions(): isEmpty() { %>
   <li><a href="#functions">Functions</a><ul>
     <% foreach funcDoc in doc: functions() { %>
-    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>">
-      <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-    </a></li>
+    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
     <% } %>
   </ul></li>
   <% } %>
