@@ -89,7 +89,7 @@
     }
 
     #toc ul {
-        padding-left: 1em;
+      padding-left: 1em;
     }
 
     #toc > li {
@@ -115,7 +115,6 @@
       visibility: visible;
     }
 
-
   </style>
 </head>
 <body>
@@ -126,34 +125,37 @@
 </div>
 
 <ul id="toc">
-    <% if not doc: structs(): isEmpty() { %>
-    <li><a href="#structs">Structs</a><ul>
+  <% if not doc: structs(): isEmpty() { %>
+  <li><a href="#structs">Structs</a><ul>
     <% foreach structName in doc: structs(): keySet() { %>
     <li><a href="#<%= structName %>"><%= structName %></a></li>
     <% } %>
-    </ul></li> <% } %>
-
-    <% if not doc: augmentations(): isEmpty() { %>
-    <li><a href="#augmentations">Augmentations</a><ul>
-        <% foreach augmentation in doc: augmentations(): keySet() { %>
-        <li><a href="#<%= augmentation %>"><%= augmentation %></a><ul>
-        <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
-          <li><a href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>">
-              <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-          </a></li>
+  </ul></li>
   <% } %>
+
+  <% if not doc: augmentations(): isEmpty() { %>
+  <li><a href="#augmentations">Augmentations</a><ul>
+    <% foreach augmentation in doc: augmentations(): keySet() { %>
+    <li><a href="#<%= augmentation %>"><%= augmentation %></a><ul>
+      <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
+      <li><a href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>">
+        <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+      </a></li>
+      <% } %>
     </ul></li>
     <% } %>
-    </ul></li> <% } %>
+  </ul></li>
+  <% } %>
 
-    <% if not doc: functions(): isEmpty() { %>
-    <li><a href="#functions">Functions</a>
-        <ul><% foreach funcDoc in doc: functions() { %>
-            <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments():
-                join("_") %>"><%= funcDoc: name() %>(<%= funcDoc:
-                arguments(): join(", ") %>)</a></li>
-        <% } %></ul>
-    </li><% } %>
+  <% if not doc: functions(): isEmpty() { %>
+  <li><a href="#functions">Functions</a><ul>
+    <% foreach funcDoc in doc: functions() { %>
+    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>">
+      <%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+    </a></li>
+    <% } %>
+  </ul></li>
+  <% } %>
 </ul>
 
 
