@@ -1,9 +1,11 @@
+// vim:ft=asciidoc:tw=79:foldmethod=marker:foldmarker=<<<,>>>
+
 == Decorators ==
 
 Golo feature Python-like decorators.
 
 === Presentation ===
-
+//<<<
 Decorators are similar in syntax and purpose to Java annotations.
 However, the concepts behind them are very different. Indeed, whereas Java
 annotations are compiler or VM directives, decorators are actually plain
@@ -23,9 +25,10 @@ it in an other object with the same interface, delegating operations to the
 wrapped object. This is exactly what a decorator does here, the interface
 being "function" (more precisely a `java.lang.invoke.MethodHandle`).
 
+//>>>
 
 === Principles and syntax ===
-
+//<<<
 As in Python, and similarly to Java annotations, a decorator is used with a
 `@` prefix before the function definition. As an example, the decorator
 `deco1` only prints its name before returning the result unchanged
@@ -206,15 +209,21 @@ Hello
 Goodbye
 ----
 
+Let's now illustrate with some use cases and examples, with a presentation of
+some decorators of the standard module
+link:./golodoc/gololang/Decorators[`gololang.Decorators`].
+//>>>
 
 === Use cases and examples ===
+//<<<
 
 ==== Aspect oriented programming ====
-
+//<<<
 TBD
+//>>>
 
 ==== Pre/post conditions checking ====
-
+//<<<
 Decorators can be used to check pre-conditions, that is conditions that must
 hold for arguments, and post-conditions, that is conditions that must hold for
 returned values, of a function.
@@ -315,8 +324,10 @@ let isInteger = isOfType(Integer.class)
 
 The full set of standard checkers is documented in the generated *golodoc*
 (hint: look for `doc/golodoc` in the Golo distribution).
+//>>>
 
 ==== Memoization ====
+//<<<
 
 Memoization is the optimization technique that stores the results of a expensive
 computation to return them directly on subsequent calls. It is quite easy,
@@ -374,12 +385,16 @@ function fact = |n| {
 ----
 
 TBD: more explanations ?
+//>>>
 
 ==== Logging ====
+//<<<
 
 TBD (or see prev. example)
+//>>>
 
 ==== Locking ====
+//<<<
 
 [source,golo]
 ----
@@ -408,9 +423,10 @@ function foo = |a, b| {
 
 TBD: more explanations
 
+//>>>
 
 ==== Generic context ====
-
+//<<<
 Decorators can be used to define a generic wrapper around a function. This
 functionality is provided by the
 link:./golodoc/gololang/Decorators#withContext_context[`gololang.Decorators.withContext`]
@@ -478,7 +494,7 @@ function foo = |a, b| {
 function main = |args| {
   println(foo(1,2))
   println("====")
-  println(decorators.withContext(myContext)(|a| -> 2*a)(3))
+  println(withContext(myContext)(|a| -> 2*a)(3))
   println("====")
   try {
     println(foo(1, 1))
@@ -515,14 +531,19 @@ several functionalities, instead of stacking more specific decorators, since
 stacking, or decorator composition, adds indirection levels and deepen the call 
 stack.
 
+//>>>
+
+//>>>
+
 === Under the hood ===
-
+//<<<
 (Implementation) Useful? If so, TBD by @artpej
-
+//>>>
 
 === Performance issues ===
-
+//<<<
 TBD
+//>>>
 
 
 

@@ -44,7 +44,7 @@ function foo = |a, b| {
 function main = |args| {
   println(foo(1,2))
   println("====")
-  println(decorators.withContext(myContext)(|a| -> 2*a)(3))
+  println(withContext(myContext)(|a| -> 2*a)(3))
   println("====")
   try {
     println(foo(1, 1))
