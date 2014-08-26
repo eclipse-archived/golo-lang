@@ -17,7 +17,7 @@
 # ............................................................................................... #
 
 ----
-This module defines the set of standard decorators and utilies.
+This module defines the set of standard decorators and utilites.
 ----
 module gololang.Decorators
 
