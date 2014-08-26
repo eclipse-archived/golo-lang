@@ -16,11 +16,6 @@ A decorator is thus a function that take the function to decorate as parameter,
 and return a new function, generally a wrapper that do some stuffs before or
 after calling the original function.
 
-To be the most generic, the function created by a decorator should be a
-variable arity function, and thus call the decorated function with
-`invokeWithArguments`, such that it can be applied to any function, regardless
-of its arity (see examples below).
-
 The name can remind the well known
 http://en.wikipedia.org/wiki/Decorator_pattern[GoF pattern], with good reason.
 This pattern describe a design that allow an object to be augmented by wrapping
@@ -55,6 +50,50 @@ function foo = |a| {
 ----
 
 Here, calling `println(foo(1))` will print `deco1 + foo: 1`.
+
+To be the most generic, the function created by a decorator should be a
+variable arity function, and thus call the decorated function with
+`invokeWithArguments`, such that it can be applied to any function, regardless
+of its arity, as in the previous example.
+
+Indeed, suppose you what to a decorator `dec` (that does nothing) used like:
+[source,golo]
+----
+@dec
+function add = |a,b| -> a + b
+----
+
+Such a decorator can be implemented as:
+[source,golo]
+----
+function dec = |func| -> |a, b| -> func(a, b)
+----
+
+But in that case, it will be applicable to two parameters functions only.
+On the other hand, you cannot do:
+[source,golo]
+----
+function dec = |func| -> |args...| -> func(args)
+----
+
+Indeed, this will throw an exception because `func` is not a variable arity 
+function (just a reference on `add` function) and thus cannot take an array 
+as parameter. In this case, the decorator have to invoke the original function 
+like this:
+[source,golo]
+----
+function dec = |func| -> |args...| -> func(args: get(0), args: get(1))
+----
+
+which is equivalent to the first form, but is not generic. The more generic
+decorator is thus:
+[source,golo]
+----
+function dec = |func| -> |args...| -> func: invokeWithArguments(args)
+----
+
+which can deal with any function.
+
 
 As illustrated, the decorator is just a wrapper (closure) around the decorated
 function. The `@` syntax is just syntactic sugar. Indeed, it can also be used
@@ -373,9 +412,11 @@ TBD: more explanations
 ==== Generic context ====
 
 Decorators can be used to define a generic wrapper around a function. This
-functionality is provided by the `gololang.Decorators.withContext` standard
-decorator. This decorator take a context, such as the one returned by
-`gololang.Decorators.defaultContext` function.
+functionality is provided by the
+link:./golodoc/gololang/Decorators#withContext_context[`gololang.Decorators.withContext`]
+standard decorator. This decorator take a context, such as the one returned by
+link:./golodoc/gololang/Decorators#defaultContext_[`gololang.Decorators.defaultContext`] 
+function.
 
 A context is an object with 4 defined methods:
 
@@ -387,7 +428,7 @@ A context is an object with 4 defined methods:
          takes the exception as parameter;
 * `finallizer`, that is called in a `finally` clause after function execution.
 
-The context returned by `gololang.Decorators.withContext` is a void one, that
+The context returned by `gololang.Decorators.defaultContext` is a void one, that
 is `entry` and `exit` return their parameters unchanged,
 `catcher` rethrow the exception and `finallizer` does nothing.
 
@@ -405,13 +446,15 @@ Here is an usage example:
 
 [source,golo]
 ----
-module testcontext
+module samples.ContextDecorator
 
 import gololang.Decorators
 
 let myContext = defaultContext():
+  count(0):
   define("entry", |this, args| {
-    println("hello")
+    this: count(this: count() + 1)
+    println("hello:" + this: count())
     return args
   }):
   define("exit", |this, result| {
@@ -446,22 +489,25 @@ function main = |args| {
 which prints
 
 ----
-hello
+hello:1
 Hard computation
 goobye
 do some cleanup
 3
 ====
-hello
+hello:2
 goobye
 do some cleanup
 6
 ====
-hello
+hello:3
 Hard computation
 Caught java.lang.AssertionError: wrong value
 do some cleanup
 ----
+
+Since the context is here shared between decorations, the `count` attribute is
+incremented by each call to every decorated function, thus the output.
 
 This generic decorator can be used to easily implement condition checking,
 logging, locking, and so on. It can be more interesting if you want to provide
