@@ -9,25 +9,27 @@ However, the concepts behind them are very different. Indeed, whereas Java
 annotations are compiler or VM directives, decorators are actually plain
 functions, more precisely higher order functions.
 
-NOTE: Higher order functions are functions that process functions, i.e. that take a
-function as parameter, and may return a new function.
+NOTE: Higher order functions are functions that process functions, i.e. that take 
+a function as parameter, and may return a new function.
 
 A decorator is thus a function that take the function to decorate as parameter,
 and return a new function, generally a wrapper that do some stuffs before or
 after calling the original function.
 
-To be the most generic, a decorator should be a variable arity function, and
-thus call the decorated function with `invokeWithArguments`.
+To be the most generic, the function created by a decorator should be a
+variable arity function, and thus call the decorated function with
+`invokeWithArguments`, such that it can be applied to any function, regardless
+of its arity (see examples below).
 
 The name can remind the well known
 http://en.wikipedia.org/wiki/Decorator_pattern[GoF pattern], with good reason.
 This pattern describe a design that allow an object to be augmented by wrapping
 it in an other object with the same interface, delegating operations to the
 wrapped object. This is exactly what a decorator does here, the interface
-being "function".
+being "function" (more precisely a `java.lang.invoke.MethodHandle`).
 
 
-=== Principles and Syntax ===
+=== Principles and syntax ===
 
 As in Python, and similarly to Java annotations, a decorator is used with a
 `@` prefix before the function definition. As an example, the decorator
@@ -37,8 +39,7 @@ As in Python, and similarly to Java annotations, a decorator is used with a
 ----
 function deco1 = |fun| {
   return |args...| {
-    print("deco1 + ")
-    return fun: invokeWithArguments(args)
+    return "deco1 + " + fun: invokeWithArguments(args)
   }
 }
 ----
@@ -75,14 +76,13 @@ function main = |args| {
 
 prints all `deco1 + bar: 1`.
 
-Decorator can also be stacked. For instance:
+Decorators can also be stacked. For instance:
 
 [source,golo]
 ----
 function deco2 = |fun| {
   return |args...| {
-    print("deco2 + ")
-    return fun: invokeWithArguments(args)
+    return "deco2 + " + fun: invokeWithArguments(args)
   }
 }
 
@@ -93,9 +93,21 @@ function baz = |a| -> "baz: " + a
 
 `println(baz(1))` will print `deco2 + deco1 + baz: 1`
 
+This result can also be achieved by composing decorators, as in:
+
+[source,golo]
+----
+let deco3 = ^deco1: andThen(^deco2)
+
+@deco3
+function spam = |a| -> "spam: " + a
+----
+
+Again, `println(spam(1))` will print `deco2 + deco1 + spam: 1`
 
 Moreover, since decorator are just higher order functions, they can be closure
-on a first argument, i.e. parametrized decorators, as illustrated in the following listing:
+on a first argument, i.e. parametrized decorators, as illustrated in the 
+following listing:
 
 [source,golo]
 ----
@@ -156,9 +168,11 @@ Goodbye
 ----
 
 
-=== Use Cases and Examples ===
+=== Use cases and examples ===
 
 ==== Aspect oriented programming ====
+
+TBD
 
 ==== Pre/post conditions checking ====
 
@@ -169,8 +183,8 @@ returned values, of a function.
 Indeed, a decorated can execute code before delegating to the decorated
 function, of after the delegation.
 
-The module `gololang.Decorators` provide two decorators and several utility
-functions to check pre and post conditions.
+The module link:./golodoc/gololang/Decorators[`gololang.Decorators`] provide two
+decorators and several utility functions to check pre and post conditions.
 
 `checkResult` is a parametrized decorator taking a checker as parameter. It
 checks that the result of the decorated function is valid.
@@ -225,7 +239,7 @@ let isPositiveInt = isInteger: andThen(isPositive)
 function double = |v| -> 2 * v
 ----
 
-or event
+or even
 
 [source, golo]
 ----
@@ -238,8 +252,9 @@ function inv = |v| -> 1.0 / v
 function mul = |v| -> 10 * v
 ----
 
-Several factory functions are available in `gololang.Decorators` to ease the
-creation of checkers:
+Several factory functions are available in 
+link:./golodoc/gololang/Decorators[`gololang.Decorators`] to ease the creation 
+of checkers:
 
 * `any` is a void checker that does nothing. It can used when you need to check
   only some arguments of a n-ary function.
@@ -271,7 +286,8 @@ creates a closure on a hashmap, and check the existence of the results before
 delegating to the decorated function, and storing the result in the hashmap if
 needed.
 
-Such a decorator is provided in the `gololang.Decorators` module, presented
+Such a decorator is provided in the
+link:./golodoc/gololang/Decorators[`gololang.Decorators`] module, presented
 here as an example:
 
 [source, golo]
@@ -318,7 +334,11 @@ function fact = |n| {
 }
 ----
 
+TBD: more explanations ?
+
 ==== Logging ====
+
+TBD (or see prev. example)
 
 ==== Locking ====
 
@@ -347,11 +367,14 @@ function foo = |a, b| {
 }
 ----
 
+TBD: more explanations
+
+
 ==== Generic context ====
 
 Decorators can be used to define a generic wrapper around a function. This
-functionality is provided by the `gololang.Decorators.withContext` standard decorator. This
-decorator take a context, such as the one returned by
+functionality is provided by the `gololang.Decorators.withContext` standard
+decorator. This decorator take a context, such as the one returned by
 `gololang.Decorators.defaultContext` function.
 
 A context is an object with 4 defined methods:
@@ -440,6 +463,11 @@ Caught java.lang.AssertionError: wrong value
 do some cleanup
 ----
 
+This generic decorator can be used to easily implement condition checking,
+logging, locking, and so on. It can be more interesting if you want to provide
+several functionalities, instead of stacking more specific decorators, since
+stacking, or decorator composition, adds indirection levels and deepen the call 
+stack.
 
 === Under the hood ===
 
@@ -447,4 +475,8 @@ do some cleanup
 
 
 === Performance issues ===
+
+TBD
+
+
 
