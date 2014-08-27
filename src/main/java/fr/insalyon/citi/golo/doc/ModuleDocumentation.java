@@ -47,6 +47,7 @@ class ModuleDocumentation {
   private final TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions = new TreeMap<>();
   private final TreeMap<String, String> structs = new TreeMap<>();
   private final TreeMap<String, LinkedHashSet<String>> structMembers = new TreeMap<>();
+  private TreeSet<String> imports = new TreeSet<>();
 
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -79,6 +80,10 @@ class ModuleDocumentation {
 
   public TreeMap<String, String> augmentations() {
     return augmentations;
+  }
+
+  public TreeSet<String> imports() {
+    return imports;
   }
 
   private String documentationOrNothing(String documentation) {
@@ -115,6 +120,7 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTImportDeclaration node, Object data) {
+      imports.add(node.getName());
       return data;
     }
 
