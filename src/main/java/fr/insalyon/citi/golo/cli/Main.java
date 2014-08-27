@@ -29,6 +29,7 @@ import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.doc.AbstractProcessor;
 import fr.insalyon.citi.golo.doc.HtmlProcessor;
 import fr.insalyon.citi.golo.doc.MarkdownProcessor;
+import fr.insalyon.citi.golo.doc.CtagsProcessor;
 
 import java.io.*;
 import java.lang.invoke.MethodHandle;
@@ -132,7 +133,7 @@ public class Main {
   @Parameters(commandDescription = "Generate documentation from Golo source files")
   private static class DocCommand {
 
-    @Parameter(names = "--format", description = "Documentation output format (html, markdown)", validateWith = DocFormatValidator.class)
+    @Parameter(names = "--format", description = "Documentation output format (html, markdown, ctags)", validateWith = DocFormatValidator.class)
     String format = "html";
 
     @Parameter(names = "--output", description = "The documentation output directory")
@@ -149,9 +150,10 @@ public class Main {
       switch (value) {
         case "html":
         case "markdown":
+        case "ctags":
           return;
         default:
-          throw new ParameterException("Output format must be in: {html, markdown}");
+          throw new ParameterException("Output format must be in: {html, markdown, ctags}");
       }
     }
   }
@@ -453,6 +455,9 @@ public class Main {
         break;
       case "html":
         processor = new HtmlProcessor();
+        break;
+      case "ctags":
+        processor = new CtagsProcessor();
         break;
       default:
         throw new AssertionError("WTF?");
