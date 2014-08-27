@@ -21,8 +21,8 @@ import gololang.Predefined;
 
 import java.lang.invoke.MethodHandle;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.TreeMap;
+import java.util.Map;
 
 public class HtmlProcessor extends AbstractProcessor {
 
@@ -34,10 +34,10 @@ public class HtmlProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void process(List<ASTCompilationUnit> units, Path targetFolder) throws Throwable {
+  public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
     TreeMap<String, String> moduleDocFile = new TreeMap<>();
     ensureFolderExists(targetFolder);
-    for (ASTCompilationUnit unit : units) {
+    for (ASTCompilationUnit unit : units.values()) {
       String moduleName = moduleName(unit);
       Path docFile = outputFile(targetFolder, moduleName, ".html");
       ensureFolderExists(docFile.getParent());

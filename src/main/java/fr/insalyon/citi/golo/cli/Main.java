@@ -39,6 +39,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -462,10 +464,10 @@ public class Main {
       default:
         throw new AssertionError("WTF?");
     }
-    LinkedList<ASTCompilationUnit> units = new LinkedList<>();
+    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
     for (String source : options.sources) {
       try (FileInputStream in = new FileInputStream(source)) {
-        units.add(new GoloOffsetParser(in).CompilationUnit());
+        units.put(source, new GoloOffsetParser(in).CompilationUnit());
       } catch (IOException e) {
         System.out.println("[error] " + source + " does not exist or could not be opened.");
       } catch (ParseException e) {

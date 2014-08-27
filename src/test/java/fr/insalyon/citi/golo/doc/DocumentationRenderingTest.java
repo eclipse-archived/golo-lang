@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -56,7 +56,9 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("println(\"foo\": yop())"));
 
     Path tempDir = Files.createTempDirectory("foo");
-    processor.process(Arrays.asList(compilationUnit), tempDir);
+    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
+    units.put(SRC + "doc.golo", compilationUnit);
+    processor.process(units, tempDir);
     Path expectedDocFile = tempDir.resolve("Documented.markdown");
     assertThat(Files.exists(expectedDocFile), is(true));
     assertThat(Files.isRegularFile(expectedDocFile), is(true));
@@ -92,7 +94,9 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("<code>x</code> and <code>y</code>"));
 
     Path tempDir = Files.createTempDirectory("foo");
-    processor.process(Arrays.asList(compilationUnit), tempDir);
+    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
+    units.put(SRC + "doc.golo", compilationUnit);
+    processor.process(units, tempDir);
     Path expectedDocFile = tempDir.resolve("Documented.html");
     assertThat(Files.exists(expectedDocFile), is(true));
     assertThat(Files.isRegularFile(expectedDocFile), is(true));

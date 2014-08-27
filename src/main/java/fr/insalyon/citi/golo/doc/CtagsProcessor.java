@@ -21,8 +21,8 @@ import gololang.Predefined;
 
 import java.lang.invoke.MethodHandle;
 import java.nio.file.Path;
-import java.util.List;
 import java.util.TreeMap;
+import java.util.Map;
 
 public class CtagsProcessor extends AbstractProcessor {
 
@@ -60,11 +60,12 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void process(List<ASTCompilationUnit> units, Path targetFolder) throws Throwable {
+  public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
     ensureFolderExists(targetFolder);
     ctags = new StringBuilder();
-    for (ASTCompilationUnit unit : units) {
-      render(unit);
+    for (String src : units.keySet()) {
+      file = src;
+      render(units.get(src));
     }
     Predefined.textToFile(ctags.toString(), targetFolder.resolve("ctags"));
   }

@@ -27,13 +27,13 @@ import java.lang.invoke.MethodHandle;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public abstract class AbstractProcessor {
 
   public abstract String render(ASTCompilationUnit compilationUnit) throws Throwable;
 
-  public abstract void process(List<ASTCompilationUnit> units, Path targetFolder) throws Throwable;
+  public abstract void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable;
 
   private TemplateEngine templateEngine = new TemplateEngine();
   private HashMap<String, MethodHandle> templateCache = new HashMap<>();
