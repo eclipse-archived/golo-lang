@@ -60,20 +60,16 @@ function defaultContext = { return DynamicObject():
 This decorator is a very generic one, all the customization occurs in the
 context object.
 ----
-function withContext = |context| {
-  return |fun| {
-    return |args...| {
-      var result = null
-      try {
-        result = context: exit(fun: invokeWithArguments(context: entry(args)))
-      } catch (e) {
-        context: catcher(e)
-      } finally {
-        context: finallizer()
-      }
-      return result
-    }
+function withContext = |context| -> |fun| -> |args...| {
+  var result = null
+  try {
+    result = context: exit(fun: invokeWithArguments(context: entry(args)))
+  } catch (e) {
+    context: catcher(e)
+  } finally {
+    context: finallizer()
   }
+  return result
 }
 
 # ............................................................................................... #
@@ -88,26 +84,18 @@ local function _apply_tests_ = |tests, args| {
 ----
 Checks arguments of the decorated function. Any checker can be used
 ----
-function checkArguments= |preTests...| {
-  return |fun| {
-    return |args...| {
-      _apply_tests_(preTests, args)
-      return fun: invokeWithArguments(args)
-    }
-  }
+function checkArguments= |preTests...| -> |fun| -> |args...| {
+  _apply_tests_(preTests, args)
+  return fun: invokeWithArguments(args)
 }
 
 ----
 Checks result of the decorated function. Any checker can be used
 ----
-function checkResult = |postTest| {
-  return |fun| {
-    return |args...| {
-      let result = fun: invokeWithArguments(args)
-      postTest(result)
-      return result
-    }
-  }
+function checkResult = |postTest| -> |fun| -> |args...| {
+  let result = fun: invokeWithArguments(args)
+  postTest(result)
+  return result
 }
 
 # .. Factories .. #
@@ -115,11 +103,9 @@ function checkResult = |postTest| {
 Factory function to create a generic checker from a boolean function.
 Takes a boolean function and an error message.
 ----
-function asChecker = |f, m| {
-  return |v| {
-    require(f(v), v + " " + m)
-    return v
-  }
+function asChecker = |f, m| -> |v| {
+  require(f(v), v + " " + m)
+  return v
 }
 
 ----
@@ -128,11 +114,9 @@ Takes a type to compare to and returns a checker function.
 
     let isInteger = isOfType(Integer.class)
 ----
-function isOfType = |t| {
-  return |v| {
-    require(v oftype t, v + " is not a " + t: getName())
-    return v
-  }
+function isOfType = |t| -> |v| {
+  require(v oftype t, v + " is not a " + t: getName())
+  return v
 }
 
 ----
@@ -142,11 +126,9 @@ greater than the threshold
 
     let isPositive = greaterThan(0)
 ----
-function greaterThan = |m| {
-  return |v| {
-    require(v > m, v + " is not greater than " + m)
-    return v
-  }
+function greaterThan = |m| -> |v| {
+  require(v > m, v + " is not greater than " + m)
+  return v
 }
 
 ----
@@ -156,11 +138,9 @@ less than the threshold
 
     let isNegative = lessThan(0)
 ----
-function lessThan = |m| {
-  return |v| {
-    require(v < m, v + " is not less than " + m)
-    return v
-  }
+function lessThan = |m| -> |v| {
+  require(v < m, v + " is not less than " + m)
+  return v
 }
 
 ----
@@ -170,11 +150,9 @@ is exactly a value
     @checkResult(lengthIs(2))
     function foo |a| -> [a, a]
 ----
-function lengthIs = |l| {
-  return |v| {
-    require(v: length() == l, "length of " + v + " is not " + l)
-    return v
-  }
+function lengthIs = |l| -> |v| {
+  require(v: length() == l, "length of " + v + " is not " + l)
+  return v
 }
 
 # .. Checkers .. #
@@ -245,14 +223,12 @@ implementation, the decoration is invoked at each call.
 ----
 function memoizer = {
   var cache = map[]
-  return |fun| {
-    return |args...| {
-      let key = [fun: hashCode(), Tuple(args)]
-      if (not cache: containsKey(key)) {
-        cache: add(key, fun: invokeWithArguments(args))
-      }
-      return cache: get(key)
+  return |fun| -> |args...| {
+    let key = [fun: hashCode(), Tuple(args)]
+    if (not cache: containsKey(key)) {
+      cache: add(key, fun: invokeWithArguments(args))
     }
+    return cache: get(key)
   }
 }
 
