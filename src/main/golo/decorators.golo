@@ -233,3 +233,37 @@ function memoizer = {
 }
 
 # ............................................................................................... #
+# == Logging ==
+
+----
+Factory function returning a decorator that log messages on entry and exit of
+the function.
+The factory take the logging function (e.g. println).
+The returned decorator takes two strings: the message to log before the call,
+and the message to log after the call. If one of these message is `null` or
+empty string, nothing is logged.
+
+    let myLogger = loggerDecorator(|msg| {println("# " + msg)})
+
+    @myLogger("entering foo", "exiting foo")
+    function foo = { println("doing foo") }
+----
+function loggerDecorator = |logger| {
+  return |msgBefore, msgAfter| -> |func| -> |args...| {
+    if msgBefore isnt null and msgBefore != "" { logger(msgBefore) }
+    let res = func: invokeWithArguments(args)
+    if msgAfter isnt null and msgAfter != "" { logger(msgAfter) }
+    return res
+  }
+}
+
+----
+A convenient factory to create a `loggerDecorator` that `println` with a prefix
+and a suffix.
+
+    @printLoggerDecorator("# ", " #")("in", "out")
+    function bar = { println("bar") }
+----
+function printLoggerDecorator = |prefix, suffix| {
+  return loggerDecorator(|msg| { println(prefix + msg + suffix) })
+}
