@@ -62,6 +62,10 @@ public class CtagsProcessor extends AbstractProcessor {
     return ctagsLine("+" + name, "address", "s");
   }
 
+  private String ctagsImport(String name) {
+    return ctagsLine(name, "address", "i");
+  }
+
   private String ctagsStructMember(String struct, String member) {
     String visibility = "+";
     if (member.charAt(0) == '_') {
@@ -74,7 +78,9 @@ public class CtagsProcessor extends AbstractProcessor {
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
     ctags.append(ctagsModule(documentation));
-    // TODO: imports
+    for (String importName : documentation.imports()) {
+      ctags.append(ctagsImport(importName));
+    }
     for (String structName : documentation.structs().keySet()) {
       ctags.append(ctagsStruct(structName));
       for (String member : documentation.structMembers().get(structName)) {
