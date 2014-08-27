@@ -25,7 +25,7 @@ import java.util.TreeMap;
 import java.util.Map;
 
 public class CtagsProcessor extends AbstractProcessor {
-
+  // TODO: compute the address of tags !
   private StringBuilder ctags;
   private String file = "file";
 
@@ -34,25 +34,60 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private String ctagsModule(ModuleDocumentation module) {
-    return ctagsLine(module.moduleName(), "address", "m");
+    return ctagsLine(module.moduleName(), "address", "p");
   }
 
   private String ctagsFunction(ModuleDocumentation.FunctionDocumentation funct) {
-    return ctagsLine("+" + funct.name, "address", "f");
+    return ctagsFunction(funct, "");
+  }
+  private String ctagsFunction(ModuleDocumentation.FunctionDocumentation funct, String parent) {
+    // TODO: signature (args)
+    // TODO: add local functions
+    // TODO: "arity" field
+    // TODO: "file:" field for local functions
+    String fields = "f";
+    String prefix = "+";
+    if (parent != "") {
+      fields += "\tclass:" + parent;
+    }
+    String name = prefix + funct.name;
+    return ctagsLine(name, "address", fields);
+  }
+
+  private String ctagsAugment(String name) {
+    return ctagsLine(name, "address", "a");
   }
 
   private String ctagsStruct(String name) {
-    return ctagsLine("+" + name, "address", "f");
+    return ctagsLine("+" + name, "address", "s");
+  }
+
+  private String ctagsStructMember(String struct, String member) {
+    String visibility = "+";
+    if (member.charAt(0) == '_') {
+      visibility = "-";
+    }
+    return ctagsLine(visibility + member, "address", "m\tstruct:" + struct);
   }
 
   @Override
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
     ctags.append(ctagsModule(documentation));
+    // TODO: imports
     for (String structName : documentation.structs().keySet()) {
       ctags.append(ctagsStruct(structName));
-      // TODO: members
+      for (String member : documentation.structMembers().get(structName)) {
+        ctags.append(ctagsStructMember(structName, member));
+      }
     }
+    for (String augmentName : documentation.augmentations().keySet()) {
+      ctags.append(ctagsAugment(augmentName));
+      for (ModuleDocumentation.FunctionDocumentation funct : documentation.augmentationFunctions().get(augmentName)) {
+        ctags.append(ctagsFunction(funct, augmentName));
+      }
+    }
+    // TODO: module level states
     for (ModuleDocumentation.FunctionDocumentation funct : documentation.functions()) {
       ctags.append(ctagsFunction(funct));
     }
