@@ -11,7 +11,7 @@ However, the concepts behind them are very different. Indeed, whereas Java
 annotations are compiler or VM directives, decorators are actually plain
 functions, more precisely higher order functions.
 
-NOTE: Higher order functions are functions that process functions, i.e. that take 
+NOTE: Higher order functions (HOF) are functions that process functions, i.e. that take 
 a function as parameter, and may return a new function.
 
 A decorator is thus a function that take the function to decorate as parameter,
@@ -209,6 +209,64 @@ Hello
 Goodbye
 ----
 
+The only requirement is that the effective decorator (the expression following
+the `@`) is eventually a HOF returning a closure on the decorated function. As
+an example, it can be as elaborated as:
+
+[source,golo]
+----
+function log = |msgBefore| -> |msgAfter| -> |func| -> |args...| {
+    println(msgBefore)
+    let res = func: invokeWithArguments(args)
+    println(msgAfter)
+    return res
+}
+
+@log("enter foo")("exit foo")
+function foo = |a| {
+    println("foo: " + a)
+}
+----
+
+where a call `foo("bar")` will print
+
+----
+enter foo
+foo: bar
+exit foo
+----
+
+and with
+
+[source,golo]
+----
+function logEnterExit = |name| -> log("# enter " + name)("# exit " + name)
+
+@logEnterExit("bar")
+function bar = { println("doing something...") }
+----
+
+calling `bar()` will print
+
+----
+# enter bar
+doing something...
+# exit bar
+----
+
+or even, without decorator syntax:
+
+[source,golo]
+----
+function main = |args| {
+  let strange_use = log("hello")("goodbye")({println(":p")})
+  strange_use()
+
+  log("another")("use")(|a|{println(a)})("strange")
+}
+----
+
+
 Let's now illustrate with some use cases and examples, with a presentation of
 some decorators of the standard module
 link:./golodoc/gololang/Decorators[`gololang.Decorators`].
@@ -217,9 +275,19 @@ link:./golodoc/gololang/Decorators[`gololang.Decorators`].
 === Use cases and examples ===
 //<<<
 
-==== Aspect oriented programming ====
+Use cases are at least the same as
+http://en.wikipedia.org/wiki/Aspect-oriented_programming[_aspect oriented programming_] 
+(AOP) and the
+http://en.wikipedia.org/wiki/Decorator_pattern[_decorator design pattern_], but
+your imagination is your limit.
+Some are presented here for illustration.
+
+==== Logging ====
 //<<<
-TBD
+
+Logging is a classical example use case of AOP. See the
+xref:_principles_and_syntax[Principles and syntax] section for an example.
+
 //>>>
 
 ==== Pre/post conditions checking ====
@@ -326,6 +394,39 @@ The full set of standard checkers is documented in the generated *golodoc*
 (hint: look for `doc/golodoc` in the Golo distribution).
 //>>>
 
+==== Locking ====
+//<<<
+
+As seen, decorator can be used to wrap a function call between checking
+operation, but also between a lock/unlock in a concurrent context:
+
+[source,golo]
+----
+import java.util.concurrent.locks
+
+function withLock = |lock| {
+  return |fun| {
+    return |args...| {
+      lock: lock()
+      try {
+        return fun: invokeWithArguments(args)
+      } finally {
+        lock: unlock()
+      }
+    }
+  }
+}
+
+let myLock = ReentrantLock()
+
+@withLock(myLock)
+function foo = |a, b| {
+    return a + b
+}
+----
+//>>>
+
+
 ==== Memoization ====
 //<<<
 
@@ -384,51 +485,13 @@ function fact = |n| {
 }
 ----
 
-TBD: more explanations ?
-//>>>
-
-==== Logging ====
-//<<<
-
-TBD (or see prev. example)
-//>>>
-
-==== Locking ====
-//<<<
-
-[source,golo]
-----
-import java.util.concurrent.locks
-
-function withLock = |lock| {
-  return |fun| {
-    return |args...| {
-      lock: lock()
-      try {
-        return fun: invokeWithArguments(args)
-      } finally {
-        lock: unlock()
-      }
-    }
-  }
-}
-
-let myLock = ReentrantLock()
-
-@withLock(myLock)
-function foo = |a, b| {
-    return a + b
-}
-----
-
-TBD: more explanations
-
 //>>>
 
 ==== Generic context ====
 //<<<
-Decorators can be used to define a generic wrapper around a function. This
-functionality is provided by the
+Decorators can be used to define a generic wrapper around a function, that
+extends the previous example (and can be used to implement most of them).
+This functionality is provided by the
 link:./golodoc/gololang/Decorators#withContext_context[`gololang.Decorators.withContext`]
 standard decorator. This decorator take a context, such as the one returned by
 link:./golodoc/gololang/Decorators#defaultContext_[`gololang.Decorators.defaultContext`] 
@@ -534,16 +597,3 @@ stack.
 //>>>
 
 //>>>
-
-=== Under the hood ===
-//<<<
-(Implementation) Useful? If so, TBD by @artpej
-//>>>
-
-=== Performance issues ===
-//<<<
-TBD
-//>>>
-
-
-
