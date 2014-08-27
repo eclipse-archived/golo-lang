@@ -153,15 +153,11 @@ following listing:
 
 [source,golo]
 ----
-module testdeco
+module tests.LogDeco
 
-function log = |msg| {
-  return |fun| {
-    return |args...| {
-      println(msg)
-      return fun: invokeWithArguments(args)
-    }
-  }
+function log = |msg| -> |fun| -> |args...| {
+  println(msg)
+  return fun: invokeWithArguments(args)
 }
 
 @log("calling foo")
@@ -216,15 +212,15 @@ an example, it can be as elaborated as:
 [source,golo]
 ----
 function log = |msgBefore| -> |msgAfter| -> |func| -> |args...| {
-    println(msgBefore)
-    let res = func: invokeWithArguments(args)
-    println(msgAfter)
-    return res
+  println(msgBefore)
+  let res = func: invokeWithArguments(args)
+  println(msgAfter)
+  return res
 }
 
 @log("enter foo")("exit foo")
 function foo = |a| {
-    println("foo: " + a)
+  println("foo: " + a)
 }
 ----
 
@@ -404,16 +400,12 @@ operation, but also between a lock/unlock in a concurrent context:
 ----
 import java.util.concurrent.locks
 
-function withLock = |lock| {
-  return |fun| {
-    return |args...| {
-      lock: lock()
-      try {
-        return fun: invokeWithArguments(args)
-      } finally {
-        lock: unlock()
-      }
-    }
+function withLock = |lock| -> |fun| -> |args...| {
+  lock: lock()
+  try {
+    return fun: invokeWithArguments(args)
+  } finally {
+    lock: unlock()
   }
 }
 
@@ -421,7 +413,7 @@ let myLock = ReentrantLock()
 
 @withLock(myLock)
 function foo = |a, b| {
-    return a + b
+  return a + b
 }
 ----
 //>>>
