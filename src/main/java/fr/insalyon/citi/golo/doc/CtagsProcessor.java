@@ -34,7 +34,7 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private String ctagsModule(ModuleDocumentation module) {
-    return ctagsLine(module.moduleName(), "address", "p");
+    return ctagsLine(module.moduleName(), "/^module[ \\t]+" + module.moduleName(), "p");
   }
 
   private String ctagsFunction(ModuleDocumentation.FunctionDocumentation funct) {
@@ -51,19 +51,19 @@ public class CtagsProcessor extends AbstractProcessor {
       fields += "\tclass:" + parent;
     }
     String name = prefix + funct.name;
-    return ctagsLine(name, "address", fields);
+    return ctagsLine(name, "0", fields);
   }
 
   private String ctagsAugment(String name) {
-    return ctagsLine(name, "address", "a");
+    return ctagsLine(name, "/^augment[ \\t]+" + name + "/", "a");
   }
 
   private String ctagsStruct(String name) {
-    return ctagsLine("+" + name, "address", "s");
+    return ctagsLine("+" + name, "0", "s");
   }
 
   private String ctagsImport(String name) {
-    return ctagsLine(name, "address", "i");
+    return ctagsLine(name, "/^import[ \\t]+" + name + "/", "i");
   }
 
   private String ctagsStructMember(String struct, String member) {
@@ -71,7 +71,7 @@ public class CtagsProcessor extends AbstractProcessor {
     if (member.charAt(0) == '_') {
       visibility = "-";
     }
-    return ctagsLine(visibility + member, "address", "m\tstruct:" + struct);
+    return ctagsLine(visibility + member, "0", "m\tstruct:" + struct);
   }
 
   @Override
