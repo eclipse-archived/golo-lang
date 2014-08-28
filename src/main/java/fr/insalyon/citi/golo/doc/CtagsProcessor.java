@@ -34,7 +34,9 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private String ctagsModule(ModuleDocumentation module) {
-    return ctagsLine(module.moduleName(), "/^module[ \\t]+" + module.moduleName(), "p");
+    return ctagsLine(module.moduleName(), 
+        "/^module[ \\t]*" + module.moduleName().replace(".", "\\.") + "/",
+        "p");
   }
 
   private String ctagsFunction(ModuleDocumentation.FunctionDocumentation funct) {
@@ -55,7 +57,7 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private String ctagsAugment(String name) {
-    return ctagsLine(name, "/^augment[ \\t]+" + name + "/", "a");
+    return ctagsLine(name, "/^augment[ \\t]*" + name + "/", "a");
   }
 
   private String ctagsStruct(String name) {
@@ -63,7 +65,7 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private String ctagsImport(String name) {
-    return ctagsLine(name, "/^import[ \\t]+" + name + "/", "i");
+    return ctagsLine(name, "/^import[ \\t]*" + name + "/", "i");
   }
 
   private String ctagsStructMember(String struct, String member) {
