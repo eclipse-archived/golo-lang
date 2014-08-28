@@ -12,6 +12,7 @@
       ----     
 module Documented
 
+import java.util.Map
 ----
 This should be hidden, really.
 ----
@@ -56,3 +57,7 @@ Do not hesitate to provide an augmentation for `Documented.types.Point` if you
 would like to add *methods* to it.
 ----
 struct Point = { x, y }
+
+let letState = 1
+
+var varState = []
