@@ -102,12 +102,18 @@ public class CtagsProcessor extends AbstractProcessor {
 
   @Override
   public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
-    ensureFolderExists(targetFolder);
+    Path targetFile = null;
+    if (targetFolder.toString().equals("-")) {
+      targetFile = targetFolder;
+    } else {
+      ensureFolderExists(targetFolder);
+      targetFile = targetFolder.resolve("ctags");
+    }
     ctags = new StringBuilder();
     for (String src : units.keySet()) {
       file = src;
       render(units.get(src));
     }
-    Predefined.textToFile(ctags.toString(), targetFolder.resolve("ctags"));
+    Predefined.textToFile(ctags.toString(), targetFile);
   }
 }
