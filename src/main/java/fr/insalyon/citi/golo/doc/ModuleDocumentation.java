@@ -28,6 +28,8 @@ class ModuleDocumentation {
     public List<String> arguments;
     public boolean augmentation;
     public boolean varargs;
+    public boolean local;
+    public int line;
 
     @Override
     public int compareTo(FunctionDocumentation o) {
@@ -40,14 +42,18 @@ class ModuleDocumentation {
   }
 
   private String moduleName;
+  private int moduleDefLine;
   private String moduleDocumentation;
+  private final TreeMap<String, Integer> moduleStates = new TreeMap<>();
 
   private TreeSet<FunctionDocumentation> functions = new TreeSet<>();
   private final TreeMap<String, String> augmentations = new TreeMap<>();
+  private final TreeMap<String, Integer> augmentationLine = new TreeMap<>();
   private final TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions = new TreeMap<>();
   private final TreeMap<String, String> structs = new TreeMap<>();
+  private final TreeMap<String, Integer> structLine = new TreeMap<>();
   private final TreeMap<String, LinkedHashSet<String>> structMembers = new TreeMap<>();
-  private TreeSet<String> imports = new TreeSet<>();
+  private final TreeMap<String, Integer> imports = new TreeMap<>();
 
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -66,23 +72,48 @@ class ModuleDocumentation {
     return structMembers;
   }
 
+  public int structLine(String structName) {
+    return structLine.get(structName);
+  }
+
   public TreeSet<FunctionDocumentation> functions() {
-    return functions;
+    return functions(false);
+  }
+
+  public TreeSet<FunctionDocumentation> functions(boolean withLocal) {
+    if (withLocal) { return functions; }
+    TreeSet<FunctionDocumentation> pubFunctions = new TreeSet<>();
+    for (FunctionDocumentation f : functions) {
+      if (!f.local) { pubFunctions.add(f); }
+    }
+    return pubFunctions;
   }
 
   public String moduleName() {
     return moduleName;
   }
 
+  public int moduleDefLine() {
+    return moduleDefLine;
+  }
+
   public String moduleDocumentation() {
     return moduleDocumentation;
+  }
+
+  public TreeMap<String, Integer> moduleStates() {
+    return moduleStates;
   }
 
   public TreeMap<String, String> augmentations() {
     return augmentations;
   }
 
-  public TreeSet<String> imports() {
+  public int augmentationLine(String augmentationName) {
+    return augmentationLine.get(augmentationName);
+  }
+
+  public TreeMap<String, Integer> imports() {
     return imports;
   }
 
@@ -114,13 +145,14 @@ class ModuleDocumentation {
     @Override
     public Object visit(ASTModuleDeclaration node, Object data) {
       moduleName = node.getName();
+      moduleDefLine = node.getLineInSourceCode();
       moduleDocumentation = documentationOrNothing(node.getDocumentation());
       return data;
     }
 
     @Override
     public Object visit(ASTImportDeclaration node, Object data) {
-      imports.add(node.getName());
+      imports.put(node.getName(), node.getLineInSourceCode());
       return data;
     }
 
@@ -133,6 +165,7 @@ class ModuleDocumentation {
     @Override
     public Object visit(ASTStructDeclaration node, Object data) {
       structs.put(node.getName(), documentationOrNothing(node.getDocumentation()));
+      structLine.put(node.getName(), node.getLineInSourceCode());
       structMembers.put(node.getName(), node.getMembers());
       return data;
     }
@@ -142,6 +175,7 @@ class ModuleDocumentation {
       currentAugmentation = node.getName();
       augmentations.put(node.getName(), documentationOrNothing(node.getDocumentation()));
       augmentationFunctions.put(node.getName(), new TreeSet<FunctionDocumentation>());
+      augmentationLine.put(node.getName(), node.getLineInSourceCode());
       node.childrenAccept(this, data);
       currentAugmentation = null;
       return data;
@@ -149,13 +183,12 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTFunctionDeclaration node, Object data) {
-      if (node.isLocal()) {
-        return data;
-      }
       currentFunctionDocumentation = new FunctionDocumentation();
       currentFunctionDocumentation.name = node.getName();
       currentFunctionDocumentation.documentation = documentationOrNothing(node.getDocumentation());
       currentFunctionDocumentation.augmentation = node.isAugmentation();
+      currentFunctionDocumentation.line = node.getLineInSourceCode();
+      currentFunctionDocumentation.local = node.isLocal();
       node.childrenAccept(this, data);
       return data;
     }
@@ -252,6 +285,9 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTLetOrVar node, Object data) {
+      if (node.isModuleState()) {
+        moduleStates.put(node.getName(), node.getLineInSourceCode());
+      }
       return data;
     }
 
