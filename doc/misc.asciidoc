@@ -5,6 +5,52 @@ and _golodocs_.
 
 The next subsections provide summaries of misc. modules found as part of Golo.
 
+=== Standard augmentations (`gololang.StandardAugmentations`) ===
+
+This Golo module provides standard augmentations for various classes of the Java standard classes
+and Golo types. It does not have to be imported explicitely.
+
+Here are a few examples.
+
+Java collections can be have functional methods:
+
+[source,golo]
+----
+println(list[1, 2, 3, 4]: filter(|n| -> (n % 2) == 0))
+println(list[1, 2, 3]: map(|n| -> n * 10))
+----
+
+Insert a map entry only if the key is not present, and get a default value if an entry is missing:
+
+[source,golo]
+----
+map: putIfAbsent(key, -> expensiveOperation())
+map: getOrElse(key, "n/a")
+----
+
+Repeat an operation many times:
+
+[source,golo]
+----
+3: times(-> println("Hey!")
+3: times(|i| -> println(i))
+----
+
+Function references are method handles, and there are augmentations for them:
+
+[source,golo]
+----
+# Composition
+let f = |x| -> x + 1
+let g = |y| -> y * 10
+let h = f: andThen(g)
+
+# Partial application
+let adder = |x, y| -> x + y
+let add2 = adder: bindAt(1, 2)    # binds 'y'
+println(add2(1))
+----
+
 === JSON support (`gololang.JSON`)
 
 Golo includes the https://code.google.com/p/json-simple/[JSON Simple] library to provide JSON
@@ -105,5 +151,42 @@ foo = 69
 mapped = 69!
 ----
 
+=== Asynchronous programming helpers (`gololang.Async`) ===
 
+This module offers asynchronous programming helpers, especially execution context agnostic promises
+and futures. The provided APIs are orthogonal to the execution strategy: it is up to you to execute
+code from the same thread, from a separate thread, or by pushing new tasks to a service executor.
+
+Here is an example:
+
+[source,golo]
+----
+module samples.Concurrency
+
+import java.util.concurrent
+import gololang.Async
+
+local function fib = |n| {
+  if n <= 1 {
+    return n
+  } else {
+    return fib(n - 1) + fib(n - 2)
+  }
+}
+
+function main = |args| {
+  let executor = Executors.newFixedThreadPool(2)
+  let results = [30, 34, 35, 38, 39, 40, 41, 42]: 
+    map(|n| -> executor: enqueue(-> fib(n)):
+      map(|res| -> [n, res]))
+  reduce(results, "", |acc, next| -> acc + next: get(0) + " -> " + next: get(1) + "\n"):
+    onSet(|s| -> println("Results:\n" + s)):
+    onFail(|e| -> e: printStackTrace())
+  executor: shutdown()
+  executor: awaitTermination(120_L, TimeUnit.SECONDS())
+}
+----
+
+This example takes advantages of an executor augmentation and composable promises and futures to
+compute Fibonacci numbers.
 
