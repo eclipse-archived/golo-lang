@@ -141,7 +141,7 @@ public class CtagsProcessor extends AbstractProcessor {
     for (ModuleDocumentation.FunctionDocumentation funct : documentation.functions(true)) {
       ctagsFunction(funct);
     }
-    return "";
+    return ctagsAsString();
   }
 
   @Override

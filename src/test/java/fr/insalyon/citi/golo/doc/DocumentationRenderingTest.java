@@ -111,4 +111,22 @@ public class DocumentationRenderingTest {
     assertThat(contents, containsString("<h1>Modules index</h1>"));
     assertThat(contents, containsString("<a href='Documented.html'>Documented</a>"));
   }
+
+  @Test
+  public void ctags_processor() throws Throwable {
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
+    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
+
+    CtagsProcessor processor = new CtagsProcessor();
+    String result = processor.render(compilationUnit);
+    assertThat(result, containsString("Documented\tfile\t/^module[:blank:]+Documented$/;\"\tp\tline:1"));
+    assertThat(result, containsString("Point\tfile\t/^struct[:blank:]+Point[:blank:]+=/;\"\ts\tline:59"));
+    assertThat(result, containsString("java.lang.String\tfile\t/^augment[:blank:]+java\\.lang\\.String/;\"\ta\tline:43"));
+    assertThat(result, containsString("java.util.Map\tfile\t/^import[:blank:]+java\\.util\\.Map/;\"\ti\tline:15"));
+    assertThat(result, containsString("letState\tfile\t(let|var)[:blank:]+letState[:blank:]+=/;\"\tv\taccess:private\tline:61"));
+    assertThat(result, containsString("plop\tfile\t/function[:blank:]+plop[:blank:]+=/;\"\tf\tline:45\taccess:public\tsignature:(this)\taugment:java.lang.String"));
+    assertThat(result, containsString("should_be_hidden\tfile\t/function[:blank:]+should_be_hidden[:blank:]+=/;\"\tf\tline:19\taccess:private\tfile:\tsignature:(foo)"));
+    assertThat(result, containsString("x\tfile\t/struct[:blank:]+Point[:blank:]+=/;\"\tm\tline:59\taccess:public\tstruct:Point"));
+  }
+
 }
