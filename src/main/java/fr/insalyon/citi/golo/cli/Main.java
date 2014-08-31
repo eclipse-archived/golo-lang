@@ -138,7 +138,7 @@ public class Main {
     @Parameter(names = "--format", description = "Documentation output format (html, markdown, ctags)", validateWith = DocFormatValidator.class)
     String format = "html";
 
-    @Parameter(names = "--output", description = "The documentation output directory")
+    @Parameter(names = "--output", description = "The documentation output directory. With ctags format, '-' can be used for standard output (e.g. when executed in an editor)")
     String output = ".";
 
     @Parameter(description = "Golo source files (*.golo)")
