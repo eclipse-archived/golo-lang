@@ -59,6 +59,9 @@ public class GoloCompiler {
     return exceptionBuilder;
   }
 
+  private void resetExceptionBuilder() {
+    exceptionBuilder = null;
+  }
   /**
    * Initializes a parser from an input stream. This method is made public for the requirements of IDEs support.
    *
@@ -93,6 +96,7 @@ public class GoloCompiler {
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
    */
   public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+    resetExceptionBuilder();
     ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(sourceCodeInputStream));
     throwIfErrorEncountered();
     GoloModule goloModule = check(compilationUnit);
