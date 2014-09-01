@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 
@@ -48,5 +49,42 @@ public class CompilerTest {
     File expectedOutputFile = new File(temporaryFolder, "golotest/SimpleReturns.class");
     assertThat(expectedOutputFile.exists(), is(true));
     assertThat(expectedOutputFile.length() > 0, is(true));
+  }
+
+  @Test
+  public void verify_compile_errors() throws IOException, ParseException {
+    String okSourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
+    String errSourceFileDir = "src/test/resources/for-test/";
+    GoloCompiler compiler = new GoloCompiler();
+    
+    GoloCompilationException.Problem first = null;
+    
+    compiler.compile("simple-returns.golo", new FileInputStream(okSourceFile));
+
+    String errSourceFile = "undeclared.golo";
+    try {
+      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+    } catch (GoloCompilationException e) {
+      assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getSourceCode(), is(errSourceFile));
+      assertThat(e.getProblems().size(), is(2));
+
+      first = e.getProblems().get(0);
+      assertThat(first.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
+      assertThat(first.getSource().getLineInSourceCode(), is(4));
+    }
+
+    errSourceFile = "incomplete.golo";
+    try {
+      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+    } catch (GoloCompilationException e) {
+      assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getSourceCode(), is(errSourceFile));
+      assertThat(e.getProblems().size(), is(1));
+
+      first = e.getProblems().get(0);
+      assertThat(first.getType(), is(GoloCompilationException.Problem.Type.PARSING));
+      assertThat(first.getSource().getLineInSourceCode(), is(3));
+    }
   }
 }

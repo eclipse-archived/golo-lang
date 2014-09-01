@@ -152,6 +152,7 @@ public class GoloCompilationException extends RuntimeException {
      */
     public Builder(String goloSourceFilename) {
       exception = new GoloCompilationException("In Golo module: " + goloSourceFilename);
+      exception.setSourceCode(goloSourceFilename);
     }
 
     /**
