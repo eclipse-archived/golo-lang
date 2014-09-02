@@ -31,7 +31,7 @@ public class CtagsProcessor extends AbstractProcessor {
   private String file = "file";
 
   private void ctagsLine(String name, String address, String field) {
-    ctags.add(String.format("%s\t%s\t%s;\"\t%s\n", name, file, address, field));
+    ctags.add(String.format("%s\t%s\t%s;\"\t%s\tlanguage:golo\n", name, file, address, field));
   }
 
   private void ctagsModule(ModuleDocumentation module) {
@@ -92,7 +92,7 @@ public class CtagsProcessor extends AbstractProcessor {
   private void ctagsModState(String name, int line) {
     ctagsLine(name,
         String.format("(let|var)[:blank:]+%s[:blank:]+=/", name),
-        String.format("v\taccess:private\tline:%s", line));
+        String.format("v\taccess:private\tfile:\tline:%s", line));
   }
 
   private void ctagsStructMember(String struct, String member, int line) {
