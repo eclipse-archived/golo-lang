@@ -26,7 +26,8 @@ import java.util.Map;
 import java.util.LinkedList;
 
 public class CtagsProcessor extends AbstractProcessor {
-  private LinkedList<String> ctags = new LinkedList<>();
+
+  private final LinkedList<String> ctags = new LinkedList<>();
   private String file = "file";
 
   private void ctagsLine(String name, String address, String field) {
@@ -42,6 +43,7 @@ public class CtagsProcessor extends AbstractProcessor {
   private void ctagsFunction(ModuleDocumentation.FunctionDocumentation funct) {
     ctagsFunction(funct, "");
   }
+
   private void ctagsFunction(ModuleDocumentation.FunctionDocumentation funct, String parent) {
     String address = String.format("/function[:blank:]+%s[:blank:]+=/", funct.name);
 
