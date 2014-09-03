@@ -414,7 +414,11 @@ public class Predefined {
     require(text instanceof String, "text must be a string");
     String str = (String) text;
     Path path = pathFrom(file);
-    Files.write(path, str.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    if (path.toString().equals("-")) {
+      System.out.write(str.getBytes());
+    } else {
+      Files.write(path, str.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+    }
   }
 
   /**

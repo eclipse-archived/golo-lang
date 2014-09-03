@@ -28,7 +28,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.LinkedList;
+import java.util.HashMap;
 
 /**
  * @goal golodoc
@@ -68,13 +68,13 @@ public class GolodocMojo extends AbstractMojo {
   private class GolodocFileVisitor extends SimpleFileVisitor<Path> {
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.golo");
-    private final LinkedList<ASTCompilationUnit> units = new LinkedList<>();
+    private final HashMap<String, ASTCompilationUnit> units = new HashMap<>();
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
       if (matcher.matches(file)) {
         try (FileInputStream in = new FileInputStream(file.toFile())) {
-          units.add(new GoloParser(in).CompilationUnit());
+          units.put(file.toString(), new GoloParser(in).CompilationUnit());
         } catch (IOException | ParseException e) {
           throw new RuntimeException("Parsing or I/O error on " + file, e);
         }

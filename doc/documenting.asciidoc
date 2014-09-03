@@ -44,6 +44,11 @@ The `golo doc` command can render documentation in `html` (the default) or `mark
 $ golo doc --output target/documentation src/**/*.golo
 ----
 
+In addition, `golo doc` can also produce ctags `tags` file, to be used by
+editors such as Vim or emacs. In this mode, the special output target `-` can
+be used to print the tags on standard output, which is needed by some editors
+or extensions.
+
 Please consult `golo help` for more details.
 
 === Alignment

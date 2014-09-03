@@ -27,7 +27,7 @@ import org.testng.annotations.Test;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.Arrays;
+import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -56,7 +56,9 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("println(\"foo\": yop())"));
 
     Path tempDir = Files.createTempDirectory("foo");
-    processor.process(Arrays.asList(compilationUnit), tempDir);
+    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
+    units.put(SRC + "doc.golo", compilationUnit);
+    processor.process(units, tempDir);
     Path expectedDocFile = tempDir.resolve("Documented.markdown");
     assertThat(Files.exists(expectedDocFile), is(true));
     assertThat(Files.isRegularFile(expectedDocFile), is(true));
@@ -92,7 +94,9 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("<code>x</code> and <code>y</code>"));
 
     Path tempDir = Files.createTempDirectory("foo");
-    processor.process(Arrays.asList(compilationUnit), tempDir);
+    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
+    units.put(SRC + "doc.golo", compilationUnit);
+    processor.process(units, tempDir);
     Path expectedDocFile = tempDir.resolve("Documented.html");
     assertThat(Files.exists(expectedDocFile), is(true));
     assertThat(Files.isRegularFile(expectedDocFile), is(true));
@@ -107,4 +111,22 @@ public class DocumentationRenderingTest {
     assertThat(contents, containsString("<h1>Modules index</h1>"));
     assertThat(contents, containsString("<a href='Documented.html'>Documented</a>"));
   }
+
+  @Test
+  public void ctags_processor() throws Throwable {
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
+    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
+
+    CtagsProcessor processor = new CtagsProcessor();
+    String result = processor.render(compilationUnit);
+    assertThat(result, containsString("Documented\tfile\t/^module[:blank:]+Documented$/;\"\tp\tline:1\tlanguage:golo"));
+    assertThat(result, containsString("Point\tfile\t/^struct[:blank:]+Point[:blank:]+=/;\"\ts\tline:59\tlanguage:golo"));
+    assertThat(result, containsString("java.lang.String\tfile\t/^augment[:blank:]+java\\.lang\\.String/;\"\ta\tline:43\tlanguage:golo"));
+    assertThat(result, containsString("java.util.Map\tfile\t/^import[:blank:]+java\\.util\\.Map/;\"\ti\tline:15\tlanguage:golo"));
+    assertThat(result, containsString("letState\tfile\t(let|var)[:blank:]+letState[:blank:]+=/;\"\tv\taccess:private\tfile:\tline:61\tlanguage:golo"));
+    assertThat(result, containsString("plop\tfile\t/function[:blank:]+plop[:blank:]+=/;\"\tf\tline:45\taccess:public\tsignature:(this)\taugment:java.lang.String\tlanguage:golo"));
+    assertThat(result, containsString("should_be_hidden\tfile\t/function[:blank:]+should_be_hidden[:blank:]+=/;\"\tf\tline:19\taccess:private\tfile:\tsignature:(foo)\tlanguage:golo"));
+    assertThat(result, containsString("x\tfile\t/struct[:blank:]+Point[:blank:]+=/;\"\tm\tline:59\taccess:public\tstruct:Point\tlanguage:golo"));
+  }
+
 }

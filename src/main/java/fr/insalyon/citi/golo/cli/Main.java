@@ -29,6 +29,7 @@ import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.doc.AbstractProcessor;
 import fr.insalyon.citi.golo.doc.HtmlProcessor;
 import fr.insalyon.citi.golo.doc.MarkdownProcessor;
+import fr.insalyon.citi.golo.doc.CtagsProcessor;
 
 import java.io.*;
 import java.lang.invoke.MethodHandle;
@@ -38,6 +39,8 @@ import java.net.URLClassLoader;
 import java.nio.file.Paths;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
+import java.util.HashMap;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -132,10 +135,10 @@ public class Main {
   @Parameters(commandDescription = "Generate documentation from Golo source files")
   private static class DocCommand {
 
-    @Parameter(names = "--format", description = "Documentation output format (html, markdown)", validateWith = DocFormatValidator.class)
+    @Parameter(names = "--format", description = "Documentation output format (html, markdown, ctags)", validateWith = DocFormatValidator.class)
     String format = "html";
 
-    @Parameter(names = "--output", description = "The documentation output directory")
+    @Parameter(names = "--output", description = "The documentation output directory. With ctags format, '-' can be used for standard output (e.g. when executed in an editor)")
     String output = ".";
 
     @Parameter(description = "Golo source files (*.golo)")
@@ -149,9 +152,10 @@ public class Main {
       switch (value) {
         case "html":
         case "markdown":
+        case "ctags":
           return;
         default:
-          throw new ParameterException("Output format must be in: {html, markdown}");
+          throw new ParameterException("Output format must be in: {html, markdown, ctags}");
       }
     }
   }
@@ -454,13 +458,16 @@ public class Main {
       case "html":
         processor = new HtmlProcessor();
         break;
+      case "ctags":
+        processor = new CtagsProcessor();
+        break;
       default:
         throw new AssertionError("WTF?");
     }
-    LinkedList<ASTCompilationUnit> units = new LinkedList<>();
+    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
     for (String source : options.sources) {
       try (FileInputStream in = new FileInputStream(source)) {
-        units.add(new GoloOffsetParser(in).CompilationUnit());
+        units.put(source, new GoloOffsetParser(in).CompilationUnit());
       } catch (IOException e) {
         System.out.println("[error] " + source + " does not exist or could not be opened.");
       } catch (ParseException e) {
