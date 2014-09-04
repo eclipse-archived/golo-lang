@@ -85,8 +85,11 @@ public class Main {
   @Parameters(commandDescription = "Dynamically loads and runs from Golo source files")
   static class GoloGoloCommand {
 
-    @Parameter(names = "--files", variableArity = true, description = "Golo source files (the last one has a main function)", required = true)
+    @Parameter(names = "--files", variableArity = true, description = "Golo source files (the last one has a main function or use --module)", required = true)
     List<String> files = new LinkedList<>();
+
+    @Parameter(names = "--module", description = "The Golo module with a main function")
+    String module;
 
     @Parameter(names = "--args", variableArity = true, description = "Program arguments")
     List<String> arguments = new LinkedList<>();
@@ -431,22 +434,45 @@ public class Main {
     GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
     Class<?> lastClass = null;
     for (String goloFile : gologolo.files) {
-      File file = new File(goloFile);
-      if (!file.exists()) {
-        System.out.println("Error: " + file + " does not exist.");
-        return;
+      lastClass = loadGoloFile(goloFile, gologolo.module, loader);
+    }
+    if (lastClass == null && gologolo.module != null) {
+      System.out.println("The module " + gologolo.module + " does not exist in the classpath.");
+      return;
+    }
+    callRun(lastClass, gologolo.arguments.toArray(new String[gologolo.arguments.size()]));
+  }
+
+  private static Class<?> loadGoloFile(String goloFile, String module, GoloClassLoader loader) throws Throwable {
+    File file = new File(goloFile);
+    if (!file.exists()) {
+      System.out.println("Error: " + file.getAbsolutePath() + " does not exist.");
+      return null;
+    }
+    if (file.isDirectory()) {
+      File[] folderFiles = file.listFiles();
+      if (folderFiles != null) {
+        Class<?> lastClass = null;
+        for (File folderFile : folderFiles) {
+          Class<?> loadedClass = loadGoloFile(folderFile.getAbsolutePath(), module, loader);
+          if (module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(module))) {
+            lastClass = loadedClass;
+          }
+        }
+        return lastClass;
       }
-      if (!file.isFile()) {
-        System.out.println("Error: " + file + " is not a file.");
-        return;
-      }
+    }
+    if (file.getName().endsWith(".golo")) {
       try (FileInputStream in = new FileInputStream(file)) {
-        lastClass = loader.load(file.getName(), in);
+        Class<?> loadedClass = loader.load(file.getName(), in);
+        if (module == null || loadedClass.getCanonicalName().equals(module)) {
+          return loadedClass;
+        }
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
       }
     }
-    callRun(lastClass, gologolo.arguments.toArray(new String[gologolo.arguments.size()]));
+    return null;
   }
 
   private static void doc(DocCommand options) {

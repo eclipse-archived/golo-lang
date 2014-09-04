@@ -8,3 +8,4 @@ dependency-reduced-pom.xml
 .benchmarks.h2.db
 benchmarks/*.json
 benchmarks/*.html
+doc/output/

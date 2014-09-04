@@ -75,12 +75,15 @@ follows:
 ----
 $ golo golo --files samples/helloworld.golo
 Hello world!
+$ golo golo --files samples/ --module hello.World
+Hello world!
 $
 ----
 
-`golo golo` takes several Golo source files as input. It expects the last
-one to have a `main` function to call. The Golo code is compiled on the
-fly and executed straight into a JVM.
+`golo golo` takes several Golo source files as input (folders accepted).
+It expects the last one to have a `main` function to call (or use
+`--module` to define the golo module with the `main` function).
+The Golo code is compiled on the fly and executed straight into a JVM.
 
 You may also pass arguments to the `main` function by appending `--args`
 on the command line invocation. Suppose that we have a module `EchoArgs`
@@ -158,7 +161,7 @@ Simple, isn't it?
 === Passing JVM-specific flags ===
 
 Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment
-variable. 
+variable.
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
 
@@ -176,7 +179,7 @@ $ JAVA_OPTS=-XX:+PrintCompilation golo golo --files samples/fibonacci.golo
 
 A bash script can be found in `share/shell-completion/` called `golo-bash-completion` that will provide autocomplete support for the `golo` and `vanilla-golo` CLI scripts. You may either `source` the script, or drop the script into your `bash_completion.d/` folder and restart your terminal.
 
-TIP: Not sure where your `bash_completion.d/` folder is? Try `/etc/bash_completion.d/` on Linux or `/usr/local/etc/bash_completion.d/` for Mac Homebrew users. 
+TIP: Not sure where your `bash_completion.d/` folder is? Try `/etc/bash_completion.d/` on Linux or `/usr/local/etc/bash_completion.d/` for Mac Homebrew users.
 
 === Zsh autocompletion ===
 
@@ -515,4 +518,3 @@ You can of course take advantage of the `array` collection literal, too:
 let a = array[1, 2, 3, 4]
 let b = array["a", "b"]
 ----
-
