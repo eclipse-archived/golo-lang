@@ -47,6 +47,20 @@ public class Main {
   static class GlobalArguments {
     @Parameter(names = {"--help"}, description = "Prints this message", help = true)
     boolean help;
+
+    @Parameter(names = {"--usage"}, description = "Command name to print his usage", validateWith = UsageFormatValidator.class)
+    String usageCommand;
+  }
+
+  public static class UsageFormatValidator implements IParameterValidator {
+    static Set<String> commandNames;
+
+    @Override
+    public void validate(String name, String value) throws ParameterException {
+      if (!commandNames.contains(value)) {
+        throw new ParameterException("Command name must be in: " + Arrays.toString(commandNames.toArray()));
+      }
+    }
   }
 
   @Parameters(commandDescription = "Queries the Golo version")
@@ -178,9 +192,13 @@ public class Main {
     cmd.addCommand("doc", doc);
     InitCommand init = new InitCommand();
     cmd.addCommand("new", init);
+    UsageFormatValidator.commandNames = cmd.getCommands().keySet();
+
     try {
       cmd.parse(args);
-      if (global.help || cmd.getParsedCommand() == null) {
+      if (global.usageCommand != null) {
+        cmd.usage(global.usageCommand);
+      } else if (global.help || cmd.getParsedCommand() == null) {
         cmd.usage();
       } else {
         switch (cmd.getParsedCommand()) {
@@ -212,7 +230,9 @@ public class Main {
     } catch (ParameterException exception) {
       System.err.println(exception.getMessage());
       System.out.println();
-      cmd.usage();
+      if (cmd.getParsedCommand() != null) {
+        cmd.usage(cmd.getParsedCommand());
+      }
     } catch (IOException exception) {
       System.err.println(exception.getMessage());
       System.exit(1);

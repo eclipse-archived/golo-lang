@@ -63,6 +63,7 @@ commands, notably:
 - `new` to generate new project(s).
 
 The complete commands usage instructions can be listed by running `golo --help`.
+A command usage instructions can be listed by running `golo --usage ${command}`.
 
 IMPORTANT: The `golo` script comes with JVM tuning settings that may not be appropriate to your
 environment. We also provide a `vanilla-golo` script with no tuning. You may use the `$JAVA_OPTS`
