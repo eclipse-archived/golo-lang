@@ -37,10 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -85,7 +82,7 @@ public class Main {
   @Parameters(commandDescription = "Dynamically loads and runs from Golo source files")
   static class GoloGoloCommand {
 
-    @Parameter(names = "--files", variableArity = true, description = "Golo source files (the last one has a main function or use --module)", required = true)
+    @Parameter(names = "--files", variableArity = true, description = "Golo source files (*.golo and directories). The last one has a main function or use --module", required = true)
     List<String> files = new LinkedList<>();
 
     @Parameter(names = "--module", description = "The Golo module with a main function")
@@ -104,7 +101,7 @@ public class Main {
     @Parameter(names = "--tool", description = "The diagnosis tool to use: {ast, ir}", validateWith = DiagnoseModeValidator.class)
     String mode = "ir";
 
-    @Parameter(description = "Golo source files (*.golo)")
+    @Parameter(description = "Golo source files (*.golo and directories)")
     List<String> files = new LinkedList<>();
   }
 
@@ -234,8 +231,6 @@ public class Main {
         default:
           throw new AssertionError("WTF?");
       }
-    } catch (FileNotFoundException e) {
-      System.err.println(e.getMessage());
     } catch (GoloCompilationException e) {
       handleCompilationException(e);
     }
@@ -340,25 +335,61 @@ public class Main {
     }
   }
 
-  private static void dumpASTs(List<String> files) throws FileNotFoundException {
+  private static void dumpASTs(List<String> files) {
     GoloCompiler compiler = new GoloCompiler();
     for (String file : files) {
-      System.out.println(">>> AST for: " + file);
-      ASTCompilationUnit ast = compiler.parse(file, new GoloOffsetParser(new FileInputStream(file)));
-      ast.dump("% ");
-      System.out.println();
+      dumpAST(file, compiler);
     }
   }
 
-  private static void dumpIRs(List<String> files) throws FileNotFoundException {
+  private static void dumpAST(String goloFile, GoloCompiler compiler) {
+    File file = new File(goloFile);
+    if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        for (File directoryFile : directoryFiles) {
+          dumpAST(directoryFile.getAbsolutePath(), compiler);
+        }
+      }
+    } else if (file.getName().endsWith(".golo")) {
+      System.out.println(">>> AST for: " + goloFile);
+      try (FileInputStream in = new FileInputStream(goloFile)) {
+        ASTCompilationUnit ast = compiler.parse(goloFile, new GoloOffsetParser(in));
+        ast.dump("% ");
+        System.out.println();
+      } catch (IOException e) {
+        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+      }
+    }
+  }
+
+  private static void dumpIRs(List<String> files) {
     GoloCompiler compiler = new GoloCompiler();
     IrTreeDumper dumper = new IrTreeDumper();
     for (String file : files) {
+      dumpIR(file, compiler, dumper);
+    }
+  }
+
+  private static void dumpIR(String goloFile, GoloCompiler compiler, IrTreeDumper dumper) {
+    File file = new File(goloFile);
+    if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        for (File directoryFile : directoryFiles) {
+          dumpIR(directoryFile.getAbsolutePath(), compiler, dumper);
+        }
+      }
+    } else if (file.getName().endsWith(".golo")) {
       System.out.println(">>> IR for: " + file);
-      ASTCompilationUnit ast = compiler.parse(file, new GoloOffsetParser(new FileInputStream(file)));
-      GoloModule module = compiler.check(ast);
-      dumper.visitModule(module);
-      System.out.println();
+      try (FileInputStream in = new FileInputStream(goloFile)) {
+        ASTCompilationUnit ast = compiler.parse(goloFile, new GoloOffsetParser(in));
+        GoloModule module = compiler.check(ast);
+        dumper.visitModule(module);
+        System.out.println();
+      } catch (IOException e) {
+        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+      }
     }
   }
 
@@ -447,22 +478,19 @@ public class Main {
     File file = new File(goloFile);
     if (!file.exists()) {
       System.out.println("Error: " + file.getAbsolutePath() + " does not exist.");
-      return null;
-    }
-    if (file.isDirectory()) {
-      File[] folderFiles = file.listFiles();
-      if (folderFiles != null) {
+    } else if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
         Class<?> lastClass = null;
-        for (File folderFile : folderFiles) {
-          Class<?> loadedClass = loadGoloFile(folderFile.getAbsolutePath(), module, loader);
+        for (File directoryFile : directoryFiles) {
+          Class<?> loadedClass = loadGoloFile(directoryFile.getAbsolutePath(), module, loader);
           if (module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(module))) {
             lastClass = loadedClass;
           }
         }
         return lastClass;
       }
-    }
-    if (file.getName().endsWith(".golo")) {
+    } else if (file.getName().endsWith(".golo")) {
       try (FileInputStream in = new FileInputStream(file)) {
         Class<?> loadedClass = loader.load(file.getName(), in);
         if (module == null || loadedClass.getCanonicalName().equals(module)) {

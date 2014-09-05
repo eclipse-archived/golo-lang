@@ -80,7 +80,7 @@ Hello world!
 $
 ----
 
-`golo golo` takes several Golo source files as input (folders accepted).
+`golo golo` takes several Golo source files (*.golo and directories) as input.
 It expects the last one to have a `main` function to call (or use
 `--module` to define the golo module with the `main` function).
 The Golo code is compiled on the fly and executed straight into a JVM.
