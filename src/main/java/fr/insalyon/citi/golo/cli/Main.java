@@ -141,7 +141,7 @@ public class Main {
     @Parameter(names = "--output", description = "The documentation output directory. With ctags format, '-' can be used for standard output (e.g. when executed in an editor)")
     String output = ".";
 
-    @Parameter(description = "Golo source files (*.golo)")
+    @Parameter(description = "Golo source files (*.golo or directories)")
     List<String> sources = new LinkedList<>();
   }
 
@@ -520,18 +520,32 @@ public class Main {
     }
     HashMap<String, ASTCompilationUnit> units = new HashMap<>();
     for (String source : options.sources) {
-      try (FileInputStream in = new FileInputStream(source)) {
-        units.put(source, new GoloOffsetParser(in).CompilationUnit());
-      } catch (IOException e) {
-        System.out.println("[error] " + source + " does not exist or could not be opened.");
-      } catch (ParseException e) {
-        System.out.println("[error] " + source + " has syntax errors: " + e.getMessage());
-      }
+      loadGoloFileCompilationUnit(source, units);
     }
     try {
       processor.process(units, Paths.get(options.output));
     } catch (Throwable throwable) {
       System.out.println("[error] " + throwable.getMessage());
+    }
+  }
+
+  private static void loadGoloFileCompilationUnit(String goloFile, HashMap<String, ASTCompilationUnit> units) {
+    File file = new File(goloFile);
+    if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        for (File directoryFile : directoryFiles) {
+          loadGoloFileCompilationUnit(directoryFile.getAbsolutePath(), units);
+        }
+      }
+    } else if (file.getName().endsWith(".golo")) {
+      try (FileInputStream in = new FileInputStream(goloFile)) {
+        units.put(goloFile, new GoloOffsetParser(in).CompilationUnit());
+      } catch (IOException e) {
+        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+      } catch (ParseException e) {
+        System.out.println("[error] " + goloFile + " has syntax errors: " + e.getMessage());
+      }
     }
   }
 }
