@@ -19,7 +19,7 @@ package fr.insalyon.citi.golo.compiler.parser;
 import java.util.LinkedHashSet;
 import java.util.List;
 
-public class ASTStructDeclaration extends GoloASTNode {
+public class ASTStructDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
   private LinkedHashSet<String> members;
