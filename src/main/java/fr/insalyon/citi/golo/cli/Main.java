@@ -37,10 +37,7 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.net.URLClassLoader;
 import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.HashMap;
+import java.util.*;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -50,6 +47,20 @@ public class Main {
   static class GlobalArguments {
     @Parameter(names = {"--help"}, description = "Prints this message", help = true)
     boolean help;
+
+    @Parameter(names = {"--usage"}, description = "Command name to print his usage", validateWith = UsageFormatValidator.class)
+    String usageCommand;
+  }
+
+  public static class UsageFormatValidator implements IParameterValidator {
+    static Set<String> commandNames;
+
+    @Override
+    public void validate(String name, String value) throws ParameterException {
+      if (!commandNames.contains(value)) {
+        throw new ParameterException("Command name must be in: " + Arrays.toString(commandNames.toArray()));
+      }
+    }
   }
 
   @Parameters(commandDescription = "Queries the Golo version")
@@ -85,8 +96,11 @@ public class Main {
   @Parameters(commandDescription = "Dynamically loads and runs from Golo source files")
   static class GoloGoloCommand {
 
-    @Parameter(names = "--files", variableArity = true, description = "Golo source files (the last one has a main function)", required = true)
+    @Parameter(names = "--files", variableArity = true, description = "Golo source files (*.golo and directories). The last one has a main function or use --module", required = true)
     List<String> files = new LinkedList<>();
+
+    @Parameter(names = "--module", description = "The Golo module with a main function")
+    String module;
 
     @Parameter(names = "--args", variableArity = true, description = "Program arguments")
     List<String> arguments = new LinkedList<>();
@@ -101,7 +115,7 @@ public class Main {
     @Parameter(names = "--tool", description = "The diagnosis tool to use: {ast, ir}", validateWith = DiagnoseModeValidator.class)
     String mode = "ir";
 
-    @Parameter(description = "Golo source files (*.golo)")
+    @Parameter(description = "Golo source files (*.golo and directories)")
     List<String> files = new LinkedList<>();
   }
 
@@ -141,7 +155,7 @@ public class Main {
     @Parameter(names = "--output", description = "The documentation output directory. With ctags format, '-' can be used for standard output (e.g. when executed in an editor)")
     String output = ".";
 
-    @Parameter(description = "Golo source files (*.golo)")
+    @Parameter(description = "Golo source files (*.golo or directories)")
     List<String> sources = new LinkedList<>();
   }
 
@@ -178,9 +192,13 @@ public class Main {
     cmd.addCommand("doc", doc);
     InitCommand init = new InitCommand();
     cmd.addCommand("new", init);
+    UsageFormatValidator.commandNames = cmd.getCommands().keySet();
+
     try {
       cmd.parse(args);
-      if (global.help || cmd.getParsedCommand() == null) {
+      if (global.usageCommand != null) {
+        cmd.usage(global.usageCommand);
+      } else if (global.help || cmd.getParsedCommand() == null) {
         cmd.usage();
       } else {
         switch (cmd.getParsedCommand()) {
@@ -212,7 +230,9 @@ public class Main {
     } catch (ParameterException exception) {
       System.err.println(exception.getMessage());
       System.out.println();
-      cmd.usage();
+      if (cmd.getParsedCommand() != null) {
+        cmd.usage(cmd.getParsedCommand());
+      }
     } catch (IOException exception) {
       System.err.println(exception.getMessage());
       System.exit(1);
@@ -231,8 +251,6 @@ public class Main {
         default:
           throw new AssertionError("WTF?");
       }
-    } catch (FileNotFoundException e) {
-      System.err.println(e.getMessage());
     } catch (GoloCompilationException e) {
       handleCompilationException(e);
     }
@@ -337,25 +355,61 @@ public class Main {
     }
   }
 
-  private static void dumpASTs(List<String> files) throws FileNotFoundException {
+  private static void dumpASTs(List<String> files) {
     GoloCompiler compiler = new GoloCompiler();
     for (String file : files) {
-      System.out.println(">>> AST for: " + file);
-      ASTCompilationUnit ast = compiler.parse(file, new GoloOffsetParser(new FileInputStream(file)));
-      ast.dump("% ");
-      System.out.println();
+      dumpAST(file, compiler);
     }
   }
 
-  private static void dumpIRs(List<String> files) throws FileNotFoundException {
+  private static void dumpAST(String goloFile, GoloCompiler compiler) {
+    File file = new File(goloFile);
+    if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        for (File directoryFile : directoryFiles) {
+          dumpAST(directoryFile.getAbsolutePath(), compiler);
+        }
+      }
+    } else if (file.getName().endsWith(".golo")) {
+      System.out.println(">>> AST for: " + goloFile);
+      try (FileInputStream in = new FileInputStream(goloFile)) {
+        ASTCompilationUnit ast = compiler.parse(goloFile, new GoloOffsetParser(in));
+        ast.dump("% ");
+        System.out.println();
+      } catch (IOException e) {
+        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+      }
+    }
+  }
+
+  private static void dumpIRs(List<String> files) {
     GoloCompiler compiler = new GoloCompiler();
     IrTreeDumper dumper = new IrTreeDumper();
     for (String file : files) {
+      dumpIR(file, compiler, dumper);
+    }
+  }
+
+  private static void dumpIR(String goloFile, GoloCompiler compiler, IrTreeDumper dumper) {
+    File file = new File(goloFile);
+    if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        for (File directoryFile : directoryFiles) {
+          dumpIR(directoryFile.getAbsolutePath(), compiler, dumper);
+        }
+      }
+    } else if (file.getName().endsWith(".golo")) {
       System.out.println(">>> IR for: " + file);
-      ASTCompilationUnit ast = compiler.parse(file, new GoloOffsetParser(new FileInputStream(file)));
-      GoloModule module = compiler.check(ast);
-      dumper.visitModule(module);
-      System.out.println();
+      try (FileInputStream in = new FileInputStream(goloFile)) {
+        ASTCompilationUnit ast = compiler.parse(goloFile, new GoloOffsetParser(in));
+        GoloModule module = compiler.check(ast);
+        dumper.visitModule(module);
+        System.out.println();
+      } catch (IOException e) {
+        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+      }
     }
   }
 
@@ -431,22 +485,42 @@ public class Main {
     GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
     Class<?> lastClass = null;
     for (String goloFile : gologolo.files) {
-      File file = new File(goloFile);
-      if (!file.exists()) {
-        System.out.println("Error: " + file + " does not exist.");
-        return;
+      lastClass = loadGoloFile(goloFile, gologolo.module, loader);
+    }
+    if (lastClass == null && gologolo.module != null) {
+      System.out.println("The module " + gologolo.module + " does not exist in the classpath.");
+      return;
+    }
+    callRun(lastClass, gologolo.arguments.toArray(new String[gologolo.arguments.size()]));
+  }
+
+  private static Class<?> loadGoloFile(String goloFile, String module, GoloClassLoader loader) throws Throwable {
+    File file = new File(goloFile);
+    if (!file.exists()) {
+      System.out.println("Error: " + file.getAbsolutePath() + " does not exist.");
+    } else if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        Class<?> lastClass = null;
+        for (File directoryFile : directoryFiles) {
+          Class<?> loadedClass = loadGoloFile(directoryFile.getAbsolutePath(), module, loader);
+          if (module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(module))) {
+            lastClass = loadedClass;
+          }
+        }
+        return lastClass;
       }
-      if (!file.isFile()) {
-        System.out.println("Error: " + file + " is not a file.");
-        return;
-      }
+    } else if (file.getName().endsWith(".golo")) {
       try (FileInputStream in = new FileInputStream(file)) {
-        lastClass = loader.load(file.getName(), in);
+        Class<?> loadedClass = loader.load(file.getName(), in);
+        if (module == null || loadedClass.getCanonicalName().equals(module)) {
+          return loadedClass;
+        }
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
       }
     }
-    callRun(lastClass, gologolo.arguments.toArray(new String[gologolo.arguments.size()]));
+    return null;
   }
 
   private static void doc(DocCommand options) {
@@ -466,18 +540,32 @@ public class Main {
     }
     HashMap<String, ASTCompilationUnit> units = new HashMap<>();
     for (String source : options.sources) {
-      try (FileInputStream in = new FileInputStream(source)) {
-        units.put(source, new GoloOffsetParser(in).CompilationUnit());
-      } catch (IOException e) {
-        System.out.println("[error] " + source + " does not exist or could not be opened.");
-      } catch (ParseException e) {
-        System.out.println("[error] " + source + " has syntax errors: " + e.getMessage());
-      }
+      loadGoloFileCompilationUnit(source, units);
     }
     try {
       processor.process(units, Paths.get(options.output));
     } catch (Throwable throwable) {
       System.out.println("[error] " + throwable.getMessage());
+    }
+  }
+
+  private static void loadGoloFileCompilationUnit(String goloFile, HashMap<String, ASTCompilationUnit> units) {
+    File file = new File(goloFile);
+    if (file.isDirectory()) {
+      File[] directoryFiles = file.listFiles();
+      if (directoryFiles != null) {
+        for (File directoryFile : directoryFiles) {
+          loadGoloFileCompilationUnit(directoryFile.getAbsolutePath(), units);
+        }
+      }
+    } else if (file.getName().endsWith(".golo")) {
+      try (FileInputStream in = new FileInputStream(goloFile)) {
+        units.put(goloFile, new GoloOffsetParser(in).CompilationUnit());
+      } catch (IOException e) {
+        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+      } catch (ParseException e) {
+        System.out.println("[error] " + goloFile + " has syntax errors: " + e.getMessage());
+      }
     }
   }
 }
