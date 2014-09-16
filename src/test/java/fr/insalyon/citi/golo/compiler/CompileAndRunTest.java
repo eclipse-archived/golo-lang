@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
@@ -1403,5 +1402,57 @@ public class CompileAndRunTest {
     Method give_foo = moduleClass.getMethod("give_foo");
     result = give_foo.invoke(null);
     assertThat(result, is((Object) "Foo!"));
+  }
+
+  @Test
+  public void decorators() throws Throwable {
+
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "decorators.golo");
+
+    Method decorated = moduleClass.getMethod("test_decorated_augmentation");
+    Object result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "Hello Golo Decorator!"));
+
+    decorated = moduleClass.getMethod("test_decorator_order");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "12"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_simple", Object.class, Object.class);
+    result = decorated.invoke(null, "4", "2");
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "(42)"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs", Object[].class);
+    result = decorated.invoke(null, (Object) new String[]{});
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "()"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs", Object[].class);
+    result = decorated.invoke(null, (Object) new String[]{"4", "2"});
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "(42)"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs", Object[].class);
+    result = decorated.invoke(null, (Object) new String[]{"4"});
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "(4)"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_parameterless");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "(test)"));
+
+    decorated = moduleClass.getMethod("test_check_args", Object.class);
+    try {
+      decorated.invoke(null, "42");
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AssertionError.class));
+      AssertionError exception = (AssertionError) cause;
+      assertThat(exception.getMessage(), is("arg0 must be a class java.lang.Integer"));
+    }
   }
 }

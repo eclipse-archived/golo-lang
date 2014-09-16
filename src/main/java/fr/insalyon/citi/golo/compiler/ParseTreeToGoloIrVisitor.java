@@ -161,6 +161,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTDecoratorDeclaration node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    Decorator decorator = new Decorator((ExpressionStatement) context.objectStack.pop());
+    node.setIrElement(decorator);
+    context.objectStack.push(decorator);
+    return data;
+  }
+
+  @Override
   public Object visit(ASTFunctionDeclaration node, Object data) {
     Context context = (Context) data;
     GoloFunction function = new GoloFunction(
@@ -168,10 +178,81 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         node.isLocal() ? LOCAL : PUBLIC,
         node.isAugmentation() ? AUGMENT : MODULE);
     node.setIrElement(function);
+    while (context.objectStack.peek() instanceof Decorator) {
+      function.addDecorator((Decorator)context.objectStack.pop());
+    }
     context.objectStack.push(function);
-    node.childrenAccept(this, data);
+    if (!function.getDecorators().isEmpty()) {
+      ASTFunction original = (ASTFunction)node.jjtGetChild(0);
+      Node wrapped = wrapFunctionWithDecorators(original, function.getDecorators());
+      wrapped.jjtAccept(this, data);
+    } else {
+      node.childrenAccept(this, data);
+    }
     context.objectStack.pop();
     return data;
+  }
+
+  private ASTFunction wrapFunctionWithDecorators(ASTFunction function, List<Decorator> decorators) {
+    ASTFunction wrapped = new ASTFunction(0);
+    wrapped.setArguments(function.getArguments());
+    wrapped.setCompactForm(function.isCompactForm());
+    wrapped.setVarargs(function.isVarargs());
+    ASTBlock astBlock = new ASTBlock(0);
+    wrapped.jjtAddChild(astBlock, 0);
+    ASTReturn astReturn = new ASTReturn(0);
+    astBlock.jjtAddChild(astReturn, 0);
+
+    Node nested = function;
+
+    for (Decorator decorator : decorators) {
+      if (decorator.getExpressionStatement() instanceof ReferenceLookup) {
+        nested = wrapWithReferenceLookupDecorator(nested, (ReferenceLookup)decorator.getExpressionStatement());
+      } else {
+        nested = wrapWithFunctionInvocationDecorator(nested, (FunctionInvocation)decorator.getExpressionStatement());
+      }
+    }
+    nested = invokeDecoratorWithOriginalParameters(nested, (ASTFunction) wrapped);
+    astReturn.jjtAddChild(nested, 0);
+    return wrapped;
+  }
+
+  private Node invokeDecoratorWithOriginalParameters(Node wrapped, ASTFunction function) {
+    ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
+    for(String argument : function.getArguments()) {
+      ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
+      functionInvocation.jjtAddChild(commutativeExpression, functionInvocation.jjtGetNumChildren());
+      ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
+      commutativeExpression.jjtAddChild(associativeExpression, 0);
+      ASTReference ref = new ASTReference(0);
+      ref.setName(argument);
+      associativeExpression.jjtAddChild(ref, 0);
+    }
+    wrapped.jjtAddChild(functionInvocation, wrapped.jjtGetNumChildren());
+    return wrapped;
+  }
+
+  private Node wrapWithFunctionInvocationDecorator(Node wrapped, FunctionInvocation invocation) {
+    Node decorator = invocation.getASTNode();
+    ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
+    ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
+    functionInvocation.jjtAddChild(commutativeExpression, 0);
+    ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
+    commutativeExpression.jjtAddChild(associativeExpression, 0);
+    associativeExpression.jjtAddChild(wrapped, 0);
+    decorator.jjtAddChild(functionInvocation, decorator.jjtGetNumChildren());
+    return decorator;
+  }
+
+  private Node wrapWithReferenceLookupDecorator(Node wrapped, ReferenceLookup reference) {
+    ASTFunctionInvocation functionInvocation = new ASTFunctionInvocation(0);
+    functionInvocation.setName(reference.getName());
+    ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
+    functionInvocation.jjtAddChild(commutativeExpression, 0);
+    ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
+    commutativeExpression.jjtAddChild(associativeExpression, 0);
+    associativeExpression.jjtAddChild(wrapped, 0);
+    return functionInvocation;
   }
 
   @Override

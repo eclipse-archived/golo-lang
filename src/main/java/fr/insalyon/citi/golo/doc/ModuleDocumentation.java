@@ -325,5 +325,10 @@ class ModuleDocumentation {
     public Object visit(ASTMatch node, Object data) {
       return data;
     }
+
+    @Override
+    public Object visit(ASTDecoratorDeclaration node, Object data) {
+      return data;
+    }
   }
 }

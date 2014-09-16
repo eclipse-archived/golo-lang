@@ -254,6 +254,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
+  @Override
+  public void visitDecorator(Decorator decorator) {
+    decorator.getExpressionStatement().accept(this);
+  }
+
   private String goloFunctionSignature(int arity) {
     return MethodType.genericMethodType(arity).toMethodDescriptorString();
   }

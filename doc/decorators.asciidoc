@@ -1,0 +1,591 @@
+// vim:ft=asciidoc:tw=79:foldmethod=marker:foldmarker=<<<,>>>
+
+== Decorators ==
+
+Golo feature Python-like decorators.
+
+=== Presentation ===
+//<<<
+Decorators are similar in syntax and purpose to Java annotations.
+However, the concepts behind them are very different. Indeed, whereas Java
+annotations are compiler or VM directives, decorators are actually plain
+functions, more precisely higher order functions.
+
+NOTE: Higher order functions (HOF) are functions that process functions, i.e. that take 
+a function as parameter, and may return a new function.
+
+A decorator is thus a function that take the function to decorate as parameter,
+and return a new function, generally a wrapper that do some stuffs before or
+after calling the original function.
+
+The name can remind the well known
+http://en.wikipedia.org/wiki/Decorator_pattern[GoF pattern], with good reason.
+This pattern describe a design that allow an object to be augmented by wrapping
+it in an other object with the same interface, delegating operations to the
+wrapped object. This is exactly what a decorator does here, the interface
+being "function" (more precisely a `java.lang.invoke.MethodHandle`).
+
+//>>>
+
+=== Principles and syntax ===
+//<<<
+As in Python, and similarly to Java annotations, a decorator is used with a
+`@` prefix before the function definition. As an example, the decorator
+`deco1` only prints its name before returning the result unchanged
+
+[source,golo]
+----
+function deco1 = |fun| {
+  return |args...| {
+    return "deco1 + " + fun: invokeWithArguments(args)
+  }
+}
+----
+
+It can be used as:
+
+[source,golo]
+----
+@deco1
+function foo = |a| {
+  return "foo: " + a
+}
+----
+
+Here, calling `println(foo(1))` will print `deco1 + foo: 1`.
+
+To be the most generic, the function created by a decorator should be a
+variable arity function, and thus call the decorated function with
+`invokeWithArguments`, such that it can be applied to any function, regardless
+of its arity, as in the previous example.
+
+Indeed, suppose you what to a decorator `dec` (that does nothing) used like:
+[source,golo]
+----
+@dec
+function add = |a,b| -> a + b
+----
+
+Such a decorator can be implemented as:
+[source,golo]
+----
+function dec = |func| -> |a, b| -> func(a, b)
+----
+
+But in that case, it will be applicable to two parameters functions only.
+On the other hand, you cannot do:
+[source,golo]
+----
+function dec = |func| -> |args...| -> func(args)
+----
+
+Indeed, this will throw an exception because `func` is not a variable arity 
+function (just a reference on `add` function) and thus cannot take an array 
+as parameter. In this case, the decorator have to invoke the original function 
+like this:
+[source,golo]
+----
+function dec = |func| -> |args...| -> func(args: get(0), args: get(1))
+----
+
+which is equivalent to the first form, but is not generic. The more generic
+decorator is thus:
+[source,golo]
+----
+function dec = |func| -> |args...| -> func: invokeWithArguments(args)
+----
+
+which can deal with any function.
+
+
+As illustrated, the decorator is just a wrapper (closure) around the decorated
+function. The `@` syntax is just syntactic sugar. Indeed, it can also be used
+as such:
+
+[source,golo]
+----
+function bar = |a| -> "bar: " + a
+
+function main = |args| {
+  println(deco1(^bar)(1))
+
+  let decobar = deco1(^bar)
+  println(decobar(1))
+
+  println(deco1(|a| -> "bar: "+a)(1))
+}
+----
+
+prints all `deco1 + bar: 1`.
+
+Decorators can also be stacked. For instance:
+
+[source,golo]
+----
+function deco2 = |fun| {
+  return |args...| {
+    return "deco2 + " + fun: invokeWithArguments(args)
+  }
+}
+
+@deco2
+@deco1
+function baz = |a| -> "baz: " + a
+----
+
+`println(baz(1))` will print `deco2 + deco1 + baz: 1`
+
+This result can also be achieved by composing decorators, as in:
+
+[source,golo]
+----
+let deco3 = ^deco1: andThen(^deco2)
+
+@deco3
+function spam = |a| -> "spam: " + a
+----
+
+Again, `println(spam(1))` will print `deco2 + deco1 + spam: 1`
+
+Moreover, since decorator are just higher order functions, they can be closure
+on a first argument, i.e. parametrized decorators, as illustrated in the 
+following listing:
+
+[source,golo]
+----
+module tests.LogDeco
+
+function log = |msg| -> |fun| -> |args...| {
+  println(msg)
+  return fun: invokeWithArguments(args)
+}
+
+@log("calling foo")
+function foo = |a| {
+  println("foo got a " + a)
+}
+
+@log("I'am a bar")
+function bar = |a| -> 2*a
+
+function main = |args| {
+  foo("bar")
+  println(bar(21))
+}
+----
+
+will print
+
+----
+calling foo
+foo got a bar
+I'am a bar
+42
+----
+
+Here, `log` create a closure on the message, and return the decorator function.
+Thus, `log("hello")` is a function that take a function as parameter, and
+return a new function printing the message (`hello`) before delegating to the
+inner function.
+
+Again, since all of this are just functions, you can create shortcuts:
+
+[source,golo]
+----
+let sayHello = log("Hello")
+
+@sayHello
+function baz = -> "Goodbye"
+----
+
+A call to `println(baz())` will print
+
+----
+Hello
+Goodbye
+----
+
+The only requirement is that the effective decorator (the expression following
+the `@`) is eventually a HOF returning a closure on the decorated function. As
+an example, it can be as elaborated as:
+
+[source,golo]
+----
+function log = |msgBefore| -> |msgAfter| -> |func| -> |args...| {
+  println(msgBefore)
+  let res = func: invokeWithArguments(args)
+  println(msgAfter)
+  return res
+}
+
+@log("enter foo")("exit foo")
+function foo = |a| {
+  println("foo: " + a)
+}
+----
+
+where a call `foo("bar")` will print
+
+----
+enter foo
+foo: bar
+exit foo
+----
+
+and with
+
+[source,golo]
+----
+function logEnterExit = |name| -> log("# enter " + name)("# exit " + name)
+
+@logEnterExit("bar")
+function bar = { println("doing something...") }
+----
+
+calling `bar()` will print
+
+----
+# enter bar
+doing something...
+# exit bar
+----
+
+or even, without decorator syntax:
+
+[source,golo]
+----
+function main = |args| {
+  let strange_use = log("hello")("goodbye")({println(":p")})
+  strange_use()
+
+  log("another")("use")(|a|{println(a)})("strange")
+}
+----
+
+
+Let's now illustrate with some use cases and examples, with a presentation of
+some decorators of the standard module
+link:./golodoc/gololang/Decorators[`gololang.Decorators`].
+//>>>
+
+=== Use cases and examples ===
+//<<<
+
+Use cases are at least the same as
+http://en.wikipedia.org/wiki/Aspect-oriented_programming[_aspect oriented programming_] 
+(AOP) and the
+http://en.wikipedia.org/wiki/Decorator_pattern[_decorator design pattern_], but
+your imagination is your limit.
+Some are presented here for illustration.
+
+==== Logging ====
+//<<<
+
+Logging is a classical example use case of AOP. See the
+xref:_principles_and_syntax[Principles and syntax] section for an example.
+
+//>>>
+
+==== Pre/post conditions checking ====
+//<<<
+Decorators can be used to check pre-conditions, that is conditions that must
+hold for arguments, and post-conditions, that is conditions that must hold for
+returned values, of a function.
+
+Indeed, a decorated can execute code before delegating to the decorated
+function, of after the delegation.
+
+The module link:./golodoc/gololang/Decorators[`gololang.Decorators`] provide two
+decorators and several utility functions to check pre and post conditions.
+
+`checkResult` is a parametrized decorator taking a checker as parameter. It
+checks that the result of the decorated function is valid.
+
+`checkArguments` is a variable arity function, taking as much checkers as the
+decorated function arguments. It checks that the arguments of the decorated
+function are valid according to the corresponding checker (1st argument checked
+by 1st checker, and so on).
+
+A checker is a function that raises an exception if its argument is not valid
+(e.g. using `require`) or returns it unchanged, allowing checkers to be chained
+using the `andThen` method.
+
+As an example, one can check that the arguments and result of a function are
+integers with:
+
+[source,golo]
+----
+
+function isInteger = |v| {
+  require(v oftype Integer.class, v + "is not an Integer")
+  return v
+}
+
+@checkResult(isInteger)
+@checkArguments(isInteger, isInteger)
+function add = |a, b| -> a + b
+----
+
+or that the argument is a positive integer:
+
+[source, golo]
+----
+
+function isPositive = |v| {
+  require(v > 0, v + "is not > 0")
+  return v
+}
+
+@checkArguments(isInteger: andThen(isPositive))
+function inv = |v| -> 1.0 / v
+----
+
+Of course, again, you can take shortcuts:
+
+[source, golo]
+----
+let isPositiveInt = isInteger: andThen(isPositive)
+
+@checkResult(isPositiveInt)
+@checkArguments(isPositiveInt)
+function double = |v| -> 2 * v
+----
+
+or even
+
+[source, golo]
+----
+let myCheck = checkArguments(isInteger: andThen(isPositive))
+
+@myCheck
+function inv = |v| -> 1.0 / v
+
+@myCheck
+function mul = |v| -> 10 * v
+----
+
+Several factory functions are available in 
+link:./golodoc/gololang/Decorators[`gololang.Decorators`] to ease the creation 
+of checkers:
+
+* `any` is a void checker that does nothing. It can used when you need to check
+  only some arguments of a n-ary function.
+* `asChecker` is a factory that takes a boolean function and an error message
+  and returns the corresponding checker. For instance:
+
+[source, golo]
+----
+let isPositive = asChecker(|v| -> v > 0, "is not positive")
+----
+
+* `isOfType` is a factory function that returns a function checking types,
+   e.g.
+
+[source, golo]
+----
+let isInteger = isOfType(Integer.class)
+----
+
+The full set of standard checkers is documented in the generated *golodoc*
+(hint: look for `doc/golodoc` in the Golo distribution).
+//>>>
+
+==== Locking ====
+//<<<
+
+As seen, decorator can be used to wrap a function call between checking
+operation, but also between a lock/unlock in a concurrent context:
+
+[source,golo]
+----
+import java.util.concurrent.locks
+
+function withLock = |lock| -> |fun| -> |args...| {
+  lock: lock()
+  try {
+    return fun: invokeWithArguments(args)
+  } finally {
+    lock: unlock()
+  }
+}
+
+let myLock = ReentrantLock()
+
+@withLock(myLock)
+function foo = |a, b| {
+  return a + b
+}
+----
+//>>>
+
+
+==== Memoization ====
+//<<<
+
+Memoization is the optimization technique that stores the results of a expensive
+computation to return them directly on subsequent calls. It is quite easy,
+using decorators, to transform a function into a memoized one. The decorator
+creates a closure on a hashmap, and check the existence of the results before
+delegating to the decorated function, and storing the result in the hashmap if
+needed.
+
+Such a decorator is provided in the
+link:./golodoc/gololang/Decorators[`gololang.Decorators`] module, presented
+here as an example:
+
+[source, golo]
+----
+function memoizer = {
+  var cache = map[]
+  return |fun| {
+    return |args...| {
+      let key = [fun: hashCode(), Tuple(args)]
+      if (not cache: containsKey(key)) {
+        cache: add(key, fun: invokeWithArguments(args))
+      }
+      return cache: get(key)
+    }
+  }
+}
+----
+
+The cache key is the decorated function
+and its call arguments, thus the decorator can be used for every module
+functions. It must however be put in a module-level state, since in the current
+implementation, the decoration is invoked at each call. For instance:
+
+[source, golo]
+----
+let memo = memoizer()
+
+@memo
+function fib = |n| {
+  if n <= 1 {
+    return n
+  } else {
+    return fib(n - 1) + fib(n - 2)
+  }
+}
+
+@memo
+function fact = |n| {
+  if n == 0 {
+    return 1
+  } else {
+    return n * fact(n - 1)
+  }
+}
+----
+
+//>>>
+
+==== Generic context ====
+//<<<
+Decorators can be used to define a generic wrapper around a function, that
+extends the previous example (and can be used to implement most of them).
+This functionality is provided by the
+link:./golodoc/gololang/Decorators#withContext_context[`gololang.Decorators.withContext`]
+standard decorator. This decorator take a context, such as the one returned by
+link:./golodoc/gololang/Decorators#defaultContext_[`gololang.Decorators.defaultContext`] 
+function.
+
+A context is an object with 4 defined methods:
+
+* `entry`, that takes and returns the function arguments.
+         This method can be used to check arguments or apply transformation to them;
+* `exit`, that takes and returns the result of the function.
+          This method can be used to check conditions or transform the result;
+* `catcher`, that deal with exceptions that occurs during function execution. It
+         takes the exception as parameter;
+* `finallizer`, that is called in a `finally` clause after function execution.
+
+The context returned by `gololang.Decorators.defaultContext` is a void one, that
+is `entry` and `exit` return their parameters unchanged,
+`catcher` rethrow the exception and `finallizer` does nothing.
+
+The workflow of this decorator is as follow:
+
+. the context `entry` method is called on the function arguments;
+. the decorated function is called with arguments returned by `entry`;
+  .. if an exception is raised, `catcher` is called with it as parameter;
+  .. else the result is passed to `exit` and the returned value is returned
+. the `finallizer` method is called.
+
+Any of theses methods can modify the context internal state.
+
+Here is an usage example:
+
+[source,golo]
+----
+module samples.ContextDecorator
+
+import gololang.Decorators
+
+let myContext = defaultContext():
+  count(0):
+  define("entry", |this, args| {
+    this: count(this: count() + 1)
+    println("hello:" + this: count())
+    return args
+  }):
+  define("exit", |this, result| {
+    require(result >= 3, "wrong value")
+    println("goobye")
+    return result
+  }):
+  define("catcher", |this, e| {
+    println("Caught " + e)
+    throw e
+  }):
+  define("finallizer", |this| {println("do some cleanup")})
+
+
+@withContext(myContext)
+function foo = |a, b| {
+  println("Hard computation")
+  return a + b
+}
+
+function main = |args| {
+  println(foo(1,2))
+  println("====")
+  println(withContext(myContext)(|a| -> 2*a)(3))
+  println("====")
+  try {
+    println(foo(1, 1))
+  } catch (e) { }
+}
+----
+
+which prints
+
+----
+hello:1
+Hard computation
+goobye
+do some cleanup
+3
+====
+hello:2
+goobye
+do some cleanup
+6
+====
+hello:3
+Hard computation
+Caught java.lang.AssertionError: wrong value
+do some cleanup
+----
+
+Since the context is here shared between decorations, the `count` attribute is
+incremented by each call to every decorated function, thus the output.
+
+This generic decorator can be used to easily implement condition checking,
+logging, locking, and so on. It can be more interesting if you want to provide
+several functionalities, instead of stacking more specific decorators, since
+stacking, or decorator composition, adds indirection levels and deepen the call 
+stack.
+
+//>>>
+
+//>>>

@@ -22,6 +22,8 @@ public interface GoloIrVisitor {
 
   void visitFunction(GoloFunction function);
 
+  void visitDecorator(Decorator decorator);
+
   void visitBlock(Block block);
 
   void visitConstantStatement(ConstantStatement constantStatement);

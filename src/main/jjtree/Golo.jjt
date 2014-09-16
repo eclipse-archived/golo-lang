@@ -185,6 +185,12 @@ TOKEN :
   < INVOCATION: (":" | "?:") >
 }
 
+// Specials
+TOKEN :
+{
+ < DECORATOR: "@" >
+}
+
 // References
 TOKEN :
 {
@@ -563,7 +569,7 @@ void ToplevelDeclaration():
         augmentDecl.setDocumentation(documentation);
       }
       |
-      (local=<LOCAL>)? functionDecl=FunctionDeclaration()
+      (DecoratorDeclaration())* (local=<LOCAL>)? functionDecl=FunctionDeclaration()
       {
         if (local != null) {
           functionDecl.setLocal(true);
@@ -619,7 +625,7 @@ ASTAugmentDeclaration AugmentDeclaration():
 {
   <AUGMENT> target=QualifiedName() "{" BlankLines()
     ( 
-      (documentation=Documentation())? func=FunctionDeclaration()
+      (documentation=Documentation())? (DecoratorDeclaration())* func=FunctionDeclaration()
       {
         func.setAugmentation(true);
         func.setDocumentation(documentation);
@@ -654,6 +660,20 @@ ASTFunctionDeclaration FunctionDeclaration():
   <FUNCTION> name=<IDENTIFIER> "=" Function()
   {
     jjtThis.setName(name.image);
+    return jjtThis;
+  }
+}
+
+ASTDecoratorDeclaration DecoratorDeclaration(): {}
+{
+  <DECORATOR>
+  (
+    LOOKAHEAD(2) FunctionInvocation()
+    |
+    LOOKAHEAD(2) Reference()
+  )
+  BlankLines()
+  {
     return jjtThis;
   }
 }

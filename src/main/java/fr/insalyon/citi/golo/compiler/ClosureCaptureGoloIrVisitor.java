@@ -137,6 +137,11 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
+  @Override
+  public void visitDecorator(Decorator decorator) {
+    decorator.getExpressionStatement().accept(this);
+  }
+
   private void dropUnused(Set<String> refs) {
     Context context = context();
     for (String ref : refs) {
