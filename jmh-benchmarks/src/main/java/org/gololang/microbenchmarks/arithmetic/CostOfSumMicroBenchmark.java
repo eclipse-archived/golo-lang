@@ -15,25 +15,25 @@ import static java.lang.invoke.MethodType.methodType;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class CostOfSumMicroBenchmark {
 
-  public static int sum(int x, int y) {
+  public static long sum(long x, long y) {
     return x + y;
   }
 
   public static Object boxed_sum(Object x, Object y) {
-    return (Integer) x + (Integer) y;
+    return (Long) x + (Long) y;
   }
 
   @State(Scope.Thread)
   static public class DataState {
 
-    int x;
-    int y;
+    long x;
+    long y;
 
     @Setup(Level.Iteration)
     public void setup() {
       Random rand = new Random();
-      x = rand.nextInt();
-      y = rand.nextInt();
+      x = (long) rand.nextInt();
+      y = (long) rand.nextInt();
     }
   }
 
@@ -46,7 +46,7 @@ public class CostOfSumMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       try {
-        sumHandle = MethodHandles.lookup().findStatic(CostOfSumMicroBenchmark.class, "sum", methodType(int.class, int.class, int.class));
+        sumHandle = MethodHandles.lookup().findStatic(CostOfSumMicroBenchmark.class, "sum", methodType(long.class, long.class, long.class));
         boxedSumHandle = MethodHandles.lookup().findStatic(CostOfSumMicroBenchmark.class, "boxed_sum", genericMethodType(2));
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
@@ -75,8 +75,8 @@ public class CostOfSumMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       sumHandle = new CodeLoader().groovy("arithmetic", "sum", genericMethodType(2));
-      fastSumHandle = new CodeLoader().groovy("arithmetic", "fast_sum", methodType(int.class, int.class, int.class));
-      fastestSumHandle = new CodeLoader().groovy("arithmetic", "fastest_sum", methodType(int.class, int.class, int.class));
+      fastSumHandle = new CodeLoader().groovy("arithmetic", "fast_sum", methodType(long.class, long.class, long.class));
+      fastestSumHandle = new CodeLoader().groovy("arithmetic", "fastest_sum", methodType(long.class, long.class, long.class));
     }
   }
 
@@ -90,8 +90,8 @@ public class CostOfSumMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       sumHandle = new CodeLoader().groovy_indy("arithmetic", "sum", genericMethodType(2));
-      fastSumHandle = new CodeLoader().groovy_indy("arithmetic", "fast_sum", methodType(int.class, int.class, int.class));
-      fastestSumHandle = new CodeLoader().groovy_indy("arithmetic", "fastest_sum", methodType(int.class, int.class, int.class));
+      fastSumHandle = new CodeLoader().groovy_indy("arithmetic", "fast_sum", methodType(long.class, long.class, long.class));
+      fastestSumHandle = new CodeLoader().groovy_indy("arithmetic", "fastest_sum", methodType(long.class, long.class, long.class));
     }
   }
 

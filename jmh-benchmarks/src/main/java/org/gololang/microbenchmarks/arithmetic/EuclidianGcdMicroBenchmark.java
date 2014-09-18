@@ -36,11 +36,11 @@ import static java.lang.invoke.MethodType.methodType;
 @OutputTimeUnit(TimeUnit.MILLISECONDS)
 public class EuclidianGcdMicroBenchmark {
 
-  public static int gcd(final int x, final int y, final int repeat) {
-    int res = 0;
+  public static long gcd(final long x, final long y, final long repeat) {
+    long res = 0;
     for (int i = 0; i < repeat; i++) {
-      int a = x;
-      int b = y;
+      long a = x;
+      long b = y;
       while (a != b) {
         if (a > b) {
           a = a - b;
@@ -61,7 +61,7 @@ public class EuclidianGcdMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       try {
-        gcdHandle = MethodHandles.lookup().findStatic(EuclidianGcdMicroBenchmark.class, "gcd", methodType(int.class, int.class, int.class, int.class));
+        gcdHandle = MethodHandles.lookup().findStatic(EuclidianGcdMicroBenchmark.class, "gcd", methodType(long.class, long.class, long.class, long.class));
         gcdHandle = gcdHandle.asType(genericMethodType(3));
       } catch (NoSuchMethodException | IllegalAccessException e) {
         throw new AssertionError(e);
@@ -90,8 +90,8 @@ public class EuclidianGcdMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       gcdHandle = new CodeLoader().groovy("arithmetic", "gcd", genericMethodType(3));
-      fast_gcdHandle = new CodeLoader().groovy("arithmetic", "fast_gcd", methodType(int.class, int.class, int.class, int.class));
-      fastest_gcdHandle = new CodeLoader().groovy("arithmetic", "fastest_gcd", methodType(int.class, int.class, int.class, int.class));
+      fast_gcdHandle = new CodeLoader().groovy("arithmetic", "fast_gcd", methodType(long.class, long.class, long.class, long.class));
+      fastest_gcdHandle = new CodeLoader().groovy("arithmetic", "fastest_gcd", methodType(long.class, long.class, long.class, long.class));
     }
   }
 
@@ -105,8 +105,8 @@ public class EuclidianGcdMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       gcdHandle = new CodeLoader().groovy_indy("arithmetic", "gcd", genericMethodType(3));
-      fast_gcdHandle = new CodeLoader().groovy_indy("arithmetic", "fast_gcd", methodType(int.class, int.class, int.class, int.class));
-      fastest_gcdHandle = new CodeLoader().groovy_indy("arithmetic", "fastest_gcd", methodType(int.class, int.class, int.class, int.class));
+      fast_gcdHandle = new CodeLoader().groovy_indy("arithmetic", "fast_gcd", methodType(long.class, long.class, long.class, long.class));
+      fastest_gcdHandle = new CodeLoader().groovy_indy("arithmetic", "fastest_gcd", methodType(long.class, long.class, long.class, long.class));
     }
   }
 
@@ -148,9 +148,9 @@ public class EuclidianGcdMicroBenchmark {
 
     public final static int N = 5000;
 
-    int[] x;
-    int[] y;
-    int repeat;
+    long[] x;
+    long[] y;
+    long repeat;
 
     private int pos = 0;
 
@@ -163,11 +163,11 @@ public class EuclidianGcdMicroBenchmark {
     @Setup(Level.Trial)
     public void setup() {
       Random rand = new Random(666L);
-      x = new int[N];
-      y = new int[N];
+      x = new long[N];
+      y = new long[N];
       for (int i = 0; i < N; i++) {
-        x[i] = Math.abs(rand.nextInt());
-        y[i] = Math.abs(rand.nextInt());
+        x[i] = (long) Math.abs(rand.nextInt());
+        y[i] = (long) Math.abs(rand.nextInt());
       }
       repeat = 50;
     }
