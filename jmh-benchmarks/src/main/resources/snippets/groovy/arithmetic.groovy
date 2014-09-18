@@ -17,11 +17,11 @@ class Arithmetic {
         return res
     }
 
-    static int fast_gcd(int x, int y, int repeat) {
-        int res = 0
+    static long fast_gcd(long x, long y, long repeat) {
+        long res = 0
         for (int i = 0; i < repeat; i++) {
-            int a = x
-            int b = y
+            long a = x
+            long b = y
             while (a != b) {
                 if (a > b) {
                     a = a - b
@@ -35,11 +35,11 @@ class Arithmetic {
     }
 
     @groovy.transform.CompileStatic
-    static int fastest_gcd(int x, int y, int repeat) {
-        int res = 0
+    static long fastest_gcd(long x, long y, long repeat) {
+        long res = 0
         for (int i = 0; i < repeat; i++) {
-            int a = x
-            int b = y
+            long a = x
+            long b = y
             while (a != b) {
                 if (a > b) {
                     a = a - b
@@ -56,12 +56,12 @@ class Arithmetic {
         return x + y
     }
 
-    static int fast_sum(int x, int y) {
+    static long fast_sum(long x, long y) {
         return x + y
     }
 
     @groovy.transform.CompileStatic
-    static int fastest_sum(int x, int y) {
+    static long fastest_sum(long x, long y) {
         return x + y
     }
 }
