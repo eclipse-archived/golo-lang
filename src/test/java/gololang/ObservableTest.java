@@ -35,13 +35,14 @@ public class ObservableTest {
     final Observable other = new Observable(666);
     observable.onChange(new Observable.Observer() {
       @Override
-      public void apply(Object newValue) {
+      public void apply(Object newValue, Object oldValue) {
         other.set(newValue);
       }
     });
     assertThat(other.get(), is((Object) 666));
     observable.set(1);
     assertThat(other.get(), is((Object) 1));
+    assertThat(other.getOldValue(), is((Object) 666));
   }
 
   @Test
@@ -50,14 +51,14 @@ public class ObservableTest {
 
     Observable filtering = source.filter(new Observable.Predicate() {
       @Override
-      public boolean apply(Object value) {
+      public boolean apply(Object value, Object oldValue) {
         return ((int) value) % 2 == 0;
       }
     });
 
     Observable mapping = source.map(new Observable.Function() {
       @Override
-      public Object apply(Object value) {
+      public Object apply(Object value, Object oldValue) {
         return ((int) value) * 10;
       }
     });

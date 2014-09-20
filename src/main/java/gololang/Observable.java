@@ -24,6 +24,7 @@ import java.util.LinkedList;
 public final class Observable {
 
   private volatile Object value;
+  private volatile Object oldValue;
 
   private final Object lock = new Object();
   private final LinkedList<Observer> observers = new LinkedList<>();
@@ -34,6 +35,7 @@ public final class Observable {
    * @param initialValue the initial value.
    */
   public Observable(Object initialValue) {
+    this.oldValue = null;
     this.value = initialValue;
   }
 
@@ -47,15 +49,26 @@ public final class Observable {
   }
 
   /**
+   * Gets the old value.
+   *
+   * @return the old value.
+   */
+  public Object getOldValue() {
+    return oldValue;
+  }
+
+  /**
+   * Save the current value to the old value.
    * Changes the current value and notifies all observers.
    *
    * @param newValue the new value.
    */
   public void set(Object newValue) {
     synchronized (lock) {
+      this.oldValue = this.value;
       this.value = newValue;
       for (Observer observer : observers) {
-        observer.apply(newValue);
+        observer.apply(newValue, this.oldValue);
       }
     }
   }
@@ -83,8 +96,8 @@ public final class Observable {
     final Observable observable = new Observable(null);
     this.onChange(new Observer() {
       @Override
-      public void apply(Object newValue) {
-        if (predicate.apply(newValue)) {
+      public void apply(Object newValue, Object oldValue) {
+        if (predicate.apply(newValue, oldValue)) {
           observable.set(newValue);
         }
       }
@@ -102,8 +115,8 @@ public final class Observable {
     final Observable observable = new Observable(null);
     this.onChange(new Observer() {
       @Override
-      public void apply(Object newValue) {
-        observable.set(function.apply(newValue));
+      public void apply(Object newValue, Object oldValue) {
+        observable.set(function.apply(newValue, oldValue));
       }
     });
     return observable;
@@ -113,18 +126,19 @@ public final class Observable {
   public String toString() {
     return "Observable{" +
         "value=" + value +
+        ", oldValue=" + oldValue +
         '}';
   }
 
   public static interface Function {
-    Object apply(Object value);
+    Object apply(Object value, Object oldValue);
   }
 
   public static interface Predicate {
-    boolean apply(Object value);
+    boolean apply(Object value, Object oldValue);
   }
 
   public static interface Observer {
-    void apply(Object newValue);
+    void apply(Object newValue, Object oldValue);
   }
 }
