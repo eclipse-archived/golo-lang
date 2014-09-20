@@ -431,6 +431,15 @@ public class Predefined {
     return Files.exists(pathFrom(file));
   }
 
+  /**
+   * Return current path of execution.
+   *
+   * @return current path of execution
+   */
+  public static String currentDir() throws Throwable {
+    return new File(".").getCanonicalPath();
+  }
+
   // ...................................................................................................................
 
   /**

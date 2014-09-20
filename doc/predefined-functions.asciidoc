@@ -209,6 +209,13 @@ if fileExists("/foo/bar.txt") {
 As in the other File I/O methods, the parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`.
 The `fileExists` function will return true if the file exists, false if it doesn't.
 
+If you need the current path of execution, you can use the `currentDir` function.
+
+[source,golo]
+----
+println(currentDir())
+----
+
 === Array types ===
 
 Golo does not provide a literal syntax for array types, such as `Object[].class` in Java.
