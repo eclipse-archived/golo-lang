@@ -48,6 +48,36 @@ function promise = ->
   gololang.concurrent.async.Promise()
 
 ----
+Augmentation on the base `Promise` objects provided by the `gololang.concurrent.async.Promise` Java
+class.
+The promise initialize method takes one argument, a callback with two parameters, resolve and reject.
+Do something within the callback, then call resolve if everything worked, otherwise call reject:
+
+  let myPromise = -> promise(): initialize(|resolve, reject| {
+    # do a thing, possibly async, then…
+    if everythingTurnedOutFine is true {
+      resolve("Stuff worked!")
+    } else {
+      reject(java.lang.Exception("Failed!"))
+    }
+  })
+
+  myPromise()
+    : onSet(|result| {
+        println(result) # Stuff worked!
+    })
+    : onFail(|err| {
+        println(err: getMessage()) # Failed!
+    })
+----
+augment gololang.concurrent.async.Promise {
+  function initialize = |this, closure| {
+    closure(|data| -> this: set(data), |err| -> this: fail(err))
+    return this: future()
+  }
+}
+
+----
 Returns a future set to `value`.
 ----
 function setFuture = |value| -> 
