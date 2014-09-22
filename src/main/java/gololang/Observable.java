@@ -24,7 +24,6 @@ import java.util.LinkedList;
 public final class Observable {
 
   private volatile Object value;
-  private volatile Object oldValue;
 
   private final Object lock = new Object();
   private final LinkedList<Observer> observers = new LinkedList<>();
@@ -35,7 +34,6 @@ public final class Observable {
    * @param initialValue the initial value.
    */
   public Observable(Object initialValue) {
-    this.oldValue = null;
     this.value = initialValue;
   }
 
@@ -49,15 +47,6 @@ public final class Observable {
   }
 
   /**
-   * Gets the old value.
-   *
-   * @return the old value.
-   */
-  public Object getOldValue() {
-    return oldValue;
-  }
-
-  /**
    * Save the current value to the old value.
    * Changes the current value and notifies all observers.
    *
@@ -65,10 +54,10 @@ public final class Observable {
    */
   public void set(Object newValue) {
     synchronized (lock) {
-      this.oldValue = this.value;
+      Object oldValue = this.value;
       this.value = newValue;
       for (Observer observer : observers) {
-        observer.apply(newValue, this.oldValue);
+        observer.apply(newValue, oldValue);
       }
     }
   }
@@ -126,7 +115,6 @@ public final class Observable {
   public String toString() {
     return "Observable{" +
         "value=" + value +
-        ", oldValue=" + oldValue +
         '}';
   }
 

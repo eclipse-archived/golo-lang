@@ -144,7 +144,6 @@ mapped: onChange(|value, oldValue| -> println("mapped = " + value))
 foo: set("69")
 
 println("current = " + foo: get())
-println("old = " + foo: getOldValue())
 ----
 
 This yields the following output:
@@ -153,7 +152,6 @@ This yields the following output:
 foo = 69 old foo = Foo
 mapped = 69! (old)Foo!
 current = 69
-old = Foo
 ----
 
 === Asynchronous programming helpers (`gololang.Async`) ===

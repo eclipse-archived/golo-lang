@@ -42,7 +42,6 @@ public class ObservableTest {
     assertThat(other.get(), is((Object) 666));
     observable.set(1);
     assertThat(other.get(), is((Object) 1));
-    assertThat(other.getOldValue(), is((Object) 666));
   }
 
   @Test
