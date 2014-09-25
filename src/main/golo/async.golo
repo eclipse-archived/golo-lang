@@ -54,7 +54,6 @@ The promise initialize method takes one argument, a callback with two parameters
 Do something within the callback, then call resolve if everything worked, otherwise call reject:
 
     let myPromise = -> promise(): initialize(|resolve, reject| {
-      # do a thing, possibly async, then…
       if everythingTurnedOutFine is true {
         resolve("Stuff worked!")
       } else {
