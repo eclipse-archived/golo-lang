@@ -47,8 +47,7 @@ public final class Observable {
   }
 
   /**
-   * Save the current value to the old value.
-   * Changes the current value and notifies all observers.
+   * Changes the current value and notifies all observers with new value and old value.
    *
    * @param newValue the new value.
    */
