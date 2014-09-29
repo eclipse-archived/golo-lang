@@ -50,6 +50,7 @@ function promise = ->
 ----
 Augmentation on the base `Promise` objects provided by the `gololang.concurrent.async.Promise` Java
 class.
+
 The promise initialize method takes one argument, a callback with two parameters, resolve and reject.
 Do something within the callback, then call resolve if everything worked, otherwise call reject:
 
