@@ -31,6 +31,21 @@ let value = readln()
 let pwd = readpwd("type your password:")
 ----
 
+=== Number type conversions ===
+
+The following functions convert any number of string value to another number type:
+`intValue(n)`, `longValue(n)`, `charValue(n)`, `doubleValue(n)` and `floatValue(n)`.
+
+The usual Java type narrowing or widening conventions apply.
+
+[source,golo]
+----
+let i = intValue("666")   # 666 (string to integer)
+let j = intValue(1.234)   # 1 (double to integer)
+let k = intValue(666_L)   # 666 (long to integer)
+# etc
+----
+
 === Exceptions ===
 
 `raise` can be used to throw a `java.lang.RuntimeException`. It comes in two forms: one with a
@@ -38,11 +53,11 @@ message as a string, and one with a message and a cause.
 
 [source,golo]
 ----
-try { 
-  ... 
+try {
+  ...
   raise("Somehow something is wrong")
-} catch (e) { 
-  ...  
+} catch (e) {
+  ...
   raise("Something was wrong, and here is the cause", e)
 }
 ----
@@ -237,4 +252,3 @@ let e = mapEntry("foo", "bar")
 # prints "foo => bar"
 println(e: getKey() + " => " + e: getValue())
 ----
-
