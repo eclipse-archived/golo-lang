@@ -475,4 +475,172 @@ public class Predefined {
   }
 
   // ...................................................................................................................
+  // These are generated methods, see src/main/ruby/generate_type_conversions.rb
+
+  /**
+   * Gives the Character value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Character value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static Object charValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof Character) {
+      return obj;
+    }
+    if (obj instanceof Integer) {
+      int value = (Integer) obj;
+      return (char) value;
+    }
+    if (obj instanceof Long) {
+      long value = (Long) obj;
+      return (char) value;
+    }
+    if (obj instanceof Double) {
+      double value = (Double) obj;
+      return (char) value;
+    }
+    if (obj instanceof Float) {
+      float value = (Float) obj;
+      return (char) value;
+    }
+    if (obj instanceof String) {
+      return ((String) obj).charAt(0);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+
+  /**
+   * Gives the Integer value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Integer value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static Object intValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof Integer) {
+      return obj;
+    }
+    if (obj instanceof Character) {
+      char value = (Character) obj;
+      return (int) value;
+    }
+    if (obj instanceof Long) {
+      long value = (Long) obj;
+      return (int) value;
+    }
+    if (obj instanceof Double) {
+      double value = (Double) obj;
+      return (int) value;
+    }
+    if (obj instanceof Float) {
+      float value = (Float) obj;
+      return (int) value;
+    }
+    if (obj instanceof String) {
+      return Integer.valueOf((String) obj);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+
+  /**
+   * Gives the Long value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Long value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static Object longValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof Long) {
+      return obj;
+    }
+    if (obj instanceof Character) {
+      char value = (Character) obj;
+      return (long) value;
+    }
+    if (obj instanceof Integer) {
+      int value = (Integer) obj;
+      return (long) value;
+    }
+    if (obj instanceof Double) {
+      double value = (Double) obj;
+      return (long) value;
+    }
+    if (obj instanceof Float) {
+      float value = (Float) obj;
+      return (long) value;
+    }
+    if (obj instanceof String) {
+      return Long.valueOf((String) obj);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+
+  /**
+   * Gives the Double value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Double value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static Object doubleValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof Double) {
+      return obj;
+    }
+    if (obj instanceof Character) {
+      char value = (Character) obj;
+      return (double) value;
+    }
+    if (obj instanceof Integer) {
+      int value = (Integer) obj;
+      return (double) value;
+    }
+    if (obj instanceof Long) {
+      long value = (Long) obj;
+      return (double) value;
+    }
+    if (obj instanceof Float) {
+      float value = (Float) obj;
+      return (double) value;
+    }
+    if (obj instanceof String) {
+      return Double.valueOf((String) obj);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+
+  /**
+   * Gives the Float value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Float value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static Object floatValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof Float) {
+      return obj;
+    }
+    if (obj instanceof Character) {
+      char value = (Character) obj;
+      return (float) value;
+    }
+    if (obj instanceof Integer) {
+      int value = (Integer) obj;
+      return (float) value;
+    }
+    if (obj instanceof Long) {
+      long value = (Long) obj;
+      return (float) value;
+    }
+    if (obj instanceof Double) {
+      double value = (Double) obj;
+      return (float) value;
+    }
+    if (obj instanceof String) {
+      return Float.valueOf((String) obj);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+
+  // ...................................................................................................................
 }
