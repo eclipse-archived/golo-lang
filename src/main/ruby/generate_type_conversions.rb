@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Quick and dirty script to generate the arithmetic operation methods
+# Quick and dirty script to generate the number type conversion methods
 
 TYPES = [ :Character, :Integer, :Long, :Double, :Float ]
 PRIMS = {
