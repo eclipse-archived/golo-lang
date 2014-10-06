@@ -178,4 +178,17 @@ public class PredefinedTest {
     assertThat((Class) Predefined.arrayTypeOf(Object.class), sameInstance((Class) Object[].class));
     assertThat((Class) Predefined.objectArrayType(), sameInstance((Class) Object[].class));
   }
+
+  @Test
+  public void check_value_conversions() {
+    assertThat(Predefined.intValue(1), is((Object) 1));
+    assertThat(Predefined.intValue(1L), is((Object) 1));
+    assertThat(Predefined.intValue(1.0d), is((Object) 1));
+    assertThat(Predefined.intValue("1"), is((Object) 1));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void check_bogus_value_conversion() {
+    Predefined.doubleValue(new Object());
+  }
 }
