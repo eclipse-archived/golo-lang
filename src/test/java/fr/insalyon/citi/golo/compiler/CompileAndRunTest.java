@@ -1455,4 +1455,11 @@ public class CompileAndRunTest {
       assertThat(exception.getMessage(), is("arg0 must be a class java.lang.Integer"));
     }
   }
+
+  @Test
+  public void lambda8_interop() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "java8-lambda.golo");
+    Method sum_it = moduleClass.getMethod("sum_it");
+    assertThat(sum_it.invoke(null), is((Object) 150));
+  }
 }

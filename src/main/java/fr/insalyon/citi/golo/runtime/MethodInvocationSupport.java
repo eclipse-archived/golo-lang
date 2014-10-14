@@ -220,7 +220,7 @@ public class MethodInvocationSupport {
           } else {
             target = inlineCache.callerLookup.unreflect(method).asType(type);
           }
-          target = FunctionCallSupport.insertSAMFilter(target, method.getParameterTypes(), 1);
+          target = FunctionCallSupport.insertSAMFilter(target, inlineCache.callerLookup, method.getParameterTypes(), 1);
         } else {
           Field field = (Field) searchResult;
           if (makeAccessible) {

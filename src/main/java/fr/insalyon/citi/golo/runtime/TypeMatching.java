@@ -72,7 +72,11 @@ public class TypeMatching {
   }
 
   public static boolean valueAndTypeMatch(Class<?> type, Object value) {
-    return primitiveCompatible(type, value) || (type.isInstance(value) || value == null || samAssignment(type, value));
+    return primitiveCompatible(type, value) || (type.isInstance(value) || value == null || samAssignment(type, value) || functionalInterfaceAssignment(type, value));
+  }
+
+  private static boolean functionalInterfaceAssignment(Class<?> type, Object value) {
+    return (value instanceof MethodHandle) && isFunctionalInterface(type);
   }
 
   public static boolean samAssignment(Class<?> type, Object value) {
@@ -81,6 +85,10 @@ public class TypeMatching {
 
   public static boolean isSAM(Class<?> type) {
     return type.isInterface() && (type.getMethods().length == 1);
+  }
+
+  public static boolean isFunctionalInterface(Class<?> type) {
+    return type.isAnnotationPresent(FunctionalInterface.class);
   }
 
   public static boolean primitiveCompatible(Class<?> type, Object value) {
