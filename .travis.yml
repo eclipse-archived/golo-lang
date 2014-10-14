@@ -7,9 +7,6 @@ jdk:
 
 matrix:
   fast_finish: true
-  allow_failures:
-    - jdk: oraclejdk7
-    - jdk: openjdk7
 
 install: "rake special:bootstrap"
 
