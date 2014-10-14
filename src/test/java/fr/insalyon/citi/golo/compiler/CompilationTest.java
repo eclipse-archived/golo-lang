@@ -40,13 +40,6 @@ public class CompilationTest {
 
   public static final String SRC = "src/test/resources/for-parsing-and-compilation/";
 
-  private File temporaryFolder;
-
-  @BeforeTest
-  public void setup() throws IOException {
-    temporaryFolder = Files.createTempDirectory("golocomp").toFile();
-  }
-
   @DataProvider(name = "golo-files")
   public static Iterator<Object[]> data() {
     return TestUtils.goloFilesIn(SRC);

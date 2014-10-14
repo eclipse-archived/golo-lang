@@ -31,22 +31,20 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 public class CompilerTest {
 
-  private File temporaryFolder;
-
-  @BeforeTest
-  public void setup() throws IOException {
-    temporaryFolder = Files.createTempDirectory("golocomp").toFile();
+  private static File temporaryFolder() throws IOException {
+    return Files.createTempDirectory("golocomp").toFile();
   }
 
   @Test
   public void verify_compileTo() throws IOException, ParseException {
     String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
     FileInputStream sourceInputStream = new FileInputStream(sourceFile);
+    File temp = temporaryFolder();
 
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compileTo("simple-returns.golo", sourceInputStream, temporaryFolder);
+    compiler.compileTo("simple-returns.golo", sourceInputStream, temp);
 
-    File expectedOutputFile = new File(temporaryFolder, "golotest/SimpleReturns.class");
+    File expectedOutputFile = new File(temp, "golotest/SimpleReturns.class");
     assertThat(expectedOutputFile.exists(), is(true));
     assertThat(expectedOutputFile.length() > 0, is(true));
   }
@@ -56,9 +54,9 @@ public class CompilerTest {
     String okSourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
     String errSourceFileDir = "src/test/resources/for-test/";
     GoloCompiler compiler = new GoloCompiler();
-    
+
     GoloCompilationException.Problem first = null;
-    
+
     compiler.compile("simple-returns.golo", new FileInputStream(okSourceFile));
 
     String errSourceFile = "undeclared.golo";
