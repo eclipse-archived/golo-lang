@@ -30,6 +30,7 @@ import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.testng.Assert.fail;
 
+@Test(singleThreaded = true)
 public class MainTest {
 
   @Test
