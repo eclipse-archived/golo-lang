@@ -27,15 +27,9 @@ import static org.hamcrest.Matchers.is;
 
 public class IntRangeTest {
 
-  private IntRange range;
-
-  @BeforeMethod
-  public void prepare() {
-    range = new IntRange(1, 3);
-  }
-
   @Test
   public void check() {
+    IntRange range = new IntRange(1, 3);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(1));
@@ -46,6 +40,7 @@ public class IntRangeTest {
 
   @Test(expectedExceptions = NoSuchElementException.class)
   public void overflow() {
+    IntRange range = new IntRange(1, 3);
     Iterator<Integer> iterator = range.iterator();
     for (int i = 0; i < 4; i++) {
       iterator.next();
@@ -54,17 +49,20 @@ public class IntRangeTest {
 
   @Test(expectedExceptions = UnsupportedOperationException.class)
   public void remove() {
+    IntRange range = new IntRange(1, 3);
     range.iterator().remove();
   }
 
   @Test
   public void empty() {
+    IntRange range = new IntRange(1, 3);
     range = new IntRange(5, 4);
     assertThat(range.iterator().hasNext(), is(false));
   }
 
   @Test
   public void increment() {
+    IntRange range = new IntRange(1, 3);
     range.incrementBy(2);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
@@ -74,7 +72,7 @@ public class IntRangeTest {
 
   @Test
   public void singleton() {
-    range = new IntRange(0, 1);
+    IntRange range = new IntRange(0, 1);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(0));

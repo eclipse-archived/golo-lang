@@ -255,6 +255,8 @@
         <version>${maven-surefire-plugin.version}</version>
         <configuration>
           <runOrder>random</runOrder>
+          <parallel>methods</parallel>
+          <threadCount>8</threadCount>
           <systemPropertyVariables>
             <golo.test.trace>no</golo.test.trace>
             <java.awt.headless>true</java.awt.headless>
