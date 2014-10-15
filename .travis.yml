@@ -11,3 +11,5 @@ matrix:
 install: "rake special:bootstrap"
 
 script: "mvn clean install"
+
+sudo: false

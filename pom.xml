@@ -263,8 +263,9 @@
         </dependencies>
         <configuration>
           <runOrder>random</runOrder>
-          <parallel>methods</parallel>
-          <threadCount>8</threadCount>
+          <parallel>classes</parallel>
+          <perCoreThreadCount>2</perCoreThreadCount>
+          <forkedProcessTimeoutInSeconds>180</forkedProcessTimeoutInSeconds>
           <systemPropertyVariables>
             <golo.test.trace>no</golo.test.trace>
             <java.awt.headless>true</java.awt.headless>
