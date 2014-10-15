@@ -201,6 +201,7 @@ public class Predefined {
    * @param values the values.
    * @return an array.
    */
+  @Deprecated
   public static Object Array(Object... values) {
     return values;
   }
@@ -211,6 +212,7 @@ public class Predefined {
    * @param values the array.
    * @return a list from the <code>java.util</code> package.
    */
+  @Deprecated
   public static Object atoList(Object[] values) {
     return Arrays.asList(values);
   }
@@ -222,6 +224,7 @@ public class Predefined {
    * @param i the index.
    * @return the element at index <code>i</code>.
    */
+  @Deprecated
   public static Object aget(Object a, Object i) {
     require(a instanceof Object[], "aget takes an Array as first parameter");
     require(i instanceof Integer, "aget takes an index as second parameter");
@@ -236,6 +239,7 @@ public class Predefined {
    * @param i     the index.
    * @param value the new value.
    */
+  @Deprecated
   public static void aset(Object a, Object i, Object value) {
     require(a instanceof Object[], "aset takes an Array as first parameter");
     require(i instanceof Integer, "aset takes an index as second parameter");
@@ -249,6 +253,7 @@ public class Predefined {
    * @param a the array.
    * @return the length of <code>a</code>.
    */
+  @Deprecated
   public static Object alength(Object a) {
     require(a instanceof Object[], "alength takes an Array as parameter");
     Object[] array = (Object[]) a;
