@@ -23,12 +23,31 @@ import java.util.*;
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
+
+class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
+  public FunctionRegister() {
+    super();
+  }
+
+  public void addFunction(String key, GoloFunction function) {
+    Set<GoloFunction> bag;
+    if (!containsKey(key)) {
+      bag = new HashSet<>();
+      put(key, bag);
+    } else {
+      bag = get(key);
+    }
+    bag.add(function);
+  }
+}
+
 public final class GoloModule extends GoloElement {
 
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
-  private final Map<String, Set<GoloFunction>> augmentations = new LinkedHashMap<>();
+  private final FunctionRegister augmentations = new FunctionRegister();
+  private final FunctionRegister namedAugmentations = new FunctionRegister();
   private final Set<Struct> structs = new LinkedHashSet<>();
   private final Set<LocalReference> moduleState = new LinkedHashSet<>();
   private GoloFunction moduleStateInitializer = null;
@@ -92,15 +111,13 @@ public final class GoloModule extends GoloElement {
     functions.add(function);
   }
 
+
+  public void addNamedAugmentation(String name, GoloFunction function) {
+    namedAugmentations.addFunction(name, function);
+  }
+
   public void addAugmentation(String target, GoloFunction function) {
-    Set<GoloFunction> bag;
-    if (!augmentations.containsKey(target)) {
-      bag = new HashSet<>();
-      augmentations.put(target, bag);
-    } else {
-      bag = augmentations.get(target);
-    }
-    bag.add(function);
+    augmentations.addFunction(target, function);
   }
 
   public void addStruct(Struct struct) {

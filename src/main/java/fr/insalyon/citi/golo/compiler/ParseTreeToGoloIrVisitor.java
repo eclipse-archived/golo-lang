@@ -59,6 +59,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
+    boolean inNamedAugmentation;
     String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
@@ -173,7 +174,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
     Context context = (Context) data;
-    return node.childrenAccept(this, data);
+    context.augmentation = node.getName();
+    context.inNamedAugmentation = true;
+    node.childrenAccept(this, data);
+    context.inNamedAugmentation = false;
+    return data;
   }
 
   @Override
@@ -300,7 +305,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
     if (AUGMENT.equals(function.getScope())) {
-      context.module.addAugmentation(context.augmentation, function);
+      if (context.inNamedAugmentation) {
+        context.module.addNamedAugmentation(context.augmentation, function);
+      }
+      else {
+        context.module.addAugmentation(context.augmentation, function);
+      }
     } else {
       context.module.addFunction(function);
     }
