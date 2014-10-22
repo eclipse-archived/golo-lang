@@ -616,14 +616,13 @@ ASTStructDeclaration StructDeclaration():
   }
 }
 
-ASTAugmentDeclaration AugmentDeclaration():
+void AugmentationDeclaration(String context) #void:
 {
-  String target;
   String documentation = null;
   ASTFunctionDeclaration func;
 }
 {
-  <AUGMENT> target=QualifiedName() "{" BlankLines()
+  "{" BlankLines()
     ( 
       (documentation=Documentation())? (DecoratorDeclaration())* func=FunctionDeclaration()
       {
@@ -632,9 +631,7 @@ ASTAugmentDeclaration AugmentDeclaration():
         ASTFunction body = (ASTFunction) func.jjtGetChild(0);
         if (body.getArguments().isEmpty()) {
           String description = "Error: augmentation function " +
-            func.getName() +
-            " on " + 
-            target + 
+            func.getName() + " " + context +
             " must take at least 1 argument ('this' would be a good idea...)";
           if (exceptionBuilder == null) {
             throw new TokenMgrError(description, 0);
@@ -643,9 +640,20 @@ ASTAugmentDeclaration AugmentDeclaration():
         }
         documentation = null;
       }
-      BlankLines() 
-    )* 
+      BlankLines()
+    )*
   "}"
+}
+
+
+ASTAugmentDeclaration AugmentDeclaration():
+{
+  String target;
+  String documentation = null;
+  ASTFunctionDeclaration func;
+}
+{
+  <AUGMENT> target=QualifiedName() AugmentationDeclaration("on " + target)
   {
     jjtThis.setTarget(target);
     return jjtThis;
