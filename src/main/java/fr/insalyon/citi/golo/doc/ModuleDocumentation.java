@@ -160,6 +160,12 @@ class ModuleDocumentation {
     }
 
     @Override
+    public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
+      node.childrenAccept(this, data);
+      return data;
+    }
+
+    @Override
     public Object visit(ASTFunctionDeclaration node, Object data) {
       currentFunction = new FunctionDocumentation()
         .name(node.getName())

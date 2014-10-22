@@ -161,6 +161,8 @@ TOKEN :
   |
   < AUGMENT: ("augment" | "pimp") >
   |
+  < NAMEDAUGMENTATION: "augmentation" >
+  |
   < BREAK: "break" >
   |
   < CONTINUE: "continue" >
@@ -645,6 +647,17 @@ void AugmentationDeclaration(String context) #void:
   "}"
 }
 
+ASTNamedAugmentationDeclaration NamedAugmentationDeclaration():
+{
+  Token name;
+}
+{
+  <NAMEDAUGMENTATION> name=<IDENTIFIER> "=" AugmentationDeclaration("in " + name)
+  {
+    jjtThis.setName(name.image);
+    return jjtThis;
+  } 
+}
 
 ASTAugmentDeclaration AugmentDeclaration():
 {
