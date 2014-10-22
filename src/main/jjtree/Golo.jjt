@@ -649,8 +649,6 @@ void AugmentationDeclaration(String context) #void:
 ASTAugmentDeclaration AugmentDeclaration():
 {
   String target;
-  String documentation = null;
-  ASTFunctionDeclaration func;
 }
 {
   <AUGMENT> target=QualifiedName() AugmentationDeclaration("on " + target)
