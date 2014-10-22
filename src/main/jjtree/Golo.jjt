@@ -558,6 +558,7 @@ void ToplevelDeclaration():
   ASTFunctionDeclaration functionDecl;
   ASTAugmentDeclaration augmentDecl;
   ASTStructDeclaration structDecl;
+  ASTNamedAugmentationDeclaration namedAugmentationDecl;
   ASTLetOrVar state;
   Token local = null;
   String documentation = null;
@@ -582,6 +583,11 @@ void ToplevelDeclaration():
       structDecl=StructDeclaration()
       {
         structDecl.setDocumentation(documentation);
+      }
+      |
+      namedAugmentationDecl=NamedAugmentationDeclaration()
+      {
+        namedAugmentationDecl.setDocumentation(documentation);
       }
     )
   )
