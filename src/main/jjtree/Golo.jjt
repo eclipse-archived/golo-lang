@@ -163,6 +163,8 @@ TOKEN :
   |
   < NAMEDAUGMENTATION: "augmentation" >
   |
+  < WITH: "with" >
+  |
   < BREAK: "break" >
   |
   < CONTINUE: "continue" >
@@ -668,11 +670,17 @@ ASTNamedAugmentationDeclaration NamedAugmentationDeclaration():
 ASTAugmentDeclaration AugmentDeclaration():
 {
   String target;
+  List<String> names = null;
 }
 {
-  <AUGMENT> target=QualifiedName() AugmentationDeclaration("on " + target)
+  <AUGMENT> target=QualifiedName() (
+    AugmentationDeclaration("on " + target)
+    |
+    (<WITH> names=Arguments())
+    )
   {
     jjtThis.setTarget(target);
+    jjtThis.setAugmentationNames(names);
     return jjtThis;
   } 
 }
