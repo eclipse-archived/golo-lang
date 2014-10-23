@@ -82,6 +82,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     Object ret = node.childrenAccept(this, data);
     context.module.internStructAugmentations();
+    context.module.resolveNamedAugmentations();
     return ret;
   }
 
@@ -158,7 +159,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
     context.augmentation = node.getTarget();
-    return node.childrenAccept(this, data);
+    if (node.isNamedAugmentation()) {
+      context.module.addAugmentationApplication(
+        node.getTarget(),
+        node.getAugmentationNames());
+      return data;
+    } else {
+      return node.childrenAccept(this, data);
+    }
   }
 
   @Override

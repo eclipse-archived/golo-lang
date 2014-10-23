@@ -29,7 +29,7 @@ class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
     super();
   }
 
-  public void addFunction(String key, GoloFunction function) {
+  private Set<GoloFunction> getOrInit(String key) {
     Set<GoloFunction> bag;
     if (!containsKey(key)) {
       bag = new HashSet<>();
@@ -37,7 +37,15 @@ class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
     } else {
       bag = get(key);
     }
-    bag.add(function);
+    return bag;
+  }
+
+  public void addFunction(String key, GoloFunction function) {
+    getOrInit(key).add(function);
+  }
+
+  public void addFunctions(String key, Set<GoloFunction> functions) {
+    getOrInit(key).addAll(functions);
   }
 }
 
@@ -47,6 +55,7 @@ public final class GoloModule extends GoloElement {
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
   private final FunctionRegister augmentations = new FunctionRegister();
+  private final Map<String, List<String>> augmentationApplications = new LinkedHashMap<>();
   private final FunctionRegister namedAugmentations = new FunctionRegister();
   private final Set<Struct> structs = new LinkedHashSet<>();
   private final Set<LocalReference> moduleState = new LinkedHashSet<>();
@@ -120,6 +129,14 @@ public final class GoloModule extends GoloElement {
     augmentations.addFunction(target, function);
   }
 
+  public void addAugmentationApplication(String name, List<String> augmentations) {
+    if (augmentationApplications.containsKey(name)) {
+      augmentationApplications.get(name).addAll(augmentations);
+    } else {
+      augmentationApplications.put(name, augmentations);
+    }
+  }
+
   public void addStruct(Struct struct) {
     structs.add(struct);
   }
@@ -152,5 +169,16 @@ public final class GoloModule extends GoloElement {
       augmentations.remove(trashed);
     }
     structNames.clear();
+  }
+
+  public void resolveNamedAugmentations() {
+    for (String augmentationTarget : augmentationApplications.keySet()) {
+      for (String augmentationName : augmentationApplications.get(augmentationTarget)) {
+        augmentations.addFunctions(
+          augmentationTarget,
+          namedAugmentations.get(augmentationName)
+        );
+      }
+    }
   }
 }
