@@ -1,4 +1,6 @@
 [![DOI](https://zenodo.org/badge/3726/golo-lang/golo-lang.png)](http://dx.doi.org/10.5281/zenodo.11819)
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/golo-lang/golo-lang?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
+[![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
 
 # Golo, a lightweight dynamic language for the JVM.
 
@@ -19,6 +21,7 @@ Golo is being developed as part of the research activities of the
 * Twitter: [@golo_lang](https://twitter.com/golo_lang)
 * GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
 * Mailing-list: [http://groups.google.com/group/golo-lang](http://groups.google.com/group/golo-lang)
+* Gitter.im chats: [https://gitter.im/golo-lang/golo-lang](https://gitter.im/golo-lang/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
 Starting from version 1.0.0, Golo adopts the [semantic versioning scheme](http://semver.org).
@@ -33,8 +36,6 @@ We also provide [Docker](http://docker.com/) images based on Ubuntu 14.04 and Ja
 `docker pull jponge/golo-lang` ([https://registry.hub.docker.com/u/jponge/golo-lang/](https://registry.hub.docker.com/u/jponge/golo-lang/))
 
 ## Building Golo
-
-[![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
 
 ### Dependencies
 
