@@ -3,6 +3,7 @@
 [![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
 
 # Golo, a lightweight dynamic language for the JVM.
+[![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/golo-lang/golo-lang?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 
 > The world didn't need another JVM language.
 > So we built yet another one.  A simple one.
