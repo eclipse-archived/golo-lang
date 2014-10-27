@@ -19,6 +19,8 @@ package fr.insalyon.citi.golo.runtime;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
+import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 import static java.lang.invoke.MethodHandles.Lookup;
@@ -52,6 +54,25 @@ public class FunctionCallSupportTest {
 
     static String defaultConcat(String... values) {
       return concat("-", values);
+    }
+
+    static String doPlop(DummyFunctionalInterface dummy) {
+      return dummy.bangDaPlop();
+    }
+
+    static String plop() {
+      return "Plop";
+    }
+  }
+
+
+  @FunctionalInterface
+  static interface DummyFunctionalInterface {
+
+    String plop();
+
+    default String bangDaPlop() {
+      return plop() + "!";
     }
   }
 
@@ -130,6 +151,17 @@ public class FunctionCallSupportTest {
 
     type = MethodType.methodType(Object.class, Object.class);
     callSite = FunctionCallSupport.bootstrap(lookup, name, type);
-    assertThat((String) callSite.dynamicInvoker().invokeWithArguments((Object)new String[]{"a", "b", "c"}), is("a-b-c"));
+    assertThat((String) callSite.dynamicInvoker().invokeWithArguments((Object) new String[]{"a", "b", "c"}), is("a-b-c"));
+  }
+
+  @Test
+  public void check_functional_interface_adaptation() throws Throwable {
+    Lookup lookup = lookup();
+    String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#doPlop";
+    MethodType type = MethodType.genericMethodType(1);
+    MethodHandle plopFunc = lookup.findStatic(FunctionCallSupportTest.Foo.class, "plop", MethodType.methodType(String.class));
+
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    assertThat(callSite.dynamicInvoker().invokeWithArguments(plopFunc), is((Object) "Plop!"));
   }
 }
