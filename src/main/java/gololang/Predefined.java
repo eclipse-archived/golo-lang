@@ -16,8 +16,6 @@
 
 package gololang;
 
-import fr.insalyon.citi.golo.runtime.FunctionCallSupport;
-
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -30,10 +28,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
+
+import static java.lang.invoke.MethodHandles.dropArguments;
+import static java.lang.reflect.Modifier.isStatic;
 
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
@@ -315,7 +313,23 @@ public class Predefined {
   public static Object asFunctionalInterface(Object type, Object func) throws Throwable {
     require(type instanceof Class, "type must be a Class");
     require(func instanceof MethodHandle, "func must be a MethodHandle");
-    return FunctionCallSupport.asFunctionalInterface(MethodHandles.lookup(), (Class) type, (MethodHandle) func);
+    Class<?> theType = (Class<?>) type;
+    for (Method method : theType.getMethods()) {
+      if (!method.isDefault() && !isStatic(method.getModifiers())) {
+        Map<String, Object> configuration = new HashMap<String, Object>() {
+          {
+            put("interfaces", new Tuple(theType.getCanonicalName()));
+            put("implements", new HashMap<String, MethodHandle>() {
+              {
+                put(method.getName(), dropArguments((MethodHandle) func, 0, Object.class));
+              }
+            });
+          }
+        };
+        return new AdapterFabric().maker(configuration).newInstance();
+      }
+    }
+    throw new RuntimeException("Could not convert " + func + " to a functional interface of type " + type);
   }
 
   /**

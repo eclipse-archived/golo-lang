@@ -206,7 +206,7 @@ public class PredefinedTest {
     return obj;
   }
 
-  @Test(enabled = false)
+  @Test
   public void check_asFunctionalInterface_private_static_method() throws Throwable {
     MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "ohce", genericMethodType(1));
     Object object = Predefined.asFunctionalInterface(Function.class, echo);
