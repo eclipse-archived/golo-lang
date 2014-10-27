@@ -25,6 +25,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.concurrent.Callable;
+import java.util.function.Function;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -190,5 +191,31 @@ public class PredefinedTest {
   @Test(expectedExceptions = IllegalArgumentException.class)
   public void check_bogus_value_conversion() {
     Predefined.doubleValue(new Object());
+  }
+
+  @Test
+  public void check_asFunctionalInterface_public_static_method() throws Throwable {
+    MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "echo", genericMethodType(1));
+    Object object = Predefined.asFunctionalInterface(Function.class, echo);
+    assertThat(object instanceof Function, is(true));
+    Function<Object, Object> func = (Function) object;
+    assertThat(func.apply("Hey!"), is("Hey!"));
+  }
+
+  public static Object echo(Object obj) {
+    return obj;
+  }
+
+  @Test(enabled = false)
+  public void check_asFunctionalInterface_private_static_method() throws Throwable {
+    MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "ohce", genericMethodType(1));
+    Object object = Predefined.asFunctionalInterface(Function.class, echo);
+    assertThat(object instanceof Function, is(true));
+    Function<Object, Object> func = (Function) object;
+    assertThat(func.apply("Hey!"), is("Hey!"));
+  }
+
+  private static Object ohce(Object obj) {
+    return obj;
   }
 }

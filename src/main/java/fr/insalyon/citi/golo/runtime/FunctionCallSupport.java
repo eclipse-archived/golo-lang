@@ -23,7 +23,6 @@ import java.lang.reflect.Method;
 
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.Lookup;
-import static java.lang.invoke.MethodHandles.lookup;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isStatic;
@@ -75,22 +74,26 @@ public final class FunctionCallSupport {
 
   public static Object functionalInterfaceFilter(Lookup caller, Class<?> type, Object value) throws Throwable {
     if (value instanceof MethodHandle) {
-      for (Method method : type.getMethods()) {
-        if (!method.isDefault() && !isStatic(method.getModifiers())) {
-          MethodHandle handle = (MethodHandle) value;
-          MethodType lambdaType = methodType(method.getReturnType(), method.getParameterTypes());
-          CallSite callSite = LambdaMetafactory.metafactory(
-              caller,
-              method.getName(),
-              methodType(type),
-              handle.type(),
-              handle,
-              lambdaType);
-          return callSite.dynamicInvoker().invoke();
-        }
-      }
+      return asFunctionalInterface(caller, type, (MethodHandle) value);
     }
     return value;
+  }
+
+  public static Object asFunctionalInterface(Lookup caller, Class<?> type, MethodHandle handle) throws Throwable {
+    for (Method method : type.getMethods()) {
+      if (!method.isDefault() && !isStatic(method.getModifiers())) {
+        MethodType lambdaType = methodType(method.getReturnType(), method.getParameterTypes());
+        CallSite callSite = LambdaMetafactory.metafactory(
+            caller,
+            method.getName(),
+            methodType(type),
+            handle.type(),
+            handle,
+            lambdaType);
+        return callSite.dynamicInvoker().invoke();
+      }
+    }
+    throw new RuntimeException("Could not convert " + handle + " to a functional interface of type " + type);
   }
 
   public static CallSite bootstrap(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {

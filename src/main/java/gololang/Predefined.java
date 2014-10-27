@@ -16,6 +16,8 @@
 
 package gololang;
 
+import fr.insalyon.citi.golo.runtime.FunctionCallSupport;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -308,6 +310,12 @@ public class Predefined {
     require(interfaceClass instanceof Class, "interfaceClass must be a Class");
     require(target instanceof MethodHandle, "target must be a MethodHandle");
     return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, (MethodHandle) target);
+  }
+
+  public static Object asFunctionalInterface(Object type, Object func) throws Throwable {
+    require(type instanceof Class, "type must be a Class");
+    require(func instanceof MethodHandle, "func must be a MethodHandle");
+    return FunctionCallSupport.asFunctionalInterface(MethodHandles.lookup(), (Class) type, (MethodHandle) func);
   }
 
   /**
