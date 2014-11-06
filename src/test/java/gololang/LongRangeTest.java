@@ -39,7 +39,7 @@ public class LongRangeTest {
 
   @Test
   public void checkRev() {
-    IntRange range = new LongRange(3L, 1L);
+    LongRange range = new LongRange(3L, 1L);
     Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(3L));
