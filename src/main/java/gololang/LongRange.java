@@ -24,6 +24,7 @@ class LongRange implements Iterable<Long> {
   private final long from;
   private final long to;
   private long increment = 1;
+  private int cmp = 1;
 
   public long from() {
     return this.from;
@@ -40,11 +41,22 @@ class LongRange implements Iterable<Long> {
   public LongRange(long from, long to) {
     this.from = from;
     this.to = to;
+    if (from > to) {
+      this.incrementBy(-1);
+    }
   }
 
   public LongRange incrementBy(long value) {
     this.increment = value;
+    if (value < 0) {
+      this.cmp = -1;
+    }
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("range(%s,%s):incrementBy(%s)", this.from, this.to, this.increment);
   }
 
   @Override
@@ -56,7 +68,7 @@ class LongRange implements Iterable<Long> {
 
       @Override
       public boolean hasNext() {
-        return current < to;
+        return Long.compare(to, current) == cmp;
       }
 
       @Override

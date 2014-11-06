@@ -38,6 +38,17 @@ public class IntRangeTest {
     assertThat(iterator.hasNext(), is(false));
   }
 
+  @Test
+  public void checkRev() {
+    IntRange range = new IntRange(3, 1);
+    Iterator<Integer> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(3));
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(2));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
   @Test(expectedExceptions = NoSuchElementException.class)
   public void overflow() {
     IntRange range = new IntRange(1, 3);
@@ -55,8 +66,7 @@ public class IntRangeTest {
 
   @Test
   public void empty() {
-    IntRange range = new IntRange(1, 3);
-    range = new IntRange(5, 4);
+    IntRange range = new IntRange(4, 4);
     assertThat(range.iterator().hasNext(), is(false));
   }
 
@@ -71,11 +81,30 @@ public class IntRangeTest {
   }
 
   @Test
+  public void incrementRev() {
+    IntRange range = new IntRange(3, 1);
+    range.incrementBy(-2);
+    Iterator<Integer> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(3));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
   public void singleton() {
     IntRange range = new IntRange(0, 1);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(0));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
+  public void singletonRev() {
+    IntRange range = new IntRange(1, 0);
+    Iterator<Integer> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(1));
     assertThat(iterator.hasNext(), is(false));
   }
 }

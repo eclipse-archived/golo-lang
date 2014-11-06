@@ -37,6 +37,17 @@ public class LongRangeTest {
     assertThat(iterator.hasNext(), is(false));
   }
 
+  @Test
+  public void checkRev() {
+    IntRange range = new LongRange(3L, 1L);
+    Iterator<Long> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(3L));
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(2L));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
   @Test(expectedExceptions = NoSuchElementException.class)
   public void overflow() {
     LongRange range = new LongRange(1L, 3L);
@@ -54,7 +65,7 @@ public class LongRangeTest {
 
   @Test
   public void empty() {
-    LongRange range = new LongRange(5, 4);
+    LongRange range = new LongRange(4L, 4L);
     assertThat(range.iterator().hasNext(), is(false));
   }
 
@@ -69,11 +80,31 @@ public class LongRangeTest {
   }
 
   @Test
+  public void incrementRev() {
+    LongRange range = new LongRange(3L, 1L);
+    range.incrementBy(-2);
+    Iterator<Long> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(3L));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
+
+  @Test
   public void singleton() {
     LongRange range = new LongRange(0L, 1L);
     Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(0L));
+    assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
+  public void singletonRev() {
+    LongRange range = new LongRange(1L, 0L);
+    Iterator<Long> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(1L));
     assertThat(iterator.hasNext(), is(false));
   }
 }

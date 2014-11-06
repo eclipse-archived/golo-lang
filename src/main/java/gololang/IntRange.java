@@ -23,10 +23,14 @@ class IntRange implements Iterable<Integer> {
   private final int from;
   private final int to;
   private int increment = 1;
+  private int cmp = 1;
 
   public IntRange(int from, int to) {
     this.from = from;
     this.to = to;
+    if (from > to) {
+      this.incrementBy(-1);
+    }
   }
 
   public int from() {
@@ -43,7 +47,15 @@ class IntRange implements Iterable<Integer> {
 
   public IntRange incrementBy(int value) {
     this.increment = value;
+    if (value < 0) {
+      this.cmp = -1;
+    }
     return this;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("range(%s,%s):incrementBy(%s)", this.from, this.to, this.increment);
   }
 
   @Override
@@ -55,7 +67,7 @@ class IntRange implements Iterable<Integer> {
 
       @Override
       public boolean hasNext() {
-        return current < to;
+        return Integer.compare(to, current) == cmp;
       }
 
       @Override
