@@ -614,7 +614,7 @@ let a, b, c... = [1, 2, 3, 4, 5]   # a = 1, b = 2, c = [3, 4, 5]
 
 Any object having a `destruct()` method returning a tuple can be used in
 destructuring assignments. Golo specific data structures and some Java native
-ones can be destructured. Augmentations can be used to make an existing class
+ones (arrays, maps, collections) can be destructured. Augmentations can be used to make an existing class
 destructurable.
 
 For instance, xref:_structs[golo structures] are destructurable:

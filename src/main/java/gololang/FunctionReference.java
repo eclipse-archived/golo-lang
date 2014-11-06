@@ -99,6 +99,10 @@ public class FunctionReference {
     return new FunctionReference(handle.asVarargsCollector(arrayType), this.parameterNames);
   }
 
+  public FunctionReference asVarargsCollector() {
+    return asVarargsCollector(Object[].class);
+  }
+
   public FunctionReference bindTo(Object x) {
     return new FunctionReference(handle.bindTo(x), dropParameterNames(0, 1));
   }
@@ -111,7 +115,40 @@ public class FunctionReference {
     return new FunctionReference(handle.asSpreader(arrayType, arrayLength));
   }
 
+  public FunctionReference asSpreader(int arrayLength) {
+    return asSpreader(Object[].class, arrayLength);
+  }
+
+  public FunctionReference asSpreader() {
+    return asSpreader(Object[].class, handle.type().parameterCount());
+  }
+
+  /**
+   * Returns the arity of the function.
+   *
+   * The arity is the number of declared parameter in the function signature.
+   *
+   * @return the number of declared parameter
+   */
+  public int arity() {
+    return handle.type().parameterCount();
+  }
+
   public Object invoke(Object... args) throws Throwable {
+    return handle.invokeWithArguments(args);
+  }
+
+  /**
+   * Apply the function to the provided arguments.
+   *
+   * If the number of arguments corresponds to the function arity, the function is applied.
+   * Otherwise, a function partialized with the given arguments is returned.
+   * @return the result of the function or a partialized version of the function
+   */
+  public Object invokeOrBind(Object... args) throws Throwable {
+    if (args.length < arity()) {
+      return insertArguments(0, args);
+    }
     return handle.invokeWithArguments(args);
   }
 
@@ -207,7 +244,11 @@ public class FunctionReference {
    * @see java.lang.invoke.MethodHandles#insertArguments(MethodHandle, int, Object...)
    */
   public FunctionReference insertArguments(int position, Object... values) {
-    return new FunctionReference(MethodHandles.insertArguments(handle, position, values), dropParameterNames(position, values.length));
+    MethodHandle bounded = MethodHandles.insertArguments(handle, position, values);
+    if (handle.isVarargsCollector()) {
+      bounded = bounded.asVarargsCollector(Object[].class);
+    }
+    return new FunctionReference(bounded, dropParameterNames(position, values.length));
   }
 
   /**
@@ -218,7 +259,7 @@ public class FunctionReference {
    * @throws Throwable ...because an exception can be thrown.
    */
   public Object spread(Object... arguments) throws Throwable {
-    int arity = this.handle.type().parameterCount();
+    int arity = arity();
     if (this.handle.isVarargsCollector() && (arity > 0) && (arguments[arity - 1] instanceof Object[])) {
       return this.handle
           .asFixedArity()

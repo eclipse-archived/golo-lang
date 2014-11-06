@@ -63,6 +63,15 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
   }
 
   /**
+   * Array conversion.
+   *
+   * @return an array containing the values (in member orders)
+   */
+  public Object[] toArray() {
+    return values().toArray();
+  }
+
+  /**
    * Compares this structure with the specified structure for order.
    * <p>Returns a negative integer, zero, or a positive integer as this structure is less than,
    * equal to, or greater than the specified structure.

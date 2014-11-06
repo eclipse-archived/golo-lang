@@ -53,6 +53,13 @@ function test_list = {
 
 }
 
+function test_array = {
+  let fst, scd, rest... = array[1, 2, 3, 4, 5]
+  require(fst == 1, "err")
+  require(scd == 2, "err")
+  require(rest == [3, 4, 5], "err")
+}
+
 function test_range = {
   let fst, scd, rest... = [1..6]
   require(fst == 1, "err")

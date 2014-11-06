@@ -222,7 +222,9 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
   }
 
   /**
-   * Returns a array of this tuple data.
+   * Returns an array containing all of the elements in this tuple.
+   *
+   * @return an array of values
    */
   public Object[] toArray() {
     return Arrays.copyOf(data, data.length);
