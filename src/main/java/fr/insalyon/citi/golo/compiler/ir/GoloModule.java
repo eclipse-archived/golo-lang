@@ -25,9 +25,7 @@ import static java.util.Collections.unmodifiableSet;
 
 
 class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
-  public FunctionRegister() {
-    super();
-  }
+  private static final long serialVersionUID = 1L;
 
   private Set<GoloFunction> getOrInit(String key) {
     Set<GoloFunction> bag;
@@ -48,6 +46,7 @@ class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
     getOrInit(key).addAll(functions);
   }
 }
+
 
 public final class GoloModule extends GoloElement {
 
@@ -129,11 +128,12 @@ public final class GoloModule extends GoloElement {
     augmentations.addFunction(target, function);
   }
 
-  public void addAugmentationApplication(String name, List<String> augmentations) {
-    if (augmentationApplications.containsKey(name)) {
-      augmentationApplications.get(name).addAll(augmentations);
+  public void addAugmentationApplication(String target,
+                                         List<String> augmentNames) {
+    if (augmentationApplications.containsKey(target)) {
+      augmentationApplications.get(target).addAll(augmentNames);
     } else {
-      augmentationApplications.put(name, augmentations);
+      augmentationApplications.put(target, augmentNames);
     }
   }
 
@@ -165,18 +165,19 @@ public final class GoloModule extends GoloElement {
       }
     }
     for (String trashed : trash) {
-      augmentations.put(packageAndClass + ".types." + trashed, augmentations.get(trashed));
+      augmentations.put(packageAndClass + ".types." + trashed,
+                        augmentations.get(trashed));
       augmentations.remove(trashed);
     }
     structNames.clear();
   }
 
   public void resolveNamedAugmentations() {
-    for (String augmentationTarget : augmentationApplications.keySet()) {
-      for (String augmentationName : augmentationApplications.get(augmentationTarget)) {
+    for (String augmentTarget : augmentationApplications.keySet()) {
+      for (String augmentName : augmentationApplications.get(augmentTarget)) {
         augmentations.addFunctions(
-          augmentationTarget,
-          namedAugmentations.get(augmentationName)
+          augmentTarget,
+          namedAugmentations.get(augmentName) // TODO: error if not exists
         );
       }
     }
