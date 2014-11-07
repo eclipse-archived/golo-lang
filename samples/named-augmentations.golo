@@ -12,18 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module samples.Augmentations
+module samples.NamedAugmentations
 
 import java.util.LinkedList
 
-augment java.util.List {
-  function `with = |this, value| {
-    this: add(value)
-    return this
-  }
-}
-
-augment java.util.Collection {
+augmentation EasyList = {
   function doToEach = |this, func| {
     foreach (element in this) {
       func(element)
@@ -31,7 +24,21 @@ augment java.util.Collection {
   }
 }
 
+augmentation Plopable = {
+  function plop = |this| -> "plop"
+}
+
+augmentation Barator = {
+  function bar = |this| -> "bar"
+}
+
+augment java.util.Collection with Plopable, Barator
+
+augment java.util.List with EasyList
+
 function main = |args| {
-  let list = LinkedList(): `with("foo"): `with("bar"): `with("baz")
+  let list = list["foo", "bar", "baz"]
   list: doToEach(|value| -> println(">>> " + value))
+  println("are you a barator? " + list: bar())
+  println("are you plopable? " + list: plop())
 }

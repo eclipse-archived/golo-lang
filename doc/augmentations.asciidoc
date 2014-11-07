@@ -136,7 +136,7 @@ taste* (for what it means).
 Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
 
 These augmentation do not require a special import, and they are defined in the
-`gololang.StandardAugmentations` module.
+link:./golodoc/gololang/StandardAugmentations[`gololang.StandardAugmentations`] module.
 
 Here is an example:
 
@@ -150,4 +150,82 @@ println(m: getOrElse("foo", -> "bar"))
 
 The full set of standard augmentations is documented in the generated *golodoc* (hint: look for
 `doc/golodoc` in the Golo distribution).
+
+=== Named augmentations ===
+
+It is possible for augmentations to have a name.
+A named augmentation is a set of functions that can be applied to some
+classes or structures, provided they are *in the same module*.
+
+This can be seen as a kind of lightweight
+http://en.wikipedia.org/wiki/Trait_%28computer_programming%29[*traits*], as
+found in Rust, Groovy or Scala.
+
+Named augmentations are defined with the `augmentation` keyword.
+
+As an example:
+[source,golo]
+----
+augmentation FooBar = {
+  function foo = |this| -> "foo"
+  function bar = |this, a| -> this: length() + a
+}
+
+augmentation Spamable = {
+  function spam = |this| -> "spam"
+}
+----
+
+A named augmentation is applied using the `augment ... with` construct, as in
+[source,golo]
+----
+augment java.util.Collection with FooBar
+
+augment MyStruct with Spamable
+
+augment java.lang.String with FooBar, Spamable
+----
+
+Named augmentations are not exported, and thus can only be used in the module
+where they are define. 
+Other augmentation rules about scopes and reusability applies.
+So, if we create a module
+
+[source,golo]
+----
+module MyAugmentations
+
+augmentation Searchable = {
+  function search = |this, value| -> ...
+}
+
+augment java.util.Collection with Searchable
+----
+
+and import it, we can use the applied augmentation
+[source,golo]
+----
+import MyAugmentations
+
+#...
+list[1, 2, 3, 4]: search(2)
+----
+
+but we can't apply it to an other class. Indeed,
+[source,golo]
+----
+import MyAugmentations
+
+augment java.lang.String with Searchable
+----
+
+will fails.
+
+
+IMPORTANT: As for every augmentation, no checks are made that the augmentation
+can be applied to the augmented class. For instance, augmenting `java.lang.Number`
+with the previous `FooBar` augmentation will raise
+`java.lang.NoSuchMethodError: class java.lang.Integer::length`
+at *runtime* when trying to call `1:bar(1)`. Calling `1:foo()` will be OK however.
+
 
