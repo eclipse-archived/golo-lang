@@ -63,6 +63,16 @@ class IntRange implements Iterable<Integer> {
   }
 
   @Override
+  public boolean equals(Object other) {
+    return (
+      other instanceof IntRange
+      && this.from() == ((IntRange)other).from()
+      && this.to() == ((IntRange)other).to()
+      && this.increment() == ((IntRange)other).increment()
+    );
+  }
+
+  @Override
   public Iterator<Integer> iterator() {
     return new Iterator<Integer>() {
 

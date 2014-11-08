@@ -114,4 +114,12 @@ public class LongRangeTest {
     assertThat(iterator.next(), is(1L));
     assertThat(iterator.hasNext(), is(false));
   }
+
+  @Test
+  public void equality() {
+    LongRange r1 = new LongRange(1L, 10L);
+    LongRange r2 = new LongRange(1L, 10L);
+    assertThat(r1, is(r2));
+    assertThat(r1.incrementBy(2), is(r2.incrementBy(2)));
+  }
 }

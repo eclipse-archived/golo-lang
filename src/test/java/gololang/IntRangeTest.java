@@ -115,4 +115,12 @@ public class IntRangeTest {
     assertThat(iterator.next(), is(1));
     assertThat(iterator.hasNext(), is(false));
   }
+
+  @Test
+  public void equality() {
+    IntRange r1 = new IntRange(1, 10);
+    IntRange r2 = new IntRange(1, 10);
+    assertThat(r1, is(r2));
+    assertThat(r1.incrementBy(2), is(r2.incrementBy(2)));
+  }
 }

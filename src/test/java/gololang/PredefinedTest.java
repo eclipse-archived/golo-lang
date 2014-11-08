@@ -98,6 +98,10 @@ public class PredefinedTest {
     assertThat(Predefined.range(1, 10L), instanceOf(LongRange.class));
     assertThat(Predefined.range(1L, 10), instanceOf(LongRange.class));
     assertThat(Predefined.range(1L, 10L), instanceOf(LongRange.class));
+    assertThat(Predefined.range(10), instanceOf(IntRange.class));
+    assertThat(Predefined.range(10L), instanceOf(LongRange.class));
+    assertThat(Predefined.range(10), is(Predefined.range(0, 10)));
+    assertThat(Predefined.range(10L), is(Predefined.range(0L, 10L)));
   }
 
   @Test
@@ -106,6 +110,10 @@ public class PredefinedTest {
     assertThat(Predefined.reversed_range(10, 1L), instanceOf(LongRange.class));
     assertThat(Predefined.reversed_range(10L, 1), instanceOf(LongRange.class));
     assertThat(Predefined.reversed_range(10L, 1L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10), instanceOf(IntRange.class));
+    assertThat(Predefined.reversed_range(10L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10), is(Predefined.reversed_range(10, 0)));
+    assertThat(Predefined.reversed_range(10L), is(Predefined.reversed_range(10L, 0L)));
   }
 
   static class MyCallable {

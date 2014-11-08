@@ -64,6 +64,16 @@ class LongRange implements Iterable<Long> {
   }
 
   @Override
+  public boolean equals(Object other) {
+    return (
+      other instanceof LongRange
+      && this.from() == ((LongRange)other).from()
+      && this.to() == ((LongRange)other).to()
+      && this.increment() == ((LongRange)other).increment()
+    );
+  }
+
+  @Override
   public Iterator<Long> iterator() {
     return new Iterator<Long>() {
 
