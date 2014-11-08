@@ -100,6 +100,14 @@ public class PredefinedTest {
     assertThat(Predefined.range(1L, 10L), instanceOf(LongRange.class));
   }
 
+  @Test
+  public void test_reversed_range() {
+    assertThat(Predefined.reversed_range(10, 1), instanceOf(IntRange.class));
+    assertThat(Predefined.reversed_range(10, 1L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10L, 1), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10L, 1L), instanceOf(LongRange.class));
+  }
+
   static class MyCallable {
 
     static Object hello() {

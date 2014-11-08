@@ -41,9 +41,6 @@ class LongRange implements Iterable<Long> {
   public LongRange(long from, long to) {
     this.from = from;
     this.to = to;
-    if (from > to) {
-      this.incrementBy(-1);
-    }
   }
 
   public LongRange incrementBy(long value) {
@@ -54,9 +51,16 @@ class LongRange implements Iterable<Long> {
     return this;
   }
 
+  public LongRange decrementBy(long value) {
+    return this.incrementBy(-value);
+  }
+
   @Override
   public String toString() {
-    return String.format("range(%s,%s):incrementBy(%s)", this.from, this.to, this.increment);
+    if (this.increment != 1) {
+      return String.format("range(%s,%s):incrementBy(%s)", this.from, this.to, this.increment);
+    }
+    return String.format("range(%s,%s)", this.from, this.to);
   }
 
   @Override

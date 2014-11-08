@@ -288,6 +288,30 @@ public class Predefined {
     }
   }
 
+  /**
+   * Makes an decreasing integer range object between two bounds. Range objects implement <code>java.lang.Iterable</code>, so
+   * they can be used in Golo <code>foreach</code> loops.
+   *
+   * @param from the upper-bound (inclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param to   the lower-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @return a range object.
+   * @see java.lang.Iterable
+   */
+  public static Object reversed_range(Object from, Object to) {
+    require((from instanceof Integer) || (from instanceof Long), "from must either be an Integer or a Long");
+    require((to instanceof Integer) || (to instanceof Long), "to must either be an Integer or a Long");
+    if ((to instanceof Long) && (from instanceof Long)) {
+      return new LongRange((Long) from, (Long) to).incrementBy(-1);
+    } else if ((to instanceof Integer) && (from instanceof Integer)) {
+      return new IntRange((Integer) from, (Integer) to).incrementBy(-1);
+    } else if (from instanceof Long) {
+      return new LongRange((Long) from, (Integer) to).incrementBy(-1);
+    } else {
+      return new LongRange((Integer) from, (Long) to).incrementBy(-1);
+    }
+  }
+
+
   // ...................................................................................................................
 
   /**

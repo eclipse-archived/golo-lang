@@ -39,7 +39,7 @@ public class LongRangeTest {
 
   @Test
   public void checkRev() {
-    LongRange range = new LongRange(3L, 1L);
+    LongRange range = new LongRange(3L, 1L).incrementBy(-1);
     Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(3L));
@@ -65,7 +65,7 @@ public class LongRangeTest {
 
   @Test
   public void empty() {
-    LongRange range = new LongRange(4L, 4L);
+    LongRange range = new LongRange(4L, 1L);
     assertThat(range.iterator().hasNext(), is(false));
   }
 
@@ -81,14 +81,21 @@ public class LongRangeTest {
 
   @Test
   public void incrementRev() {
-    LongRange range = new LongRange(3L, 1L);
-    range.incrementBy(-2);
+    LongRange range = new LongRange(3L, 1L).incrementBy(-2);
     Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(3L));
     assertThat(iterator.hasNext(), is(false));
   }
 
+  @Test
+  public void decrement() {
+    LongRange range = new LongRange(3L, 1L).decrementBy(2);
+    Iterator<Long> iterator = range.iterator();
+    assertThat(iterator.hasNext(), is(true));
+    assertThat(iterator.next(), is(3L));
+    assertThat(iterator.hasNext(), is(false));
+  }
 
   @Test
   public void singleton() {
@@ -101,7 +108,7 @@ public class LongRangeTest {
 
   @Test
   public void singletonRev() {
-    LongRange range = new LongRange(1L, 0L);
+    LongRange range = new LongRange(1L, 0L).incrementBy(-1);
     Iterator<Long> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(1L));
