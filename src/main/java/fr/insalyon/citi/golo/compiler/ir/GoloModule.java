@@ -175,10 +175,14 @@ public final class GoloModule extends GoloElement {
   public void resolveNamedAugmentations() {
     for (String augmentTarget : augmentationApplications.keySet()) {
       for (String augmentName : augmentationApplications.get(augmentTarget)) {
-        augmentations.addFunctions(
-          augmentTarget,
-          namedAugmentations.get(augmentName) // TODO: error if not exists
-        );
+        if (namedAugmentations.containsKey(augmentName)) {
+          augmentations.addFunctions(
+            augmentTarget,
+            namedAugmentations.get(augmentName)
+          );
+        } else {
+          throw new UnknownNamedAugmentationException(augmentTarget, augmentName);
+        }
       }
     }
   }
