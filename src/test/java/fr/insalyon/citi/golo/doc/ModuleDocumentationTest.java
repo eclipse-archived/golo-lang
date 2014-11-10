@@ -64,7 +64,7 @@ public class ModuleDocumentationTest {
     assertThat(doc.augmentationFunctions().size(), is(1));
     TreeSet<ModuleDocumentation.FunctionDocumentation> onStrings = doc.augmentationFunctions().get("java.lang.String");
     assertThat(onStrings, notNullValue());
-    assertThat(onStrings.size(), is(2));
+    assertThat(onStrings.size(), is(3));
     first = onStrings.first();
     assertThat(first.name, is("plop"));
     assertThat(first.line, is(45));
@@ -72,14 +72,21 @@ public class ModuleDocumentationTest {
     assertThat(first.arguments.size(), is(1));
     assertThat(first.arguments.get(0), is("this"));
     assertThat(first.documentation, is("\n"));
+    ModuleDocumentation.FunctionDocumentation last = onStrings.last();
+    assertThat(last.name, is("zig"));
+    assertThat(last.line, is(54));
+    assertThat(last.local, is(false));
+    assertThat(last.arguments.size(), is(2));
+    assertThat(last.arguments.get(0), is("this"));
+    assertThat(last.documentation, is("\n"));
 
     assertThat(doc.structs().size(), is(1));
     assertThat(doc.structs(), hasKey("Point"));
-    assertThat(doc.structLine("Point"), is(59));
+    assertThat(doc.structLine("Point"), is(63));
     assertThat(doc.structs().get("Point"), containsString("`x` and `y` coordinates"));
 
     assertThat(doc.moduleStates().size(), is(2));
     assertThat(doc.moduleStates(), hasKey("letState"));
-    assertThat(doc.moduleStates().get("letState"), is(61));
+    assertThat(doc.moduleStates().get("letState"), is(65));
   }
 }

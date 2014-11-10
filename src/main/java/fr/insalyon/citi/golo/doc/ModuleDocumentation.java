@@ -173,9 +173,25 @@ class ModuleDocumentation {
     @Override
     public Object visit(ASTAugmentDeclaration node, Object data) {
       currentAugmentation = node.getName();
-      augmentations.put(node.getName(), documentationOrNothing(node.getDocumentation()));
-      augmentationFunctions.put(node.getName(), new TreeSet<FunctionDocumentation>());
-      augmentationLine.put(node.getName(), node.getLineInSourceCode());
+      /* NOTE:
+       * if multiple augmentations are defined for the same target
+       * only the line and documentation of the first one are kept.
+       *
+       * Maybe we should concatenate documentations since the golodoc merges
+       * the functions documentations, but we could then generate unmeaningful
+       * content...
+       */
+      if (!augmentations.containsKey(currentAugmentation)) {
+        augmentations.put(currentAugmentation,
+                          documentationOrNothing(node.getDocumentation()));
+      }
+      if (!augmentationLine.containsKey(currentAugmentation)) {
+        augmentationLine.put(currentAugmentation, node.getLineInSourceCode());
+      }
+      if (!augmentationFunctions.containsKey(currentAugmentation)) {
+        augmentationFunctions.put(currentAugmentation,
+                                  new TreeSet<FunctionDocumentation>());
+      } 
       node.childrenAccept(this, data);
       currentAugmentation = null;
       return data;
