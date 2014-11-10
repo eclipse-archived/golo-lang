@@ -370,9 +370,12 @@ augment java.util.List {
   }
 
   ----
-  Returns a list first element.
+  Returns a list first element, of `null` if empty.
   ----
-  function head = |this| -> this: get(0)
+  function head = |this| -> match {
+    when this: isEmpty() then null
+    otherwise this: get(0)
+  }
 
   ----
   Returns a list last element.
@@ -382,7 +385,10 @@ augment java.util.List {
   ----
   Returns the rest of a list after its head.
   ----
-  function tail = |this| -> this: subList(1, this: size())
+  function tail = |this| -> match {
+    when this: isEmpty() or this:size() == 1 then this:newWithSameType()
+    otherwise this: subList(1, this: size())
+  }
 
   ----
   Convenience wrapper over `java.util.Collections.unmodifiableList`.

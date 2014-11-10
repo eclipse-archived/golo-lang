@@ -135,4 +135,18 @@ public final class Tuple implements Iterable<Object> {
   public String toString() {
     return "tuple" + Arrays.toString(data);
   }
+
+  public Object head() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.get(0);
+  }
+
+  public Tuple tail() {
+    if (this.isEmpty()) {
+      return new Tuple();
+    }
+    return fromArray(Arrays.copyOfRange(data, 1, data.length));
+  }
 }

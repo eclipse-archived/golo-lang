@@ -351,6 +351,8 @@ The `gololang.Tuple` class provides the following methods:
 
 - a constructor with a variable-arguments list of values,
 - a `get(index)` method to get the element at a specified index,
+- a `head()` method to get the first element,
+- a `tail()` method returning a copy without the first element,
 - `size()` and `isEmpty()` methods that do what their names suggest,
 - an `iterator()` method because tuples are iterable, and
 - `equals(other)`, `hashCode()` and `toString()` do just what you would expect.
@@ -489,7 +491,11 @@ be invoked on arrays:
 - `toString()` delegates to `java.util.Arrays.toString(Object[])`,
 - `asList()` delegates to `java.util.Arrays.asList(Object[])`,
 - `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`,
-- `getClass()` return the array class.
+- `getClass()` returns the array class,
+- `head()` returns the first element of the array (or `null` if empty),
+- `tail()` returns a copy of the array without its first element (or an empty
+  array if empty),
+- `isEmpty()` checks if the array is empty.
 
 Given a reference `a` on some array:
 

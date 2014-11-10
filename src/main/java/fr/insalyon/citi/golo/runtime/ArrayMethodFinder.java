@@ -87,6 +87,21 @@ class ArrayMethodFinder implements MethodFinder {
       case "getClass":
         checkArity(0);
         return MethodHandles.dropArguments(MethodHandles.constant(Class.class, receiverClass), 0, receiverClass);
+      case "head":
+        checkArity(0);
+        return lookup.findStatic(
+            ArrayHelper.class, "head", methodType(Object.class, Object[].class))
+            .asType(type);
+      case "tail":
+        checkArity(0);
+        return lookup.findStatic(
+            ArrayHelper.class, "tail", methodType(Object[].class, Object[].class))
+            .asType(type);
+      case "isEmpty":
+        checkArity(0);
+        return lookup.findStatic(
+            ArrayHelper.class, "isEmpty", methodType(boolean.class, Object[].class))
+            .asType(type);
       default:
         throw new UnsupportedOperationException(name + " is not supported on arrays");
     }
