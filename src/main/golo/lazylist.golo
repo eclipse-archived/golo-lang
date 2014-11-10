@@ -19,6 +19,10 @@
 ----
 This module defines utility functions and augmentations to ease the use of
 the `gololang.LazyList` object.
+
+Some functions are recursive (re)implementation of standard list HOF, such as
+`map` or `filter`. The recursive aspect should not be limiting since the
+resulting list is lazy.
 ----
 module gololang.lazylist
 
@@ -93,29 +97,7 @@ local function iteratorToLazyList = |iterator| {
   }
 }
 
-----
-Converts a lazy list into a list.
-----
-function lltoList = |lazylist| {
-  let lst = list[]
-  var ll = lazylist
-  while not ll:isEmpty() {
-    lst: add(ll: head())
-    ll = ll: tail()
-  }
-  return lst
-}
-
-augment gololang.LazyList {
-  ----
-  Converts a lazy list into a list.
-  ----
-  function asList = |this| -> lltoList(this)
-}
-
-
 # ............................................................................................... #
-local function ltoTuple = |v| -> Tuple.fromArray(v:toArray())
 
 local function any = |it| {
   foreach elt in it {
@@ -131,29 +113,102 @@ function zip = |lists| {
   return match {
     when any(lists:map(^isEmpty)) then Empty()
     otherwise gololang.LazyList(
-      ltoTuple(lists:map(^head)),
+      Tuple.fromArray(lists:map(^head):toArray()),
       -> zip(lists:map(^tail))
     )
   }
 }
 
+
+augment gololang.LazyList {
+  ----
+  Maps elements of a list using a function:
+
+      lazyList(1, 2, 3):map(|x| -> 2 * x)
+
+  `map` returns a new lazy list, i.e. `func` is applied only
+  when necessary.
+
+  This is just a convenient augmentation that delegates to
+  [`gololang.lazylist.map`](#map_func_list)
+  ----
+  function map = |this, func| ->
+    gololang.lazylist.map(func, this)
+ 
+  ----
+  Fold left on `this`.
+  This is just a convenient augmentation that delegates to
+  [`gololang.lazylist.foldl`](#foldl_func_zero_list)
+  ----
+  function foldl = |this, func, zero| ->
+    gololang.lazylist.foldl(func, zero, this)
+
+  ----
+  Fold right on `this`.
+  This is just a convenient augmentation that delegates to
+  [`gololang.lazylist.foldr`](#foldr_func_zero_list)
+  ----
+  function foldr = |this, func, zero| ->
+    gololang.lazylist.foldr(func, zero, this)
+
+  ----
+  Similar to
+  [`reduce`](./StandardAugmentations#java.lang.Iterable.reduce_this_initialValue_func).
+
+  This function only delegates to `foldl`, but is here to provide
+  homogeneous interface with regular lists.
+  ----
+  function reduce = |this, initialValue, func| ->
+    this:foldl(func, initialValue)
+
+  #TODO: filter(this, func)
+  #TODO: each(this, func)
+  #TODO: find(this, pred)
+  #TODO: join(this, separator)
+}
+
 #=== HOF ===
-function lmap = |func, llist| -> match {
-  when llist:isEmpty() then Empty()
+----
+Converts `list` by applying `func` to each of its elements.
+This is a recursive implementation.
+
+    map(|x| -> 2 * x, list[1, 2, 3])
+
+`list` can be any object having `head` and `tail` methods.
+Returns a new lazy list, i.e. `func` is applied only when necessary.
+----
+function map = |func, list| -> match {
+  when list:isEmpty() then Empty()
   otherwise gololang.LazyList(
-    func(llist:head()),
-    -> lmap(func, llist:tail())
+    func(list:head()), -> map(func, list:tail())
   )
 }
 
-function foldl = |func, zero, llist| -> match {
-  when llist:isEmpty() then zero
-  otherwise foldl(func, func(zero, llist:head()), llist:tail())
+----
+Folds left `list` using `func` with `zero` as initial value.
+This is a recursive implementation.
+
+    foldl(f, z, [a, b, c]) == f(f(f(z, a), b), c)
+
+`list` can be any object having `head` and `tail` methods.
+----
+function foldl = |func, zero, list| -> match {
+  when list:isEmpty() then zero
+  otherwise foldl(func, func(zero, list:head()), list:tail())
 }
 
-function foldr = |func, zero, llist| -> match {
-  when llist:isEmpty() then zero
-  otherwise func(llist:head(), foldr(func, zero, llist:tail()))
+----
+Folds right `list` using `func` with `zero` as initial value.
+This is a recursive implementation.
+
+    foldr(f, z, [a, b, c]) == f(a, f(b, f(c, z)))
+
+`list` can be any object having `head` and `tail` methods.
+Equivalent to `foldl` if `func` is commutative.
+----
+function foldr = |func, zero, list| -> match {
+  when list:isEmpty() then zero
+  otherwise func(list:head(), foldr(func, zero, list:tail()))
 }
 
 function generator = |unspool, finished, x| {
@@ -174,7 +229,6 @@ function filter = |pred, llist| -> match {
   otherwise filter(pred, llist:tail())
 }
 
-#TODO: take
 function take = |nb, list| -> match {
   when nb == 0 then Empty()
   when list:isEmpty() then Empty()

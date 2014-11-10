@@ -18,6 +18,8 @@ package gololang;
 
 import java.lang.invoke.MethodHandle;
 import java.util.Iterator;
+import java.util.List;
+import java.util.LinkedList;
 
 /**
  * Represents a lazy list object.
@@ -117,4 +119,23 @@ public final class LazyList implements Iterable<Object> {
   public Iterator<Object> iterator() {
     return new LazyListIterator(this);
   }
+
+  /**
+   * Convert the lazy list into a regular list
+   *
+   * @return a list
+   */
+  public List<Object> asList() {
+    List<Object> lst = new LinkedList();
+    for (Object o : this) {
+      lst.add(o);
+    }
+    return lst;
+  }
+
+  //TODO: equals(Object other)
+  //TODO: get(int index)
+  //TODO: indexOf(Object o)
+  //TODO: contains(Object o)
+  //TODO: toArray()
 }
