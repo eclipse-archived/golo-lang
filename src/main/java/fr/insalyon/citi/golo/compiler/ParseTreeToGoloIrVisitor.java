@@ -81,7 +81,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTCompilationUnit node, Object data) {
     Context context = (Context) data;
     Object ret = node.childrenAccept(this, data);
-    context.module.internStructAugmentations();
     try {
       context.module.resolveNamedAugmentations();
     } catch (UnknownNamedAugmentationException e) {
@@ -89,6 +88,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
           UNDECLARED_REFERENCE, node,
           String.format("Applying an unknown augmentation to %s: %s", e.target, e.augmentation));
     }
+    context.module.internStructAugmentations();
     return ret;
   }
 

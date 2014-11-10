@@ -36,9 +36,14 @@ augment java.util.Collection with Plopable, Barator
 
 augment java.util.List with EasyList
 
+augment java.util.List {
+  function baz = |this| -> "baz"
+}
+
 function main = |args| {
   let list = list["foo", "bar", "baz"]
   list: doToEach(|value| -> println(">>> " + value))
   println("are you a barator? " + list: bar())
   println("are you plopable? " + list: plop())
+  println("can you baz? " + list: baz())
 }
