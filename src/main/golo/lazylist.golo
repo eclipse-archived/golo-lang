@@ -20,9 +20,26 @@
 This module defines utility functions and augmentations to ease the use of
 the `gololang.LazyList` object.
 
-Some functions are recursive (re)implementation of standard list HOF, such as
-`map` or `filter`. The recursive aspect should not be limiting since the
-resulting list is lazy.
+A lazy list is a *immutable* list that is evaluated only when needed, as can be
+found in Haskell for example.
+
+This is very useful when using higher order function such as `map`. Mapping
+long a lazy list with a function and using only the 3 first elements will only
+apply the function to these elements, as oposed to regular lists.
+
+Lazy lists can also be used to create infinite lists or generators.
+
+Lastly, they allow for elegant recursive implementations of several classical
+algorithms.
+
+On the other hand, functions or methods like `equals`, `size` or `contains` are
+not very efficients, since they must evaluate the whole list, and thus negate
+the lazyness. They are here for completeness and compatibility with the regular
+lists interface, but you should avoid such methods.
+
+Some functions in this module are recursive (re)implementation of standard list
+HOF, such as `map` or `filter`. The recursive aspect should not be limiting since
+the resulting list is lazy.
 ----
 module gololang.lazylist
 
@@ -31,9 +48,9 @@ import java.util
 # ............................................................................................... #
 # Utils, constructors and conversions
 
-local function head = |l| -> l:head()
-local function tail = |l| -> l:tail()
-local function isEmpty = |l| -> l:isEmpty()
+local function head = |l| -> l: head()
+local function tail = |l| -> l: tail()
+local function isEmpty = |l| -> l: isEmpty()
 
 ----
 Returns the empty list.
@@ -62,7 +79,7 @@ Unary version of [`cons(head, tail)`](#cons_head_tail).
 Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
 of the form `[head, tail]`.
 ----
-function cons = |ht| -> cons(ht:get(0), ht:get(1))
+function cons = |ht| -> cons(ht: get(0), ht: get(1))
 
 ----
 Variadic function to create lazy lists from values.
@@ -73,7 +90,7 @@ is the same as
 
     let myList = cons(1, cons(2, cons(3, cons(4, Empty()))))
 ----
-function lazyList = |values...| -> iteratorToLazyList(values:asList():iterator())
+function lazyList = |values...| -> iteratorToLazyList(values: asList(): iterator())
 
 ----
 Wraps any object implementing `Iterable` or `Iterator` in a lazy list.
@@ -82,17 +99,17 @@ used.
 ----
 function ittoLazyList = |it| -> match {
   when it oftype Iterable.class then
-    iteratorToLazyList(it:iterator())
+    iteratorToLazyList(it: iterator())
   when it oftype Iterator.class then
     iteratorToLazyList(it)
   otherwise raise("Invalid argument for ittoLazyList")
 }
 
 local function iteratorToLazyList = |iterator| {
-  if not iterator:hasNext() {
+  if not iterator: hasNext() {
     return gololang.LazyList.EMPTY()
   } else {
-    let head = iterator:next()
+    let head = iterator: next()
     return gololang.LazyList(head, -> ittoLazyList(iterator))
   }
 }
@@ -111,16 +128,17 @@ local function any = |it| {
 
 function zip = |lists| {
   return match {
-    when any(lists:map(^isEmpty)) then Empty()
+    when any(lists: map(^isEmpty)) then Empty()
     otherwise gololang.LazyList(
-      Tuple.fromArray(lists:map(^head):toArray()),
-      -> zip(lists:map(^tail))
+      Tuple.fromArray(lists: map(^head): toArray()),
+      -> zip(lists: map(^tail))
     )
   }
 }
 
 
 augment gololang.LazyList {
+
   ----
   Maps elements of a list using a function:
 
@@ -129,87 +147,142 @@ augment gololang.LazyList {
   `map` returns a new lazy list, i.e. `func` is applied only
   when necessary.
 
-  This is just a convenient augmentation that delegates to
-  [`gololang.lazylist.map`](#map_func_list)
+  This is a recursive implementation.
   ----
-  function map = |this, func| ->
-    gololang.lazylist.map(func, this)
- 
-  ----
-  Fold left on `this`.
-  This is just a convenient augmentation that delegates to
-  [`gololang.lazylist.foldl`](#foldl_func_zero_list)
-  ----
-  function foldl = |this, func, zero| ->
-    gololang.lazylist.foldl(func, zero, this)
+  function map = |this, func| -> match {
+    when this: isEmpty() then Empty()
+    otherwise gololang.LazyList(
+      func(this: head()), -> this: tail(): map(func)
+    )
+  }
 
   ----
-  Fold right on `this`.
-  This is just a convenient augmentation that delegates to
-  [`gololang.lazylist.foldr`](#foldr_func_zero_list)
+  Folds left `this` using `func` with `zero` as initial value.
+  This is a recursive implementation.
+
+      lazyList(a, b, c): foldl(f, z) == f(f(f(z, a), b), c)
+
+  Equivalent to `foldr` if `func` is commutative.
   ----
-  function foldr = |this, func, zero| ->
-    gololang.lazylist.foldr(func, zero, this)
+  function foldl = |this, func, zero| -> match {
+    when this: isEmpty() then zero
+    otherwise this: tail(): foldl(func, func(zero, this: head()))
+  }
 
   ----
-  Similar to
-  [`reduce`](./StandardAugmentations#java.lang.Iterable.reduce_this_initialValue_func).
+  Folds right `this` using `func` with `zero` as initial value.
+  This is a recursive implementation.
 
-  This function only delegates to `foldl`, but is here to provide
-  homogeneous interface with regular lists.
+      lazyList(a, b, c): foldr(f, z) == f(a, f(b, f(c, z)))
+
+  Equivalent to `foldl` if `func` is commutative.
   ----
-  function reduce = |this, initialValue, func| ->
-    this:foldl(func, initialValue)
+  function foldr = |this, func, zero| -> match {
+    when this: isEmpty() then zero
+    otherwise func(this: head(), this: tail(): foldr(func, zero))
+  }
 
-  #TODO: filter(this, func)
-  #TODO: each(this, func)
-  #TODO: find(this, pred)
-  #TODO: join(this, separator)
+  ----
+  ----
+  function zip = |this, others...| ->
+    gololang.lazylist.zip(java.util.ArrayList(others: asList()): prepend(this))
+
+  ----
+  Takes the `nb` first elements of the lazy list, as a lazy list.
+  This is a wrapper, the underlying list is resolved on demand, such that
+  everything remains lazy. `take` can thus be used on infinite lists.
+  ----
+  function take = |this, nb| -> match {
+    when nb == 0 or this: isEmpty() then Empty()
+    otherwise gololang.LazyList(
+      this: head(),
+      -> this: tail(): take(nb - 1)
+    )
+  }
+
+  ----
+  ----
+  function takeWhile = |this, pred| -> match {
+    when this: isEmpty() or not pred(this: head()) then Empty()
+    otherwise gololang.LazyList(this: head(), -> this: tail() :takeWhile(pred))
+  }
+  
+  ----
+  ----
+  function drop = |this, nb| -> match {
+    when nb == 0 then this
+    when this: isEmpty() then Empty()
+    otherwise this: tail(): drop(nb - 1)
+  }
+
+  ----
+  ----
+  function dropWhile = |this, pred| -> match {
+    when this: isEmpty() then Empty()
+    when not pred(this: head()) then this
+    otherwise this: tail(): drop(pred)
+  }
+  ----
+  Filters elements based on a predicate.
+
+  Returns a new lazy list.
+  ----
+  function filter = |this, pred| -> match {
+    when this: isEmpty() then Empty()
+    when pred(this: head()) then
+      gololang.LazyList(this: head(), -> this: tail(): filter(pred))
+    otherwise this: tail(): filter(pred)
+  }
+
+  ----
+  Finds the first element of a list matching a predicate:
+
+      println(lazyList(1, 2, 3, 4): find(|n| -> n > 3))
+
+  * `this`: a lazy list.
+  * `pred`: a predicate function taking an element and returning a boolean.
+
+  `find` returns `null` when no element satisfies `pred`.
+
+  Note that in the worst case, all the list is search. Take care to **not use**
+  this method on infinite list, since no check is made.
+  ----
+  function find = |this, pred| -> match {
+    when this: isEmpty() then null
+    when pred(this: head()) then this: head()
+    otherwise this: tail(): find(pred)
+  }
+
+  ----
+  Join the elements into a string:
+
+      println(list[1, 2, 3]: join(", "))
+
+  * `this`: a list.
+  * `separator`: the element separator string.
+
+  The returned string is `""` when the list is empty.
+  ----
+  function join = |this, separator| {
+    var buffer = java.lang.StringBuilder("")
+    if not (this: isEmpty()) {
+      buffer: append(this: head())
+      let tail = this: tail()
+      if not (tail: isEmpty()) {
+        buffer: append(separator)
+        buffer: append(tail: join(separator))
+      }
+    }
+    return buffer: toString()
+  }
+
+  ----
+  ----
+  function enumerate = |this| -> this: zip(count())
 }
 
 #=== HOF ===
-----
-Converts `list` by applying `func` to each of its elements.
-This is a recursive implementation.
 
-    map(|x| -> 2 * x, list[1, 2, 3])
-
-`list` can be any object having `head` and `tail` methods.
-Returns a new lazy list, i.e. `func` is applied only when necessary.
-----
-function map = |func, list| -> match {
-  when list:isEmpty() then Empty()
-  otherwise gololang.LazyList(
-    func(list:head()), -> map(func, list:tail())
-  )
-}
-
-----
-Folds left `list` using `func` with `zero` as initial value.
-This is a recursive implementation.
-
-    foldl(f, z, [a, b, c]) == f(f(f(z, a), b), c)
-
-`list` can be any object having `head` and `tail` methods.
-----
-function foldl = |func, zero, list| -> match {
-  when list:isEmpty() then zero
-  otherwise foldl(func, func(zero, list:head()), list:tail())
-}
-
-----
-Folds right `list` using `func` with `zero` as initial value.
-This is a recursive implementation.
-
-    foldr(f, z, [a, b, c]) == f(a, f(b, f(c, z)))
-
-`list` can be any object having `head` and `tail` methods.
-Equivalent to `foldl` if `func` is commutative.
-----
-function foldr = |func, zero, list| -> match {
-  when list:isEmpty() then zero
-  otherwise func(list:head(), foldr(func, zero, list:tail()))
-}
 
 function generator = |unspool, finished, x| {
   if finished(x) {
@@ -222,25 +295,8 @@ function generator = |unspool, finished, x| {
   )
 }
 
-function filter = |pred, llist| -> match {
-  when llist:isEmpty() then Empty()
-  when pred(llist:head()) then
-    gololang.LazyList(llist:head(), -> filter(pred, llist:tail()))
-  otherwise filter(pred, llist:tail())
-}
+function count = |start| -> 
+  gololang.LazyList(start, -> gololang.lazylist.count(start + 1))
 
-function take = |nb, list| -> match {
-  when nb == 0 then Empty()
-  when list:isEmpty() then Empty()
-  otherwise gololang.LazyList(
-    list:head(),
-    -> take(nb - 1, list:tail())
-  )
-}
+function count = -> gololang.lazylist.count(0)
 
-#TODO: takeWhile
-#TODO: drop
-#TODO: dropWhile
-#TODO: count
-#TODO: enumerate
-#TODO: ...
