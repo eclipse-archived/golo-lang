@@ -97,12 +97,12 @@ Wraps any object implementing `Iterable` or `Iterator` in a lazy list.
 The `next()` method of the underlying iterator is only called when the tail is
 used.
 ----
-function ittoLazyList = |it| -> match {
+function fromIter = |it| -> match {
   when it oftype Iterable.class then
     iteratorToLazyList(it: iterator())
   when it oftype Iterator.class then
     iteratorToLazyList(it)
-  otherwise raise("Invalid argument for ittoLazyList")
+  otherwise raise("Invalid argument for fromIter")
 }
 
 local function iteratorToLazyList = |iterator| {
@@ -110,7 +110,7 @@ local function iteratorToLazyList = |iterator| {
     return gololang.LazyList.EMPTY()
   } else {
     let head = iterator: next()
-    return gololang.LazyList(head, -> ittoLazyList(iterator))
+    return gololang.LazyList(head, -> iteratorToLazyList(iterator))
   }
 }
 
