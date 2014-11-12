@@ -73,13 +73,13 @@ function cons = |head, tail| -> match {
   otherwise gololang.LazyList(head, -> tail)
 }
 
-----
-Unary version of [`cons(head, tail)`](#cons_head_tail).
-
-Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
-of the form `[head, tail]`.
-----
-function cons = |ht| -> cons(ht: get(0), ht: get(1))
+#----
+#Unary version of [`cons(head, tail)`](#cons_head_tail).
+#
+#Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
+#of the form `[head, tail]`.
+#----
+#function cons = |ht| -> cons(ht: get(0), ht: get(1))
 
 ----
 Variadic function to create lazy lists from values.
@@ -220,7 +220,7 @@ augment gololang.LazyList {
   function dropWhile = |this, pred| -> match {
     when this: isEmpty() then Empty()
     when not pred(this: head()) then this
-    otherwise this: tail(): drop(pred)
+    otherwise this: tail(): dropWhile(pred)
   }
   ----
   Filters elements based on a predicate.
@@ -264,14 +264,14 @@ augment gololang.LazyList {
   The returned string is `""` when the list is empty.
   ----
   function join = |this, separator| {
-    var buffer = java.lang.StringBuilder("")
-    if not (this: isEmpty()) {
-      buffer: append(this: head())
-      let tail = this: tail()
-      if not (tail: isEmpty()) {
+    if this: isEmpty() {
+      return ""
+    }
+    var it = this: iterator()
+    var buffer = java.lang.StringBuilder(it: next(): toString())
+    while it: hasNext() {
         buffer: append(separator)
-        buffer: append(tail: join(separator))
-      }
+        buffer: append(it: next())
     }
     return buffer: toString()
   }
