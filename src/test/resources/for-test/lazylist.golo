@@ -54,7 +54,10 @@ function test_from_iter = -> [fromIter(longL()), longLL()]
 #      assertEquals(ll:tail():tail():tail():tail():head(), 4)
 #    })),
 
-function test_to_list = -> [longLL(): asList(), longL()]
+function test_to_list = -> [
+  [longLL(): asList(), Empty(): asList()],
+  [longL(), list[]]
+]
 
 
 #    Test("convert to array")({
@@ -103,7 +106,7 @@ function test_mapEmpty = -> [Empty():map(|a| -> a):isEmpty(), true]
 function test_foldr = -> [lazyList(1, 2, 3): foldr(|a, b| -> a + b, 0), 6]
 
 function test_foldrCopy = ->
-  [longLL():foldr(^gololang.lazylist::cons, Empty()):asList(), longL()]
+  [longLL():foldr(|v, l| -> cons(v, l), Empty()):asList(), longL()]
 
 function test_foldrEmpty = -> [Empty():foldr(|a, b| -> a + b, 0), 0]
 
@@ -135,10 +138,50 @@ function test_zip = {
   )]
 }
 
+function test_zipMeth = {
+  let l1 = lazyList(1, 2, 3, 4)
+  let l2 = list['a', 'b', 'c']
+  let l3 = lazyList(5, 6)
+  return [l1:zip(l2, l3):asList(), list[[1, 'a', 5], [2, 'b', 6]]]
+}
+
 function test_enumerate = ->
   [longLL(): enumerate(), lazyList([1, 0], [2, 1], [3, 2], [4, 3], [5, 4])]
 
-function test_take = ->
-  [longLL():take(3), lazyList(1, 2, 3)]
+function test_take = -> [
+  [longLL():take(3), longLL():take(42), Empty(): take(2)],
+  [lazyList(1, 2, 3), longLL(), Empty()]
+]
 
+function test_takeWhile = -> [
+  [longLL():takeWhile(|v| -> v < 4), longLL():takeWhile(|v| -> false),
+   longLL():takeWhile(|v|->true)],
+  [lazyList(1, 2, 3), Empty(), longLL()]
+]
 
+function test_drop = -> [
+  [longLL():drop(3), longLL():drop(0), longLL(): drop(42), Empty():drop(3)],
+  [lazyList(4, 5), longLL(), Empty(), Empty()]
+]
+
+function test_dropWhile = -> [
+  [longLL():dropWhile(|v| -> v < 4): asList(),
+   longLL():dropWhile(|v| -> false): asList(),
+   longLL():dropWhile(|v| -> true): asList()],
+  [list[4, 5], longL(), list[]]
+]
+
+function test_find = -> [
+  [longLL():find(|n| -> n > 3), longLL():find(|v| -> false)],
+  [4, null]
+]
+
+function test_join = -> [
+  [lazyList(1, 2, 3): join(","), Empty(): join(",")],
+  ["1,2,3", ""]
+]
+
+function test_count = -> [
+  [count(2): take(5): asList(), count(): take(2): asList()],
+  [list[2, 3, 4, 5, 6], list[0, 1]]
+]

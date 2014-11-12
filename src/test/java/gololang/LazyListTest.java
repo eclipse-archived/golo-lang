@@ -145,10 +145,10 @@ public class LazyListTest {
     evalTest("test_foldr");
   }
 
-  /*@Test
+  @Test
   public void foldrCopy() throws Throwable {
     evalTest("test_foldrCopy");
-  }*/
+  }
 
   @Test
   public void foldrEmpty() throws Throwable {
@@ -184,6 +184,10 @@ public class LazyListTest {
   }
 
   @Test
+  public void zipMeth() throws Throwable {
+    evalTest("test_zipMeth");
+  }
+  @Test
   public void enumerate() throws Throwable {
     evalTest("test_enumerate");
   }
@@ -192,10 +196,34 @@ public class LazyListTest {
   public void take() throws Throwable {
     evalTest("test_take");
   }
-  /*
+
   @Test
-  public void NAME() throws Throwable {
-    evalTest("test_NAME");
+  public void takeWhile() throws Throwable {
+    evalTest("test_takeWhile");
   }
-  */
+
+  @Test
+  public void drop() throws Throwable {
+    evalTest("test_drop");
+  }
+
+  @Test
+  public void dropWhile() throws Throwable {
+    evalTest("test_dropWhile");
+  }
+
+  @Test
+  public void find() throws Throwable {
+    evalTest("test_find");
+  }
+  
+  @Test
+  public void join() throws Throwable {
+    evalTest("test_join");
+  }
+
+  @Test
+  public void count() throws Throwable {
+    evalTest("test_count");
+  }
 }
