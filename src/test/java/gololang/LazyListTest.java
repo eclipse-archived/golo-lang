@@ -226,4 +226,14 @@ public class LazyListTest {
   public void count() throws Throwable {
     evalTest("test_count");
   }
+
+  @Test
+  public void cycle() throws Throwable {
+    evalTest("test_cycle");
+  }
+
+  @Test
+  public void range() throws Throwable {
+    evalTest("test_range");
+  }
 }

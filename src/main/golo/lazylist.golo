@@ -96,6 +96,11 @@ function lazyList = |values...| -> iteratorToLazyList(values: asList(): iterator
 Wraps any object implementing `Iterable` or `Iterator` in a lazy list.
 The `next()` method of the underlying iterator is only called when the tail is
 used.
+
+NOTE:
+If called with an `Iterator` instance, the iterator is shared, so navigating
+through the list can have side effects if another object is using the same
+iterator.
 ----
 function fromIter = |it| -> match {
   when it oftype Iterable.class then
@@ -277,8 +282,25 @@ augment gololang.LazyList {
   }
 
   ----
+  Enumerate the list elements
+
+  Returns a new lazy list containing `[elt, idx]` tuples.
   ----
   function enumerate = |this| -> this: zip(count())
+
+  ----
+  Cycle infinitely through the lazy list
+  
+      lazyList(1, 2, 3): cycle()
+
+  returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
+
+      Empty(): cycle()
+
+  returns `Empty()`
+  ----
+  function cycle = |this| -> memocycle(this, this)
+
 }
 
 #=== HOF ===
@@ -290,7 +312,7 @@ function generator = |unspool, finished, x| {
   }
   let r = unspool(x)
   return gololang.LazyList(
-    r:get(1),
+    r:get(0),
     -> generator(unspool, finished, r:get(1))
   )
 }
@@ -299,4 +321,25 @@ function count = |start| ->
   gololang.LazyList(start, -> gololang.lazylist.count(start + 1))
 
 function count = -> gololang.lazylist.count(0)
+
+----
+Cycle infinitely through the lazy list
+
+    cycle(lazyList(1, 2, 3))
+
+returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
+
+    cycle(Empty())
+
+returns `Empty()`
+----
+function cycle = |list| -> memocycle(list, list)
+
+local function memocycle = |start, list| -> match {
+  when list: isEmpty() then Empty()
+  when list: tail(): isEmpty() then
+    gololang.LazyList(list: head(), -> memocycle(start, start))
+  otherwise
+    gololang.LazyList(list: head(), -> memocycle(start, list:tail()))
+}
 

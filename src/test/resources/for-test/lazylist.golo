@@ -123,10 +123,17 @@ function test_filterCopy = ->
 function test_filterEmpty = ->
   [Empty(): filter(|a| -> true), Empty()]
 
-function test_range = -> [
+function test_range = {
+  let r = |s, e| -> generator(
+    |v| -> [v, v+1],
+    |v| -> v >= e,
+    s
+  )
+  return [
   [r(2, 5):asList(), r(0,1):asList(), r(1, 0)],
   [list[2, 3, 4], list[0], Empty()]
 ]
+}
 
 function test_zip = {
   let l1 = lazyList(1, 2, 3, 4)
@@ -145,8 +152,10 @@ function test_zipMeth = {
   return [l1:zip(l2, l3):asList(), list[[1, 'a', 5], [2, 'b', 6]]]
 }
 
-function test_enumerate = ->
-  [longLL(): enumerate(), lazyList([1, 0], [2, 1], [3, 2], [4, 3], [5, 4])]
+function test_enumerate = -> [
+  [longLL(): enumerate(): asList(), Empty(): enumerate()],
+  [list[[1, 0], [2, 1], [3, 2], [4, 3], [5, 4]], Empty()]
+]
 
 function test_take = -> [
   [longLL():take(3), longLL():take(42), Empty(): take(2)],
@@ -184,4 +193,18 @@ function test_join = -> [
 function test_count = -> [
   [count(2): take(5): asList(), count(): take(2): asList()],
   [list[2, 3, 4, 5, 6], list[0, 1]]
+]
+
+function test_cycle = -> [
+  [cycle(list[1, 2, 3]): take(7): asList(),
+   lazyList(1, 2, 3): cycle(): take(7): asList(),
+   cycle(list[]),
+   Empty(): cycle()
+   ],
+  [list[1, 2, 3, 1, 2, 3, 1], 
+   list[1, 2, 3, 1, 2, 3, 1],
+   Empty(),
+   Empty()
+
+   ]
 ]
