@@ -31,7 +31,7 @@ import java.util.Iterator;
  * let t2 = tuple[1, 2, 3]
  * </pre>
  */
-public final class Tuple implements Iterable<Object> {
+public final class Tuple implements HeadTail<Object> {
 
   private final Object[] data;
 
@@ -68,6 +68,7 @@ public final class Tuple implements Iterable<Object> {
    *
    * @return {@code true} if the tuple has no element, {@code false} otherwise.
    */
+  @Override
   public boolean isEmpty() {
     return data.length == 0;
   }
@@ -136,6 +137,12 @@ public final class Tuple implements Iterable<Object> {
     return "tuple" + Arrays.toString(data);
   }
 
+  /**
+   * Returns the first element of the tuple.
+   *
+   * @return the first element.
+   */
+  @Override
   public Object head() {
     if (this.isEmpty()) {
       return null;
@@ -143,6 +150,12 @@ public final class Tuple implements Iterable<Object> {
     return this.get(0);
   }
 
+  /**
+   * Returns a new tuple containg the remaining elements.
+   *
+   * @return a tuple.
+   */
+  @Override
   public Tuple tail() {
     if (this.isEmpty()) {
       return new Tuple();
