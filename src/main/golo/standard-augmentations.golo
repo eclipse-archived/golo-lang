@@ -225,6 +225,35 @@ augment java.lang.String {
 }
 
 # ............................................................................................... #
+----
+Augmentations over `CharSequence` to view it as a "real" `char` collection.
+----
+augment java.lang.CharSequence {
+
+  ----
+  Returns the first `char` of the sequence, of `null` if empty.
+  ----
+  function head = |this| -> match {
+    when this: isEmpty() then null
+    otherwise this: charAt(0)
+  }
+
+  ----
+  Returns the remaining subsequence.
+  ----
+  function tail = |this| -> match {
+    when this: isEmpty() then this: getClass(): newInstance()
+    otherwise this: subSequence(1, this: length())
+  }
+
+  ----
+  Checks if the sequence is empty.
+  ----
+  function isEmpty = |this| -> this: length() == 0
+}
+
+
+# ............................................................................................... #
 
 ----
 Augmentations over iterable collections.
