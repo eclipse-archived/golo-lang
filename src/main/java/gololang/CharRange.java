@@ -56,6 +56,14 @@ class CharRange extends AbstractRange<Character> {
   }
 
   @Override
+  public Range<Character> tail() {
+    if (isEmpty()) {
+      return this;
+    }
+    return new CharRange((char) (from() + increment()), to()).incrementBy(increment());
+  }
+
+  @Override
   public Iterator<Character> iterator() {
     return new AbstractRange<Character>.RangeIterator() {
 

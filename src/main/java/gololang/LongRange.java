@@ -52,6 +52,14 @@ class LongRange extends AbstractRange<Long> {
   }
 
   @Override
+  public Range<Long> tail() {
+    if (isEmpty()) {
+      return this;
+    }
+    return new LongRange(from() + increment(), to()).incrementBy(increment());
+  }
+
+  @Override
   public Iterator<Long> iterator() {
     return new AbstractRange<Long>.RangeIterator() {
 

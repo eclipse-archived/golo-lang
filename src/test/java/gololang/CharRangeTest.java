@@ -153,6 +153,17 @@ public class CharRangeTest {
   }
 
   @Test
+  public void headtail() {
+    IntRange range = new CharRange('a', 'f').incrementBy(2);
+    assertThat(range.isEmpty(), is(false));
+    assertThat(range.head(), is('a'));
+    assertThat(range.tail().from(), is('c'));
+    assertThat(range.tail().to(), is('f'));
+    assertThat(range.tail().increment(), is(2));
+    assertThat(range.tail().tail().tail().isEmpty(), is(true));
+  }
+
+  @Test
   public void increment() {
     CharRange range = new CharRange('a', 'c');
     range.incrementBy(2);

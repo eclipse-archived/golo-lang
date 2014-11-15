@@ -24,7 +24,7 @@ import java.util.Collection;
  * A range represent a set of values between to bounds, optionally with a step (or increment) from
  * one value to the next.
  */
-public interface Range<T> extends Collection<T> {
+public interface Range<T> extends Collection<T>, HeadTail<T> {
 
   /**
    * Gets the lower bound of the range.

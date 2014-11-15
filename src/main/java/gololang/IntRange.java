@@ -52,6 +52,14 @@ class IntRange extends AbstractRange<Integer> {
   }
 
   @Override
+  public Range<Integer> tail() {
+    if (isEmpty()) {
+      return this;
+    }
+    return new IntRange(from() + increment(), to()).incrementBy(increment());
+  }
+
+  @Override
   public Iterator<Integer> iterator() {
     return new AbstractRange<Integer>.RangeIterator() {
 

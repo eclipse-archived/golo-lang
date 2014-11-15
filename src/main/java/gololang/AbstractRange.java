@@ -121,4 +121,17 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
       this.increment()}
     );
   }
+
+  @Override
+  public T head() {
+    if (isEmpty()) {
+      return null;
+    }
+    return from;
+  }
+
+  @Override
+  public boolean isEmpty() {
+    return from.compareTo(to) >= 0;
+  }
 }
