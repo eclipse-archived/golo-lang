@@ -36,11 +36,15 @@ package gololang;
  *   when ht: isEmpty then 0
  *   otherwhise 1 + size(ht: tail())
  * }
- *
+ * </pre>
+ * <p>
+ * Note that the {@code size} method is not provided since this interface
+ * can be implemented by infinite generators.
+ * <p>
  * A {@code List} augmentation is provided, as well as corresponding special
  * methods on arrays ({@code Object[]}/{@code array[]})
  */
-public interface HeadTail<T> extends Iterable<T> {
+public interface HeadTail<T> {
   /**
    * Returns the first element of the collection.
    */
