@@ -158,7 +158,8 @@ public final class Tuple implements Iterable<Object>, HeadTail<Object> {
   @Override
   public Tuple tail() {
     if (this.isEmpty()) {
-      return new Tuple();
+      // we can return this since a Tuple is immutable.
+      return this;
     }
     return fromArray(Arrays.copyOfRange(data, 1, data.length));
   }
