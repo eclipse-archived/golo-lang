@@ -19,6 +19,7 @@ import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.GoloStruct;
 import gololang.Tuple;
 import org.testng.annotations.Test;
@@ -739,6 +740,39 @@ public class CompileAndRunTest {
 
     Method call_local_fun_full_literal = moduleClass.getMethod("call_local_fun_full_literal");
     assertThat((Integer) call_local_fun_full_literal.invoke(null), is(2));
+
+    Method call_local_overloaded_fun_with_arity1 = moduleClass.getMethod("call_local_overloaded_fun_with_arity1");
+    assertThat((Integer) call_local_overloaded_fun_with_arity1.invoke(null), is(3));
+
+    Method call_local_overloaded_fun_with_arity2 = moduleClass.getMethod("call_local_overloaded_fun_with_arity2");
+    assertThat((Integer) call_local_overloaded_fun_with_arity2.invoke(null), is(3));
+
+    Method call_local_overloaded_fun_without_arity = moduleClass.getMethod("call_local_overloaded_fun_without_arity");
+    try {
+      call_local_overloaded_fun_without_arity.invoke(null);
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
+    }
+
+    Method call_local_overloaded_fun_short_literal = moduleClass.getMethod("call_local_overloaded_fun_short_literal");
+    try {
+      call_local_overloaded_fun_short_literal.invoke(null);
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
+    }
+
+    Method call_local_overloaded_fun_full_literal = moduleClass.getMethod("call_local_overloaded_fun_full_literal");
+    try {
+      call_local_overloaded_fun_short_literal.invoke(null);
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
+    }
 
     Method nested_closures = moduleClass.getMethod("nested_closures");
     result = nested_closures.invoke(null);

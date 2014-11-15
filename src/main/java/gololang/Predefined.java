@@ -31,7 +31,10 @@ import java.nio.file.StandardOpenOption;
 import java.util.AbstractMap;
 import java.util.Arrays;
 import java.util.LinkedList;
+import java.util.LinkedHashSet;
 import java.util.List;
+
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
@@ -349,18 +352,24 @@ public class Predefined {
     Method targetMethod = null;
     List<Method> candidates = new LinkedList<>(Arrays.asList(moduleClass.getDeclaredMethods()));
     candidates.addAll(Arrays.asList(moduleClass.getMethods()));
+    LinkedHashSet<Method> validCandidates = new LinkedHashSet<>();
     for (Method method : candidates) {
       if (method.getName().equals(functionName) && Modifier.isStatic(method.getModifiers())) {
         if ((functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
-          targetMethod = method;
-          break;
+          validCandidates.add(method);
         }
       }
     }
-    if (targetMethod != null) {
+    if (validCandidates.size() == 1) {
+      targetMethod = validCandidates.iterator().next();
       MethodHandles.Lookup lookup = MethodHandles.publicLookup();
       targetMethod.setAccessible(true);
       return lookup.unreflect(targetMethod);
+    }
+    if (validCandidates.size() > 1) {
+      throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module 
+            + ((functionArity < 0) ? "" : (" with arity " + functionArity)) 
+            + " is ambiguous"));
     }
     throw new NoSuchMethodException((name + " in " + module + ((functionArity < 0) ? "" : (" with arity " + functionArity))));
   }

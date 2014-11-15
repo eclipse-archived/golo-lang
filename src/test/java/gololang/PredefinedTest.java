@@ -30,6 +30,8 @@ import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+
 public class PredefinedTest {
 
   @Test
@@ -103,6 +105,14 @@ public class PredefinedTest {
     static Object hello() {
       return "Hello!";
     }
+
+    static Object overloaded(int a, int b) {
+      return a + b;
+    }
+
+    static Object overloaded(int a) {
+      return a + 1;
+    }
   }
 
   @Test
@@ -138,6 +148,29 @@ public class PredefinedTest {
   @Test(expectedExceptions = NoSuchMethodException.class)
   public void test_fun_fail() throws Throwable {
     MethodHandle hello = (MethodHandle) Predefined.fun("helloz", MyCallable.class, 0);
+  }
+
+  @Test(expectedExceptions = AmbiguousFunctionReferenceException.class)
+  public void test_fun_ambiguous() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class);
+  }
+
+  @Test(expectedExceptions = WrongMethodTypeException.class)
+  public void test_fun_wrong_arity() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 1);
+    overloaded.invoke(1, 2);
+  }
+
+  @Test
+  public void test_fun_overloaded1() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 1);
+    assertThat((Integer) overloaded.invoke(2), is(3));
+  }
+
+  @Test
+  public void test_fun_overloaded2() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 2);
+    assertThat((Integer) overloaded.invoke(1, 2), is(3));
   }
 
   @Test
