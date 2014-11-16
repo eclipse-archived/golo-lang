@@ -67,3 +67,23 @@ function asList_method = {
 function getClass_method = {
   return Array(1, 2, 3): getClass()
 }
+
+function head_method = {
+  return Array(1, 2, 3): head()
+}
+
+function tail_method = {
+  return Array(1, 2, 3): tail(): asList()
+}
+
+function head_method_empty = {
+  return array[]: head()
+}
+
+function isEmpty_method = {
+  return array[]: isEmpty()
+}
+
+function tail_method_empty = {
+  return array[]: tail(): equals(array[])
+}

@@ -527,6 +527,21 @@ public class CompileAndRunTest {
 
     Method asList_method = moduleClass.getMethod("asList_method");
     assertThat(asList_method.invoke(null), instanceOf(List.class));
+ 
+    Method head_method = moduleClass.getMethod("head_method");
+    assertThat((Integer) head_method.invoke(null), is(1));
+
+    Method tail_method = moduleClass.getMethod("tail_method");
+    assertThat((List<Integer>) tail_method.invoke(null), contains(2, 3));
+
+    Method head_method_empty = moduleClass.getMethod("head_method_empty");
+    assertThat((Integer) head_method_empty.invoke(null), is(nullValue()));
+
+    Method tail_method_empty = moduleClass.getMethod("tail_method_empty");
+    assertThat((Boolean) tail_method_empty.invoke(null), is(true));
+
+    Method isEmpty_method = moduleClass.getMethod("isEmpty_method");
+    assertThat((Boolean) isEmpty_method.invoke(null), is(true));
   }
 
   @Test

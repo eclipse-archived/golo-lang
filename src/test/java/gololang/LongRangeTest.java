@@ -153,18 +153,16 @@ public class LongRangeTest {
       assertThat((Object) range.head(), is(nullValue()));
       assertThat(range.tail().isEmpty(), is(true));
       assertThat(range.size(), is(0));
-      assertThat(range.tail(), is(range));
     }
   }
 
   @Test
   public void headtail() {
-    LongRange range = new LongRange(0L, 5L).incrementBy(2L);
+    Range<Long> range = new LongRange(0L, 5L).incrementBy(2);
     assertThat(range.isEmpty(), is(false));
     assertThat(range.head(), is(0L));
-    assertThat(range.tail().from(), is(2L));
-    assertThat(range.tail().to(), is(5L));
-    assertThat(range.tail().increment(), is(2L));
+    assertThat(range.tail().head(), is(2L));
+    assertThat(range.tail().tail().head(), is(4L));
     assertThat(range.tail().tail().tail().isEmpty(), is(true));
   }
 

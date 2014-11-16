@@ -25,6 +25,7 @@ import java.util.NoSuchElementException;
 import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
 import static org.hamcrest.Matchers.nullValue;
 
 public class IntRangeTest {
@@ -147,24 +148,22 @@ public class IntRangeTest {
       new IntRange(5, 4)
     );
 
-    for (IntRange range : ranges) {
+    for (Range<Integer> range : ranges) {
       assertThat(range.iterator().hasNext(), is(false));
       assertThat(range.isEmpty(), is(true));
       assertThat(range.size(), is(0));
       assertThat((Object) range.head(), is(nullValue()));
       assertThat(range.tail().isEmpty(), is(true));
-      assertThat(range.tail(), is(range));
     }
   }
 
   @Test
   public void headtail() {
-    IntRange range = new IntRange(0, 5).incrementBy(2);
+    Range<Integer> range = new IntRange(0, 5).incrementBy(2);
     assertThat(range.isEmpty(), is(false));
     assertThat(range.head(), is(0));
-    assertThat(range.tail().from(), is(2));
-    assertThat(range.tail().to(), is(5));
-    assertThat(range.tail().increment(), is(2));
+    assertThat(range.tail().head(), is(2));
+    assertThat(range.tail().tail().head(), is(4));
     assertThat(range.tail().tail().tail().isEmpty(), is(true));
   }
 
