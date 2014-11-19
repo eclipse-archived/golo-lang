@@ -40,7 +40,7 @@ public class IntRangeTest {
 
   @Test
   public void checkRev() {
-    IntRange range = new IntRange(3, 1).incrementBy(-1);
+    Range<Integer> range = new IntRange(3, 1).incrementBy(-1);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(3));
@@ -82,7 +82,7 @@ public class IntRangeTest {
 
   @Test
   public void incrementRev() {
-    IntRange range = new IntRange(3, 1).incrementBy(-2);
+    Range<Integer> range = new IntRange(3, 1).incrementBy(-2);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(3));
@@ -91,7 +91,7 @@ public class IntRangeTest {
 
   @Test
   public void decrement() {
-    IntRange range = new IntRange(3, 1).decrementBy(2);
+    Range<Integer> range = new IntRange(3, 1).decrementBy(2);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(3));
@@ -109,7 +109,7 @@ public class IntRangeTest {
 
   @Test
   public void singletonRev() {
-    IntRange range = new IntRange(1, 0).incrementBy(-1);
+    Range<Integer> range = new IntRange(1, 0).incrementBy(-1);
     Iterator<Integer> iterator = range.iterator();
     assertThat(iterator.hasNext(), is(true));
     assertThat(iterator.next(), is(1));

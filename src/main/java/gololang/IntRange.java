@@ -20,76 +20,23 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Arrays;
 
-class IntRange implements Iterable<Integer> {
-  private final int from;
-  private final int to;
-  private int increment = 1;
-  private int cmp = 1;
+class IntRange extends AbstractRange<Integer> {
 
   public IntRange(int from, int to) {
-    this.from = from;
-    this.to = to;
-  }
-
-  public int from() {
-    return this.from;
-  }
-
-  public int to() {
-    return this.to;
-  }
-
-  public int increment() {
-    return this.increment;
-  }
-
-  public IntRange incrementBy(int value) {
-    this.increment = value;
-    if (value < 0) {
-      this.cmp = -1;
-    } else {
-      this.cmp = 1;
-    }
-    return this;
-  }
-
-  public IntRange decrementBy(int value) {
-    return this.incrementBy(-value);
-  }
-
-  @Override
-  public String toString() {
-    if (this.increment != 1) {
-      return String.format("range(%s,%s):incrementBy(%s)", this.from, this.to, this.increment);
-    }
-    return String.format("range(%s,%s)", this.from, this.to);
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    return (
-      other instanceof IntRange
-      && this.from() == ((IntRange)other).from()
-      && this.to() == ((IntRange)other).to()
-      && this.increment() == ((IntRange)other).increment()
-    );
-  }
-
-  @Override
-  public int hashCode() {
-    return Arrays.hashCode(new int[]{this.from(), this.to(), this.increment()});
+    super(from, to);
   }
 
   @Override
   public Iterator<Integer> iterator() {
-    return new Iterator<Integer>() {
+    return new AbstractRange.RangeIterator() {
 
       private boolean started = false;
-      private int current = from;
+      private int current = from();
+      private int to = to();
 
       @Override
       public boolean hasNext() {
-        return Integer.compare(to, current) == cmp;
+        return Integer.compare(to, current) == cmp();
       }
 
       @Override
@@ -97,21 +44,16 @@ class IntRange implements Iterable<Integer> {
         int value = current;
         if (started) {
           if (hasNext()) {
-            current = current + increment;
+            current = current + increment();
             return value;
           } else {
             throw new NoSuchElementException("iteration has finished");
           }
         } else {
           started = true;
-          current = current + increment;
+          current = current + increment();
           return value;
         }
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException("remove() is not supported on a range");
       }
     };
   }

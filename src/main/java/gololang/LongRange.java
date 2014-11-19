@@ -20,77 +20,23 @@ import java.util.Iterator;
 import java.util.NoSuchElementException;
 import java.util.Arrays;
 
-class LongRange implements Iterable<Long> {
-
-  private final long from;
-  private final long to;
-  private long increment = 1;
-  private int cmp = 1;
-
-  public long from() {
-    return this.from;
-  }
-
-  public long to() {
-    return this.to;
-  }
-
-  public long increment() {
-    return this.increment;
-  }
+class LongRange extends AbstractRange<Long> {
 
   public LongRange(long from, long to) {
-    this.from = from;
-    this.to = to;
-  }
-
-  public LongRange incrementBy(long value) {
-    this.increment = value;
-    if (value < 0) {
-      this.cmp = -1;
-    } else {
-      this.cmp = 1;
-    }
-    return this;
-  }
-
-  public LongRange decrementBy(long value) {
-    return this.incrementBy(-value);
-  }
-
-  @Override
-  public String toString() {
-    if (this.increment != 1) {
-      return String.format("range(%s,%s):incrementBy(%s)", this.from, this.to, this.increment);
-    }
-    return String.format("range(%s,%s)", this.from, this.to);
-  }
-
-  @Override
-  public boolean equals(Object other) {
-    return (
-      other instanceof LongRange
-      && this.from() == ((LongRange)other).from()
-      && this.to() == ((LongRange)other).to()
-      && this.increment() == ((LongRange)other).increment()
-    );
-  }
-
-  @Override
-  public int hashCode() {
-    return Arrays.hashCode(new long[]{this.from(), this.to(), this.increment()});
+    super(from, to);
   }
 
   @Override
   public Iterator<Long> iterator() {
-    return new Iterator<Long>() {
+    return new AbstractRange.RangeIterator() {
 
       private boolean started = false;
-      private long current = from;
+      private long current = from();
+      private long to = to();
 
       @Override
       public boolean hasNext() {
-        return Long.compare(to, current) == cmp;
+        return Long.compare(to, current) == cmp();
       }
 
       @Override
@@ -98,21 +44,16 @@ class LongRange implements Iterable<Long> {
         long value = current;
         if (started) {
           if (hasNext()) {
-            current = current + increment;
+            current = current + increment();
             return value;
           } else {
             throw new NoSuchElementException("iteration has finished");
           }
         } else {
           started = true;
-          current = current + increment;
+          current = current + increment();
           return value;
         }
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException("remove() is not supported on a range");
       }
     };
   }
