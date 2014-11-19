@@ -114,6 +114,8 @@ public class PredefinedTest {
     assertThat(Predefined.reversed_range(10L), instanceOf(LongRange.class));
     assertThat(Predefined.reversed_range(10), is(Predefined.reversed_range(10, 0)));
     assertThat(Predefined.reversed_range(10L), is(Predefined.reversed_range(10L, 0L)));
+    assertThat((IntRange)Predefined.reversed_range(5, 1), is(((IntRange)Predefined.range(5, 1)).incrementBy(-1)));
+    assertThat((LongRange)Predefined.reversed_range(5L, 1L), is(((LongRange)Predefined.range(5L, 1L)).incrementBy(-1)));
   }
 
   static class MyCallable {

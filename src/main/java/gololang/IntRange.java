@@ -18,6 +18,7 @@ package gololang;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Arrays;
 
 class IntRange implements Iterable<Integer> {
   private final int from;
@@ -46,6 +47,8 @@ class IntRange implements Iterable<Integer> {
     this.increment = value;
     if (value < 0) {
       this.cmp = -1;
+    } else {
+      this.cmp = 1;
     }
     return this;
   }
@@ -70,6 +73,11 @@ class IntRange implements Iterable<Integer> {
       && this.to() == ((IntRange)other).to()
       && this.increment() == ((IntRange)other).increment()
     );
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(new int[]{this.from(), this.to(), this.increment()});
   }
 
   @Override

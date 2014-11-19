@@ -18,6 +18,7 @@ package gololang;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Arrays;
 
 class LongRange implements Iterable<Long> {
 
@@ -47,6 +48,8 @@ class LongRange implements Iterable<Long> {
     this.increment = value;
     if (value < 0) {
       this.cmp = -1;
+    } else {
+      this.cmp = 1;
     }
     return this;
   }
@@ -71,6 +74,11 @@ class LongRange implements Iterable<Long> {
       && this.to() == ((LongRange)other).to()
       && this.increment() == ((LongRange)other).increment()
     );
+  }
+
+  @Override
+  public int hashCode() {
+    return Arrays.hashCode(new long[]{this.from(), this.to(), this.increment()});
   }
 
   @Override
