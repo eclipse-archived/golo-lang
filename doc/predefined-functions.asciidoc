@@ -133,6 +133,36 @@ println("Increment: " + r: increment())
 
 The lower bound is inclusive, the upper bound is exclusive.
 
+A `range` with a lower bound greater than its upper bound will be empty, except
+if the increment is explicitly negative:
+
+[source,golo]
+----
+# Prints nothing
+foreach i in range(3, 0) {
+  print(i + " ")
+}
+
+# Prints 3 2 1
+foreach i in range(3, 0): incrementBy(-1) {
+  print(i + " ")
+}
+
+# Prints 0 -2 -4
+foreach i in range(0, -6):decrementBy(2) {
+  print(i + " ")
+}
+----
+
+The `reversed_range` function is an alias for `range` with an increment of -1,
+such that `reversed_range(5, 1)` is the same as `range(5, 1): decrementBy(1)`.
+
+When `range` is called with only one value, it is used as the upper bound, the
+lower one being 0 (i.e. `range(5) = range(0, 5)`). In the same way,
+`reversed_range(5) = reversed_range(5, 0)`.
+
+Two ranges are equals if they have the same bounds and increment.
+
 === Closures ===
 
 Given a closure reference or a method handle, one can convert it to an instance of an interface with
