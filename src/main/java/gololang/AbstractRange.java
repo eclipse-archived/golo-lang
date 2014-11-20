@@ -16,16 +16,17 @@
 
 package gololang;
 
+import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Arrays;
 
-abstract class AbstractRange<T> implements Range<T> {
+abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection<T> implements Range<T> {
   private final T from;
   private final T to;
   private int increment = 1;
   private int cmp = 1;
 
-  abstract class RangeIterator<E> implements Iterator<E> {
+  abstract class RangeIterator implements Iterator<T> {
 
     @Override
     public void remove() {
@@ -58,8 +59,19 @@ abstract class AbstractRange<T> implements Range<T> {
     return this.cmp;
   }
 
+  public boolean encloses (T v) {
+    return (
+      (v.compareTo(from()) == 0 || v.compareTo(from()) == cmp())
+      && to().compareTo(v) == cmp()
+    );
+
+  }
+
   @Override
   public Range<T> incrementBy(int value) {
+    if (value == 0) {
+      throw new IllegalArgumentException("increment for range must not be zero");
+    }
     this.increment = value;
     if (value < 0) {
       this.cmp = -1;
@@ -86,9 +98,9 @@ abstract class AbstractRange<T> implements Range<T> {
   public boolean equals(Object other) {
     return (
       other instanceof Range
-      && this.from().equals(((Range)other).from())
-      && this.to().equals(((Range)other).to())
-      && this.increment() == ((Range)other).increment()
+      && this.from().equals(((Range) other).from())
+      && this.to().equals(((Range) other).to())
+      && this.increment() == ((Range) other).increment()
     );
   }
 

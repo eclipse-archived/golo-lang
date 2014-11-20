@@ -16,7 +16,6 @@
 
 package gololang;
 
-import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.util.Iterator;
@@ -68,6 +67,82 @@ public class IntRangeTest {
   public void empty() {
     IntRange range = new IntRange(4, 1);
     assertThat(range.iterator().hasNext(), is(false));
+    assertThat(range.size(), is(0));
+    assertThat(range.isEmpty(), is(true));
+  }
+
+  @Test
+  public void size() {
+    assertThat((new IntRange(1, 5)).size(), is(4));
+    assertThat((new IntRange(1, 5)).incrementBy(2).size(), is(2));
+    assertThat((new IntRange(1, 3)).incrementBy(5).size(), is(1));
+    assertThat((new IntRange(2, 2)).size(), is(0));
+  }
+
+  @Test
+  public void sizeRev() {
+    assertThat((new IntRange(5, 1)).incrementBy(-1).size(), is(4));
+    assertThat((new IntRange(5, 1)).incrementBy(-2).size(), is(2));
+    assertThat((new IntRange(3, 1)).incrementBy(-5).size(), is(1));
+    assertThat((new IntRange(2, 2)).incrementBy(-1).size(), is(0));
+  }
+
+  @Test
+  public void contains() {
+    IntRange range = new IntRange(1, 5);
+    assertThat(range.contains(0), is(false));
+    assertThat(range.contains(1), is(true));
+    assertThat(range.contains(2), is(true));
+    assertThat(range.contains(3), is(true));
+    assertThat(range.contains(4), is(true));
+    assertThat(range.contains(5), is(false));
+    assertThat(range.contains(42), is(false));
+
+    range.incrementBy(2);
+    assertThat(range.contains(1), is(true));
+    assertThat(range.contains(2), is(false));
+    assertThat(range.contains(3), is(true));
+    assertThat(range.contains(4), is(false));
+    assertThat(range.contains(5), is(false));
+  }
+
+  @Test
+  public void containsRev() {
+    Range<Integer> range = new IntRange(5, 1).incrementBy(-1);
+    assertThat(range.contains(6), is(false));
+    assertThat(range.contains(5), is(true));
+    assertThat(range.contains(4), is(true));
+    assertThat(range.contains(3), is(true));
+    assertThat(range.contains(2), is(true));
+    assertThat(range.contains(1), is(false));
+    assertThat(range.contains(42), is(false));
+
+    range.incrementBy(-2);
+    assertThat(range.contains(5), is(true));
+    assertThat(range.contains(4), is(false));
+    assertThat(range.contains(3), is(true));
+    assertThat(range.contains(2), is(false));
+    assertThat(range.contains(1), is(false));
+  }
+
+  @Test
+  public void encloses() {
+    Range<Integer> range = new IntRange(1, 5).incrementBy(2);
+    assertThat(range.encloses(1), is(true));
+    assertThat(range.encloses(2), is(true));
+    assertThat(range.encloses(3), is(true));
+    assertThat(range.encloses(4), is(true));
+    assertThat(range.encloses(5), is(false));
+  }
+
+  @Test
+  public void enclosesRev() {
+    Range<Integer> range = new IntRange(5, 1).incrementBy(-2);
+    assertThat(range.encloses(5), is(true));
+    assertThat(range.encloses(4), is(true));
+    assertThat(range.encloses(3), is(true));
+    assertThat(range.encloses(2), is(true));
+    assertThat(range.encloses(1), is(false));
   }
 
   @Test

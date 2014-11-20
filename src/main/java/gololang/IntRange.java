@@ -18,7 +18,6 @@ package gololang;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
-import java.util.Arrays;
 
 class IntRange extends AbstractRange<Integer> {
 
@@ -27,8 +26,26 @@ class IntRange extends AbstractRange<Integer> {
   }
 
   @Override
+  public int size() {
+    if (to() == from()) { return 0; }
+    int s = (to() - from()) / increment();
+    if (s < 0) { return 0; }
+    if (s == 0) { return 1; }
+    return s;
+  }
+
+  @Override
+  public boolean contains(Object o) {
+    if (!(o instanceof Integer)) {
+      return false;
+    }
+    Integer obj = (Integer) o;
+    return (encloses(obj) && ((obj - from()) % increment() == 0));
+  }
+
+  @Override
   public Iterator<Integer> iterator() {
-    return new AbstractRange.RangeIterator() {
+    return new AbstractRange<Integer>.RangeIterator() {
 
       private boolean started = false;
       private int current = from();

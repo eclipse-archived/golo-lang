@@ -67,6 +67,82 @@ public class LongRangeTest {
   public void empty() {
     LongRange range = new LongRange(4L, 1L);
     assertThat(range.iterator().hasNext(), is(false));
+    assertThat(range.size(), is(0));
+    assertThat(range.isEmpty(), is(true));
+  }
+
+  @Test
+  public void size() {
+    assertThat((new LongRange(1L, 5L)).size(), is(4));
+    assertThat((new LongRange(1L, 5L)).incrementBy(2).size(), is(2));
+    assertThat((new LongRange(1L, 3L)).incrementBy(5).size(), is(1));
+    assertThat((new LongRange(2L, 2L)).size(), is(0));
+  }
+
+  @Test
+  public void sizeRev() {
+    assertThat((new LongRange(5L, 1L)).incrementBy(-1).size(), is(4));
+    assertThat((new LongRange(5L, 1L)).incrementBy(-2).size(), is(2));
+    assertThat((new LongRange(3L, 1L)).incrementBy(-5).size(), is(1));
+    assertThat((new LongRange(2L, 2L)).incrementBy(-1).size(), is(0));
+  }
+
+  @Test
+  public void contains() {
+    LongRange range = new LongRange(1L, 5L);
+    assertThat(range.contains(0L), is(false));
+    assertThat(range.contains(1L), is(true));
+    assertThat(range.contains(2L), is(true));
+    assertThat(range.contains(3L), is(true));
+    assertThat(range.contains(4L), is(true));
+    assertThat(range.contains(5L), is(false));
+    assertThat(range.contains(42L), is(false));
+
+    range.incrementBy(2);
+    assertThat(range.contains(1L), is(true));
+    assertThat(range.contains(2L), is(false));
+    assertThat(range.contains(3L), is(true));
+    assertThat(range.contains(4L), is(false));
+    assertThat(range.contains(5L), is(false));
+  }
+
+  @Test
+  public void containsRev() {
+    Range<Long> range = new LongRange(5L, 1L).incrementBy(-1);
+    assertThat(range.contains(6L), is(false));
+    assertThat(range.contains(5L), is(true));
+    assertThat(range.contains(4L), is(true));
+    assertThat(range.contains(3L), is(true));
+    assertThat(range.contains(2L), is(true));
+    assertThat(range.contains(1L), is(false));
+    assertThat(range.contains(42L), is(false));
+
+    range.incrementBy(-2);
+    assertThat(range.contains(5L), is(true));
+    assertThat(range.contains(4L), is(false));
+    assertThat(range.contains(3L), is(true));
+    assertThat(range.contains(2L), is(false));
+    assertThat(range.contains(1L), is(false));
+  }
+
+  @Test
+  public void encloses() {
+    Range<Long> range = new LongRange(1L, 5L).incrementBy(2);
+    assertThat(range.encloses(1L), is(true));
+    assertThat(range.encloses(2L), is(true));
+    assertThat(range.encloses(3L), is(true));
+    assertThat(range.encloses(4L), is(true));
+    assertThat(range.encloses(5L), is(false));
+  }
+
+  @Test
+  public void enclosesRev() {
+    Range<Long> range = new LongRange(5L, 1L).incrementBy(-2);
+    assertThat(range.encloses(5L), is(true));
+    assertThat(range.encloses(4L), is(true));
+    assertThat(range.encloses(3L), is(true));
+    assertThat(range.encloses(2L), is(true));
+    assertThat(range.encloses(1L), is(false));
   }
 
   @Test

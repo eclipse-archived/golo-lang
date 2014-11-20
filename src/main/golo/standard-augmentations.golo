@@ -879,3 +879,11 @@ augment gololang.Tuple {
 }
 
 # ............................................................................................... #
+
+----
+Golo ranges augmentations.
+----
+augment gololang.Range {
+  function reversed = |this| ->
+    range(this: to(), this:from()): decrementBy(this: increment())
+}
