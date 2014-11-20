@@ -78,6 +78,35 @@ function call_local_fun_full_literal = {
   return f(1)
 }
 
+function local_overloaded_fun = |a, b| -> a + b
+
+function local_overloaded_fun = |a| -> a + 1
+
+function call_local_overloaded_fun_with_arity1 = {
+  let f = fun("local_overloaded_fun", golotest.execution.Closures.module, 1)
+  return f(2)
+}
+
+function call_local_overloaded_fun_with_arity2 = {
+  let f = fun("local_overloaded_fun", golotest.execution.Closures.module, 2)
+  return f(1, 2)
+}
+
+function call_local_overloaded_fun_without_arity = {
+  let f = fun("local_overloaded_fun", golotest.execution.Closures.module)
+  return f(1, 2)
+}
+
+function call_local_overloaded_fun_short_literal = {
+  let f = ^local_overloaded_fun
+  return f(1, 2)
+}
+
+function call_local_overloaded_fun_full_literal = {
+  let f = ^golotest.execution.Closures::local_overloaded_fun
+  return f(1, 2)
+}
+
 function nested_closures = {
   let s = "plop"
   let f1 = |x| -> x
