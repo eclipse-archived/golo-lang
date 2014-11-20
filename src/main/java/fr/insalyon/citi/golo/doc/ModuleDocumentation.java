@@ -182,8 +182,7 @@ class ModuleDocumentation {
        * content...
        */
       if (!augmentations.containsKey(currentAugmentation)) {
-        augmentations.put(currentAugmentation,
-                          documentationOrNothing(node.getDocumentation()));
+        augmentations.put(currentAugmentation, documentationOrNothing(node.getDocumentation()));
       }
       if (!augmentationLine.containsKey(currentAugmentation)) {
         augmentationLine.put(currentAugmentation, node.getLineInSourceCode());
@@ -191,7 +190,7 @@ class ModuleDocumentation {
       if (!augmentationFunctions.containsKey(currentAugmentation)) {
         augmentationFunctions.put(currentAugmentation,
                                   new TreeSet<FunctionDocumentation>());
-      } 
+      }
       node.childrenAccept(this, data);
       currentAugmentation = null;
       return data;
