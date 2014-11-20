@@ -136,19 +136,22 @@ constructed from another observable using the `map` and `filter` combinators:
 [source,golo]
 ----
 let foo = Observable("Foo")
-foo: onChange(|v| -> println("foo = " + v))
+foo: onChange(|value, oldValue| -> println("foo = " + value + " old foo = " + oldValue))
 
-let mapped = foo: map(|v| -> v + "!")
-mapped: onChange(|v| -> println("mapped = " + v))
+let mapped = foo: map(|value, oldValue| -> value + "!" + " (old)" + oldValue + "!")
+mapped: onChange(|value, oldValue| -> println("mapped = " + value))
 
 foo: set("69")
+
+println("current = " + foo: get())
 ----
 
 This yields the following output:
 
 ----
-foo = 69
-mapped = 69!
+foo = 69 old foo = Foo
+mapped = 69! (old)Foo!
+current = 69
 ----
 
 === Asynchronous programming helpers (`gololang.Async`) ===
