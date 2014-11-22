@@ -18,12 +18,22 @@ package fr.insalyon.citi.golo.compiler.parser;
 
 public class ASTAnonymousFunctionInvocation extends GoloASTNode {
 
+  private boolean constant;
+
   public ASTAnonymousFunctionInvocation(int id) {
     super(id);
   }
 
   public ASTAnonymousFunctionInvocation(GoloParser p, int id) {
     super(p, id);
+  }
+
+  public void setConstant(boolean constant) {
+    this.constant = constant;
+  }
+
+  public boolean isConstant() {
+    return constant;
   }
 
   @Override

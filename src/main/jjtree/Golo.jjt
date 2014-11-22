@@ -76,7 +76,7 @@ public class GoloParser {
   }
 
   public static class FunctionRef {
-    
+
     public String module;
     public String name;
 
@@ -187,6 +187,8 @@ TOKEN :
   < UNARY_OPERATOR: "not" >
   |
   < INVOCATION: (":" | "?:") >
+  |
+  < CONSTANT_INVOCATION: "!" >
 }
 
 // Specials
@@ -301,7 +303,7 @@ TOKEN_MGR_DECLS :
 
     public TokenCompleter tokenCompleter = null;
     private Token lastToken = null;
-    
+
     void CommonTokenAction(Token t) {
         t.previousToken = lastToken;
         if (tokenCompleter != null) {
@@ -523,14 +525,14 @@ String Documentation() #void:
 ASTCompilationUnit CompilationUnit(): {}
 {
   try {
-    ( 
-      ( 
+    (
+      (
         BlankLines()
         ModuleDeclaration() BlankLines()
         ( ImportDeclaration() BlankLines() )*
-        ( 
+        (
           try {
-            ToplevelDeclaration() BlankLines() 
+            ToplevelDeclaration() BlankLines()
           }
           catch (ParseException e) {
             skipto(NEWLINE, e, jjtThis);
@@ -540,7 +542,7 @@ ASTCompilationUnit CompilationUnit(): {}
       |
       error()
     )
-    <EOF>  
+    <EOF>
   }
   catch (ParseException e) {
     skipto(NEWLINE, e, jjtThis);
@@ -616,7 +618,7 @@ void ToplevelDeclaration():
       }
     )
   )
-  | 
+  |
   state=LetOrVar()
   {
     state.setModuleState(true);
@@ -705,7 +707,7 @@ ASTAugmentDeclaration AugmentDeclaration():
     jjtThis.setTarget(target);
     jjtThis.setAugmentationNames(names);
     return jjtThis;
-  } 
+  }
 }
 
 ASTFunctionDeclaration FunctionDeclaration():
@@ -738,13 +740,13 @@ ASTDecoratorDeclaration DecoratorDeclaration(): {}
 
 void Statement() #void:{}
 {
-  BlankLine() 
+  BlankLine()
   |
   LOOKAHEAD(2) Assignment()
   |
   ExpressionStatement()
-  | 
-  Return() 
+  |
+  Return()
   |
   LetOrVar()
   |
@@ -790,7 +792,7 @@ void WhileLoop(): {}
 void ForLoop(): {}
 {
   <FOR> "("  (BlankLine())? LetOrVar() ","
-                   (BlankLine())? ExpressionStatement() "," 
+                   (BlankLine())? ExpressionStatement() ","
                    (LOOKAHEAD(1) BlankLine())? Statement() ")"
   Block()
 }
@@ -911,7 +913,7 @@ void AssociativeExpression():
   (LOOKAHEAD(1) BlankLine())?
 }
 
-void MethodInvocation(): 
+void MethodInvocation():
 {
   Token token;
 }
@@ -926,10 +928,10 @@ void MethodInvocation():
 
 void Block(): {}
 {
-  try { 
+  try {
     "{"
     (
-      try { 
+      try {
         Statement()
       }
       catch (ParseException e) {
@@ -950,7 +952,7 @@ void Function():
   boolean compactForm = false;
 }
 {
-  ("|" arguments=Arguments() (varargsToken="...")? "|")? 
+  ("|" arguments=Arguments() (varargsToken="...")? "|")?
   (
     Block()
     |
@@ -1023,7 +1025,7 @@ void Literal():
     <FALSE>
     {
       jjtThis.setLiteralValue(Boolean.FALSE);
-    }    
+    }
     |
     value=FunctionRef()
     {
@@ -1105,7 +1107,7 @@ void Assignment():
 }
 
 void Return(): {}
-{  
+{
   <RETURN> (LOOKAHEAD(2) (BlankLine())? ExpressionStatement())?
 }
 
@@ -1114,20 +1116,32 @@ void Expressions() #void: {}
   ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
 }
 
-void AnonymousFunctionInvocation(): {}
+void AnonymousFunctionInvocation():
 {
-  "(" (BlankLine())? (Expressions())? ")"
+  Token constant = null;
+}
+{
+  (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Expressions())? ")"
+  {
+    if (constant != null) {
+      jjtThis.setConstant(true);
+    }
+  }
 }
 
 void FunctionInvocation():
 {
   String name;
+  Token constant = null;
 }
 {
-  name=QualifiedName() "(" (BlankLine())? (Expressions())? ")"
+  name=QualifiedName() (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Expressions())? ")"
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(name);
+    if (constant != null) {
+      jjtThis.setConstant(true);
+    }
   }
 }
 

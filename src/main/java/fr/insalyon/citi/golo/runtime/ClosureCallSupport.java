@@ -27,9 +27,11 @@ public class ClosureCallSupport {
   static class InlineCache extends MutableCallSite {
 
     MethodHandle fallback;
+    final boolean constant;
 
-    public InlineCache(MethodType type) {
+    public InlineCache(MethodType type, boolean constant) {
       super(type);
+      this.constant = constant;
     }
   }
 
@@ -54,8 +56,8 @@ public class ClosureCallSupport {
     }
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
-    InlineCache callSite = new InlineCache(type);
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int constant) {
+    InlineCache callSite = new InlineCache(type, constant == 1);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -80,9 +82,22 @@ public class ClosureCallSupport {
         invoker = invoker.asCollector(Object[].class, callSite.type().parameterCount() - target.type().parameterCount());
       }
     }
-    MethodHandle guard = GUARD.bindTo(target);
-    MethodHandle root = guardWithTest(guard, invoker, callSite.fallback);
-    callSite.setTarget(root);
-    return invoker.invokeWithArguments(args);
+    if (callSite.constant) {
+      Object constantValue = invoker.invokeWithArguments(args);
+      MethodHandle constant;
+      if (constantValue == null) {
+         constant = MethodHandles.constant(Object.class, constantValue);
+      } else {
+        constant = MethodHandles.constant(constantValue.getClass(), constantValue);
+      }
+      constant = MethodHandles.dropArguments(constant, 0,  type.parameterArray());
+      callSite.setTarget(constant.asType(type));
+      return constantValue;
+    } else {
+      MethodHandle guard = GUARD.bindTo(target);
+      MethodHandle root = guardWithTest(guard, invoker, callSite.fallback);
+      callSite.setTarget(root);
+      return invoker.invokeWithArguments(args);
+    }
   }
 }

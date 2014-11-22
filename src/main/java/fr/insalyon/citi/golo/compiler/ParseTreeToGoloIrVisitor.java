@@ -230,7 +230,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         nested = wrapWithFunctionInvocationDecorator(nested, (FunctionInvocation)decorator.getExpressionStatement());
       }
     }
-    nested = invokeDecoratorWithOriginalParameters(nested, (ASTFunction) wrapped);
+    nested = invokeDecoratorWithOriginalParameters(nested, wrapped);
     astReturn.jjtAddChild(nested, 0);
     return wrapped;
   }
@@ -253,6 +253,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private Node wrapWithFunctionInvocationDecorator(Node wrapped, FunctionInvocation invocation) {
     Node decorator = invocation.getASTNode();
     ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
+    functionInvocation.setConstant(true);
     ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
     functionInvocation.jjtAddChild(commutativeExpression, 0);
     ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
@@ -265,6 +266,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private Node wrapWithReferenceLookupDecorator(Node wrapped, ReferenceLookup reference) {
     ASTFunctionInvocation functionInvocation = new ASTFunctionInvocation(0);
     functionInvocation.setName(reference.getName());
+    functionInvocation.setConstant(true);
     ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
     functionInvocation.jjtAddChild(commutativeExpression, 0);
     ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
@@ -618,6 +620,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTFunctionInvocation node, Object data) {
     Context context = (Context) data;
     FunctionInvocation functionInvocation = new FunctionInvocation(node.getName());
+    if (node.isConstant()) {
+      functionInvocation.setConstant(true);
+    }
     int i = 0;
     final int numChildren = node.jjtGetNumChildren();
     for (i = 0; i < numChildren; i++) {
@@ -645,6 +650,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
     Context context = (Context) data;
     FunctionInvocation invocation = new FunctionInvocation();
+    invocation.setConstant(node.isConstant());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
       argumentNode.jjtAccept(this, data);

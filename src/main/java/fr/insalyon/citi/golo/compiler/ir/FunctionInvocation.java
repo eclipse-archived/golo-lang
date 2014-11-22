@@ -21,6 +21,7 @@ public class FunctionInvocation extends AbstractInvocation {
   private boolean onReference = false;
   private boolean onModuleState = false;
   private boolean anonymous = false;
+  private boolean constant = false;
 
   public FunctionInvocation() {
     super("anonymous");
@@ -49,6 +50,14 @@ public class FunctionInvocation extends AbstractInvocation {
 
   public void setOnModuleState(boolean onModuleState) {
     this.onModuleState = onModuleState;
+  }
+
+  public boolean isConstant() {
+    return constant;
+  }
+
+  public void setConstant(boolean constant) {
+    this.constant = constant;
   }
 
   @Override

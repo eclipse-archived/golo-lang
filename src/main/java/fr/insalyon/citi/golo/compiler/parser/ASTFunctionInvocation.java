@@ -20,6 +20,8 @@ public class ASTFunctionInvocation extends GoloASTNode implements NamedNode {
 
   private String name;
 
+  private boolean constant;
+
   public ASTFunctionInvocation(int id) {
     super(id);
   }
@@ -36,6 +38,14 @@ public class ASTFunctionInvocation extends GoloASTNode implements NamedNode {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  public void setConstant(boolean constant) {
+    this.constant = constant;
+  }
+
+  public boolean isConstant() {
+    return constant;
   }
 
   @Override
