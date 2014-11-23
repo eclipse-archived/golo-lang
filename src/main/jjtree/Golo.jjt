@@ -172,7 +172,7 @@ TOKEN :
 TOKEN :
 {
   < ASSOCIATIVE_OPERATOR: ("*" | "/" | "%" |
-                           "<" | "<=" | "==" | "!=" | ">" | ">=" | 
+                           "<" | "<=" | "==" | "!=" | ">" | ">=" |
                            "is" | "isnt" |
                            "oftype" ) >
   |
@@ -979,11 +979,21 @@ void Literal():
 void CollectionLiteral():
 {
   Token token;
+  boolean isRange = false;
 }
 {
   token=<COLL_START> (BlankLine())?
   (
-    ExpressionStatement() ("," (BlankLine())? ExpressionStatement())* (BlankLine())?
+    ExpressionStatement()
+    (
+      ("," (BlankLine())? ExpressionStatement())+
+      |
+      ".." ExpressionStatement()
+      {
+        isRange = true;
+      }
+    )?
+    (BlankLine())?
   )?
   "]"
   {
@@ -992,8 +1002,12 @@ void CollectionLiteral():
     if (jjtThis.getType().isEmpty()) {
       jjtThis.setType("tuple");
     }
+    if (isRange) {
+      jjtThis.setType("range");
+    }
   }
 }
+
 
 void Reference():{}
 {

@@ -170,6 +170,9 @@ lower one being a default value (0 for numbers, 'A' for chars). For example,
 
 Two ranges are equals if they have the same bounds and increment.
 
+A range can also be defined with the literal notation `[begin..end]`, which is
+equivalent to `range(begin, end)`.
+
 === Closures ===
 
 Given a closure reference or a method handle, one can convert it to an instance of an interface with

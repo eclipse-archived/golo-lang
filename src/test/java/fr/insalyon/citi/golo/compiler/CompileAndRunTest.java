@@ -22,6 +22,7 @@ import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.GoloStruct;
 import gololang.Tuple;
+import gololang.Range;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -1039,6 +1040,24 @@ public class CompileAndRunTest {
     assertThat(map.size(), is(2));
     assertThat((String) map.get("foo"), is("bar"));
     assertThat((String) map.get("plop"), is("da plop"));
+
+    Method int_range = moduleClass.getMethod("int_range");
+    result = int_range.invoke(null);
+    assertThat(result, instanceOf(Range.class));
+    Range<Integer> int_range_res = (Range<Integer>) result;
+    assertThat(int_range_res.size(), is(10));
+    assertThat(int_range_res.from(), is(0));
+    assertThat(int_range_res.to(), is(10));
+    assertThat(int_range_res.increment(), is(1));
+
+    Method char_range = moduleClass.getMethod("char_range");
+    result = char_range.invoke(null);
+    assertThat(result, instanceOf(Range.class));
+    Range<Character> char_range_res = (Range<Character>) result;
+    assertThat(char_range_res.size(), is(5));
+    assertThat(char_range_res.from(), is('a'));
+    assertThat(char_range_res.to(), is('f'));
+    assertThat(char_range_res.increment(), is(1));
   }
 
   @Test
