@@ -266,17 +266,29 @@ public class Predefined {
   // ...................................................................................................................
 
   /**
-   * Makes an integer range object between two bounds. Range objects implement <code>java.lang.Iterable</code>, so
-   * they can be used in Golo <code>foreach</code> loops.
+   * Makes an range object between two bounds. Range objects implement 
+   * <code>java.lang.Collection</code> (immutable), so they can be used in Golo <code>foreach</code>
+   * loops.
    *
-   * @param from the lower-bound (inclusive) as an <code>Integer</code> or <code>Long</code>.
-   * @param to   the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param from the lower-bound (inclusive) as an <code>Integer</code>, <code>Long</code>, or
+   * <code>Character</code>.
+   * @param to   the upper-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>
    * @return a range object.
-   * @see java.lang.Iterable
+   * @see java.lang.Collection
    */
   public static Object range(Object from, Object to) {
-    require((from instanceof Integer) || (from instanceof Long), "from must either be an Integer or a Long");
-    require((to instanceof Integer) || (to instanceof Long), "to must either be an Integer or a Long");
+    require((from instanceof Integer) || (from instanceof Long) || (from instanceof Character),
+        "from must either be an Integer, Long or Character");
+    require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
+        "to must either be an Integer, Long or Character");
+    if (((to instanceof Character) || (from instanceof Character))) {
+      if (((to instanceof Character) && (from instanceof Character))) {
+        return new CharRange((Character) from, (Character) to);
+      } else {
+        throw new IllegalArgumentException("both bounds must be char for a char range");
+      }
+    }
     if ((to instanceof Long) && (from instanceof Long)) {
       return new LongRange((Long) from, (Long) to);
     } else if ((to instanceof Integer) && (from instanceof Integer)) {
@@ -289,49 +301,50 @@ public class Predefined {
   }
 
   /**
-   * Makes an integer range object starting from 0.
+   * Makes an range object starting from the default value.
+   * <p>
+   * The default value is 0 for numbers and 'A' for chars.
    *
    * @param to   the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
    * @return a range object.
-   * @see java.lang.Iterable
+   * @see gololang.Predefined.range
    */
   public static Object range(Object to) {
-    return range(0, to);
+    require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
+        "to must either be an Integer, Long or Character");
+    if (to instanceof Integer) { return new IntRange((Integer) to); }
+    if (to instanceof Long) { return new LongRange((Long) to); }
+    else { return new CharRange((Character) to); }
   }
 
   /**
-   * Makes an decreasing integer range object between two bounds. Range objects implement <code>java.lang.Iterable</code>, so
+   * Makes an decreasing range object between two bounds. Range objects implement <code>java.lang.Collection</code>, so
    * they can be used in Golo <code>foreach</code> loops.
    *
-   * @param from the upper-bound (inclusive) as an <code>Integer</code> or <code>Long</code>.
-   * @param to   the lower-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>.
+   * @param to   the lower-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>.
    * @return a range object.
-   * @see java.lang.Iterable
+   * @see gololang.Predefined.range
    */
   public static Object reversed_range(Object from, Object to) {
-    require((from instanceof Integer) || (from instanceof Long), "from must either be an Integer or a Long");
-    require((to instanceof Integer) || (to instanceof Long), "to must either be an Integer or a Long");
-    if ((to instanceof Long) && (from instanceof Long)) {
-      return new LongRange((Long) from, (Long) to).incrementBy(-1);
-    } else if ((to instanceof Integer) && (from instanceof Integer)) {
-      return new IntRange((Integer) from, (Integer) to).incrementBy(-1);
-    } else if (from instanceof Long) {
-      return new LongRange((Long) from, (Integer) to).incrementBy(-1);
-    } else {
-      return new LongRange((Integer) from, (Long) to).incrementBy(-1);
-    }
-
+    return ((Range<?>) range(from, to)).incrementBy(-1);
   }
 
   /**
-   * Makes an decreasing integer range object up to 0.
+   * Makes an decreasing integer range object up to the default value.
+   * <p>
+   * The default value is 0 for numbers and 'A' for chars.
    *
-   * @param from the upper-bound (inclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>.
    * @return a range object.
-   * @see java.lang.Iterable
+   * @see gololang.Predefined.reversed_range
+   * @see gololang.Predefined.range
    */
   public static Object reversed_range(Object from) {
-    return reversed_range(from, 0);
+    return ((Range<?>) range(from)).reversed();
   }
 
   // ...................................................................................................................

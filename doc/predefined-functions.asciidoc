@@ -112,13 +112,19 @@ object methods instead: `get`, `set`, `length`, ...
 
 === Ranges ===
 
-The `range` function yields an iterable range over either `Integer` or `Long` bounds:
+The `range` function yields an iterable range over either `Integer`, `Long` or
+`Character` bounds:
 
 [source,golo]
 ----
 # Prints 1 2 (...) 100
 foreach i in range(1, 101) {
   print(i + " ")
+}
+
+# Prints a b c d
+foreach c in range('a', 'e') {
+  print(c + " ")
 }
 
 let r = range(0, 6): incrementBy(2)
@@ -158,8 +164,9 @@ The `reversed_range` function is an alias for `range` with an increment of -1,
 such that `reversed_range(5, 1)` is the same as `range(5, 1): decrementBy(1)`.
 
 When `range` is called with only one value, it is used as the upper bound, the
-lower one being 0 (i.e. `range(5) = range(0, 5)`). In the same way,
-`reversed_range(5) = reversed_range(5, 0)`.
+lower one being a default value (0 for numbers, 'A' for chars). For example,
+`range(5) == range(0, 5)` and `range('Z') == range('A', 'Z')`. In the same way,
+`reversed_range(5) == reversed_range(5, 0)`.
 
 Two ranges are equals if they have the same bounds and increment.
 

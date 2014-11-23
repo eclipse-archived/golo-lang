@@ -21,8 +21,16 @@ import java.util.NoSuchElementException;
 
 class LongRange extends AbstractRange<Long> {
 
-  public LongRange(long from, long to) {
-    super(from, to);
+  public LongRange(long from, long to) { super(from, to); }
+
+  public LongRange(long to) { super(to); }
+
+  @Override
+  Long defaultValue() { return 0L; }
+
+  @Override
+  public Range<Long> reversed() {
+    return (new LongRange(to(), from())).decrementBy(increment());
   }
 
   @Override
@@ -53,7 +61,7 @@ class LongRange extends AbstractRange<Long> {
 
       @Override
       public boolean hasNext() {
-        return Long.compare(to, current) == cmp();
+        return Long.compare(to, current) * cmp() > 0;
       }
 
       @Override

@@ -19,24 +19,27 @@ package gololang;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-class IntRange extends AbstractRange<Integer> {
+/**
+ * Defines a range object on Character.
+ */
+class CharRange extends AbstractRange<Character> {
 
-  public IntRange(int from, int to) { super(from, to); }
+  public CharRange(char from, char to) { super(from, to); }
 
-  public IntRange(int to) { super(to); }
+  public CharRange(char to) { super(to); }
 
   @Override
-  Integer defaultValue() { return 0; }
+  Character defaultValue() { return 'A'; }
 
   @Override
-  public Range<Integer> reversed() {
-    return (new IntRange(to(), from())).decrementBy(increment());
+  public Range<Character> reversed() {
+    return (new CharRange(to(), from())).decrementBy(increment());
   }
 
   @Override
   public int size() {
     if (to() == from()) { return 0; }
-    int s = (to() - from()) / increment();
+    int s = ((int) to().charValue() - (int) from().charValue()) / increment();
     if (s < 0) { return 0; }
     if (s == 0) { return 1; }
     return s;
@@ -44,41 +47,37 @@ class IntRange extends AbstractRange<Integer> {
 
   @Override
   public boolean contains(Object o) {
-    if (!(o instanceof Integer)) {
-      return false;
-    }
-    Integer obj = (Integer) o;
-    return (encloses(obj) && ((obj - from()) % increment() == 0));
+    if (!(o instanceof Character)) { return false; }
+    Character obj = (Character) o;
+    return (
+      encloses(obj)
+      && (((int) obj.charValue() - (int) from().charValue()) % increment() == 0)
+    );
   }
 
   @Override
-  public Iterator<Integer> iterator() {
-    return new AbstractRange<Integer>.RangeIterator() {
+  public Iterator<Character> iterator() {
+    return new AbstractRange<Character>.RangeIterator() {
 
       private boolean started = false;
-      private int current = from();
-      private int to = to();
+      private char current = from().charValue();
+      private char to = to().charValue();
 
       @Override
       public boolean hasNext() {
-        return Integer.compare(to, current) * cmp() > 0;
+        return Character.compare(to, current) * cmp() > 0;
       }
 
       @Override
-      public Integer next() {
-        int value = current;
-        if (started) {
-          if (hasNext()) {
-            current = current + increment();
-            return value;
-          } else {
-            throw new NoSuchElementException("iteration has finished");
-          }
+      public Character next() {
+        Character value = Character.valueOf(current);
+        if (started && !hasNext()) {
+          throw new NoSuchElementException("iteration has finished");
         } else {
           started = true;
-          current = current + increment();
-          return value;
         }
+        current = (char) (current + increment());
+        return value;
       }
     };
   }

@@ -102,6 +102,9 @@ public class PredefinedTest {
     assertThat(Predefined.range(10L), instanceOf(LongRange.class));
     assertThat(Predefined.range(10), is(Predefined.range(0, 10)));
     assertThat(Predefined.range(10L), is(Predefined.range(0L, 10L)));
+    assertThat(Predefined.range('a', 'd'), instanceOf(CharRange.class));
+    assertThat(Predefined.range('D'), instanceOf(CharRange.class));
+    assertThat(Predefined.range('D'), is(Predefined.range('A', 'D')));
   }
 
   @Test
@@ -116,6 +119,10 @@ public class PredefinedTest {
     assertThat(Predefined.reversed_range(10L), is(Predefined.reversed_range(10L, 0L)));
     assertThat((IntRange)Predefined.reversed_range(5, 1), is(((IntRange)Predefined.range(5, 1)).incrementBy(-1)));
     assertThat((LongRange)Predefined.reversed_range(5L, 1L), is(((LongRange)Predefined.range(5L, 1L)).incrementBy(-1)));
+    assertThat(Predefined.reversed_range('d', 'a'), instanceOf(CharRange.class));
+    assertThat(Predefined.reversed_range('D'), instanceOf(CharRange.class));
+    assertThat(Predefined.reversed_range('D'), is(Predefined.reversed_range('D', 'A')));
+    assertThat((CharRange)Predefined.reversed_range('D', 'A'), is(((CharRange)Predefined.range('D', 'A')).incrementBy(-1)));
   }
 
   static class MyCallable {

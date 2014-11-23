@@ -25,6 +25,7 @@ import java.util.Collection;
  * one value to the next.
  */
 public interface Range<T> extends Collection<T> {
+
   /**
    * Gets the lower bound of the range.
    *
@@ -78,4 +79,12 @@ public interface Range<T> extends Collection<T> {
    * @param value the value to check.
    */
   boolean encloses(T value);
+
+  /**
+   * Creates a new reversed range from this range.
+   * <p>
+   * i.e. swaps the {@code from()} and {@code to()} values and sets the increment to 
+   * {@code -increment()}.
+   */
+  Range<T> reversed();
 }

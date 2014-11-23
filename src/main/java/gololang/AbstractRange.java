@@ -40,6 +40,15 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     this.to = to;
   }
 
+  public AbstractRange(T to) {
+    this.to = to;
+    this.from = defaultValue();
+  }
+
+  T defaultValue() {
+    throw new UnsupportedOperationException("no default value define for this range");
+  }
+
   @Override
   public T from() {
     return this.from;
@@ -61,8 +70,8 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
 
   public boolean encloses (T v) {
     return (
-      (v.compareTo(from()) == 0 || v.compareTo(from()) == cmp())
-      && to().compareTo(v) == cmp()
+      (v.compareTo(from()) == 0 || v.compareTo(from()) * cmp() > 0)
+      && to().compareTo(v) * cmp() > 0
     );
 
   }
