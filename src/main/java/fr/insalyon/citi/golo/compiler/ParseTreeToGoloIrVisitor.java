@@ -465,7 +465,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       expressionNode.jjtAccept(this, data);
       expressions.add((ExpressionStatement) context.objectStack.pop());
     }
-    if (node.getType() == "range") {
+    if ("range".equals(node.getType())) {
       FunctionInvocation range = new FunctionInvocation("Predefined.range");
       for (ExpressionStatement arg : expressions) {
         range.addArgument(arg);
