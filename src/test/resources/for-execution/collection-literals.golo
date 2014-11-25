@@ -13,3 +13,7 @@ function some_set = -> set["a", "b", "a"]
 function some_map = -> map[["foo", "bar"], ["plop", "da plop"]]
 
 function empty_tuple = -> []
+
+function int_range = -> [0..10]
+
+function char_range = -> ['a'..'f']

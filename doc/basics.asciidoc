@@ -335,6 +335,10 @@ The syntax and type matchings are the following:
 `java.util.LinkedHashMap`|
 `map[[1, "a"], [2, "b"]]`
 
+|Range|
+`gololang.Range`|
+`[1..10]`, `['a'..'f']`
+
 |===
 
 ==== A note on tuples ====

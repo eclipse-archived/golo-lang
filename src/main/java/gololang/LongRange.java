@@ -19,44 +19,49 @@ package gololang;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-class LongRange implements Iterable<Long> {
+class LongRange extends AbstractRange<Long> {
 
-  private final long from;
-  private final long to;
-  private long increment = 1;
+  public LongRange(long from, long to) { super(from, to); }
 
-  public long from() {
-    return this.from;
+  public LongRange(long to) { super(to); }
+
+  @Override
+  Long defaultValue() { return 0L; }
+
+  @Override
+  public Range<Long> reversed() {
+    return (new LongRange(to(), from())).decrementBy(increment());
   }
 
-  public long to() {
-    return this.to;
+  @Override
+  public int size() {
+    if (to() == from()) { return 0; }
+    int s = (int) ((to() - from()) / increment());
+    if (s < 0) { return 0; }
+    if (s == 0) { return 1; }
+    return s;
   }
 
-  public long increment() {
-    return this.increment;
-  }
-
-  public LongRange(long from, long to) {
-    this.from = from;
-    this.to = to;
-  }
-
-  public LongRange incrementBy(long value) {
-    this.increment = value;
-    return this;
+  @Override
+  public boolean contains(Object o) {
+    if (!(o instanceof Long)) {
+      return false;
+    }
+    Long obj = (Long) o;
+    return (encloses(obj) && ((obj - from()) % increment() == 0));
   }
 
   @Override
   public Iterator<Long> iterator() {
-    return new Iterator<Long>() {
+    return new AbstractRange<Long>.RangeIterator() {
 
       private boolean started = false;
-      private long current = from;
+      private long current = from();
+      private long to = to();
 
       @Override
       public boolean hasNext() {
-        return current < to;
+        return Long.compare(to, current) * cmp() > 0;
       }
 
       @Override
@@ -64,21 +69,16 @@ class LongRange implements Iterable<Long> {
         long value = current;
         if (started) {
           if (hasNext()) {
-            current = current + increment;
+            current = current + increment();
             return value;
           } else {
             throw new NoSuchElementException("iteration has finished");
           }
         } else {
           started = true;
-          current = current + increment;
+          current = current + increment();
           return value;
         }
-      }
-
-      @Override
-      public void remove() {
-        throw new UnsupportedOperationException("remove() is not supported on a range");
       }
     };
   }
