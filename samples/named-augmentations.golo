@@ -16,7 +16,13 @@ module samples.NamedAugmentations
 
 import java.util.LinkedList
 
+----
+Augmentations to deal with collections
+----
 augmentation EasyList = {
+  ----
+  apply a function to each element
+  ----
   function doToEach = |this, func| {
     foreach (element in this) {
       func(element)
@@ -24,21 +30,42 @@ augmentation EasyList = {
   }
 }
 
+----
+Augmentation to make an object plop
+----
 augmentation Plopable = {
+  ----
+  say plop
+  ----
   function plop = |this| -> "plop"
 }
 
+----
+Augmentation to make an object bar
+----
 augmentation Barator = {
+
+  ----
+  say bar
+  ----
   function bar = |this| -> "bar"
 }
 
 augment java.util.Collection with Plopable, Barator
 
-augment java.util.List with EasyList
 
+----
+Augmentations on lists
+----
 augment java.util.List {
+
+  ----
+  say baz
+  ----
   function baz = |this| -> "baz"
 }
+
+augment java.util.List with EasyList
 
 function main = |args| {
   let list = list["foo", "bar", "baz"]
