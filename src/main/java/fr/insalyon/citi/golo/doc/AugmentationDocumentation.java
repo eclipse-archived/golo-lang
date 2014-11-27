@@ -26,6 +26,7 @@ import java.util.Comparator;
 import static java.util.Collections.unmodifiableSortedSet;
 
 class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> implements SortedSet<FunctionDocumentation> {
+
   private String target;
   private String documentation;
   private int line;

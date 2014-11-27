@@ -16,17 +16,23 @@
 
 package fr.insalyon.citi.golo.compiler.utils;
 
-import java.util.LinkedHashMap;
-import java.util.HashSet;
+import java.util.AbstractMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
 
-public class OrderedRegister<K,V> extends LinkedHashMap<K,Set<V>> implements Register<K,V> {
-  private static final long serialVersionUID = 1L;
+public abstract class AbstractRegister<K, V> extends AbstractMap<K,Set<V>> implements Register<K,V> {
 
-  protected Set<V> emptyValue() {
-    return new HashSet<>();
-  }
+  private Map<K, Set<V>> map;
+
+  public AbstractRegister() {
+    super();
+    this.map = initMap();
+  };
+
+  abstract protected Map<K, Set<V>> initMap();
+
+  abstract protected Set<V> emptyValue();
 
   private Set<V> getOrInit(K key) {
     Set<V> bag;
@@ -37,6 +43,21 @@ public class OrderedRegister<K,V> extends LinkedHashMap<K,Set<V>> implements Reg
       bag = get(key);
     }
     return bag;
+  }
+
+  @Override
+  public Set<Map.Entry<K,Set<V>>> entrySet() {
+    return map.entrySet();
+  }
+
+  @Override
+  public boolean containsKey(Object key) {
+    return map.containsKey(key);
+  }
+
+  @Override
+  public Set<V> get(Object key) {
+    return getOrInit((K) key);
   }
 
   @Override

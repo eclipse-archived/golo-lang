@@ -22,12 +22,16 @@ import java.util.Collection;
 import static java.util.Collections.unmodifiableSet;
 
 class StructDocumentation implements Comparable<StructDocumentation> {
+
   private String name;
   private String documentation;
   private int line;
   private Set<String> members = new LinkedHashSet<>();
 
-  public String name() { return name; }
+  public String name() {
+    return name;
+  }
+
   public StructDocumentation name(String n) {
     name = n;
     return this;
@@ -36,18 +40,25 @@ class StructDocumentation implements Comparable<StructDocumentation> {
   public String documentation() {
     return (documentation != null ? documentation : "\n");
   }
+
   public StructDocumentation documentation(String doc) {
     documentation = doc;
     return this;
   }
 
-  public int line() { return line; }
+  public int line() {
+    return line;
+  }
+
   public StructDocumentation line(int l) {
     line= l;
     return this;
   }
 
-  public Set<String> members() { return unmodifiableSet(members); }
+  public Set<String> members() {
+    return unmodifiableSet(members);
+  }
+
   public StructDocumentation members(Collection<String> m) {
     members.addAll(m);
     return this;

@@ -21,6 +21,7 @@ import java.util.LinkedList;
 
 
 class FunctionDocumentation implements Comparable<FunctionDocumentation> {
+
   private String name;
   private int line;
   private String documentation;
@@ -29,7 +30,10 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation> {
   private boolean varargs = false;
   private boolean local = false;
 
-  public String name() { return name; }
+  public String name() {
+    return name;
+  }
+
   public FunctionDocumentation name(String v) {
     name = v;
     return this;
@@ -44,34 +48,54 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation> {
     return this;
   }
 
-  public List<String> arguments() { return arguments; }
-  public String argument(int i) { return arguments.get(i); }
+  public List<String> arguments() {
+    return arguments;
+  }
+
+  public String argument(int i) {
+    return arguments.get(i);
+  }
+
   public FunctionDocumentation arguments(List<String> v) {
     arguments.addAll(v);
     return this;
   }
 
-  public int arity() { return arguments.size(); }
+  public int arity() {
+    return arguments.size();
+  }
 
-  public boolean augmentation() { return augmentation; }
+  public boolean augmentation() {
+    return augmentation;
+  }
+
   public FunctionDocumentation augmentation(boolean v) {
     augmentation = v;
     return this;
   }
 
-  public boolean varargs() { return varargs; }
+  public boolean varargs() {
+    return varargs;
+  }
+
   public FunctionDocumentation varargs(boolean v) {
     varargs = v;
     return this;
   }
 
-  public boolean local() { return local; }
+  public boolean local() {
+    return local;
+  }
+
   public FunctionDocumentation local(boolean v) {
     local = v;
     return this;
   }
 
-  public int line() { return line; }
+  public int line() {
+    return line;
+  }
+
   public FunctionDocumentation line(int l) {
     line = l;
     return this;
