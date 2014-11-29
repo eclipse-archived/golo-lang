@@ -147,20 +147,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     mv.visitEnd();
   }
 
-  private void writeImportMetaData(Set<ModuleImport> imports) {
-    ModuleImport[] importsArray = imports.toArray(new ModuleImport[imports.size()]);
+  private void writeMetaData(String name, String[] data) {
     methodVisitor = classWriter.visitMethod(
         ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
-        "$imports",
+        "$" + name,
         "()[Ljava/lang/String;",
         null, null);
     methodVisitor.visitCode();
-    loadInteger(methodVisitor, importsArray.length);
+    loadInteger(methodVisitor, data.length);
     methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-    for (int i = 0; i < importsArray.length; i++) {
+    for (int i = 0; i < data.length; i++) {
       methodVisitor.visitInsn(DUP);
       loadInteger(methodVisitor, i);
-      methodVisitor.visitLdcInsn(importsArray[i].getPackageAndClass().toString());
+      methodVisitor.visitLdcInsn(data[i]);
       methodVisitor.visitInsn(AASTORE);
     }
     methodVisitor.visitInsn(ARETURN);
@@ -168,25 +167,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
+  private void writeImportMetaData(Set<ModuleImport> imports) {
+    String[] importsArray = new String[imports.size()];
+    int i = 0;
+    for (ModuleImport imp : imports) {
+      importsArray[i] = imp.getPackageAndClass().toString();
+      i++;
+    }
+    writeMetaData("imports", importsArray);
+  }
+
   private void writeAugmentsMetaData(Set<String> augmentations) {
     String[] augmentArray = augmentations.toArray(new String[augmentations.size()]);
-    methodVisitor = classWriter.visitMethod(
-        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
-        "$augmentations",
-        "()[Ljava/lang/String;",
-        null, null);
-    methodVisitor.visitCode();
-    loadInteger(methodVisitor, augmentArray.length);
-    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-    for (int i = 0; i < augmentArray.length; i++) {
-      methodVisitor.visitInsn(DUP);
-      loadInteger(methodVisitor, i);
-      methodVisitor.visitLdcInsn(augmentArray[i]);
-      methodVisitor.visitInsn(AASTORE);
-    }
-    methodVisitor.visitInsn(ARETURN);
-    methodVisitor.visitMaxs(0, 0);
-    methodVisitor.visitEnd();
+    writeMetaData("augmentations", augmentArray);
   }
 
   private void generateAugmentationBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
