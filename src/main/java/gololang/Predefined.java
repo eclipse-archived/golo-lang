@@ -445,6 +445,15 @@ public class Predefined {
     return new File(".").getCanonicalPath();
   }
 
+  /**
+   * Return current path of execution.
+   *
+   * @return current path of execution
+   */
+  public static void sleep(long ms) throws InterruptedException {
+    java.lang.Thread.sleep(ms);
+  }
+
   // ...................................................................................................................
 
   /**
