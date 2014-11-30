@@ -445,6 +445,15 @@ public class Predefined {
     return new File(".").getCanonicalPath();
   }
 
+  /**
+   * Return universally unique identifier as String.
+   *
+   * @return universally unique identifier as String
+   */
+  public static String uuid() {
+    return java.util.UUID.randomUUID().toString();
+  }
+
   // ...................................................................................................................
 
   /**
