@@ -446,9 +446,9 @@ public class Predefined {
   }
 
   /**
-   * Return universally unique identifier as String.
+   * Return a universally unique identifier as String.
    *
-   * @return universally unique identifier as String
+   * @return a universally unique identifier as String
    */
   public static String uuid() {
     return java.util.UUID.randomUUID().toString();
