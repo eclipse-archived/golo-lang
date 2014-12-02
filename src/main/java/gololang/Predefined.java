@@ -522,6 +522,15 @@ public class Predefined {
     java.lang.Thread.sleep(ms);
   }
 
+  /**
+   * Return a universally unique identifier as String.
+   *
+   * @return a universally unique identifier as String
+   */
+  public static String uuid() {
+    return java.util.UUID.randomUUID().toString();
+  }
+
   // ...................................................................................................................
 
   /**
