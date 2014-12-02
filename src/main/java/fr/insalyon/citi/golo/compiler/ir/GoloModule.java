@@ -103,6 +103,14 @@ public final class GoloModule extends GoloElement {
     return unmodifiableMap(augmentations);
   }
 
+  public Map<String, Set<GoloFunction>> getNamedAugmentations(){
+    return unmodifiableMap(namedAugmentations);
+  }
+
+  public Map<String, List<String>> getAugmentationApplications() {
+    return unmodifiableMap(augmentationApplications);
+  }
+
   public Set<Struct> getStructs() {
     return unmodifiableSet(structs);
   }
@@ -170,20 +178,5 @@ public final class GoloModule extends GoloElement {
       augmentations.remove(trashed);
     }
     structNames.clear();
-  }
-
-  public void resolveNamedAugmentations() {
-    for (String augmentTarget : augmentationApplications.keySet()) {
-      for (String augmentName : augmentationApplications.get(augmentTarget)) {
-        if (namedAugmentations.containsKey(augmentName)) {
-          augmentations.addFunctions(
-            augmentTarget,
-            namedAugmentations.get(augmentName)
-          );
-        } else {
-          throw new UnknownNamedAugmentationException(augmentTarget, augmentName);
-        }
-      }
-    }
   }
 }

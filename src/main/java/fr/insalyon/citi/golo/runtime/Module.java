@@ -21,11 +21,15 @@ import java.lang.reflect.Method;
 
 class Module {
 
-  static String[] metadata(String name, Class<?> callerClass) {
+  static String[] metadata(String name, Class<?> callerClass, Object... args) {
     String[] data;
+    Class<?>[] types = new Class<?>[args.length];
+    for (int i = 0; i < args.length; i++) {
+      types[i] = args[i].getClass();
+    }
     try {
-      Method $data = callerClass.getMethod("$" + name);
-      data = (String[]) $data.invoke(null);
+      Method $data = callerClass.getMethod("$" + name, types);
+      data = (String[]) $data.invoke(null, args);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       // This can only happen as part of the unit tests, because the lookup does not originate from
       // a Golo module class, hence it doesn't have a $<name>() static method.
@@ -40,5 +44,9 @@ class Module {
 
   static String[] augmentations(Class<?> callerClass) {
     return metadata("augmentations", callerClass);
+  }
+
+  static String[] augmentationApplications(Class<?> callerClass, Class<?> reveiverClass) {
+    return metadata("augmentationApplications", callerClass, reveiverClass.getName().hashCode());
   }
 }

@@ -111,9 +111,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (Map.Entry<String, Set<GoloFunction>> entry : module.getAugmentations().entrySet()) {
-      generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
-    }
+    generateAugmentationsBytecode(module, module.getAugmentations());
+    generateAugmentationsBytecode(module, module.getNamedAugmentations());
     if (module.getStructs().size() > 0) {
       JavaBytecodeStructGenerator structGenerator = new JavaBytecodeStructGenerator();
       for (Struct struct : module.getStructs()) {
@@ -124,6 +123,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       writeModuleState(moduleState);
     }
     writeAugmentsMetaData(module.getAugmentations().keySet());
+    writeAugmentationApplicationsMetaData(module.getAugmentationApplications());
     classWriter.visitEnd();
   }
 
@@ -167,6 +167,51 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
+  private void writeAugmentationApplicationsMetaData(Map<String, List<String>> applications) {
+    /* create a metadata method that given a target class name hashcode
+     * returns a String array containing the names of applied
+     * augmentations
+     */
+    int applicationsSize = applications.size();
+    Label defaultLabel = new Label();
+    Label[] labels = new Label[applicationsSize];
+    int[] keys = new int[applicationsSize];
+    String[][] namesArrays = new String[applicationsSize][];
+    int i = 0;
+    for (Map.Entry<String, List<String>> entry : applications.entrySet()) {
+      labels[i] = new Label();
+      keys[i] = entry.getKey().hashCode();
+      namesArrays[i] = entry.getValue().toArray(new String[entry.getValue().size()]);
+      i++;
+    }
+    methodVisitor = classWriter.visitMethod(
+        ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
+        "$augmentationApplications",
+        "(I)[Ljava/lang/String;",
+        null, null);
+    methodVisitor.visitCode();
+    methodVisitor.visitVarInsn(ILOAD, 0);
+    methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, labels);
+    for (i=0; i < applicationsSize; i++) {
+      methodVisitor.visitLabel(labels[i]);
+      loadInteger(methodVisitor, namesArrays[i].length);
+      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+      for (int j = 0; j < namesArrays[i].length; j++) {
+        methodVisitor.visitInsn(DUP);
+        loadInteger(methodVisitor, j);
+        methodVisitor.visitLdcInsn(namesArrays[i][j]);
+        methodVisitor.visitInsn(AASTORE);
+      }
+      methodVisitor.visitInsn(ARETURN);
+    }
+    methodVisitor.visitLabel(defaultLabel);
+    loadInteger(methodVisitor, 0);
+    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+    methodVisitor.visitInsn(ARETURN);
+    methodVisitor.visitMaxs(0, 0);
+    methodVisitor.visitEnd();
+  }
+
   private void writeImportMetaData(Set<ModuleImport> imports) {
     String[] importsArray = new String[imports.size()];
     int i = 0;
@@ -182,6 +227,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     writeMetaData("augmentations", augmentArray);
   }
 
+  private void generateAugmentationsBytecode(GoloModule module, Map<String, Set<GoloFunction>> augmentations) {
+    for (Map.Entry<String, Set<GoloFunction>> entry : augmentations.entrySet()) {
+      generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
+    }
+  }
+
   private void generateAugmentationBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.replace('.', '$');
@@ -189,8 +240,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         module.getPackageAndClass().packageName(),
         module.getPackageAndClass().className() + "$" + mangledClass);
     String augmentationClassInternalName = packageAndClass.toJVMType();
-
     String outerName = module.getPackageAndClass().toJVMType();
+
     mainClassWriter.visitInnerClass(
         augmentationClassInternalName,
         outerName,
