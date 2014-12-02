@@ -31,6 +31,120 @@ import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.copyOfRange;
 
+class AugmentationMethodFinder {
+
+  private Class<?> receiverClass;
+  private Class<?> callerClass;
+  private String methodName;
+  private int arity;
+  private Lookup lookup;
+  private MethodType type;
+  private Object[] args;
+  private ClassLoader classLoader;
+  private MethodHandle methodHandle;
+
+  private void init(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+    this.receiverClass = receiverClass;
+    this.args = args;
+    this.methodName = inlineCache.name;
+    this.lookup = inlineCache.callerLookup;
+    this.type = inlineCache.type();
+    this.arity = type.parameterCount();
+    this.callerClass = inlineCache.callerLookup.lookupClass();
+    this.classLoader = callerClass.getClassLoader();
+    this.methodHandle = null;
+  }
+
+  private static String className(Class<?> moduleClass, Class<?> augmentedClass) {
+    return moduleClass.getName() + "$" + augmentedClass.getName().replace('.', '$');
+  }
+
+  private boolean isCandidate(Method method) {
+    return (
+        method.getName().equals(methodName)
+        && isPublic(method.getModifiers())
+        && !isAbstract(method.getModifiers())
+        && matchesArity(method)
+    );
+  }
+
+  private boolean matchesArity(Method method) {
+    int parameterCount = method.getParameterTypes().length;
+    return (parameterCount == arity) || (method.isVarArgs() && (parameterCount <= arity));
+  }
+
+  private MethodHandle toMethodHandle(Method method) {
+    try {
+      MethodHandle target = lookup.unreflect(method);
+      if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
+        return target.asFixedArity().asType(type);
+      } else {
+        return target.asType(type);
+      }
+    } catch (IllegalAccessException e) {
+      return null;
+    }
+  }
+
+  private MethodHandle findMethod(String className) {
+    try {
+      Class<?> theClass = classLoader.loadClass(className);
+      for (Method method : theClass.getMethods()) {
+        if (isCandidate(method)) {
+          return toMethodHandle(method);
+        }
+      }
+    } catch (ClassNotFoundException ignored) {}
+    return null;
+  }
+
+  private MethodHandle findInAugmentation(Class<?> definingModule, String augmentation) {
+    try {
+      Class<?> augmentedClass = classLoader.loadClass(augmentation);
+      if (augmentedClass.isAssignableFrom(receiverClass)) {
+        return findMethod(className(definingModule, augmentedClass));
+      }
+    } catch (ClassNotFoundException ignored) {}
+    return null;
+  }
+
+  private void findInAugmentations(Class<?> definingModule) {
+    if (methodHandle != null) { return; }
+    for (String augmentation : Module.augmentations(definingModule)) {
+      methodHandle = findInAugmentation(definingModule, augmentation);
+      if (methodHandle != null) { break; }
+    }
+  }
+
+  private void findInNamedAugmentations(Class<?> definingModule) {
+    if (methodHandle != null) { return; }
+    for (String augmentationName : Module.augmentationApplications(definingModule, receiverClass)) {
+      methodHandle = findMethod(definingModule.getName() + "$" + augmentationName);
+      if (methodHandle != null) { break; }
+    }
+  }
+
+  private void findInImportedAugmentations(Class<?> sourceClass) {
+    if (methodHandle != null) { return; }
+    for (String importSymbol : Module.imports(sourceClass)) {
+      try {
+        Class<?> importClass = classLoader.loadClass(importSymbol);
+        findInAugmentations(importClass);
+        if (methodHandle != null) { break; }
+      } catch (ClassNotFoundException ignored) {}
+    }
+  }
+
+  public MethodHandle find(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+    init(inlineCache, receiverClass, args);
+    findInAugmentations(callerClass);
+    findInNamedAugmentations(callerClass);
+    findInImportedAugmentations(callerClass); 
+    //TODO findInImportedNamedAugmentations(callerClass);
+    return methodHandle;
+  }
+}
+
 public class MethodInvocationSupport {
 
   /*
@@ -60,6 +174,8 @@ public class MethodInvocationSupport {
       return depth > MEGAMORPHIC_THRESHOLD;
     }
   }
+
+  private static final AugmentationMethodFinder augmentationMethodFinder = new AugmentationMethodFinder();
 
   private static final MethodHandle CLASS_GUARD;
   private static final MethodHandle FALLBACK;
@@ -129,11 +245,14 @@ public class MethodInvocationSupport {
   }
 
   private static MethodHandle lookupTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
-    if (!isCallOnDynamicObject(inlineCache, args[0])) {
-      return findTarget(receiverClass, inlineCache, args);
-    } else {
+    if (receiverClass.isArray()) {
+      return findArraySpecialMethod(receiverClass, inlineCache, args, inlineCache.type());
+    }
+    if (isCallOnDynamicObject(inlineCache, args[0])) {
       DynamicObject dynamicObject = (DynamicObject) args[0];
       return dynamicObject.invoker(inlineCache.name, inlineCache.type());
+    } else {
+      return findTarget(receiverClass, inlineCache, args);
     }
   }
 
@@ -203,10 +322,9 @@ public class MethodInvocationSupport {
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
-    if (receiverClass.isArray()) {
-      return findArraySpecialMethod(receiverClass, inlineCache, args, type);
-    }
+    // TODO: magic for accessors and mutators will go here...
 
+    // TODO: refactor in a finder ?
     Object searchResult = findMethodOrField(receiverClass, inlineCache, type.parameterArray(), args);
     if (searchResult != null) {
       try {
@@ -242,14 +360,14 @@ public class MethodInvocationSupport {
       }
     }
 
-    target = findInAugmentations(receiverClass, inlineCache, args);
-    if (target != null) {
-      return target;
-    }
+    target = augmentationMethodFinder.find(inlineCache, receiverClass, args);
+    if (target != null) { return target; }
+
     throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
   }
 
   private static MethodHandle findArraySpecialMethod(Class<?> receiverClass, InlineCache inlineCache, Object[] args, MethodType type) {
+    // TODO: refactor in a finder ?
     switch (inlineCache.name) {
       case "get":
         if (args.length != 2) {
@@ -383,73 +501,6 @@ public class MethodInvocationSupport {
     }
 
     return null;
-  }
-
-  private static MethodHandle findInAugmentations(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
-    Class<?> callerClass = inlineCache.callerLookup.lookupClass();
-    String name = inlineCache.name;
-    MethodType type = inlineCache.type();
-    Lookup lookup = inlineCache.callerLookup;
-    final int arity = inlineCache.type().parameterCount();
-
-    ClassLoader classLoader = callerClass.getClassLoader();
-    for (String augmentation : Module.augmentations(callerClass)) {
-      try {
-        Class<?> augmentedClass = classLoader.loadClass(augmentation);
-        if (augmentedClass.isAssignableFrom(receiverClass)) {
-          Class<?> augmentClass = classLoader.loadClass(augmentClassName(callerClass, augmentedClass));
-          for (Method method : augmentClass.getMethods()) {
-            if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
-              MethodHandle target = lookup.unreflect(method);
-              if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
-                return target.asFixedArity().asType(type);
-              } else {
-                return target.asType(type);
-              }
-            }
-          }
-        }
-      } catch (ClassNotFoundException | IllegalAccessException ignored) {
-      }
-    }
-
-    // TODO: refactor the lookups above and below
-    for (String importSymbol : Module.imports(callerClass)) {
-      try {
-        Class<?> importClass = classLoader.loadClass(importSymbol);
-        for (String augmentation : Module.augmentations(importClass)) {
-          try {
-            Class<?> augmentedClass = classLoader.loadClass(augmentation);
-            if (augmentedClass.isAssignableFrom(receiverClass)) {
-              Class<?> augmentClass = classLoader.loadClass(augmentClassName(importClass, augmentedClass));
-              for (Method method : augmentClass.getMethods()) {
-                if (isCandidateMethod(name, method) && augmentMethodMatches(arity, method)) {
-                  MethodHandle target = lookup.unreflect(method);
-                  if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
-                    return target.asFixedArity().asType(type);
-                  } else {
-                    return target.asType(type);
-                  }
-                }
-              }
-            }
-          } catch (ClassNotFoundException | IllegalAccessException ignored) {
-          }
-        }
-      } catch (ClassNotFoundException ignored) {
-      }
-    }
-
-    return null;
-  }
-
-  private static boolean augmentMethodMatches(int arity, Method method) {
-    int parameterCount = method.getParameterTypes().length;
-    return (parameterCount == arity) || (method.isVarArgs() && (parameterCount <= arity));
-  }
-
-  private static String augmentClassName(Class<?> moduleClass, Class<?> augmentedClass) {
-    return moduleClass.getName() + "$" + augmentedClass.getName().replace('.', '$');
   }
 
   private static boolean isMatchingField(String name, Field field) {

@@ -852,7 +852,7 @@ public class CompileAndRunTest {
     assertThat((String) bang_plop.invoke(null), is("Plop!"));
   }
 
-  @Test
+  //@Test
   public void check_local_named_augmentations() throws Throwable {
     GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "local-named-augmentations.golo", goloClassLoader);
