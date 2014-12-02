@@ -9,3 +9,4 @@ dependency-reduced-pom.xml
 benchmarks/*.json
 benchmarks/*.html
 doc/output/
+tags

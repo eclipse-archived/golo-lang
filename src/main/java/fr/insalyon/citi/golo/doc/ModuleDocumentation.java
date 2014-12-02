@@ -17,74 +17,54 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.*;
+import fr.insalyon.citi.golo.compiler.utils.Register;
+import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 
 import java.util.*;
 
-class ModuleDocumentation {
+class FunctionDocumentationsRegister extends AbstractRegister<String, FunctionDocumentation> {
+  private static final long serialVersionUID = 1L;
 
-  static class FunctionDocumentation implements Comparable<FunctionDocumentation> {
-    public String name;
-    public String documentation;
-    public List<String> arguments;
-    public boolean augmentation;
-    public boolean varargs;
-    public boolean local;
-    public int line;
-
-    @Override
-    public int compareTo(FunctionDocumentation o) {
-      int c = name.compareTo(o.name);
-      if (c == 0) {
-        return arguments.size() < arguments.size() ? -1 : 1;
-      }
-      return c;
-    }
+  @Override
+  protected Set<FunctionDocumentation> emptyValue() {
+    return new TreeSet<>();
   }
+
+  @Override
+  protected Map<String, Set<FunctionDocumentation>> initMap() {
+    return new TreeMap<>();
+  }
+}
+
+class ModuleDocumentation {
 
   private String moduleName;
   private int moduleDefLine;
   private String moduleDocumentation;
-  private final TreeMap<String, Integer> moduleStates = new TreeMap<>();
 
-  private TreeSet<FunctionDocumentation> functions = new TreeSet<>();
-  private final TreeMap<String, String> augmentations = new TreeMap<>();
-  private final TreeMap<String, Integer> augmentationLine = new TreeMap<>();
-  private final TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions = new TreeMap<>();
-  private final TreeMap<String, String> structs = new TreeMap<>();
-  private final TreeMap<String, Integer> structLine = new TreeMap<>();
-  private final TreeMap<String, LinkedHashSet<String>> structMembers = new TreeMap<>();
-  private final TreeMap<String, Integer> imports = new TreeMap<>();
-
+  private final Map<String, Integer> imports = new TreeMap<>();
+  private final Map<String, Integer> moduleStates = new TreeMap<>();
+  private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
+  private final Map<String, AugmentationDocumentation> augmentations = new TreeMap<>();
+  private final SortedSet<StructDocumentation> structs = new TreeSet<>();
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
     new ModuleVisitor().visit(compilationUnit, null);
   }
 
-  public TreeMap<String, TreeSet<FunctionDocumentation>> augmentationFunctions() {
-    return augmentationFunctions;
-  }
-
-  public TreeMap<String, String> structs() {
+  public SortedSet<StructDocumentation> structs() {
     return structs;
   }
 
-  public TreeMap<String, LinkedHashSet<String>> structMembers() {
-    return structMembers;
-  }
-
-  public int structLine(String structName) {
-    return structLine.get(structName);
-  }
-
-  public TreeSet<FunctionDocumentation> functions() {
+  public SortedSet<FunctionDocumentation> functions() {
     return functions(false);
   }
 
-  public TreeSet<FunctionDocumentation> functions(boolean withLocal) {
+  public SortedSet<FunctionDocumentation> functions(boolean withLocal) {
     if (withLocal) { return functions; }
     TreeSet<FunctionDocumentation> pubFunctions = new TreeSet<>();
     for (FunctionDocumentation f : functions) {
-      if (!f.local) { pubFunctions.add(f); }
+      if (!f.local()) { pubFunctions.add(f); }
     }
     return pubFunctions;
   }
@@ -98,46 +78,29 @@ class ModuleDocumentation {
   }
 
   public String moduleDocumentation() {
-    return moduleDocumentation;
+    return (moduleDocumentation != null) ? moduleDocumentation : "\n";
   }
 
-  public TreeMap<String, Integer> moduleStates() {
+  public Map<String, Integer> moduleStates() {
     return moduleStates;
   }
 
-  public TreeMap<String, String> augmentations() {
-    return augmentations;
+  public Collection<AugmentationDocumentation> augmentations() {
+    return augmentations.values();
   }
 
-  public int augmentationLine(String augmentationName) {
-    return augmentationLine.get(augmentationName);
-  }
-
-  public TreeMap<String, Integer> imports() {
+  public Map<String, Integer> imports() {
     return imports;
-  }
-
-  private String documentationOrNothing(String documentation) {
-    return (documentation != null) ? documentation : "\n";
   }
 
   private class ModuleVisitor implements GoloParserVisitor {
 
-    private String currentAugmentation = null;
-    private FunctionDocumentation currentFunctionDocumentation = null;
-
-    @Override
-    public Object visit(SimpleNode node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTerror node, Object data) {
-      return data;
-    }
+    private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
+    private FunctionDocumentation currentFunction = null;
 
     @Override
     public Object visit(ASTCompilationUnit node, Object data) {
+      functionContext.push(functions);
       node.childrenAccept(this, data);
       return data;
     }
@@ -146,7 +109,7 @@ class ModuleDocumentation {
     public Object visit(ASTModuleDeclaration node, Object data) {
       moduleName = node.getName();
       moduleDefLine = node.getLineInSourceCode();
-      moduleDocumentation = documentationOrNothing(node.getDocumentation());
+      moduleDocumentation = node.getDocumentation();
       return data;
     }
 
@@ -164,47 +127,67 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTStructDeclaration node, Object data) {
-      structs.put(node.getName(), documentationOrNothing(node.getDocumentation()));
-      structLine.put(node.getName(), node.getLineInSourceCode());
-      structMembers.put(node.getName(), node.getMembers());
+      structs.add(new StructDocumentation()
+        .name(node.getName())
+        .documentation(node.getDocumentation())
+        .line(node.getLineInSourceCode())
+        .members(node.getMembers())
+      );
       return data;
     }
 
     @Override
     public Object visit(ASTAugmentDeclaration node, Object data) {
-      currentAugmentation = node.getName();
       /* NOTE:
        * if multiple augmentations are defined for the same target
-       * only the line and documentation of the first one are kept.
+       * only the line and (non empty) documentation of the first one are kept.
        *
        * Maybe we should concatenate documentations since the golodoc merges
-       * the functions documentations, but we could then generate unmeaningful
+       * the functions documentations, but we could then generate not meaningful
        * content...
        */
-      if (!augmentations.containsKey(currentAugmentation)) {
-        augmentations.put(currentAugmentation, documentationOrNothing(node.getDocumentation()));
+      String target = node.getName();
+      if (!augmentations.containsKey(target)) {
+        augmentations.put(target, new AugmentationDocumentation()
+            .target(target)
+            .line(node.getLineInSourceCode())
+        );
       }
-      if (!augmentationLine.containsKey(currentAugmentation)) {
-        augmentationLine.put(currentAugmentation, node.getLineInSourceCode());
-      }
-      if (!augmentationFunctions.containsKey(currentAugmentation)) {
-        augmentationFunctions.put(currentAugmentation,
-                                  new TreeSet<FunctionDocumentation>());
-      }
+      functionContext.push(augmentations.get(target).documentation(node.getDocumentation()));
       node.childrenAccept(this, data);
-      currentAugmentation = null;
+      functionContext.pop();
       return data;
     }
 
     @Override
     public Object visit(ASTFunctionDeclaration node, Object data) {
-      currentFunctionDocumentation = new FunctionDocumentation();
-      currentFunctionDocumentation.name = node.getName();
-      currentFunctionDocumentation.documentation = documentationOrNothing(node.getDocumentation());
-      currentFunctionDocumentation.augmentation = node.isAugmentation();
-      currentFunctionDocumentation.line = node.getLineInSourceCode();
-      currentFunctionDocumentation.local = node.isLocal();
+      currentFunction = new FunctionDocumentation()
+        .name(node.getName())
+        .documentation(node.getDocumentation())
+        .augmentation(node.isAugmentation())
+        .line(node.getLineInSourceCode())
+        .local(node.isLocal());
+      functionContext.peek().add(currentFunction);
       node.childrenAccept(this, data);
+      currentFunction = null;
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTFunction node, Object data) {
+      if (currentFunction != null) {
+        currentFunction
+          .arguments(node.getArguments())
+          .varargs(node.isVarargs());
+      }
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTLetOrVar node, Object data) {
+      if (node.isModuleState()) {
+        moduleStates.put(node.getName(), node.getLineInSourceCode());
+      }
       return data;
     }
 
@@ -269,21 +252,6 @@ class ModuleDocumentation {
     }
 
     @Override
-    public Object visit(ASTFunction node, Object data) {
-      if (currentFunctionDocumentation != null) {
-        currentFunctionDocumentation.arguments = node.getArguments();
-        if (currentFunctionDocumentation.augmentation) {
-          augmentationFunctions.get(currentAugmentation).add(currentFunctionDocumentation);
-        } else {
-          functions.add(currentFunctionDocumentation);
-        }
-        currentFunctionDocumentation.varargs = node.isVarargs();
-        currentFunctionDocumentation = null;
-      }
-      return data;
-    }
-
-    @Override
     public Object visit(ASTLiteral node, Object data) {
       return data;
     }
@@ -295,14 +263,6 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTReference node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTLetOrVar node, Object data) {
-      if (node.isModuleState()) {
-        moduleStates.put(node.getName(), node.getLineInSourceCode());
-      }
       return data;
     }
 
@@ -343,6 +303,16 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTDecoratorDeclaration node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(SimpleNode node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTerror node, Object data) {
       return data;
     }
   }

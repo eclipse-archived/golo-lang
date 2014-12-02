@@ -5,18 +5,18 @@
 
 <% if not doc: structs(): isEmpty() { %>
 ## Structs
-<% foreach structName in doc: structs(): keySet() { %>
-### `<%= structName %>`
-<%= doc: structs(): get(structName) %>
+<% foreach structDoc in doc: structs() { %>
+### `<%= structDoc: name() %>`
+<%= structDoc: documentation() %>
 <% } %>
 <% } %>
 
 <% if not doc: augmentations(): isEmpty() { %>
 ## Augmentations
-<% foreach augmentation in doc: augmentations(): keySet() { %>
-### `<%= augmentation %>`
-<%= doc: augmentations(): get(augmentation) %>
-<% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
+<% foreach augmentDoc in doc: augmentations() { %>
+### `<%= augmentDoc: target() %>`
+<%= augmentDoc: documentation() %>
+<% foreach funcDoc in augmentDoc { %>
 #### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
 <%= funcDoc: documentation() %>
 <% } %>

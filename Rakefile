@@ -43,6 +43,12 @@ task :doc do
   sh "mvn org.golo-lang:golo-maven-plugin:golodoc -DoutputDirectory=doc/output/golodoc"
 end
 
+desc "Build tags file"
+task :tags do
+    sh "golo doc --format ctags src"
+    sh "ctags -a -R src"
+end
+
 desc "Deploy snapshots"
 task :deploy => [:clean, :build, :doc] do
   MAGIC = "mvn deploy"
