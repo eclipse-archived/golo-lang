@@ -8,6 +8,7 @@ function func_1 = {
   counter = counter + 1
   return {
     counter = counter + 1 # try to access to an enclosed variable
+    return counter
   }
 }
 

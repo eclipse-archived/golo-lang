@@ -34,13 +34,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       Set<String> result = new HashSet<>();
       for (String ref : accessedReferences) {
         if (!localReferences.contains(ref)) {
-          if (moduleState == null) {
-            result.add(ref);
-          } else {
-            if (!moduleState.hasReferenceFor(ref)) {
-              result.add(ref);
-            }
-          }
+          result.add(ref);
         }
       }
       return result;
@@ -224,11 +218,13 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       if (!stack.isEmpty()) {
         assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(referenceName));
       }
-      locallyAssigned(referenceName);
       if (assignmentStatement.isDeclaring()) {
         locallyDeclared(referenceName);
       }
+    } else {
+      locallyDeclared(referenceName);
     }
+    locallyAssigned(referenceName);
     assignmentStatement.getExpressionStatement().accept(this);
     if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
       ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();

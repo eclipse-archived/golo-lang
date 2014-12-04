@@ -95,7 +95,7 @@ public final class ReferenceTable {
     Set<String> tableSymbols = ownedSymbols();
     for (LocalReference reference : references()) {
       if (reference.isModuleState()) {
-        referenceTable.add(reference);
+        referenceTable.add(new LocalReference(reference.getKind(), reference.getName()));
         continue;
       }
       String refName = reference.getName();
