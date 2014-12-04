@@ -45,7 +45,8 @@ class AugmentationMethodFinder {
   private MethodHandle methodHandle;
   private final FindingStrategy[] strategies = {
     new SimpleAugmentationStrategy(),
-    new NamedAugmentationStrategy()
+    new NamedAugmentationStrategy(),
+    new ExternalNamedAugmentationStrategy()
   };
 
   interface FindingStrategy {
@@ -72,11 +73,15 @@ class AugmentationMethodFinder {
 
   private class NamedAugmentationStrategy implements FindingStrategy {
 
+    protected String augmentationClassName(Class<?> definingModule, String augmentationName) {
+      return definingModule.getName() + "$" + augmentationName;
+    }
+
     @Override
     public MethodHandle find(Class<?> definingModule, Class<?> augmentedClass) {
       MethodHandle method;
       for (String augmentationName : Module.augmentationApplications(definingModule, augmentedClass)) {
-        method = findMethod(definingModule.getName() + "$" + augmentationName);
+        method = findMethod(augmentationClassName(definingModule, augmentationName));
         if (method != null) { return method; }
       }
       return null;
@@ -88,6 +93,13 @@ class AugmentationMethodFinder {
     }
   }
 
+  private class ExternalNamedAugmentationStrategy extends NamedAugmentationStrategy {
+    @Override
+    protected String augmentationClassName(Class<?> definingModule, String augmentationName) {
+      return augmentationName.replace('.', '$');
+    }
+  }
+  
   private void init(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.receiverClass = receiverClass;
     this.args = args;

@@ -372,6 +372,29 @@ List<String> Arguments() #void:
   }
 }
 
+List<String> AugmentationNames() #void:
+{
+  String rootToken;
+  String nextToken;
+  List<String> names = new LinkedList<String>();
+}
+{
+  rootToken=QualifiedName()
+  {
+    names.add(rootToken);
+  }
+  (
+    "," (BlankLine())? nextToken=QualifiedName()
+    {
+      names.add(nextToken);
+    }
+  )*
+  {
+    return names;
+  }
+}
+
+
 String StringLiteral() #void:
 {
   Token literal;
@@ -676,7 +699,7 @@ ASTAugmentDeclaration AugmentDeclaration():
   <AUGMENT> target=QualifiedName() (
     AugmentationDeclaration("on " + target)
     |
-    (<WITH> names=Arguments())
+    (<WITH> names=AugmentationNames())
     )
   {
     jjtThis.setTarget(target);
