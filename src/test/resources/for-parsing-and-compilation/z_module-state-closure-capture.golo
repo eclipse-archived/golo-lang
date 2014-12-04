@@ -4,13 +4,22 @@ module bug
 
 var counter = 0
 
-function func = {
+function func_1 = {
   counter = counter + 1
   return {
     counter = counter + 1 # try to access to an enclosed variable
   }
 }
 
+function func_2 = {
+  var counter =  1
+  return {
+    return counter + 1
+  }
+}
+
+
 function main = |args| {
-  func()()
+  require(func_1()() == 2, "Grrrr 1!")
+  require(func_2()() == 2, "Grrrr 2!")
 }
