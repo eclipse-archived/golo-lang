@@ -173,6 +173,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, data);
     Decorator decorator = new Decorator((ExpressionStatement) context.objectStack.pop());
+    if (node.isConstant()) {
+      decorator.setConstant(true);
+    }
     node.setIrElement(decorator);
     context.objectStack.push(decorator);
     return data;
@@ -225,9 +228,15 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     for (Decorator decorator : decorators) {
       if (decorator.getExpressionStatement() instanceof ReferenceLookup) {
-        nested = wrapWithReferenceLookupDecorator(nested, (ReferenceLookup)decorator.getExpressionStatement());
+        nested = wrapWithReferenceLookupDecorator(
+                nested,
+                (ReferenceLookup)decorator.getExpressionStatement(),
+                decorator.isConstant());
       } else {
-        nested = wrapWithFunctionInvocationDecorator(nested, (FunctionInvocation)decorator.getExpressionStatement());
+        nested = wrapWithFunctionInvocationDecorator(
+                nested,
+                (FunctionInvocation)decorator.getExpressionStatement(),
+                decorator.isConstant());
       }
     }
     nested = invokeDecoratorWithOriginalParameters(nested, wrapped);
@@ -250,10 +259,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     return wrapped;
   }
 
-  private Node wrapWithFunctionInvocationDecorator(Node wrapped, FunctionInvocation invocation) {
+  private Node wrapWithFunctionInvocationDecorator(Node wrapped, FunctionInvocation invocation, boolean constant) {
     Node decorator = invocation.getASTNode();
     ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
-    functionInvocation.setConstant(true);
+    functionInvocation.setConstant(constant);
     ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
     functionInvocation.jjtAddChild(commutativeExpression, 0);
     ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
@@ -263,10 +272,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     return decorator;
   }
 
-  private Node wrapWithReferenceLookupDecorator(Node wrapped, ReferenceLookup reference) {
+  private Node wrapWithReferenceLookupDecorator(Node wrapped, ReferenceLookup reference, boolean constant) {
     ASTFunctionInvocation functionInvocation = new ASTFunctionInvocation(0);
     functionInvocation.setName(reference.getName());
-    functionInvocation.setConstant(true);
+    functionInvocation.setConstant(constant);
     ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
     functionInvocation.jjtAddChild(commutativeExpression, 0);
     ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);

@@ -722,9 +722,13 @@ ASTFunctionDeclaration FunctionDeclaration():
   }
 }
 
-ASTDecoratorDeclaration DecoratorDeclaration(): {}
+ASTDecoratorDeclaration DecoratorDeclaration():
+{
+  Token constant = null;
+}
 {
   <DECORATOR>
+  (constant=<CONSTANT_INVOCATION>)?
   (
     LOOKAHEAD(2) FunctionInvocation()
     |
@@ -732,6 +736,9 @@ ASTDecoratorDeclaration DecoratorDeclaration(): {}
   )
   BlankLines()
   {
+    if (constant != null) {
+        jjtThis.setConstant(true);
+    }
     return jjtThis;
   }
 }

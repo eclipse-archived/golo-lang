@@ -43,6 +43,6 @@ public class ASTAnonymousFunctionInvocation extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTAnonymousFunctionInvocation{}";
+    return "ASTAnonymousFunctionInvocation{constant='"+constant+"'}";
   }
 }

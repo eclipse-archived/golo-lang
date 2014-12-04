@@ -35,8 +35,8 @@ function singleton = -> java.lang.Object!()
 
 function anonymous = |a, b, c| -> adder!(a)!(b)!(c)
 
-@decorator
+@!decorator
 function decorated = -> 42
 
-@parametrized_decorator(decorator_parameter)
+@!parametrized_decorator(decorator_parameter)
 function parametrized_decorated =  -> 42
