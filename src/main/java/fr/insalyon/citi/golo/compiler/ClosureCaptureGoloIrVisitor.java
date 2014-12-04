@@ -51,8 +51,6 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   private final Deque<Context> stack = new LinkedList<>();
 
-  private ReferenceTable moduleState;
-
   private Context context() {
     return stack.peek();
   }
@@ -113,12 +111,6 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModule(GoloModule module) {
-    for (GoloFunction function : module.getFunctions()) {
-      if (GoloModule.MODULE_INITIALIZER_FUNCTION.equals(function.getName())) {
-        moduleState = function.getBlock().getReferenceTable();
-        break;
-      }
-    }
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
