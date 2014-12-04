@@ -51,7 +51,7 @@ public class ASTFunctionInvocation extends GoloASTNode implements NamedNode {
   @Override
   public String toString() {
     return "ASTFunctionInvocation{" +
-        "name='" + name + "\', " +
+        "name='" + name + "', " +
         "constant='" + constant + '\'' +
         '}';
   }

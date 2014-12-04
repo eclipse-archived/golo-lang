@@ -1,0 +1,179 @@
+== Banged function call ==
+
+
+A function call marked with bang (`!`) will be called only once,
+the result is stored as a constant and will be directly returned for every subsequent call.
+
+=== Principles and syntax ===
+
+A function call can be marked with a bang like in this example :
+
+[source,golo]
+----
+module sample
+
+function take_a_while  = {
+  # ... complex computation
+  return 42
+}
+
+
+function main = |args| {
+
+  foreach i in range(0, 100) {
+   take_a_while!()
+  }
+
+}
+----
+
+In this example `take_a_while` is computed only once at the first call, and then this function returns directly the previously computed result as a constant for every subsequent call.
+
+
+Bang function call is a kind of memoization but regardless the given parameters :
+
+[source,golo]
+----
+module sample
+
+function hello = |name| {
+  return "Hello " + name + "!"
+}
+
+
+function main = |args| {
+  foreach name in ["Peter", "John", "James"] {
+    println( hello!(name) # will always print 'Hello Peter!'
+  }
+}
+----
+
+In this example `hello` is executed at the first time call with the parameter `"Peter"`, then always returns `"Hello Peter!"` for every subsequent call regardless the given parameters.
+
+
+The result of a banged function call is constant, but different for every call instruction : 
+
+[source,golo]
+----
+module sample
+
+function hello = |name| {
+  return "Hello " + name + "!"
+}
+
+
+function main = |args| {
+  println( hello!("Foo") ) # will print 'Hello Foo!'
+  println( hello!("Bar") ) # will print 'Hello Bar!'
+  foreach name in ["Peter", "John", "James"] {
+   println( hello!(name) # will always print 'Hello Peter!'
+  }
+  foreach name in ["Peter", "John", "James"] {
+   println( hello(name) # will print 'Hello Peter!', 'Hello John!', 'Hello James!'
+  }
+}
+----
+
+Anonymous function call and object constructor call can be banged too :
+
+[source,golo]
+----
+module sample
+
+function closure = |x| {
+  return |y| {
+    return x * y
+  }
+}
+
+function singleton = -> java.lang.Object!()
+
+function main = |args| {
+
+  foreach i in range(0, 100) {
+    println( closure(i)!(i) ) # will always print 0
+  }
+
+  require(
+    singleton(): hashCode() == singleton(): hashCode(),
+    "Houston, ..."
+  )
+}
+----
+
+In this example `closure(i)!(i)` always return `0` because :
+
+- `closure(i)` returns a closure (`|y| -> x * y`) with `x` as enclosed variable
+- `closure(i)` is computed for each value of `i`
+- the closure returned by `closure(i)` is called at the first iteration with `0` for `x` and `y`
+- for every subsequent call `closure(i)` is still computed but ignored because the anonymous call is replaced by the return of a constant value
+
+The `singleton` function return a new java Object but the `java.lang.Object` is created with a banged constructor call, then the returned reference is constant.
+
+=== Banged decorators ===
+
+As explained in the decorators part the following `identity` function :
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+@decorator
+function identity = |x| -> x
+----
+
+is expanded to :
+
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+function identity = |x| -> decorator(|x| -> x)(x)
+----
+
+A banged decorator declared with the `@!` syntax :
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+@!decorator
+function identity = |x| -> x
+----
+
+is expandend to :
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+function identity = |x| -> decorator!(|x| -> x)(x)
+----
+
+As seen previously, the `decorator` function is called only the first time and for every subsequent call the function reference
+returned by the decorator is not re-computed but directly used as a contant.
+
+
+Parametrized decorators can be banged too :
+
+[source,golo]
+----
+function decorator =  |arg| -> |func| -> |x| -> func(x)
+
+@!decorator(42)
+function identity = |x| -> x
+----
+
+is expandend to :
+
+[source,golo]
+----
+function decorator =  |arg| -> |func| -> |x| -> func(x)
+
+function identity = |x| -> decorator(42)!(|x| -> x)(x)
+----
+
+
+The performances can be considerably increased with banged decorators but decorator functions have to be pure (without edge effects) and his parameters stable.
+
