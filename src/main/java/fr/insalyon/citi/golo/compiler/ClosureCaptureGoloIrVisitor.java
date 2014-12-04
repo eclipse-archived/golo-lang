@@ -22,7 +22,7 @@ import java.util.*;
 
 class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
-  static class Context {
+  class Context {
     final Set<String> parameterReferences = new HashSet<>();
     final Set<String> allReferences = new HashSet<>();
     final Set<String> localReferences = new HashSet<>();
@@ -34,7 +34,13 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       Set<String> result = new HashSet<>();
       for (String ref : accessedReferences) {
         if (!localReferences.contains(ref)) {
-          result.add(ref);
+          if (moduleState == null) {
+            result.add(ref);
+          } else {
+            if (!moduleState.hasReferenceFor(ref)) {
+              result.add(ref);
+            }
+          }
         }
       }
       return result;
@@ -50,6 +56,8 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   }
 
   private final Deque<Context> stack = new LinkedList<>();
+
+  private ReferenceTable moduleState;
 
   private Context context() {
     return stack.peek();
@@ -111,6 +119,12 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModule(GoloModule module) {
+    for (GoloFunction function : module.getFunctions()) {
+      if (GoloModule.MODULE_INITIALIZER_FUNCTION.equals(function.getName())) {
+        moduleState = function.getBlock().getReferenceTable();
+        break;
+      }
+    }
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
@@ -204,21 +218,24 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
-    String name = assignmentStatement.getLocalReference().getName();
-    if (!stack.isEmpty()) {
-      assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(name));
-    }
-    locallyAssigned(name);
-    if (assignmentStatement.isDeclaring()) {
-      locallyDeclared(name);
+    LocalReference localReference = assignmentStatement.getLocalReference();
+    String referenceName = localReference.getName();
+    if (!localReference.isModuleState()) {
+      if (!stack.isEmpty()) {
+        assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(referenceName));
+      }
+      locallyAssigned(referenceName);
+      if (assignmentStatement.isDeclaring()) {
+        locallyDeclared(referenceName);
+      }
     }
     assignmentStatement.getExpressionStatement().accept(this);
     if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
       ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();
       GoloFunction target = closure.getTarget();
-      if (target.getSyntheticParameterNames().contains(name)) {
-        target.removeSyntheticParameter(name);
-        target.setSyntheticSelfName(name);
+      if (target.getSyntheticParameterNames().contains(referenceName)) {
+        target.removeSyntheticParameter(referenceName);
+        target.setSyntheticSelfName(referenceName);
       }
     }
   }

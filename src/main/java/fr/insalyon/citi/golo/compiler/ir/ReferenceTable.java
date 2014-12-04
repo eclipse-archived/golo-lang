@@ -94,6 +94,10 @@ public final class ReferenceTable {
     ReferenceTable referenceTable = new ReferenceTable();
     Set<String> tableSymbols = ownedSymbols();
     for (LocalReference reference : references()) {
+      if (reference.isModuleState()) {
+        referenceTable.add(reference);
+        continue;
+      }
       String refName = reference.getName();
       if (turnIntoConstants && !tableSymbols.contains(refName)) {
         referenceTable.add(new LocalReference(LocalReference.Kind.CONSTANT, refName, reference.isSynthetic()));
