@@ -22,27 +22,33 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
+import java.util.Collection;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 
 class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   private GoloModule module = null;
-  private int indexAssignmentCounter = 0;
+  private AssignmentCounter assignmentCounter = new AssignmentCounter();
   private Deque<GoloFunction> functionStack = new LinkedList<>();
   private Deque<ReferenceTable> tableStack = new LinkedList<>();
   private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
   private Deque<LoopStatement> loopStack = new LinkedList<>();
   private GoloCompilationException.Builder exceptionBuilder;
 
-  private void resetIndexAssignmentCounter() {
-    indexAssignmentCounter = 0;
-  }
+  private static class AssignmentCounter {
 
-  private int nextAssignmentIndex() {
-    int value = indexAssignmentCounter;
-    indexAssignmentCounter = indexAssignmentCounter + 1;
-    return value;
+    private int counter = 0;
+
+    public int next() {
+      int value = counter;
+      counter = counter + 1;
+      return value;
+    }
+
+    public void reset() {
+      counter = 0;
+    }
   }
 
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
@@ -62,8 +68,12 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (String augmentation : module.getAugmentations().keySet()) {
-      Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
+    for (Collection<GoloFunction> functions : module.getAugmentations().values()) {
+      for (GoloFunction function : functions) {
+        function.accept(this);
+      }
+    }
+    for (Collection<GoloFunction> functions : module.getNamedAugmentations().values()) {
       for (GoloFunction function : functions) {
         function.accept(this);
       }
@@ -72,7 +82,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
-    resetIndexAssignmentCounter();
+    assignmentCounter.reset();
     functionStack.push(function);
     ReferenceTable table = function.getBlock().getReferenceTable();
     for (String parameterName : function.getParameterNames()) {
@@ -82,7 +92,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
           throw new IllegalStateException("[please report this bug] " + parameterName + " is not declared in the references of function " + function.getName());
         }
       } else {
-        reference.setIndex(nextAssignmentIndex());
+        reference.setIndex(assignmentCounter.next());
       }
     }
     function.getBlock().accept(this);
@@ -109,7 +119,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     ReferenceTable table = block.getReferenceTable();
     for (LocalReference reference : table.ownedReferences()) {
       if (reference.getIndex() < 0 && !isModuleState(reference)) {
-        reference.setIndex(nextAssignmentIndex());
+        reference.setIndex(assignmentCounter.next());
       }
     }
     tableStack.push(table);

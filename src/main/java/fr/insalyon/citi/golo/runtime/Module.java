@@ -21,12 +21,11 @@ import java.lang.reflect.Method;
 
 class Module {
 
-  static String[] metadata(String name, Class<?> callerClass, Object... args) {
+  private static final Class<?>[] EMPTY_TYPES = new Class<?>[]{};
+  private static final Object[] EMPTY_ARGS = new Object[]{};
+
+  static String[] metadata(String name, Class<?> callerClass, Class<?>[] types, Object[] args) {
     String[] data;
-    Class<?>[] types = new Class<?>[args.length];
-    for (int i = 0; i < args.length; i++) {
-      types[i] = args[i].getClass();
-    }
     try {
       Method $data = callerClass.getMethod("$" + name, types);
       data = (String[]) $data.invoke(null, args);
@@ -39,14 +38,21 @@ class Module {
   }
 
   static String[] imports(Class<?> callerClass) {
-    return metadata("imports", callerClass);
+    return metadata("imports", callerClass, EMPTY_TYPES, EMPTY_ARGS);
   }
 
   static String[] augmentations(Class<?> callerClass) {
-    return metadata("augmentations", callerClass);
+    return metadata("augmentations", callerClass, EMPTY_TYPES, EMPTY_ARGS);
   }
 
-  static String[] augmentationApplications(Class<?> callerClass, Class<?> reveiverClass) {
-    return metadata("augmentationApplications", callerClass, reveiverClass.getName().hashCode());
+  static String[] augmentationApplications(Class<?> callerClass) {
+    return metadata("augmentationApplications", callerClass, EMPTY_TYPES, EMPTY_ARGS);
+  }
+
+  static String[] augmentationApplications(Class<?> callerClass, Class<?> receiverClass) {
+    return metadata("augmentationApplications", callerClass,
+        new Class<?>[] {int.class},
+        new Object[]{receiverClass.getName().hashCode()}
+    );
   }
 }

@@ -31,6 +31,7 @@ import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.copyOfRange;
 
+
 class AugmentationMethodFinder {
 
   private Class<?> receiverClass;
@@ -42,6 +43,50 @@ class AugmentationMethodFinder {
   private Object[] args;
   private ClassLoader classLoader;
   private MethodHandle methodHandle;
+  private final FindingStrategy[] strategies = {
+    new SimpleAugmentationStrategy(),
+    new NamedAugmentationStrategy()
+  };
+
+  interface FindingStrategy {
+    MethodHandle find(Class<?> definingModule, Class<?> augmentedClass);
+    String[] targets(Class<?> definingModule);
+  }
+
+  private class SimpleAugmentationStrategy implements FindingStrategy {
+
+    private String className(Class<?> moduleClass, Class<?> augmentedClass) {
+      return moduleClass.getName() + "$" + augmentedClass.getName().replace('.', '$');
+    }
+
+    @Override
+    public MethodHandle find(Class<?> definingModule, Class<?> augmentedClass) {
+      return findMethod(className(definingModule, augmentedClass));
+    }
+
+    @Override
+    public String[] targets(Class<?> definingModule) {
+      return Module.augmentations(definingModule);
+    }
+  }
+
+  private class NamedAugmentationStrategy implements FindingStrategy {
+
+    @Override
+    public MethodHandle find(Class<?> definingModule, Class<?> augmentedClass) {
+      MethodHandle method;
+      for (String augmentationName : Module.augmentationApplications(definingModule, augmentedClass)) {
+        method = findMethod(definingModule.getName() + "$" + augmentationName);
+        if (method != null) { return method; }
+      }
+      return null;
+    }
+
+    @Override
+    public String[] targets(Class<?> definingModule) {
+      return Module.augmentationApplications(definingModule);
+    }
+  }
 
   private void init(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.receiverClass = receiverClass;
@@ -53,10 +98,6 @@ class AugmentationMethodFinder {
     this.callerClass = inlineCache.callerLookup.lookupClass();
     this.classLoader = callerClass.getClassLoader();
     this.methodHandle = null;
-  }
-
-  private static String className(Class<?> moduleClass, Class<?> augmentedClass) {
-    return moduleClass.getName() + "$" + augmentedClass.getName().replace('.', '$');
   }
 
   private boolean isCandidate(Method method) {
@@ -98,38 +139,25 @@ class AugmentationMethodFinder {
     return null;
   }
 
-  private MethodHandle findInAugmentation(Class<?> definingModule, String augmentation) {
-    try {
-      Class<?> augmentedClass = classLoader.loadClass(augmentation);
-      if (augmentedClass.isAssignableFrom(receiverClass)) {
-        return findMethod(className(definingModule, augmentedClass));
-      }
-    } catch (ClassNotFoundException ignored) {}
-    return null;
-  }
-
-  private void findInAugmentations(Class<?> definingModule) {
+  private void findInClasses(Class<?> definingModule, FindingStrategy strategy) {
     if (methodHandle != null) { return; }
-    for (String augmentation : Module.augmentations(definingModule)) {
-      methodHandle = findInAugmentation(definingModule, augmentation);
+    for (String target : strategy.targets(definingModule)) {
+      try {
+        Class<?> augmentedClass = classLoader.loadClass(target);
+        if (augmentedClass.isAssignableFrom(receiverClass)) {
+          methodHandle = strategy.find(definingModule, augmentedClass);
+        }
+      } catch (ClassNotFoundException ignored) {}
       if (methodHandle != null) { break; }
     }
   }
 
-  private void findInNamedAugmentations(Class<?> definingModule) {
-    if (methodHandle != null) { return; }
-    for (String augmentationName : Module.augmentationApplications(definingModule, receiverClass)) {
-      methodHandle = findMethod(definingModule.getName() + "$" + augmentationName);
-      if (methodHandle != null) { break; }
-    }
-  }
-
-  private void findInImportedAugmentations(Class<?> sourceClass) {
+  private void findInImportedClasses(Class<?> sourceClass, FindingStrategy strategy) {
     if (methodHandle != null) { return; }
     for (String importSymbol : Module.imports(sourceClass)) {
       try {
-        Class<?> importClass = classLoader.loadClass(importSymbol);
-        findInAugmentations(importClass);
+        Class<?> importedClass = classLoader.loadClass(importSymbol);
+        findInClasses(importedClass, strategy);
         if (methodHandle != null) { break; }
       } catch (ClassNotFoundException ignored) {}
     }
@@ -137,10 +165,12 @@ class AugmentationMethodFinder {
 
   public MethodHandle find(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     init(inlineCache, receiverClass, args);
-    findInAugmentations(callerClass);
-    findInNamedAugmentations(callerClass);
-    findInImportedAugmentations(callerClass); 
-    //TODO findInImportedNamedAugmentations(callerClass);
+    for (int i = 0; i < strategies.length; i++) {
+      findInClasses(callerClass, strategies[i]);
+    }
+    for (int i = 0; i < strategies.length; i++) {
+      findInImportedClasses(callerClass, strategies[i]);
+    }
     return methodHandle;
   }
 }

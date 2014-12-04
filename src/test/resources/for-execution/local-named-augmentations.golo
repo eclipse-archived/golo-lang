@@ -45,3 +45,12 @@ function test_foo_on_struct = {
 function test_bar_on_struct = {
   return MyStruct(1, 2): bar() # should be bar
 }
+
+function main = |args| {
+  require(test_plop_on_list() == "plop", "err")
+  require(test_foo_on_list() == "foo" , "err")
+  require(test_bar_on_list() == "bar" , "err")
+  require(test_baz_on_list() == "baz" , "err")
+  require(test_foo_on_struct() == "foo" , "err")
+  require(test_bar_on_struct() == "bar" , "err")
+}

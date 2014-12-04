@@ -172,16 +172,27 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
      * returns a String array containing the names of applied
      * augmentations
      */
+
     int applicationsSize = applications.size();
+    List<String> applicationNames = new ArrayList<>(applications.keySet());
+    writeMetaData("augmentationApplications", applicationNames.toArray(new String[applicationsSize]));
+
     Label defaultLabel = new Label();
     Label[] labels = new Label[applicationsSize];
     int[] keys = new int[applicationsSize];
     String[][] namesArrays = new String[applicationsSize][];
+    // cases of the switch statement MUST be sorted
+    Collections.sort(applicationNames, new Comparator<String>(){
+      @Override
+      public int compare(String o1, String o2) {
+        return Integer.compare(o1.hashCode(), o2.hashCode());
+      }
+    });
     int i = 0;
-    for (Map.Entry<String, List<String>> entry : applications.entrySet()) {
+    for (String applicationName : applicationNames) {
       labels[i] = new Label();
-      keys[i] = entry.getKey().hashCode();
-      namesArrays[i] = entry.getValue().toArray(new String[entry.getValue().size()]);
+      keys[i] = applicationName.hashCode();
+      namesArrays[i] = applications.get(applicationName).toArray(new String[applications.get(applicationName).size()]);
       i++;
     }
     methodVisitor = classWriter.visitMethod(

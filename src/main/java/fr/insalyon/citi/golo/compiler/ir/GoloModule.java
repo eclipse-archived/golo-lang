@@ -24,6 +24,7 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 
+// TODO: use the new generic register
 class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
   private static final long serialVersionUID = 1L;
 
@@ -54,6 +55,7 @@ public final class GoloModule extends GoloElement {
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
   private final FunctionRegister augmentations = new FunctionRegister();
+  // TODO: use the new generic register
   private final Map<String, List<String>> augmentationApplications = new LinkedHashMap<>();
   private final FunctionRegister namedAugmentations = new FunctionRegister();
   private final Set<Struct> structs = new LinkedHashSet<>();
@@ -162,6 +164,7 @@ public final class GoloModule extends GoloElement {
   }
 
   public void internStructAugmentations() {
+    // TODO: refactor this ?
     HashSet<String> structNames = new HashSet<>();
     HashSet<String> trash = new HashSet<>();
     for (Struct struct : structs) {
@@ -176,6 +179,17 @@ public final class GoloModule extends GoloElement {
       augmentations.put(packageAndClass + ".types." + trashed,
                         augmentations.get(trashed));
       augmentations.remove(trashed);
+    }
+    trash.clear();
+    for (String augmentation : augmentationApplications.keySet()) {
+      if (structNames.contains(augmentation)) {
+        trash.add(augmentation);
+      }
+    }
+    for (String trashed : trash) {
+      augmentationApplications.put(packageAndClass + ".types." + trashed,
+                        augmentationApplications.get(trashed));
+      augmentationApplications.remove(trashed);
     }
     structNames.clear();
   }

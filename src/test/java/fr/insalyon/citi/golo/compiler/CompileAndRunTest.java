@@ -852,18 +852,16 @@ public class CompileAndRunTest {
     assertThat((String) bang_plop.invoke(null), is("Plop!"));
   }
 
-  //@Test
+  @Test
   public void check_local_named_augmentations() throws Throwable {
     GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "local-named-augmentations.golo", goloClassLoader);
-
     assertThat((String) moduleClass.getMethod("test_plop_on_list").invoke(null), is("plop"));
     assertThat((String) moduleClass.getMethod("test_foo_on_list").invoke(null), is("foo"));
     assertThat((String) moduleClass.getMethod("test_bar_on_list").invoke(null), is("bar"));
     assertThat((String) moduleClass.getMethod("test_baz_on_list").invoke(null), is("baz"));
     assertThat((String) moduleClass.getMethod("test_foo_on_struct").invoke(null), is("foo"));
     assertThat((String) moduleClass.getMethod("test_bar_on_struct").invoke(null), is("bar"));
-
   }
 
   @Test
