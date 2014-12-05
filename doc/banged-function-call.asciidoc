@@ -6,7 +6,7 @@ the result is stored as a constant and will be directly returned for every subse
 
 === Principles and syntax ===
 
-A function call can be marked with a bang like in this example :
+A function call can be marked with a bang like in this example:
 
 [source,golo]
 ----
@@ -29,8 +29,13 @@ function main = |args| {
 
 In this example `take_a_while` is computed only once at the first call, and then this function returns directly the previously computed result as a constant for every subsequent call.
 
+NOTE: The `!` notation can only be used on regular function calls. Indeed,
+since methods are context dependant (the object itself), it is not allowed to
+“bang” them. As a consequence, a function invocation using the `invoke` or
+`invokeWithArguments` method of the `MethodHandle` object can't use this
+feature.
 
-Bang function call is a kind of memoization but regardless the given parameters :
+Bang function call is a kind of memoization but regardless the given parameters:
 
 [source,golo]
 ----
@@ -48,10 +53,19 @@ function main = |args| {
 }
 ----
 
-In this example `hello` is executed at the first time call with the parameter `"Peter"`, then always returns `"Hello Peter!"` for every subsequent call regardless the given parameters.
+In this example `hello` is executed at the first call with the parameter
+`"Peter"`, then always returns `"Hello Peter!"`, even when called with other
+values.
 
+WARNING: Functions having side effects *should* not be marked, since the computation
+is not done for subsequent calls, and thus the side effect can't happen. In the
+same way, function that depends on an outside context are risky. Indeed, a
+change in the context won't imply a change in the result any more. In other
+words, only _pure_ functions should be marked with a `!`. No check are done by
+the language, use it at your own risk.
 
-The result of a banged function call is constant, but different for every call instruction : 
+The result of a banged function call is constant within the same call place,
+but different for each call instructions.
 
 [source,golo]
 ----
@@ -60,7 +74,6 @@ module sample
 function hello = |name| {
   return "Hello " + name + "!"
 }
-
 
 function main = |args| {
   println( hello!("Foo") ) # will print 'Hello Foo!'
@@ -74,7 +87,13 @@ function main = |args| {
 }
 ----
 
-Anonymous function call and object constructor call can be banged too :
+In the previous listing, the `hello!(name)` in the loop is considered the same
+call, and thus evaluated only on the first iteration. On the other hand, the
+previous calls with `"Foo"` and `"Bar"` are distinct, and therefore prints
+different results.
+
+
+Anonymous function call and object constructor call can be banged too:
 
 [source,golo]
 ----
@@ -101,7 +120,7 @@ function main = |args| {
 }
 ----
 
-In this example `closure(i)!(i)` always return `0` because :
+In this example `closure(i)!(i)` always return `0` because:
 
 - `closure(i)` returns a closure (`|y| -> x * y`) with `x` as enclosed variable
 - `closure(i)` is computed for each value of `i`
@@ -110,9 +129,10 @@ In this example `closure(i)!(i)` always return `0` because :
 
 The `singleton` function return a new java Object but the `java.lang.Object` is created with a banged constructor call, then the returned reference is constant.
 
+
 === Banged decorators ===
 
-As explained in the decorators part the following `identity` function :
+As explained in the xref:_decorators[decorators part] the following `identity` function:
 
 [source,golo]
 ----
@@ -122,8 +142,7 @@ function decorator =  |func| -> |x| -> func(x)
 function identity = |x| -> x
 ----
 
-is expanded to :
-
+is expanded to:
 
 [source,golo]
 ----
@@ -132,7 +151,7 @@ function decorator =  |func| -> |x| -> func(x)
 function identity = |x| -> decorator(|x| -> x)(x)
 ----
 
-A banged decorator declared with the `@!` syntax :
+A banged decorator declared with the `@!` syntax:
 
 [source,golo]
 ----
@@ -142,7 +161,7 @@ function decorator =  |func| -> |x| -> func(x)
 function identity = |x| -> x
 ----
 
-is expandend to :
+is expandend to:
 
 [source,golo]
 ----
@@ -152,10 +171,10 @@ function identity = |x| -> decorator!(|x| -> x)(x)
 ----
 
 As seen previously, the `decorator` function is called only the first time and for every subsequent call the function reference
-returned by the decorator is not re-computed but directly used as a contant.
+returned by the decorator is not re-computed but directly used as a constant.
 
 
-Parametrized decorators can be banged too :
+Parametrized decorators can be banged too:
 
 [source,golo]
 ----
@@ -165,7 +184,7 @@ function decorator =  |arg| -> |func| -> |x| -> func(x)
 function identity = |x| -> x
 ----
 
-is expandend to :
+is expandend to:
 
 [source,golo]
 ----
@@ -175,5 +194,5 @@ function identity = |x| -> decorator(42)!(|x| -> x)(x)
 ----
 
 
-The performances can be considerably increased with banged decorators but decorator functions have to be pure (without edge effects) and his parameters stable.
+Performances can considerably increase with banged decorators but decorator functions have to be pure (without edge effects) and his parameters stable.
 
