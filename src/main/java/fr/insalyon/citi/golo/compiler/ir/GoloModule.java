@@ -45,6 +45,8 @@ public final class GoloModule extends GoloElement {
   public static final ModuleImport JAVALANG = new ModuleImport(
       PackageAndClass.fromString("java.lang"));
 
+  public static final String MODULE_INITIALIZER_FUNCTION = "<clinit>";
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
@@ -55,7 +57,7 @@ public final class GoloModule extends GoloElement {
 
   public void addModuleStateInitializer(ReferenceTable table, AssignmentStatement assignment) {
     if (moduleStateInitializer == null) {
-      moduleStateInitializer = new GoloFunction("<clinit>", GoloFunction.Visibility.PUBLIC, GoloFunction.Scope.MODULE);
+      moduleStateInitializer = new GoloFunction(MODULE_INITIALIZER_FUNCTION, GoloFunction.Visibility.PUBLIC, GoloFunction.Scope.MODULE);
       moduleStateInitializer.setBlock(new Block(table));
       functions.add(moduleStateInitializer);
     }

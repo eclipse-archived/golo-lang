@@ -22,7 +22,7 @@ import java.util.*;
 
 class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
-  static class Context {
+  class Context {
     final Set<String> parameterReferences = new HashSet<>();
     final Set<String> allReferences = new HashSet<>();
     final Set<String> localReferences = new HashSet<>();
@@ -204,21 +204,26 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
-    String name = assignmentStatement.getLocalReference().getName();
-    if (!stack.isEmpty()) {
-      assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(name));
+    LocalReference localReference = assignmentStatement.getLocalReference();
+    String referenceName = localReference.getName();
+    if (!localReference.isModuleState()) {
+      if (!stack.isEmpty()) {
+        assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(referenceName));
+      }
+      if (assignmentStatement.isDeclaring()) {
+        locallyDeclared(referenceName);
+      }
+    } else {
+      locallyDeclared(referenceName);
     }
-    locallyAssigned(name);
-    if (assignmentStatement.isDeclaring()) {
-      locallyDeclared(name);
-    }
+    locallyAssigned(referenceName);
     assignmentStatement.getExpressionStatement().accept(this);
     if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
       ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();
       GoloFunction target = closure.getTarget();
-      if (target.getSyntheticParameterNames().contains(name)) {
-        target.removeSyntheticParameter(name);
-        target.setSyntheticSelfName(name);
+      if (target.getSyntheticParameterNames().contains(referenceName)) {
+        target.removeSyntheticParameter(referenceName);
+        target.setSyntheticSelfName(referenceName);
       }
     }
   }
