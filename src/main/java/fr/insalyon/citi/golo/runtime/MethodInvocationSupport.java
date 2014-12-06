@@ -96,7 +96,9 @@ class AugmentationMethodFinder {
   private class ExternalNamedAugmentationStrategy extends NamedAugmentationStrategy {
     @Override
     protected String augmentationClassName(Class<?> definingModule, String augmentationName) {
-      return augmentationName.replace('.', '$');
+      int idx = augmentationName.lastIndexOf(".");
+      if (idx == -1) { return augmentationName; }
+      return (new StringBuilder(augmentationName)).replace(idx, idx+1, "$").toString();
     }
   }
   
