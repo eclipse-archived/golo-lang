@@ -366,7 +366,7 @@ public class MethodInvocationSupport {
     MethodType type = inlineCache.type();
     boolean makeAccessible = !isPublic(receiverClass.getModifiers());
 
-    // TODO: magic for accessors and mutators will go here...
+    // TODO: magic for accessors and mutators would go here...
 
     // TODO: refactor in a finder ?
     Object searchResult = findMethodOrField(receiverClass, inlineCache, type.parameterArray(), args);

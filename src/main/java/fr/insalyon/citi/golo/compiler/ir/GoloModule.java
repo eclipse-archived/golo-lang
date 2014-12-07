@@ -17,6 +17,8 @@
 package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
+import fr.insalyon.citi.golo.compiler.utils.Register;
+import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 
 import java.util.*;
 
@@ -39,11 +41,11 @@ class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
     return bag;
   }
 
-  public void addFunction(String key, GoloFunction function) {
+  public void add(String key, GoloFunction function) {
     getOrInit(key).add(function);
   }
 
-  public void addFunctions(String key, Set<GoloFunction> functions) {
+  public void addAll(String key, Set<GoloFunction> functions) {
     getOrInit(key).addAll(functions);
   }
 }
@@ -131,11 +133,11 @@ public final class GoloModule extends GoloElement {
 
 
   public void addNamedAugmentation(String name, GoloFunction function) {
-    namedAugmentations.addFunction(name, function);
+    namedAugmentations.add(name, function);
   }
 
   public void addAugmentation(String target, GoloFunction function) {
-    augmentations.addFunction(target, function);
+    augmentations.add(target, function);
   }
 
   public void addAugmentationApplication(String target,

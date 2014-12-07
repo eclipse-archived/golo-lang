@@ -67,10 +67,15 @@ augment java.util.List {
 
 augment java.util.List with EasyList
 
+struct MyStruct = {val}
+
+augment MyStruct with Plopable
+
 function main = |args| {
   let list = list["foo", "bar", "baz"]
   list: doToEach(|value| -> println(">>> " + value))
   println("are you a barator? " + list: bar())
   println("are you plopable? " + list: plop())
+  println("are you plopable? " + MyStruct(1): plop())
   println("can you baz? " + list: baz())
 }

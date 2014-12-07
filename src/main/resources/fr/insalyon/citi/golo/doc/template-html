@@ -134,10 +134,23 @@
   </ul></li>
   <% } %>
 
+  <% if not doc: namedAugmentations(): isEmpty() { %>
+  <li><a href="#namedAugmentations">Named Augmentations</a><ul>
+    <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
+    <li><a href="#<%= namedAugmentationDoc: name() %>"><%= namedAugmentationDoc: name()%></a><ul>
+      <% foreach funcDoc in namedAugmentationDoc { %>
+      <li><a href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%=
+              funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+      <% } %>
+      </ul></li>
+    <% } %>
+  </ul></li>
+  <% } %>
+
   <% if not doc: augmentations(): isEmpty() { %>
   <li><a href="#augmentations">Augmentations</a><ul>
     <% foreach augmentDoc in doc: augmentations() { %>
-    <li><a href="#<%= augmentDoc: target() %>"><%= augmentDoc: target() %></a><ul>
+    <li><a href="#augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %></a><ul>
       <% foreach funcDoc in augmentDoc { %>
       <li><a href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%=
               funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
@@ -164,7 +177,7 @@
     <h3 id="<%= structDoc: name() %>"><%= structDoc: name() %>
     <a class="permalink" href="#<%= structDoc: name() %>" title="link to this section">&#182;</a></h3>
 
-    <h4>Members</h4>
+    <h5>Members</h5>
     <ul>
     <% foreach member in structDoc: members() { %>
       <li><code><%= member %></code></li>
@@ -176,14 +189,53 @@
   <% } %>
 <% } %>
 
+
+<% if not doc: namedAugmentations(): isEmpty() { %>
+  <h2 id="namedAugmentations">Named Augmentations</h2>
+  <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
+    <h3 id="<%= namedAugmentationDoc: name()%>"><%= namedAugmentationDoc: name()%>
+    <a class="permalink" href="#<%= namedAugmentationDoc: name()%>" title="link
+    to this section">&#182;</a></h3>
+    <div>
+      <%= process(namedAugmentationDoc: documentation()) %>
+    </div>
+    <% foreach funcDoc in namedAugmentationDoc { %>
+      <% if funcDoc: varargs() { %>
+        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
+      <% } else { %>
+        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+      <% } %>
+      <a class="permalink" href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
+      <div>
+        <%= process(funcDoc: documentation()) %>
+      </div>
+    <% } %>
+  <% } %>
+<% } %>
+
+
 <% if not doc: augmentations(): isEmpty() { %>
   <h2 id="augmentations">Augmentations</h2>
   <% foreach augmentDoc in doc: augmentations() { %>
-    <h3 id="<%= augmentDoc: target() %>"><%= augmentDoc: target() %>
-    <a class="permalink" href="#<%= augmentDoc: target() %>" title="link to this section">&#182;</a></h3>
+    <h3 id="augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %>
+    <a class="permalink" href="#augment.<%= augmentDoc: target() %>" title="link to this section">&#182;</a></h3>
     <div>
       <%= process(augmentDoc: documentation()) %>
     </div>
+    <% if not augmentDoc: augmentationNames(): isEmpty() { %>
+      <h5>Named augmentations applied</h5>
+      <ul>
+      <% foreach name in augmentDoc: augmentationNames() { %>
+      <li>
+        <%if not name: contains(".") {%>
+          <a href="#<%=name%>"><%= name %></a>
+        <%} else {%>
+        <%= name %>
+        <%}%>
+      </li>
+      <% } %>
+      </ul>
+    <% } %>
     <% foreach funcDoc in augmentDoc { %>
       <% if funcDoc: varargs() { %>
         <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)

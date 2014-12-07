@@ -36,7 +36,7 @@ class FunctionDocumentationsRegister extends AbstractRegister<String, FunctionDo
   }
 }
 
-class ModuleDocumentation {
+class ModuleDocumentation implements DocumentationElement {
 
   private String moduleName;
   private int moduleDefLine;
@@ -47,6 +47,7 @@ class ModuleDocumentation {
   private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
   private final Map<String, AugmentationDocumentation> augmentations = new TreeMap<>();
   private final SortedSet<StructDocumentation> structs = new TreeSet<>();
+  private final Set<NamedAugmentationDocumentation> namedAugmentations = new TreeSet<>();
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
     new ModuleVisitor().visit(compilationUnit, null);
@@ -73,12 +74,24 @@ class ModuleDocumentation {
     return moduleName;
   }
 
+  public String name() {
+    return moduleName;
+  }
+
   public int moduleDefLine() {
+    return moduleDefLine;
+  }
+
+  public int line() {
     return moduleDefLine;
   }
 
   public String moduleDocumentation() {
     return (moduleDocumentation != null) ? moduleDocumentation : "\n";
+  }
+
+  public String documentation() {
+    return moduleDocumentation();
   }
 
   public Map<String, Integer> moduleStates() {
@@ -87,6 +100,10 @@ class ModuleDocumentation {
 
   public Collection<AugmentationDocumentation> augmentations() {
     return augmentations.values();
+  }
+
+  public Collection<NamedAugmentationDocumentation> namedAugmentations() {
+    return namedAugmentations;
   }
 
   public Map<String, Integer> imports() {
@@ -150,6 +167,7 @@ class ModuleDocumentation {
       if (!augmentations.containsKey(target)) {
         augmentations.put(target, new AugmentationDocumentation()
             .target(target)
+            .augmentationNames(node.getAugmentationNames())
             .line(node.getLineInSourceCode())
         );
       }
@@ -161,7 +179,14 @@ class ModuleDocumentation {
 
     @Override
     public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
+      NamedAugmentationDocumentation augment = new NamedAugmentationDocumentation()
+          .name(node.getName())
+          .documentation(node.getDocumentation())
+          .line(node.getLineInSourceCode());
+      namedAugmentations.add(augment);
+      functionContext.push(augment);
       node.childrenAccept(this, data);
+      functionContext.pop();
       return data;
     }
 

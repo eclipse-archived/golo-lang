@@ -34,11 +34,12 @@ public abstract class AbstractRegister<K, V> extends AbstractMap<K,Set<V>> imple
 
   abstract protected Set<V> emptyValue();
 
-  private Set<V> getOrInit(K key) {
+  @SuppressWarnings("unchecked")
+  private Set<V> getOrInit(Object key) {
     Set<V> bag;
     if (!containsKey(key)) {
       bag = emptyValue();
-      put(key, bag);
+      put((K) key, bag);
     } else {
       bag = get(key);
     }
@@ -57,7 +58,7 @@ public abstract class AbstractRegister<K, V> extends AbstractMap<K,Set<V>> imple
 
   @Override
   public Set<V> get(Object key) {
-    return getOrInit((K) key);
+    return getOrInit(key);
   }
 
   @Override
