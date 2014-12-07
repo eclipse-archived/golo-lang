@@ -167,7 +167,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
-  private void writeAugmentationApplicationsMetaData(Map<String, List<String>> applications) {
+  private void writeAugmentationApplicationsMetaData(Map<String, Set<String>> applications) {
     /* create a metadata method that given a target class name hashcode
      * returns a String array containing the names of applied
      * augmentations

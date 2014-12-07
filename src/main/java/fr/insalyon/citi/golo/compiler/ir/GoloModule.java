@@ -26,27 +26,29 @@ import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
 
-// TODO: use the new generic register
-class FunctionRegister extends LinkedHashMap<String, Set<GoloFunction>> {
-  private static final long serialVersionUID = 1L;
+class FunctionRegister extends AbstractRegister<String, GoloFunction> {
 
-  private Set<GoloFunction> getOrInit(String key) {
-    Set<GoloFunction> bag;
-    if (!containsKey(key)) {
-      bag = new HashSet<>();
-      put(key, bag);
-    } else {
-      bag = get(key);
-    }
-    return bag;
+  @Override
+  protected Set<GoloFunction> emptyValue() {
+    return new HashSet<>();
   }
 
-  public void add(String key, GoloFunction function) {
-    getOrInit(key).add(function);
+  @Override
+  protected Map<String, Set<GoloFunction>> initMap() {
+    return new LinkedHashMap<>();
+  }
+}
+
+class ApplicationRegister extends AbstractRegister<String, String> {
+
+  @Override
+  protected Set<String> emptyValue() {
+    return new LinkedHashSet<>();
   }
 
-  public void addAll(String key, Set<GoloFunction> functions) {
-    getOrInit(key).addAll(functions);
+  @Override
+  protected Map<String, Set<String>> initMap() {
+    return new LinkedHashMap<>();
   }
 }
 
@@ -57,8 +59,7 @@ public final class GoloModule extends GoloElement {
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
   private final FunctionRegister augmentations = new FunctionRegister();
-  // TODO: use the new generic register
-  private final Map<String, List<String>> augmentationApplications = new LinkedHashMap<>();
+  private final ApplicationRegister augmentationApplications = new ApplicationRegister();
   private final FunctionRegister namedAugmentations = new FunctionRegister();
   private final Set<Struct> structs = new LinkedHashSet<>();
   private final Set<LocalReference> moduleState = new LinkedHashSet<>();
@@ -111,7 +112,7 @@ public final class GoloModule extends GoloElement {
     return unmodifiableMap(namedAugmentations);
   }
 
-  public Map<String, List<String>> getAugmentationApplications() {
+  public Map<String, Set<String>> getAugmentationApplications() {
     return unmodifiableMap(augmentationApplications);
   }
 
@@ -141,12 +142,8 @@ public final class GoloModule extends GoloElement {
   }
 
   public void addAugmentationApplication(String target,
-                                         List<String> augmentNames) {
-    if (augmentationApplications.containsKey(target)) {
-      augmentationApplications.get(target).addAll(augmentNames);
-    } else {
-      augmentationApplications.put(target, augmentNames);
-    }
+                                         Collection<String> augmentNames) {
+    augmentationApplications.addAll(target, augmentNames);
   }
 
   public void addStruct(Struct struct) {
@@ -178,9 +175,7 @@ public final class GoloModule extends GoloElement {
       }
     }
     for (String trashed : trash) {
-      augmentations.put(packageAndClass + ".types." + trashed,
-                        augmentations.get(trashed));
-      augmentations.remove(trashed);
+      augmentations.updateKey(trashed, packageAndClass + ".types." + trashed);
     }
     trash.clear();
     for (String augmentation : augmentationApplications.keySet()) {
@@ -189,9 +184,7 @@ public final class GoloModule extends GoloElement {
       }
     }
     for (String trashed : trash) {
-      augmentationApplications.put(packageAndClass + ".types." + trashed,
-                        augmentationApplications.get(trashed));
-      augmentationApplications.remove(trashed);
+      augmentationApplications.updateKey(trashed, packageAndClass + ".types." + trashed);
     }
     structNames.clear();
   }
