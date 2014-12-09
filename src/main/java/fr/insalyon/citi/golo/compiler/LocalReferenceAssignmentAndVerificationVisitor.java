@@ -121,7 +121,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     ReferenceTable table = block.getReferenceTable();
     for (LocalReference reference : table.ownedReferences()) {
       if (reference.getIndex() < 0 && !isModuleState(reference)) {
-        reference.setIndex(nextAssignmentIndex());
+        reference.setIndex(assignmentCounter.next());
         uninitializedReferences.add(reference);
       }
     }
