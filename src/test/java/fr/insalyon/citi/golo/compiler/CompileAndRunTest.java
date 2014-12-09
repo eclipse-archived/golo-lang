@@ -876,7 +876,8 @@ public class CompileAndRunTest {
     assertThat((String) moduleClass.getMethod("spam_on_int").invoke(null), is("Obj.spam"));
     assertThat((String) moduleClass.getMethod("foo_on_struct").invoke(null), is("Obj.foo"));
     assertThat((String) moduleClass.getMethod("bar_on_struct").invoke(null), is("Bar1.bar"));
-    assertThat((String) moduleClass.getMethod("bar_on_double").invoke(null), is("Bar1.bar"));
+    assertThat((String) moduleClass.getMethod("bar_on_double").invoke(null), is("Bar2.bar"));
+    assertThat((String) moduleClass.getMethod("override_spam_on_struct").invoke(null), is("MyStruct.spam"));
   }
 
   @Test
