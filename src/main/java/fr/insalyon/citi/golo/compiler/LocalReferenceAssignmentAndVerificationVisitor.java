@@ -230,7 +230,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     LocalReference ref = referenceLookup.resolveIn(table);
     if (isUninitialized(ref)) {
       getExceptionBuilder().report(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup.getASTNode(),
-          "Uninitialized referece `" + ref.getName() + "` at " + referenceLookup.getPositionInSourceCode());
+          "Uninitialized reference `" + ref.getName() + "` at " + referenceLookup.getPositionInSourceCode());
     }
   }
 
