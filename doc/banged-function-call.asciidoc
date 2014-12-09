@@ -1,10 +1,27 @@
 == Banged function call ==
 
+Golo uses Invoke Dynamic to dynamically link an invocation instruction at runtime to the target code that will be effectivelly executed.
+
+An invocation is done in three phases :
+
+- first, a computation is executed to find the target code
+- then, the call site of the invocation is plugged to this target
+- finally the target code is executed as it was linked at compile time
+
+The first two phases are mostly executed once for a call site, according there's no need to re-link the call site to his target code.
+
+A function call marked with bang (`!`) is directly linked to the result returned by the target execution.
+
+A banged invocation is executed like this:
+
+- first, a computation is executed to find the target code
+- then the target code is executed
+- finnaly, the call site of the invocation is plugged to a http://docs.oracle.com/javase/8/docs/api/java/lang/invoke/MethodHandles.html#constant(java.lang.Class,%20java.lang.Object)[constant MethodHandle] which returns the target computation result as a constant value
+
+=== Principles and syntax ===
 
 A function call marked with bang (`!`) will be called only once,
 the result is stored as a constant and will be directly returned for every subsequent call.
-
-=== Principles and syntax ===
 
 A function call can be marked with a bang like in this example:
 
@@ -194,5 +211,43 @@ function identity = |x| -> decorator(42)!(|x| -> x)(x)
 ----
 
 
-Performances can considerably increase with banged decorators but decorator functions have to be pure (without edge effects) and his parameters stable.
+NOTE: Considering the return of a banged call is constant, a common pitfall
+is to think that differents calls share the same _"context"_ regardless where the call is located into the code.
+
+
+For example: two functions decorated with the same decorator :
+
+[source,golo]
+----
+@!deco("a")
+function foo = |a| -> a
+
+@!deco("b")
+function bar = |b| -> b
+----
+
+These functions are expanded to
+
+[source,golo]
+----
+function foo = |a| -> deco("a")!(|a| -> a)(a)
+
+function bar = |b| -> deco("b")!(|b| -> b)(b)
+----
+
+`deco("a")!(|a| -> a)` return a function that we can name for the example `func_a`, and `deco("b")!(|b| -> b)` return another function that we can name `func_b`.
+
+Then, for every subsequent call of `foo` and `bar`, the executed code could seems to :
+
+[source,golo]
+----
+function foo = |a| -> func_a(a)
+
+function bar = |b| -> func_b(b)
+----
+
+`func_a` and `func_b` are now constant but different because they are not from the same _"banged call instruction"_.
+
+
+Performances can considerably increase with banged decorators but decorator functions have to be pure (without side-effects) and his parameters stable.
 
