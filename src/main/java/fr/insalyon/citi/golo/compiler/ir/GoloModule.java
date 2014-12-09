@@ -162,13 +162,8 @@ public final class GoloModule extends GoloElement {
     visitor.visitModule(this);
   }
 
-  public void internStructAugmentations() {
-    // TODO: refactor this ?
-    HashSet<String> structNames = new HashSet<>();
+  private void internStructAugmentations(Set<String> structNames, Register<String,?> augmentations) {
     HashSet<String> trash = new HashSet<>();
-    for (Struct struct : structs) {
-      structNames.add(struct.getPackageAndClass().className());
-    }
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {
         trash.add(augmentation);
@@ -178,14 +173,15 @@ public final class GoloModule extends GoloElement {
       augmentations.updateKey(trashed, packageAndClass + ".types." + trashed);
     }
     trash.clear();
-    for (String augmentation : augmentationApplications.keySet()) {
-      if (structNames.contains(augmentation)) {
-        trash.add(augmentation);
-      }
+  }
+
+  public void internStructAugmentations() {
+    HashSet<String> structNames = new HashSet<>();
+    for (Struct struct : structs) {
+      structNames.add(struct.getPackageAndClass().className());
     }
-    for (String trashed : trash) {
-      augmentationApplications.updateKey(trashed, packageAndClass + ".types." + trashed);
-    }
+    internStructAugmentations(structNames, augmentations);
+    internStructAugmentations(structNames, augmentationApplications);
     structNames.clear();
   }
 }
