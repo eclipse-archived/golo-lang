@@ -58,7 +58,25 @@ public class IrTreeDumper implements GoloIrVisitor {
       incr();
       space();
       System.out.println("Augmentation " + augmentation);
+      if (module.getAugmentationApplications().containsKey(augmentation)) {
+        incr();
+        for (String name : module.getAugmentationApplications().get(augmentation)) {
+          space();
+          System.out.println("Named Augmentation " + name);
+        }
+        decr();
+      }
       Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
+      for (GoloFunction function : functions) {
+        function.accept(this);
+      }
+      decr();
+    }
+    for (String augmentationName : module.getNamedAugmentations().keySet()) {
+      incr();
+      space();
+      System.out.println("Named Augmentation " + augmentationName);
+      Set<GoloFunction> functions = module.getNamedAugmentations().get(augmentationName);
       for (GoloFunction function : functions) {
         function.accept(this);
       }

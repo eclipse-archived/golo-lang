@@ -59,6 +59,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
+    boolean inNamedAugmentation;
     String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
@@ -157,7 +158,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
     context.augmentation = node.getTarget();
-    return node.childrenAccept(this, data);
+    if (node.isNamedAugmentation()) {
+      context.module.addAugmentationApplication(
+        node.getTarget(),
+        node.getAugmentationNames());
+      return data;
+    } else {
+      return node.childrenAccept(this, data);
+    }
   }
 
   @Override
@@ -167,6 +175,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Decorator decorator = new Decorator((ExpressionStatement) context.objectStack.pop());
     node.setIrElement(decorator);
     context.objectStack.push(decorator);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
+    Context context = (Context) data;
+    context.augmentation = node.getName();
+    context.inNamedAugmentation = true;
+    node.childrenAccept(this, data);
+    context.inNamedAugmentation = false;
     return data;
   }
 
@@ -294,7 +312,12 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     function.setParameterNames(node.getArguments());
     function.setVarargs(node.isVarargs());
     if (AUGMENT.equals(function.getScope())) {
-      context.module.addAugmentation(context.augmentation, function);
+      if (context.inNamedAugmentation) {
+        context.module.addNamedAugmentation(context.augmentation, function);
+      }
+      else {
+        context.module.addAugmentation(context.augmentation, function);
+      }
     } else {
       context.module.addFunction(function);
     }

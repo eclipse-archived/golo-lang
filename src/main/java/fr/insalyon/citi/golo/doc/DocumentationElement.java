@@ -14,15 +14,13 @@
  * limitations under the License.
  */
 
-package fr.insalyon.citi.golo.compiler.utils;
+package fr.insalyon.citi.golo.doc;
 
-import java.util.Map;
-import java.util.Set;
-import java.util.Collection;
+interface DocumentationElement {
+  
+  String name();
+  String documentation();
+  int line();
 
-public interface Register<K, V> extends Map<K,Set<V>> {
-  void add(K key, V value);
-  void addAll(K key, Collection<V> values);
-  void updateKey(K oldKey, K newKey);
 }
 

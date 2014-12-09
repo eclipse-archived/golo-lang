@@ -21,27 +21,38 @@ import java.lang.reflect.Method;
 
 class Module {
 
-  static String[] imports(Class<?> callerClass) {
-    String[] imports;
+  private static final Class<?>[] EMPTY_TYPES = new Class<?>[]{};
+  private static final Object[] EMPTY_ARGS = new Object[]{};
+
+  static String[] metadata(String name, Class<?> callerClass, Class<?>[] types, Object[] args) {
+    String[] data;
     try {
-      Method $imports = callerClass.getMethod("$imports");
-      imports = (String[]) $imports.invoke(null);
+      Method $data = callerClass.getMethod("$" + name, types);
+      data = (String[]) $data.invoke(null, args);
     } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
       // This can only happen as part of the unit tests, because the lookup does not originate from
-      // a Golo module class, hence it doesn't have a $imports() static method.
-      imports = new String[]{};
+      // a Golo module class, hence it doesn't have a $<name>() static method.
+      data = new String[]{};
     }
-    return imports;
+    return data;
+  }
+
+  static String[] imports(Class<?> callerClass) {
+    return metadata("imports", callerClass, EMPTY_TYPES, EMPTY_ARGS);
   }
 
   static String[] augmentations(Class<?> callerClass) {
-    String[] augmentations;
-    try {
-      Method $augmentations = callerClass.getMethod("$augmentations");
-      augmentations = (String[]) $augmentations.invoke(null);
-    } catch (NoSuchMethodException | InvocationTargetException | IllegalAccessException e) {
-      augmentations = new String[]{};
-    }
-    return augmentations;
+    return metadata("augmentations", callerClass, EMPTY_TYPES, EMPTY_ARGS);
+  }
+
+  static String[] augmentationApplications(Class<?> callerClass) {
+    return metadata("augmentationApplications", callerClass, EMPTY_TYPES, EMPTY_ARGS);
+  }
+
+  static String[] augmentationApplications(Class<?> callerClass, Class<?> receiverClass) {
+    return metadata("augmentationApplications", callerClass,
+        new Class<?>[] {int.class},
+        new Object[]{receiverClass.getName().hashCode()}
+    );
   }
 }

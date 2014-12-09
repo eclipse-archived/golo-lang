@@ -22,15 +22,19 @@ import java.util.Iterator;
 import java.util.SortedSet;
 import java.util.TreeSet;
 import java.util.Comparator;
+import java.util.List;
+import java.util.LinkedList;
 
 import static java.util.Collections.unmodifiableSortedSet;
+import static java.util.Collections.unmodifiableList;
 
-class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> implements SortedSet<FunctionDocumentation> {
+class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> implements SortedSet<FunctionDocumentation>, DocumentationElement {
 
   private String target;
   private String documentation;
   private int line;
   private SortedSet<FunctionDocumentation> functions = new TreeSet<>();
+  private List<String> augmentationNames = new LinkedList<>();
 
   public String target() { return target; }
 
@@ -38,6 +42,8 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
     this.target = target;
     return this;
   }
+
+  public String name() { return target(); }
 
   public String documentation() {
     return (documentation != null) ? documentation : "\n";
@@ -62,7 +68,20 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
   }
 
   public AugmentationDocumentation functions(Collection<FunctionDocumentation> docs) {
-    this.functions.addAll(docs);
+    if (docs != null) {
+      this.functions.addAll(docs);
+    }
+    return this;
+  }
+
+  public List<String> augmentationNames() {
+    return unmodifiableList(augmentationNames);
+  }
+
+  public AugmentationDocumentation augmentationNames(Collection<String> names) {
+    if (names != null) {
+      this.augmentationNames.addAll(names);
+    }
     return this;
   }
 

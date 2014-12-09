@@ -21,7 +21,7 @@ import java.util.LinkedHashSet;
 import java.util.Collection;
 import static java.util.Collections.unmodifiableSet;
 
-class StructDocumentation implements Comparable<StructDocumentation> {
+class StructDocumentation implements Comparable<StructDocumentation>, DocumentationElement {
 
   private String name;
   private String documentation;

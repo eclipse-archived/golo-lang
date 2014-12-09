@@ -114,8 +114,12 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (String augmentation : module.getAugmentations().keySet()) {
-      Set<GoloFunction> functions = module.getAugmentations().get(augmentation);
+    for (Collection<GoloFunction> functions : module.getAugmentations().values()) {
+      for (GoloFunction function : functions) {
+        function.accept(this);
+      }
+    }
+    for (Collection<GoloFunction> functions : module.getNamedAugmentations().values()) {
       for (GoloFunction function : functions) {
         function.accept(this);
       }

@@ -131,12 +131,142 @@ TIP: As a matter of style, we suggest that your module names end with `Augmentat
 module imports **all** of its augmentation definitions, we suggest that you modularize them with *fine
 taste* (for what it means).
 
+
+=== Named augmentations ===
+
+It is possible for augmentations to have a name.
+A named augmentation is a set of functions that can be applied to some
+classes or structures.
+
+This can be seen as a kind of lightweight
+http://en.wikipedia.org/wiki/Trait_%28computer_programming%29[_traits_], or
+http://en.wikipedia.org/wiki/Mixin[_mixin_],
+as found in Rust, Groovy or Scala.
+
+Named augmentations are defined with the `augmentation` keyword.
+
+As an example:
+[source,golo]
+----
+augmentation FooBar = {
+  function foo = |this| -> "foo"
+  function bar = |this, a| -> this: length() + a
+}
+
+augmentation Spamable = {
+  function spam = |this| -> "spam"
+}
+----
+
+A named augmentation is applied using the `augment ... with` construct, as in
+[source,golo]
+----
+augment java.util.Collection with FooBar
+
+augment MyStruct with Spamable
+
+augment java.lang.String with FooBar, Spamable
+----
+
+When applying several named augmentations, they are used in the application
+order. For instance, if `AugmentA` and `AugmentB` define both the method
+`meth`, and we augment `augment java.lang.String with AugmentA, AugmentB`, then
+calling `"": meth()` will call `AugmentA::meth`.
+
+Augmentation rules about scopes and reusability apply.
+So, if we create a module
+
+[source,golo]
+----
+module MyAugmentations
+
+augmentation Searchable = {
+  function search = |this, value| -> ...
+}
+
+augment java.util.Collection with Searchable
+----
+
+and import it, we can use the applied augmentation
+[source,golo]
+----
+import MyAugmentations
+
+#...
+list[1, 2, 3, 4]: search(2)
+----
+
+The augmentations defined in an other module can also be applied, provided they
+are fully qualified or the module is imported:
+[source,golo]
+----
+augment java.lang.String with MyAugmentations.Searchable
+----
+
+or
+[source,golo]
+----
+import MyAugmentations
+
+augment java.lang.String with Searchable
+----
+
+NOTE: If several imported modules define augmentations with the same name, the
+*first* imported one will be used.
+
+The validity of the application is not checked at compile time. Thus augmenting
+without importing the coresponding module, as in:
+[source,golo]
+----
+augment java.lang.String with Searchable
+----
+
+will not raise an error, but trying to call `search` on a `String` will throw a
+`java.lang.NoSuchMethodError: class java.lang.String::search` at *runtime*.
+
+IMPORTANT: As for every augmentation, no checks are made that the augmentation
+can be applied to the augmented class. For instance, augmenting `java.lang.Number`
+with the previous `FooBar` augmentation will raise
+`java.lang.NoSuchMethodError: class java.lang.Integer::length`
+at *runtime* when trying to call `1:bar(1)`. Calling `1:foo()` will be OK however.
+
+
+=== Augmentations Resolution Order ===
+
+The augmentations resolution order is as follows:
+
+1. native java method (i.e. an augmentation can't override a native java method),
+2. locally applied augmentations:
+    a. simple augmentations: `augment MyType { ... }`,
+    b. named augmentations: `augmentation Foo = { ... }`
+       and `augment MyType with Foo` in the current module. Multiple
+       applications are searched in the application order,
+    c. externally defined named augmentations with fully qualified
+       name: `augmentation Foo = { ... }` in module `Augmentations`, and 
+       `augment MyType with Augmentations.Foo` in the current module,
+    d. named augmentation defined in an imported module:
+       `augmentation Foo = { ... }` in module `Augmentations`, and
+       `augment MyType with Foo` in the current module that `import Augmentations`
+       (imported module are searched in the importation order),
+3. augmentations applied in imported modules:
+   using the same order than locally applied ones, in the importation order.
+
+The first matching method found is used. It is thus possible to “override” an
+augmentation with a more higher priority one (in the sens of the previous order).
+
+TIP: Since importing a module imports all the applied augmentations, and given
+the somewhat complex resolution order when involving simple and named
+augmentations, being local, external or imported, and involving class
+hierarchies, knowing which method will be applied on a given type can be difficult.
+A good modularisation and a careful application are recommended.
+
+
 === Standard augmentations ===
 
 Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
 
 These augmentation do not require a special import, and they are defined in the
-`gololang.StandardAugmentations` module.
+link:./golodoc/gololang/StandardAugmentations[`gololang.StandardAugmentations`] module.
 
 Here is an example:
 
@@ -150,4 +280,5 @@ println(m: getOrElse("foo", -> "bar"))
 
 The full set of standard augmentations is documented in the generated *golodoc* (hint: look for
 `doc/golodoc` in the Golo distribution).
+
 

@@ -41,10 +41,10 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private void ctagsFunction(FunctionDocumentation funct) {
-    ctagsFunction(funct, "");
+    ctagsFunction(funct, "", false);
   }
 
-  private void ctagsFunction(FunctionDocumentation funct, String parent) {
+  private void ctagsFunction(FunctionDocumentation funct, String parent, boolean named) {
     String address = String.format("/function[:blank:]+%s[:blank:]+=/", funct.name());
 
     StringBuilder signature = new StringBuilder("\tsignature:(");
@@ -66,7 +66,11 @@ public class CtagsProcessor extends AbstractProcessor {
     }
     fields.append(signature);
     if (parent != "") {
-      fields.append("\taugment:").append(parent);
+      if (named) {
+        fields.append("\taugmentation:").append(parent);
+      } else {
+        fields.append("\taugment:").append(parent);
+      }
     }
     ctagsLine(funct.name(), address, fields.toString());
   }
@@ -75,6 +79,12 @@ public class CtagsProcessor extends AbstractProcessor {
     ctagsLine(name,
         String.format("/^augment[:blank:]+%s/", name.replace(".","\\.")),
         String.format("a\tline:%s", line));
+  }
+
+  private void ctagsAugmentation(String name, int line) {
+    ctagsLine(name,
+        String.format("/^augmentation[:blank:]+%s[:blank:]+=[:blank:]+{/", name),
+        String.format("na\tline:%s", line));
   }
 
   private void ctagsStruct(String name, int line) {
@@ -131,10 +141,16 @@ public class CtagsProcessor extends AbstractProcessor {
         ctagsStructMember(struct.name(), member, struct.line());
       }
     }
+    for (NamedAugmentationDocumentation augment : documentation.namedAugmentations()) {
+      ctagsAugmentation(augment.name(), augment.line());
+      for (FunctionDocumentation funct : augment.functions()) {
+        ctagsFunction(funct, augment.name(), true);
+      }
+    }
     for (AugmentationDocumentation augment : documentation.augmentations()) {
       ctagsAugment(augment.target(), augment.line());
       for (FunctionDocumentation funct : augment.functions()) {
-        ctagsFunction(funct, augment.target());
+        ctagsFunction(funct, augment.target(), false);
       }
     }
     for (Map.Entry<String,Integer> state : documentation.moduleStates().entrySet()) {

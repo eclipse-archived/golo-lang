@@ -45,8 +45,8 @@ end
 
 desc "Build tags file"
 task :tags do
-    sh "golo doc --format ctags src"
-    sh "ctags -a -R src"
+  sh "golo doc --format ctags src"
+  sh "ctags -a -R src"
 end
 
 desc "Deploy snapshots"

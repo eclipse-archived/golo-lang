@@ -16,9 +16,12 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
+import java.util.List;
+
 public class ASTAugmentDeclaration extends GoloASTNode implements NamedNode {
 
   private String target;
+  private List<String> augmentationNames;
 
   public ASTAugmentDeclaration(int id) {
     super(id);
@@ -36,10 +39,25 @@ public class ASTAugmentDeclaration extends GoloASTNode implements NamedNode {
     this.target = target;
   }
 
+  public List<String> getAugmentationNames() {
+    return augmentationNames;
+  }
+
+  public void setAugmentationNames(List<String> names) {
+    this.augmentationNames = names;
+  }
+
+  public boolean isNamedAugmentation() {
+    return (augmentationNames != null && ! augmentationNames.isEmpty());
+  }
+
   @Override
   public String toString() {
     return "ASTAugmentDeclaration{" +
         "target='" + target + '\'' +
+        (isNamedAugmentation() 
+         ? ", augmentations=" + augmentationNames
+         : "") +
         '}';
   }
 

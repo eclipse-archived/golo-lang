@@ -853,6 +853,34 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void check_local_named_augmentations() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "local-named-augmentations.golo", goloClassLoader);
+    assertThat((String) moduleClass.getMethod("test_plop_on_list").invoke(null), is("plop"));
+    assertThat((String) moduleClass.getMethod("test_foo_on_list").invoke(null), is("foo"));
+    assertThat((String) moduleClass.getMethod("test_bar_on_list").invoke(null), is("bar"));
+    assertThat((String) moduleClass.getMethod("test_baz_on_list").invoke(null), is("baz"));
+    assertThat((String) moduleClass.getMethod("test_foo_on_struct").invoke(null), is("foo"));
+    assertThat((String) moduleClass.getMethod("test_bar_on_struct").invoke(null), is("bar"));
+  }
+
+  @Test
+  public void check_external_named_augmentations() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "external-named-augmentations.golo", goloClassLoader);
+    compileAndLoadGoloModule(SRC, "named-augmentations-external-source.golo", goloClassLoader);
+    assertThat((String) moduleClass.getMethod("foo_on_string").invoke(null), is("Str.foo"));
+    assertThat((String) moduleClass.getMethod("bar_on_string").invoke(null), is("Bar1.bar"));
+    assertThat((String) moduleClass.getMethod("foo_on_int").invoke(null), is("Obj.foo"));
+    assertThat((String) moduleClass.getMethod("bar_on_int").invoke(null), is("Bar2.bar"));
+    assertThat((String) moduleClass.getMethod("spam_on_int").invoke(null), is("Obj.spam"));
+    assertThat((String) moduleClass.getMethod("foo_on_struct").invoke(null), is("Obj.foo"));
+    assertThat((String) moduleClass.getMethod("bar_on_struct").invoke(null), is("Bar1.bar"));
+    assertThat((String) moduleClass.getMethod("bar_on_double").invoke(null), is("Bar2.bar"));
+    assertThat((String) moduleClass.getMethod("override_spam_on_struct").invoke(null), is("MyStruct.spam"));
+  }
+
+  @Test
   public void check_overloading() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "overloading.golo");
 

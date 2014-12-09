@@ -20,7 +20,7 @@ import java.util.List;
 import java.util.LinkedList;
 
 
-class FunctionDocumentation implements Comparable<FunctionDocumentation> {
+class FunctionDocumentation implements Comparable<FunctionDocumentation>, DocumentationElement {
 
   private String name;
   private int line;

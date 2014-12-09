@@ -27,4 +27,13 @@ http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
 A contribution is not a good contribution unless it comes with unit tests, integration tests and
 documentation.
 
+### Checklist when adding a core language feature
 
+- Update the diagnose visitor (if applicable): ir and ast
+- Update the golodoc visitors and templates (if applicable): ctags, html and
+  markdown
+- Update the main language documentation
+- Add tests
+- Add sample files
+- Update the completion scripts (if applicable)
+- Update highlighters and IDE plugins
