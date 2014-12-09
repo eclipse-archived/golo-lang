@@ -114,12 +114,15 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     decorator.getExpressionStatement().accept(this);
   }
 
+  private final HashSet<LocalReference> uninitializedReferences = new HashSet<>();
+
   @Override
   public void visitBlock(Block block) {
     ReferenceTable table = block.getReferenceTable();
     for (LocalReference reference : table.ownedReferences()) {
       if (reference.getIndex() < 0 && !isModuleState(reference)) {
         reference.setIndex(assignmentCounter.next());
+        uninitializedReferences.add(reference);
       }
     }
     tableStack.push(table);
@@ -190,6 +193,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     }
     assignedReferences.add(reference);
     assignmentStatement.getExpressionStatement().accept(this);
+    if (assignmentStatement.isDeclaring() && !reference.isSynthetic()) {
+      uninitializedReferences.remove(reference);
+    }
   }
 
   private boolean redeclaringReferenceInBlock(AssignmentStatement assignmentStatement, LocalReference reference, Set<LocalReference> assignedReferences) {
@@ -221,6 +227,15 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
           "Undeclared reference `" + referenceLookup.getName() + "` at " + referenceLookup.getPositionInSourceCode());
     }
+    LocalReference ref = referenceLookup.resolveIn(table);
+    if (isUninitialized(ref)) {
+      getExceptionBuilder().report(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup.getASTNode(),
+          "Uninitialized reference `" + ref.getName() + "` at " + referenceLookup.getPositionInSourceCode());
+    }
+  }
+
+  private boolean isUninitialized(LocalReference ref) {
+    return ref != null && !ref.isSynthetic() && !ref.isModuleState() && uninitializedReferences.contains(ref);
   }
 
   @Override
