@@ -44,7 +44,8 @@ public class GoloCompilationException extends RuntimeException {
       UNDECLARED_REFERENCE,
       ASSIGN_CONSTANT,
       BREAK_OR_CONTINUE_OUTSIDE_LOOP,
-      REFERENCE_ALREADY_DECLARED_IN_BLOCK
+      REFERENCE_ALREADY_DECLARED_IN_BLOCK,
+      UNINITIALIZED_REFERENCE_ACCESS
     }
 
     private final Type type;

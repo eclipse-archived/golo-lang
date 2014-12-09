@@ -897,7 +897,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.jjtGetChild(1).jjtAccept(this, data);
     if (hasCatchBlock) {
       catchBlock = (Block) context.objectStack.pop();
-      catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId));
+      catchBlock.getReferenceTable().add(new LocalReference(CONSTANT, exceptionId, true));
     } else {
       finallyBlock = (Block) context.objectStack.pop();
     }
