@@ -1,4 +1,4 @@
-Source code of Golo include a part of software developed outside of INSA-Lyon.
+Binary and source distributions of Golo include software developed outside of INSA-Lyon.
 
 # JavaCC
 
@@ -30,10 +30,6 @@ See https://javacc.java.net/
     CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
     ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF
     THE POSSIBILITY OF SUCH DAMAGE.
-
-- - -
-
-Binary distributions of Golo include software developed outside of INSA-Lyon.
 
 # ASM Library (OW2 Consortium)
 
