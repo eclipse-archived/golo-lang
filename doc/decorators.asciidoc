@@ -18,8 +18,9 @@ A decorator is thus a function that take the function to decorate as parameter,
 and return a new function, generally a wrapper that do some stuffs before or
 after calling the original function.
 
-The name can remind the well known
-http://en.wikipedia.org/wiki/Decorator_pattern[GoF pattern], with good reason.
+The name can remind the well known GoF pattern
+footnote:[ http://en.wikipedia.org/wiki/Decorator_pattern[Wikipedia: GoF Pattern] ]
+, with good reason.
 This pattern describe a design that allow an object to be augmented by wrapping
 it in an other object with the same interface, delegating operations to the
 wrapped object. This is exactly what a decorator does here, the interface
@@ -271,10 +272,10 @@ link:./golodoc/gololang/Decorators[`gololang.Decorators`].
 === Use cases and examples ===
 //<<<
 
-Use cases are at least the same as
-http://en.wikipedia.org/wiki/Aspect-oriented_programming[_aspect oriented programming_] 
-(AOP) and the
-http://en.wikipedia.org/wiki/Decorator_pattern[_decorator design pattern_], but
+Use cases are at least the same as aspect oriented programming
+footnote:[ http://en.wikipedia.org/wiki/Aspect-oriented_programming[Wikipedia: Aspect Oriented Programming] ]
+(AOP) and the decorator design pattern
+footnote:[ http://en.wikipedia.org/wiki/Decorator_pattern[Wikipedia: Decorator Design Pattern] ], but
 your imagination is your limit.
 Some are presented here for illustration.
 

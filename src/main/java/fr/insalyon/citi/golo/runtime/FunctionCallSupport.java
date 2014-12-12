@@ -33,11 +33,13 @@ public final class FunctionCallSupport {
 
     final Lookup callerLookup;
     final String name;
+    final boolean constant;
 
-    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type, boolean constant) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
+      this.constant = constant;
     }
   }
 
@@ -67,8 +69,8 @@ public final class FunctionCallSupport {
     return value;
   }
 
-  public static CallSite bootstrap(Lookup caller, String name, MethodType type) throws IllegalAccessException, ClassNotFoundException {
-    FunctionCallSite callSite = new FunctionCallSite(caller, name.replaceAll("#", "\\."), type);
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int constant) throws IllegalAccessException, ClassNotFoundException {
+    FunctionCallSite callSite = new FunctionCallSite(caller, name.replaceAll("#", "\\."), type, constant == 1);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -125,8 +127,21 @@ public final class FunctionCallSupport {
     }
     handle = insertSAMFilter(handle, types, 0);
 
-    callSite.setTarget(handle);
-    return handle.invokeWithArguments(args);
+    if (callSite.constant) {
+      Object constantValue = handle.invokeWithArguments(args);
+      MethodHandle constant;
+      if (constantValue == null) {
+         constant = MethodHandles.constant(Object.class, constantValue);
+      } else {
+        constant = MethodHandles.constant(constantValue.getClass(), constantValue);
+      }
+      constant = MethodHandles.dropArguments(constant, 0,  type.parameterArray());
+      callSite.setTarget(constant.asType(type));
+      return constantValue;
+    } else {
+      callSite.setTarget(handle);
+      return handle.invokeWithArguments(args);
+    }
   }
 
   public static MethodHandle insertSAMFilter(MethodHandle handle, Class[] types, int startIndex) {

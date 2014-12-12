@@ -48,7 +48,7 @@ public class ClosureCallSupportTest {
   @Test
   public void check_bootstrap() throws Throwable {
     MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "objectToString", genericMethodType(1));
-    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class));
+    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
 
     MethodHandle invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle, 123), is("123"));
@@ -62,22 +62,22 @@ public class ClosureCallSupportTest {
   @Test
   public void check_bootstrap_varargs() throws Throwable {
     MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class, Object.class));
+    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class, Object.class), 0);
     MethodHandle invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle, 1, 2), is("12"));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class));
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
     invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle, 1), is("1"));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class));
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class), 0);
     invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle), is(""));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class));
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
     invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle, new Object[]{1,2}), is("12"));
   }

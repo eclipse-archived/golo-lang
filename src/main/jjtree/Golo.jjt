@@ -187,6 +187,8 @@ TOKEN :
   < UNARY_OPERATOR: "not" >
   |
   < INVOCATION: (":" | "?:") >
+  |
+  < CONSTANT_INVOCATION: "!" >
 }
 
 // Specials
@@ -901,9 +903,13 @@ ASTFunctionDeclaration FunctionDeclaration():
   }
 }
 
-ASTDecoratorDeclaration DecoratorDeclaration(): {}
+ASTDecoratorDeclaration DecoratorDeclaration():
+{
+  Token constant = null;
+}
 {
   <DECORATOR>
+  (constant=<CONSTANT_INVOCATION>)?
   (
     LOOKAHEAD(2) FunctionInvocation()
     |
@@ -911,6 +917,9 @@ ASTDecoratorDeclaration DecoratorDeclaration(): {}
   )
   BlankLines()
   {
+    if (constant != null) {
+        jjtThis.setConstant(true);
+    }
     return jjtThis;
   }
 }
@@ -1295,20 +1304,32 @@ void Expressions() #void: {}
   ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
 }
 
-void AnonymousFunctionInvocation(): {}
+void AnonymousFunctionInvocation():
 {
-  "(" (BlankLine())? (Expressions())? ")"
+  Token constant = null;
+}
+{
+  (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Expressions())? ")"
+  {
+    if (constant != null) {
+      jjtThis.setConstant(true);
+    }
+  }
 }
 
 void FunctionInvocation():
 {
   String name;
+  Token constant = null;
 }
 {
-  name=QualifiedName() "(" (BlankLine())? (Expressions())? ")"
+  name=QualifiedName() (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Expressions())? ")"
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(name);
+    if (constant != null) {
+      jjtThis.setConstant(true);
+    }
   }
 }
 

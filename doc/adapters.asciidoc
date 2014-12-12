@@ -12,8 +12,8 @@ at runtime that can extend and inherit Java types.
 
 === A simple example
 
-Let us get started with a simple example of a web application based on the nice
-http://www.sparkjava.com/[Spark micro-framework].
+Let us get started with a simple example of a web application based on the nice Spark micro-framework
+footnote:[ http://www.sparkjava.com/[Spark micro-framework] ].
 
 Spark requires route handlers to extend an abstract base class called `spark.Route`. The following
 code snippet does just that:

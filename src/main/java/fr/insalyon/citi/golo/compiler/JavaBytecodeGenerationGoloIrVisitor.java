@@ -48,7 +48,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
     String bootstrapMethod = "bootstrap";
-    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/OperatorSupport";
@@ -73,7 +73,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClosureCallSupport";
     bootstrapMethod = "bootstrap";
-    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     CLOSURE_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
@@ -411,7 +411,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           "gololang#Predefined#fun",
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          0);
       return;
     }
     if (value instanceof Double) {
@@ -469,13 +470,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           type.toMethodDescriptorString(),
-          CLOSURE_INVOCATION_HANDLE);
+          CLOSURE_INVOCATION_HANDLE,
+          functionInvocation.isConstant() ? 1 : 0);
     } else {
       visitInvocationArguments(functionInvocation);
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           goloFunctionSignature(functionInvocation.getArity()),
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          functionInvocation.isConstant() ? 1 : 0);
     }
     for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);
@@ -503,7 +506,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           (klass + "." + reference.getName()).replaceAll("\\.", "#"),
           "(Ljava/lang/Object;)V",
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          0);
     } else {
       methodVisitor.visitVarInsn(ASTORE, reference.getIndex());
     }
@@ -516,7 +520,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
           "()Ljava/lang/Object;",
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          0);
     } else {
       methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
     }

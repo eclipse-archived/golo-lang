@@ -703,8 +703,8 @@ public class CompileAndRunTest {
     assertThat((Integer) call_with_invoke.invoke(null), is(90));
 
     Method call_with_ref = moduleClass.getMethod("call_with_ref");
-    assertThat((Integer) call_with_ref.invoke(10), is(30));
-    assertThat((Integer) call_with_ref.invoke(100), is(30));
+    assertThat((Integer) call_with_ref.invoke(null), is(30));
+    assertThat((Integer) call_with_ref.invoke(null), is(30));
 
     Method adder = moduleClass.getMethod("adder", Object.class, Object.class);
     assertThat((Integer) adder.invoke(null, 1, 2), is(3));
@@ -1535,5 +1535,52 @@ public class CompileAndRunTest {
       AssertionError exception = (AssertionError) cause;
       assertThat(exception.getMessage(), is("arg0 must be a class java.lang.Integer"));
     }
+  }
+
+  @Test
+  public void banged() throws Throwable {
+
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "bang.golo");
+
+    Method banged = moduleClass.getMethod("func_test",Object.class);
+    Object result = banged.invoke(null,42);
+    assertThat(result, equalTo(banged.invoke(null,1337)));
+
+    banged = moduleClass.getMethod("null_test",Object.class);
+    result = banged.invoke(null,(Object)null);
+    assertThat(result,equalTo(null));
+    assertThat(result, equalTo(banged.invoke(null,1337)));
+
+    banged = moduleClass.getMethod("reference_test",Object.class);
+    result = banged.invoke(null,42);
+    assertThat(result, equalTo(banged.invoke(null,1337)));
+
+    banged = moduleClass.getMethod("singleton");
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+
+    banged = moduleClass.getMethod("anonymous", Object.class, Object.class, Object.class);
+    result = banged.invoke(null, 10, 12, 20);
+    assertThat(result, equalTo(banged.invoke(null, 42, 42, 42)));
+
+    banged = moduleClass.getMethod("decorated");
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+    assertThat(result, not((Object)42));
+
+    Method set_param = moduleClass.getMethod("set_decorator_parameter", Object.class);
+    set_param.invoke(null,(Object)1337);
+
+    banged = moduleClass.getMethod("parametrized_decorated");
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+    assertThat(result, not((Object)42));
+
+    set_param.invoke(null,(Object)42);
+
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+    assertThat(result, not((Object)42));
+
   }
 }

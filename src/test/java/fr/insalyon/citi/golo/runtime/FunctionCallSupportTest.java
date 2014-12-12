@@ -59,7 +59,7 @@ public class FunctionCallSupportTest {
   public void check_bootstrapFunctionInvocation_on_local_static_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class);
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echo", type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echo", type,0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("Hey!"), is("Hey!"));
   }
 
@@ -68,7 +68,7 @@ public class FunctionCallSupportTest {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class);
     String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#someInt";
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type,0);
     assertThat((Integer) callSite.dynamicInvoker().invokeWithArguments(), is(42));
   }
 
@@ -77,7 +77,7 @@ public class FunctionCallSupportTest {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class);
     String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#FOO";
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments(), is("Foo"));
   }
 
@@ -86,7 +86,7 @@ public class FunctionCallSupportTest {
   public void check_bootstrapFunctionInvocation_on_unexisting_method() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class);
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echoz", type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echoz", type, 0);
     callSite.dynamicInvoker().invokeWithArguments("foo");
   }
 
@@ -94,7 +94,7 @@ public class FunctionCallSupportTest {
   public void check_bootstrapFunctionInvocation_on_method_with_wrong_number_of_parameters() throws Throwable {
     Lookup lookup = lookup();
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class);
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echo", type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, "echo", type, 0);
     callSite.dynamicInvoker().invokeWithArguments("foo", "foo");
   }
 
@@ -103,11 +103,11 @@ public class FunctionCallSupportTest {
     Lookup lookup = lookup();
     String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#concat";
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class, Object.class, Object.class);
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("-", "a", "b", "c"), is("a-b-c"));
 
     type = MethodType.methodType(Object.class, Object.class, Object.class);
-    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("-", new String[]{"a", "b", "c"}), is("a-b-c"));
   }
 
@@ -117,19 +117,19 @@ public class FunctionCallSupportTest {
     String name = "fr#insalyon#citi#golo#runtime#FunctionCallSupportTest$Foo#defaultConcat";
 
     MethodType type = MethodType.methodType(Object.class, Object.class, Object.class, Object.class);
-    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("a", "b", "c"), is("a-b-c"));
 
     type = MethodType.methodType(Object.class, Object.class);
-    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments("a"), is("a"));
 
     type = MethodType.methodType(Object.class);
-    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments(), is(""));
 
     type = MethodType.methodType(Object.class, Object.class);
-    callSite = FunctionCallSupport.bootstrap(lookup, name, type);
+    callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat((String) callSite.dynamicInvoker().invokeWithArguments((Object)new String[]{"a", "b", "c"}), is("a-b-c"));
   }
 }

@@ -18,12 +18,22 @@ package fr.insalyon.citi.golo.compiler.parser;
 
 public class ASTDecoratorDeclaration extends GoloASTNode {
 
+  private boolean constant;
+
   public ASTDecoratorDeclaration(int id) {
     super(id);
   }
 
   public ASTDecoratorDeclaration(GoloParser p, int id) {
     super(p, id);
+  }
+
+  public void setConstant(boolean constant) {
+    this.constant = constant;
+  }
+
+  public boolean isConstant() {
+    return constant;
   }
 
   @Override
@@ -33,6 +43,6 @@ public class ASTDecoratorDeclaration extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTDecoratorDeclaration{}";
+    return "ASTDecoratorDeclaration{constant='" + constant + "'}";
   }
 }

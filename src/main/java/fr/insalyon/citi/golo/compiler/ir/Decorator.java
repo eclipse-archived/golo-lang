@@ -20,12 +20,22 @@ public class Decorator extends  GoloElement {
 
   private final ExpressionStatement expressionStatement;
 
+  private boolean constant = false;
+
   public Decorator(ExpressionStatement expressionStatement) {
     this.expressionStatement = expressionStatement;
   }
 
   public ExpressionStatement getExpressionStatement() {
     return expressionStatement;
+  }
+
+  public boolean isConstant() {
+    return constant;
+  }
+
+  public void setConstant(boolean constant) {
+    this.constant = constant;
   }
 
   public void accept(GoloIrVisitor visitor) {
