@@ -1,4 +1,4 @@
-module UnicodeIdentifiers
+module UnicodeIdentifiers.🍣
 
 let ていすう = 1
 var ヘンスウ = 1
