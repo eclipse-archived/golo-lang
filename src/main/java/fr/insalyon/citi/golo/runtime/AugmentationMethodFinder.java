@@ -25,14 +25,14 @@ import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 
 class AugmentationMethodFinder implements MethodFinder {
 
-  private Class<?> receiverClass;
-  private Class<?> callerClass;
-  private String methodName;
-  private int arity;
-  private Lookup lookup;
-  private MethodType type;
-  private Object[] args;
-  private ClassLoader classLoader;
+  private final Class<?> receiverClass;
+  private final Class<?> callerClass;
+  private final String methodName;
+  private final int arity;
+  private final Lookup lookup;
+  private final MethodType type;
+  private final Object[] args;
+  private final ClassLoader classLoader;
   private MethodHandle methodHandle;
   private final FindingStrategy[] strategies = {
     new SimpleAugmentationStrategy(),
@@ -41,15 +41,29 @@ class AugmentationMethodFinder implements MethodFinder {
     new ImportedExternalNamedAugmentationStrategy()
   };
 
+  public AugmentationMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+    this.receiverClass = receiverClass;
+    this.args = args;
+    this.methodName = inlineCache.name;
+    this.lookup = inlineCache.callerLookup;
+    this.type = inlineCache.type();
+    this.arity = type.parameterCount();
+    this.callerClass = inlineCache.callerLookup.lookupClass();
+    this.classLoader = callerClass.getClassLoader();
+    this.methodHandle = null;
+  }
+
+
+
   /**
    * Search strategy for augmentation methods.
    *
    * Used by the enclosing {@code MethodFinder} to test several search according to the way the
    * augmentation is defined and applied.
-   * 
+   *
    * To add a search strategy to the {@code MethodFinder}, create a new inner class implementing this
    * interface and add an instance to the {@code strategies} attribute of the enclosing
-   * {@code MethodFinder}. 
+   * {@code MethodFinder}.
    *
    * Strategies are tried in the order defined in the {@code strategies} attribute.
    */
@@ -140,28 +154,6 @@ class AugmentationMethodFinder implements MethodFinder {
       return Module.augmentationApplications(definingModule);
     }
   }
-  
-  private void init(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    this.receiverClass = receiverClass;
-    this.args = args;
-    this.methodName = inlineCache.name;
-    this.lookup = inlineCache.callerLookup;
-    this.type = inlineCache.type();
-    this.arity = type.parameterCount();
-    this.callerClass = inlineCache.callerLookup.lookupClass();
-    this.classLoader = callerClass.getClassLoader();
-    this.methodHandle = null;
-  }
-
-  private void clean() {
-    this.receiverClass = null;
-    this.args = null;
-    this.methodName = null;
-    this.lookup = null;
-    this.type = null;
-    this.callerClass = null;
-    this.classLoader = null;
-  }
 
   private boolean isCandidate(Method method) {
     return (
@@ -226,15 +218,14 @@ class AugmentationMethodFinder implements MethodFinder {
     }
   }
 
-  public MethodHandle find(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    init(inlineCache, receiverClass, args);
-    for (int i = 0; i < strategies.length; i++) {
-      findInClasses(callerClass, strategies[i]);
+  @Override
+  public MethodHandle find() {
+    for (FindingStrategy strategie : strategies) {
+      findInClasses(callerClass, strategie);
     }
-    for (int i = 0; i < strategies.length; i++) {
-      findInImportedClasses(callerClass, strategies[i]);
+    for (FindingStrategy strategie : strategies) {
+      findInImportedClasses(callerClass, strategie);
     }
-    clean();
     return methodHandle;
   }
 }

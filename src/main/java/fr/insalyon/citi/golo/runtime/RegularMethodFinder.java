@@ -29,15 +29,15 @@ import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 
 class RegularMethodFinder implements MethodFinder {
 
-  private Object[] args;
-  private MethodType type;
-  private Class<?> receiverClass;
-  private String methodName;
-  private Lookup lookup;
-  private boolean makeAccessible;
-  private int arity;
+  private final Object[] args;
+  private final MethodType type;
+  private final Class<?> receiverClass;
+  private final String methodName;
+  private final Lookup lookup;
+  private final boolean makeAccessible;
+  private final int arity;
 
-  private void init(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+  public RegularMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.args = args;
     this.type = inlineCache.type();
     this.receiverClass = receiverClass;
@@ -47,16 +47,8 @@ class RegularMethodFinder implements MethodFinder {
     this.arity = type.parameterArray().length;
   }
 
-  private void clean() {
-    this.args = null;
-    this.type = null;
-    this.receiverClass = null;
-    this.methodName = null;
-    this.lookup = null;
-  }
-
-  public MethodHandle find(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    init(inlineCache, receiverClass, args);
+  @Override
+  public MethodHandle find() {
     try {
       MethodHandle target = findInMethods();
       if (target != null) { return target; }
@@ -68,8 +60,6 @@ class RegularMethodFinder implements MethodFinder {
      *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
      */
       return null;
-    } finally {
-      clean();
     }
   }
 
@@ -131,7 +121,7 @@ class RegularMethodFinder implements MethodFinder {
     }
     return candidates;
   }
-  
+
   private MethodHandle findInMethods() throws IllegalAccessException {
     List<Method> candidates = getCandidates();
     if (candidates.isEmpty()) { return null; }

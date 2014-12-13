@@ -20,6 +20,6 @@ import java.lang.invoke.MethodHandle;
 
 interface MethodFinder {
 
-  MethodHandle find(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args);
-  
+  MethodHandle find();
+
 }
