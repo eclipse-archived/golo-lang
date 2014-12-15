@@ -158,6 +158,7 @@
     <maven-bundle-plugin.version>2.5.0</maven-bundle-plugin.version>
     <maven-javadoc-plugin.version>2.9.1</maven-javadoc-plugin.version>
     <surefire-testng.version>2.17</surefire-testng.version>
+    <modernizer-maven-plugin.version>1.2.0-SNAPSHOT</modernizer-maven-plugin.version>
   </properties>
 
   <dependencies>
@@ -421,6 +422,27 @@
           <additionalparam>-Xdoclint:none</additionalparam>
           <failOnError>false</failOnError>
         </configuration>
+      </plugin>
+
+      <plugin>
+        <groupId>org.gaul</groupId>
+        <artifactId>modernizer-maven-plugin</artifactId>
+        <version>${modernizer-maven-plugin.version}</version>
+        <configuration>
+          <javaVersion>1.7</javaVersion>
+          <ignorePackages>
+            <ignorePackage>fr.insalyon.citi.golo.compiler.parser</ignorePackage>
+          </ignorePackages>
+        </configuration>
+        <executions>
+          <execution>
+            <id>modernizer</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>modernizer</goal>
+            </goals>
+          </execution>
+        </executions>
       </plugin>
 
     </plugins>
