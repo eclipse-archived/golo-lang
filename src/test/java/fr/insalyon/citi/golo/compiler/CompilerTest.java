@@ -121,4 +121,12 @@ public class CompilerTest {
       assertThat(problem.getSource().getColumnInSourceCode(), is(20));
     }
   }
+
+  @Test
+  public void verify_initialized_closure_args_reference() throws IOException, ParseException {
+    String errSourceFileDir = "src/test/resources/for-test/";
+    GoloCompiler compiler = new GoloCompiler();
+    String errSourceFile = "initialized-closure-args-reference.golo";
+    compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+  }
 }
