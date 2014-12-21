@@ -19,16 +19,10 @@ package fr.insalyon.citi.golo.runtime;
 import gololang.DynamicObject;
 
 import java.lang.invoke.*;
-import java.lang.reflect.Array;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
 import java.util.*;
 
-import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
-import static java.lang.reflect.Modifier.*;
-
 
 public class MethodInvocationSupport {
 
@@ -59,10 +53,6 @@ public class MethodInvocationSupport {
       return depth > MEGAMORPHIC_THRESHOLD;
     }
   }
-
-  private static final AugmentationMethodFinder augmentationMethodFinder = new AugmentationMethodFinder();
-  private static final RegularMethodFinder regularMethodFinder = new RegularMethodFinder();
-  private static final ArrayMethodFinder arrayMethodFinder = new ArrayMethodFinder();
 
   private static final MethodHandle CLASS_GUARD;
   private static final MethodHandle FALLBACK;
@@ -133,7 +123,7 @@ public class MethodInvocationSupport {
 
   private static MethodHandle lookupTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
     if (receiverClass.isArray()) {
-      return arrayMethodFinder.find(inlineCache, receiverClass, args);
+      return new ArrayMethodFinder(inlineCache, receiverClass, args).find();
     }
     if (isCallOnDynamicObject(inlineCache, args[0])) {
       DynamicObject dynamicObject = (DynamicObject) args[0];
@@ -209,10 +199,10 @@ public class MethodInvocationSupport {
 
     // NOTE: magic for accessors and mutators would go here...
 
-    target = regularMethodFinder.find(inlineCache, receiverClass, args);
+    target = new RegularMethodFinder(inlineCache, receiverClass, args).find();
     if (target != null) { return target; }
 
-    target = augmentationMethodFinder.find(inlineCache, receiverClass, args);
+    target = new AugmentationMethodFinder(inlineCache, receiverClass, args).find();
     if (target != null) { return target; }
 
     throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);

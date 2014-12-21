@@ -24,14 +24,14 @@ import static java.lang.invoke.MethodType.methodType;
 
 class ArrayMethodFinder implements MethodFinder {
 
-  private Class<?> receiverClass;
-  private Object[] args;
-  private MethodType type;
-  private int arity;
-  private String name;
-  private Lookup lookup;
+  private final Class<?> receiverClass;
+  private final Object[] args;
+  private final MethodType type;
+  private final int arity;
+  private final String name;
+  private final Lookup lookup;
 
-  private void init(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+  public ArrayMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.args = args;
     this.receiverClass = receiverClass;
     this.type = inlineCache.type();
@@ -40,31 +40,21 @@ class ArrayMethodFinder implements MethodFinder {
     this.lookup = inlineCache.callerLookup;
   }
 
-  private void clean() {
-    this.args = null;
-    this.receiverClass = null;
-    this.type = null;
-    this.name = null;
-    this.lookup = null;
-  }
-  
   private void checkArity(int value) {
     if (arity != value) {
-      throw new UnsupportedOperationException(name + " on arrays takes " 
+      throw new UnsupportedOperationException(name + " on arrays takes "
           + (value == 0 ? "no" : value)
           + " parameter" + (value > 1 ? "s" : "")
       );
     }
   }
 
-  public MethodHandle find(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    init(inlineCache, receiverClass, args);
+  @Override
+  public MethodHandle find() {
     try {
       return resolve().asType(type);
     } catch (NoSuchMethodException | IllegalAccessException e) {
-      throw new Error(e);
-    } finally {
-      clean();
+      throw new RuntimeException(e);
     }
   }
 
@@ -100,6 +90,6 @@ class ArrayMethodFinder implements MethodFinder {
       default:
         throw new UnsupportedOperationException(name + " is not supported on arrays");
     }
-  }  
+  }
 }
 
