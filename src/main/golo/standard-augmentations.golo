@@ -167,10 +167,10 @@ augment java.lang.invoke.MethodHandle {
     if (this: isVarargsCollector() and (arity > 0) and isArray(args: get(arity - 1))) {
       return this:
              asFixedArity():
-             asSpreader(objectArrayType(), args: length())(args)
+             asSpreader(objectArrayType(), args: length()): invokeWithArguments(array[args])
     } else {
       return this:
-             asSpreader(objectArrayType(), args: length())(args)
+             asSpreader(objectArrayType(), args: length()): invokeWithArguments(array[args])
     }
   }
 }
