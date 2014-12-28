@@ -45,6 +45,10 @@ public class ClosureCallSupportTest {
     return result;
   }
 
+  static Integer parseIntWrap(String s) {
+    return Integer.parseInt(s, 10);
+  }
+
   @Test
   public void check_bootstrap() throws Throwable {
     MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "objectToString", genericMethodType(1));
@@ -80,5 +84,14 @@ public class ClosureCallSupportTest {
     callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
     invoker = callSite.dynamicInvoker();
     assertThat((String) invoker.invokeWithArguments(handle, new Object[]{1,2}), is("12"));
+  }
+
+  @Test
+  public void check_bootstrap_besides_Object() throws Throwable {
+    MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "parseIntWrap", methodType(Integer.class, String.class));
+    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
+    MethodHandle invoker = callSite.dynamicInvoker();
+    assertThat((Integer) invoker.invokeWithArguments(handle, "123"), is(123));
+    assertThat((Integer) invoker.invokeWithArguments(handle, "123"), is(123));
   }
 }
