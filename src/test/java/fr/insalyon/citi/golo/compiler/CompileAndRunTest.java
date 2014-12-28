@@ -1583,23 +1583,4 @@ public class CompileAndRunTest {
     assertThat(result, not((Object)42));
 
   }
-
-  @Test
-  public void methodHandleSpread() throws Throwable {
-
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "methodhandle-spread.golo");
-
-    Method spread_args = moduleClass.getMethod("spread_args", Object.class);
-    Object result = spread_args.invoke(null, 42);
-    assertThat((Integer) result, is(42));
-
-    Method spread_empty = moduleClass.getMethod("spread_empty");
-    result = spread_empty.invoke(null);
-    assertThat((Integer) result, is(42));
-
-    Method spread_vargs = moduleClass.getMethod("spread_vargs", Object.class);
-    result = spread_vargs.invoke(null, 42);
-    assertThat((Integer) result, is(42));
-
-  }
 }
