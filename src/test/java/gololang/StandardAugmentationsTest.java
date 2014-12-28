@@ -312,8 +312,8 @@ public class StandardAugmentationsTest {
     Method sets_not_exists = moduleClass.getMethod("sets_not_exists");
     Object result = sets_not_exists.invoke(null);
     assertThat((Boolean) result, is(false));
-  }  
-  
+  }
+
   @Test
   public void maps_addIfAbsent() throws Throwable {
     Method maps_addIfAbsent = moduleClass.getMethod("maps_addIfAbsent");
@@ -524,6 +524,27 @@ public class StandardAugmentationsTest {
     Method vector_not_exists = moduleClass.getMethod("vector_not_exists");
     Object result = vector_not_exists.invoke(null);
     assertThat((Boolean) result, is(false));
+  }
+
+  @Test
+  public void methodhandle_spread_args() throws Throwable {
+    Method methodhandle_spread_args = moduleClass.getMethod("methodhandle_spread_args");
+    Object result = methodhandle_spread_args.invoke(null);
+    assertThat((Integer) result, is(40));
+  }
+
+  @Test
+  public void methodhandle_spread_noargs() throws Throwable {
+    Method methodhandle_spread_empty = moduleClass.getMethod("methodhandle_spread_noargs");
+    Object result = methodhandle_spread_empty.invoke(null);
+    assertThat((Integer) result, is(41));
+  }
+
+  @Test
+  public void methodhandle_spread_vargs() throws Throwable {
+    Method methodhandle_spread_vargs = moduleClass.getMethod("methodhandle_spread_vargs");
+    Object result = methodhandle_spread_vargs.invoke(null);
+    assertThat((Integer) result, is(42));
   }
 
 }
