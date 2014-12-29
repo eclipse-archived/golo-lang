@@ -75,12 +75,14 @@ public class ClosureCallSupport {
     MethodHandle target = (MethodHandle) args[0];
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, MethodHandle.class);
     MethodType type = invoker.type();
-    if (type.parameterType(type.parameterCount() - 1) == Object[].class) {
-      if (target.isVarargsCollector() && isLastArgumentAnArray(type.parameterCount(), args)) {
+    if (target.isVarargsCollector()) {
+      if (isLastArgumentAnArray(type.parameterCount(), args)) {
         invoker = invoker.asFixedArity().asType(callSite.type());
       } else {
-        invoker = invoker.asCollector(Object[].class, callSite.type().parameterCount() - target.type().parameterCount());
+        invoker = invoker.asCollector(Object[].class, callSite.type().parameterCount() - target.type().parameterCount()).asType(callSite.type());
       }
+    } else {
+      invoker = invoker.asType(callSite.type());
     }
     if (callSite.constant) {
       Object constantValue = invoker.invokeWithArguments(args);
