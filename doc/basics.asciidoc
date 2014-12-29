@@ -47,6 +47,8 @@ that is an awesome achievement.
 
 NOTE: Newlines are important in Golo, so make sure that your editor ends files with a newline.
 
+NOTE: Golo identifiers can be non-ascii characters (e.g., Japanese, Emoji, Arabic, etc).
+
 === Running _"Hello world"_ ===
 
 Of course, we need to run this incredibly complex application.
@@ -334,6 +336,10 @@ The syntax and type matchings are the following:
 |Map|
 `java.util.LinkedHashMap`|
 `map[[1, "a"], [2, "b"]]`
+
+|Range|
+`gololang.Range`|
+`[1..10]`, `['a'..'f']`
 
 |===
 

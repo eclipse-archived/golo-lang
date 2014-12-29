@@ -19,8 +19,10 @@ import fr.insalyon.citi.golo.compiler.ir.AssignmentStatement;
 import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.GoloStruct;
 import gololang.Tuple;
+import gololang.Range;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -701,8 +703,8 @@ public class CompileAndRunTest {
     assertThat((Integer) call_with_invoke.invoke(null), is(90));
 
     Method call_with_ref = moduleClass.getMethod("call_with_ref");
-    assertThat((Integer) call_with_ref.invoke(10), is(30));
-    assertThat((Integer) call_with_ref.invoke(100), is(30));
+    assertThat((Integer) call_with_ref.invoke(null), is(30));
+    assertThat((Integer) call_with_ref.invoke(null), is(30));
 
     Method adder = moduleClass.getMethod("adder", Object.class, Object.class);
     assertThat((Integer) adder.invoke(null, 1, 2), is(3));
@@ -739,6 +741,39 @@ public class CompileAndRunTest {
 
     Method call_local_fun_full_literal = moduleClass.getMethod("call_local_fun_full_literal");
     assertThat((Integer) call_local_fun_full_literal.invoke(null), is(2));
+
+    Method call_local_overloaded_fun_with_arity1 = moduleClass.getMethod("call_local_overloaded_fun_with_arity1");
+    assertThat((Integer) call_local_overloaded_fun_with_arity1.invoke(null), is(3));
+
+    Method call_local_overloaded_fun_with_arity2 = moduleClass.getMethod("call_local_overloaded_fun_with_arity2");
+    assertThat((Integer) call_local_overloaded_fun_with_arity2.invoke(null), is(3));
+
+    Method call_local_overloaded_fun_without_arity = moduleClass.getMethod("call_local_overloaded_fun_without_arity");
+    try {
+      call_local_overloaded_fun_without_arity.invoke(null);
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
+    }
+
+    Method call_local_overloaded_fun_short_literal = moduleClass.getMethod("call_local_overloaded_fun_short_literal");
+    try {
+      call_local_overloaded_fun_short_literal.invoke(null);
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
+    }
+
+    Method call_local_overloaded_fun_full_literal = moduleClass.getMethod("call_local_overloaded_fun_full_literal");
+    try {
+      call_local_overloaded_fun_short_literal.invoke(null);
+      fail("An exception should have been thrown");
+    } catch (InvocationTargetException invocationTargetException) {
+      Throwable cause = invocationTargetException.getCause();
+      assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
+    }
 
     Method nested_closures = moduleClass.getMethod("nested_closures");
     result = nested_closures.invoke(null);
@@ -815,6 +850,34 @@ public class CompileAndRunTest {
 
     Method bang_plop = moduleClass.getMethod("bang_plop");
     assertThat((String) bang_plop.invoke(null), is("Plop!"));
+  }
+
+  @Test
+  public void check_local_named_augmentations() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "local-named-augmentations.golo", goloClassLoader);
+    assertThat((String) moduleClass.getMethod("test_plop_on_list").invoke(null), is("plop"));
+    assertThat((String) moduleClass.getMethod("test_foo_on_list").invoke(null), is("foo"));
+    assertThat((String) moduleClass.getMethod("test_bar_on_list").invoke(null), is("bar"));
+    assertThat((String) moduleClass.getMethod("test_baz_on_list").invoke(null), is("baz"));
+    assertThat((String) moduleClass.getMethod("test_foo_on_struct").invoke(null), is("foo"));
+    assertThat((String) moduleClass.getMethod("test_bar_on_struct").invoke(null), is("bar"));
+  }
+
+  @Test
+  public void check_external_named_augmentations() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "external-named-augmentations.golo", goloClassLoader);
+    compileAndLoadGoloModule(SRC, "named-augmentations-external-source.golo", goloClassLoader);
+    assertThat((String) moduleClass.getMethod("foo_on_string").invoke(null), is("Str.foo"));
+    assertThat((String) moduleClass.getMethod("bar_on_string").invoke(null), is("Bar1.bar"));
+    assertThat((String) moduleClass.getMethod("foo_on_int").invoke(null), is("Obj.foo"));
+    assertThat((String) moduleClass.getMethod("bar_on_int").invoke(null), is("Bar2.bar"));
+    assertThat((String) moduleClass.getMethod("spam_on_int").invoke(null), is("Obj.spam"));
+    assertThat((String) moduleClass.getMethod("foo_on_struct").invoke(null), is("Obj.foo"));
+    assertThat((String) moduleClass.getMethod("bar_on_struct").invoke(null), is("Bar1.bar"));
+    assertThat((String) moduleClass.getMethod("bar_on_double").invoke(null), is("Bar2.bar"));
+    assertThat((String) moduleClass.getMethod("override_spam_on_struct").invoke(null), is("MyStruct.spam"));
   }
 
   @Test
@@ -1005,6 +1068,24 @@ public class CompileAndRunTest {
     assertThat(map.size(), is(2));
     assertThat((String) map.get("foo"), is("bar"));
     assertThat((String) map.get("plop"), is("da plop"));
+
+    Method int_range = moduleClass.getMethod("int_range");
+    result = int_range.invoke(null);
+    assertThat(result, instanceOf(Range.class));
+    Range<Integer> int_range_res = (Range<Integer>) result;
+    assertThat(int_range_res.size(), is(10));
+    assertThat(int_range_res.from(), is(0));
+    assertThat(int_range_res.to(), is(10));
+    assertThat(int_range_res.increment(), is(1));
+
+    Method char_range = moduleClass.getMethod("char_range");
+    result = char_range.invoke(null);
+    assertThat(result, instanceOf(Range.class));
+    Range<Character> char_range_res = (Range<Character>) result;
+    assertThat(char_range_res.size(), is(5));
+    assertThat(char_range_res.from(), is('a'));
+    assertThat(char_range_res.to(), is('f'));
+    assertThat(char_range_res.increment(), is(1));
   }
 
   @Test
@@ -1454,6 +1535,53 @@ public class CompileAndRunTest {
       AssertionError exception = (AssertionError) cause;
       assertThat(exception.getMessage(), is("arg0 must be a class java.lang.Integer"));
     }
+  }
+
+  @Test
+  public void banged() throws Throwable {
+
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "bang.golo");
+
+    Method banged = moduleClass.getMethod("func_test",Object.class);
+    Object result = banged.invoke(null,42);
+    assertThat(result, equalTo(banged.invoke(null,1337)));
+
+    banged = moduleClass.getMethod("null_test",Object.class);
+    result = banged.invoke(null,(Object)null);
+    assertThat(result,equalTo(null));
+    assertThat(result, equalTo(banged.invoke(null,1337)));
+
+    banged = moduleClass.getMethod("reference_test",Object.class);
+    result = banged.invoke(null,42);
+    assertThat(result, equalTo(banged.invoke(null,1337)));
+
+    banged = moduleClass.getMethod("singleton");
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+
+    banged = moduleClass.getMethod("anonymous", Object.class, Object.class, Object.class);
+    result = banged.invoke(null, 10, 12, 20);
+    assertThat(result, equalTo(banged.invoke(null, 42, 42, 42)));
+
+    banged = moduleClass.getMethod("decorated");
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+    assertThat(result, not((Object)42));
+
+    Method set_param = moduleClass.getMethod("set_decorator_parameter", Object.class);
+    set_param.invoke(null,(Object)1337);
+
+    banged = moduleClass.getMethod("parametrized_decorated");
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+    assertThat(result, not((Object)42));
+
+    set_param.invoke(null,(Object)42);
+
+    result = banged.invoke(null);
+    assertThat(result, equalTo(banged.invoke(null)));
+    assertThat(result, not((Object)42));
+
   }
 
   @Test

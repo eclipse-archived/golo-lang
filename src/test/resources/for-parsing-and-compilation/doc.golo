@@ -50,6 +50,10 @@ augment java.lang.String {
   function yop = |this| -> "Yop: " + this
 }
 
+augment java.lang.String {
+  function zig = |this, x| -> "zag"
+}
+
 ----
 A point, with `x` and `y` coordinates.
 

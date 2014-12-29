@@ -120,13 +120,14 @@ public class DocumentationRenderingTest {
     CtagsProcessor processor = new CtagsProcessor();
     String result = processor.render(compilationUnit);
     assertThat(result, containsString("Documented\tfile\t/^module[:blank:]+Documented$/;\"\tp\tline:1\tlanguage:golo"));
-    assertThat(result, containsString("Point\tfile\t/^struct[:blank:]+Point[:blank:]+=/;\"\ts\tline:59\tlanguage:golo"));
+    assertThat(result, containsString("Point\tfile\t/^struct[:blank:]+Point[:blank:]+=/;\"\ts\tline:63\tlanguage:golo"));
     assertThat(result, containsString("java.lang.String\tfile\t/^augment[:blank:]+java\\.lang\\.String/;\"\ta\tline:43\tlanguage:golo"));
     assertThat(result, containsString("java.util.Map\tfile\t/^import[:blank:]+java\\.util\\.Map/;\"\ti\tline:15\tlanguage:golo"));
-    assertThat(result, containsString("letState\tfile\t(let|var)[:blank:]+letState[:blank:]+=/;\"\tv\taccess:private\tfile:\tline:61\tlanguage:golo"));
+    assertThat(result, containsString("letState\tfile\t(let|var)[:blank:]+letState[:blank:]+=/;\"\tv\taccess:private\tfile:\tline:65\tlanguage:golo"));
     assertThat(result, containsString("plop\tfile\t/function[:blank:]+plop[:blank:]+=/;\"\tf\tline:45\taccess:public\tsignature:(this)\taugment:java.lang.String\tlanguage:golo"));
     assertThat(result, containsString("should_be_hidden\tfile\t/function[:blank:]+should_be_hidden[:blank:]+=/;\"\tf\tline:19\taccess:private\tfile:\tsignature:(foo)\tlanguage:golo"));
-    assertThat(result, containsString("x\tfile\t/struct[:blank:]+Point[:blank:]+=/;\"\tm\tline:59\taccess:public\tstruct:Point\tlanguage:golo"));
+    assertThat(result, containsString("x\tfile\t/struct[:blank:]+Point[:blank:]+=/;\"\tm\tline:63\taccess:public\tstruct:Point\tlanguage:golo"));
+    assertThat(result, containsString("zig\tfile\t/function[:blank:]+zig[:blank:]+=/;\"\tf\tline:54\taccess:public\tsignature:(this, x)\taugment:java.lang.String\tlanguage:golo"));
   }
 
 }

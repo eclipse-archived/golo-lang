@@ -50,14 +50,17 @@ public class CompilerTest {
   }
 
   @Test
-  public void verify_compile_errors() throws IOException, ParseException {
+  public void verify_compile_no_errors() throws IOException, ParseException {
     String okSourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
+    GoloCompiler compiler = new GoloCompiler();
+    compiler.compile("simple-returns.golo", new FileInputStream(okSourceFile));
+  }
+
+  @Test
+  public void verify_compile_error_undeclared() throws IOException, ParseException {
     String errSourceFileDir = "src/test/resources/for-test/";
     GoloCompiler compiler = new GoloCompiler();
-
-    GoloCompilationException.Problem first = null;
-
-    compiler.compile("simple-returns.golo", new FileInputStream(okSourceFile));
+    GoloCompilationException.Problem problem;
 
     String errSourceFile = "undeclared.golo";
     try {
@@ -67,12 +70,19 @@ public class CompilerTest {
       assertThat(e.getSourceCode(), is(errSourceFile));
       assertThat(e.getProblems().size(), is(2));
 
-      first = e.getProblems().get(0);
-      assertThat(first.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
-      assertThat(first.getSource().getLineInSourceCode(), is(4));
+      problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
+      assertThat(problem.getSource().getLineInSourceCode(), is(4));
     }
+  }
 
-    errSourceFile = "incomplete.golo";
+  @Test
+  public void verify_compile_error_incomplete() throws IOException, ParseException {
+    String errSourceFileDir = "src/test/resources/for-test/";
+    GoloCompiler compiler = new GoloCompiler();
+    GoloCompilationException.Problem problem;
+
+    String errSourceFile = "incomplete.golo";
     try {
       compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
@@ -80,9 +90,43 @@ public class CompilerTest {
       assertThat(e.getSourceCode(), is(errSourceFile));
       assertThat(e.getProblems().size(), is(1));
 
-      first = e.getProblems().get(0);
-      assertThat(first.getType(), is(GoloCompilationException.Problem.Type.PARSING));
-      assertThat(first.getSource().getLineInSourceCode(), is(3));
+      problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.PARSING));
+      assertThat(problem.getSource().getLineInSourceCode(), is(3));
     }
+  }
+
+  @Test
+  public void verify_compile_error_uninitialized() throws IOException, ParseException {
+    String errSourceFileDir = "src/test/resources/for-test/";
+    GoloCompiler compiler = new GoloCompiler();
+    GoloCompilationException.Problem problem;
+
+    String errSourceFile = "uninitialized-reference-lookup.golo";
+    try {
+      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+    } catch (GoloCompilationException e) {
+      assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getSourceCode(), is(errSourceFile));
+      assertThat(e.getProblems().size(), is(2));
+
+      problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNINITIALIZED_REFERENCE_ACCESS));
+      assertThat(problem.getSource().getLineInSourceCode(), is(4));
+      assertThat(problem.getSource().getColumnInSourceCode(), is(13));
+
+      problem = e.getProblems().get(1);
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNINITIALIZED_REFERENCE_ACCESS));
+      assertThat(problem.getSource().getLineInSourceCode(), is(5));
+      assertThat(problem.getSource().getColumnInSourceCode(), is(20));
+    }
+  }
+
+  @Test
+  public void verify_initialized_closure_args_reference() throws IOException, ParseException {
+    String errSourceFileDir = "src/test/resources/for-test/";
+    GoloCompiler compiler = new GoloCompiler();
+    String errSourceFile = "initialized-closure-args-reference.golo";
+    compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
   }
 }

@@ -1,0 +1,262 @@
+== Banged function call ==
+
+Golo uses invokedynamic
+footnote:[ http://www.oraclejavamagazine-digital.com/javamagazine_open/20130102#pg50[Oracle Java Magazine 2013-01-02] ] 
+footnote:[ http://www.oraclejavamagazine-digital.com/javamagazine/20130506#pg42[Oracle Java Magazine 2013-05-06] ]
+to dynamically link at runtime an invocation instruction to the target code that will be effectively executed.
+
+An invocation is done in three steps:
+
+- first, a computation is executed to find the target code,
+- then, the call site of the invocation is plugged to this target,
+- finally the target code is executed as if it had been linked at load time.
+
+The first two phases are mostly executed once for a call site, according there's no need to re-link the call site to his target code.
+
+A function call marked with bang (`!`) is directly linked to the result returned by the target execution.
+
+A banged invocation is executed like this:
+
+- first, a computation is executed to find the target code,
+- then the target code is executed,
+- finally, the call site of the invocation is plugged to a constant MethodHandle
+footnote:[ http://docs.oracle.com/javase/8/docs/api/java/lang/invoke/MethodHandles.html#constant(java.lang.Class,%20java.lang.Object)[Constant MethodHandle] ]
+which returns the target computation result as a constant value.
+
+
+=== Principles and syntax ===
+
+A function call marked with bang (`!`) will be called only once,
+the result is stored as a constant and will be directly returned for every subsequent call.
+
+A function call can be marked with a bang like in the following example:
+
+[source,golo]
+----
+module sample
+
+function take_a_while  = {
+  # ... complex computation
+  return 42
+}
+
+
+function main = |args| {
+
+  foreach i in range(0, 100) {
+   take_a_while!()
+  }
+
+}
+----
+
+In this example `take_a_while` is computed only once at the first call, and then this function returns directly the previously computed result as a constant for every subsequent call.
+
+NOTE: The `!` notation can only be used on regular function calls. Indeed,
+since methods are context dependant (the object itself), it is not allowed to
+“bang” them. As a consequence, a function invocation using the `invoke` or
+`invokeWithArguments` method of the `MethodHandle` object can't use this
+feature.
+
+Bang function call is a kind of memoization but regardless of the given parameters:
+
+[source,golo]
+----
+module sample
+
+function hello = |name| {
+  return "Hello " + name + "!"
+}
+
+
+function main = |args| {
+  foreach name in ["Peter", "John", "James"] {
+    println( hello!(name) # will always print 'Hello Peter!'
+  }
+}
+----
+
+In this example `hello` is executed at the first call with the parameter
+`"Peter"`, then always returns `"Hello Peter!"`, even when called with other
+values.
+
+WARNING: Functions having side effects *should* not be marked, since the computation
+is not done for subsequent calls, and thus the side effect can't happen. In the
+same way, function that depends on an outside context are risky. Indeed, a
+change in the context won't imply a change in the result any more. In other
+words, only _pure_ functions should be marked with a `!`. No check is done by
+the language, use it at your own risk.
+
+The result of a banged function call is constant within the same call place,
+but different for each call instructions.
+
+[source,golo]
+----
+module sample
+
+function hello = |name| {
+  return "Hello " + name + "!"
+}
+
+function main = |args| {
+  println( hello!("Foo") ) # will print 'Hello Foo!'
+  println( hello!("Bar") ) # will print 'Hello Bar!'
+  foreach name in ["Peter", "John", "James"] {
+   println( hello!(name) # will always print 'Hello Peter!'
+  }
+  foreach name in ["Peter", "John", "James"] {
+   println( hello(name) # will print 'Hello Peter!', 'Hello John!', 'Hello James!'
+  }
+}
+----
+
+In the previous listing, the `hello!(name)` in the loop is considered the same
+call, and thus evaluated only on the first iteration. On the other hand, the
+previous calls with `"Foo"` and `"Bar"` are distinct, and therefore prints
+different results.
+
+
+Anonymous function call and object constructor call can be banged too:
+
+[source,golo]
+----
+module sample
+
+function closure = |x| {
+  return |y| {
+    return x * y
+  }
+}
+
+function singleton = -> java.lang.Object!()
+
+function main = |args| {
+
+  foreach i in range(0, 100) {
+    println( closure(i)!(i) ) # will always print 0
+  }
+
+  require(
+    singleton(): hashCode() == singleton(): hashCode(),
+    "Houston, ..."
+  )
+}
+----
+
+In this example `closure(i)!(i)` always return `0` because:
+
+- `closure(i)` returns a closure (`|y| -> x * y`) with `x` as enclosed variable
+- `closure(i)` is computed for each value of `i`
+- the closure returned by `closure(i)` is called at the first iteration with `0` for `x` and `y`
+- for every subsequent call `closure(i)` is still computed but ignored because the anonymous call is replaced by the return of a constant value
+
+The `singleton` function return a new java Object but the `java.lang.Object` is created with a banged constructor call, then the returned reference is constant.
+
+
+=== Banged decorators ===
+
+As explained in the xref:_decorators[decorators part] the following `identity` function:
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+@decorator
+function identity = |x| -> x
+----
+
+is expanded to:
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+function identity = |x| -> decorator(|x| -> x)(x)
+----
+
+A banged decorator declared with the `@!` syntax:
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+@!decorator
+function identity = |x| -> x
+----
+
+is expanded to:
+
+[source,golo]
+----
+function decorator =  |func| -> |x| -> func(x)
+
+function identity = |x| -> decorator!(|x| -> x)(x)
+----
+
+As seen previously, the `decorator` function is called only the first time.
+For every subsequent call, the function reference returned by the decorator is not re-computed but directly used as a constant.
+
+
+Parametrized decorators can be banged too:
+
+[source,golo]
+----
+function decorator =  |arg| -> |func| -> |x| -> func(x)
+
+@!decorator(42)
+function identity = |x| -> x
+----
+
+is expanded to:
+
+[source,golo]
+----
+function decorator =  |arg| -> |func| -> |x| -> func(x)
+
+function identity = |x| -> decorator(42)!(|x| -> x)(x)
+----
+
+
+NOTE: Considering the return of a banged call is constant, a common pitfall
+is to think that differents calls share the same _"context"_ regardless where the call is located into the code.
+
+
+As an example, consider two functions decorated with the same parametrized decorator:
+
+[source,golo]
+----
+@!deco("a")
+function foo = |a| -> a
+
+@!deco("b")
+function bar = |b| -> b
+----
+
+These functions are expanded to
+
+[source,golo]
+----
+function foo = |a| -> deco("a")!(|a| -> a)(a)
+
+function bar = |b| -> deco("b")!(|b| -> b)(b)
+----
+
+`deco("a")!(|a| -> a)` return a function that we can name for the example `func_a`,
+and `deco("b")!(|b| -> b)` return another function that we can name `func_b`.
+
+Then, for every subsequent call of `foo` and `bar`, the executed code is
+somehow equivalent to:
+
+[source,golo]
+----
+function foo = |a| -> func_a(a)
+
+function bar = |b| -> func_b(b)
+----
+
+`func_a` and `func_b` are now constant but different because they are not from the same _"banged call instruction"_.
+
+Performances can considerably increase with banged decorators, since the
+decorator function is no more called for each decorated function call.
+On the other hand, the decorator function has to be pure (without side-effects) and his parameters stable.
+

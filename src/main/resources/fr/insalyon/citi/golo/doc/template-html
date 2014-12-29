@@ -118,27 +118,42 @@
   </style>
 </head>
 <body>
-
 <h1>Documentation for <%= doc: moduleName() %></h1>
 <div>
   <%= process(doc: moduleDocumentation()) %>
 </div>
 
+<!-- begin table of content -->
 <ul id="toc">
+
   <% if not doc: structs(): isEmpty() { %>
   <li><a href="#structs">Structs</a><ul>
-    <% foreach structName in doc: structs(): keySet() { %>
-    <li><a href="#<%= structName %>"><%= structName %></a></li>
+    <% foreach structDoc in doc: structs() { %>
+    <li><a href="#<%= structDoc: name() %>"><%= structDoc: name() %></a></li>
+    <% } %>
+  </ul></li>
+  <% } %>
+
+  <% if not doc: namedAugmentations(): isEmpty() { %>
+  <li><a href="#namedAugmentations">Named Augmentations</a><ul>
+    <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
+    <li><a href="#<%= namedAugmentationDoc: name() %>"><%= namedAugmentationDoc: name()%></a><ul>
+      <% foreach funcDoc in namedAugmentationDoc { %>
+      <li><a href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%=
+              funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+      <% } %>
+      </ul></li>
     <% } %>
   </ul></li>
   <% } %>
 
   <% if not doc: augmentations(): isEmpty() { %>
   <li><a href="#augmentations">Augmentations</a><ul>
-    <% foreach augmentation in doc: augmentations(): keySet() { %>
-    <li><a href="#<%= augmentation %>"><%= augmentation %></a><ul>
-      <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
-      <li><a href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+    <% foreach augmentDoc in doc: augmentations() { %>
+    <li><a href="#augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %></a><ul>
+      <% foreach funcDoc in augmentDoc { %>
+      <li><a href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%=
+              funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
       <% } %>
     </ul></li>
     <% } %>
@@ -148,61 +163,102 @@
   <% if not doc: functions(): isEmpty() { %>
   <li><a href="#functions">Functions</a><ul>
     <% foreach funcDoc in doc: functions() { %>
-    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_")
+            %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
     <% } %>
   </ul></li>
   <% } %>
 </ul>
-
+<!-- end table of content -->
 
 <% if not doc: structs(): isEmpty() { %>
-<h2 id="structs">Structs</h2>
-<% foreach structName in doc: structs(): keySet() { %>
-<h3 id="<%= structName %>"><%= structName %>
-    <a class="permalink" href="#<%= structName %>" title="link to this section">&#182;</a></h3>
-  <p>Members:</p>
-  <ul>
-  <% foreach member in doc: structMembers(): get(structName) { %>
-    <li><code><%= member %></code></li>
+  <h2 id="structs">Structs</h2>
+  <% foreach structDoc in doc: structs() { %>
+    <h3 id="<%= structDoc: name() %>"><%= structDoc: name() %>
+    <a class="permalink" href="#<%= structDoc: name() %>" title="link to this section">&#182;</a></h3>
+
+    <h5>Members</h5>
+    <ul>
+    <% foreach member in structDoc: members() { %>
+      <li><code><%= member %></code></li>
   <% } %>
-  </ul>
-  <div>
-    <%= process(doc: structs(): get(structName)) %>
-  </div>
-<% } %>
+    </ul>
+    <div>
+      <%= process(structDoc: documentation()) %>
+    </div>
+  <% } %>
 <% } %>
 
-<% if not doc: augmentations(): isEmpty() { %>
-<h2 id="augmentations">Augmentations</h2>
-<% foreach augmentation in doc: augmentations(): keySet() { %>
-  <h3 id="<%= augmentation %>"><%= augmentation %>
-    <a class="permalink" href="#<%= augmentation %>" title="link to this section">&#182;</a></h3>
-  <div>
-    <%= process(doc: augmentations(): get(augmentation)) %>
-  </div>
-  <% foreach funcDoc in doc: augmentationFunctions(): get(augmentation) { %>
-    <% if funcDoc: varargs() { %>
-      <h4 id="<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
-    <% } else { %>
-      <h4 id="<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+
+<% if not doc: namedAugmentations(): isEmpty() { %>
+  <h2 id="namedAugmentations">Named Augmentations</h2>
+  <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
+    <h3 id="<%= namedAugmentationDoc: name()%>"><%= namedAugmentationDoc: name()%>
+    <a class="permalink" href="#<%= namedAugmentationDoc: name()%>" title="link
+    to this section">&#182;</a></h3>
+    <div>
+      <%= process(namedAugmentationDoc: documentation()) %>
+    </div>
+    <% foreach funcDoc in namedAugmentationDoc { %>
+      <% if funcDoc: varargs() { %>
+        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
+      <% } else { %>
+        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+      <% } %>
+      <a class="permalink" href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
+      <div>
+        <%= process(funcDoc: documentation()) %>
+      </div>
     <% } %>
-    <a class="permalink" href="#<%= augmentation %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
+  <% } %>
+<% } %>
+
+
+<% if not doc: augmentations(): isEmpty() { %>
+  <h2 id="augmentations">Augmentations</h2>
+  <% foreach augmentDoc in doc: augmentations() { %>
+    <h3 id="augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %>
+    <a class="permalink" href="#augment.<%= augmentDoc: target() %>" title="link to this section">&#182;</a></h3>
+    <div>
+      <%= process(augmentDoc: documentation()) %>
+    </div>
+    <% if not augmentDoc: augmentationNames(): isEmpty() { %>
+      <h5>Named augmentations applied</h5>
+      <ul>
+      <% foreach name in augmentDoc: augmentationNames() { %>
+      <li>
+        <%if not name: contains(".") {%>
+          <a href="#<%=name%>"><%= name %></a>
+        <%} else {%>
+        <%= name %>
+        <%}%>
+      </li>
+      <% } %>
+      </ul>
+    <% } %>
+    <% foreach funcDoc in augmentDoc { %>
+      <% if funcDoc: varargs() { %>
+        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
+      <% } else { %>
+        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+      <% } %>
+      <a class="permalink" href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
+      <div>
+        <%= process(funcDoc: documentation()) %>
+      </div>
+    <% } %>
+  <% } %>
+<% } %>
+
+<% if not doc: functions(): isEmpty() { %>
+  <h2 id="functions">Functions</h2>
+  <% foreach funcDoc in doc: functions() { %>
+    <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+    <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h3>
     <div>
       <%= process(funcDoc: documentation()) %>
     </div>
   <% } %>
-<% } %>
-<% } %>
-
-<% if not doc: functions(): isEmpty() { %>
-<h2 id="functions">Functions</h2>
-<% foreach funcDoc in doc: functions() { %>
-  <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-    <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h3>
-  <div>
-    <%= process(funcDoc: documentation()) %>
-  </div>
-<% } %>
 <% } %>
 
 </body>

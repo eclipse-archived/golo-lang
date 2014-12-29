@@ -23,7 +23,7 @@ import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import org.testng.annotations.Test;
 
 import java.io.FileInputStream;
-import java.util.TreeSet;
+import java.util.SortedSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -46,40 +46,47 @@ public class ModuleDocumentationTest {
     assertThat(doc.imports(), hasKey("java.util.Map"));
     assertThat(doc.imports().get("java.util.Map"), is(15));
 
-    assertThat(doc.augmentations(), hasKey("java.lang.String"));
-    assertThat(doc.augmentationLine("java.lang.String"), is(43));
+    assertThat(doc.augmentations().size(), is(1));
+    assertThat(doc.augmentations().iterator().next().target(), is("java.lang.String"));
+    assertThat(doc.augmentations().iterator().next().line(), is(43));
 
     assertThat(doc.functions().size(), is(2));
     assertThat(doc.functions(true).size(), is(3));
-    assertThat(doc.functions(true).first().name, is("should_be_hidden"));
-    assertThat(doc.functions(true).first().line, is(19));
-    assertThat(doc.functions(true).first().local, is(true));
+    assertThat(doc.functions(true).first().name(), is("should_be_hidden"));
+    assertThat(doc.functions(true).first().line(), is(19));
+    assertThat(doc.functions(true).first().local(), is(true));
 
-    ModuleDocumentation.FunctionDocumentation first = doc.functions().first();
-    assertThat(first.name, is("with_doc"));
-    assertThat(first.line, is(31));
-    assertThat(first.arguments, contains("a", "b"));
-    assertThat(first.documentation, containsString("the sum of `a` and `b`"));
+    FunctionDocumentation first = doc.functions().first();
+    assertThat(first.name(), is("with_doc"));
+    assertThat(first.line(), is(31));
+    assertThat(first.arguments(), contains("a", "b"));
+    assertThat(first.documentation(), containsString("the sum of `a` and `b`"));
 
-    assertThat(doc.augmentationFunctions().size(), is(1));
-    TreeSet<ModuleDocumentation.FunctionDocumentation> onStrings = doc.augmentationFunctions().get("java.lang.String");
+    AugmentationDocumentation onStrings = doc.augmentations().iterator().next();
     assertThat(onStrings, notNullValue());
-    assertThat(onStrings.size(), is(2));
+    assertThat(onStrings.size(), is(3));
     first = onStrings.first();
-    assertThat(first.name, is("plop"));
-    assertThat(first.line, is(45));
-    assertThat(first.local, is(false));
-    assertThat(first.arguments.size(), is(1));
-    assertThat(first.arguments.get(0), is("this"));
-    assertThat(first.documentation, is("\n"));
+    assertThat(first.name(), is("plop"));
+    assertThat(first.line(), is(45));
+    assertThat(first.local(), is(false));
+    assertThat(first.arguments().size(), is(1));
+    assertThat(first.arguments().get(0), is("this"));
+    assertThat(first.documentation(), is(""));
+    FunctionDocumentation last = onStrings.last();
+    assertThat(last.name(), is("zig"));
+    assertThat(last.line(), is(54));
+    assertThat(last.local(), is(false));
+    assertThat(last.arguments().size(), is(2));
+    assertThat(last.arguments().get(0), is("this"));
+    assertThat(last.documentation(), is(""));
 
     assertThat(doc.structs().size(), is(1));
-    assertThat(doc.structs(), hasKey("Point"));
-    assertThat(doc.structLine("Point"), is(59));
-    assertThat(doc.structs().get("Point"), containsString("`x` and `y` coordinates"));
+    assertThat(doc.structs().first().name(), is("Point"));
+    assertThat(doc.structs().first().line(), is(63));
+    assertThat(doc.structs().first().documentation(), containsString("`x` and `y` coordinates"));
 
     assertThat(doc.moduleStates().size(), is(2));
     assertThat(doc.moduleStates(), hasKey("letState"));
-    assertThat(doc.moduleStates().get("letState"), is(61));
+    assertThat(doc.moduleStates().get("letState"), is(65));
   }
 }

@@ -375,6 +375,11 @@ augment java.util.List {
   function head = |this| -> this: get(0)
 
   ----
+  Returns a list last element.
+  ----
+  function last = |this| -> this: get(this: size() - 1)
+
+  ----
   Returns the rest of a list after its head.
   ----
   function tail = |this| -> this: subList(1, this: size())
@@ -879,3 +884,4 @@ augment gololang.Tuple {
 }
 
 # ............................................................................................... #
+

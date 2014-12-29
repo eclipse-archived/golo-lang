@@ -31,6 +31,8 @@ import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+
 public class PredefinedTest {
 
   @Test
@@ -97,12 +99,45 @@ public class PredefinedTest {
     assertThat(Predefined.range(1, 10L), instanceOf(LongRange.class));
     assertThat(Predefined.range(1L, 10), instanceOf(LongRange.class));
     assertThat(Predefined.range(1L, 10L), instanceOf(LongRange.class));
+    assertThat(Predefined.range(10), instanceOf(IntRange.class));
+    assertThat(Predefined.range(10L), instanceOf(LongRange.class));
+    assertThat(Predefined.range(10), is(Predefined.range(0, 10)));
+    assertThat(Predefined.range(10L), is(Predefined.range(0L, 10L)));
+    assertThat(Predefined.range('a', 'd'), instanceOf(CharRange.class));
+    assertThat(Predefined.range('D'), instanceOf(CharRange.class));
+    assertThat(Predefined.range('D'), is(Predefined.range('A', 'D')));
+  }
+
+  @Test
+  public void test_reversed_range() {
+    assertThat(Predefined.reversed_range(10, 1), instanceOf(IntRange.class));
+    assertThat(Predefined.reversed_range(10, 1L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10L, 1), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10L, 1L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10), instanceOf(IntRange.class));
+    assertThat(Predefined.reversed_range(10L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversed_range(10), is(Predefined.reversed_range(10, 0)));
+    assertThat(Predefined.reversed_range(10L), is(Predefined.reversed_range(10L, 0L)));
+    assertThat((IntRange)Predefined.reversed_range(5, 1), is(((IntRange)Predefined.range(5, 1)).incrementBy(-1)));
+    assertThat((LongRange)Predefined.reversed_range(5L, 1L), is(((LongRange)Predefined.range(5L, 1L)).incrementBy(-1)));
+    assertThat(Predefined.reversed_range('d', 'a'), instanceOf(CharRange.class));
+    assertThat(Predefined.reversed_range('D'), instanceOf(CharRange.class));
+    assertThat(Predefined.reversed_range('D'), is(Predefined.reversed_range('D', 'A')));
+    assertThat((CharRange)Predefined.reversed_range('D', 'A'), is(((CharRange)Predefined.range('D', 'A')).incrementBy(-1)));
   }
 
   static class MyCallable {
 
     static Object hello() {
       return "Hello!";
+    }
+
+    static Object overloaded(int a, int b) {
+      return a + b;
+    }
+
+    static Object overloaded(int a) {
+      return a + 1;
     }
   }
 
@@ -139,6 +174,29 @@ public class PredefinedTest {
   @Test(expectedExceptions = NoSuchMethodException.class)
   public void test_fun_fail() throws Throwable {
     MethodHandle hello = (MethodHandle) Predefined.fun("helloz", MyCallable.class, 0);
+  }
+
+  @Test(expectedExceptions = AmbiguousFunctionReferenceException.class)
+  public void test_fun_ambiguous() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class);
+  }
+
+  @Test(expectedExceptions = WrongMethodTypeException.class)
+  public void test_fun_wrong_arity() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 1);
+    overloaded.invoke(1, 2);
+  }
+
+  @Test
+  public void test_fun_overloaded1() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 1);
+    assertThat((Integer) overloaded.invoke(2), is(3));
+  }
+
+  @Test
+  public void test_fun_overloaded2() throws Throwable {
+    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 2);
+    assertThat((Integer) overloaded.invoke(1, 2), is(3));
   }
 
   @Test

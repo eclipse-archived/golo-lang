@@ -16,6 +16,8 @@
 
 package gololang;
 
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -201,6 +203,7 @@ public class Predefined {
    * @param values the values.
    * @return an array.
    */
+  @Deprecated
   public static Object Array(Object... values) {
     return values;
   }
@@ -211,6 +214,7 @@ public class Predefined {
    * @param values the array.
    * @return a list from the <code>java.util</code> package.
    */
+  @Deprecated
   public static Object atoList(Object[] values) {
     return Arrays.asList(values);
   }
@@ -222,6 +226,7 @@ public class Predefined {
    * @param i the index.
    * @return the element at index <code>i</code>.
    */
+  @Deprecated
   public static Object aget(Object a, Object i) {
     require(a instanceof Object[], "aget takes an Array as first parameter");
     require(i instanceof Integer, "aget takes an index as second parameter");
@@ -236,6 +241,7 @@ public class Predefined {
    * @param i     the index.
    * @param value the new value.
    */
+  @Deprecated
   public static void aset(Object a, Object i, Object value) {
     require(a instanceof Object[], "aset takes an Array as first parameter");
     require(i instanceof Integer, "aset takes an index as second parameter");
@@ -249,6 +255,7 @@ public class Predefined {
    * @param a the array.
    * @return the length of <code>a</code>.
    */
+  @Deprecated
   public static Object alength(Object a) {
     require(a instanceof Object[], "alength takes an Array as parameter");
     Object[] array = (Object[]) a;
@@ -258,17 +265,29 @@ public class Predefined {
   // ...................................................................................................................
 
   /**
-   * Makes an integer range object between two bounds. Range objects implement <code>java.lang.Iterable</code>, so
-   * they can be used in Golo <code>foreach</code> loops.
+   * Makes an range object between two bounds. Range objects implement 
+   * <code>java.lang.Collection</code> (immutable), so they can be used in Golo <code>foreach</code>
+   * loops.
    *
-   * @param from the lower-bound (inclusive) as an <code>Integer</code> or <code>Long</code>.
-   * @param to   the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param from the lower-bound (inclusive) as an <code>Integer</code>, <code>Long</code>, or
+   * <code>Character</code>.
+   * @param to   the upper-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>
    * @return a range object.
-   * @see java.lang.Iterable
+   * @see java.util.Collection
    */
   public static Object range(Object from, Object to) {
-    require((from instanceof Integer) || (from instanceof Long), "from must either be an Integer or a Long");
-    require((to instanceof Integer) || (to instanceof Long), "to must either be an Integer or a Long");
+    require((from instanceof Integer) || (from instanceof Long) || (from instanceof Character),
+        "from must either be an Integer, Long or Character");
+    require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
+        "to must either be an Integer, Long or Character");
+    if (((to instanceof Character) || (from instanceof Character))) {
+      if (((to instanceof Character) && (from instanceof Character))) {
+        return new CharRange((Character) from, (Character) to);
+      } else {
+        throw new IllegalArgumentException("both bounds must be char for a char range");
+      }
+    }
     if ((to instanceof Long) && (from instanceof Long)) {
       return new LongRange((Long) from, (Long) to);
     } else if ((to instanceof Integer) && (from instanceof Integer)) {
@@ -278,6 +297,53 @@ public class Predefined {
     } else {
       return new LongRange((Integer) from, (Long) to);
     }
+  }
+
+  /**
+   * Makes an range object starting from the default value.
+   * <p>
+   * The default value is 0 for numbers and 'A' for chars.
+   *
+   * @param to   the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @return a range object.
+   * @see gololang.Predefined.range
+   */
+  public static Object range(Object to) {
+    require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
+        "to must either be an Integer, Long or Character");
+    if (to instanceof Integer) { return new IntRange((Integer) to); }
+    if (to instanceof Long) { return new LongRange((Long) to); }
+    else { return new CharRange((Character) to); }
+  }
+
+  /**
+   * Makes an decreasing range object between two bounds. Range objects implement <code>java.lang.Collection</code>, so
+   * they can be used in Golo <code>foreach</code> loops.
+   *
+   * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>.
+   * @param to   the lower-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>.
+   * @return a range object.
+   * @see gololang.Predefined.range
+   */
+  public static Object reversed_range(Object from, Object to) {
+    return ((Range<?>) range(from, to)).incrementBy(-1);
+  }
+
+  /**
+   * Makes an decreasing integer range object up to the default value.
+   * <p>
+   * The default value is 0 for numbers and 'A' for chars.
+   *
+   * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
+   * <code>Character</code>.
+   * @return a range object.
+   * @see gololang.Predefined.reversed_range
+   * @see gololang.Predefined.range
+   */
+  public static Object reversed_range(Object from) {
+    return ((Range<?>) range(from)).reversed();
   }
 
   // ...................................................................................................................
@@ -366,18 +432,24 @@ public class Predefined {
     Method targetMethod = null;
     List<Method> candidates = new LinkedList<>(Arrays.asList(moduleClass.getDeclaredMethods()));
     candidates.addAll(Arrays.asList(moduleClass.getMethods()));
+    LinkedHashSet<Method> validCandidates = new LinkedHashSet<>();
     for (Method method : candidates) {
       if (method.getName().equals(functionName) && Modifier.isStatic(method.getModifiers())) {
         if ((functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
-          targetMethod = method;
-          break;
+          validCandidates.add(method);
         }
       }
     }
-    if (targetMethod != null) {
+    if (validCandidates.size() == 1) {
+      targetMethod = validCandidates.iterator().next();
       MethodHandles.Lookup lookup = MethodHandles.publicLookup();
       targetMethod.setAccessible(true);
       return lookup.unreflect(targetMethod);
+    }
+    if (validCandidates.size() > 1) {
+      throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module
+            + ((functionArity < 0) ? "" : (" with arity " + functionArity)) 
+            + " is ambiguous"));
     }
     throw new NoSuchMethodException((name + " in " + module + ((functionArity < 0) ? "" : (" with arity " + functionArity))));
   }
@@ -460,6 +532,24 @@ public class Predefined {
    */
   public static String currentDir() throws Throwable {
     return new File(".").getCanonicalPath();
+  }
+
+  /**
+   * Return current path of execution.
+   *
+   * @return current path of execution
+   */
+  public static void sleep(long ms) throws InterruptedException {
+    java.lang.Thread.sleep(ms);
+  }
+
+  /**
+   * Return a universally unique identifier as String.
+   *
+   * @return a universally unique identifier as String
+   */
+  public static String uuid() {
+    return java.util.UUID.randomUUID().toString();
   }
 
   // ...................................................................................................................

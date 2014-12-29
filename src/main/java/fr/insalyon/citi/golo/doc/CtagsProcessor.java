@@ -40,41 +40,51 @@ public class CtagsProcessor extends AbstractProcessor {
         "p\tline:" + module.moduleDefLine());
   }
 
-  private void ctagsFunction(ModuleDocumentation.FunctionDocumentation funct) {
-    ctagsFunction(funct, "");
+  private void ctagsFunction(FunctionDocumentation funct) {
+    ctagsFunction(funct, "", false);
   }
 
-  private void ctagsFunction(ModuleDocumentation.FunctionDocumentation funct, String parent) {
-    String address = String.format("/function[:blank:]+%s[:blank:]+=/", funct.name);
+  private void ctagsFunction(FunctionDocumentation funct, String parent, boolean named) {
+    String address = String.format("/function[:blank:]+%s[:blank:]+=/", funct.name());
 
     StringBuilder signature = new StringBuilder("\tsignature:(");
-    if (funct.arguments.size() > 0) {
-      signature.append(funct.arguments.get(0));
-      for (int i = 1; i < funct.arguments.size(); i++) {
-        signature.append(", ").append(funct.arguments.get(i));
+    if (funct.arity() > 0) {
+      signature.append(funct.argument(0));
+      for (int i = 1; i < funct.arity(); i++) {
+        signature.append(", ").append(funct.argument(i));
       }
-      if (funct.varargs) { signature.append("..."); }
+      if (funct.varargs()) { signature.append("..."); }
     }
     signature.append(")");
 
     StringBuilder fields = new StringBuilder("f");
-    fields.append("\tline:").append(funct.line);
-    if (funct.local) {
+    fields.append("\tline:").append(funct.line());
+    if (funct.local()) {
       fields.append("\taccess:private\tfile:");
     } else {
       fields.append("\taccess:public");
     }
     fields.append(signature);
     if (parent != "") {
-      fields.append("\taugment:").append(parent);
+      if (named) {
+        fields.append("\taugmentation:").append(parent);
+      } else {
+        fields.append("\taugment:").append(parent);
+      }
     }
-    ctagsLine(funct.name, address, fields.toString());
+    ctagsLine(funct.name(), address, fields.toString());
   }
 
   private void ctagsAugment(String name, int line) {
     ctagsLine(name,
         String.format("/^augment[:blank:]+%s/", name.replace(".","\\.")),
         String.format("a\tline:%s", line));
+  }
+
+  private void ctagsAugmentation(String name, int line) {
+    ctagsLine(name,
+        String.format("/^augmentation[:blank:]+%s[:blank:]+=[:blank:]+{/", name),
+        String.format("na\tline:%s", line));
   }
 
   private void ctagsStruct(String name, int line) {
@@ -125,22 +135,28 @@ public class CtagsProcessor extends AbstractProcessor {
     for (Map.Entry<String,Integer> imp : documentation.imports().entrySet()) {
       ctagsImport(imp.getKey(), imp.getValue());
     }
-    for (String structName : documentation.structs().keySet()) {
-      ctagsStruct(structName, documentation.structLine(structName));
-      for (String member : documentation.structMembers().get(structName)) {
-        ctagsStructMember(structName, member, documentation.structLine(structName));
+    for (StructDocumentation struct : documentation.structs()) {
+      ctagsStruct(struct.name(), struct.line());
+      for (String member : struct.members()) {
+        ctagsStructMember(struct.name(), member, struct.line());
       }
     }
-    for (String augmentName : documentation.augmentations().keySet()) {
-      ctagsAugment(augmentName, documentation.augmentationLine(augmentName));
-      for (ModuleDocumentation.FunctionDocumentation funct : documentation.augmentationFunctions().get(augmentName)) {
-        ctagsFunction(funct, augmentName);
+    for (NamedAugmentationDocumentation augment : documentation.namedAugmentations()) {
+      ctagsAugmentation(augment.name(), augment.line());
+      for (FunctionDocumentation funct : augment.functions()) {
+        ctagsFunction(funct, augment.name(), true);
+      }
+    }
+    for (AugmentationDocumentation augment : documentation.augmentations()) {
+      ctagsAugment(augment.target(), augment.line());
+      for (FunctionDocumentation funct : augment.functions()) {
+        ctagsFunction(funct, augment.target(), false);
       }
     }
     for (Map.Entry<String,Integer> state : documentation.moduleStates().entrySet()) {
       ctagsModState(state.getKey(), state.getValue());
     }
-    for (ModuleDocumentation.FunctionDocumentation funct : documentation.functions(true)) {
+    for (FunctionDocumentation funct : documentation.functions(true)) {
       ctagsFunction(funct);
     }
     return ctagsAsString();

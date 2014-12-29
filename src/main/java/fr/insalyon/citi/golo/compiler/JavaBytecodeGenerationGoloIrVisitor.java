@@ -48,7 +48,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
     String bootstrapMethod = "bootstrap";
-    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/OperatorSupport";
@@ -73,7 +73,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClosureCallSupport";
     bootstrapMethod = "bootstrap";
-    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
     CLOSURE_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
   }
 
@@ -111,9 +111,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     for (GoloFunction function : module.getFunctions()) {
       function.accept(this);
     }
-    for (Map.Entry<String, Set<GoloFunction>> entry : module.getAugmentations().entrySet()) {
-      generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
-    }
+    generateAugmentationsBytecode(module, module.getAugmentations());
+    generateAugmentationsBytecode(module, module.getNamedAugmentations());
     if (module.getStructs().size() > 0) {
       JavaBytecodeStructGenerator structGenerator = new JavaBytecodeStructGenerator();
       for (Struct struct : module.getStructs()) {
@@ -124,6 +123,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       writeModuleState(moduleState);
     }
     writeAugmentsMetaData(module.getAugmentations().keySet());
+    writeAugmentationApplicationsMetaData(module.getAugmentationApplications());
     classWriter.visitEnd();
   }
 
@@ -147,20 +147,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     mv.visitEnd();
   }
 
-  private void writeImportMetaData(Set<ModuleImport> imports) {
-    ModuleImport[] importsArray = imports.toArray(new ModuleImport[imports.size()]);
+  private void writeMetaData(String name, String[] data) {
     methodVisitor = classWriter.visitMethod(
         ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
-        "$imports",
+        "$" + name,
         "()[Ljava/lang/String;",
         null, null);
     methodVisitor.visitCode();
-    loadInteger(methodVisitor, importsArray.length);
+    loadInteger(methodVisitor, data.length);
     methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-    for (int i = 0; i < importsArray.length; i++) {
+    for (int i = 0; i < data.length; i++) {
       methodVisitor.visitInsn(DUP);
       loadInteger(methodVisitor, i);
-      methodVisitor.visitLdcInsn(importsArray[i].getPackageAndClass().toString());
+      methodVisitor.visitLdcInsn(data[i]);
       methodVisitor.visitInsn(AASTORE);
     }
     methodVisitor.visitInsn(ARETURN);
@@ -168,25 +167,81 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitEnd();
   }
 
-  private void writeAugmentsMetaData(Set<String> augmentations) {
-    String[] augmentArray = augmentations.toArray(new String[augmentations.size()]);
+  private void writeAugmentationApplicationsMetaData(Map<String, Set<String>> applications) {
+    /* create a metadata method that given a target class name hashcode
+     * returns a String array containing the names of applied
+     * augmentations
+     */
+
+    int applicationsSize = applications.size();
+    List<String> applicationNames = new ArrayList<>(applications.keySet());
+    writeMetaData("augmentationApplications", applicationNames.toArray(new String[applicationsSize]));
+
+    Label defaultLabel = new Label();
+    Label[] labels = new Label[applicationsSize];
+    int[] keys = new int[applicationsSize];
+    String[][] namesArrays = new String[applicationsSize][];
+    // cases of the switch statement MUST be sorted
+    Collections.sort(applicationNames, new Comparator<String>(){
+      @Override
+      public int compare(String o1, String o2) {
+        return Integer.compare(o1.hashCode(), o2.hashCode());
+      }
+    });
+    int i = 0;
+    for (String applicationName : applicationNames) {
+      labels[i] = new Label();
+      keys[i] = applicationName.hashCode();
+      namesArrays[i] = applications.get(applicationName).toArray(new String[applications.get(applicationName).size()]);
+      i++;
+    }
     methodVisitor = classWriter.visitMethod(
         ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC,
-        "$augmentations",
-        "()[Ljava/lang/String;",
+        "$augmentationApplications",
+        "(I)[Ljava/lang/String;",
         null, null);
     methodVisitor.visitCode();
-    loadInteger(methodVisitor, augmentArray.length);
-    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
-    for (int i = 0; i < augmentArray.length; i++) {
-      methodVisitor.visitInsn(DUP);
-      loadInteger(methodVisitor, i);
-      methodVisitor.visitLdcInsn(augmentArray[i]);
-      methodVisitor.visitInsn(AASTORE);
+    methodVisitor.visitVarInsn(ILOAD, 0);
+    methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, labels);
+    for (i=0; i < applicationsSize; i++) {
+      methodVisitor.visitLabel(labels[i]);
+      loadInteger(methodVisitor, namesArrays[i].length);
+      methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
+      for (int j = 0; j < namesArrays[i].length; j++) {
+        methodVisitor.visitInsn(DUP);
+        loadInteger(methodVisitor, j);
+        methodVisitor.visitLdcInsn(namesArrays[i][j]);
+        methodVisitor.visitInsn(AASTORE);
+      }
+      methodVisitor.visitInsn(ARETURN);
     }
+    methodVisitor.visitLabel(defaultLabel);
+    loadInteger(methodVisitor, 0);
+    methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
     methodVisitor.visitInsn(ARETURN);
     methodVisitor.visitMaxs(0, 0);
     methodVisitor.visitEnd();
+  }
+
+  private void writeImportMetaData(Set<ModuleImport> imports) {
+    String[] importsArray = new String[imports.size()];
+    int i = 0;
+    for (ModuleImport imp : imports) {
+      importsArray[i] = imp.getPackageAndClass().toString();
+      i++;
+    }
+    writeMetaData("imports", importsArray);
+  }
+
+  private void writeAugmentsMetaData(Set<String> augmentations) {
+    String[] augmentArray = augmentations.toArray(new String[augmentations.size()]);
+    writeMetaData("augmentations", augmentArray);
+  }
+
+  private void generateAugmentationsBytecode(GoloModule module, Map<String, Set<GoloFunction>> augmentations) {
+    for (Map.Entry<String, Set<GoloFunction>> entry : augmentations.entrySet()) {
+      generateAugmentationBytecode(module, entry.getKey(), entry.getValue());
+    }
   }
 
   private void generateAugmentationBytecode(GoloModule module, String target, Set<GoloFunction> functions) {
@@ -196,8 +251,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         module.getPackageAndClass().packageName(),
         module.getPackageAndClass().className() + "$" + mangledClass);
     String augmentationClassInternalName = packageAndClass.toJVMType();
-
     String outerName = module.getPackageAndClass().toJVMType();
+
     mainClassWriter.visitInnerClass(
         augmentationClassInternalName,
         outerName,
@@ -356,7 +411,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           "gololang#Predefined#fun",
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          0);
       return;
     }
     if (value instanceof Double) {
@@ -414,13 +470,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           type.toMethodDescriptorString(),
-          CLOSURE_INVOCATION_HANDLE);
+          CLOSURE_INVOCATION_HANDLE,
+          functionInvocation.isConstant() ? 1 : 0);
     } else {
       visitInvocationArguments(functionInvocation);
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           goloFunctionSignature(functionInvocation.getArity()),
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          functionInvocation.isConstant() ? 1 : 0);
     }
     for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);
@@ -448,7 +506,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           (klass + "." + reference.getName()).replaceAll("\\.", "#"),
           "(Ljava/lang/Object;)V",
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          0);
     } else {
       methodVisitor.visitVarInsn(ASTORE, reference.getIndex());
     }
@@ -461,7 +520,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       methodVisitor.visitInvokeDynamicInsn(
           (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
           "()Ljava/lang/Object;",
-          FUNCTION_INVOCATION_HANDLE);
+          FUNCTION_INVOCATION_HANDLE,
+          0);
     } else {
       methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
     }

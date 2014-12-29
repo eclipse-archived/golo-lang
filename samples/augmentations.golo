@@ -17,7 +17,7 @@ module samples.Augmentations
 import java.util.LinkedList
 
 augment java.util.List {
-  function with = |this, value| {
+  function `with = |this, value| {
     this: add(value)
     return this
   }
@@ -32,6 +32,6 @@ augment java.util.Collection {
 }
 
 function main = |args| {
-  let list = LinkedList(): with("foo"): with("bar"): with("baz")
+  let list = LinkedList(): `with("foo"): `with("bar"): `with("baz")
   list: doToEach(|value| -> println(">>> " + value))
 }

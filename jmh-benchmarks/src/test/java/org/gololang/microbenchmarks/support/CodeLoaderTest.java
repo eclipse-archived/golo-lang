@@ -83,6 +83,6 @@ public class CodeLoaderTest {
     ScriptEngine check = loader.nashorn("check");
     Invocable invocable = (Invocable) check;
     assertEquals(42, invocable.invokeFunction("truth"));
-    assertEquals(11, invocable.invokeFunction("incr", 10));
+    assertEquals(11.0, invocable.invokeFunction("incr", 10));
   }
 }

@@ -17,18 +17,50 @@
 package fr.insalyon.citi.golo.compiler.ir;
 
 import fr.insalyon.citi.golo.compiler.PackageAndClass;
+import fr.insalyon.citi.golo.compiler.utils.Register;
+import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 
 import java.util.*;
 
 import static java.util.Collections.unmodifiableMap;
 import static java.util.Collections.unmodifiableSet;
 
+
+class FunctionRegister extends AbstractRegister<String, GoloFunction> {
+
+  @Override
+  protected Set<GoloFunction> emptyValue() {
+    return new HashSet<>();
+  }
+
+  @Override
+  protected Map<String, Set<GoloFunction>> initMap() {
+    return new LinkedHashMap<>();
+  }
+}
+
+class ApplicationRegister extends AbstractRegister<String, String> {
+
+  @Override
+  protected Set<String> emptyValue() {
+    return new LinkedHashSet<>();
+  }
+
+  @Override
+  protected Map<String, Set<String>> initMap() {
+    return new LinkedHashMap<>();
+  }
+}
+
+
 public final class GoloModule extends GoloElement {
 
   private final PackageAndClass packageAndClass;
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
-  private final Map<String, Set<GoloFunction>> augmentations = new LinkedHashMap<>();
+  private final FunctionRegister augmentations = new FunctionRegister();
+  private final ApplicationRegister augmentationApplications = new ApplicationRegister();
+  private final FunctionRegister namedAugmentations = new FunctionRegister();
   private final Set<Struct> structs = new LinkedHashSet<>();
   private final Set<LocalReference> moduleState = new LinkedHashSet<>();
   private GoloFunction moduleStateInitializer = null;
@@ -45,6 +77,8 @@ public final class GoloModule extends GoloElement {
   public static final ModuleImport JAVALANG = new ModuleImport(
       PackageAndClass.fromString("java.lang"));
 
+  public static final String MODULE_INITIALIZER_FUNCTION = "<clinit>";
+
   public GoloModule(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
     imports.add(PREDEF);
@@ -55,7 +89,7 @@ public final class GoloModule extends GoloElement {
 
   public void addModuleStateInitializer(ReferenceTable table, AssignmentStatement assignment) {
     if (moduleStateInitializer == null) {
-      moduleStateInitializer = new GoloFunction("<clinit>", GoloFunction.Visibility.PUBLIC, GoloFunction.Scope.MODULE);
+      moduleStateInitializer = new GoloFunction(MODULE_INITIALIZER_FUNCTION, GoloFunction.Visibility.PUBLIC, GoloFunction.Scope.MODULE);
       moduleStateInitializer.setBlock(new Block(table));
       functions.add(moduleStateInitializer);
     }
@@ -74,6 +108,14 @@ public final class GoloModule extends GoloElement {
     return unmodifiableMap(augmentations);
   }
 
+  public Map<String, Set<GoloFunction>> getNamedAugmentations(){
+    return unmodifiableMap(namedAugmentations);
+  }
+
+  public Map<String, Set<String>> getAugmentationApplications() {
+    return unmodifiableMap(augmentationApplications);
+  }
+
   public Set<Struct> getStructs() {
     return unmodifiableSet(structs);
   }
@@ -90,15 +132,18 @@ public final class GoloModule extends GoloElement {
     functions.add(function);
   }
 
+
+  public void addNamedAugmentation(String name, GoloFunction function) {
+    namedAugmentations.add(name, function);
+  }
+
   public void addAugmentation(String target, GoloFunction function) {
-    Set<GoloFunction> bag;
-    if (!augmentations.containsKey(target)) {
-      bag = new HashSet<>();
-      augmentations.put(target, bag);
-    } else {
-      bag = augmentations.get(target);
-    }
-    bag.add(function);
+    augmentations.add(target, function);
+  }
+
+  public void addAugmentationApplication(String target,
+                                         Collection<String> augmentNames) {
+    augmentationApplications.addAll(target, augmentNames);
   }
 
   public void addStruct(Struct struct) {
@@ -117,21 +162,26 @@ public final class GoloModule extends GoloElement {
     visitor.visitModule(this);
   }
 
-  public void internStructAugmentations() {
-    HashSet<String> structNames = new HashSet<>();
+  private void internStructAugmentations(Set<String> structNames, Register<String,?> augmentations) {
     HashSet<String> trash = new HashSet<>();
-    for (Struct struct : structs) {
-      structNames.add(struct.getPackageAndClass().className());
-    }
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {
         trash.add(augmentation);
       }
     }
     for (String trashed : trash) {
-      augmentations.put(packageAndClass + ".types." + trashed, augmentations.get(trashed));
-      augmentations.remove(trashed);
+      augmentations.updateKey(trashed, packageAndClass + ".types." + trashed);
     }
+    trash.clear();
+  }
+
+  public void internStructAugmentations() {
+    HashSet<String> structNames = new HashSet<>();
+    for (Struct struct : structs) {
+      structNames.add(struct.getPackageAndClass().className());
+    }
+    internStructAugmentations(structNames, augmentations);
+    internStructAugmentations(structNames, augmentationApplications);
     structNames.clear();
   }
 }
