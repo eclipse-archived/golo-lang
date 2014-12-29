@@ -244,3 +244,20 @@ function vector_not_exists = {
 }
 
 # ............................................................................................... #
+
+function methodhandle_spread_args = ->
+  |x| {
+    return x
+  }: spread(array[40])
+
+function methodhandle_spread_noargs = ->
+  {
+    return 41
+  }: spread(array[])
+
+function methodhandle_spread_vargs = ->
+  |x...| {
+    return x: get(0)
+  }: spread(array[array[42, 1, 2]])
+
+# ............................................................................................... #
