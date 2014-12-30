@@ -23,6 +23,8 @@ import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 
 import java.io.*;
+import java.nio.charset.Charset;
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
@@ -68,8 +70,13 @@ public class GoloCompiler {
    * @param sourceCodeInputStream the source code input stream.
    * @return the parser.
    */
-  public final GoloParser initParser(InputStream sourceCodeInputStream) {
-    return initParser(new InputStreamReader(sourceCodeInputStream));
+  public final GoloParser initParser(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+    try {
+      return initParser(new InputStreamReader(sourceCodeInputStream, Charset.forName("UTF-8")));
+    } catch (UnsupportedCharsetException e) {
+      getOrCreateExceptionBuilder(goloSourceFilename).report(e).doThrow();
+      return null;
+    }
   }
 
   /**
@@ -97,7 +104,7 @@ public class GoloCompiler {
    */
   public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
     resetExceptionBuilder();
-    ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(sourceCodeInputStream));
+    ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(goloSourceFilename, sourceCodeInputStream));
     throwIfErrorEncountered();
     GoloModule goloModule = check(compilationUnit);
     throwIfErrorEncountered();
