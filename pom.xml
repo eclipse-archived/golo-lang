@@ -271,7 +271,6 @@
           </dependency>
         </dependencies>
         <configuration>
-          <argLine>-Dfile.encoding=UTF-8</argLine>
           <runOrder>random</runOrder>
           <parallel>classes</parallel>
           <perCoreThreadCount>2</perCoreThreadCount>
@@ -357,18 +356,12 @@
                   <extraArgument>-server</extraArgument>
                   <extraArgument>-XX:-TieredCompilation</extraArgument>
                   <extraArgument>-XX:+AggressiveOpts</extraArgument>
-                  <extraArgument>-Dfile.encoding=UTF-8</extraArgument>
                 </extraArguments>
               </jvmSettings>
             </program>
             <program>
               <id>vanilla-golo</id>
               <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
-              <jvmSettings>
-                <extraArguments>
-                  <extraArgument>-Dfile.encoding=UTF-8</extraArgument>
-                </extraArguments>
-              </jvmSettings>
             </program>
           </programs>
         </configuration>

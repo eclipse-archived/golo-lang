@@ -20,6 +20,7 @@ import fr.insalyon.citi.golo.compiler.parser.GoloASTNode;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.compiler.parser.Token;
 
+import java.nio.charset.UnsupportedCharsetException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -45,7 +46,8 @@ public class GoloCompilationException extends RuntimeException {
       ASSIGN_CONSTANT,
       BREAK_OR_CONTINUE_OUTSIDE_LOOP,
       REFERENCE_ALREADY_DECLARED_IN_BLOCK,
-      UNINITIALIZED_REFERENCE_ACCESS
+      UNINITIALIZED_REFERENCE_ACCESS,
+      INVALID_ENCODING
     }
 
     private final Type type;
@@ -92,6 +94,14 @@ public class GoloCompilationException extends RuntimeException {
       this.firstToken = pe.currentToken;
       this.lastToken = pe.currentToken;
       this.description = pe.getMessage();
+    }
+    
+    public Problem(UnsupportedCharsetException uce) {
+      this.type = Type.INVALID_ENCODING;
+      this.source = null;
+      this.firstToken = null;
+      this.lastToken = null;
+      this.description = uce.getMessage();
     }
 
     /**
@@ -181,6 +191,16 @@ public class GoloCompilationException extends RuntimeException {
       return this;
     }
 
+    /**
+     * Report an encoding error problem to the exception being built.
+     *
+     * @param uee     the caught {@code UnsupportedCharsetException}.
+     * @return the same builder object.
+     */
+    public Builder report(UnsupportedCharsetException uce) {
+      exception.report(new Problem(uce));
+      return this;
+    }
 
     /**
      * Stops adding problems and throws the exception,
