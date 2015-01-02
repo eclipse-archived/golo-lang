@@ -46,7 +46,7 @@ public class ParseTreeToGoloIrAndVisitorsTest {
 
   @Test(dataProvider = "golo-files")
   public void convert_then_apply_visitors(File goloFile) throws FileNotFoundException, ParseException {
-    GoloParser parser = new GoloOffsetParser(new FileInputStream(goloFile));
+    GoloParser parser = new GoloOffsetParser(new FileInputStream(goloFile), "UTF-8");
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
     ParseTreeToGoloIrVisitor visitor = new ParseTreeToGoloIrVisitor();
 

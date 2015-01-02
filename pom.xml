@@ -346,7 +346,7 @@
           <licenseHeaderFile>${project.basedir}/LICENSE-header</licenseHeaderFile>
           <programs>
             <program>
-              <name>golo</name>
+              <id>golo</id>
               <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
               <jvmSettings>
                 <initialMemorySize>256m</initialMemorySize>
@@ -360,7 +360,7 @@
               </jvmSettings>
             </program>
             <program>
-              <name>vanilla-golo</name>
+              <id>vanilla-golo</id>
               <mainClass>fr.insalyon.citi.golo.cli.Main</mainClass>
             </program>
           </programs>
