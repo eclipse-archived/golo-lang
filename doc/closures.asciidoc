@@ -250,7 +250,7 @@ let minus10 = diff: bindAt(1, 10)
 println(minus10(20))
 ----
 
-You may compose function using the `andThen` augmentation method:
+You may compose function with closures, using the `andThen` augmentation method:
 
 [source,golo]
 ----
