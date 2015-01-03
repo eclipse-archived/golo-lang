@@ -267,7 +267,7 @@ return functions, as in:
 
 [source,golo]
 ----
-let f = |x| -> |y| -> |z| -> -> x + y + z
+let f = |x| -> |y| -> |z| -> x + y + z
 ----
 
 You could use intermediate references to use the `f` function above:
