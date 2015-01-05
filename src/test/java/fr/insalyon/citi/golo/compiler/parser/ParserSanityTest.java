@@ -17,12 +17,16 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 import fr.insalyon.citi.golo.internal.testing.TestUtils;
+
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
+import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.util.Iterator;
 
 import static fr.insalyon.citi.golo.internal.testing.Tracing.println;
@@ -44,7 +48,7 @@ public class ParserSanityTest {
       println(">>> Parsing: " + goloFile);
     }
 
-    GoloParser parser = new GoloParser(new FileReader(goloFile));
+    GoloParser parser = new GoloParser(new InputStreamReader(new FileInputStream(goloFile), Charset.forName("UTF-8")));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
 
     assertThat(compilationUnit, notNullValue());
@@ -57,7 +61,7 @@ public class ParserSanityTest {
 
   @Test(expectedExceptions = ParseException.class, timeOut = 5000)
   public void check_incomplete_file() throws Throwable {
-    GoloParser parser = new GoloParser(new FileReader("src/test/resources/for-test/incomplete.golo"));
+    GoloParser parser = new GoloParser(new InputStreamReader(new FileInputStream("src/test/resources/for-test/incomplete.golo"), Charset.forName("UTF-8")));
     ASTCompilationUnit compilationUnit = parser.CompilationUnit();
   }
 }

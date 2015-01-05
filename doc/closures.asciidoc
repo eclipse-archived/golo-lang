@@ -260,6 +260,21 @@ let f = (|x| -> x + 1): andThen(|x| -> x - 10): andThen(|x| -> x * 100)
 println(f(4))
 ----
 
+or:
+
+[source,golo]
+----
+function foo = |x| -> x + 1
+function bar = |x| -> 2 * x
+
+function main = |args| {
+  let newFunction = ^foo: andThen(^bar)
+
+  # 8
+  println(newFunction(3))
+}
+----
+
 === Calling functions that return functions ===
 
 Given that functions are first-class objects in Golo, you may define functions (or closures) that
@@ -267,7 +282,7 @@ return functions, as in:
 
 [source,golo]
 ----
-let f = |x| -> |y| -> |z| -> -> x + y + z
+let f = |x| -> |y| -> |z| -> x + y + z
 ----
 
 You could use intermediate references to use the `f` function above:
