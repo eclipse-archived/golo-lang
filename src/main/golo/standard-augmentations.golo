@@ -1,13 +1,13 @@
 # ............................................................................................... #
 #
 # Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -239,11 +239,11 @@ augment java.lang.CharSequence {
   }
 
   ----
-  Returns the remaining subsequence.
+  Returns the remaining subsequence as a String (i.e. an immutable sequence)
   ----
   function tail = |this| -> match {
     when this: isEmpty() then this: getClass(): newInstance()
-    otherwise this: subSequence(1, this: length())
+    otherwise this: subSequence(1, this: length()): toString()
   }
 
   ----
@@ -277,7 +277,7 @@ augment java.lang.Iterable {
     }
     return acc
   }
-  
+
   ----
   Applies a function over each element:
 
@@ -365,7 +365,7 @@ augment java.util.List {
     this: add(0, element)
     return this
   }
-  
+
   ----
   Inserts an element at some index.
   ----
@@ -412,11 +412,11 @@ augment java.util.List {
   function last = |this| -> this: get(this: size() - 1)
 
   ----
-  Returns the rest of a list after its head.
+  Returns the rest of a list after its head, as an unmodifiable list.
   ----
   function tail = |this| -> match {
     when this: isEmpty() or this:size() == 1 then this:newWithSameType()
-    otherwise this: subList(1, this: size())
+    otherwise java.util.Collections.unmodifiableList(this: subList(1, this: size()))
   }
 
   ----
@@ -494,11 +494,11 @@ augment java.util.List {
   ----
   function join = |this, separator| {
     var buffer = java.lang.StringBuilder("")
-    if not (this: isEmpty()) {      
-      buffer: append(this: head())      
-      let tail = this: tail()      
+    if not (this: isEmpty()) {
+      buffer: append(this: head())
+      let tail = this: tail()
       if not (tail: isEmpty()) {
-        buffer: append(separator)      
+        buffer: append(separator)
         buffer: append(tail: join(separator))
       }
     }
@@ -565,7 +565,7 @@ augment java.util.List {
 Augmentations over set collections.
 ----
 augment java.util.Set {
-   
+
   ----
   Alias for `add` that returns the set.
   ----
