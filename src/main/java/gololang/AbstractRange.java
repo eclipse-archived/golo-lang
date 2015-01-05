@@ -69,10 +69,8 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
   }
 
   public boolean encloses (T v) {
-    return (
-      (v.compareTo(from()) == 0 || v.compareTo(from()) * cmp() > 0)
-      && to().compareTo(v) * cmp() > 0
-    );
+    return (v.compareTo(from()) == 0 || v.compareTo(from()) * cmp() > 0)
+           && to().compareTo(v) * cmp() > 0;
 
   }
 
@@ -105,12 +103,10 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
 
   @Override
   public boolean equals(Object other) {
-    return (
-      other instanceof Range
-      && this.from().equals(((Range) other).from())
-      && this.to().equals(((Range) other).to())
-      && this.increment() == ((Range) other).increment()
-    );
+    return other instanceof Range
+           && this.from().equals(((Range) other).from())
+           && this.to().equals(((Range) other).to())
+           && this.increment() == ((Range) other).increment();
   }
 
   @Override
