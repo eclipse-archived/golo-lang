@@ -16,6 +16,8 @@
 
 package gololang;
 
+import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
@@ -28,13 +30,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
-import java.util.AbstractMap;
-import java.util.Arrays;
-import java.util.LinkedList;
-import java.util.LinkedHashSet;
-import java.util.List;
-
-import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+import java.util.*;
 
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
@@ -199,6 +195,19 @@ public class Predefined {
   // ...................................................................................................................
 
   /**
+   * Makes a new typed JVM array.
+   *
+   * This function simply forwards to {@code java.lang.reflect.Array.newInstance}.
+   *
+   * @param type   the array type.
+   * @param length the array length.
+   * @return a new typed array.
+   */
+  public static Object newTypedArray(Class<?> type, int length) {
+    return java.lang.reflect.Array.newInstance(type, length);
+  }
+
+  /**
    * Makes a Java primitive array out of values.
    *
    * @param values the values.
@@ -266,14 +275,14 @@ public class Predefined {
   // ...................................................................................................................
 
   /**
-   * Makes an range object between two bounds. Range objects implement 
+   * Makes an range object between two bounds. Range objects implement
    * <code>java.lang.Collection</code> (immutable), so they can be used in Golo <code>foreach</code>
    * loops.
    *
    * @param from the lower-bound (inclusive) as an <code>Integer</code>, <code>Long</code>, or
-   * <code>Character</code>.
+   *             <code>Character</code>.
    * @param to   the upper-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
-   * <code>Character</code>
+   *             <code>Character</code>
    * @return a range object.
    * @see java.lang.Collection
    */
@@ -305,16 +314,21 @@ public class Predefined {
    * <p>
    * The default value is 0 for numbers and 'A' for chars.
    *
-   * @param to   the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param to the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
    * @return a range object.
    * @see gololang.Predefined.range
    */
   public static Object range(Object to) {
     require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
         "to must either be an Integer, Long or Character");
-    if (to instanceof Integer) { return new IntRange((Integer) to); }
-    if (to instanceof Long) { return new LongRange((Long) to); }
-    else { return new CharRange((Character) to); }
+    if (to instanceof Integer) {
+      return new IntRange((Integer) to);
+    }
+    if (to instanceof Long) {
+      return new LongRange((Long) to);
+    } else {
+      return new CharRange((Character) to);
+    }
   }
 
   /**
@@ -322,9 +336,9 @@ public class Predefined {
    * they can be used in Golo <code>foreach</code> loops.
    *
    * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
-   * <code>Character</code>.
+   *             <code>Character</code>.
    * @param to   the lower-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
-   * <code>Character</code>.
+   *             <code>Character</code>.
    * @return a range object.
    * @see gololang.Predefined.range
    */
@@ -338,7 +352,7 @@ public class Predefined {
    * The default value is 0 for numbers and 'A' for chars.
    *
    * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
-   * <code>Character</code>.
+   *             <code>Character</code>.
    * @return a range object.
    * @see gololang.Predefined.reversed_range
    * @see gololang.Predefined.range
@@ -426,9 +440,9 @@ public class Predefined {
       return lookup.unreflect(targetMethod);
     }
     if (validCandidates.size() > 1) {
-      throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module 
-            + ((functionArity < 0) ? "" : (" with arity " + functionArity)) 
-            + " is ambiguous"));
+      throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module
+          + ((functionArity < 0) ? "" : (" with arity " + functionArity))
+          + " is ambiguous"));
     }
     throw new NoSuchMethodException((name + " in " + module + ((functionArity < 0) ? "" : (" with arity " + functionArity))));
   }
