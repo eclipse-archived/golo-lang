@@ -317,7 +317,7 @@ integers with:
 [source,golo]
 ----
 
-function isInteger = |v| {
+let isInteger = |v| {
   require(v oftype Integer.class, v + "is not an Integer")
   return v
 }
@@ -332,7 +332,7 @@ or that the argument is a positive integer:
 [source, golo]
 ----
 
-function isPositive = |v| {
+let isPositive = |v| {
   require(v > 0, v + "is not > 0")
   return v
 }
