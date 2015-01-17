@@ -75,6 +75,15 @@ augment gololang.concurrent.async.Promise {
     closure(|data| -> this: set(data), |err| -> this: fail(err))
     return this: future()
   }
+  ----
+  You can define a promise which runs "stuff" inside a Thread
+  ----
+  function initializeWithThread = |this, closure| {
+    Thread({
+      this: initialize(closure)
+    }): start()
+    return this: future()
+  }
 }
 
 ----
