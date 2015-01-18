@@ -85,6 +85,17 @@ augment gololang.concurrent.async.Promise {
     }): start()
     return this: future()
   }
+
+  ----
+  You can define a promise which runs "stuff" inside a Worker
+  You have to pass a `WorkerEnvironment` to `initializeWithinWorker` method
+  ----
+  function initializeWithinWorker = |this, env, closure| {
+    env: spawn(|message| {
+      this: initialize(closure)
+    }): send("")
+    return this: future()
+  }
 }
 
 ----
