@@ -403,6 +403,13 @@ TOKEN :
   < DOCUMENTATION : "----" (" " | "\t")* ("\n" | "\r" | "\r\n") > : DEFAULT
 }
 
+// Everything else
+<DEFAULT,ESCAPED,WithinDocumentation,WithinMultiString>
+TOKEN :
+{
+  < INVALID: ~[" ","\t","\r","\f","`", ".", ":", "{", "}", "|", "(", ")", "=", ",", "]", "-"] > : DEFAULT
+}
+
 // ............................................................................................. //
 
 TOKEN_MGR_DECLS :

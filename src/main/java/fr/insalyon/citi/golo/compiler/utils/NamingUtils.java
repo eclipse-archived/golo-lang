@@ -19,7 +19,10 @@ package fr.insalyon.citi.golo.compiler.utils;
 public class NamingUtils {
 
   public static int packageClassSeparatorIndex(String moduleName) {
-    return moduleName.lastIndexOf('.');
+    if (moduleName != null) {
+      return moduleName.lastIndexOf('.');
+    }
+    return -1;
   }
 
   public static String extractTargetJavaPackage(String moduleName) {
