@@ -77,7 +77,24 @@ augment gololang.concurrent.async.Promise {
   }
 
   ----
-  You can define a promise which runs "stuff" inside a Thread
+  You can define a promise which runs "stuff" inside a Thread.
+
+  Parameter: `closure` = anonymous function run within a thread.
+
+  Use:
+
+      # define promise
+      let myPromise = -> promise(): initializeWithinThread(|resolve, reject| {
+        # doing something asynchronous
+
+      })
+
+      # run promise
+      myPromise(): onSet(|result| { # if success
+        println(result)
+      }): onFail(|err| { # if failed
+        println(err: getMessage())
+      })
   ----
   function initializeWithinThread = |this, closure| {
     Thread({
