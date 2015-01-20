@@ -415,7 +415,7 @@ augment java.util.List {
   Returns the rest of a list after its head, as an unmodifiable list.
   ----
   function tail = |this| -> match {
-    when this: isEmpty() or this:size() == 1 then this:newWithSameType()
+    when this: size() <= 1 then java.util.Collections.EMPTY_LIST()
     otherwise java.util.Collections.unmodifiableList(this: subList(1, this: size()))
   }
 

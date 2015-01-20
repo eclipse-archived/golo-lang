@@ -103,10 +103,17 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
 
   @Override
   public boolean equals(Object other) {
-    return other instanceof Range
-           && this.from().equals(((Range) other).from())
-           && this.to().equals(((Range) other).to())
-           && this.increment() == ((Range) other).increment();
+    if (other == this) { 
+      return true;
+    }
+    if (!(other instanceof Range)) {
+      return false;
+    }
+    @SuppressWarnings("rawtypes")
+    Range otherRange = (Range) other;
+    return this.from().equals(otherRange.from())
+           && this.to().equals(otherRange.to())
+           && this.increment() == otherRange.increment();
   }
 
   @Override

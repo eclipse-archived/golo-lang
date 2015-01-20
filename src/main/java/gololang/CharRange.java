@@ -22,7 +22,7 @@ import java.util.NoSuchElementException;
 /**
  * Defines a range object on Character.
  */
-class CharRange extends AbstractRange<Character> {
+final class CharRange extends AbstractRange<Character> {
 
   public CharRange(char from, char to) {
     super(from, to);

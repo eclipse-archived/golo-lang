@@ -19,7 +19,7 @@ package gololang;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-class LongRange extends AbstractRange<Long> {
+final class LongRange extends AbstractRange<Long> {
 
   public LongRange(long from, long to) {
     super(from, to);
