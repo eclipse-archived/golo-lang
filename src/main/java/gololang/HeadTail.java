@@ -33,7 +33,7 @@ package gololang;
  * or in Golo:
  * <pre>
  * function size = |ht| -> match {
- *   when ht: isEmpty then 0
+ *   when ht: isEmpty() then 0
  *   otherwhise 1 + size(ht: tail())
  * }
  * </pre>
@@ -43,20 +43,33 @@ package gololang;
  * <p>
  * A {@code List} augmentation is provided, as well as corresponding special
  * methods on arrays ({@code Object[]}/{@code array[]})
+ *
+ * @param <E> the type of the elements held in this structure.
  */
-public interface HeadTail<T> {
-  /**
-   * Returns the first element of the collection.
-   */
-  T head();
+public interface HeadTail<E> {
 
   /**
-   * Returns a new {@code HeadTail} containing the rest of the elements.
+   * Get the head of the structure.
+   *
+   * @return the first element of the structure, or {@code null} if the structure is empty.
    */
-  HeadTail<T> tail();
+  E head();
 
   /**
-   * Checks if the structure is empty.
+   * Get the tail of the structure.
+   * <p>
+   * To be side effect free, this method should return a deep copy of the original structure or an
+   * immutable view on it.
+   *
+   * @return a new {@code HeadTail} containing all the elements but the first, or a empty one
+   * if no elements remains.
+   */
+  HeadTail<E> tail();
+
+  /**
+   * Checks if the structure is empty or not.
+   *
+   * @return {@code true} if the structure contains no element, {@code false} otherwise.
    */
   boolean isEmpty();
 }
