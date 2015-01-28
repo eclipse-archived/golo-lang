@@ -226,10 +226,10 @@ local function local_fun = |x| -> x + 1
 function call_local_fun = {
 
   # In the current module
-  var f = ^fun
+  var f = ^local_fun
 
   # ...or with a full module name
-  f = ^golotest.Closures::fun
+  f = ^golotest.Closures::local_fun
 
   return f(1)
 }

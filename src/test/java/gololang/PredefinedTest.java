@@ -56,7 +56,9 @@ public class PredefinedTest {
   }
 
   @Test
+  @SuppressWarnings("deprecation")
   public void test_array_manipulation() {
+    // these Predefined functions are deprecated. We still test them though.
     Object[] data = (Object[]) Predefined.Array(1, 2, 3, "foo", "bar");
     assertThat((Integer) Predefined.alength(data), is(5));
 

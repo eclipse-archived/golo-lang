@@ -31,7 +31,15 @@ import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
@@ -818,7 +826,7 @@ public class CompileAndRunTest {
     Method $augmentations = moduleClass.getMethod("$augmentations");
     assertThat(isStatic($augmentations.getModifiers()), is(true));
     assertThat(isPublic($augmentations.getModifiers()), is(true));
-    Set<String> augments = new HashSet<>(Arrays.asList((String[]) $augmentations.invoke(null)));
+    Set<String> augments = new HashSet<>(asList((String[]) $augmentations.invoke(null)));
     assertThat(augments.size(), is(1));
     assertThat(augments, contains("java.lang.String"));
 
@@ -1072,6 +1080,7 @@ public class CompileAndRunTest {
     Method int_range = moduleClass.getMethod("int_range");
     result = int_range.invoke(null);
     assertThat(result, instanceOf(Range.class));
+    @SuppressWarnings("unchecked")
     Range<Integer> int_range_res = (Range<Integer>) result;
     assertThat(int_range_res.size(), is(10));
     assertThat(int_range_res.from(), is(0));
@@ -1081,6 +1090,7 @@ public class CompileAndRunTest {
     Method char_range = moduleClass.getMethod("char_range");
     result = char_range.invoke(null);
     assertThat(result, instanceOf(Range.class));
+    @SuppressWarnings("unchecked")
     Range<Character> char_range_res = (Range<Character>) result;
     assertThat(char_range_res.size(), is(5));
     assertThat(char_range_res.from(), is('a'));

@@ -1,6 +1,6 @@
-[![DOI](https://zenodo.org/badge/3726/golo-lang/golo-lang.png)](http://dx.doi.org/10.5281/zenodo.11819)
+[![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.14095.svg)](http://dx.doi.org/10.5281/zenodo.14095)
 [![Gitter](https://badges.gitter.im/Join Chat.svg)](https://gitter.im/golo-lang/golo-lang?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/golo-lang/golo-lang.png)](https://travis-ci.org/golo-lang/golo-lang)
+[![Build Status](https://travis-ci.org/golo-lang/golo-lang.svg?branch=master)](https://travis-ci.org/golo-lang/golo-lang)
 
 # Golo, a lightweight dynamic language for the JVM.
 
