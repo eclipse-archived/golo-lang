@@ -23,6 +23,7 @@ import java.util.Iterator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.nullValue;
 
 public class TupleTest {
 
@@ -32,6 +33,9 @@ public class TupleTest {
     assertThat(tuple.size(), is(0));
     assertThat(tuple.isEmpty(), is(true));
     assertThat(tuple.iterator().hasNext(), is(false));
+    assertThat(tuple.head(), is(nullValue()));
+    assertThat(tuple.tail().isEmpty(), is(true));
+    assertThat(tuple.tail(), is(new Tuple()));
   }
 
   @Test(expectedExceptions = IndexOutOfBoundsException.class)
@@ -54,6 +58,15 @@ public class TupleTest {
     assertThat(iterator.hasNext(), is(true));
     assertThat((String) iterator.next(), is("a"));
     assertThat(iterator.hasNext(), is(false));
+  }
+
+  @Test
+  public void headtail() {
+    Tuple tuple = new Tuple("a", "b", "c");
+    assertThat(tuple.isEmpty(), is(false));
+    assertThat((String)tuple.head(), is("a"));
+    assertThat(tuple.tail(), is(new Tuple("b", "c")));
+    assertThat(tuple.tail().tail().tail().isEmpty(), is(true));
   }
 
   @Test

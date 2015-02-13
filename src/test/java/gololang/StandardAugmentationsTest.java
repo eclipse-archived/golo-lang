@@ -213,6 +213,36 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void list_head() throws Throwable {
+    Method list_head = moduleClass.getMethod("list_head");
+    Object result = list_head.invoke(null);
+    assertThat((Integer) result, is(0));
+  }
+
+  @Test
+  public void list_head_empty() throws Throwable {
+    Method list_head_empty = moduleClass.getMethod("list_head_empty");
+    Object result = list_head_empty.invoke(null);
+    assertThat((Integer) result, is(nullValue()));
+  }
+
+  @Test
+  public void list_tail() throws Throwable {
+    Method list_tail = moduleClass.getMethod("list_tail");
+    Object result = list_tail.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<Integer> list = (List<Integer>) result;
+    assertThat(list, contains(1, 2, 3, 4));
+  }
+
+  @Test
+  public void list_tail_empty() throws Throwable {
+    Method list_tail_empty = moduleClass.getMethod("list_tail_empty");
+    Object result = list_tail_empty.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
   public void sets_has_single() throws Throwable {
     Method sets_has_single = moduleClass.getMethod("sets_has_single");
     assertThat((Boolean) sets_has_single.invoke(null), is(true));
@@ -442,6 +472,42 @@ public class StandardAugmentationsTest {
   public void stringToLong() throws Throwable {
     Method str_to_long = moduleClass.getMethod("str_to_long");
     assertThat((Long) str_to_long.invoke(null), is(424242424242L));
+  }
+
+  @Test
+  public void string_head() throws Throwable {
+    Method meth = moduleClass.getMethod("string_head");
+    assertThat((Character) meth.invoke(null), is('a'));
+  }
+
+  @Test
+  public void string_empty_head() throws Throwable {
+    Method meth = moduleClass.getMethod("string_empty_head");
+    assertThat((Character) meth.invoke(null), is(nullValue()));
+  }
+
+  @Test
+  public void string_tail() throws Throwable {
+    Method meth = moduleClass.getMethod("string_tail");
+    assertThat((String) meth.invoke(null), is("bc"));
+  }
+
+  @Test
+  public void string_tail_chain() throws Throwable {
+    Method meth = moduleClass.getMethod("string_tail_chain");
+    assertThat((String) meth.invoke(null), is(""));
+  }
+
+  @Test
+  public void string_empty() throws Throwable {
+    Method meth = moduleClass.getMethod("string_empty");
+    assertThat((Boolean) meth.invoke(null), is(true));
+  }
+
+  @Test
+  public void string_empty_tail() throws Throwable {
+    Method meth = moduleClass.getMethod("string_empty_tail");
+    assertThat((String) meth.invoke(null), is(""));
   }
 
   @Test
