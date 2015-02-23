@@ -52,6 +52,7 @@ local function head = |l| -> l: head()
 local function tail = |l| -> l: tail()
 local function isEmpty = |l| -> l: isEmpty()
 
+# TODO: rename emptyList() ?
 ----
 Returns the empty list.
 ----

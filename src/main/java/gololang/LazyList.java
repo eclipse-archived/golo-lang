@@ -27,6 +27,12 @@ import java.util.LinkedList;
  * <p>
  * A lazy list behaves like a linked list, but each next element
  * is represented by a closure that is evaluated only if needed.
+ * The value is memoized, so that the closure representing the tail 
+ * is evaluated only once. 
+ *
+ * Since the tail closure will be called at most once, and we can't 
+ * guarantee when, or even if, it will be called, this closure must be 
+ * a pure, side-effect free, function.
  */
 public final class LazyList implements Collection<Object> {
 
@@ -65,8 +71,9 @@ public final class LazyList implements Collection<Object> {
     }
   }
 
-  private Object head;
-  private MethodHandle tail;
+  private final Object head;
+  private final MethodHandle tail;
+  private LazyList memoTail = null;
 
   /**
    * Create a new list from the head and tail values.
@@ -95,11 +102,14 @@ public final class LazyList implements Collection<Object> {
    * contains only one value, or if the closure failed.
    */
   public LazyList tail() {
-    try {
-      return (LazyList) (this.tail.invokeWithArguments());
-    } catch (Throwable e) {
-      return EMPTY;
+    if (memoTail == null) {
+      try {
+        memoTail = (LazyList) (this.tail.invokeWithArguments());
+      } catch (Throwable e) {
+        memoTail = EMPTY;
+      }
     }
+    return memoTail;
   }
 
   /**
@@ -133,7 +143,7 @@ public final class LazyList implements Collection<Object> {
    * @return a new {@code LinkedList}
    */
   public List<Object> asList() {
-    List<Object> lst = new LinkedList();
+    List<Object> lst = new LinkedList<>();
     for (Object o : this) {
       lst.add(o);
     }
