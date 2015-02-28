@@ -31,7 +31,7 @@ import java.util.Iterator;
  * let t2 = tuple[1, 2, 3]
  * </pre>
  */
-public final class Tuple implements Iterable<Object>, HeadTail<Object> {
+public final class Tuple implements Iterable<Object>, HeadTail<Object>, Comparable<Tuple> {
 
   private final Object[] data;
 
@@ -125,6 +125,38 @@ public final class Tuple implements Iterable<Object>, HeadTail<Object> {
 
     Tuple tuple = (Tuple) o;
     return Arrays.equals(data, tuple.data);
+  }
+
+  /**
+   * Compares this tuple with the specified tuple for order.
+   * <p>Returns a negative integer, zero, or a positive integer as this tuple is less than, equal to, or greater than the specified tuple.
+   * <p>Two tuples are compared using the lexicographical (dictionary) order, that is:
+   * {@code [1, 2] < [1, 3]} and {@code [2, 5] < [3, 1]}.
+   * <p> Two tuples are comparable if they have the same size and their elements are pairwise comparable.
+   *
+   * @param other the tuple to be compared.
+   * @return a negative integer, zero, or a positive integer as this tuple is less than, equal to, or greater than the specified tuple.
+   * @throws NullPointerException if the specified tuple is null
+   * @throws ClassCastException  if the type of the elements in the specified tuple prevent them from being compared to this tuple elements.
+   * @throws IllegalArgumentException if the specified tuple has a different size than this tuple.
+   */
+  @Override
+  public int compareTo(Tuple other) {
+    if (this.equals(other)) {
+      return 0;
+    }
+    if (this.size() != other.size()) {
+      throw new IllegalArgumentException(String.format(
+            "%s and %s can't be compared since of different size", this, other));
+    }
+    for (int i = 0; i < size(); i++) {
+      if (!this.get(i).equals(other.get(i))) {
+        @SuppressWarnings("unchecked")
+        Comparable<Object> current = (Comparable<Object>) this.get(i);
+        return current.compareTo(other.get(i));
+      }
+    }
+    return 0;
   }
 
   @Override

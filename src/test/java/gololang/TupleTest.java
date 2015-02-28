@@ -23,6 +23,9 @@ import java.util.Iterator;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.lessThan;
+import static org.hamcrest.Matchers.greaterThan;
+import static org.hamcrest.Matchers.comparesEqualTo;
 import static org.hamcrest.Matchers.nullValue;
 
 public class TupleTest {
@@ -88,4 +91,54 @@ public class TupleTest {
     assertThat(tuple, not(new Tuple(1, 2, "3")));
     assertThat(tuple, not(new Tuple()));
   }
+
+  @Test
+  public void tuples_comparison() {
+    Tuple base = new Tuple(1, 2, 3);
+    Tuple equal = new Tuple(1, 2, 3);
+    Tuple smaller = new Tuple(1, 2, 1);
+    Tuple evenSmaller = new Tuple(0, 5, 6);
+    Tuple greater = new Tuple(1, 2, 5);
+    Tuple evenGreater = new Tuple(2, 1, 0);
+
+    assertThat(base, comparesEqualTo(base));
+    assertThat(base, comparesEqualTo(equal));
+    assertThat(base, is(lessThan(greater)));
+    assertThat(base, is(lessThan(evenGreater)));
+    assertThat(base, is(greaterThan(smaller)));
+    assertThat(base, is(greaterThan(evenSmaller)));
+  }
+
+  @Test
+  public void heterogeneous_tuples_comparison() {
+    Tuple base = new Tuple(1, "a", 3.1);
+    Tuple equal = new Tuple(1, "a", 3.1);
+    Tuple smaller = new Tuple(1, "a", 2.5);
+    Tuple evenSmaller = new Tuple(0, "c", 6.9);
+    Tuple greater = new Tuple(1, "c", 2.0);
+    Tuple evenGreater = new Tuple(2, "a", 0.0);
+
+    assertThat(base, comparesEqualTo(base));
+    assertThat(base, comparesEqualTo(equal));
+    assertThat(base, is(lessThan(greater)));
+    assertThat(base, is(lessThan(evenGreater)));
+    assertThat(base, is(greaterThan(smaller)));
+    assertThat(base, is(greaterThan(evenSmaller)));
+  }
+
+  @Test(expectedExceptions = ClassCastException.class)
+  public void different_type_comparison() {
+    new Tuple(1, 2, 3).compareTo(new Tuple("a", "b", "c"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class)
+  public void different_size_comparison() {
+    new Tuple(1, 2, 3).compareTo(new Tuple(1, 2));
+  }
+
+  @Test(expectedExceptions = ClassCastException.class)
+  public void not_comparable_comparison() {
+    new Tuple(new Object()).compareTo(new Tuple(new Object()));
+  }
 }
+
