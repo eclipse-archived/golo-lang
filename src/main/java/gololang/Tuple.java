@@ -142,7 +142,9 @@ public final class Tuple implements Iterable<Object>, HeadTail<Object>, Comparab
    */
   @Override
   public int compareTo(Tuple other) {
-    if (this.equals(other)) {return 0;}
+    if (this.equals(other)) {
+      return 0;
+    }
     if (this.size() != other.size()) {
       throw new IllegalArgumentException(String.format(
             "%s and %s can't be compared since of different size", this, other));
