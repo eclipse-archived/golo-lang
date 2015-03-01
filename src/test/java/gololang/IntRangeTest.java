@@ -19,10 +19,14 @@ package gololang;
 import org.testng.annotations.Test;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.sameInstance;
+import static org.hamcrest.Matchers.nullValue;
 
 public class IntRangeTest {
 
@@ -61,14 +65,6 @@ public class IntRangeTest {
   public void remove() {
     IntRange range = new IntRange(1, 3);
     range.iterator().remove();
-  }
-
-  @Test
-  public void empty() {
-    IntRange range = new IntRange(4, 1);
-    assertThat(range.iterator().hasNext(), is(false));
-    assertThat(range.size(), is(0));
-    assertThat(range.isEmpty(), is(true));
   }
 
   @Test
@@ -143,6 +139,32 @@ public class IntRangeTest {
     assertThat(range.encloses(3), is(true));
     assertThat(range.encloses(2), is(true));
     assertThat(range.encloses(1), is(false));
+  }
+
+  @Test
+  public void empty() {
+    List<IntRange> ranges = asList(
+      new IntRange(0, 0),
+      new IntRange(5, 4)
+    );
+
+    for (Range<Integer> range : ranges) {
+      assertThat(range.iterator().hasNext(), is(false));
+      assertThat(range.isEmpty(), is(true));
+      assertThat(range.size(), is(0));
+      assertThat((Object) range.head(), is(nullValue()));
+      assertThat(range.tail().isEmpty(), is(true));
+    }
+  }
+
+  @Test
+  public void headtail() {
+    Range<Integer> range = new IntRange(0, 5).incrementBy(2);
+    assertThat(range.isEmpty(), is(false));
+    assertThat(range.head(), is(0));
+    assertThat(range.tail().head(), is(2));
+    assertThat(range.tail().tail().head(), is(4));
+    assertThat(range.tail().tail().tail().isEmpty(), is(true));
   }
 
   @Test

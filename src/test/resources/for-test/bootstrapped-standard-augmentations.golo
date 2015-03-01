@@ -85,6 +85,23 @@ function list_not_exists = {
  return list_data(): exists(|item| -> item >= 5)
 }
 
+function list_head = {
+  return list_data(): head()
+}
+
+function list_head_empty = {
+  return list[]: head()
+}
+
+function list_tail = {
+  return list_data(): tail()
+}
+
+function list_tail_empty = {
+  return list[]: tail(): isEmpty()
+}
+
+
 # ............................................................................................... #
 
 local function set_data = {
@@ -186,6 +203,30 @@ function str_to_double = -> "-40.25": toDouble() + 82.25
 function str_to_float = -> "1.42e-42": toFloat()
 
 function str_to_long = -> "424242424242": toLong()
+
+function string_head = {
+  return "abc": head()
+}
+
+function string_empty_head = {
+  return "": head()
+}
+
+function string_tail = {
+  return "abc": tail()
+}
+
+function string_tail_chain = {
+  return "abc":tail():tail():tail()
+}
+
+function string_empty_tail = {
+  return "": tail()
+}
+
+function string_empty = {
+  return "": isEmpty()
+}
 
 # ............................................................................................... #
 

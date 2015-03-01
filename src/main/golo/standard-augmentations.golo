@@ -1,13 +1,13 @@
 # ............................................................................................... #
 #
 # Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
-# 
+#
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
 # You may obtain a copy of the License at
-# 
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-# 
+#
 # Unless required by applicable law or agreed to in writing, software
 # distributed under the License is distributed on an "AS IS" BASIS,
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -225,6 +225,35 @@ augment java.lang.String {
 }
 
 # ............................................................................................... #
+----
+Augmentations over `CharSequence` to view it as a "real" `char` collection.
+----
+augment java.lang.CharSequence {
+
+  ----
+  Returns the first `char` of the sequence, of `null` if empty.
+  ----
+  function head = |this| -> match {
+    when this: isEmpty() then null
+    otherwise this: charAt(0)
+  }
+
+  ----
+  Returns the remaining subsequence as a String (i.e. an immutable sequence)
+  ----
+  function tail = |this| -> match {
+    when this: isEmpty() then this: getClass(): newInstance()
+    otherwise this: subSequence(1, this: length()): toString()
+  }
+
+  ----
+  Checks if the sequence is empty.
+  ----
+  function isEmpty = |this| -> this: length() == 0
+}
+
+
+# ............................................................................................... #
 
 ----
 Augmentations over iterable collections.
@@ -248,7 +277,7 @@ augment java.lang.Iterable {
     }
     return acc
   }
-  
+
   ----
   Applies a function over each element:
 
@@ -336,7 +365,7 @@ augment java.util.List {
     this: add(0, element)
     return this
   }
-  
+
   ----
   Inserts an element at some index.
   ----
@@ -370,9 +399,12 @@ augment java.util.List {
   }
 
   ----
-  Returns a list first element.
+  Returns a list first element, of `null` if empty.
   ----
-  function head = |this| -> this: get(0)
+  function head = |this| -> match {
+    when this: isEmpty() then null
+    otherwise this: get(0)
+  }
 
   ----
   Returns a list last element.
@@ -380,9 +412,12 @@ augment java.util.List {
   function last = |this| -> this: get(this: size() - 1)
 
   ----
-  Returns the rest of a list after its head.
+  Returns the rest of a list after its head, as an unmodifiable list.
   ----
-  function tail = |this| -> this: subList(1, this: size())
+  function tail = |this| -> match {
+    when this: size() <= 1 then java.util.Collections.EMPTY_LIST()
+    otherwise java.util.Collections.unmodifiableList(this: subList(1, this: size()))
+  }
 
   ----
   Convenience wrapper over `java.util.Collections.unmodifiableList`.
@@ -459,11 +494,11 @@ augment java.util.List {
   ----
   function join = |this, separator| {
     var buffer = java.lang.StringBuilder("")
-    if not (this: isEmpty()) {      
-      buffer: append(this: head())      
-      let tail = this: tail()      
+    if not (this: isEmpty()) {
+      buffer: append(this: head())
+      let tail = this: tail()
       if not (tail: isEmpty()) {
-        buffer: append(separator)      
+        buffer: append(separator)
         buffer: append(tail: join(separator))
       }
     }
@@ -530,7 +565,7 @@ augment java.util.List {
 Augmentations over set collections.
 ----
 augment java.util.Set {
-   
+
   ----
   Alias for `add` that returns the set.
   ----

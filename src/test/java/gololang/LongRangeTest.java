@@ -19,10 +19,13 @@ package gololang;
 import org.testng.annotations.Test;
 
 import java.util.Iterator;
+import java.util.List;
 import java.util.NoSuchElementException;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.nullValue;
 
 public class LongRangeTest {
 
@@ -61,14 +64,6 @@ public class LongRangeTest {
   public void remove() {
     LongRange range = new LongRange(1L, 3L);
     range.iterator().remove();
-  }
-
-  @Test
-  public void empty() {
-    LongRange range = new LongRange(4L, 1L);
-    assertThat(range.iterator().hasNext(), is(false));
-    assertThat(range.size(), is(0));
-    assertThat(range.isEmpty(), is(true));
   }
 
   @Test
@@ -144,6 +139,33 @@ public class LongRangeTest {
     assertThat(range.encloses(2L), is(true));
     assertThat(range.encloses(1L), is(false));
   }
+
+  @Test
+  public void empty() {
+    List<LongRange> ranges = asList(
+      new LongRange(0L, 0L),
+      new LongRange(5L, 4L)
+    );
+
+    for (LongRange range : ranges) {
+      assertThat(range.iterator().hasNext(), is(false));
+      assertThat(range.isEmpty(), is(true));
+      assertThat((Object) range.head(), is(nullValue()));
+      assertThat(range.tail().isEmpty(), is(true));
+      assertThat(range.size(), is(0));
+    }
+  }
+
+  @Test
+  public void headtail() {
+    Range<Long> range = new LongRange(0L, 5L).incrementBy(2);
+    assertThat(range.isEmpty(), is(false));
+    assertThat(range.head(), is(0L));
+    assertThat(range.tail().head(), is(2L));
+    assertThat(range.tail().tail().head(), is(4L));
+    assertThat(range.tail().tail().tail().isEmpty(), is(true));
+  }
+
 
   @Test
   public void increment() {

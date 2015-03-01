@@ -19,27 +19,39 @@ package gololang;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
-class LongRange extends AbstractRange<Long> {
+final class LongRange extends AbstractRange<Long> {
 
-  public LongRange(long from, long to) { super(from, to); }
+  public LongRange(long from, long to) {
+    super(from, to);
+  }
 
-  public LongRange(long to) { super(to); }
+  public LongRange(long to) {
+    super(to);
+  }
 
   @Override
-  Long defaultValue() { return 0L; }
+  Long defaultValue() {
+    return 0L;
+  }
 
   @Override
   public Range<Long> reversed() {
-    return (new LongRange(to(), from())).decrementBy(increment());
+    return new LongRange(to(), from()).decrementBy(increment());
   }
 
   @Override
   public int size() {
-    if (to() == from()) { return 0; }
-    int s = (int) ((to() - from()) / increment());
-    if (s < 0) { return 0; }
-    if (s == 0) { return 1; }
-    return s;
+    if (to() == from()) {
+      return 0;
+    }
+    final int theSize = (int) ((to() - from()) / increment());
+    if (theSize < 0) {
+      return 0;
+    }
+    if (theSize == 0) {
+      return 1;
+    }
+    return theSize;
   }
 
   @Override
@@ -47,8 +59,16 @@ class LongRange extends AbstractRange<Long> {
     if (!(o instanceof Long)) {
       return false;
     }
-    Long obj = (Long) o;
-    return (encloses(obj) && ((obj - from()) % increment() == 0));
+    final Long obj = (Long) o;
+    return encloses(obj) && (obj - from()) % increment() == 0;
+  }
+
+  @Override
+  public Range<Long> tail() {
+    if (isEmpty()) {
+      return this;
+    }
+    return new LongRange(from() + increment(), to()).incrementBy(increment());
   }
 
   @Override
@@ -66,7 +86,7 @@ class LongRange extends AbstractRange<Long> {
 
       @Override
       public Long next() {
-        long value = current;
+        final long value = current;
         if (started) {
           if (hasNext()) {
             current = current + increment();

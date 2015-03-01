@@ -39,7 +39,7 @@ import static java.lang.reflect.Modifier.isStatic;
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
  * default.
  */
-public class Predefined {
+public final class Predefined {
 
   private Predefined() {
     throw new UnsupportedOperationException("Why on earth are you trying to instantiate this class?");
@@ -271,8 +271,7 @@ public class Predefined {
   @Deprecated
   public static Object alength(Object a) {
     require(a instanceof Object[], "alength takes an Array as parameter");
-    Object[] array = (Object[]) a;
-    return array.length;
+    return ((Object[]) a).length;
   }
 
   // ...................................................................................................................
@@ -294,22 +293,24 @@ public class Predefined {
         "from must either be an Integer, Long or Character");
     require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
         "to must either be an Integer, Long or Character");
-    if (((to instanceof Character) || (from instanceof Character))) {
-      if (((to instanceof Character) && (from instanceof Character))) {
-        return new CharRange((Character) from, (Character) to);
-      } else {
-        throw new IllegalArgumentException("both bounds must be char for a char range");
-      }
+
+    if ((from instanceof Character && !(to instanceof Character))
+        || (to instanceof Character && !(from instanceof Character))) {
+      throw new IllegalArgumentException("both bounds must be char for a char range");
     }
-    if ((to instanceof Long) && (from instanceof Long)) {
-      return new LongRange((Long) from, (Long) to);
-    } else if ((to instanceof Integer) && (from instanceof Integer)) {
+    if (to instanceof Character && from instanceof Character) {
+      return new CharRange((Character) from, (Character) to);
+    }
+    if (to instanceof Integer && from instanceof Integer) {
       return new IntRange((Integer) from, (Integer) to);
-    } else if (from instanceof Long) {
-      return new LongRange((Long) from, (Integer) to);
-    } else {
-      return new LongRange((Integer) from, (Long) to);
     }
+    if (to instanceof Long && from instanceof Long) {
+      return new LongRange((Long) from, (Long) to);
+    }
+    if (from instanceof Long) {
+      return new LongRange((Long) from, (Integer) to);
+    }
+    return new LongRange((Integer) from, (Long) to);
   }
 
   /**
@@ -350,7 +351,7 @@ public class Predefined {
   }
 
   /**
-   * Makes an decreasing integer range object up to the default value.
+   * Makes an decreasing range object up to the default value.
    * <p>
    * The default value is 0 for numbers and 'A' for chars.
    *
@@ -444,11 +445,11 @@ public class Predefined {
     require(name instanceof String, "name must be a String");
     require(module instanceof Class, "module must be a module (e.g., foo.bar.Some.module)");
     require(arity instanceof Integer, "name must be an Integer");
-    Class<?> moduleClass = (Class<?>) module;
-    String functionName = (String) name;
-    int functionArity = (Integer) arity;
+    final Class<?> moduleClass = (Class<?>) module;
+    final String functionName = (String) name;
+    final int functionArity = (Integer) arity;
     Method targetMethod = null;
-    List<Method> candidates = new LinkedList<>(Arrays.asList(moduleClass.getDeclaredMethods()));
+    final List<Method> candidates = new LinkedList<>(Arrays.asList(moduleClass.getDeclaredMethods()));
     candidates.addAll(Arrays.asList(moduleClass.getMethods()));
     LinkedHashSet<Method> validCandidates = new LinkedHashSet<>();
     for (Method method : candidates) {
@@ -460,16 +461,16 @@ public class Predefined {
     }
     if (validCandidates.size() == 1) {
       targetMethod = validCandidates.iterator().next();
-      MethodHandles.Lookup lookup = MethodHandles.publicLookup();
       targetMethod.setAccessible(true);
-      return lookup.unreflect(targetMethod);
+      return MethodHandles.publicLookup().unreflect(targetMethod);
     }
     if (validCandidates.size() > 1) {
       throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module
           + ((functionArity < 0) ? "" : (" with arity " + functionArity))
           + " is ambiguous"));
     }
-    throw new NoSuchMethodException((name + " in " + module + ((functionArity < 0) ? "" : (" with arity " + functionArity))));
+    throw new NoSuchMethodException((name + " in " + module 
+            + (functionArity < 0 ? "" : (" with arity " + functionArity))));
   }
 
   /**
@@ -493,7 +494,6 @@ public class Predefined {
    * @return the content as a {@link String}.
    */
   public static Object fileToText(Object file, Object encoding) throws Throwable {
-    Path path = pathFrom(file);
     Charset charset = null;
     if (encoding instanceof String) {
       charset = Charset.forName((String) encoding);
@@ -502,7 +502,7 @@ public class Predefined {
     } else {
       throw new IllegalArgumentException("encoding must be either a string or a charset instance");
     }
-    return new String(Files.readAllBytes(path), charset);
+    return new String(Files.readAllBytes(pathFrom(file)), charset);
   }
 
   private static Path pathFrom(Object file) {

@@ -31,7 +31,7 @@ import java.util.Iterator;
  * let t2 = tuple[1, 2, 3]
  * </pre>
  */
-public final class Tuple implements Iterable<Object> {
+public final class Tuple implements Iterable<Object>, HeadTail<Object>, Comparable<Tuple> {
 
   private final Object[] data;
 
@@ -68,6 +68,7 @@ public final class Tuple implements Iterable<Object> {
    *
    * @return {@code true} if the tuple has no element, {@code false} otherwise.
    */
+  @Override
   public boolean isEmpty() {
     return data.length == 0;
   }
@@ -126,6 +127,38 @@ public final class Tuple implements Iterable<Object> {
     return Arrays.equals(data, tuple.data);
   }
 
+  /**
+   * Compares this tuple with the specified tuple for order.
+   * <p>Returns a negative integer, zero, or a positive integer as this tuple is less than, equal to, or greater than the specified tuple.
+   * <p>Two tuples are compared using the lexicographical (dictionary) order, that is:
+   * {@code [1, 2] < [1, 3]} and {@code [2, 5] < [3, 1]}.
+   * <p> Two tuples are comparable if they have the same size and their elements are pairwise comparable.
+   *
+   * @param other the tuple to be compared.
+   * @return a negative integer, zero, or a positive integer as this tuple is less than, equal to, or greater than the specified tuple.
+   * @throws NullPointerException if the specified tuple is null
+   * @throws ClassCastException  if the type of the elements in the specified tuple prevent them from being compared to this tuple elements.
+   * @throws IllegalArgumentException if the specified tuple has a different size than this tuple.
+   */
+  @Override
+  public int compareTo(Tuple other) {
+    if (this.equals(other)) {
+      return 0;
+    }
+    if (this.size() != other.size()) {
+      throw new IllegalArgumentException(String.format(
+            "%s and %s can't be compared since of different size", this, other));
+    }
+    for (int i = 0; i < size(); i++) {
+      if (!this.get(i).equals(other.get(i))) {
+        @SuppressWarnings("unchecked")
+        Comparable<Object> current = (Comparable<Object>) this.get(i);
+        return current.compareTo(other.get(i));
+      }
+    }
+    return 0;
+  }
+
   @Override
   public int hashCode() {
     return Arrays.hashCode(data);
@@ -134,5 +167,32 @@ public final class Tuple implements Iterable<Object> {
   @Override
   public String toString() {
     return "tuple" + Arrays.toString(data);
+  }
+
+  /**
+   * Returns the first element of the tuple.
+   *
+   * @return the first element.
+   */
+  @Override
+  public Object head() {
+    if (this.isEmpty()) {
+      return null;
+    }
+    return this.get(0);
+  }
+
+  /**
+   * Returns a new tuple containg the remaining elements.
+   *
+   * @return a tuple.
+   */
+  @Override
+  public Tuple tail() {
+    if (this.isEmpty()) {
+      // we can return this since a Tuple is immutable.
+      return this;
+    }
+    return fromArray(Arrays.copyOfRange(data, 1, data.length));
   }
 }
