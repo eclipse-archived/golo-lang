@@ -1032,6 +1032,8 @@ void AssociativeExpression():
       {
         jjtThis.addOperator(token.image);
       }
+    |
+      AnonymousFunctionInvocation()
     )
   )*
   (LOOKAHEAD(1) BlankLine())?

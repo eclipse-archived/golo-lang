@@ -42,6 +42,7 @@ public enum OperatorType {
 
   ORIFNULL("orIfNull"),
 
+  ANON_CALL(""),
   METHOD_CALL(":"),
   ELVIS_METHOD_CALL("?:");
 
