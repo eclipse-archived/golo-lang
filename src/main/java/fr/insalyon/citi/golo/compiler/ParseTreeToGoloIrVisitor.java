@@ -440,15 +440,22 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     ExpressionStatement right = expressions.pop();
     ExpressionStatement left = expressions.pop();
-    OperatorType operator = operators.pop();
+    OperatorType operator = OperatorType.ANON_CALL;
+    if (!operators.isEmpty()) {
+      operator = operators.pop();
+    }
     BinaryOperation current = new BinaryOperation(operator, left, right);
+
     if (operator == ELVIS_METHOD_CALL) {
       MethodInvocation invocation = (MethodInvocation) right;
       invocation.setNullSafeGuarded(true);
     }
     while (!expressions.isEmpty()) {
       left = expressions.pop();
-      operator = operators.pop();
+      operator = OperatorType.ANON_CALL;
+      if (!operators.isEmpty()) {
+        operator = operators.pop();
+      }
       if (operator == ELVIS_METHOD_CALL) {
         MethodInvocation invocation = (MethodInvocation) current.getLeftExpression();
         invocation.setNullSafeGuarded(true);

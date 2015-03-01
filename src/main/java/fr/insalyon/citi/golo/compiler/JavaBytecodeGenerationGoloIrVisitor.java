@@ -358,7 +358,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private boolean isMethodCall(BinaryOperation operation) {
-    return operation.getType() == METHOD_CALL || operation.getType() == ELVIS_METHOD_CALL;
+    return operation.getType() == METHOD_CALL
+            || operation.getType() == ELVIS_METHOD_CALL
+            || operation.getType() == ANON_CALL;
   }
 
   @Override

@@ -160,6 +160,15 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_direct_anonymous_call() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "direct-anon-call.golo");
+    for (String name : asList("with_invoke", "direct_call", "ident", "anon_ident", "currified")) {
+      Method meth = moduleClass.getMethod(name);
+      assertThat((int) meth.invoke(null), is(2));
+    }
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   public void test_variable_assignments() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "variable-assignments.golo");
