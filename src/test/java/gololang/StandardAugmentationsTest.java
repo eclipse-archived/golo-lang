@@ -223,10 +223,11 @@ public class StandardAugmentationsTest {
   public void list_head_empty() throws Throwable {
     Method list_head_empty = moduleClass.getMethod("list_head_empty");
     Object result = list_head_empty.invoke(null);
-    assertThat((Integer) result, is(nullValue()));
+    assertThat(result, is(nullValue()));
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void list_tail() throws Throwable {
     Method list_tail = moduleClass.getMethod("list_tail");
     Object result = list_tail.invoke(null);
@@ -483,7 +484,7 @@ public class StandardAugmentationsTest {
   @Test
   public void string_empty_head() throws Throwable {
     Method meth = moduleClass.getMethod("string_empty_head");
-    assertThat((Character) meth.invoke(null), is(nullValue()));
+    assertThat(meth.invoke(null), is(nullValue()));
   }
 
   @Test
