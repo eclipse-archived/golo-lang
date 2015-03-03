@@ -800,7 +800,7 @@ public class CompileAndRunTest {
 
     Method call_local_overloaded_fun_full_literal = moduleClass.getMethod("call_local_overloaded_fun_full_literal");
     try {
-      call_local_overloaded_fun_short_literal.invoke(null);
+      call_local_overloaded_fun_full_literal.invoke(null);
       fail("An exception should have been thrown");
     } catch (InvocationTargetException invocationTargetException) {
       Throwable cause = invocationTargetException.getCause();
