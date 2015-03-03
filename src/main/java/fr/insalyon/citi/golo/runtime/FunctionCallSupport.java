@@ -22,9 +22,11 @@ import java.lang.invoke.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.Arrays;
 
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 import static java.lang.invoke.MethodHandles.Lookup;
+import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isStatic;
@@ -36,12 +38,14 @@ public final class FunctionCallSupport {
     final Lookup callerLookup;
     final String name;
     final boolean constant;
+    final String[] argumentNames;
 
-    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type, boolean constant) {
+    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type, boolean constant, String... argumentNames) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
       this.constant = constant;
+      this.argumentNames = argumentNames;
     }
   }
 
@@ -100,8 +104,13 @@ public final class FunctionCallSupport {
     throw new RuntimeException("Could not convert " + handle + " to a functional interface of type " + type);
   }
 
-  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int constant) throws IllegalAccessException, ClassNotFoundException {
-    FunctionCallSite callSite = new FunctionCallSite(caller, name.replaceAll("#", "\\."), type, constant == 1);
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, Object... bsmArgs) throws IllegalAccessException, ClassNotFoundException {
+    boolean constant = ((int)bsmArgs[0]) == 1;
+    String[] argumentNames = new String[bsmArgs.length - 1];
+    for (int i = 0; i < bsmArgs.length -1; i++) {
+      argumentNames[i] = (String) bsmArgs[i+1];
+    }
+    FunctionCallSite callSite = new FunctionCallSite(caller, name.replaceAll("#", "\\."), type, constant, argumentNames);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -115,6 +124,7 @@ public final class FunctionCallSupport {
     MethodType type = callSite.type();
     Lookup caller = callSite.callerLookup;
     Class<?> callerClass = caller.lookupClass();
+    String[] argumentNames = callSite.argumentNames;
 
     MethodHandle handle = null;
     Object result = findStaticMethodOrField(callerClass, functionName, args);
@@ -131,7 +141,7 @@ public final class FunctionCallSupport {
       result = findClassWithConstructorFromImports(callerClass, functionName, args);
     }
     if (result == null) {
-      throw new NoSuchMethodError(functionName);
+      throw new NoSuchMethodError(functionName + type.toMethodDescriptorString());
     }
 
     Class[] types = null;
@@ -139,10 +149,14 @@ public final class FunctionCallSupport {
       Method method = (Method) result;
       checkLocalFunctionCallFromSameModuleAugmentation(method, callerClass.getName());
       types = method.getParameterTypes();
-      if (method.isVarArgs() && isLastArgumentAnArray(types.length, args)) {
+      //TODO improve varargs support on named arguments. Matching the last param type + according argument
+      if (method.isVarArgs() && (isLastArgumentAnArray(types.length, args) || argumentNames.length > 0)) {
         handle = caller.unreflect(method).asFixedArity().asType(type);
       } else {
         handle = caller.unreflect(method).asType(type);
+      }
+      if (argumentNames.length > 0) {
+        handle = reorderArguments(method, handle, argumentNames);
       }
     } else if (result instanceof Constructor) {
       Constructor constructor = (Constructor) result;
@@ -173,6 +187,27 @@ public final class FunctionCallSupport {
       callSite.setTarget(handle);
       return handle.invokeWithArguments(args);
     }
+  }
+
+  private static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
+      if (method.isAnnotationPresent(GoloFunction.class)) {
+        String[] parameterNames = method.getAnnotation(GoloFunction.class).parameters();
+        int[] argumentsOrder = new int[parameterNames.length];
+        for (int i = 0; i < argumentNames.length; i++) {
+          int actualPosition = -1;
+          for (int j = 0; j < parameterNames.length; j++) {
+            if (parameterNames[j].equals(argumentNames[i])) {
+              actualPosition = j;
+            }
+          }
+          if (actualPosition == -1) {
+            throw new IllegalArgumentException("Argument name " + argumentNames[i] + " not in parameter names used in declaration: " + method.getName() + Arrays.toString(parameterNames));
+          }
+          argumentsOrder[actualPosition] = i;
+        }
+        return permuteArguments(handle, handle.type(), argumentsOrder);
+      }
+    return handle;
   }
 
   public static MethodHandle insertSAMFilter(MethodHandle handle, Lookup caller, Class[] types, int startIndex) {
@@ -277,6 +312,7 @@ public final class FunctionCallSupport {
   }
 
   private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
+
     for (Method method : klass.getDeclaredMethods()) {
       if (methodMatches(name, arguments, method)) {
         return method;

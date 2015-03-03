@@ -239,7 +239,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private ASTFunction wrapFunctionWithDecorators(ASTFunction function, List<Decorator> decorators) {
     ASTFunction wrapped = new ASTFunction(0);
-    wrapped.setArguments(function.getArguments());
+    wrapped.setParameters(function.getParameters());
     wrapped.setCompactForm(function.isCompactForm());
     wrapped.setVarargs(function.isVarargs());
     ASTBlock astBlock = new ASTBlock(0);
@@ -269,13 +269,13 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private Node invokeDecoratorWithOriginalParameters(Node wrapped, ASTFunction function) {
     ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
-    for(String argument : function.getArguments()) {
+    for(String parameter : function.getParameters()) {
       ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
       functionInvocation.jjtAddChild(commutativeExpression, functionInvocation.jjtGetNumChildren());
       ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
       commutativeExpression.jjtAddChild(associativeExpression, 0);
       ASTReference ref = new ASTReference(0);
-      ref.setName(argument);
+      ref.setName(parameter);
       associativeExpression.jjtAddChild(ref, 0);
     }
     wrapped.jjtAddChild(functionInvocation, wrapped.jjtGetNumChildren());
@@ -343,7 +343,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     node.setIrElement(function);
 
-    function.setParameterNames(node.getArguments());
+    function.setParameterNames(node.getParameters());
     function.setVarargs(node.isVarargs());
     if (AUGMENT.equals(function.getScope())) {
       if (context.inNamedAugmentation) {
@@ -620,6 +620,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTArgument node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    ExpressionStatement argument = (ExpressionStatement) context.objectStack.pop();
+    if(node.isNamed()) {
+      argument = new NamedArgument(node.getName(), argument);
+    }
+    context.objectStack.push(argument);
+    return data;
+  }
+
+  @Override
   public Object visit(ASTThrow node, Object data) {
     Context context = (Context) data;
     node.childrenAccept(this, data);
@@ -670,7 +682,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         break;
       }
       argumentNode.jjtAccept(this, data);
-      functionInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
+      ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
+      if (statement instanceof NamedArgument) {
+        functionInvocation.setUseNamedArguments(true);
+      }
+      functionInvocation.addArgument(statement);
     }
     context.objectStack.push(functionInvocation);
     node.setIrElement(functionInvocation);
@@ -691,8 +707,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     FunctionInvocation invocation = new FunctionInvocation();
     invocation.setConstant(node.isConstant());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
-      argumentNode.jjtAccept(this, data);
+      GoloASTNode parameterNode = (GoloASTNode) node.jjtGetChild(i);
+      parameterNode.jjtAccept(this, data);
       invocation.addArgument((ExpressionStatement) context.objectStack.pop());
     }
     context.objectStack.push(invocation);
@@ -707,11 +723,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     int i = 0;
     final int numChildren = node.jjtGetNumChildren();
     for (i = 0; i < numChildren; i++) {
-      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
-      if (argumentNode instanceof ASTAnonymousFunctionInvocation) {
+      GoloASTNode parameterNode = (GoloASTNode) node.jjtGetChild(i);
+      if (parameterNode instanceof ASTAnonymousFunctionInvocation) {
         break;
       }
-      argumentNode.jjtAccept(this, data);
+      parameterNode.jjtAccept(this, data);
       methodInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
     }
     context.objectStack.push(methodInvocation);

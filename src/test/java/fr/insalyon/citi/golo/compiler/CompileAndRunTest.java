@@ -21,6 +21,7 @@ import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.FunctionReference;
+import fr.insalyon.citi.golo.runtime.GoloFunction;
 import gololang.GoloStruct;
 import gololang.Tuple;
 import gololang.Range;
@@ -32,15 +33,7 @@ import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
@@ -512,7 +505,6 @@ public class CompileAndRunTest {
   }
 
   @Test
-  @SuppressWarnings("unchecked")
   public void test_arrays_as_objects() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
 
@@ -547,7 +539,7 @@ public class CompileAndRunTest {
     assertThat((List<Integer>) tail_method.invoke(null), contains(2, 3));
 
     Method head_method_empty = moduleClass.getMethod("head_method_empty");
-    assertThat(head_method_empty.invoke(null), is(nullValue()));
+    assertThat((Integer) head_method_empty.invoke(null), is(nullValue()));
 
     Method tail_method_empty = moduleClass.getMethod("tail_method_empty");
     assertThat((Boolean) tail_method_empty.invoke(null), is(true));
@@ -829,7 +821,7 @@ public class CompileAndRunTest {
 
     Method call_local_overloaded_fun_full_literal = moduleClass.getMethod("call_local_overloaded_fun_full_literal");
     try {
-      call_local_overloaded_fun_full_literal.invoke(null);
+      call_local_overloaded_fun_short_literal.invoke(null);
       fail("An exception should have been thrown");
     } catch (InvocationTargetException invocationTargetException) {
       Throwable cause = invocationTargetException.getCause();
@@ -1371,7 +1363,7 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(Object[].class));
     Object[] array = (Object[]) result;
-    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, 12, 13)));
+    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, (Object) 12, (Object) 13)));
 
     Method override_toString = moduleClass.getMethod("override_toString");
     result = override_toString.invoke(null);
@@ -1666,15 +1658,15 @@ public class CompileAndRunTest {
 
     Method banged = moduleClass.getMethod("func_test",Object.class);
     Object result = banged.invoke(null,42);
-    assertThat(result, equalTo(banged.invoke(null,1337)));
+    assertThat(result, equalTo(banged.invoke(null, 1337)));
 
     banged = moduleClass.getMethod("null_test",Object.class);
-    result = banged.invoke(null,(Object)null);
+    result = banged.invoke(null, (Object) null);
     assertThat(result,equalTo(null));
-    assertThat(result, equalTo(banged.invoke(null,1337)));
+    assertThat(result, equalTo(banged.invoke(null, 1337)));
 
     banged = moduleClass.getMethod("reference_test",Object.class);
-    result = banged.invoke(null,42);
+    result = banged.invoke(null, 42);
     assertThat(result, equalTo(banged.invoke(null,1337)));
 
     banged = moduleClass.getMethod("singleton");
@@ -1688,7 +1680,7 @@ public class CompileAndRunTest {
     banged = moduleClass.getMethod("decorated");
     result = banged.invoke(null);
     assertThat(result, equalTo(banged.invoke(null)));
-    assertThat(result, not((Object)42));
+    assertThat(result, not((Object) 42));
 
     Method set_param = moduleClass.getMethod("set_decorator_parameter", Object.class);
     set_param.invoke(null,(Object)1337);
@@ -1698,7 +1690,7 @@ public class CompileAndRunTest {
     assertThat(result, equalTo(banged.invoke(null)));
     assertThat(result, not((Object)42));
 
-    set_param.invoke(null,(Object)42);
+    set_param.invoke(null, (Object) 42);
 
     result = banged.invoke(null);
     assertThat(result, equalTo(banged.invoke(null)));
@@ -1706,10 +1698,37 @@ public class CompileAndRunTest {
 
   }
 
-  @Test
   public void lambda8_interop() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "java8-lambda.golo");
     Method sum_it = moduleClass.getMethod("sum_it");
     assertThat(sum_it.invoke(null), is((Object) 150));
+  }
+
+  @Test
+  public void test_named_parameters() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "namedparameters-function-calls.golo");
+
+    Method createPost = moduleClass.getMethod("create_post", Object.class, Object.class, Object.class);
+    GoloFunction annotatation = createPost.getAnnotation(GoloFunction.class);
+    assertThat(annotatation, is(notNullValue()));
+    assertThat(Arrays.asList(annotatation.parameters()), containsInAnyOrder("author", "title", "content"));
+
+    Method createPostOk = moduleClass.getMethod("create_post_ok");
+    String result = (String) createPostOk.invoke(null);
+    assertThat(result, is("John Awesome Post Lorem Ipsum"));
+
+    Method createPostWithInvalidArgumentName = moduleClass.getMethod("create_post_with_invalid_argument_name");
+    try {
+      createPostWithInvalidArgumentName.invoke(null);
+      fail("Exception should have been thrown");
+    } catch (InvocationTargetException e) {
+      assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
+      IllegalArgumentException iae = (IllegalArgumentException) e.getCause();
+      assertThat(iae.getMessage(), is("Argument name foo not in parameter names used in declaration: create_post[author, title, content]"));
+    }
+
+    Method csvBuilder = moduleClass.getMethod("csv_builder");
+    result = (String) csvBuilder.invoke(null);
+    assertThat(result, is("a,b,c"));
   }
 }

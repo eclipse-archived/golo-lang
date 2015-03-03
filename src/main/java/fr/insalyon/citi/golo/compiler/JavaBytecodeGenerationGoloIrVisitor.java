@@ -49,7 +49,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   static {
     String bootstrapOwner = "fr/insalyon/citi/golo/runtime/FunctionCallSupport";
     String bootstrapMethod = "bootstrap";
-    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
+    String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;";
     FUNCTION_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/OperatorSupport";
@@ -82,6 +82,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private String klass;
   private String jvmKlass;
   private MethodVisitor methodVisitor;
+  private AnnotationVisitor annotationVisitor;
   private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
   private Context context;
@@ -306,6 +307,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         function.getName(),
         signature,
         null, null);
+    annotateGoloFunction(function);
     methodVisitor.visitCode();
     visitLine(function, methodVisitor);
     function.getBlock().accept(this);
@@ -327,6 +329,16 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private String goloVarargsFunctionSignature(int arity) {
     return MethodType.genericMethodType(arity - 1, true).toMethodDescriptorString();
+  }
+
+  private void annotateGoloFunction(GoloFunction function) {
+    annotationVisitor = methodVisitor.visitAnnotation("Lfr/insalyon/citi/golo/runtime/GoloFunction;", true);
+    AnnotationVisitor parametersAttributeVisitor = annotationVisitor.visitArray("parameters");
+    for(String parameterName: function.getParameterNames()) {
+      parametersAttributeVisitor.visit(null, parameterName);
+    }
+    parametersAttributeVisitor.visitEnd();
+    annotationVisitor.visitEnd();
   }
 
   @Override
@@ -457,14 +469,29 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitInsn(ATHROW);
   }
 
-  private void visitInvocationArguments(AbstractInvocation invocation) {
-    for (ExpressionStatement statement : invocation.getArguments()) {
-      statement.accept(this);
+  private List<String> visitInvocationArguments(AbstractInvocation invocation) {
+    List<String> argumentNames = new ArrayList<>();
+    for (ExpressionStatement argument : invocation.getArguments()) {
+      if (invocation instanceof FunctionInvocation && ((FunctionInvocation) invocation).useNamedArguments()) {
+        if (!(argument instanceof NamedArgument)) {
+          throw new IllegalArgumentException("Invocation " + invocation.getName() + " must have either all or none of its arguments named");
+        }
+        NamedArgument namedArgument = (NamedArgument) argument;
+        argumentNames.add(namedArgument.getName());
+        argument = namedArgument.getExpression();
+      }
+      argument.accept(this);
     }
+    return argumentNames;
   }
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
+    String name = functionInvocation.getName().replaceAll("\\.", "#");
+    String typeDef = goloFunctionSignature(functionInvocation.getArity());
+    Handle handle = FUNCTION_INVOCATION_HANDLE;
+    List<Object> bootstrapArgs = new ArrayList<>();
+    bootstrapArgs.add(functionInvocation.isConstant() ? 1 : 0);
     if (functionInvocation.isOnReference()) {
       ReferenceTable table = context.referenceTableStack.peek();
       methodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
@@ -475,20 +502,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (functionInvocation.isAnonymous() || functionInvocation.isOnReference() || functionInvocation.isOnModuleState()) {
       methodVisitor.visitTypeInsn(CHECKCAST, "gololang/FunctionReference");
       MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, FunctionReference.class);
-      visitInvocationArguments(functionInvocation);
-      methodVisitor.visitInvokeDynamicInsn(
-          functionInvocation.getName().replaceAll("\\.", "#"),
-          type.toMethodDescriptorString(),
-          CLOSURE_INVOCATION_HANDLE,
-          (Object) (functionInvocation.isConstant() ? 1 : 0));
-    } else {
-      visitInvocationArguments(functionInvocation);
-      methodVisitor.visitInvokeDynamicInsn(
-          functionInvocation.getName().replaceAll("\\.", "#"),
-          goloFunctionSignature(functionInvocation.getArity()),
-          FUNCTION_INVOCATION_HANDLE,
-          (Object) (functionInvocation.isConstant() ? 1 : 0));
+      typeDef = type.toMethodDescriptorString();
+      handle = CLOSURE_INVOCATION_HANDLE;
     }
+    List<String> argumentNames = visitInvocationArguments(functionInvocation);
+    bootstrapArgs.addAll(argumentNames);
+    methodVisitor.visitInvokeDynamicInsn(name, typeDef, handle, bootstrapArgs.toArray());
     for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);
     }
