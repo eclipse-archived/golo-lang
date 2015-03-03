@@ -233,7 +233,7 @@ class ModuleDocumentation implements DocumentationElement {
     public Object visit(ASTFunction node, Object data) {
       if (currentFunction != null) {
         currentFunction
-          .arguments(node.getArguments())
+          .arguments(node.getParameters())
           .varargs(node.isVarargs());
       }
       return data;
@@ -329,6 +329,11 @@ class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public Object visit(ASTReturn node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTArgument node, Object data) {
       return data;
     }
 
