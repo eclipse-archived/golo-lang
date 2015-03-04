@@ -118,6 +118,34 @@ then:
 println(elementAt(1, 1, 2, 3))
 ----
 
+=== Named parameters ===
+
+When you invoke Golo functions, you can use the name of the parameters explicitly in the call like so:
+
+[source,golo]
+----
+function post = |title, body, promoted, tags...| {
+  let data = map[
+    ["title", title],
+    ["body", body],
+    ["promoted", promoted],
+    ["tags", values: asList()]
+  ]
+  return gololang.JSON.stringify(data)
+}
+
+post(
+  tags = array["feature", "syntax"],
+  body = "it rocks!"
+  title = "Named parameters are alive",
+  promoted = true
+)
+----
+
+NOTE: If you name one argument then you must name all the remaining argument. Otherwise, a compilation error will be raised.
+
+Note: Once you are using named parameters in your function call, the order doesn't matter anymore.
+
 === Functions from other modules and imports ===
 
 Suppose that we have a module `foo.Bar`:
