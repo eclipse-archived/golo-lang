@@ -473,9 +473,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     List<String> argumentNames = new ArrayList<>();
     for (ExpressionStatement argument : invocation.getArguments()) {
       if (invocation instanceof FunctionInvocation && ((FunctionInvocation) invocation).usesNamedArguments()) {
-        if (!(argument instanceof NamedArgument)) {
-          throw new IllegalArgumentException("Invocation " + invocation.getName() + " must have either all or none of its arguments named");
-        }
         NamedArgument namedArgument = (NamedArgument) argument;
         argumentNames.add(namedArgument.getName());
         argument = namedArgument.getExpression();

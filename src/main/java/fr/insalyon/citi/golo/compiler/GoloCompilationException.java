@@ -47,7 +47,8 @@ public class GoloCompilationException extends RuntimeException {
       BREAK_OR_CONTINUE_OUTSIDE_LOOP,
       REFERENCE_ALREADY_DECLARED_IN_BLOCK,
       UNINITIALIZED_REFERENCE_ACCESS,
-      INVALID_ENCODING
+      INVALID_ENCODING,
+      INCOMPLETE_NAMED_ARGUMENTS_USAGE
     }
 
     private final Type type;

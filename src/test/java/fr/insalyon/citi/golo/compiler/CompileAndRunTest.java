@@ -1730,5 +1730,14 @@ public class CompileAndRunTest {
     Method csvBuilder = moduleClass.getMethod("csv_builder");
     result = (String) csvBuilder.invoke(null);
     assertThat(result, is("a,b,c"));
+
+    try {
+      compileAndLoadGoloModule(SRC, "failure-function-call-with-named-and-unamed-args.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException e) {
+      assertThat(e.getProblems().size(), is(1));
+      Problem problem = e.getProblems().get(0);
+      assertThat(problem.getType(), is(INCOMPLETE_NAMED_ARGUMENTS_USAGE));
+    }
   }
 }

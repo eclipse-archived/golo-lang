@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.LOCAL;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
@@ -684,6 +685,13 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       argumentNode.jjtAccept(this, data);
       ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
       if (statement instanceof NamedArgument) {
+        if (!functionInvocation.getArguments().isEmpty() && !functionInvocation.usesNamedArguments()) {
+          getOrCreateExceptionBuilder(context).report(INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+            "Function `" + node.getName() + "` invocation should name either all or none of its arguments" +
+            " at (line=" + node.getLineInSourceCode() +
+            ", column=" + node.getColumnInSourceCode() + ")"
+          );
+        }
         functionInvocation.setUsesNamedArguments(true);
       }
       functionInvocation.addArgument(statement);
