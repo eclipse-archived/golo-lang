@@ -472,7 +472,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private List<String> visitInvocationArguments(AbstractInvocation invocation) {
     List<String> argumentNames = new ArrayList<>();
     for (ExpressionStatement argument : invocation.getArguments()) {
-      if (invocation instanceof FunctionInvocation && ((FunctionInvocation) invocation).useNamedArguments()) {
+      if (invocation instanceof FunctionInvocation && ((FunctionInvocation) invocation).usesNamedArguments()) {
         if (!(argument instanceof NamedArgument)) {
           throw new IllegalArgumentException("Invocation " + invocation.getName() + " must have either all or none of its arguments named");
         }

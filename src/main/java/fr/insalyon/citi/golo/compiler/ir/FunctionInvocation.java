@@ -22,7 +22,7 @@ public class FunctionInvocation extends AbstractInvocation {
   private boolean onModuleState = false;
   private boolean anonymous = false;
   private boolean constant = false;
-  private boolean useNamedArguments = false;
+  private boolean usesNamedArguments = false;
 
   public FunctionInvocation() {
     super("anonymous");
@@ -61,12 +61,12 @@ public class FunctionInvocation extends AbstractInvocation {
     this.constant = constant;
   }
 
-  public boolean useNamedArguments() {
-    return useNamedArguments;
+  public boolean usesNamedArguments() {
+    return usesNamedArguments;
   }
 
-  public void setUseNamedArguments(boolean useNamedArguments) {
-    this.useNamedArguments = useNamedArguments;
+  public void setUsesNamedArguments(boolean usesNamedArguments) {
+    this.usesNamedArguments = usesNamedArguments;
   }
 
   @Override

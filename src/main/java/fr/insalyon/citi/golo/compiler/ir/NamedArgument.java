@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler.ir;
 
-public class NamedArgument extends ExpressionStatement{
+public class NamedArgument extends ExpressionStatement {
 
   private String name;
   private ExpressionStatement expression;

@@ -684,7 +684,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       argumentNode.jjtAccept(this, data);
       ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
       if (statement instanceof NamedArgument) {
-        functionInvocation.setUseNamedArguments(true);
+        functionInvocation.setUsesNamedArguments(true);
       }
       functionInvocation.addArgument(statement);
     }

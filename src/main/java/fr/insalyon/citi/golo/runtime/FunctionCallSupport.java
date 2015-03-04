@@ -312,7 +312,6 @@ public final class FunctionCallSupport {
   }
 
   private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
-
     for (Method method : klass.getDeclaredMethods()) {
       if (methodMatches(name, arguments, method)) {
         return method;
