@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -358,7 +358,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private boolean isMethodCall(BinaryOperation operation) {
-    return operation.getType() == METHOD_CALL || operation.getType() == ELVIS_METHOD_CALL;
+    return operation.getType() == METHOD_CALL
+            || operation.getType() == ELVIS_METHOD_CALL
+            || operation.getType() == ANON_CALL;
   }
 
   @Override

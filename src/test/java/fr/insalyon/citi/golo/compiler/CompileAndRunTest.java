@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -157,6 +157,15 @@ public class CompileAndRunTest {
 
     Method string_module = moduleClass.getMethod("string_module");
     assertThat(string_module.invoke(null), instanceOf(Class.class));
+  }
+
+  @Test
+  public void test_direct_anonymous_call() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "direct-anon-call.golo");
+    for (String name : asList("with_invoke", "direct_call", "ident", "anon_ident", "currified")) {
+      Method meth = moduleClass.getMethod(name);
+      assertThat((int) meth.invoke(null), is(2));
+    }
   }
 
   @Test
@@ -501,6 +510,7 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void test_arrays_as_objects() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
 
@@ -535,7 +545,7 @@ public class CompileAndRunTest {
     assertThat((List<Integer>) tail_method.invoke(null), contains(2, 3));
 
     Method head_method_empty = moduleClass.getMethod("head_method_empty");
-    assertThat((Integer) head_method_empty.invoke(null), is(nullValue()));
+    assertThat(head_method_empty.invoke(null), is(nullValue()));
 
     Method tail_method_empty = moduleClass.getMethod("tail_method_empty");
     assertThat((Boolean) tail_method_empty.invoke(null), is(true));
@@ -791,7 +801,7 @@ public class CompileAndRunTest {
 
     Method call_local_overloaded_fun_full_literal = moduleClass.getMethod("call_local_overloaded_fun_full_literal");
     try {
-      call_local_overloaded_fun_short_literal.invoke(null);
+      call_local_overloaded_fun_full_literal.invoke(null);
       fail("An exception should have been thrown");
     } catch (InvocationTargetException invocationTargetException) {
       Throwable cause = invocationTargetException.getCause();
@@ -1316,7 +1326,7 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(Object[].class));
     Object[] array = (Object[]) result;
-    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, (Object) 12, (Object) 13)));
+    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, 12, 13)));
 
     Method override_toString = moduleClass.getMethod("override_toString");
     result = override_toString.invoke(null);

@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -440,15 +440,22 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     ExpressionStatement right = expressions.pop();
     ExpressionStatement left = expressions.pop();
-    OperatorType operator = operators.pop();
+    OperatorType operator = OperatorType.ANON_CALL;
+    if (!operators.isEmpty()) {
+      operator = operators.pop();
+    }
     BinaryOperation current = new BinaryOperation(operator, left, right);
+
     if (operator == ELVIS_METHOD_CALL) {
       MethodInvocation invocation = (MethodInvocation) right;
       invocation.setNullSafeGuarded(true);
     }
     while (!expressions.isEmpty()) {
       left = expressions.pop();
-      operator = operators.pop();
+      operator = OperatorType.ANON_CALL;
+      if (!operators.isEmpty()) {
+        operator = operators.pop();
+      }
       if (operator == ELVIS_METHOD_CALL) {
         MethodInvocation invocation = (MethodInvocation) current.getLeftExpression();
         invocation.setNullSafeGuarded(true);

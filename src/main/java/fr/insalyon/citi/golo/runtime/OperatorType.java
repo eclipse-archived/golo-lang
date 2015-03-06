@@ -1,5 +1,5 @@
 /*
- * Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -42,6 +42,7 @@ public enum OperatorType {
 
   ORIFNULL("orIfNull"),
 
+  ANON_CALL(""),
   METHOD_CALL(":"),
   ELVIS_METHOD_CALL("?:");
 
