@@ -428,7 +428,8 @@ public class Main {
 
   private static void version(VersionCommand options) {
     if (options.full) {
-      System.out.println(Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
+      System.out.println("Golo version: " + Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
+      System.out.println("JVM version: " + System.getProperty("java.version"));
     } else {
       System.out.println(Metadata.VERSION);
     }
