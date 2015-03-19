@@ -3,7 +3,7 @@ module golotest.execution.Varargs
 import java.util.Arrays
 
 function var_arg_ed = |index, args...| {
-  return aget(args, index)
+  return args: get(index)
 }
 
 function call_varargs = |index| {
@@ -12,12 +12,12 @@ function call_varargs = |index| {
 }
 
 function play_and_return_666 = {
-  let data = Array(0, 1, 2, 3, 4, 5, 666)
-  return var_arg_ed(1, aget(data, 5), aget(data, 6))
+  let data = array[0, 1, 2, 3, 4, 5, 666]
+  return var_arg_ed(1, data: get(5), data: get(6))
 }
 
 function var_args_test = |str, args...| {
-    return "["+str+"]"+deepToString(args)
+    return "[" + str + "]" + deepToString(args)
 }
 
 function test_empty = -> var_args_test("foo")

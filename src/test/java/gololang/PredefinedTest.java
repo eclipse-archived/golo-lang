@@ -55,20 +55,6 @@ public class PredefinedTest {
   }
 
   @Test
-  @SuppressWarnings("deprecation")
-  public void test_array_manipulation() {
-    // these Predefined functions are deprecated. We still test them though.
-    Object[] data = (Object[]) Predefined.Array(1, 2, 3, "foo", "bar");
-    assertThat((Integer) Predefined.alength(data), is(5));
-
-    assertThat((Integer) Predefined.aget(data, 0), is(1));
-    assertThat((String) Predefined.aget(data, 3), is("foo"));
-
-    Predefined.aset(data, 0, "plop");
-    assertThat((String) Predefined.aget(data, 0), is("plop"));
-  }
-
-  @Test
   public void test_require_not_null_ok() {
     Predefined.requireNotNull("foo");
   }

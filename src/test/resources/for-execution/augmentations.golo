@@ -13,7 +13,7 @@ augment java.lang.String {
 
   function concatWith = |this, args...| {
     var result = this
-    foreach(arg in atoList(args)) {
+    foreach(arg in args) {
       result = result + arg
     }
     return result
