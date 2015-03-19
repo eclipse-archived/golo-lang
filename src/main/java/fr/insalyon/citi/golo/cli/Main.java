@@ -323,12 +323,16 @@ public class Main {
   private static void createMainGoloFile(File intoDir, String projectName) throws FileNotFoundException, UnsupportedEncodingException {
     File mainGoloFile = new File(intoDir, "main.golo");
     PrintWriter writer = new PrintWriter(mainGoloFile, "UTF-8");
-    writer.println("module " + projectName);
+    writer.println("module " + escapeModuleName(projectName));
     writer.println("");
     writer.println("function main = |args| {");
     writer.println("  println(\"Hello " + projectName + "!\")");
     writer.println("}");
     writer.close();
+  }
+
+  private static String escapeModuleName(String projectName) {
+    return projectName.replaceAll("\\W", ".");
   }
 
   private static void writeProjectFile(File intoDir, String projectName, String sourcePath, String fileName) throws IOException {
@@ -428,7 +432,8 @@ public class Main {
 
   private static void version(VersionCommand options) {
     if (options.full) {
-      System.out.println(Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
+      System.out.println("Golo version: " + Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
+      System.out.println("JVM version: " + System.getProperty("java.version"));
     } else {
       System.out.println(Metadata.VERSION);
     }

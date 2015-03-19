@@ -47,13 +47,13 @@ public class MainTest {
 
   @Test
   public void golo_new_default_free_form_with_name() throws Throwable {
-    delete(new File("Foo"));
+    delete(new File("project-Golo"));
     try {
-      Main.main("new", "Foo");
-      assertFreeFormProjectStructure("Foo");
-      assertThat(readFile("Foo/main.golo"), containsString("module Foo"));
+      Main.main("new", "project-Golo");
+      assertFreeFormProjectStructure("project-Golo");
+      assertThat(readFile("project-Golo/main.golo"), containsString("module project.Golo"));
     } finally {
-      delete(new File("Foo"));
+      delete(new File("project-Golo"));
     }
   }
 
@@ -73,15 +73,45 @@ public class MainTest {
   }
 
   @Test
+  public void golo_new_maven_project_with_name() throws Throwable {
+    delete(new File("project-Golo"));
+    try {
+      Main.main("new", "--type", "maven", "project-Golo");
+      assertMavenProjectStructure("project-Golo");
+      assertThat(readFile("project-Golo/src/main/golo/main.golo"), containsString("module project.Golo"));
+      final String pomContent = readFile("project-Golo/pom.xml");
+      assertThat(pomContent, containsString("<artifactId>project-Golo</artifactId>"));
+      assertThat(pomContent, containsString("<mainClass>project-Golo</mainClass>"));
+    } finally {
+      delete(new File("project-Golo"));
+    }
+  }
+
+  @Test
   public void golo_new_gradle_project() throws Throwable {
     delete(new File("Golo"));
     try {
       Main.main("new", "--type", "gradle");
       assertGradleProjectStructure("Golo");
+      assertThat(readFile("Golo/src/main/golo/main.golo"), containsString("module Golo"));
       final String buildContent = readFile("Golo/build.gradle");
       assertThat(buildContent, containsString("mainModule = 'Golo'"));
     } finally {
       delete(new File("Golo"));
+    }
+  }
+
+  @Test
+  public void golo_new_gradle_project_with_name() throws Throwable {
+    delete(new File("project-Golo"));
+    try {
+      Main.main("new", "--type", "gradle", "project-Golo");
+      assertGradleProjectStructure("project-Golo");
+      assertThat(readFile("project-Golo/src/main/golo/main.golo"), containsString("module project.Golo"));
+      final String buildContent = readFile("project-Golo/build.gradle");
+      assertThat(buildContent, containsString("mainModule = 'project-Golo'"));
+    } finally {
+      delete(new File("project-Golo"));
     }
   }
 
