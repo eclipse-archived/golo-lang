@@ -71,7 +71,7 @@
 
   <properties>
 
-    <txtmark.version>0.11</txtmark.version>
+    <txtmark.version>0.12</txtmark.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
@@ -113,8 +113,8 @@
         <artifactId>maven-compiler-plugin</artifactId>
         <version>${maven-compiler-plugin.version}</version>
         <configuration>
-          <source>1.7</source>
-          <target>1.7</target>
+          <source>1.8</source>
+          <target>1.8</target>
         </configuration>
       </plugin>
 
