@@ -35,7 +35,7 @@ class JavaBytecodeStructGenerator {
   public CodeGenerationResult compile(Struct struct, String sourceFilename) {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
-    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER | ACC_FINAL,
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL,
         struct.getPackageAndClass().toJVMType(), null, "gololang/GoloStruct", null);
     makeFields(classWriter, struct);
     makeAccessors(classWriter, struct);
@@ -65,7 +65,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitJumpInsn(IF_ACMPNE, nextCase);
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitVarInsn(ALOAD, 2);
-      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "(Ljava/lang/Object;)Lgololang/GoloStruct;");
+      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "(Ljava/lang/Object;)Lgololang/GoloStruct;", false);
       visitor.visitInsn(ARETURN);
       visitor.visitLabel(nextCase);
       nextCase = new Label();
@@ -86,7 +86,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitJumpInsn(IF_ACMPNE, nextCase);
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "()Ljava/lang/Object;");
+      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "()Ljava/lang/Object;", false);
       visitor.visitInsn(ARETURN);
       visitor.visitLabel(nextCase);
       nextCase = new Label();
@@ -100,12 +100,12 @@ class JavaBytecodeStructGenerator {
     Label afterPrivateCheck = new Label();
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitLdcInsn("_");
-    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z");
+    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z", false);
     visitor.visitJumpInsn(IFEQ, afterPrivateCheck);
     visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
     visitor.visitInsn(DUP);
     visitor.visitLdcInsn("Private member of " + struct.getPackageAndClass().toString());
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
     visitor.visitInsn(ATHROW);
     visitor.visitLabel(afterPrivateCheck);
   }
@@ -114,7 +114,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
     visitor.visitInsn(DUP);
     visitor.visitLdcInsn("Unknown member in " + struct.getPackageAndClass().toString());
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
     visitor.visitInsn(ATHROW);
   }
 
@@ -133,7 +133,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitInsn(AASTORE);
       index = index + 1;
     }
-    visitor.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;");
+    visitor.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;", false);
     visitor.visitInsn(ARETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
@@ -152,7 +152,7 @@ class JavaBytecodeStructGenerator {
     // super.equals()
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitVarInsn(ALOAD, 1);
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "equals", "(Ljava/lang/Object;)Z", false);
     visitor.visitInsn(IRETURN);
     // The receiver is frozen
     visitor.visitLabel(notFrozenLabel);
@@ -173,7 +173,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitTypeInsn(CHECKCAST, owner);
       visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
-      visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z");
+      visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z", false);
       visitor.visitJumpInsn(IFEQ, falseLabel);
     }
     visitor.visitInsn(ICONST_1);
@@ -196,7 +196,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitJumpInsn(IFNE, notFrozenLabel);
     // super.hashCode()
     visitor.visitVarInsn(ALOAD, 0);
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "hashCode", "()I");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/Object", "hashCode", "()I", false);
     visitor.visitInsn(IRETURN);
     // The receiver is frozen
     visitor.visitLabel(notFrozenLabel);
@@ -211,7 +211,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitInsn(AASTORE);
       i = i + 1;
     }
-    visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I");
+    visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I", false);
     visitor.visitInsn(IRETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
@@ -228,7 +228,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
     }
-    visitor.visitMethodInsn(INVOKESPECIAL, owner, "<init>", allArgsConstructorSignature(struct));
+    visitor.visitMethodInsn(INVOKESPECIAL, owner, "<init>", allArgsConstructorSignature(struct), false);
     visitor.visitInsn(DUP);
     visitor.visitInsn(frozen ? ICONST_1 : ICONST_0);
     visitor.visitFieldInsn(PUTFIELD, owner, $_frozen, "Z");
@@ -244,21 +244,21 @@ class JavaBytecodeStructGenerator {
     visitor.visitTypeInsn(NEW, "java/lang/StringBuilder");
     visitor.visitInsn(DUP);
     visitor.visitLdcInsn("struct " + struct.getPackageAndClass().className() + "{");
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
     boolean first = true;
     for (String member : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
       visitor.visitLdcInsn((!first ? ", " : "") + member + "=");
       first = false;
-      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
       visitor.visitInsn(DUP);
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
-      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;");
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
     }
     visitor.visitLdcInsn("}");
-    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;");
-    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;");
+    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
+    visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "toString", "()Ljava/lang/String;", false);
     visitor.visitInsn(ARETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
@@ -274,7 +274,7 @@ class JavaBytecodeStructGenerator {
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", allArgsConstructorSignature(struct), null, null);
     visitor.visitCode();
     visitor.visitVarInsn(ALOAD, 0);
-    visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
+    visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V", false);
     int arg = 1;
     for (String name : struct.getMembers()) {
       visitor.visitVarInsn(ALOAD, 0);
@@ -300,12 +300,10 @@ class JavaBytecodeStructGenerator {
     visitor.visitCode();
     visitor.visitTypeInsn(NEW, classType);
     visitor.visitInsn(DUP);
-    int arg = 0;
-    for (String name : struct.getMembers()) {
-      visitor.visitVarInsn(ALOAD, arg);
-      arg = arg + 1;
+    for (int i = 0; i < struct.getMembers().size(); i++) {
+      visitor.visitVarInsn(ALOAD, i);
     }
-    visitor.visitMethodInsn(INVOKESPECIAL, classType, "<init>", constructorDesc);
+    visitor.visitMethodInsn(INVOKESPECIAL, classType, "<init>", constructorDesc, false);
     visitor.visitInsn(DUP);
     visitor.visitInsn(ICONST_1);
     visitor.visitFieldInsn(PUTFIELD, classType, $_frozen, "Z");
@@ -344,7 +342,7 @@ class JavaBytecodeStructGenerator {
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
     visitor.visitCode();
     visitor.visitVarInsn(ALOAD, 0);
-    visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V");
+    visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V", false);
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitInsn(ICONST_0);
     visitor.visitFieldInsn(PUTFIELD, struct.getPackageAndClass().toJVMType(), $_frozen, "Z");
@@ -392,7 +390,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitTypeInsn(NEW, "java/lang/IllegalStateException");
     visitor.visitInsn(DUP);
     visitor.visitLdcInsn("The struct instance is frozen");
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V");
+    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V", false);
     visitor.visitInsn(ATHROW);
     visitor.visitLabel(setLabel);
     visitor.visitVarInsn(ALOAD, 0);

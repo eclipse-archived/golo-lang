@@ -254,6 +254,7 @@ public class PredefinedTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void check_asFunctionalInterface_public_static_method() throws Throwable {
     MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "echo", genericMethodType(1));
     Object object = Predefined.asFunctionalInterface(Function.class, echo);
@@ -267,6 +268,7 @@ public class PredefinedTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void check_asFunctionalInterface_private_static_method() throws Throwable {
     MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "ohce", genericMethodType(1));
     Object object = Predefined.asFunctionalInterface(Function.class, echo);
