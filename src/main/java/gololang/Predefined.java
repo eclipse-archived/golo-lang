@@ -32,6 +32,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
 
+import static java.lang.invoke.MethodHandles.dropArguments;
+import static java.lang.reflect.Modifier.isStatic;
+
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
  * default.
@@ -219,7 +222,7 @@ public final class Predefined {
    * @param to   the upper-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
    *             <code>Character</code>
    * @return a range object.
-   * @see java.lang.Collection
+   * @see java.util.Collection
    */
   public static Object range(Object from, Object to) {
     require((from instanceof Integer) || (from instanceof Long) || (from instanceof Character),
@@ -326,6 +329,28 @@ public final class Predefined {
     require(interfaceClass instanceof Class, "interfaceClass must be a Class");
     require(target instanceof MethodHandle, "target must be a MethodHandle");
     return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, (MethodHandle) target);
+  }
+
+  public static Object asFunctionalInterface(Object type, Object func) throws Throwable {
+    require(type instanceof Class, "type must be a Class");
+    require(func instanceof MethodHandle, "func must be a MethodHandle");
+    Class<?> theType = (Class<?>) type;
+    for (Method method : theType.getMethods()) {
+      if (!method.isDefault() && !isStatic(method.getModifiers())) {
+        Map<String, Object> configuration = new HashMap<String, Object>() {
+          {
+            put("interfaces", new Tuple(theType.getCanonicalName()));
+            put("implements", new HashMap<String, MethodHandle>() {
+              {
+                put(method.getName(), dropArguments((MethodHandle) func, 0, Object.class));
+              }
+            });
+          }
+        };
+        return new AdapterFabric().maker(configuration).newInstance();
+      }
+    }
+    throw new RuntimeException("Could not convert " + func + " to a functional interface of type " + type);
   }
 
   /**

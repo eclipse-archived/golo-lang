@@ -87,7 +87,7 @@ class RegularMethodFinder implements MethodFinder {
     } else {
       target = lookup.unreflect(method).asType(type);
     }
-    return FunctionCallSupport.insertSAMFilter(target, method.getParameterTypes(), 1);
+    return FunctionCallSupport.insertSAMFilter(target, lookup, method.getParameterTypes(), 1);
   }
 
   private boolean isValidPrivateStructAccess(Method method) {

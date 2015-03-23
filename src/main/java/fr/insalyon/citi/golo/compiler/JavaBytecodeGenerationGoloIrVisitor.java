@@ -103,7 +103,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModule(GoloModule module) {
-    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     writeImportMetaData(module.getImports());
     klass = module.getPackageAndClass().toString();
@@ -260,7 +260,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         ACC_PUBLIC | ACC_STATIC);
 
     classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
-    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visitOuterClass(outerName, null, null);
 
@@ -373,19 +373,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (value instanceof Integer) {
       int i = (Integer) value;
       loadInteger(methodVisitor, i);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;");
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
       return;
     }
     if (value instanceof Long) {
       long l = (Long) value;
       loadLong(methodVisitor, l);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;");
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
       return;
     }
     if (value instanceof Boolean) {
       boolean b = (Boolean) value;
       loadInteger(methodVisitor, b ? 1 : 0);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;");
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
       return;
     }
     if (value instanceof String) {
@@ -394,7 +394,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
     if (value instanceof Character) {
       loadInteger(methodVisitor, (Character) value);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;");
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
       return;
     }
     if (value instanceof GoloParser.ParserClassRef) {
@@ -414,19 +414,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           "gololang#Predefined#fun",
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
           FUNCTION_INVOCATION_HANDLE,
-          0);
+          (Object) 0);
       return;
     }
     if (value instanceof Double) {
       double d = (Double) value;
       methodVisitor.visitLdcInsn(d);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;");
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
       return;
     }
     if (value instanceof Float) {
       float f = (Float) value;
       methodVisitor.visitLdcInsn(f);
-      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;");
+      methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
       return;
     }
     throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
@@ -473,14 +473,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           functionInvocation.getName().replaceAll("\\.", "#"),
           type.toMethodDescriptorString(),
           CLOSURE_INVOCATION_HANDLE,
-          functionInvocation.isConstant() ? 1 : 0);
+          (Object) (functionInvocation.isConstant() ? 1 : 0));
     } else {
       visitInvocationArguments(functionInvocation);
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
           goloFunctionSignature(functionInvocation.getArity()),
           FUNCTION_INVOCATION_HANDLE,
-          functionInvocation.isConstant() ? 1 : 0);
+          (Object) (functionInvocation.isConstant() ? 1 : 0));
     }
     for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);
@@ -509,7 +509,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           (klass + "." + reference.getName()).replaceAll("\\.", "#"),
           "(Ljava/lang/Object;)V",
           FUNCTION_INVOCATION_HANDLE,
-          0);
+          (Object) 0);
     } else {
       methodVisitor.visitVarInsn(ASTORE, reference.getIndex());
     }
@@ -523,7 +523,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
           "()Ljava/lang/Object;",
           FUNCTION_INVOCATION_HANDLE,
-          0);
+          (Object) 0);
     } else {
       methodVisitor.visitVarInsn(ALOAD, reference.getIndex());
     }
@@ -622,18 +622,18 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private void createMap(CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashMap");
     methodVisitor.visitInsn(DUP);
-    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashMap", "<init>", "()V");
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashMap", "<init>", "()V", false);
     for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
       methodVisitor.visitInsn(DUP);
       expression.accept(this);
       methodVisitor.visitTypeInsn(CHECKCAST, "gololang/Tuple");
       methodVisitor.visitInsn(DUP);
       loadInteger(methodVisitor, 0);
-      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;", false);
       methodVisitor.visitInsn(SWAP);
       loadInteger(methodVisitor, 1);
-      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;");
-      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "gololang/Tuple", "get", "(I)Ljava/lang/Object;", false);
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashMap", "put", "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;", false);
       methodVisitor.visitInsn(POP);
     }
   }
@@ -641,11 +641,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private void createSet(CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/LinkedHashSet");
     methodVisitor.visitInsn(DUP);
-    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashSet", "<init>", "()V");
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedHashSet", "<init>", "()V", false);
     for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
       methodVisitor.visitInsn(DUP);
       expression.accept(this);
-      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashSet", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedHashSet", "add", "(Ljava/lang/Object;)Z", false);
       methodVisitor.visitInsn(POP);
     }
   }
@@ -654,11 +654,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitTypeInsn(NEW, "java/util/ArrayList");
     methodVisitor.visitInsn(DUP);
     loadInteger(methodVisitor, collectionLiteral.getExpressions().size());
-    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "(I)V");
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/ArrayList", "<init>", "(I)V", false);
     for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
       methodVisitor.visitInsn(DUP);
       expression.accept(this);
-      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/ArrayList", "add", "(Ljava/lang/Object;)Z", false);
       methodVisitor.visitInsn(POP);
     }
   }
@@ -666,11 +666,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private void createList(CollectionLiteral collectionLiteral) {
     methodVisitor.visitTypeInsn(NEW, "java/util/LinkedList");
     methodVisitor.visitInsn(DUP);
-    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedList", "<init>", "()V");
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/util/LinkedList", "<init>", "()V", false);
     for (ExpressionStatement expression : collectionLiteral.getExpressions()) {
       methodVisitor.visitInsn(DUP);
       expression.accept(this);
-      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedList", "add", "(Ljava/lang/Object;)Z");
+      methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/util/LinkedList", "add", "(Ljava/lang/Object;)Z", false);
       methodVisitor.visitInsn(POP);
     }
   }
@@ -692,7 +692,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitTypeInsn(NEW, "gololang/Tuple");
     methodVisitor.visitInsn(DUP);
     createArray(collectionLiteral);
-    methodVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/Tuple", "<init>", "([Ljava/lang/Object;)V");
+    methodVisitor.visitMethodInsn(INVOKESPECIAL, "gololang/Tuple", "<init>", "([Ljava/lang/Object;)V", false);
   }
 
   @Override
@@ -777,14 +777,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           INVOKESTATIC,
           "java/lang/invoke/MethodHandles",
           "insertArguments",
-          "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;");
+          "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;", false);
       if (isVarArgs) {
         methodVisitor.visitLdcInsn(Type.getType(Object[].class));
         methodVisitor.visitMethodInsn(
             INVOKEVIRTUAL,
             "java/lang/invoke/MethodHandle",
             "asVarargsCollector",
-            "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandle;");
+            "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandle;", false);
       }
     }
   }
@@ -852,7 +852,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private void asmBooleanValue() {
     methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z");
+    methodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
   }
 
   @Override

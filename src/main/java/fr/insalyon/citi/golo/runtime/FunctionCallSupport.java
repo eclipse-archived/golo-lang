@@ -45,6 +45,7 @@ public final class FunctionCallSupport {
 
   private static final MethodHandle FALLBACK;
   private static final MethodHandle SAM_FILTER;
+  private static final MethodHandle FUNCTIONAL_INTERFACE_FILTER;
 
   static {
     try {
@@ -57,6 +58,10 @@ public final class FunctionCallSupport {
           FunctionCallSupport.class,
           "samFilter",
           methodType(Object.class, Class.class, Object.class));
+      FUNCTIONAL_INTERFACE_FILTER = lookup.findStatic(
+          FunctionCallSupport.class,
+          "functionalInterfaceFilter",
+          methodType(Object.class, Lookup.class, Class.class, Object.class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
@@ -67,6 +72,30 @@ public final class FunctionCallSupport {
       return MethodHandleProxies.asInterfaceInstance(type, (MethodHandle) value);
     }
     return value;
+  }
+
+  public static Object functionalInterfaceFilter(Lookup caller, Class<?> type, Object value) throws Throwable {
+    if (value instanceof MethodHandle) {
+      return asFunctionalInterface(caller, type, (MethodHandle) value);
+    }
+    return value;
+  }
+
+  public static Object asFunctionalInterface(Lookup caller, Class<?> type, MethodHandle handle) throws Throwable {
+    for (Method method : type.getMethods()) {
+      if (!method.isDefault() && !isStatic(method.getModifiers())) {
+        MethodType lambdaType = methodType(method.getReturnType(), method.getParameterTypes());
+        CallSite callSite = LambdaMetafactory.metafactory(
+            caller,
+            method.getName(),
+            methodType(type),
+            handle.type(),
+            handle,
+            lambdaType);
+        return callSite.dynamicInvoker().invoke();
+      }
+    }
+    throw new RuntimeException("Could not convert " + handle + " to a functional interface of type " + type);
   }
 
   public static CallSite bootstrap(Lookup caller, String name, MethodType type, int constant) throws IllegalAccessException, ClassNotFoundException {
@@ -125,17 +154,17 @@ public final class FunctionCallSupport {
       Field field = (Field) result;
       handle = caller.unreflectGetter(field).asType(type);
     }
-    handle = insertSAMFilter(handle, types, 0);
+    handle = insertSAMFilter(handle, callSite.callerLookup, types, 0);
 
     if (callSite.constant) {
       Object constantValue = handle.invokeWithArguments(args);
       MethodHandle constant;
       if (constantValue == null) {
-         constant = MethodHandles.constant(Object.class, constantValue);
+        constant = MethodHandles.constant(Object.class, constantValue);
       } else {
         constant = MethodHandles.constant(constantValue.getClass(), constantValue);
       }
-      constant = MethodHandles.dropArguments(constant, 0,  type.parameterArray());
+      constant = MethodHandles.dropArguments(constant, 0, type.parameterArray());
       callSite.setTarget(constant.asType(type));
       return constantValue;
     } else {
@@ -144,11 +173,13 @@ public final class FunctionCallSupport {
     }
   }
 
-  public static MethodHandle insertSAMFilter(MethodHandle handle, Class[] types, int startIndex) {
+  public static MethodHandle insertSAMFilter(MethodHandle handle, Lookup caller, Class[] types, int startIndex) {
     if (types != null) {
       for (int i = 0; i < types.length; i++) {
         if (isSAM(types[i])) {
           handle = MethodHandles.filterArguments(handle, startIndex + i, SAM_FILTER.bindTo(types[i]));
+        } else if (isFunctionalInterface(types[i])) {
+          handle = MethodHandles.filterArguments(handle, startIndex + i, FUNCTIONAL_INTERFACE_FILTER.bindTo(caller).bindTo(types[i]));
         }
       }
     }

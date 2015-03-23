@@ -25,6 +25,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.TreeSet;
@@ -64,7 +65,7 @@ public class JavaBytecodeAdapterGenerator {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     TreeSet<String> interfaces = new TreeSet<>(adapterDefinition.getInterfaces());
     interfaces.add("gololang.GoloAdapter");
-    classWriter.visit(V1_7, ACC_PUBLIC | ACC_SUPER | ACC_FINAL | ACC_SYNTHETIC,
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL | ACC_SYNTHETIC,
         adapterDefinition.getName(), null,
         jvmType(adapterDefinition.getParent()),
         interfaceTypesArray(interfaces));
@@ -140,9 +141,7 @@ public class JavaBytecodeAdapterGenerator {
         }
       }
       for (String iface : adapterDefinition.getInterfaces()) {
-        for (Method method : Class.forName(iface, true, adapterDefinition.getClassLoader()).getMethods()) {
-          methods.add(method);
-        }
+        Collections.addAll(methods, Class.forName(iface, true, adapterDefinition.getClassLoader()).getMethods());
       }
       return methods;
     } catch (ClassNotFoundException e) {
@@ -173,7 +172,7 @@ public class JavaBytecodeAdapterGenerator {
           for (Class parameterType : parameterTypes) {
             argIndex = loadArgument(methodVisitor, parameterType, argIndex);
           }
-          methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", Type.getConstructorDescriptor(constructor));
+          methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", Type.getConstructorDescriptor(constructor), false);
           methodVisitor.visitInsn(RETURN);
           methodVisitor.visitMaxs(0, 0);
           methodVisitor.visitEnd();
