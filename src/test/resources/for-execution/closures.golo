@@ -34,13 +34,13 @@ function add_to = |a| {
 }
 
 function as_explicit_interface = {
-  let array = Array("boo")
+  let array = array["boo"]
   let handler = |event| {
-    aset(array, 0, event: getSource() + " -> " + event: getActionCommand())
+    array: set(0, event: getSource() + " -> " + event: getActionCommand())
   }
   let listener = asInterfaceInstance(ActionListener.class, handler)
   listener: actionPerformed(ActionEvent("Plop", 666, "da plop"))
-  return aget(array, 0)
+  return array: get(0)
 }
 
 function executor_and_callable = {

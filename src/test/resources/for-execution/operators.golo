@@ -61,10 +61,10 @@ function oftype_string = |a| {
 }
 
 function average = | zero, items... | {
-  let count = alength(items)
+  let count = items: size()
   var sum = zero
   for (var i = 0, i < count, i = i + 1) {
-    sum = sum + aget(items, i)
+    sum = sum + items: get(i)
   }
   return sum / count
 }
@@ -74,6 +74,6 @@ function is_even = |value| {
 }
 
 function null_guarded = {
-  let map = java.util.HashMap()
+  let map = map[]
   return map: get("bogus") orIfNull "n/a"
 }
