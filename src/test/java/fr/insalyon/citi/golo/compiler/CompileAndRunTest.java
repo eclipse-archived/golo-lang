@@ -162,7 +162,7 @@ public class CompileAndRunTest {
   @Test
   public void test_direct_anonymous_call() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "direct-anon-call.golo");
-    for (String name : asList("with_invoke", "direct_call", "ident", "anon_ident", "currified")) {
+    for (String name : asList("with_invoke", "direct_call", "ident", "anon_ident", "currified", "struct_field", "struct_method", "dynamic")) {
       Method meth = moduleClass.getMethod(name);
       assertThat((int) meth.invoke(null), is(2));
     }

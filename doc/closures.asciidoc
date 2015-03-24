@@ -305,23 +305,3 @@ Golo supports a nicer syntax if you don't need intermediate references:
 println(f(1)(2)(3)())
 ----
 
-[IMPORTANT]
-====
-This syntax only works following a function or method invocation, not on expressions. This means
-that:
-
-[source,golo]
-----
-foo: bar()("baz")
-----
-
-is valid, while:
-
-[source,golo]
-----
-(foo: bar())("baz")
-----
-
-is not. Let us say that "It is not a bug, it is a feature".
-====
-
