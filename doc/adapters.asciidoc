@@ -160,3 +160,91 @@ star-implementations or star-overrides as illustrated above on a `ArrayList` sub
 Finally we do not encourage you to use adapters as part of Golo code outside of providing bridges to
 third-party APIs.
 
+=== Adapters helper
+
+This is another way to use the adapters. You can see that as a kind of DSL for the Golo adapters. Let's see how to re-write the examples in the previous paragraph
+
+==== A simple example
+
+Let us get started (again) with a simple example of a web application based on the Spark micro-framework.
+
+[source,golo]
+----
+module sparky
+
+import gololang.Adapters
+import spark
+import spark.Spark
+
+function main = |args| {
+  let sparkRouteAdapter = Adapter()   # <1>
+    : extends("spark.Route")   # <2>
+    : implements("handle", |this, request, response| {   # <3>  # <4>
+        return "Golo, world!"
+      })
+  let route = sparkRouteAdapter: newInstance("/hello")  # <5>
+  get(route)  # <6>
+
+}
+----
+
+<1> An adapter factory.
+<2> The `extends` method specifies the name of the parent class (`java.lang.Object` by
+    default).
+<3> The `implements` method specifies the method implementations.
+<4> The implementation is given by a closure whose signature matches the parent class definition,
+    and where the first argument is the receiver object that is going to be the adapter instance.
+<5> The `newInstance()` method calls the right constructor based on the parent class constructors
+    and provided argument types.
+<6> The `spark.Spark.get()` static is method is happy as we feed it a subclass of `spark.Route`.
+
+==== Implementing interfaces
+
+[source,golo]
+----
+let result = array[1, 2, 3]
+let conf = Adapter(): interfaces(["java.io.Serializable", "java.lang.Runnable"])
+  : implements("run", |this| {
+      for (var i = 0, i < result: length(), i = i + 1) {
+        result: set(i, result: get(i) + 10)
+      }
+  })
+let runner = conf: newInstance()
+runner: run() # <1>
+----
+
+<1> As you may guess, this changes the `result` array values to `[11, 12, 13]`.
+
+==== Overrides
+
+[source,golo]
+----
+let conf = Adapter(): overrides("toString", |super, this| -> ">>> " + super(this))
+println(conf: newInstance(): toString()) # <1>
+----
+
+<1> This prints something like: `>>> $Golo$Adapter$0@12fc7ceb`.
+
+==== Star implementations and overrides
+
+[source,golo]
+----
+let carbonCopy = list[] # <1>
+let conf = Adapter(): extends("java.util.ArrayList")
+  : overrides("*", |super, name, args| {
+      if name == "add" {
+        if args: length() == 2 {
+          carbonCopy: add(args: get(1))
+        } else {
+          carbonCopy: add(args: get(1), args: get(2))
+        }
+      }
+      return super: invokeWithArguments(args)
+  })
+let list = conf: newInstance()
+list: add("bar")
+list: add(0, "foo")
+list: add("baz")  # <1>
+----
+
+<1> At this point `carbonCopy` contains `["foo", "bar", "baz"]` (and so does `list`, too).

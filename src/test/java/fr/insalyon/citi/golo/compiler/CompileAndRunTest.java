@@ -1353,6 +1353,48 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
+  public void adaptersHelper() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "adapters-helper.golo");
+
+    Method serializable = moduleClass.getMethod("serializable");
+    Object result = serializable.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(Serializable.class));
+
+    Method runnable = moduleClass.getMethod("runnable");
+    result = runnable.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(Object[].class));
+    Object[] array = (Object[]) result;
+    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, (Object) 12, (Object) 13)));
+
+    Method override_toString = moduleClass.getMethod("override_toString");
+    result = override_toString.invoke(null);
+    assertThat(result, notNullValue());
+    String str = result.toString();
+    assertThat(str, both(startsWith(">>>")).and(containsString("@")));
+
+    Method construct_arraylist = moduleClass.getMethod("construct_arraylist");
+    result = construct_arraylist.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat(result, instanceOf(ArrayList.class));
+    ArrayList<String> arrayList = (ArrayList<String>) result;
+    assertThat(arrayList.size(), is(3));
+    assertThat(arrayList, contains("foo", "bar", "baz"));
+    
+    Method add_arraylist = moduleClass.getMethod("add_arraylist");
+    result = add_arraylist.invoke(null);
+    assertThat(result, instanceOf(List.class));
+    List<String> strList = (List<String>) result;
+    assertThat(strList.size(), is(3));
+    assertThat(strList, contains("foo", "bar", "baz"));
+  }
+
+  @Test
   public void sam_support() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "sam.golo");
 
