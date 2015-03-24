@@ -161,21 +161,42 @@ function give_me_hey = {
 }
 ----
 
-=== Direct closure passing works ===
+=== Closures to Java 8 functional interfaces ===
 
-When a function or method parameter of a Java API expects a single method interface type, you
-can pass a closure directly, as in:
+Java 8 introduced support for the so-called _lambdas_.
+The mechanism works through
+http://docs.oracle.com/javase/8/docs/api/java/lang/FunctionalInterface.html[functional interfaces],
+that is, interfaces with a single abstract method that are annotated with `@FunctionalInterface`.
+
+Golo provides a `asFunctionalInterface` pre-defined function to convert closures and that works like
+the `asInterfaceInstance` function:
 
 [source,golo]
 ----
-# (...)
+let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
+----
+
+=== Direct closure passing works ===
+
+When a function or method parameter of a Java API expects a single method interface type or a
+functional interface, you can pass a closure directly, as in:
+
+[source,golo]
+----
+# Swing action listeners, a classic!
 let button = JButton("Click me!")
 button: addActionListener(|event| -> println("Clicked!"))
+
+# Java 8 streams / lambdas interop
+let result = list[1, 2, 3, 4, 5]:
+  stream():
+  map(|n| -> n * 10):
+  reduce(0, |acc, next| -> acc + next)
 ----
 
 Note that this causes the creation of a method handle proxy object for each function or method
-invocation. For performance-sensitive contexts, we suggest that you use either `asInterfaceInstance`
-or the `to` conversion method described hereafter. 
+invocation. For performance-sensitive contexts, we suggest that you use either
+`asInterfaceInstance`, the `to` conversion method described hereafter, or `asFunctionalInterface`.
 
 === Conversion to single-method interfaces ===
 
