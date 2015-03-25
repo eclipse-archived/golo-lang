@@ -222,6 +222,17 @@ function call_local_fun = {
 }
 ----
 
+While `asInterfaceInstance` works for single-method interfaces, Java 8 introduced default methods
+and functional interfaces to support the so-called _lambda_ expressions.
+
+The `asFunctionalInterface` function is similar to `asInterfaceInstance` and supports these types of
+adaptations:
+
+[source,golo]
+----
+let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
+----
+
 === File I/O ===
 
 Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:

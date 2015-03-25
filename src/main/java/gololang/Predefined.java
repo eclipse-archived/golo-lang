@@ -318,11 +318,11 @@ public final class Predefined {
   // ...................................................................................................................
 
   /**
-   * Turns a method handle into a instance of a single-method interface.
+   * Turns a method handle into an instance of a single-method interface.
    *
    * @param interfaceClass the target single-method interface class.
    * @param target         the implementation method handle.
-   * @return an instance of <code>interfaceClass</code>.
+   * @return an instance of {@code interfaceClass}.
    * @see java.lang.invoke.MethodHandleProxies#asInterfaceInstance(Class, java.lang.invoke.MethodHandle)
    */
   public static Object asInterfaceInstance(Object interfaceClass, Object target) {
@@ -331,6 +331,17 @@ public final class Predefined {
     return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, (MethodHandle) target);
   }
 
+  /**
+   * Turns a method handle into an instance of a Java 8 functional interface.
+   *
+   * The implementation delegates to Golo adapter fabrics.
+   *
+   * @param type the functional interface class.
+   * @param func the implementation method handle.
+   * @return an instance of {@code type}.
+   * @throws Throwable if the adaptation fails.
+   * @see gololang.GoloAdapter
+   */
   public static Object asFunctionalInterface(Object type, Object func) throws Throwable {
     require(type instanceof Class, "type must be a Class");
     require(func instanceof MethodHandle, "func must be a MethodHandle");
@@ -405,8 +416,8 @@ public final class Predefined {
           + ((functionArity < 0) ? "" : (" with arity " + functionArity))
           + " is ambiguous"));
     }
-    throw new NoSuchMethodException((name + " in " + module 
-            + (functionArity < 0 ? "" : (" with arity " + functionArity))));
+    throw new NoSuchMethodException((name + " in " + module
+        + (functionArity < 0 ? "" : (" with arity " + functionArity))));
   }
 
   /**
