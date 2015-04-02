@@ -22,6 +22,7 @@ import java.lang.invoke.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
@@ -190,8 +191,8 @@ public final class FunctionCallSupport {
   }
 
   private static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
-      if (method.isAnnotationPresent(GoloFunction.class)) {
-        String[] parameterNames = method.getAnnotation(GoloFunction.class).parameters();
+    if (Arrays.stream(method.getParameters()).allMatch(p -> p.isNamePresent())) {
+    String[] parameterNames = Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new);
         int[] argumentsOrder = new int[parameterNames.length];
         for (int i = 0; i < argumentNames.length; i++) {
           int actualPosition = -1;

@@ -82,7 +82,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private String klass;
   private String jvmKlass;
   private MethodVisitor methodVisitor;
-  private AnnotationVisitor annotationVisitor;
   private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
   private Context context;
@@ -307,7 +306,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         function.getName(),
         signature,
         null, null);
-    annotateGoloFunction(function);
+    for(String parameter: function.getParameterNames()) {
+      methodVisitor.visitParameter(parameter, ACC_FINAL);
+    }
     methodVisitor.visitCode();
     visitLine(function, methodVisitor);
     function.getBlock().accept(this);
@@ -329,16 +330,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private String goloVarargsFunctionSignature(int arity) {
     return MethodType.genericMethodType(arity - 1, true).toMethodDescriptorString();
-  }
-
-  private void annotateGoloFunction(GoloFunction function) {
-    annotationVisitor = methodVisitor.visitAnnotation("Lfr/insalyon/citi/golo/runtime/GoloFunction;", true);
-    AnnotationVisitor parametersAttributeVisitor = annotationVisitor.visitArray("parameters");
-    for(String parameterName: function.getParameterNames()) {
-      parametersAttributeVisitor.visit(null, parameterName);
-    }
-    parametersAttributeVisitor.visitEnd();
-    annotationVisitor.visitEnd();
   }
 
   @Override

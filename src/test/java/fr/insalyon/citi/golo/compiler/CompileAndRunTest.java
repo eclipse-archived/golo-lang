@@ -21,7 +21,6 @@ import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.FunctionReference;
-import fr.insalyon.citi.golo.runtime.GoloFunction;
 import gololang.GoloStruct;
 import gololang.Tuple;
 import gololang.Range;
@@ -531,7 +530,7 @@ public class CompileAndRunTest {
 
     Method asList_method = moduleClass.getMethod("asList_method");
     assertThat(asList_method.invoke(null), instanceOf(List.class));
- 
+
     Method head_method = moduleClass.getMethod("head_method");
     assertThat((Integer) head_method.invoke(null), is(1));
 
@@ -1707,11 +1706,6 @@ public class CompileAndRunTest {
   @Test
   public void test_named_parameters() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "namedparameters-function-calls.golo");
-
-    Method createPost = moduleClass.getMethod("create_post", Object.class, Object.class, Object.class);
-    GoloFunction annotatation = createPost.getAnnotation(GoloFunction.class);
-    assertThat(annotatation, is(notNullValue()));
-    assertThat(Arrays.asList(annotatation.parameters()), containsInAnyOrder("author", "title", "content"));
 
     Method createPostOk = moduleClass.getMethod("create_post_ok");
     String result = (String) createPostOk.invoke(null);
