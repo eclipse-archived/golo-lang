@@ -142,9 +142,9 @@ post(
 )
 ----
 
-NOTE: If you name one argument then you must name all the remaining argument. Otherwise, a compilation error will be raised.
+NOTE: Once you are using named parameters in your function call, the order doesn't matter anymore.
 
-Note: Once you are using named parameters in your function call, the order doesn't matter anymore.
+CAUTION: If you name one argument then you must name all the remaining argument. Otherwise, a compilation error will be raised.
 
 === Functions from other modules and imports ===
 

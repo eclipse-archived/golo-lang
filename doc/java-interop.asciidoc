@@ -62,6 +62,42 @@ Of course, you may chain calls as long as a method is not of a `void` return typ
 Java `void` methods by making them return `null`. This is neither a bug or a feature: the
 *invokedynamic* support on the JVM simply does so.
 
+=== Named arguments ===
+
+If you compile your Java 8 source code with the `-parameters` option, then you will be able to invoke the functions
+from Golo with named arguments.
+
+[source, java]
+----------------------------------------
+package io;
+
+public class Printer {
+ public static Object print(Object prefix, Object what) {
+    System.out.println(prefix +  " " + what);
+    return null;
+ }
+}
+----------------------------------------
+
+[source,console]
+----
+$ javac -parameters Printer.java
+----
+
+[source,golo]
+----------------------------------------
+module bar
+import io.Printer
+
+let obj = DynamicObject()
+
+function main = |args...| {
+  print(what = obj, prefix = ">")
+}
+----------------------------------------
+
+Further documentation about https://docs.oracle.com/javase/tutorial/reflect/member/methodparameterreflection.html[Names Method Parameters with Java 8.]
+
 === `null`-safe instance method invocations ===
 
 Golo supports *`null`-safe* methods invocations using the *"Elvis"* symbol: `?:`.
@@ -271,7 +307,7 @@ Running it yields the following console output:
 
 [source,console]
 ------------------------------------------
-$ golo golo --files samples/enums-thread-state.golo 
+$ golo golo --files samples/enums-thread-state.golo
 name=NEW, ordinal=0
 name=NEW, ordinal=0
 name=RUNNABLE, ordinal=1
@@ -323,7 +359,7 @@ follows:
 import fr.insalyon.citi.golo.compiler.GoloClassLoader;
 
 public class Foo {
-  
+
   public static void main(String... args) throws Throwable {
     GoloClassLoader classLoader = new GoloClassLoader();
     Class<?> moduleClass = classLoader.load("foo.golo", new FileInputStream("/path/to/foo.golo"));
