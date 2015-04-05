@@ -154,6 +154,18 @@ class ModuleDocumentation implements DocumentationElement {
     }
 
     @Override
+    public Object visit(ASTEnumDeclaration node, Object data) {
+      // TODO
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTEnumValue node, Object data) {
+      // TODO
+      return data;
+    }
+
+    @Override
     public Object visit(ASTAugmentDeclaration node, Object data) {
       /* NOTE:
        * if multiple augmentations are defined for the same target

@@ -120,6 +120,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         generationResults.add(structGenerator.compile(struct, sourceFilename));
       }
     }
+    if (!module.getEnums().isEmpty()) {
+      JavaBytecodeEnumGenerator enumGenerator = new JavaBytecodeEnumGenerator();
+      for (GoloEnum e : module.getEnums()) {
+        generationResults.addAll(enumGenerator.compile(e, sourceFilename));
+      }
+    }
     for (LocalReference moduleState : module.getModuleState()) {
       writeModuleState(moduleState);
     }

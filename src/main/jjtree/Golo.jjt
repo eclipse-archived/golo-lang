@@ -170,6 +170,8 @@ TOKEN :
   < CONTINUE: "continue" >
   |
   < STRUCT: "struct" >
+  |
+  < ENUM: "enum" >
 }
 
 // Operators
@@ -702,6 +704,7 @@ void ToplevelDeclaration():
   ASTFunctionDeclaration functionDecl;
   ASTAugmentDeclaration augmentDecl;
   ASTStructDeclaration structDecl;
+  ASTEnumDeclaration enumDecl;
   ASTNamedAugmentationDeclaration namedAugmentationDecl;
   ASTLetOrVar state;
   Token local = null;
@@ -727,6 +730,11 @@ void ToplevelDeclaration():
       structDecl=StructDeclaration()
       {
         structDecl.setDocumentation(documentation);
+      }
+      |
+      enumDecl=EnumDeclaration()
+      {
+        enumDecl.setDocumentation(documentation);
       }
       |
       namedAugmentationDecl=NamedAugmentationDeclaration()
@@ -764,6 +772,49 @@ ASTStructDeclaration StructDeclaration():
   {
     jjtThis.setName(name.image);
     jjtThis.setMembers(members);
+    return jjtThis;
+  }
+}
+
+void EnumValue():
+{
+  Token name;
+  Token member;
+  LinkedHashSet<String> members = new LinkedHashSet<String>();
+}
+{
+  name=<IDENTIFIER> 
+  ("=" "{" BlankLines()
+    member=<IDENTIFIER> BlankLines()
+    {
+      members.add(member.image);
+    }
+    (
+      "," BlankLines() member=<IDENTIFIER> BlankLines()
+      {
+        members.add(member.image);
+      }
+    )*
+  "}")?
+  {
+    jjtThis.setName(name.image);
+    jjtThis.setMembers(members);
+  }
+}
+
+ASTEnumDeclaration EnumDeclaration():
+{
+  Token name;
+  Token valueName;
+}
+{
+  <ENUM> name=<IDENTIFIER> "=" "{" BlankLines()
+  (
+    EnumValue() BlankLines()
+  )*
+  "}"
+  {
+    jjtThis.setName(name.image);
     return jjtThis;
   }
 }
