@@ -124,9 +124,6 @@ namespace :special do
     Dir.chdir("golo-maven-plugin") do
       sh CMD
     end
-    Dir.chdir("jmh-benchmarks") do
-      sh CMD
-    end
   end
 
   desc "Check for Maven plugin updates"
@@ -136,9 +133,6 @@ namespace :special do
     Dir.chdir("golo-maven-plugin") do
       sh CMD
     end
-    Dir.chdir("jmh-benchmarks") do
-      sh CMD
-    end
   end
 
   desc "Check for property updates (dependencies + plugins)"
@@ -146,9 +140,6 @@ namespace :special do
     CMD = "mvn versions:display-property-updates"
     sh CMD
     Dir.chdir("golo-maven-plugin") do
-      sh CMD
-    end
-    Dir.chdir("jmh-benchmarks") do
       sh CMD
     end
   end
