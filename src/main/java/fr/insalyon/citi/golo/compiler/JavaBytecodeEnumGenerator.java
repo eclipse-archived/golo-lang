@@ -145,9 +145,8 @@ class JavaBytecodeEnumGenerator {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL, valueType, null, enumType, null);
-    classWriter.visitOuterClass(enumType, null, null);
-    classWriter.visitInnerClass(valueType, null, null, ACC_STATIC);
-    parentClassWriter.visitInnerClass(valueType, enumType, value.getName(), ACC_STATIC);
+    classWriter.visitInnerClass(valueType, enumType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
+    parentClassWriter.visitInnerClass(valueType, enumType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
     for (String member : value.getMembers()) {
       classWriter.visitField(ACC_PUBLIC | ACC_FINAL, member, "Ljava/lang/Object;", null, null).visitEnd();
     }

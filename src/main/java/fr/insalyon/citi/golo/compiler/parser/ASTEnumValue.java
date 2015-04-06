@@ -57,10 +57,7 @@ public class ASTEnumValue extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTEnumValue{" +
-          "name='" + name + "'" +
-          "members='" + members + "'" +
-        "}";
+    return String.format("ASTEnumValue{name='%s', members=%s}", name, members);
   }
 }
 
