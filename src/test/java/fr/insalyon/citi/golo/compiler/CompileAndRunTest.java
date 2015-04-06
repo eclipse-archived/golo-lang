@@ -1152,6 +1152,23 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void enums() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "enums.golo");
+    Method testMethod;
+
+    for (String methodName : asList("toString", "equality", "hashcode", "augmentations", 
+                                    "immutable", "singleton", "not_instantiable")) {
+      testMethod = moduleClass.getMethod("test_" + methodName);
+      try {
+        testMethod.invoke(null);
+      } catch (InvocationTargetException e) {
+        fail("method test_" + methodName + " in " + SRC + "enums.golo failed");
+      }
+    }
+
+  }
+
+  @Test
   public void structs() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
 
