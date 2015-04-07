@@ -17,15 +17,12 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 import java.util.LinkedHashSet;
-import java.util.List;
-
-// TODO: golodocs (ctags -> vim)
 
 public class ASTEnumValue extends GoloASTNode implements NamedNode {
 
   private String name;
   private LinkedHashSet<String> members;
-  
+
   public ASTEnumValue(int id) {
     super(id);
   }
@@ -60,4 +57,3 @@ public class ASTEnumValue extends GoloASTNode implements NamedNode {
     return String.format("ASTEnumValue{name='%s', members=%s}", name, members);
   }
 }
-

@@ -18,7 +18,6 @@ package fr.insalyon.citi.golo.compiler;
 
 import fr.insalyon.citi.golo.compiler.ir.GoloEnum;
 import org.objectweb.asm.ClassWriter;
-import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
@@ -26,7 +25,6 @@ import java.util.Collection;
 import java.util.LinkedList;
 import java.util.Map;
 import java.util.HashMap;
-import static java.util.Collections.emptyList;
 
 import static fr.insalyon.citi.golo.compiler.JavaBytecodeUtils.loadInteger;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;

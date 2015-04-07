@@ -16,17 +16,10 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-import java.util.LinkedHashSet;
-import java.util.List;
-
-// TODO: ast dumper
-// TODO: golodocs (ctags -> vim)
-// TODO: syntax coloration
-
 public class ASTEnumDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
-  
+
   public ASTEnumDeclaration(int id) {
     super(id);
   }
@@ -50,9 +43,6 @@ public class ASTEnumDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTEnumDeclaration{" +
-          "name='" + name + "'" +
-        "}";
+    return "ASTEnumDeclaration{name='" + name + "'}";
   }
 }
-

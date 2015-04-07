@@ -93,6 +93,29 @@ public class CtagsProcessor extends AbstractProcessor {
         String.format("s\tline:%s", line));
   }
 
+  private void ctagsEnum(EnumDocumentation enumDoc) {
+    ctagsLine(enumDoc.name(),
+        String.format("/^enum[:blank:]+%s[:blank:]+=[:blank:]+{/", enumDoc.name()),
+        String.format("g\tline:%s", enumDoc.line()));
+
+    for (EnumDocumentation.EnumValueDocumentation valueDoc : enumDoc.values()) {
+      ctagsEnumValue(enumDoc.name(), valueDoc);
+    }
+  }
+
+  private void ctagsEnumValue(String enumName, EnumDocumentation.EnumValueDocumentation valueDoc) {
+    ctagsLine(valueDoc.name(),
+        String.format("/[:blank:]+%s[:blank:]+%s", valueDoc.name(),
+                    valueDoc.hasMembers() ? "[:blank:]*=[:blank:]+{" : ""),
+        String.format("e\tline:%s\tenum:%s", valueDoc.line(), enumName));
+
+    for (String member : valueDoc.members()) {
+      ctagsLine(member,
+        String.format("/[:blank:]+%s[:blank:]+=/", valueDoc.name()),
+        String.format("m\tline:%s\taccess:public\tenum:%s.%s", valueDoc.line(), enumName, valueDoc.name()));
+    }
+  }
+
   private void ctagsImport(String name, int line) {
     ctagsLine(name,
         String.format("/^import[:blank:]+%s/", name.replace(".","\\.")),
@@ -106,18 +129,17 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private void ctagsStructMember(String struct, String member, int line) {
-    StringBuilder fields = new StringBuilder("m");
-    fields.append("\tline:").append(line);
-    if (member.charAt(0) == '_') {
-      fields.append("\taccess:private");
-    } else {
-      fields.append("\taccess:public");
-    }
-    fields.append("\tstruct:").append(struct);
     ctagsLine(member,
         String.format("/struct[:blank:]+%s[:blank:]+=/", struct),
-        fields.toString());
+        String.format("m\tline:%s\taccess:%s\tstruct:%s", 
+          line,
+          (member.charAt(0) == '_') ? "private" : "public",
+          struct));
   }
+
+  private void ctagsEnumMember(String enumVal, String member, int line) {
+  }
+
 
   private String ctagsAsString() {
     java.util.Collections.sort(ctags);
@@ -140,6 +162,9 @@ public class CtagsProcessor extends AbstractProcessor {
       for (String member : struct.members()) {
         ctagsStructMember(struct.name(), member, struct.line());
       }
+    }
+    for (EnumDocumentation enumDoc : documentation.enums()) {
+      ctagsEnum(enumDoc);
     }
     for (NamedAugmentationDocumentation augment : documentation.namedAugmentations()) {
       ctagsAugmentation(augment.name(), augment.line());

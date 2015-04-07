@@ -47,6 +47,7 @@ class ModuleDocumentation implements DocumentationElement {
   private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
   private final Map<String, AugmentationDocumentation> augmentations = new TreeMap<>();
   private final SortedSet<StructDocumentation> structs = new TreeSet<>();
+  private final SortedSet<EnumDocumentation> enums = new TreeSet<>();
   private final Set<NamedAugmentationDocumentation> namedAugmentations = new TreeSet<>();
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -55,6 +56,10 @@ class ModuleDocumentation implements DocumentationElement {
 
   public SortedSet<StructDocumentation> structs() {
     return structs;
+  }
+
+  public SortedSet<EnumDocumentation> enums() {
+    return enums;
   }
 
   public SortedSet<FunctionDocumentation> functions() {
@@ -114,6 +119,7 @@ class ModuleDocumentation implements DocumentationElement {
 
     private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
     private FunctionDocumentation currentFunction = null;
+    private EnumDocumentation currentEnum;
 
     @Override
     public Object visit(ASTCompilationUnit node, Object data) {
@@ -155,13 +161,20 @@ class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public Object visit(ASTEnumDeclaration node, Object data) {
-      // TODO
-      return data;
+      this.currentEnum = new EnumDocumentation()
+        .name(node.getName())
+        .documentation(node.getDocumentation())
+        .line(node.getLineInSourceCode());
+      enums.add(this.currentEnum);
+      return node.childrenAccept(this, data);
     }
 
     @Override
     public Object visit(ASTEnumValue node, Object data) {
-      // TODO
+      this.currentEnum.addValue(node.getName())
+        .documentation(node.getDocumentation())
+        .line(node.getLineInSourceCode())
+        .members(node.getMembers());
       return data;
     }
 

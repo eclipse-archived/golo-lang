@@ -134,6 +134,16 @@
   </ul></li>
   <% } %>
 
+  <% if not doc: enums(): isEmpty() { %>
+  <li><a href="#enums">Enums</a><ul>
+    <% foreach enumDoc in doc: enums() { %>
+    <li><a href="#<%= enumDoc: name() %>"><%= enumDoc: name() %></a></li>
+    <% } %>
+  </ul></li>
+  <% } %>
+
+
+
   <% if not doc: namedAugmentations(): isEmpty() { %>
   <li><a href="#namedAugmentations">Named Augmentations</a><ul>
     <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
@@ -189,6 +199,36 @@
   <% } %>
 <% } %>
 
+<% if not doc: enums(): isEmpty() { %>
+  <h2 id="enums">Enums</h2>
+  <% foreach enumDoc in doc: enums() { %> 
+    <h3 id="<%= enumDoc: name() %>"><%= enumDoc: name() %>
+    <a class="permalink" href="#<%= enumDoc: name() %>" title="link to this section">&#182;</a></h3>
+    
+    <div>
+    <%= process(enumDoc: documentation()) %>
+    </div>
+
+    <% foreach enumValueDoc in enumDoc: values() { %>
+    <h4 id="<%= enumDoc: name() %>.<%= enumValueDoc: name() %>">
+        <%= enumValueDoc: name() %>
+        <a class="permalink" href="#<%= enumDoc: name() %>.<%= enumValueDoc: name() %>"
+            title="link to this section">&#182;</a>
+    </h4>
+    
+    <% if not enumValueDoc: members(): isEmpty() { %>
+      <ul>
+      <% foreach member in enumValueDoc: members() { %>
+        <li><code><%= member %></code></li>
+      <% } %>
+      </ul>
+    <% } %>
+
+    <div><%= process(enumValueDoc: documentation()) %></div>
+
+    <% } %>
+  <% } %>
+<% } %>
 
 <% if not doc: namedAugmentations(): isEmpty() { %>
   <h2 id="namedAugmentations">Named Augmentations</h2>

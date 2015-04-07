@@ -781,8 +781,10 @@ void EnumValue():
   Token name;
   Token member;
   LinkedHashSet<String> members = new LinkedHashSet<String>();
+  String documentation = null;
 }
 {
+  (documentation=Documentation())?
   name=<IDENTIFIER> 
   ("=" "{" BlankLines()
     member=<IDENTIFIER> BlankLines()
@@ -799,6 +801,7 @@ void EnumValue():
   {
     jjtThis.setName(name.image);
     jjtThis.setMembers(members);
+    jjtThis.setDocumentation(documentation);
   }
 }
 
