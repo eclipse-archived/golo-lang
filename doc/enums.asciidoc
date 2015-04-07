@@ -1,4 +1,4 @@
-== Enums ==
+== Enums
 
 Golo allows the definition of sum algebraic data types, also known as
 _tagged_union_
@@ -7,7 +7,7 @@ footnote:[ http://en.wikipedia.org/wiki/Tagged_union[Wikipedia: Tagged union]
 name a few.
 The dual algebraic data type, the product type is provided by `struct` and `tuple`.
 
-=== Definition ===
+=== Definition
 
 Unions are defined at the module-level:
 [source,golo]
@@ -28,7 +28,7 @@ function main = |args| {
 }
 ----
 
-=== Usage example ===
+=== Usage example
 
 Some well known usages of sum types are:
 
@@ -86,7 +86,7 @@ enum Tree = {
 }
 ----
 
-=== JVM existence ===
+=== JVM existence
 
 An `enum` type is compiled to an abstract JVM class. Each alternative value
 type is itself compiled to a final immutable JVM class extending the `enum` abstract class.
@@ -123,7 +123,7 @@ these types does not feature the same helper methods, and can't have private
 members.
 
 
-=== Augmenting enums ===
+=== Augmenting enums
 
 Since the `enum` itself is a abstract class, and each possible value is a
 concrete class extending it, it is possible to augment the whole `enum`, as in:
