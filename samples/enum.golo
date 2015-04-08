@@ -20,20 +20,20 @@ enum Option = {
 }
 
 augment Option {
-  function bind = |this, func| -> match {
+  function flatMap = |this, func| -> match {
     when this is Option.None() then this
     otherwise func(this: value())
   }
 
-  function fmap = |this, func| -> match {
+  function map = |this, func| -> match {
     when this is Option.None() then this
     otherwise Option.Some(func(this: value()))
   }
 }
 
 function monadicAdd = |mx, my| -> 
-  mx: bind(|x| ->
-    my: bind(|y| ->
+  mx: flatMap(|x| ->
+    my: flatMap(|y| ->
       Option.Some(x + y)))
 
 enum Tree = {
@@ -81,8 +81,8 @@ function test_option = {
   require(monadicAdd(s, s) == Option.Some(10), "err")
 
   let double = |x| -> 2 * x
-  require(n: fmap(double) == n, "err")
-  require(s: fmap(double) == Option.Some(10), "err")
+  require(n: map(double) == n, "err")
+  require(s: map(double) == Option.Some(10), "err")
 
 }
 
