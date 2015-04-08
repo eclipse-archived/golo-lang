@@ -1,10 +1,10 @@
-module golotest.execution.Enums
+module golotest.execution.Unions
 
 # ............................................................................................... #
-enum Color = {RED GREEN BLUE}
+union Color = {RED GREEN BLUE}
 
 # ............................................................................................... #
-enum Option = {
+union Option = {
   Some = {value}
   None
 }
@@ -27,7 +27,7 @@ function monadicAdd = |mx, my| ->
       Option.Some(x + y)))
 
 # ............................................................................................... #
-enum Tree = {
+union Tree = {
   Node = {left, right}
   Leaf = {value}
   Empty
@@ -47,8 +47,8 @@ augment Tree$Leaf {
 
 augment Tree {
   function whoAreYou = |this| -> match {
-    when this oftype golotest.execution.Enums.types.Tree$Node.class then "I'm a node"
-    when this oftype golotest.execution.Enums.types.Tree$Leaf.class then "I'm a leaf"
+    when this oftype golotest.execution.Unions.types.Tree$Node.class then "I'm a node"
+    when this oftype golotest.execution.Unions.types.Tree$Leaf.class then "I'm a leaf"
     otherwise "I'm empty"
   }
 }
@@ -59,12 +59,12 @@ function test_toString = {
   let n = Option.None()
   let s = Option.Some(5)
 
-  require(n: toString() == "enum Option.None", "empty value toString")
-  require(s: toString() == "enum Option.Some{value=5}", "single valued toString")
+  require(n: toString() == "union Option.None", "empty value toString")
+  require(s: toString() == "union Option.Some{value=5}", "single valued toString")
 
   let t = Tree.Node(Tree.Node(Tree.Leaf(1), Tree.Empty()), Tree.Leaf(0))
   require(t: toString() ==
-    "enum Tree.Node{left=enum Tree.Node{left=enum Tree.Leaf{value=1}, right=enum Tree.Empty}, right=enum Tree.Leaf{value=0}}",
+    "union Tree.Node{left=union Tree.Node{left=union Tree.Leaf{value=1}, right=union Tree.Empty}, right=union Tree.Leaf{value=0}}",
     "recursive tree structure toString")
 }
 
@@ -112,10 +112,10 @@ function test_equality = {
 
   require(t1 == t2, "recurive structure equality")
 
-  require(Color.RED() == Color.RED(), "classical enum equality")
-  require(Color.RED() is Color.RED(), "classical enum identity")
-  require(Color.RED() != Color.BLUE(), "classical enum difference")
-  require(Color.RED() isnt Color.BLUE(), "classical enum distinct")
+  require(Color.RED() == Color.RED(), "classical union equality")
+  require(Color.RED() is Color.RED(), "classical union identity")
+  require(Color.RED() != Color.BLUE(), "classical union difference")
+  require(Color.RED() isnt Color.BLUE(), "classical union distinct")
 
 }
 
@@ -151,7 +151,7 @@ function test_immutable = {
   require(s: value() == 2, "err")
   try {
     s: value(3)
-    raise("enum values should be immutable")
+    raise("union values should be immutable")
   } catch (e) {
     require(e oftype java.lang.NoSuchMethodError.class, "bad exception")
   }
@@ -159,8 +159,8 @@ function test_immutable = {
 
 function test_not_instantiable = {
   try {
-    let s = golotest.execution.Enums.types.Tree$Leaf(1)
-    raise("enum values should not be instanciable")
+    let s = golotest.execution.Unions.types.Tree$Leaf(1)
+    raise("union values should not be instanciable")
   } catch (e) {
     require(e oftype java.lang.NoSuchMethodError.class, "bad exception")
   }
@@ -168,8 +168,8 @@ function test_not_instantiable = {
 
 function test_singleton = {
   try {
-    let s = golotest.execution.Enums.types.Tree$Empty()
-    raise("enum values should not be instanciable")
+    let s = golotest.execution.Unions.types.Tree$Empty()
+    raise("union values should not be instanciable")
   } catch (e) {
     require(e oftype java.lang.NoSuchMethodError.class, "bad exception")
   }

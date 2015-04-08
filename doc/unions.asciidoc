@@ -1,4 +1,4 @@
-== Enums
+== Unions
 
 Golo allows the definition of sum algebraic data types, also known as
 _tagged_union_
@@ -14,7 +14,7 @@ Unions are defined at the module-level:
 ----
 module sample
 
-enum Option = {
+union Option = {
  Some = { value }
  None
 }
@@ -38,14 +38,14 @@ The plain old list of predefined values.
 
 [source,golo]
 ----
-enum Color = {
+union Color = {
   RED
   GREEN
   BLUE
 }
 ----
 
-This use is similar to Java `enum`, with the same power since Golo `enum` can be extended through augmentation.
+This use is similar to Java `enum`, with the same power since Golo `union` can be extended through augmentation.
 
 ==== Option type
 
@@ -54,14 +54,14 @@ and many other languages (Rust, Scala, etc.)
 
 [source,golo]
 ----
-enum Option = {
+union Option = {
   Some = {value}
   None
 }
 ----
 
 As illustrated here, and contrary to Java `enum`, each alternative value can
-have different fields. A `enum` alternative type is in this respect similar to `struct`
+have different fields. A `union` alternative type is in this respect similar to `struct`
 
 ==== Recursive data structures
 
@@ -69,7 +69,7 @@ The usual functional representation of linked lists:
 
 [source,golo]
 ----
-enum ConsList = {
+union ConsList = {
   List = { head, tail }
   Empty
 }
@@ -79,7 +79,7 @@ Binary trees:
 
 [source,golo]
 ----
-enum Tree = {
+union Tree = {
   Empty
   Leaf = { value }
   Node = { left, right }
@@ -88,16 +88,16 @@ enum Tree = {
 
 === JVM existence
 
-An `enum` type is compiled to an abstract JVM class. Each alternative value
-type is itself compiled to a final immutable JVM class extending the `enum` abstract class.
-The value classes are member classes of the `enum` one.
+An `union` type is compiled to an abstract JVM class. Each alternative value
+type is itself compiled to a final immutable JVM class extending the `union` abstract class.
+The value classes are member classes of the `union` one.
 
 Given:
 [source,golo]
 ----
 module sample
 
-enum Option = {
+union Option = {
   Some = { value }
   None
 }
@@ -117,16 +117,16 @@ are actually singletons.
 Note that proper definitions of `toString()`, `hashCode()` and `equals()` are
 being provided. These definitions are similar to the ones defined for frozen `struct`.
 
-IMPORTANT: `enum` values with fields are similar to frozen `struct`, that is
+IMPORTANT: `union` values with fields are similar to frozen `struct`, that is
 are immutable, have getters for fields and are compared by values. However,
 these types does not feature the same helper methods, and can't have private
 members.
 
 
-=== Augmenting enums
+=== Augmenting unions
 
-Since the `enum` itself is a abstract class, and each possible value is a
-concrete class extending it, it is possible to augment the whole `enum`, as in:
+Since the `union` itself is a abstract class, and each possible value is a
+concrete class extending it, it is possible to augment the whole `union`, as in:
 
 [source,golo]
 ----

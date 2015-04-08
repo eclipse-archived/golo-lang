@@ -12,17 +12,17 @@
 <%}%>
 <%= structDoc: documentation() %>
 <%}}%>
-<% if not doc: enums(): isEmpty() { %>
-## Enums
-<% foreach enumDoc in doc: enums() { %>
-### `<%= enumDoc: name() %>`
-<%= enumDoc: documentation() %>
-<% foreach enumValueDoc in enumDoc: values() { %>
-#### `<%= enumValueDoc: name() %>`
-<% foreach member in enumValueDoc: members() { %>
+<% if not doc: unions(): isEmpty() { %>
+## Unions
+<% foreach unionDoc in doc: unions() { %>
+### `<%= unionDoc: name() %>`
+<%= unionDoc: documentation() %>
+<% foreach unionValueDoc in unionDoc: values() { %>
+#### `<%= unionValueDoc: name() %>`
+<% foreach member in unionValueDoc: members() { %>
 - <%= member %>
 <%}%>
-<%= enumValueDoc: documentation() %>
+<%= unionValueDoc: documentation() %>
 <%}%>
 <%}%>
 <%}%>

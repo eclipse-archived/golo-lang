@@ -171,7 +171,7 @@ TOKEN :
   |
   < STRUCT: "struct" >
   |
-  < ENUM: "enum" >
+  < UNION: "union" >
 }
 
 // Operators
@@ -704,7 +704,7 @@ void ToplevelDeclaration():
   ASTFunctionDeclaration functionDecl;
   ASTAugmentDeclaration augmentDecl;
   ASTStructDeclaration structDecl;
-  ASTEnumDeclaration enumDecl;
+  ASTUnionDeclaration unionDecl;
   ASTNamedAugmentationDeclaration namedAugmentationDecl;
   ASTLetOrVar state;
   Token local = null;
@@ -732,9 +732,9 @@ void ToplevelDeclaration():
         structDecl.setDocumentation(documentation);
       }
       |
-      enumDecl=EnumDeclaration()
+      unionDecl=UnionDeclaration()
       {
-        enumDecl.setDocumentation(documentation);
+        unionDecl.setDocumentation(documentation);
       }
       |
       namedAugmentationDecl=NamedAugmentationDeclaration()
@@ -776,7 +776,7 @@ ASTStructDeclaration StructDeclaration():
   }
 }
 
-void EnumValue():
+void UnionValue():
 {
   Token name;
   Token member;
@@ -805,15 +805,15 @@ void EnumValue():
   }
 }
 
-ASTEnumDeclaration EnumDeclaration():
+ASTUnionDeclaration UnionDeclaration():
 {
   Token name;
   Token valueName;
 }
 {
-  <ENUM> name=<IDENTIFIER> "=" "{" BlankLines()
+  <UNION> name=<IDENTIFIER> "=" "{" BlankLines()
   (
-    EnumValue() BlankLines()
+    UnionValue() BlankLines()
   )*
   "}"
   {

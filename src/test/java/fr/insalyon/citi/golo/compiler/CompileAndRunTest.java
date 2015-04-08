@@ -1152,8 +1152,8 @@ public class CompileAndRunTest {
   }
 
   @Test
-  public void enums() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "enums.golo");
+  public void unions() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "unions.golo");
     Method testMethod;
 
     for (String methodName : asList("toString", "equality", "hashcode", "augmentations", 
@@ -1162,7 +1162,7 @@ public class CompileAndRunTest {
       try {
         testMethod.invoke(null);
       } catch (InvocationTargetException e) {
-        fail("method test_" + methodName + " in " + SRC + "enums.golo failed");
+        fail("method test_" + methodName + " in " + SRC + "unions.golo failed");
       }
     }
 

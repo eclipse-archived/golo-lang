@@ -16,15 +16,15 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTEnumDeclaration extends GoloASTNode implements NamedNode {
+public class ASTUnionDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
 
-  public ASTEnumDeclaration(int id) {
+  public ASTUnionDeclaration(int id) {
     super(id);
   }
 
-  public ASTEnumDeclaration(GoloParser p, int id) {
+  public ASTUnionDeclaration(GoloParser p, int id) {
     super(p, id);
   }
 
@@ -43,6 +43,6 @@ public class ASTEnumDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTEnumDeclaration{name='" + name + "'}";
+    return "ASTUnionDeclaration{name='" + name + "'}";
   }
 }

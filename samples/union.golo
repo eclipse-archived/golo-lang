@@ -12,9 +12,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-module samples.Enums
+module samples.Unions
 
-enum Option = {
+union Option = {
   Some = { value }
   None
 }
@@ -36,7 +36,7 @@ function monadicAdd = |mx, my| ->
     my: flatMap(|y| ->
       Option.Some(x + y)))
 
-enum Tree = {
+union Tree = {
   Node = {left, right}
   Leaf = {value}
   Empty
@@ -56,8 +56,8 @@ augment Tree$Leaf {
 
 augment Tree {
   function whoAreYou = |this| -> match {
-    when this oftype samples.Enums.types.Tree$Node.class then "I'm a node"
-    when this oftype samples.Enums.types.Tree$Leaf.class then "I'm a leaf"
+    when this oftype samples.Unions.types.Tree$Node.class then "I'm a node"
+    when this oftype samples.Unions.types.Tree$Leaf.class then "I'm a leaf"
     otherwise "I'm empty"
   }
 }

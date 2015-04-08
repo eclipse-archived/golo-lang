@@ -59,7 +59,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
-    GoloEnum currentEnum;
+    Union currentUnion;
     boolean inNamedAugmentation;
     String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
@@ -156,24 +156,24 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
-  public Object visit(ASTEnumDeclaration node, Object data) {
+  public Object visit(ASTUnionDeclaration node, Object data) {
     Context context = (Context) data;
     GoloModule module = context.module;
 
-    PackageAndClass enumClass = new PackageAndClass(
+    PackageAndClass unionClass = new PackageAndClass(
         module.getPackageAndClass().toString() + ".types",
         node.getName());
-    GoloEnum currentEnum = new GoloEnum(enumClass);
-    context.currentEnum = currentEnum ;
-    module.addEnum(currentEnum);
-    module.addImport(new ModuleImport(enumClass));
+    Union currentUnion = new Union(unionClass);
+    context.currentUnion = currentUnion ;
+    module.addUnion(currentUnion);
+    module.addImport(new ModuleImport(unionClass));
     return node.childrenAccept(this, data);
   }
 
   @Override
-  public Object visit(ASTEnumValue node, Object data) {
+  public Object visit(ASTUnionValue node, Object data) {
     Context context = (Context) data;
-    context.currentEnum.addValue(node.getName(), node.getMembers());
+    context.currentUnion.addValue(node.getName(), node.getMembers());
     return data;
   }
 

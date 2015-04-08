@@ -23,26 +23,26 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import static java.util.Collections.unmodifiableSet;
 
-public final class GoloEnum {
+public final class Union {
 
   public static final class Value {
     private final String name;
-    private final GoloEnum goloEnum;
+    private final Union union;
     private final PackageAndClass packageAndClass;
     private final Set<String> members = new LinkedHashSet<>();
 
-    public Value(GoloEnum genum, String name) {
+    public Value(Union union, String name) {
       this.name = name;
-      this.goloEnum = genum;
-      this.packageAndClass = genum.getPackageAndClass().createInnerClass(name);
+      this.union = union;
+      this.packageAndClass = union.getPackageAndClass().createInnerClass(name);
     }
 
     public PackageAndClass getPackageAndClass() {
       return packageAndClass;
     }
 
-    public GoloEnum getEnum() {
-      return goloEnum;
+    public Union getUnion() {
+      return union;
     }
 
     public String getName() {
@@ -65,7 +65,7 @@ public final class GoloEnum {
   private final PackageAndClass packageAndClass;
   private final Set<Value> values = new LinkedHashSet<>();
 
-  public GoloEnum(PackageAndClass packageAndClass) {
+  public Union(PackageAndClass packageAndClass) {
     this.packageAndClass = packageAndClass;
   }
 

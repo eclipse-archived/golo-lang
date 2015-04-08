@@ -47,7 +47,7 @@ class ModuleDocumentation implements DocumentationElement {
   private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
   private final Map<String, AugmentationDocumentation> augmentations = new TreeMap<>();
   private final SortedSet<StructDocumentation> structs = new TreeSet<>();
-  private final SortedSet<EnumDocumentation> enums = new TreeSet<>();
+  private final SortedSet<UnionDocumentation> unions = new TreeSet<>();
   private final Set<NamedAugmentationDocumentation> namedAugmentations = new TreeSet<>();
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -58,8 +58,8 @@ class ModuleDocumentation implements DocumentationElement {
     return structs;
   }
 
-  public SortedSet<EnumDocumentation> enums() {
-    return enums;
+  public SortedSet<UnionDocumentation> unions() {
+    return unions;
   }
 
   public SortedSet<FunctionDocumentation> functions() {
@@ -119,7 +119,7 @@ class ModuleDocumentation implements DocumentationElement {
 
     private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
     private FunctionDocumentation currentFunction = null;
-    private EnumDocumentation currentEnum;
+    private UnionDocumentation currentUnion;
 
     @Override
     public Object visit(ASTCompilationUnit node, Object data) {
@@ -160,18 +160,18 @@ class ModuleDocumentation implements DocumentationElement {
     }
 
     @Override
-    public Object visit(ASTEnumDeclaration node, Object data) {
-      this.currentEnum = new EnumDocumentation()
+    public Object visit(ASTUnionDeclaration node, Object data) {
+      this.currentUnion = new UnionDocumentation()
         .name(node.getName())
         .documentation(node.getDocumentation())
         .line(node.getLineInSourceCode());
-      enums.add(this.currentEnum);
+      unions.add(this.currentUnion);
       return node.childrenAccept(this, data);
     }
 
     @Override
-    public Object visit(ASTEnumValue node, Object data) {
-      this.currentEnum.addValue(node.getName())
+    public Object visit(ASTUnionValue node, Object data) {
+      this.currentUnion.addValue(node.getName())
         .documentation(node.getDocumentation())
         .line(node.getLineInSourceCode())
         .members(node.getMembers());

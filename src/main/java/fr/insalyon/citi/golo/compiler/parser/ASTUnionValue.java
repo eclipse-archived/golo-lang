@@ -18,16 +18,16 @@ package fr.insalyon.citi.golo.compiler.parser;
 
 import java.util.LinkedHashSet;
 
-public class ASTEnumValue extends GoloASTNode implements NamedNode {
+public class ASTUnionValue extends GoloASTNode implements NamedNode {
 
   private String name;
   private LinkedHashSet<String> members;
 
-  public ASTEnumValue(int id) {
+  public ASTUnionValue(int id) {
     super(id);
   }
 
-  public ASTEnumValue(GoloParser p, int id) {
+  public ASTUnionValue(GoloParser p, int id) {
     super(p, id);
   }
 
@@ -54,6 +54,6 @@ public class ASTEnumValue extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return String.format("ASTEnumValue{name='%s', members=%s}", name, members);
+    return String.format("ASTUnionValue{name='%s', members=%s}", name, members);
   }
 }

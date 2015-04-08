@@ -21,9 +21,9 @@ import java.util.LinkedHashSet;
 import java.util.Collection;
 import static java.util.Collections.unmodifiableSet;
 
-class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationElement {
+class UnionDocumentation implements Comparable<UnionDocumentation>, DocumentationElement {
 
-  public static final class EnumValueDocumentation implements DocumentationElement {
+  public static final class UnionValueDocumentation implements DocumentationElement {
     private String name;
     private String documentation;
     private int line;
@@ -33,7 +33,7 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
       return name;
     }
 
-    public EnumValueDocumentation name(String n) {
+    public UnionValueDocumentation name(String n) {
       name = n;
       return this;
     }
@@ -42,7 +42,7 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
       return (documentation != null ? documentation : "\n");
     }
 
-    public EnumValueDocumentation documentation(String doc) {
+    public UnionValueDocumentation documentation(String doc) {
       documentation = doc;
       return this;
     }
@@ -51,7 +51,7 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
       return line;
     }
 
-    public EnumValueDocumentation line(int l) {
+    public UnionValueDocumentation line(int l) {
       line = l;
       return this;
     }
@@ -60,7 +60,7 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
       return unmodifiableSet(members);
     }
 
-    public EnumValueDocumentation members(Collection<String> m) {
+    public UnionValueDocumentation members(Collection<String> m) {
       members.addAll(m);
       return this;
     }
@@ -73,13 +73,13 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
   private String name;
   private String documentation;
   private int line;
-  private Set<EnumValueDocumentation> values = new LinkedHashSet<>();
+  private Set<UnionValueDocumentation> values = new LinkedHashSet<>();
 
   public String name() {
     return name;
   }
 
-  public EnumDocumentation name(String name) {
+  public UnionDocumentation name(String name) {
     this.name = name;
     return this;
   }
@@ -88,7 +88,7 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
     return (documentation != null ? documentation : "\n");
   }
 
-  public EnumDocumentation documentation(String doc) {
+  public UnionDocumentation documentation(String doc) {
     documentation = doc;
     return this;
   }
@@ -97,33 +97,33 @@ class EnumDocumentation implements Comparable<EnumDocumentation>, DocumentationE
     return line;
   }
 
-  public EnumDocumentation line(int l) {
+  public UnionDocumentation line(int l) {
     line = l;
     return this;
   }
 
-  public Set<EnumValueDocumentation> values() {
+  public Set<UnionValueDocumentation> values() {
     return unmodifiableSet(values);
   }
 
-  public EnumDocumentation values(Collection<EnumValueDocumentation> v) {
+  public UnionDocumentation values(Collection<UnionValueDocumentation> v) {
     values.addAll(v);
     return this;
   }
 
-  public boolean addValue(EnumValueDocumentation v) {
+  public boolean addValue(UnionValueDocumentation v) {
     return values.add(v);
   }
 
-  public EnumValueDocumentation addValue(String name) {
-    EnumValueDocumentation v = new EnumValueDocumentation();
+  public UnionValueDocumentation addValue(String name) {
+    UnionValueDocumentation v = new UnionValueDocumentation();
     v.name(name);
     values.add(v);
     return v;
   }
 
   @Override
-  public int compareTo(EnumDocumentation o) {
+  public int compareTo(UnionDocumentation o) {
     return name.compareTo(o.name());
   }
 

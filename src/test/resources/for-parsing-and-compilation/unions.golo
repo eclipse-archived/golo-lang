@@ -1,13 +1,12 @@
-module Enums
+module Unions
 
-enum Option = {
+union Option = {
   Some = { value }
   None
 }
 
-enum Color = { RED GREEN BLUE }
-
-enum Tree = {
+union Color = { RED GREEN BLUE }
+union Tree = {
   
 Empty
 

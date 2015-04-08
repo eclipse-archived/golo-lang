@@ -16,7 +16,7 @@
 
 package fr.insalyon.citi.golo.compiler;
 
-import fr.insalyon.citi.golo.compiler.ir.GoloEnum;
+import fr.insalyon.citi.golo.compiler.ir.Union;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -31,47 +31,47 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
-class JavaBytecodeEnumGenerator {
+class JavaBytecodeUnionGenerator {
 
-  public Collection<CodeGenerationResult> compile(GoloEnum genum, String sourceFilename) {
+  public Collection<CodeGenerationResult> compile(Union union, String sourceFilename) {
     LinkedList<CodeGenerationResult> results = new LinkedList<>();
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_ABSTRACT,
-        genum.getPackageAndClass().toJVMType(), null, "java/lang/Object", null);
+        union.getPackageAndClass().toJVMType(), null, "java/lang/Object", null);
     makeDefaultConstructor(classWriter, "java/lang/Object");
     HashMap<String, PackageAndClass> staticFields = new HashMap<>();
-    for (GoloEnum.Value value : genum.getValues()) {
-      results.add(makeEnumValue(classWriter, sourceFilename, value));
+    for (Union.Value value : union.getValues()) {
+      results.add(makeUnionValue(classWriter, sourceFilename, value));
       if (value.hasMembers()) {
         makeStaticFactory(classWriter, value);
       } else {
         staticFields.put(value.getName(), value.getPackageAndClass());
       }
     }
-    initStaticFields(classWriter, genum.getPackageAndClass(), staticFields);
+    initStaticFields(classWriter, union.getPackageAndClass(), staticFields);
     classWriter.visitEnd();
-    results.addFirst(new CodeGenerationResult(classWriter.toByteArray(), genum.getPackageAndClass()));
+    results.addFirst(new CodeGenerationResult(classWriter.toByteArray(), union.getPackageAndClass()));
     return results;
   }
 
-  private void initStaticFields(ClassWriter cw, PackageAndClass enumType, Map<String, PackageAndClass> staticFields) {
+  private void initStaticFields(ClassWriter cw, PackageAndClass unionType, Map<String, PackageAndClass> staticFields) {
     MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
     mv.visitCode();
     for (String attr : staticFields.keySet()) {
       mv.visitTypeInsn(NEW, staticFields.get(attr).toJVMType());
       mv.visitInsn(DUP);
       mv.visitMethodInsn(INVOKESPECIAL, staticFields.get(attr).toJVMType(), "<init>", "()V", false);
-      mv.visitFieldInsn(PUTSTATIC, enumType.toJVMType(), attr, enumType.toJVMRef());
+      mv.visitFieldInsn(PUTSTATIC, unionType.toJVMType(), attr, unionType.toJVMRef());
     }
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
   }
 
-  private void makeStaticFactory(ClassWriter cw, GoloEnum.Value value) {
+  private void makeStaticFactory(ClassWriter cw, Union.Value value) {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, value.getName(),
-        argsSignature(value.getMembers().size()) + value.getEnum().getPackageAndClass().toJVMRef(),
+        argsSignature(value.getMembers().size()) + value.getUnion().getPackageAndClass().toJVMRef(),
         null, null);
     mv.visitCode();
     mv.visitTypeInsn(NEW, value.getPackageAndClass().toJVMType());
@@ -96,15 +96,15 @@ class JavaBytecodeEnumGenerator {
     visitor.visitEnd();
   }
 
-  private void makeToString(ClassWriter classWriter, GoloEnum.Value value) {
+  private void makeToString(ClassWriter classWriter, Union.Value value) {
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
     visitor.visitCode();
     if (!value.hasMembers()) {
-      visitor.visitLdcInsn("enum " + value.getEnum().getPackageAndClass().className() + "." + value.getName());
+      visitor.visitLdcInsn("union " + value.getUnion().getPackageAndClass().className() + "." + value.getName());
     } else {
       visitor.visitTypeInsn(NEW, "java/lang/StringBuilder");
       visitor.visitInsn(DUP);
-      visitor.visitLdcInsn("enum " + value.getEnum().getPackageAndClass().className() + "." + value.getName() + "{");
+      visitor.visitLdcInsn("union " + value.getUnion().getPackageAndClass().className() + "." + value.getName() + "{");
       visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
       visitor.visitVarInsn(ASTORE, 1);
       boolean first = true;
@@ -137,14 +137,14 @@ class JavaBytecodeEnumGenerator {
     visitor.visitEnd();
   }
 
-  private CodeGenerationResult makeEnumValue(ClassWriter parentClassWriter, String sourceFilename, GoloEnum.Value value) {
-    String enumType = value.getEnum().getPackageAndClass().toJVMType();
+  private CodeGenerationResult makeUnionValue(ClassWriter parentClassWriter, String sourceFilename, Union.Value value) {
+    String unionType = value.getUnion().getPackageAndClass().toJVMType();
     String valueType = value.getPackageAndClass().toJVMType();
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL, valueType, null, enumType, null);
-    classWriter.visitInnerClass(valueType, enumType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
-    parentClassWriter.visitInnerClass(valueType, enumType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL, valueType, null, unionType, null);
+    classWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
+    parentClassWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
     for (String member : value.getMembers()) {
       classWriter.visitField(ACC_PUBLIC | ACC_FINAL, member, "Ljava/lang/Object;", null, null).visitEnd();
     }
@@ -153,16 +153,16 @@ class JavaBytecodeEnumGenerator {
       makeHashCode(classWriter, value);
       makeEquals(classWriter, value);
     } else {
-      makeDefaultConstructor(classWriter, enumType);
+      makeDefaultConstructor(classWriter, unionType);
       parentClassWriter.visitField(ACC_PUBLIC | ACC_FINAL | ACC_STATIC, value.getName(),
-            value.getEnum().getPackageAndClass().toJVMRef(), null, null).visitEnd();
+            value.getUnion().getPackageAndClass().toJVMRef(), null, null).visitEnd();
     }
     makeToString(classWriter, value);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), value.getPackageAndClass());
   }
 
-  private void makeEquals(ClassWriter cw, GoloEnum.Value value) {
+  private void makeEquals(ClassWriter cw, Union.Value value) {
     String target = value.getPackageAndClass().toJVMType();
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);
     Label notSameInstance = new Label();
@@ -220,7 +220,7 @@ class JavaBytecodeEnumGenerator {
     mv.visitEnd();
   }
 
-  private void makeHashCode(ClassWriter cw, GoloEnum.Value value) {
+  private void makeHashCode(ClassWriter cw, Union.Value value) {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "hashCode", "()I", null, null);
     mv.visitCode();
     loadInteger(mv, value.getMembers().size());
@@ -248,12 +248,12 @@ class JavaBytecodeEnumGenerator {
     return signature.toString();
   }
 
-  private void makeValuedConstructor(ClassWriter cw, GoloEnum.Value value) {
+  private void makeValuedConstructor(ClassWriter cw, Union.Value value) {
     MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "<init>",
         argsSignature(value.getMembers().size()) + "V", null, null);
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
-    mv.visitMethodInsn(INVOKESPECIAL, value.getEnum().getPackageAndClass().toJVMType(), "<init>", "()V", false);
+    mv.visitMethodInsn(INVOKESPECIAL, value.getUnion().getPackageAndClass().toJVMType(), "<init>", "()V", false);
     int idx = 1;
     for (String member : value.getMembers()) {
       mv.visitVarInsn(ALOAD, 0);

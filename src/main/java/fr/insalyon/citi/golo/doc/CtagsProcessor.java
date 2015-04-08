@@ -93,26 +93,26 @@ public class CtagsProcessor extends AbstractProcessor {
         String.format("s\tline:%s", line));
   }
 
-  private void ctagsEnum(EnumDocumentation enumDoc) {
-    ctagsLine(enumDoc.name(),
-        String.format("/^enum[:blank:]+%s[:blank:]+=[:blank:]+{/", enumDoc.name()),
-        String.format("g\tline:%s", enumDoc.line()));
+  private void ctagsUnion(UnionDocumentation unionDoc) {
+    ctagsLine(unionDoc.name(),
+        String.format("/^union[:blank:]+%s[:blank:]+=[:blank:]+{/", unionDoc.name()),
+        String.format("g\tline:%s", unionDoc.line()));
 
-    for (EnumDocumentation.EnumValueDocumentation valueDoc : enumDoc.values()) {
-      ctagsEnumValue(enumDoc.name(), valueDoc);
+    for (UnionDocumentation.UnionValueDocumentation valueDoc : unionDoc.values()) {
+      ctagsUnionValue(unionDoc.name(), valueDoc);
     }
   }
 
-  private void ctagsEnumValue(String enumName, EnumDocumentation.EnumValueDocumentation valueDoc) {
+  private void ctagsUnionValue(String unionName, UnionDocumentation.UnionValueDocumentation valueDoc) {
     ctagsLine(valueDoc.name(),
         String.format("/[:blank:]+%s[:blank:]+%s", valueDoc.name(),
                     valueDoc.hasMembers() ? "[:blank:]*=[:blank:]+{" : ""),
-        String.format("e\tline:%s\tenum:%s", valueDoc.line(), enumName));
+        String.format("e\tline:%s\tunion:%s", valueDoc.line(), unionName));
 
     for (String member : valueDoc.members()) {
       ctagsLine(member,
         String.format("/[:blank:]+%s[:blank:]+=/", valueDoc.name()),
-        String.format("m\tline:%s\taccess:public\tenum:%s.%s", valueDoc.line(), enumName, valueDoc.name()));
+        String.format("m\tline:%s\taccess:public\tunion:%s.%s", valueDoc.line(), unionName, valueDoc.name()));
     }
   }
 
@@ -137,7 +137,7 @@ public class CtagsProcessor extends AbstractProcessor {
           struct));
   }
 
-  private void ctagsEnumMember(String enumVal, String member, int line) {
+  private void ctagsUnionMember(String unionVal, String member, int line) {
   }
 
 
@@ -163,8 +163,8 @@ public class CtagsProcessor extends AbstractProcessor {
         ctagsStructMember(struct.name(), member, struct.line());
       }
     }
-    for (EnumDocumentation enumDoc : documentation.enums()) {
-      ctagsEnum(enumDoc);
+    for (UnionDocumentation unionDoc : documentation.unions()) {
+      ctagsUnion(unionDoc);
     }
     for (NamedAugmentationDocumentation augment : documentation.namedAugmentations()) {
       ctagsAugmentation(augment.name(), augment.line());
