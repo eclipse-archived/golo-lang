@@ -2,7 +2,7 @@
 
 == Decorators ==
 
-Golo feature Python-like decorators.
+Golo features Python-like decorators.
 
 === Presentation ===
 //<<<
@@ -11,7 +11,7 @@ However, the concepts behind them are very different. Indeed, whereas Java
 annotations are compiler or VM directives, decorators are actually plain
 functions, more precisely higher order functions.
 
-NOTE: Higher order functions (HOF) are functions that process functions, i.e. that take 
+NOTE: Higher order functions (HOF) are functions that process functions, i.e. that take
 a function as parameter, and may return a new function.
 
 A decorator is thus a function that take the function to decorate as parameter,
@@ -80,9 +80,9 @@ On the other hand, you cannot do:
 function dec = |func| -> |args...| -> func(args)
 ----
 
-Indeed, this will throw an exception because `func` is not a variable arity 
-function (just a reference on `add` function) and thus cannot take an array 
-as parameter. In this case, the decorator have to invoke the original function 
+Indeed, this will throw an exception because `func` is not a variable arity
+function (just a reference on `add` function) and thus cannot take an array
+as parameter. In this case, the decorator have to invoke the original function
 like this:
 [source,golo]
 ----
@@ -149,7 +149,7 @@ function spam = |a| -> "spam: " + a
 Again, `println(spam(1))` will print `deco2 + deco1 + spam: 1`
 
 Moreover, since decorator are just higher order functions, they can be closure
-on a first argument, i.e. parametrized decorators, as illustrated in the 
+on a first argument, i.e. parametrized decorators, as illustrated in the
 following listing:
 
 [source,golo]
@@ -365,8 +365,8 @@ function inv = |v| -> 1.0 / v
 function mul = |v| -> 10 * v
 ----
 
-Several factory functions are available in 
-link:./golodoc/gololang/Decorators[`gololang.Decorators`] to ease the creation 
+Several factory functions are available in
+link:./golodoc/gololang/Decorators[`gololang.Decorators`] to ease the creation
 of checkers:
 
 * `any` is a void checker that does nothing. It can used when you need to check
@@ -487,7 +487,7 @@ extends the previous example (and can be used to implement most of them).
 This functionality is provided by the
 link:./golodoc/gololang/Decorators#withContext_context[`gololang.Decorators.withContext`]
 standard decorator. This decorator take a context, such as the one returned by
-link:./golodoc/gololang/Decorators#defaultContext_[`gololang.Decorators.defaultContext`] 
+link:./golodoc/gololang/Decorators#defaultContext_[`gololang.Decorators.defaultContext`]
 function.
 
 A context is an object with 4 defined methods:
@@ -584,7 +584,7 @@ incremented by each call to every decorated function, thus the output.
 This generic decorator can be used to easily implement condition checking,
 logging, locking, and so on. It can be more interesting if you want to provide
 several functionalities, instead of stacking more specific decorators, since
-stacking, or decorator composition, adds indirection levels and deepen the call 
+stacking, or decorator composition, adds indirection levels and deepen the call
 stack.
 
 //>>>
