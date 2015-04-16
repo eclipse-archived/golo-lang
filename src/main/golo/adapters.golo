@@ -26,16 +26,15 @@ struct adapter = {
 }
 
 ----
-adapter augmentations
+Adapter augmentations.
 ----
 augment gololang.Adapters.types.adapter {
 
   ----
-  Defines interface(s) of the Adapter:
+  Defines interface(s) for the Adapter:
 
-  Parameter(s): a tuple of strings
-
-  Returns the adapter
+  * parameter(s): a tuple of strings,
+  * returns the adapter.
 
   Usage:
 
@@ -50,9 +49,8 @@ augment gololang.Adapters.types.adapter {
   ----
   Provides a method implementation
 
-  Parameter(s): method name, anonymous function
-
-  Returns the adapter
+  * parameters: a method name, an implementation function
+  * returns the adapter.
 
   Usage:
 
@@ -72,11 +70,10 @@ augment gololang.Adapters.types.adapter {
   }
 
   ----
-  Specifies the name of the parent class (`java.lang.Object` by default cf `Adapter` constructor method)
+  Specifies the name of the parent class (`java.lang.Object` by default).
 
-  Parameter(s): class name
-
-  Returns the adapter
+  * parameter: parent class name
+  * returns the adapter.
 
   Usage:
 
@@ -89,11 +86,10 @@ augment gololang.Adapters.types.adapter {
   }
 
   ----
-  Provides a method override
+  Provides a method override.
 
-  Parameter(s): method name, anonymous function
-
-  Returns the adapter
+  * parameters: method name and an implementation function
+  * returns the adapter.
 
   Usage:
 
@@ -102,7 +98,7 @@ augment gololang.Adapters.types.adapter {
 
       println(objectAdapter: newInstance(): toString())
 
-  This prints something like: `>>> $Golo$Adapter$0@2aaf7cc2`
+  This prints something like: `>>> $Golo$Adapter$0@2aaf7cc2`.
   ----
   function overrides = |this, methodName, closure| {
     this: definition(): get("overrides"): put(methodName, closure)
@@ -110,14 +106,14 @@ augment gololang.Adapters.types.adapter {
   }
 
   ----
-  Returns an instance based on a configuration (adapter: definition())
+  Returns an instance based on a configuration (also see `adapter: definition()`).
   ----
   function maker = |this| {
     return AdapterFabric(): maker(this: definition())
   }
 
   ----
-  Returns an instance of the adapted Java class
+  Returns an instance of the adapted Java class.
 
   Usage:
 
@@ -140,9 +136,9 @@ augment gololang.Adapters.types.adapter {
   }
 
   ----
-  Returns an instance of the adapted Java class
+  Returns an instance of the adapted Java class.
 
-  Parameters are the parameters of the class constructor
+  The parameters are the parameters of the base class constructor.
   ----
   function newInstance = |this, args...| {
     return this: maker(): newInstance(args)
@@ -150,7 +146,7 @@ augment gololang.Adapters.types.adapter {
 }
 
 ----
-Adapter constructor
+Adapter constructor.
 ----
 function Adapter = {
   let adapterInstance = adapter(map[])
