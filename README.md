@@ -12,10 +12,14 @@ Golo is a simple dynamic, weakly-typed language for the JVM.
 Built from day 1 with `invokedynamic`, Golo takes advantage of the latest advances of
 the JVM. It is also a showcase on how to build a language runtime with `invokedynamic`.
 
-Golo is being developed as part of the research activities of the
+Golo is originally being developed as part of the research activities of the
 [DynaMid](http://dynamid.citi-lab.fr/) group of the
 [CITI Laboratory](http://www.citi-lab.fr/) at
 [INSA-Lyon](http://www.insa-lyon.fr/).
+
+Golo joined the Eclipse Foundation as an incubating technology project in June 2015.
+
+## Links
 
 * Website: [http://golo-lang.org/](http://golo-lang.org/)
 * Twitter: [@golo_lang](https://twitter.com/golo_lang)
@@ -24,9 +28,9 @@ Golo is being developed as part of the research activities of the
 * Gitter.im chats: [https://gitter.im/golo-lang/golo-lang](https://gitter.im/golo-lang/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
-Starting from version 1.0.0, Golo adopts the [semantic versioning scheme](http://semver.org).
-
 ## Getting Golo
+
+Golo follows the [semantic versioning scheme](http://semver.org).
 
 Go to the [Golo downloads page](http://golo-lang.org/download/) for general download instructions.
 
@@ -93,38 +97,15 @@ You'll need to install the following packages before building the golo-lang docs
 
 ## License
 
-    Copyright 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+    Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon) and contributors
 
-    Licensed under the Apache License, Version 2.0 (the "License");
-    you may not use this file except in compliance with the License.
-    You may obtain a copy of the License at
-
-        http://www.apache.org/licenses/LICENSE-2.0
-
-    Unless required by applicable law or agreed to in writing, software
-    distributed under the License is distributed on an "AS IS" BASIS,
-    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-    See the License for the specific language governing permissions and
-    limitations under the License.
+    All rights reserved. This program and the accompanying materials
+    are made available under the terms of the Eclipse Public License v1.0
+    which accompanies this distribution, and is available at
+    http://www.eclipse.org/legal/epl-v10.html
 
 ## Contributing
 
 We welcome contributions from the community!
 
 Check the `CONTRIBUTING.md` file for instructions.
-
-## Credits
-
-### Early testers
-
-Big thanks to our early testers before Golo was made public! *(in random order)*
-
-Pierre Colomb, Olivier Coupelon, Cédric Exbrayat, Frédéric Le Mouel, Nicolas Stouls,
-Henri Gomez, Julien Viet, Philippe Charrière, Ludovic Champenois, Thierry Chantier,
-Daniel Petisme, David Gageot, David Festal, Gildas Cuisinier, Thomas Maurel,
-Yannick Loiseau, Alexis Plantin, Sylvain Desgrais, William Guyot, Agnès Crépet, Cyril Lacote.
-
-### Companies
-
-[Serli](http://www.serli.com/),
-[Ninja Squad](http://ninja-squad.com/).

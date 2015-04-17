@@ -1,19 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
+
 <!--
-  ~ Copyright 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+  ~ Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
   ~
-  ~ Licensed under the Apache License, Version 2.0 (the "License");
-  ~ you may not use this file except in compliance with the License.
-  ~ You may obtain a copy of the License at
-  ~
-  ~     http://www.apache.org/licenses/LICENSE-2.0
-  ~
-  ~ Unless required by applicable law or agreed to in writing, software
-  ~ distributed under the License is distributed on an "AS IS" BASIS,
-  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-  ~ See the License for the specific language governing permissions and
-  ~ limitations under the License.
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Eclipse Public License v1.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.eclipse.org/legal/epl-v10.html
   -->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0"
          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
@@ -37,8 +32,8 @@
 
   <licenses>
     <license>
-      <name>The Apache Software License, Version 2.0</name>
-      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <name>Eclipse Public License - v 1.0</name>
+      <url>http://www.eclipse.org/legal/epl-v10.html</url>
       <distribution>repo</distribution>
     </license>
   </licenses>
@@ -48,94 +43,6 @@
     <url>scm:git:git@github.com:golo-lang/golo-lang.git</url>
     <developerConnection>scm:git:git@github.com:golo-lang/golo-lang.git</developerConnection>
   </scm>
-
-  <developers>
-    <developer>
-      <id>jponge</id>
-      <name>Julien Ponge</name>
-      <email>julien.ponge@insa-lyon.fr</email>
-      <url>http://julien.ponge.org/</url>
-      <organization>INSA-Lyon</organization>
-    </developer>
-  </developers>
-
-  <contributors>
-    <contributor>
-      <name>David Festal</name>
-      <email>david.festal@serli.com</email>
-      <organization>Serli</organization>
-    </contributor>
-    <contributor>
-      <name>Dan Allen</name>
-      <email>dan.j.allen@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Daniel Petisme</name>
-      <email>daniel.petisme@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Philippe Charrière</name>
-      <email>ph.charriere@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Franck Verrot</name>
-      <email>franck@verrot.fr</email>
-    </contributor>
-    <contributor>
-      <name>Thierry Chantier</name>
-      <email>titimoby@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Guillaume Grossetie</name>
-      <email>ggrossetie@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Jeff Maury</name>
-      <email>jeffmaury@jeffmaury.com</email>
-    </contributor>
-    <contributor>
-      <name>Kel Cecil</name>
-      <email>kelcecil@praisechaos.com</email>
-    </contributor>
-    <contributor>
-      <name>Yannick Loiseau</name>
-      <email>yannick.loiseau@univ-bpclermont.fr</email>
-    </contributor>
-    <contributor>
-      <name>Sylvain Desgrais</name>
-      <email>sylvain.desgrais@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Alexis Thomas</name>
-      <email>fr.alexisthomas@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Romain Lespinasse</name>
-      <email>romain.lespinasse@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Cedric Champeau</name>
-      <email>cedric.champeau@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Kitsune Tsuyusato</name>
-      <email>make.just.on@gmail.com</email>
-    </contributor>
-    <contributor>
-      <name>Guillaume Soldera</name>
-      <email>guillaume.soldera@gmail.com</email>
-      <organization>Serli</organization>
-    </contributor>
-  </contributors>
-
-  <organization>
-    <name>Institut National des Sciences Appliquées de Lyon (INSA-Lyon)</name>
-    <url>http://www.insa-lyon.fr/</url>
-  </organization>
-
-  <prerequisites>
-    <maven>3.0</maven>
-  </prerequisites>
 
   <properties>
 
@@ -348,7 +255,7 @@
         <configuration>
           <repositoryName>lib</repositoryName>
           <repositoryLayout>flat</repositoryLayout>
-          <licenseHeaderFile>${project.basedir}/LICENSE-header</licenseHeaderFile>
+          <licenseHeaderFile>${project.basedir}/src/main/assembly/appassembler-license-header</licenseHeaderFile>
           <programs>
             <program>
               <id>golo</id>
