@@ -45,7 +45,7 @@ local function _newWithSameType = |this| {
 
 local function _closureWithIndexArgument = |target| -> match {
   when target: type(): parameterCount() == 0
-    then java.lang.invoke.MethodHandles.dropArguments(target, 0, java.lang.Object.class)
+    then FunctionReference(java.lang.invoke.MethodHandles.dropArguments(target: handle(), 0, java.lang.Object.class))
   otherwise
     target
 }
@@ -108,12 +108,14 @@ augment java.lang.Number {
 
 # ............................................................................................... #
 
+# TODO: move into the Java class implementation!
+# augment java.lang.invoke.MethodHandle {
 ----
 Augmentations over method handles.
 
 Given that Golo closures are method handles, these augmentations work on closure references.
 ----
-augment java.lang.invoke.MethodHandle {
+augment gololang.FunctionReference {
 
   ----
   Converts a closure to an instance of a single method interface.
@@ -138,7 +140,7 @@ augment java.lang.invoke.MethodHandle {
   * `filter`: a function that takes the return value of `this` as an argument.
   ----
   function andThen = |this, filter| ->
-    java.lang.invoke.MethodHandles.filterReturnValue(this, filter)
+    FunctionReference(java.lang.invoke.MethodHandles.filterReturnValue(this: handle(), filter: handle()))
 
   ----
   Partial application:
@@ -152,7 +154,7 @@ augment java.lang.invoke.MethodHandle {
   * `val`: the value to apply.
   ----
   function bindAt = |this, pos, val| ->
-    java.lang.invoke.MethodHandles.insertArguments(this, pos, val)
+    FunctionReference(java.lang.invoke.MethodHandles.insertArguments(this: handle(), pos, val))
 
   ----
   Arguments spreading.

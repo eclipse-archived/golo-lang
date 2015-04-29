@@ -18,6 +18,7 @@ package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
 import fr.insalyon.citi.golo.compiler.parser.ASTModuleDeclaration;
+import gololang.FunctionReference;
 import gololang.TemplateEngine;
 
 import java.io.IOException;
@@ -36,9 +37,9 @@ public abstract class AbstractProcessor {
   public abstract void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable;
 
   private TemplateEngine templateEngine = new TemplateEngine();
-  private HashMap<String, MethodHandle> templateCache = new HashMap<>();
+  private HashMap<String, FunctionReference> templateCache = new HashMap<>();
 
-  protected MethodHandle template(String name, String format) throws IOException {
+  protected FunctionReference template(String name, String format) throws IOException {
     String key = name + "-" + format;
     if (templateCache.containsKey(key)) {
       return templateCache.get(key);
@@ -54,7 +55,7 @@ public abstract class AbstractProcessor {
       while ((nread = reader.read(buffer)) > 0) {
         builder.append(buffer, 0, nread);
       }
-      MethodHandle compiledTemplate = templateEngine.compile(builder.toString());
+      FunctionReference compiledTemplate = templateEngine.compile(builder.toString());
       templateCache.put(key, compiledTemplate);
       return compiledTemplate;
     }

@@ -16,6 +16,7 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.FunctionReference;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
@@ -52,46 +53,53 @@ public class ClosureCallSupportTest {
   @Test
   public void check_bootstrap() throws Throwable {
     MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "objectToString", genericMethodType(1));
-    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
+    FunctionReference funRef = new FunctionReference(handle);
+    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, FunctionReference.class, Object.class), 0);
 
     MethodHandle invoker = callSite.dynamicInvoker();
-    assertThat((String) invoker.invokeWithArguments(handle, 123), is("123"));
-    assertThat((String) invoker.invokeWithArguments(handle, 123), is("123"));
+    assertThat((String) invoker.invokeWithArguments(funRef, 123), is("123"));
+    assertThat((String) invoker.invokeWithArguments(funRef, 123), is("123"));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "objectToStringDecorated", genericMethodType(1));
-    assertThat((String) invoker.invokeWithArguments(handle, 123), is("[123]"));
-    assertThat((String) invoker.invokeWithArguments(handle, 123), is("[123]"));
+    funRef = new FunctionReference(handle);
+    assertThat((String) invoker.invokeWithArguments(funRef, 123), is("[123]"));
+    assertThat((String) invoker.invokeWithArguments(funRef, 123), is("[123]"));
   }
 
   @Test
   public void check_bootstrap_varargs() throws Throwable {
     MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class, Object.class), 0);
+    FunctionReference funRef = new FunctionReference(handle);
+    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, FunctionReference.class, Object.class, Object.class), 0);
     MethodHandle invoker = callSite.dynamicInvoker();
-    assertThat((String) invoker.invokeWithArguments(handle, 1, 2), is("12"));
+    assertThat((String) invoker.invokeWithArguments(funRef, 1, 2), is("12"));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
+    funRef = new FunctionReference(handle);
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, FunctionReference.class, Object.class), 0);
     invoker = callSite.dynamicInvoker();
-    assertThat((String) invoker.invokeWithArguments(handle, 1), is("1"));
+    assertThat((String) invoker.invokeWithArguments(funRef, 1), is("1"));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class), 0);
+    funRef = new FunctionReference(handle);
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, FunctionReference.class), 0);
     invoker = callSite.dynamicInvoker();
-    assertThat((String) invoker.invokeWithArguments(handle), is(""));
+    assertThat((String) invoker.invokeWithArguments(funRef), is(""));
 
     handle = lookup().findStatic(ClosureCallSupportTest.class, "concat", genericMethodType(0, true));
-    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
+    funRef = new FunctionReference(handle);
+    callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, FunctionReference.class, Object.class), 0);
     invoker = callSite.dynamicInvoker();
-    assertThat((String) invoker.invokeWithArguments(handle, new Object[]{1,2}), is("12"));
+    assertThat((String) invoker.invokeWithArguments(funRef, new Object[]{1,2}), is("12"));
   }
 
   @Test
   public void check_bootstrap_besides_Object() throws Throwable {
     MethodHandle handle = lookup().findStatic(ClosureCallSupportTest.class, "parseIntWrap", methodType(Integer.class, String.class));
-    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, MethodHandle.class, Object.class), 0);
+    FunctionReference funRef = new FunctionReference(handle);
+    CallSite callSite = ClosureCallSupport.bootstrap(lookup(), "closure", methodType(Object.class, FunctionReference.class, Object.class), 0);
     MethodHandle invoker = callSite.dynamicInvoker();
-    assertThat((Integer) invoker.invokeWithArguments(handle, "123"), is(123));
-    assertThat((Integer) invoker.invokeWithArguments(handle, "123"), is(123));
+    assertThat((Integer) invoker.invokeWithArguments(funRef, "123"), is(123));
+    assertThat((Integer) invoker.invokeWithArguments(funRef, "123"), is(123));
   }
 }

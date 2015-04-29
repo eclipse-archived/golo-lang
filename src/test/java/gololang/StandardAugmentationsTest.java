@@ -56,21 +56,21 @@ public class StandardAugmentationsTest {
   @Test
   public void bindings() throws Throwable {
     Method lbind = moduleClass.getMethod("lbind");
-    MethodHandle mh = (MethodHandle) lbind.invoke(null);
-    Integer result = (Integer) mh.invokeWithArguments(2);
+    FunctionReference funRef = (FunctionReference) lbind.invoke(null);
+    Integer result = (Integer) funRef.handle().invokeWithArguments(2);
     assertThat(result, is(8));
 
     Method rbind = moduleClass.getMethod("rbind");
-    mh = (MethodHandle) rbind.invoke(null);
-    result = (Integer) mh.invokeWithArguments(2);
+    funRef = (FunctionReference) rbind.invoke(null);
+    result = (Integer) funRef.handle().invokeWithArguments(2);
     assertThat(result, is(-8));
   }
 
   @Test
   public void chaining() throws Throwable {
     Method chaining = moduleClass.getMethod("chaining");
-    MethodHandle mh = (MethodHandle) chaining.invoke(null);
-    Integer result = (Integer) mh.invokeWithArguments(4);
+    FunctionReference funRef = (FunctionReference) chaining.invoke(null);
+    Integer result = (Integer) funRef.handle().invokeWithArguments(4);
     assertThat(result, is(-500));
   }
 

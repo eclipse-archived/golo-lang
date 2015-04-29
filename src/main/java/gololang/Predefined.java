@@ -318,42 +318,42 @@ public final class Predefined {
   // ...................................................................................................................
 
   /**
-   * Turns a method handle into an instance of a single-method interface.
+   * Turns a function reference into an instance of a single-method interface.
    *
    * @param interfaceClass the target single-method interface class.
-   * @param target         the implementation method handle.
+   * @param target         the implementation function reference.
    * @return an instance of {@code interfaceClass}.
    * @see java.lang.invoke.MethodHandleProxies#asInterfaceInstance(Class, java.lang.invoke.MethodHandle)
    */
   public static Object asInterfaceInstance(Object interfaceClass, Object target) {
     require(interfaceClass instanceof Class, "interfaceClass must be a Class");
-    require(target instanceof MethodHandle, "target must be a MethodHandle");
-    return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, (MethodHandle) target);
+    require(target instanceof FunctionReference, "target must be a FunctionReference");
+    return MethodHandleProxies.asInterfaceInstance((Class<?>) interfaceClass, ((FunctionReference) target).handle());
   }
 
   /**
-   * Turns a method handle into an instance of a Java 8 functional interface.
+   * Turns a function reference into an instance of a Java 8 functional interface.
    *
    * The implementation delegates to Golo adapter fabrics.
    *
    * @param type the functional interface class.
-   * @param func the implementation method handle.
+   * @param func the implementation function.
    * @return an instance of {@code type}.
    * @throws Throwable if the adaptation fails.
    * @see gololang.GoloAdapter
    */
   public static Object asFunctionalInterface(Object type, Object func) throws Throwable {
     require(type instanceof Class, "type must be a Class");
-    require(func instanceof MethodHandle, "func must be a MethodHandle");
+    require(func instanceof FunctionReference, "func must be a FunctionReference");
     Class<?> theType = (Class<?>) type;
     for (Method method : theType.getMethods()) {
       if (!method.isDefault() && !isStatic(method.getModifiers())) {
         Map<String, Object> configuration = new HashMap<String, Object>() {
           {
             put("interfaces", new Tuple(theType.getCanonicalName()));
-            put("implements", new HashMap<String, MethodHandle>() {
+            put("implements", new HashMap<String, FunctionReference>() {
               {
-                put(method.getName(), dropArguments((MethodHandle) func, 0, Object.class));
+                put(method.getName(), new FunctionReference(dropArguments(((FunctionReference) func).handle(), 0, Object.class)));
               }
             });
           }
@@ -368,22 +368,21 @@ public final class Predefined {
    * Test whether an object is a closure or not.
    *
    * @param object the object.
-   * @return <code>true</code> if <code>object</code> is an instance of <code>java.lang.invoke.MethodHandle</code>,
-   * <code>false</code> otherwise.
+   * @return {@code true} if {@code object} is an instance of {@link gololang.FunctionReference} {@code false} otherwise.
    */
   public static Object isClosure(Object object) {
-    return object instanceof MethodHandle;
+    return object instanceof FunctionReference;
   }
 
   // ...................................................................................................................
 
   /**
-   * Obtains a method handle / closure to a function.
+   * Obtains a reference to a function.
    *
    * @param name   the function name.
    * @param module the function enclosing module (a Java class).
    * @param arity  the function arity, where a negative value means that any arity will do.
-   * @return a method handle to the matched function.
+   * @return a function reference to the matched function.
    * @throws NoSuchMethodException    if the target function could not be found.
    * @throws IllegalArgumentException if the argument types are not of types <code>(String, Class, Integer)</code>.
    * @throws Throwable                if an error occurs.
@@ -409,7 +408,7 @@ public final class Predefined {
     if (validCandidates.size() == 1) {
       targetMethod = validCandidates.iterator().next();
       targetMethod.setAccessible(true);
-      return MethodHandles.publicLookup().unreflect(targetMethod);
+      return new FunctionReference(MethodHandles.publicLookup().unreflect(targetMethod));
     }
     if (validCandidates.size() > 1) {
       throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module

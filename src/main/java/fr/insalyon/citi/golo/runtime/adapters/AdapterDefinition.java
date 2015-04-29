@@ -16,7 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
-import java.lang.invoke.MethodHandle;
+import gololang.FunctionReference;
+
 import java.lang.reflect.Method;
 import java.util.*;
 
@@ -31,8 +32,8 @@ public final class AdapterDefinition {
   private final String name;
   private final String parent;
   private final TreeSet<String> interfaces = new TreeSet<>();
-  private final LinkedHashMap<String, MethodHandle> implementations = new LinkedHashMap<>();
-  private final LinkedHashMap<String, MethodHandle> overrides = new LinkedHashMap<>();
+  private final LinkedHashMap<String, FunctionReference> implementations = new LinkedHashMap<>();
+  private final LinkedHashMap<String, FunctionReference> overrides = new LinkedHashMap<>();
 
   public AdapterDefinition(ClassLoader classLoader, String name, String parent) {
     this.classLoader = classLoader;
@@ -56,11 +57,11 @@ public final class AdapterDefinition {
     return unmodifiableSet(interfaces);
   }
 
-  public Map<String, MethodHandle> getImplementations() {
+  public Map<String, FunctionReference> getImplementations() {
     return unmodifiableMap(implementations);
   }
 
-  public Map<String, MethodHandle> getOverrides() {
+  public Map<String, FunctionReference> getOverrides() {
     return unmodifiableMap(overrides);
   }
 
@@ -69,14 +70,14 @@ public final class AdapterDefinition {
     return this;
   }
 
-  public AdapterDefinition implementsMethod(String name, MethodHandle target) throws AdapterDefinitionProblem {
+  public AdapterDefinition implementsMethod(String name, FunctionReference target) throws AdapterDefinitionProblem {
     checkForImplementation(target);
     checkStarImplementationType(name, target);
     implementations.put(name, target);
     return this;
   }
 
-  public AdapterDefinition overridesMethod(String name, MethodHandle target) throws AdapterDefinitionProblem {
+  public AdapterDefinition overridesMethod(String name, FunctionReference target) throws AdapterDefinitionProblem {
     checkForOverriding(target);
     checkStarOverrideType(name, target);
     overrides.put(name, target);
@@ -108,13 +109,13 @@ public final class AdapterDefinition {
     }
   }
 
-  private void checkStarImplementationType(String name, MethodHandle target) {
+  private void checkStarImplementationType(String name, FunctionReference target) {
     if ("*".equals(name) && !target.type().equals(genericMethodType(2))) {
       throw new AdapterDefinitionProblem("A * implementation must be of type (Object methodName, Object args)Object: " + target);
     }
   }
 
-  private void checkStarOverrideType(String name, MethodHandle target) {
+  private void checkStarOverrideType(String name, FunctionReference target) {
     if ("*".equals(name) && !target.type().equals(genericMethodType(3))) {
       throw new AdapterDefinitionProblem("A * override must be of type (Object superHandle, Object methodName, Object args)Object: " + target);
     }
@@ -187,13 +188,13 @@ public final class AdapterDefinition {
           throw new AdapterDefinitionProblem("There is no implementation or override for: " + abstractMethod);
         }
         if (implementations.containsKey(name)) {
-          MethodHandle target = implementations.get(name);
+          FunctionReference target = implementations.get(name);
           if (argsDifferForImplementation(abstractMethod, target) || varargsMismatch(abstractMethod, target)) {
             throw new AdapterDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
           }
         }
         if (overrides.containsKey(name)) {
-          MethodHandle target = overrides.get(name);
+          FunctionReference target = overrides.get(name);
           if (argsDifferForOverride(abstractMethod, target) || varargsMismatch(abstractMethod, target)) {
             throw new AdapterDefinitionProblem("Types do not match to implement " + abstractMethod + " with " + target);
           }
@@ -204,15 +205,15 @@ public final class AdapterDefinition {
     }
   }
 
-  private boolean varargsMismatch(Method abstractMethod, MethodHandle target) {
+  private boolean varargsMismatch(Method abstractMethod, FunctionReference target) {
     return abstractMethod.isVarArgs() != target.isVarargsCollector();
   }
 
-  private boolean argsDifferForImplementation(Method abstractMethod, MethodHandle target) {
+  private boolean argsDifferForImplementation(Method abstractMethod, FunctionReference target) {
     return (target.type().parameterCount() - 1 != abstractMethod.getParameterTypes().length);
   }
 
-  private boolean argsDifferForOverride(Method abstractMethod, MethodHandle target) {
+  private boolean argsDifferForOverride(Method abstractMethod, FunctionReference target) {
     return (target.type().parameterCount() - 2 != abstractMethod.getParameterTypes().length);
   }
 
@@ -239,13 +240,13 @@ public final class AdapterDefinition {
     }
   }
 
-  private void checkForImplementation(MethodHandle target) throws AdapterDefinitionProblem {
+  private void checkForImplementation(FunctionReference target) throws AdapterDefinitionProblem {
     if (target.type().parameterCount() < 1) {
       throw new AdapterDefinitionProblem("An implemented method target must take at least 1 argument (the receiver): " + target);
     }
   }
 
-  private void checkForOverriding(MethodHandle target) throws AdapterDefinitionProblem {
+  private void checkForOverriding(FunctionReference target) throws AdapterDefinitionProblem {
     if (target.type().parameterCount() < 2) {
       throw new AdapterDefinitionProblem("An overriden method target must take at least 2 arguments (the 'super' method handle followed by the receiver): " + target);
     }

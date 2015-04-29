@@ -151,15 +151,15 @@ public final class AdapterFabric {
     }
     if (configuration.containsKey("implements")) {
       @SuppressWarnings("unchecked")
-      Map<String, MethodHandle> implementations = (Map<String, MethodHandle>) configuration.get("implements");
-      for (Map.Entry<String, MethodHandle> implementation : implementations.entrySet()) {
+      Map<String, FunctionReference> implementations = (Map<String, FunctionReference>) configuration.get("implements");
+      for (Map.Entry<String, FunctionReference> implementation : implementations.entrySet()) {
         definition.implementsMethod(implementation.getKey(), implementation.getValue());
       }
     }
     if (configuration.containsKey("overrides")) {
       @SuppressWarnings("unchecked")
-      Map<String, MethodHandle> overrides = (Map<String, MethodHandle>) configuration.get("overrides");
-      for (Map.Entry<String, MethodHandle> override : overrides.entrySet()) {
+      Map<String, FunctionReference> overrides = (Map<String, FunctionReference>) configuration.get("overrides");
+      for (Map.Entry<String, FunctionReference> override : overrides.entrySet()) {
         definition.overridesMethod(override.getKey(), override.getValue());
       }
     }

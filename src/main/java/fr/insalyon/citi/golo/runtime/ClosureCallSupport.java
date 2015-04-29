@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.FunctionReference;
+
 import java.lang.invoke.*;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
@@ -45,7 +47,7 @@ public class ClosureCallSupport {
       GUARD = lookup.findStatic(
           ClosureCallSupport.class,
           "guard",
-          methodType(boolean.class, MethodHandle.class, MethodHandle.class));
+          methodType(boolean.class, FunctionReference.class, FunctionReference.class));
 
       FALLBACK = lookup.findStatic(
           ClosureCallSupport.class,
@@ -67,13 +69,14 @@ public class ClosureCallSupport {
     return callSite;
   }
 
-  public static boolean guard(MethodHandle expected, MethodHandle actual) {
+  public static boolean guard(FunctionReference expected, FunctionReference actual) {
     return expected == actual;
   }
 
   public static Object fallback(InlineCache callSite, Object[] args) throws Throwable {
-    MethodHandle target = (MethodHandle) args[0];
-    MethodHandle invoker = MethodHandles.dropArguments(target, 0, MethodHandle.class);
+    FunctionReference targetFunctionReference = (FunctionReference) args[0];
+    MethodHandle target = targetFunctionReference.handle();
+    MethodHandle invoker = MethodHandles.dropArguments(target, 0, FunctionReference.class);
     MethodType type = invoker.type();
     if (target.isVarargsCollector()) {
       if (isLastArgumentAnArray(type.parameterCount(), args)) {
@@ -96,7 +99,7 @@ public class ClosureCallSupport {
       callSite.setTarget(constant.asType(type));
       return constantValue;
     } else {
-      MethodHandle guard = GUARD.bindTo(target);
+      MethodHandle guard = GUARD.bindTo(targetFunctionReference);
       MethodHandle root = guardWithTest(guard, invoker, callSite.fallback);
       callSite.setTarget(root);
       return invoker.invokeWithArguments(args);

@@ -19,6 +19,7 @@ package fr.insalyon.citi.golo.compiler;
 import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.GoloParser;
 import fr.insalyon.citi.golo.runtime.OperatorType;
+import gololang.FunctionReference;
 import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodHandle;
@@ -466,8 +467,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       visitReferenceLookup(new ReferenceLookup(functionInvocation.getName()));
     }
     if (functionInvocation.isAnonymous() || functionInvocation.isOnReference() || functionInvocation.isOnModuleState()) {
-      methodVisitor.visitTypeInsn(CHECKCAST, "java/lang/invoke/MethodHandle");
-      MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, MethodHandle.class);
+      methodVisitor.visitTypeInsn(CHECKCAST, "gololang/FunctionReference");
+      MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, FunctionReference.class);
       visitInvocationArguments(functionInvocation);
       methodVisitor.visitInvokeDynamicInsn(
           functionInvocation.getName().replaceAll("\\.", "#"),
@@ -594,7 +595,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
-    // TODO generate bytecode for collections
     switch (collectionLiteral.getType()) {
       case tuple:
         createTuple(collectionLiteral);
@@ -751,22 +751,27 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
     GoloFunction target = closureReference.getTarget();
-    boolean isVarArgs = target.isVarargs();
-    int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
+    final boolean isVarArgs = target.isVarargs();
+    final int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
+    final int syntheticCount = closureReference.getTarget().getSyntheticParameterCount();
     methodVisitor.visitInvokeDynamicInsn(
         target.getName(),
-        methodType(MethodHandle.class).toMethodDescriptorString(),
+        methodType(FunctionReference.class).toMethodDescriptorString(),
         CLOSUREREF_HANDLE,
         klass,
         (Integer) arity,
         (Boolean) isVarArgs);
-    final int syntheticCount = closureReference.getTarget().getSyntheticParameterCount();
     if (syntheticCount > 0) {
-      ReferenceTable table = context.referenceTableStack.peek();
+      methodVisitor.visitMethodInsn(
+          INVOKEVIRTUAL,
+          "gololang/FunctionReference",
+          "handle",
+          "()Ljava/lang/invoke/MethodHandle;", false);
       String[] refs = closureReference.getCapturedReferenceNames().toArray(new String[syntheticCount]);
       loadInteger(methodVisitor, 0);
       loadInteger(methodVisitor, syntheticCount);
       methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+      ReferenceTable table = context.referenceTableStack.peek();
       for (int i = 0; i < syntheticCount; i++) {
         methodVisitor.visitInsn(DUP);
         loadInteger(methodVisitor, i);
@@ -778,13 +783,21 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           "java/lang/invoke/MethodHandles",
           "insertArguments",
           "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;", false);
+      methodVisitor.visitTypeInsn(NEW, "gololang/FunctionReference");
+      methodVisitor.visitInsn(DUP_X1);
+      methodVisitor.visitInsn(SWAP);
+      methodVisitor.visitMethodInsn(
+          INVOKESPECIAL,
+          "gololang/FunctionReference",
+          "<init>",
+          "(Ljava/lang/invoke/MethodHandle;)V", false);
       if (isVarArgs) {
         methodVisitor.visitLdcInsn(Type.getType(Object[].class));
         methodVisitor.visitMethodInsn(
             INVOKEVIRTUAL,
-            "java/lang/invoke/MethodHandle",
+            "gololang/FunctionReference",
             "asVarargsCollector",
-            "(Ljava/lang/Class;)Ljava/lang/invoke/MethodHandle;", false);
+            "(Ljava/lang/Class;)Lgololang/FunctionReference;", false);
       }
     }
   }

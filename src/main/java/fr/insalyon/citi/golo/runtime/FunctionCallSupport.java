@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.FunctionReference;
+
 import java.lang.invoke.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
@@ -68,15 +70,15 @@ public final class FunctionCallSupport {
   }
 
   public static Object samFilter(Class<?> type, Object value) {
-    if (value instanceof MethodHandle) {
-      return MethodHandleProxies.asInterfaceInstance(type, (MethodHandle) value);
+    if (value instanceof FunctionReference) {
+      return MethodHandleProxies.asInterfaceInstance(type, ((FunctionReference) value).handle());
     }
     return value;
   }
 
   public static Object functionalInterfaceFilter(Lookup caller, Class<?> type, Object value) throws Throwable {
-    if (value instanceof MethodHandle) {
-      return asFunctionalInterface(caller, type, (MethodHandle) value);
+    if (value instanceof FunctionReference) {
+      return asFunctionalInterface(caller, type, ((FunctionReference) value).handle());
     }
     return value;
   }

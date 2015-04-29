@@ -135,7 +135,7 @@ public class PredefinedTest {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     MethodHandle handle = lookup.findStatic(MyCallable.class, "hello", genericMethodType(0));
     assertThat((String) handle.invoke(), is("Hello!"));
-    Callable<Object> converted = (Callable<Object>) Predefined.asInterfaceInstance(Callable.class, handle);
+    Callable<Object> converted = (Callable<Object>) Predefined.asInterfaceInstance(Callable.class, new FunctionReference(handle));
     assertThat((String) converted.call(), is("Hello!"));
   }
 
@@ -144,24 +144,24 @@ public class PredefinedTest {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     MethodHandle handle = lookup.findStatic(MyCallable.class, "hello", genericMethodType(0));
     assertThat((String) handle.invoke(), is("Hello!"));
-    Predefined.asInterfaceInstance(ActionListener.class, handle);
+    Predefined.asInterfaceInstance(ActionListener.class, new FunctionReference(handle));
   }
 
   @Test
   public void test_fun() throws Throwable {
-    MethodHandle hello = (MethodHandle) Predefined.fun("hello", MyCallable.class, 0);
-    assertThat((String) hello.invoke(), is("Hello!"));
+    FunctionReference hello = (FunctionReference) Predefined.fun("hello", MyCallable.class, 0);
+    assertThat((String) hello.handle().invoke(), is("Hello!"));
   }
 
   @Test
   public void test_fun_no_arity() throws Throwable {
-    MethodHandle hello = (MethodHandle) Predefined.fun("hello", MyCallable.class);
-    assertThat((String) hello.invoke(), is("Hello!"));
+    FunctionReference hello = (FunctionReference) Predefined.fun("hello", MyCallable.class);
+    assertThat((String) hello.handle().invoke(), is("Hello!"));
   }
 
   @Test(expectedExceptions = NoSuchMethodException.class)
   public void test_fun_fail() throws Throwable {
-    MethodHandle hello = (MethodHandle) Predefined.fun("helloz", MyCallable.class, 0);
+    Predefined.fun("helloz", MyCallable.class, 0);
   }
 
   @Test(expectedExceptions = AmbiguousFunctionReferenceException.class)
@@ -171,20 +171,20 @@ public class PredefinedTest {
 
   @Test(expectedExceptions = WrongMethodTypeException.class)
   public void test_fun_wrong_arity() throws Throwable {
-    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 1);
-    overloaded.invoke(1, 2);
+    FunctionReference overloaded = (FunctionReference) Predefined.fun("overloaded", MyCallable.class, 1);
+    overloaded.handle().invoke(1, 2);
   }
 
   @Test
   public void test_fun_overloaded1() throws Throwable {
-    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 1);
-    assertThat((Integer) overloaded.invoke(2), is(3));
+    FunctionReference overloaded = (FunctionReference) Predefined.fun("overloaded", MyCallable.class, 1);
+    assertThat((Integer) overloaded.handle().invoke(2), is(3));
   }
 
   @Test
   public void test_fun_overloaded2() throws Throwable {
-    MethodHandle overloaded = (MethodHandle) Predefined.fun("overloaded", MyCallable.class, 2);
-    assertThat((Integer) overloaded.invoke(1, 2), is(3));
+    FunctionReference overloaded = (FunctionReference) Predefined.fun("overloaded", MyCallable.class, 2);
+    assertThat((Integer) overloaded.handle().invoke(1, 2), is(3));
   }
 
   @Test
@@ -243,7 +243,7 @@ public class PredefinedTest {
   @SuppressWarnings("unchecked")
   public void check_asFunctionalInterface_public_static_method() throws Throwable {
     MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "echo", genericMethodType(1));
-    Object object = Predefined.asFunctionalInterface(Function.class, echo);
+    Object object = Predefined.asFunctionalInterface(Function.class, new FunctionReference(echo));
     assertThat(object instanceof Function, is(true));
     Function<Object, Object> func = (Function) object;
     assertThat(func.apply("Hey!"), is("Hey!"));
@@ -257,7 +257,7 @@ public class PredefinedTest {
   @SuppressWarnings("unchecked")
   public void check_asFunctionalInterface_private_static_method() throws Throwable {
     MethodHandle echo = MethodHandles.lookup().findStatic(PredefinedTest.class, "ohce", genericMethodType(1));
-    Object object = Predefined.asFunctionalInterface(Function.class, echo);
+    Object object = Predefined.asFunctionalInterface(Function.class, new FunctionReference(echo));
     assertThat(object instanceof Function, is(true));
     Function<Object, Object> func = (Function) object;
     assertThat(func.apply("Hey!"), is("Hey!"));

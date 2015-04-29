@@ -16,6 +16,7 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.FunctionReference;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
@@ -48,13 +49,14 @@ public class ClosureReferenceSupportTest {
 
   @Test
   public void check_bootstrap() throws Throwable {
-    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "to_list", methodType(MethodHandle.class), KLASS, 2, 0);
-    assertThat(callSite.type(), is(methodType(MethodHandle.class)));
+    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "to_list", methodType(FunctionReference.class), KLASS, 2, 0);
+    assertThat(callSite.type(), is(methodType(FunctionReference.class)));
 
     Object result = callSite.dynamicInvoker().invoke();
-    assertThat(result, instanceOf(MethodHandle.class));
+    assertThat(result, instanceOf(FunctionReference.class));
 
-    MethodHandle handle = (MethodHandle) result;
+    FunctionReference funRef = (FunctionReference) result;
+    MethodHandle handle = funRef.handle();
     assertThat(handle.type(), is(methodType(Object.class, Object.class, Object.class)));
 
     result = handle.invoke("foo", "bar");
@@ -64,13 +66,14 @@ public class ClosureReferenceSupportTest {
 
   @Test
   public void check_bootstrap_varargs() throws Throwable {
-    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "concat", methodType(MethodHandle.class), KLASS, 0, 1);
-    assertThat(callSite.type(), is(methodType(MethodHandle.class)));
+    CallSite callSite = ClosureReferenceSupport.bootstrap(lookup(), "concat", methodType(FunctionReference.class), KLASS, 0, 1);
+    assertThat(callSite.type(), is(methodType(FunctionReference.class)));
 
     Object result = callSite.dynamicInvoker().invoke();
-    assertThat(result, instanceOf(MethodHandle.class));
+    assertThat(result, instanceOf(FunctionReference.class));
 
-    MethodHandle handle = (MethodHandle) result;
+    FunctionReference funRef = (FunctionReference) result;
+    MethodHandle handle = funRef.handle();
     assertThat(handle.type(), is(methodType(Object.class, Object[].class)));
 
     result = handle.invoke("foo", "bar");

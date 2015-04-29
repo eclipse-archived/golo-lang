@@ -59,10 +59,10 @@ public class EvaluationEnvironmentTest {
     EvaluationEnvironment env = new EvaluationEnvironment();
     Object result = env.asFunction("let x = 1\nreturn x + 2");
 
-    assertThat(result, instanceOf(MethodHandle.class));
+    assertThat(result, instanceOf(FunctionReference.class));
 
-    MethodHandle func = (MethodHandle) result;
-    assertThat((Integer) func.invoke(), is(3));
+    FunctionReference func = (FunctionReference) result;
+    assertThat((Integer) func.handle().invoke(), is(3));
   }
 
   @Test
@@ -70,11 +70,11 @@ public class EvaluationEnvironmentTest {
     EvaluationEnvironment env = new EvaluationEnvironment();
     Object result = env.asFunction("return a + b", "a", "b");
 
-    assertThat(result, instanceOf(MethodHandle.class));
-    MethodHandle func = (MethodHandle) result;
+    assertThat(result, instanceOf(FunctionReference.class));
+    FunctionReference func = (FunctionReference) result;
 
     assertThat(func.type().parameterCount(), is(2));
-    assertThat((Integer) func.invoke(10, 5), is(15));
+    assertThat((Integer) func.handle().invoke(10, 5), is(15));
   }
 
   @Test
@@ -129,10 +129,10 @@ public class EvaluationEnvironmentTest {
     String code = "|a, b| -> a + b";
 
     Object result = env.def(code);
-    assertThat(result, instanceOf(MethodHandle.class));
-    MethodHandle func = (MethodHandle) result;
+    assertThat(result, instanceOf(FunctionReference.class));
+    FunctionReference func = (FunctionReference) result;
     assertThat(func.type().parameterCount(), is(2));
-    assertThat((Integer) func.invoke(10, 5), is(15));
+    assertThat((Integer) func.handle().invoke(10, 5), is(15));
   }
 
   @Test

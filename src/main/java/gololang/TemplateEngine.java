@@ -65,10 +65,10 @@ public class TemplateEngine {
    * @throws fr.insalyon.citi.golo.compiler.GoloCompilationException
    *          if a compilation error occurs in the generated Golo code.
    */
-  public MethodHandle compile(String template) {
+  public FunctionReference compile(String template) {
     evaluationEnvironment.clearImports();
     String goloCode = templateToGolo(template);
-    return (MethodHandle) evaluationEnvironment.def(goloCode);
+    return (FunctionReference) evaluationEnvironment.def(goloCode);
   }
 
   /**

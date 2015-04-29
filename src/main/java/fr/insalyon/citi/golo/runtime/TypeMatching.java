@@ -16,7 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime;
 
-import java.lang.invoke.MethodHandle;
+import gololang.FunctionReference;
+
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -76,11 +77,11 @@ public class TypeMatching {
   }
 
   private static boolean functionalInterfaceAssignment(Class<?> type, Object value) {
-    return (value instanceof MethodHandle) && isFunctionalInterface(type);
+    return (value instanceof FunctionReference) && isFunctionalInterface(type);
   }
 
   public static boolean samAssignment(Class<?> type, Object value) {
-    return (value instanceof MethodHandle) && isSAM(type);
+    return (value instanceof FunctionReference) && isSAM(type);
   }
 
   public static boolean isSAM(Class<?> type) {
