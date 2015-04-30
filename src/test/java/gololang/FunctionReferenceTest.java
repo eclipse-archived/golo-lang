@@ -72,6 +72,7 @@ public class FunctionReferenceTest {
   public void sanity_check() throws Throwable {
     FunctionReference fun = new FunctionReference(ping);
     assertThat(fun.handle().invoke("Plop"), is("Plop"));
+    assertThat(fun.invoke("Plop"), is("Plop"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
