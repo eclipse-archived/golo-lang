@@ -17,10 +17,7 @@
 package gololang;
 
 import java.lang.invoke.MethodHandle;
-import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
-import java.util.Arrays;
-import java.util.List;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
 import static java.lang.invoke.MethodHandles.insertArguments;
@@ -108,18 +105,16 @@ public final class FunctionReference {
     return new FunctionReference(insertArguments(this.handle, position, value));
   }
 
-  public FunctionReference spread(Object... arguments) throws Throwable {
+  public Object spread(Object... arguments) throws Throwable {
     int arity = this.handle.type().parameterCount();
     if (this.handle.isVarargsCollector() && (arity > 0) && (arguments[arity - 1] instanceof Object[])) {
-      MethodHandle spread = (MethodHandle) this.handle
+      return this.handle
           .asFixedArity()
           .asSpreader(Object[].class, arguments.length)
-          .invokeWithArguments(arguments);
-      return new FunctionReference(spread);
+          .invoke(arguments);
     }
-    MethodHandle spread = (MethodHandle) this.handle
+    return this.handle
         .asSpreader(Object[].class, arguments.length)
-        .invokeWithArguments(arguments);
-    return new FunctionReference(spread);
+        .invoke(arguments);
   }
 }
