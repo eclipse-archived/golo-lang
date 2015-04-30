@@ -63,7 +63,7 @@ context object.
 function withContext = |context| -> |fun| -> |args...| {
   var result = null
   try {
-    result = context: exit(fun: handle(): invokeWithArguments(context: entry(args)))
+    result = context: exit(fun: invoke(context: entry(args)))
   } catch (e) {
     context: catcher(e)
   } finally {
@@ -86,14 +86,14 @@ Checks arguments of the decorated function. Any checker can be used
 ----
 function checkArguments= |preTests...| -> |fun| -> |args...| {
   _apply_tests_(preTests, args)
-  return fun: handle(): invokeWithArguments(args)
+  return fun: invoke(args)
 }
 
 ----
 Checks result of the decorated function. Any checker can be used
 ----
 function checkResult = |postTest| -> |fun| -> |args...| {
-  let result = fun: handle(): invokeWithArguments(args)
+  let result = fun: invoke(args)
   postTest(result)
   return result
 }
@@ -226,7 +226,7 @@ function memoizer = {
   return |fun| -> |args...| {
     let key = [fun: hashCode(), Tuple(args)]
     if (not cache: containsKey(key)) {
-      cache: add(key, fun: handle(): invokeWithArguments(args))
+      cache: add(key, fun: invoke(args))
     }
     return cache: get(key)
   }
@@ -251,7 +251,7 @@ empty string, nothing is logged.
 function loggerDecorator = |logger| {
   return |msgBefore, msgAfter| -> |func| -> |args...| {
     if msgBefore isnt null and msgBefore != "" { logger(msgBefore) }
-    let res = func: handle(): invokeWithArguments(args)
+    let res = func: invoke(args)
     if msgAfter isnt null and msgAfter != "" { logger(msgAfter) }
     return res
   }

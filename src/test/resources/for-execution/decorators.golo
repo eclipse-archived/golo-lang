@@ -9,7 +9,7 @@ function displayArgs = |name| {
         println(name+i+" : "+arg)
         i = i + 1
       }
-      let ret = func: handle(): invokeWithArguments(args)
+      let ret = func: invoke(args)
       return ret
     }
     return wrapper
@@ -19,7 +19,7 @@ function displayArgs = |name| {
 function displayTime = |func| {
   let wrapper = |args...| {
     let time = System.currentTimeMillis()
-    let ret = func: handle(): invokeWithArguments(args)
+    let ret = func: invoke(args)
     println((System.currentTimeMillis() - time) + "ms")
     return ret
   }
@@ -32,7 +32,7 @@ function checkInput = |types...| {
       for (var i = 0, i < args:length(), i = i + 1) {
         require(args: get(i) oftype types: get(i) , "arg"+i+" must be a "+types: get(i) )
       }
-      return func: handle(): invokeWithArguments(args)
+      return func: invoke(args)
     }
     return wrapper
   }
@@ -74,7 +74,7 @@ function test_decorator_order = -> ""
 
 function generic_decorator = |func| {
   let wrapper = |args...| {
-    return "(" + func: handle(): invokeWithArguments(args)  + ")"
+    return "(" + func: invoke(args)  + ")"
   }
   return wrapper
 }

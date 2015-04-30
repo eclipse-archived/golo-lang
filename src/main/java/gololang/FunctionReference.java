@@ -69,6 +69,10 @@ public final class FunctionReference {
     return new FunctionReference(handle.asSpreader(arrayType, arrayLength));
   }
 
+  public Object invoke(Object... args) throws Throwable {
+    return handle.invokeWithArguments(args);
+  }
+
   @Override
   public String toString() {
     return "FunctionReference{" +

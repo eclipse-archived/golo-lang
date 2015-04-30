@@ -89,7 +89,7 @@ function n = {
           }
         }
       }
-      return f3(): invokeWithArguments("bean@outlook.com"): invokeWithArguments()
+      return f3(): invoke("bean@outlook.com"): invoke()
     }
     let result = go()
     println(result: name())

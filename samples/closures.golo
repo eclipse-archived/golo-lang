@@ -18,11 +18,11 @@ local function sayHello = |who| -> "Hello " + who + "!"
 
 function main = |args| {
   let adder = |a, b| -> a + b
-  println(adder: handle(): invokeWithArguments(1, 2))
+  println(adder: invoke(1, 2))
   println(adder(1, 2))
 
   let addToTen = adder: bindTo(10)
-  println(addToTen: handle(): invokeWithArguments(2))
+  println(addToTen: invoke(2))
   println(addToTen(2))
 
   let adding = |x| -> |y| -> adder(x, y)
