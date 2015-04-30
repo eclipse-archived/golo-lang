@@ -35,7 +35,7 @@ function parametrized_adder = |x,y| -> x + y
 function generic_decorator = |func| {
   return |args...| {
     println("number of params : "+args: length())
-    return func: invokeWithArguments(args)
+    return func: handle(): invokeWithArguments(args)
   }
 }
 

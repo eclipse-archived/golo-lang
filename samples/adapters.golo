@@ -28,7 +28,7 @@ local function list_sample = |fabric| {
             carbonCopy: add(args: get(1), args: get(2))
           }
         }
-        return super: invokeWithArguments(args)
+        return super: handle(): invokeWithArguments(args)
       }
     ]]
   ]]

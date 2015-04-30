@@ -5,7 +5,7 @@ function log1 = |msg| {
     return |fun| {
         return |args...| {
             println(msg)
-            return fun: invokeWithArguments(args)
+            return fun: handle(): invokeWithArguments(args)
         }
     }
 }
@@ -25,7 +25,7 @@ function baz = -> "Goodbye"
 
 function log2 = |msgBefore| -> |msgAfter| -> |func| -> |args...| {
     println(msgBefore)
-    let res = func: invokeWithArguments(args)
+    let res = func: handle(): invokeWithArguments(args)
     println(msgAfter)
     return res
 }
