@@ -41,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
@@ -662,6 +663,32 @@ public class CompileAndRunTest {
 
     Method funky = moduleClass.getMethod("funky");
     assertThat((Integer) funky.invoke(null), is(6));
+  }
+
+  @Test
+  public void test_function_reference_manipulation() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "fun-refs.golo");
+
+    Method method_handle_to = moduleClass.getMethod("method_handle_to");
+    Object result = method_handle_to.invoke(null);
+    assertThat(result, instanceOf(Callable.class));
+    Callable<?> callable = (Callable<?>) result;
+    assertThat(callable.call(), is("ok"));
+
+    Method lbind = moduleClass.getMethod("lbind");
+    FunctionReference funRef = (FunctionReference) lbind.invoke(null);
+    result = funRef.handle().invokeWithArguments(2);
+    assertThat(result, is(8));
+
+    Method rbind = moduleClass.getMethod("rbind");
+    funRef = (FunctionReference) rbind.invoke(null);
+    result = funRef.handle().invokeWithArguments(2);
+    assertThat(result, is(-8));
+
+    Method chaining = moduleClass.getMethod("chaining");
+    funRef = (FunctionReference) chaining.invoke(null);
+    result = funRef.handle().invokeWithArguments(4);
+    assertThat(result, is(-500));
   }
 
   @Test

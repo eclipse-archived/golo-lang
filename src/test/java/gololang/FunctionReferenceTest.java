@@ -25,6 +25,9 @@ import java.lang.invoke.MethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
 
+/*
+ * Note: most tests are to be run from Golo code and CompileAndRunTest.
+ */
 public class FunctionReferenceTest {
 
   public static class Foo {

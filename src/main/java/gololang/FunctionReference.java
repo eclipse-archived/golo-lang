@@ -17,9 +17,13 @@
 package gololang;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.List;
+
+import static java.lang.invoke.MethodHandles.filterReturnValue;
+import static java.lang.invoke.MethodHandles.insertArguments;
 
 public final class FunctionReference {
 
@@ -42,10 +46,6 @@ public final class FunctionReference {
 
   public FunctionReference asCollector(Class<?> arrayType, int arrayLength) {
     return new FunctionReference(handle.asCollector(arrayType, arrayLength));
-  }
-
-  public Object invokeWithArguments(List<?> arguments) throws Throwable {
-    return handle.invokeWithArguments(arguments);
   }
 
   public FunctionReference asFixedArity() {
@@ -94,5 +94,32 @@ public final class FunctionReference {
   @Override
   public int hashCode() {
     return handle.hashCode();
+  }
+
+  public Object to(Class<?> interfaceClass) {
+    return Predefined.asInterfaceInstance(interfaceClass, this);
+  }
+
+  public FunctionReference andThen(FunctionReference fun) {
+    return new FunctionReference(filterReturnValue(this.handle, fun.handle));
+  }
+
+  public FunctionReference bindAt(int position, Object value) {
+    return new FunctionReference(insertArguments(this.handle, position, value));
+  }
+
+  public FunctionReference spread(Object... arguments) throws Throwable {
+    int arity = this.handle.type().parameterCount();
+    if (this.handle.isVarargsCollector() && (arity > 0) && (arguments[arity - 1] instanceof Object[])) {
+      MethodHandle spread = (MethodHandle) this.handle
+          .asFixedArity()
+          .asSpreader(Object[].class, arguments.length)
+          .invokeWithArguments(arguments);
+      return new FunctionReference(spread);
+    }
+    MethodHandle spread = (MethodHandle) this.handle
+        .asSpreader(Object[].class, arguments.length)
+        .invokeWithArguments(arguments);
+    return new FunctionReference(spread);
   }
 }
