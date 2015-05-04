@@ -19,6 +19,7 @@ package gololang;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.lang.reflect.Parameter;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
 import static java.lang.invoke.MethodHandles.insertArguments;
@@ -40,6 +41,8 @@ public class FunctionReference {
 
   private final MethodHandle handle;
 
+  private Parameter[] parameters;
+
   /**
    * Makes a function reference from a method handle.
    *
@@ -60,6 +63,19 @@ public class FunctionReference {
    */
   public MethodHandle handle() {
     return handle;
+  }
+
+  public void setParameters(Parameter[] parameters) {
+    this.parameters = parameters;
+  }
+
+  /**
+   * Get the target function parameters
+   *
+   * @return the target @java.lang.Method parameters
+   */
+  public Parameter[] getParameters() {
+    return parameters;
   }
 
   public MethodType type() {

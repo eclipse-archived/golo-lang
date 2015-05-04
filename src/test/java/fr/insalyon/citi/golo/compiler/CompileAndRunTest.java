@@ -28,11 +28,18 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.Serializable;
-import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.NoSuchElementException;
+import java.util.Set;
 import java.util.concurrent.Callable;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
@@ -860,6 +867,9 @@ public class CompileAndRunTest {
 
     Method funky = moduleClass.getMethod("funky");
     assertThat((Integer) funky.invoke(null), is(6));
+
+    Method closure_with_named_args = moduleClass.getMethod("closure_with_named_args");
+    assertThat(closure_with_named_args.invoke(null), is("It Rocks"));
   }
 
   @Test

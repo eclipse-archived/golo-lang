@@ -19,8 +19,12 @@ package fr.insalyon.citi.golo.runtime;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
+import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
+import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
 
@@ -30,10 +34,12 @@ public class ClosureCallSupport {
 
     MethodHandle fallback;
     final boolean constant;
+    final String[] argumentNames;
 
-    public InlineCache(MethodType type, boolean constant) {
+    public InlineCache(MethodType type, boolean constant, String[] argumentNames) {
       super(type);
       this.constant = constant;
+      this.argumentNames = argumentNames;
     }
   }
 
@@ -58,8 +64,13 @@ public class ClosureCallSupport {
     }
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int constant) {
-    InlineCache callSite = new InlineCache(type, constant == 1);
+  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, Object... bsmArgs) {
+    boolean constant = ((int)bsmArgs[0]) == 1;
+    String[] argumentNames = new String[bsmArgs.length - 1];
+    for (int i = 0; i < bsmArgs.length -1; i++) {
+      argumentNames[i] = (String) bsmArgs[i+1];
+    }
+    InlineCache callSite = new InlineCache(type, constant, argumentNames);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
@@ -78,6 +89,9 @@ public class ClosureCallSupport {
     MethodHandle target = targetFunctionReference.handle();
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, FunctionReference.class);
     MethodType type = invoker.type();
+    if(callSite.argumentNames.length > 0) {
+      invoker = reorderArguments(targetFunctionReference.getParameters(), invoker, callSite.argumentNames);
+    }
     if (target.isVarargsCollector()) {
       if (isLastArgumentAnArray(type.parameterCount(), args)) {
         invoker = invoker.asFixedArity().asType(callSite.type());
@@ -104,5 +118,28 @@ public class ClosureCallSupport {
       callSite.setTarget(root);
       return invoker.invokeWithArguments(args);
     }
+  }
+
+  private static MethodHandle reorderArguments(Parameter[] parameters, MethodHandle handle, String[] argumentNames) {
+    if (Arrays.stream(parameters).allMatch(p -> p.isNamePresent())) {
+      String[] parameterNames = Arrays.stream(parameters).map(Parameter::getName).toArray(String[]::new);
+      int[] argumentsOrder = new int[parameterNames.length + 1];
+      argumentsOrder[0] = 0;
+      argumentsOrder[1] = 1;
+      for (int i = 0; i < argumentNames.length; i++) {
+        int actualPosition = -1;
+        for (int j = 0; j < parameterNames.length; j++) {
+          if (parameterNames[j].equals(argumentNames[i])) {
+            actualPosition = j;
+          }
+        }
+        if (actualPosition == -1) {
+          throw new IllegalArgumentException("Argument name " + argumentNames[i] + " not in parameter names used in declaration: " + Arrays.toString(parameterNames));
+        }
+        argumentsOrder[actualPosition + 1] = i + 1;
+      }
+      return permuteArguments(handle, handle.type(), argumentsOrder);
+    }
+    return handle;
   }
 }

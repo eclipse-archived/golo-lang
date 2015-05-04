@@ -20,6 +20,7 @@ import gololang.FunctionReference;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Method;
+import java.lang.reflect.Parameter;
 
 import static java.lang.invoke.MethodHandles.constant;
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -30,7 +31,10 @@ public class ClosureReferenceSupport {
     Class<?> module = caller.lookupClass().getClassLoader().loadClass(moduleClass);
     Method function = module.getDeclaredMethod(name, genericMethodType(arity, varargs == 1).parameterArray());
     function.setAccessible(true);
+    FunctionReference reference = new FunctionReference(caller.unreflect(function));
+    reference.setParameters(function.getParameters());
     return new ConstantCallSite(
-        constant(FunctionReference.class, new FunctionReference(caller.unreflect(function))));
+        constant(FunctionReference.class, reference));
   }
+
 }

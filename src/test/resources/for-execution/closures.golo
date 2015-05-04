@@ -221,3 +221,8 @@ function funky = {
   let adder = |x| -> |y| -> |z| -> x + y + z
   return adder(1)(2)(3)
 }
+
+function closure_with_named_args = {
+  let create_post = |title, body| -> title + " " + body
+  return create_post(body = "Rocks", title = "It")
+}
