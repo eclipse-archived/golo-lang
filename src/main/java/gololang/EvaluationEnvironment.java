@@ -22,6 +22,7 @@ import fr.insalyon.citi.golo.compiler.GoloCompilationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -182,7 +183,7 @@ public class EvaluationEnvironment {
    * </pre>
    *
    * @param source the function code.
-   * @return the function as a {@link java.lang.invoke.MethodHandle} instance.
+   * @return the function as a {@link gololang.FunctionReference} instance.
    */
   public Object def(String source) {
     return loadAndRun("return " + source, "$_code");
@@ -199,7 +200,7 @@ public class EvaluationEnvironment {
    *
    * @param source        the function body source code.
    * @param argumentNames the argument names.
-   * @return the function as a {@link java.lang.invoke.MethodHandle} instance.
+   * @return the function as a {@link gololang.FunctionReference} instance.
    */
   public Object asFunction(String source, String... argumentNames) {
     return loadAndRun(source, "$_code_ref", argumentNames);

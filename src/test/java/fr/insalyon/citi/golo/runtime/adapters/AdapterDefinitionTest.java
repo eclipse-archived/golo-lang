@@ -16,10 +16,10 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
+import gololang.FunctionReference;
 import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.util.Iterator;
@@ -52,21 +52,21 @@ public class AdapterDefinitionTest {
     }
   }
 
-  private static final MethodHandle z_mh;
-  private static final MethodHandle a_mh;
-  private static final MethodHandle b_mh;
-  private static final MethodHandle c_mh;
-  private static final MethodHandle d_mh;
+  private static final FunctionReference z_mh;
+  private static final FunctionReference a_mh;
+  private static final FunctionReference b_mh;
+  private static final FunctionReference c_mh;
+  private static final FunctionReference d_mh;
   private static final ClassLoader LOADER = AdapterDefinitionTest.class.getClassLoader();
 
   static {
     try {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
-      z_mh = lookup.findStatic(HandleProvider.class, "z", MethodType.genericMethodType(0));
-      a_mh = lookup.findStatic(HandleProvider.class, "a", MethodType.genericMethodType(1));
-      b_mh = lookup.findStatic(HandleProvider.class, "b", MethodType.genericMethodType(2));
-      c_mh = lookup.findStatic(HandleProvider.class, "c", MethodType.genericMethodType(2));
-      d_mh = lookup.findStatic(HandleProvider.class, "d", MethodType.genericMethodType(3));
+      z_mh = new FunctionReference(lookup.findStatic(HandleProvider.class, "z", MethodType.genericMethodType(0)));
+      a_mh = new FunctionReference(lookup.findStatic(HandleProvider.class, "a", MethodType.genericMethodType(1)));
+      b_mh = new FunctionReference(lookup.findStatic(HandleProvider.class, "b", MethodType.genericMethodType(2)));
+      c_mh = new FunctionReference(lookup.findStatic(HandleProvider.class, "c", MethodType.genericMethodType(2)));
+      d_mh = new FunctionReference(lookup.findStatic(HandleProvider.class, "d", MethodType.genericMethodType(3)));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new TestNGException(e);
     }

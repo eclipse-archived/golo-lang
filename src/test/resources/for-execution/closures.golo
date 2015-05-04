@@ -19,7 +19,7 @@ function handle_with_capture = |a, b| {
 
 function call_with_invoke = {
   let f = handle_with_capture(5, 4)
-  return f: invokeWithArguments(10)
+  return f: invoke(10)
 }
 
 function call_with_ref = {
@@ -57,7 +57,7 @@ function in_a_map = {
   let map1 = HashMap()
   let map2 = HashMap()
   map1: put("put_twice", |x| -> map2: put(x, x * 2))
-  map1: get("put_twice"): invokeWithArguments(2)
+  map1: get("put_twice"): invoke(2)
   return map2: get(2)
 }
 

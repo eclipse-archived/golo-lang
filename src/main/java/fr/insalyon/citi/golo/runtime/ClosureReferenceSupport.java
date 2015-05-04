@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.FunctionReference;
+
 import java.lang.invoke.*;
 import java.lang.reflect.Method;
 
@@ -28,6 +30,7 @@ public class ClosureReferenceSupport {
     Class<?> module = caller.lookupClass().getClassLoader().loadClass(moduleClass);
     Method function = module.getDeclaredMethod(name, genericMethodType(arity, varargs == 1).parameterArray());
     function.setAccessible(true);
-    return new ConstantCallSite(constant(MethodHandle.class, caller.unreflect(function)));
+    return new ConstantCallSite(
+        constant(FunctionReference.class, new FunctionReference(caller.unreflect(function))));
   }
 }

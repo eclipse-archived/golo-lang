@@ -6,7 +6,7 @@ augment MyStruct {
 }
 
 function with_invoke = {
-  return (|x| -> x + 1): invokeWithArguments(1)  
+  return (|x| -> x + 1): invoke(1)
 }
 
 function direct_call = {

@@ -16,6 +16,8 @@
 
 package fr.insalyon.citi.golo.runtime.adapters;
 
+import gololang.FunctionReference;
+
 import java.lang.invoke.*;
 import java.util.Map;
 
@@ -62,32 +64,39 @@ public class AdapterSupport {
     Class<?> receiverClass = args[0].getClass();
     Class<?> receiverParentClass = receiverClass.getSuperclass();
     AdapterDefinition definition = (AdapterDefinition) receiverClass.getField(DEFINITION_FIELD).get(args[0]);
-    Map<String, MethodHandle> implementations = definition.getImplementations();
-    MethodHandle target = implementations.get(callSite.name);
+    Map<String, FunctionReference> implementations = definition.getImplementations();
+    MethodHandle target = null;
+    if (implementations.containsKey(callSite.name)) {
+      target = implementations.get(callSite.name).handle();
+    }
     if (target == null) {
-      target = implementations.get("*");
-      if (target != null) {
+      if (implementations.containsKey("*")) {
+        target = implementations.get("*").handle();
         target = target.bindTo(callSite.name).asCollector(Object[].class, args.length);
       }
     }
     if (target == null) {
-      Map<String, MethodHandle> overrides = definition.getOverrides();
+      Map<String, FunctionReference> overrides = definition.getOverrides();
       MethodHandle superTarget = callSite.callerLookup.findSpecial(receiverParentClass, callSite.name, callSite.type().dropParameterTypes(0, 1), receiverClass);
       if (superTarget.isVarargsCollector()) {
         superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount() - 1, true)).asVarargsCollector(Object[].class);
       } else {
         superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount()));
       }
-      target = overrides.get(callSite.name);
+      if (overrides.containsKey(callSite.name)) {
+        target = overrides.get(callSite.name).handle();
+      }
       boolean star = false;
       if (target == null) {
-        target = overrides.get("*");
+        if (overrides.containsKey("*")) {
+          target = overrides.get("*").handle();
+        }
         star = true;
       }
       if (target == null) {
         target = superTarget;
       } else {
-        target = target.bindTo(superTarget);
+        target = target.bindTo(new FunctionReference(superTarget));
         if (star) {
           target = target.bindTo(callSite.name);
           target = target.asCollector(Object[].class, args.length);

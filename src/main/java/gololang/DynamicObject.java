@@ -31,7 +31,7 @@ import static java.lang.invoke.MethodType.methodType;
 
 /**
  * A dynamic object is an object whose properties can be dynamically added, changed and removed. Properties can be any
- * object value or a method handle to a closure.
+ * object value or a function reference.
  * <p>
  * The methods <code>plug</code> and <code>propertyMissing</code> are left undocumented. They are being used
  * by the Golo runtime to dispatch method invocations on dynamic objects.
@@ -137,27 +137,27 @@ public final class DynamicObject {
     DynamicObject obj = (DynamicObject) args[0];
     Object value = obj.properties.get(property);
     if (value != null) {
-      if (value instanceof MethodHandle) {
-        MethodHandle handle = (MethodHandle) value;
-        if (handle.isVarargsCollector() && args[args.length - 1] instanceof Object[]) {
+      if (value instanceof FunctionReference) {
+        FunctionReference funRef = (FunctionReference) value;
+        if (funRef.isVarargsCollector() && args[args.length - 1] instanceof Object[]) {
           Object[] trailing = (Object[]) args[args.length - 1];
           Object[] spreadArgs = new Object[args.length + trailing.length - 1];
           arraycopy(args, 0, spreadArgs, 0, args.length - 1);
           arraycopy(trailing, 0, spreadArgs, args.length - 1, trailing.length);
-          return handle.invokeWithArguments(spreadArgs);
+          return funRef.handle().invokeWithArguments(spreadArgs);
         }
-        return handle.invokeWithArguments(args);
+        return funRef.handle().invokeWithArguments(args);
       } else {
         throw new UnsupportedOperationException("There is no dynamic object method defined for " + property);
       }
     }
     if (obj.hasFallback()) {
-      MethodHandle handle = (MethodHandle) obj.properties.get("fallback");
+      FunctionReference handle = (FunctionReference) obj.properties.get("fallback");
       Object[] fallback_args = new Object[args.length + 1];
       fallback_args[0] = obj;
       fallback_args[1] = property;
       arraycopy(args, 1, fallback_args, 2, args.length - 1);
-      return handle.invokeWithArguments(fallback_args);
+      return handle.handle().invokeWithArguments(fallback_args);
     }
     throw new UnsupportedOperationException("There is neither a dynamic object method defined for " + property + " nor a 'fallback' method");
   }
@@ -173,17 +173,17 @@ public final class DynamicObject {
   public static Object dispatchGetterStyle(String property, DynamicObject object) throws Throwable {
     Object value = object.get(property);
     if (value != null || object.properties.containsKey(property)) {
-      if (value instanceof MethodHandle) {
-        MethodHandle handle = (MethodHandle) value;
-        if (handle.type().parameterCount() == 1 || handle.isVarargsCollector()) {
-          return handle.invokeWithArguments(object);
+      if (value instanceof FunctionReference) {
+        FunctionReference funRef = (FunctionReference) value;
+        if (funRef.type().parameterCount() == 1 || funRef.isVarargsCollector()) {
+          return funRef.handle().invokeWithArguments(object);
         }
       }
       return value;
     }
     if (object.hasFallback()) {
-      MethodHandle handle = (MethodHandle) object.properties.get("fallback");
-      return handle.invokeWithArguments(object, property);
+      FunctionReference funRef = (FunctionReference) object.properties.get("fallback");
+      return funRef.handle().invokeWithArguments(object, property);
     }
     return null;
   }
@@ -200,13 +200,13 @@ public final class DynamicObject {
   public static Object dispatchSetterStyle(String property, DynamicObject object, Object arg) throws Throwable {
     Object value = object.get(property);
     if (value != null || object.properties.containsKey(property)) {
-      if (value instanceof MethodHandle) {
-        MethodHandle handle = (MethodHandle) value;
-        if (handle.type().parameterCount() == 2) {
-          if (handle.isVarargsCollector() && arg instanceof Object[]) {
-            return handle.invokeExact((Object) object, (Object[]) arg);
+      if (value instanceof FunctionReference) {
+        FunctionReference funRef = (FunctionReference) value;
+        if (funRef.type().parameterCount() == 2) {
+          if (funRef.isVarargsCollector() && arg instanceof Object[]) {
+            return funRef.handle().invokeExact((Object) object, (Object[]) arg);
           }
-          return handle.invokeWithArguments(object, arg);
+          return funRef.handle().invokeWithArguments(object, arg);
         }
       }
     }
@@ -253,7 +253,7 @@ public final class DynamicObject {
   public boolean hasMethod(String method) {
     Object obj = properties.get(method);
     if (obj != null) {
-      return (obj instanceof MethodHandle);
+      return (obj instanceof FunctionReference);
     }
     return false;
   }

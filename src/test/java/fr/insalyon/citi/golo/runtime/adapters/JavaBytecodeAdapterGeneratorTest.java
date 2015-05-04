@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.runtime.adapters;
 
 import fr.insalyon.citi.golo.internal.testing.Tracing;
+import gololang.FunctionReference;
 import gololang.GoloAdapter;
 import org.testng.annotations.Test;
 
@@ -65,59 +66,59 @@ public class JavaBytecodeAdapterGeneratorTest {
     }
 
     public static Object decorateToString(Object superTarget, Object receiver) throws Throwable {
-      MethodHandle super_mh = (MethodHandle) superTarget;
-      return "{{" + super_mh.invoke(receiver) + "}}";
+      FunctionReference superRef = (FunctionReference) superTarget;
+      return "{{" + superRef.handle().invoke(receiver) + "}}";
     }
 
     public static Object decorateVarargs(Object superTarget, Object receiver,Object ... args) throws Throwable {
-      MethodHandle super_mh = (MethodHandle) superTarget;
-      return "{{" + super_mh.invoke(receiver,args) + "}}";
+      FunctionReference superRef = (FunctionReference) superTarget;
+      return "{{" + superRef.handle().invoke(receiver,args) + "}}";
     }
 
     public static Object decorateVarargs2(Object superTarget, Object receiver,Object str, Object ... args) throws Throwable {
-      MethodHandle super_mh = (MethodHandle) superTarget;
-      return "{{" + super_mh.invoke(receiver,str,args) + "}}";
+      FunctionReference superRef = (FunctionReference) superTarget;
+      return "{{" + superRef.handle().invoke(receiver, str, args) + "}}";
     }
 
     public static Object proxy(Object superTarget, Object name, Object args) throws Throwable {
-      MethodHandle super_mh = (MethodHandle) superTarget;
+      FunctionReference superRef = (FunctionReference) superTarget;
       Object[] aargs = (Object[]) args;
       String method = (String) name;
       switch (method) {
         case "add":
-          return super_mh.invoke(aargs[0], aargs[1] + "!");
+          return superRef.handle().invoke(aargs[0], aargs[1] + "!");
         case "toString":
-          return "{{" + super_mh.invoke(aargs[0]) + "}}";
+          return "{{" + superRef.handle().invoke(aargs[0]) + "}}";
         case "varargs":
-          return "{{" + super_mh.invoke(aargs[0],(Object[])aargs[1]) + "}}";
+          return "{{" + superRef.handle().invoke(aargs[0], (Object[]) aargs[1]) + "}}";
         case "varargs2":
-          return "{{" + super_mh.invoke(aargs[0],aargs[1],(Object[])aargs[2]) + "}}";
+          return "{{" + superRef.handle().invoke(aargs[0], aargs[1], (Object[]) aargs[2]) + "}}";
         default:
-          return super_mh.invokeWithArguments(aargs);
+          return superRef.handle().invokeWithArguments(aargs);
       }
     }
   }
 
-  private static final MethodHandle evilCall_mh;
-  private static final MethodHandle evilCatchAll_mh;
-  private static final MethodHandle wrongEquals_mh;
-  private static final MethodHandle decorateToString_mh;
-  private static final MethodHandle decorateVarargs_mh;
-  private static final MethodHandle decorateVarargs2_mh;
-  private static final MethodHandle proxy_mh;
+  private static final FunctionReference evilCall_mh;
+  private static final FunctionReference evilCatchAll_mh;
+  private static final FunctionReference wrongEquals_mh;
+  private static final FunctionReference decorateToString_mh;
+  private static final FunctionReference decorateVarargs_mh;
+  private static final FunctionReference decorateVarargs2_mh;
+  private static final FunctionReference proxy_mh;
 
   private static final AtomicInteger ID = new AtomicInteger(0);
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
-      evilCall_mh = lookup.findStatic(Functions.class, "evilCall", genericMethodType(1));
-      evilCatchAll_mh = lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(2));
-      wrongEquals_mh = lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2));
-      decorateToString_mh = lookup.findStatic(Functions.class, "decorateToString", genericMethodType(2));
-      decorateVarargs_mh = lookup.findStatic(Functions.class, "decorateVarargs", genericMethodType(2,true));
-      decorateVarargs2_mh = lookup.findStatic(Functions.class, "decorateVarargs2", genericMethodType(3,true));
-      proxy_mh = lookup.findStatic(Functions.class, "proxy", genericMethodType(3));
+      evilCall_mh = new FunctionReference(lookup.findStatic(Functions.class, "evilCall", genericMethodType(1)));
+      evilCatchAll_mh = new FunctionReference(lookup.findStatic(Functions.class, "evilCatchAll", genericMethodType(2)));
+      wrongEquals_mh = new FunctionReference(lookup.findStatic(Functions.class, "wrongEquals", genericMethodType(2)));
+      decorateToString_mh = new FunctionReference(lookup.findStatic(Functions.class, "decorateToString", genericMethodType(2)));
+      decorateVarargs_mh = new FunctionReference(lookup.findStatic(Functions.class, "decorateVarargs", genericMethodType(2,true)));
+      decorateVarargs2_mh = new FunctionReference(lookup.findStatic(Functions.class, "decorateVarargs2", genericMethodType(3,true)));
+      proxy_mh = new FunctionReference(lookup.findStatic(Functions.class, "proxy", genericMethodType(3)));
     } catch (Throwable t) {
       throw new RuntimeException(t);
     }

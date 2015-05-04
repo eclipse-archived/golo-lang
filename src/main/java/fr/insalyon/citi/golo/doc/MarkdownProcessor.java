@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.ASTCompilationUnit;
+import gololang.FunctionReference;
 import gololang.Predefined;
 
 import java.lang.invoke.MethodHandle;
@@ -28,9 +29,9 @@ public class MarkdownProcessor extends AbstractProcessor {
 
   @Override
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
-    MethodHandle template = template("template", "markdown");
+    FunctionReference template = template("template", "markdown");
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    return (String) template.invokeWithArguments(documentation);
+    return (String) template.handle().invokeWithArguments(documentation);
   }
 
   @Override
@@ -44,8 +45,8 @@ public class MarkdownProcessor extends AbstractProcessor {
       Predefined.textToFile(render(unit), docFile);
       moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
     }
-    MethodHandle indexTemplate = template("index", "markdown");
-    String index = (String) indexTemplate.invokeWithArguments(moduleDocFile);
+    FunctionReference indexTemplate = template("index", "markdown");
+    String index = (String) indexTemplate.handle().invokeWithArguments(moduleDocFile);
     Predefined.textToFile(index, targetFolder.resolve("index.markdown"));
   }
 }

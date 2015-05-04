@@ -33,8 +33,8 @@ public class TemplateEngineTest {
   @Test
   public void simple_string() throws Throwable {
     TemplateEngine engine = new TemplateEngine();
-    MethodHandle tpl = engine.compile("Plop!");
-    assertThat((String) tpl.invoke(null), is("Plop!"));
+    FunctionReference tpl = engine.compile("Plop!");
+    assertThat((String) tpl.handle().invoke(null), is("Plop!"));
   }
 
   @Test
@@ -43,9 +43,9 @@ public class TemplateEngineTest {
       throw new SkipException("Golo is in a bootstrap build execution");
     }
     TemplateEngine engine = new TemplateEngine();
-    MethodHandle tpl = engine.compile("<%= params: getOrElse(\"a\", \"n/a\")%>!");
-    assertThat((String) tpl.invoke(Collections.emptyMap()), is("n/a!"));
-    assertThat((String) tpl.invoke(new TreeMap<String, String>() {
+    FunctionReference tpl = engine.compile("<%= params: getOrElse(\"a\", \"n/a\")%>!");
+    assertThat((String) tpl.handle().invoke(Collections.emptyMap()), is("n/a!"));
+    assertThat((String) tpl.handle().invoke(new TreeMap<String, String>() {
       {
         put("a", "Plop!");
       }
@@ -56,8 +56,8 @@ public class TemplateEngineTest {
   public void simple_repeat() throws Throwable {
     TemplateEngine engine = new TemplateEngine();
     String template = "<% foreach (i in range(0, 3)) { %>a<% } %>";
-    MethodHandle tpl = engine.compile(template);
-    assertThat((String) tpl.invoke(null), is("aaa"));
+    FunctionReference tpl = engine.compile(template);
+    assertThat((String) tpl.handle().invoke(null), is("aaa"));
   }
 
   @Test
@@ -71,8 +71,8 @@ public class TemplateEngineTest {
         "<% foreach (p in params: get(\"people\")) { %>- <%= p %>\n" +
         "<% } %>\n";
     TemplateEngine engine = new TemplateEngine();
-    MethodHandle tpl = engine.compile(template);
-    assertThat((String) tpl.invoke(params), is(
+    FunctionReference tpl = engine.compile(template);
+    assertThat((String) tpl.handle().invoke(params), is(
         "People:\n" +
         "- Julien\n" +
         "- Mr Bean\n" +
@@ -83,24 +83,24 @@ public class TemplateEngineTest {
   public void with_params() throws Throwable {
     TemplateEngine engine = new TemplateEngine();
     String template = "<%@params foo, bar %>=<%= foo + bar %>";
-    MethodHandle tpl = engine.compile(template);
+    FunctionReference tpl = engine.compile(template);
     assertThat(tpl.type().parameterCount(), is(2));
-    assertThat((String) tpl.invoke(1, 2), is("=3"));
+    assertThat((String) tpl.handle().invoke(1, 2), is("=3"));
   }
 
   @Test
   public void with_imports() throws Throwable {
     TemplateEngine engine = new TemplateEngine();
     String template = "<%@import java.lang.Math %><%= max(1, 2) %>";
-    MethodHandle tpl = engine.compile(template);
-    assertThat((String) tpl.invoke(null), is("2"));
+    FunctionReference tpl = engine.compile(template);
+    assertThat((String) tpl.handle().invoke(null), is("2"));
   }
 
   @Test
   public void quote_delimiting_text() throws Throwable {
     TemplateEngine engine = new TemplateEngine();
     String template = "<%@params url %><a href=\"<%= url %>\">Link</a>";
-    MethodHandle tpl = engine.compile(template);
-    assertThat((String) tpl.invoke("http://foo.bar/"), is("<a href=\"http://foo.bar/\">Link</a>"));
+    FunctionReference tpl = engine.compile(template);
+    assertThat((String) tpl.handle().invoke("http://foo.bar/"), is("<a href=\"http://foo.bar/\">Link</a>"));
   }
 }

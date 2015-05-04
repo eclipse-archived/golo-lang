@@ -1,7 +1,7 @@
 == Banged function call ==
 
 Golo uses invokedynamic
-footnote:[ http://www.oraclejavamagazine-digital.com/javamagazine_open/20130102#pg50[Oracle Java Magazine 2013-01-02] ] 
+footnote:[ http://www.oraclejavamagazine-digital.com/javamagazine_open/20130102#pg50[Oracle Java Magazine 2013-01-02] ]
 footnote:[ http://www.oraclejavamagazine-digital.com/javamagazine/20130506#pg42[Oracle Java Magazine 2013-05-06] ]
 to dynamically link at runtime an invocation instruction to the target code that will be effectively executed.
 
@@ -52,11 +52,9 @@ function main = |args| {
 
 In this example `take_a_while` is computed only once at the first call, and then this function returns directly the previously computed result as a constant for every subsequent call.
 
-NOTE: The `!` notation can only be used on regular function calls. Indeed,
-since methods are context dependant (the object itself), it is not allowed to
-“bang” them. As a consequence, a function invocation using the `invoke` or
-`invokeWithArguments` method of the `MethodHandle` object can't use this
-feature.
+NOTE: The `!` notation can only be used on regular function calls. Indeed, since methods are context
+dependant (the object itself), it is not allowed to “bang” them. As a consequence, a function
+invocation using `invoke` of a function reference can't use this feature.
 
 Bang function call is a kind of memoization but regardless of the given parameters:
 
@@ -259,4 +257,3 @@ function bar = |b| -> func_b(b)
 Performances can considerably increase with banged decorators, since the
 decorator function is no more called for each decorated function call.
 On the other hand, the decorator function has to be pure (without side-effects) and his parameters stable.
-

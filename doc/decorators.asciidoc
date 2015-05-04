@@ -24,7 +24,7 @@ footnote:[ http://en.wikipedia.org/wiki/Decorator_pattern[Wikipedia: GoF Pattern
 This pattern describe a design that allow an object to be augmented by wrapping
 it in an other object with the same interface, delegating operations to the
 wrapped object. This is exactly what a decorator does here, the interface
-being "function" (more precisely a `java.lang.invoke.MethodHandle`).
+being "function" (more precisely a `gololang.FunctionReference`).
 
 //>>>
 
@@ -38,7 +38,7 @@ As in Python, and similarly to Java annotations, a decorator is used with a
 ----
 function deco1 = |fun| {
   return |args...| {
-    return "deco1 + " + fun: invokeWithArguments(args)
+    return "deco1 + " + fun: invoke(args)
   }
 }
 ----
@@ -57,7 +57,7 @@ Here, calling `println(foo(1))` will print `deco1 + foo: 1`.
 
 To be the most generic, the function created by a decorator should be a
 variable arity function, and thus call the decorated function with
-`invokeWithArguments`, such that it can be applied to any function, regardless
+`invoke`, such that it can be applied to any function, regardless
 of its arity, as in the previous example.
 
 Indeed, suppose you what to a decorator `dec` (that does nothing) used like:
@@ -93,7 +93,7 @@ which is equivalent to the first form, but is not generic. The more generic
 decorator is thus:
 [source,golo]
 ----
-function dec = |func| -> |args...| -> func: invokeWithArguments(args)
+function dec = |func| -> |args...| -> func: invoke(args)
 ----
 
 which can deal with any function.
@@ -125,7 +125,7 @@ Decorators can also be stacked. For instance:
 ----
 function deco2 = |fun| {
   return |args...| {
-    return "deco2 + " + fun: invokeWithArguments(args)
+    return "deco2 + " + fun: invoke(args)
   }
 }
 
@@ -158,7 +158,7 @@ module tests.LogDeco
 
 function log = |msg| -> |fun| -> |args...| {
   println(msg)
-  return fun: invokeWithArguments(args)
+  return fun: invoke(args)
 }
 
 @log("calling foo")
@@ -214,7 +214,7 @@ an example, it can be as elaborated as:
 ----
 function log = |msgBefore| -> |msgAfter| -> |func| -> |args...| {
   println(msgBefore)
-  let res = func: invokeWithArguments(args)
+  let res = func: invoke(args)
   println(msgAfter)
   return res
 }
@@ -404,7 +404,7 @@ import java.util.concurrent.locks
 function withLock = |lock| -> |fun| -> |args...| {
   lock: lock()
   try {
-    return fun: invokeWithArguments(args)
+    return fun: invoke(args)
   } finally {
     lock: unlock()
   }
@@ -442,7 +442,7 @@ function memoizer = {
     return |args...| {
       let key = [fun: hashCode(), Tuple(args)]
       if (not cache: containsKey(key)) {
-        cache: add(key, fun: invokeWithArguments(args))
+        cache: add(key, fun: invoke(args))
       }
       return cache: get(key)
     }

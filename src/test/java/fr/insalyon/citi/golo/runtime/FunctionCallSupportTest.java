@@ -16,6 +16,7 @@
 
 package fr.insalyon.citi.golo.runtime;
 
+import gololang.FunctionReference;
 import org.testng.annotations.Test;
 
 import java.lang.invoke.CallSite;
@@ -162,6 +163,6 @@ public class FunctionCallSupportTest {
     MethodHandle plopFunc = lookup.findStatic(FunctionCallSupportTest.Foo.class, "plop", MethodType.methodType(String.class));
 
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
-    assertThat(callSite.dynamicInvoker().invokeWithArguments(plopFunc), is((Object) "Plop!"));
+    assertThat(callSite.dynamicInvoker().invokeWithArguments(new FunctionReference(plopFunc)), is((Object) "Plop!"));
   }
 }

@@ -45,7 +45,7 @@ local function _newWithSameType = |this| {
 
 local function _closureWithIndexArgument = |target| -> match {
   when target: type(): parameterCount() == 0
-    then java.lang.invoke.MethodHandles.dropArguments(target, 0, java.lang.Object.class)
+    then FunctionReference(java.lang.invoke.MethodHandles.dropArguments(target: handle(), 0, java.lang.Object.class))
   otherwise
     target
 }
@@ -102,75 +102,6 @@ augment java.lang.Number {
     let target = _closureWithIndexArgument(func)
     for (var i = high, i >= low, i = i - 1) {
       target(i)
-    }
-  }
-}
-
-# ............................................................................................... #
-
-----
-Augmentations over method handles.
-
-Given that Golo closures are method handles, these augmentations work on closure references.
-----
-augment java.lang.invoke.MethodHandle {
-
-  ----
-  Converts a closure to an instance of a single method interface.
-
-      let f = |event| -> println("click")
-      let handler = f: to(java.awt.event.ActionListener.class)
-
-  * `this`: a Golo closure.
-  * `interfaceClass` a class object.
-  ----
-  function to = |this, interfaceClass| -> asInterfaceInstance(interfaceClass, this)
-
-  ----
-  Function composition:
-
-      let f = |x| -> x + 1
-      let g = |y| -> y * 10
-      let h = f: andThen(g)
-      println(h(2))
-
-  * `this`: a function.
-  * `filter`: a function that takes the return value of `this` as an argument.
-  ----
-  function andThen = |this, filter| ->
-    java.lang.invoke.MethodHandles.filterReturnValue(this, filter)
-
-  ----
-  Partial application:
-
-      let adder = |x, y| -> x + y
-      let add2 = adder: bindAt(1, 2)    # binds 'y'
-      println(add2(1))
-
-  * `this`: a function.
-  * `pos`: a 0-based index of the argument to apply.
-  * `val`: the value to apply.
-  ----
-  function bindAt = |this, pos, val| ->
-    java.lang.invoke.MethodHandles.insertArguments(this, pos, val)
-
-  ----
-  Arguments spreading.
-
-  * `this`: a function.
-  * `args`: an array of arguments to spread over those of `this`.
-
-  Returns an argument-spreading function.
-  ----
-  function spread = |this, args| {
-    let arity = this: type(): parameterCount()
-    if (this: isVarargsCollector() and (arity > 0) and isArray(args: get(arity - 1))) {
-      return this:
-             asFixedArity():
-             asSpreader(objectArrayType(), args: length())(args)
-    } else {
-      return this:
-             asSpreader(objectArrayType(), args: length())(args)
     }
   }
 }

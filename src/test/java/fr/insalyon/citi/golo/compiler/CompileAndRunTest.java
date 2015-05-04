@@ -20,6 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+import gololang.FunctionReference;
 import gololang.GoloStruct;
 import gololang.Tuple;
 import gololang.Range;
@@ -40,6 +41,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.NoSuchElementException;
 import java.util.Set;
+import java.util.concurrent.Callable;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
@@ -160,7 +162,7 @@ public class CompileAndRunTest {
   }
 
   @Test
-  public void test_direct_anonymous_call() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void test_direct_anonymous_call() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "direct-anon-call.golo");
     for (String name : asList("with_invoke", "direct_call", "ident", "anon_ident", "currified", "struct_field", "struct_method", "dynamic")) {
       Method meth = moduleClass.getMethod(name);
@@ -170,7 +172,7 @@ public class CompileAndRunTest {
 
   @Test
   @SuppressWarnings("unchecked")
-  public void test_variable_assignments() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void test_variable_assignments() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "variable-assignments.golo");
 
     Method echo = moduleClass.getMethod("echo", Object.class);
@@ -664,6 +666,32 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_function_reference_manipulation() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "fun-refs.golo");
+
+    Method method_handle_to = moduleClass.getMethod("method_handle_to");
+    Object result = method_handle_to.invoke(null);
+    assertThat(result, instanceOf(Callable.class));
+    Callable<?> callable = (Callable<?>) result;
+    assertThat(callable.call(), is("ok"));
+
+    Method lbind = moduleClass.getMethod("lbind");
+    FunctionReference funRef = (FunctionReference) lbind.invoke(null);
+    result = funRef.handle().invokeWithArguments(2);
+    assertThat(result, is(8));
+
+    Method rbind = moduleClass.getMethod("rbind");
+    funRef = (FunctionReference) rbind.invoke(null);
+    result = funRef.handle().invokeWithArguments(2);
+    assertThat(result, is(-8));
+
+    Method chaining = moduleClass.getMethod("chaining");
+    funRef = (FunctionReference) chaining.invoke(null);
+    result = funRef.handle().invokeWithArguments(4);
+    assertThat(result, is(-500));
+  }
+
+  @Test
   public void test_exception_throwing() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "exceptions.golo");
 
@@ -715,22 +743,22 @@ public class CompileAndRunTest {
   public void test_method_closures() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "closures.golo");
     Object result;
-    MethodHandle handle;
+    FunctionReference funRef;
 
     Method raw_handle = moduleClass.getMethod("raw_handle");
     result = raw_handle.invoke(null);
-    assertThat(result, instanceOf(MethodHandle.class));
-    handle = (MethodHandle) result;
-    assertThat(handle.type(), is(genericMethodType(1)));
-    assertThat((String) handle.invoke(123), is("123"));
+    assertThat(result, instanceOf(FunctionReference.class));
+    funRef = (FunctionReference) result;
+    assertThat(funRef.type(), is(genericMethodType(1)));
+    assertThat((String) funRef.handle().invoke(123), is("123"));
 
     Method handle_with_capture = moduleClass.getMethod("handle_with_capture", Object.class, Object.class);
     result = handle_with_capture.invoke(null, 1, 2);
-    assertThat(result, instanceOf(MethodHandle.class));
-    handle = (MethodHandle) result;
-    assertThat(handle.type(), is(genericMethodType(1)));
-    assertThat((Integer) handle.invoke(100), is(300));
-    assertThat((Integer) handle.invoke(10), is(30));
+    assertThat(result, instanceOf(FunctionReference.class));
+    funRef = (FunctionReference) result;
+    assertThat(funRef.type(), is(genericMethodType(1)));
+    assertThat((Integer) funRef.handle().invoke(100), is(300));
+    assertThat((Integer) funRef.handle().invoke(10), is(30));
 
     Method call_with_invoke = moduleClass.getMethod("call_with_invoke");
     assertThat((Integer) call_with_invoke.invoke(null), is(90));
@@ -744,9 +772,9 @@ public class CompileAndRunTest {
 
     Method add_to = moduleClass.getMethod("add_to", Object.class);
     result = add_to.invoke(null, 1);
-    assertThat(result, instanceOf(MethodHandle.class));
-    handle = (MethodHandle) result;
-    assertThat((Integer) handle.invoke(2), is(3));
+    assertThat(result, instanceOf(FunctionReference.class));
+    funRef = (FunctionReference) result;
+    assertThat((Integer) funRef.handle().invoke(2), is(3));
 
     Method as_explicit_interface = moduleClass.getMethod("as_explicit_interface");
     assertThat((String) as_explicit_interface.invoke(null), is("Plop -> da plop"));
@@ -756,10 +784,10 @@ public class CompileAndRunTest {
 
     Method nested_compact = moduleClass.getMethod("nested_compact", Object.class);
     result = nested_compact.invoke(null, 1);
-    assertThat(result, instanceOf(MethodHandle.class));
-    handle = (MethodHandle) result;
-    assertThat(handle.type(), is(genericMethodType(1)));
-    assertThat((Integer) handle.invoke(2), is(3));
+    assertThat(result, instanceOf(FunctionReference.class));
+    funRef = (FunctionReference) result;
+    assertThat(funRef.type(), is(genericMethodType(1)));
+    assertThat((Integer) funRef.handle().invoke(2), is(3));
 
     Method in_a_map = moduleClass.getMethod("in_a_map");
     result = in_a_map.invoke(null);
@@ -811,9 +839,9 @@ public class CompileAndRunTest {
     Method nested_closures = moduleClass.getMethod("nested_closures");
     result = nested_closures.invoke(null);
     assertThat(result, notNullValue());
-    assertThat(result, instanceOf(MethodHandle.class));
-    handle = (MethodHandle) result;
-    assertThat((String) handle.invoke(), is("plop"));
+    assertThat(result, instanceOf(FunctionReference.class));
+    funRef = (FunctionReference) result;
+    assertThat((String) funRef.handle().invoke(), is("plop"));
 
     Method closure_with_varargs_and_capture = moduleClass.getMethod("closure_with_varargs_and_capture");
     assertThat((String) closure_with_varargs_and_capture.invoke(null), is("> 6"));

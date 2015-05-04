@@ -62,18 +62,18 @@ This is as easy as providing a `java.lang.Iterable` as part of the configuration
 
 [source,golo]
 ----
-let result = array[1, 2, 3]                                      
-let conf = map[                                                  
+let result = array[1, 2, 3]
+let conf = map[
   ["interfaces", ["java.io.Serializable", "java.lang.Runnable"]],
-  ["implements", map[                                            
-    ["run", |this| {                                             
-      for (var i = 0, i < result: length(), i = i + 1) {         
-        result: set(i, result: get(i) + 10)                      
-      }                                                          
-    }]                                                           
-  ]]                                                             
-]                                                                
-let runner = AdapterFabric(): maker(conf): newInstance()         
+  ["implements", map[
+    ["run", |this| {
+      for (var i = 0, i < result: length(), i = i + 1) {
+        result: set(i, result: get(i) + 10)
+      }
+    }]
+  ]]
+]
+let runner = AdapterFabric(): maker(conf): newInstance()
 runner: run() # <1>
 ----
 
@@ -89,11 +89,11 @@ method handle parameter:
 
 [source,golo]
 ----
-let conf = map[                                        
-  ["overrides", map[                                   
+let conf = map[
+  ["overrides", map[
     ["toString", |super, this| -> ">>> " + super(this)]
-  ]]                                                   
-]                                                      
+  ]]
+]
 println(AdapterFabric(): maker(conf): newInstance(): toString()) # <1>
 ----
 
@@ -111,25 +111,25 @@ Let us see a concrete example:
 
 [source,golo]
 ----
-let carbonCopy = list[] # <1>                              
-let conf = map[                                       
-  ["extends", "java.util.ArrayList"],                 
-  ["overrides", map[                                  
+let carbonCopy = list[] # <1>
+let conf = map[
+  ["extends", "java.util.ArrayList"],
+  ["overrides", map[
     ["*", |super, name, args| { # <2>
-      if name == "add" {                              
-        if args: length() == 2 {                      
+      if name == "add" {
+        if args: length() == 2 {
           carbonCopy: add(args: get(1))  # <3>
-        } else {                                      
+        } else {
           carbonCopy: add(args: get(1), args: get(2)) # <4>
-        }                                             
-      }                                               
+        }
+      }
       return super: spread(args)  # <5>
-    }                                                 
-  ]]                                                  
-]]                                                    
+    }
+  ]]
+]]
 let list = AdapterFabric(): maker(conf): newInstance()
-list: add("bar")                                      
-list: add(0, "foo")                                   
+list: add("bar")
+list: add(0, "foo")
 list: add("baz")  # <6>
 ----
 
@@ -239,7 +239,7 @@ let conf = Adapter(): extends("java.util.ArrayList")
           carbonCopy: add(args: get(1), args: get(2))
         }
       }
-      return super: invokeWithArguments(args)
+      return super: invoke(args)
   })
 let list = conf: newInstance()
 list: add("bar")

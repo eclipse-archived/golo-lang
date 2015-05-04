@@ -45,36 +45,6 @@ public class StandardAugmentationsTest {
   }
 
   @Test
-  public void method_handle_to() throws Throwable {
-    Method method_handle_to = moduleClass.getMethod("method_handle_to");
-    Object result = method_handle_to.invoke(null);
-    assertThat(result, instanceOf(Callable.class));
-    Callable<?> callable = (Callable<?>) result;
-    assertThat((String) callable.call(), is("ok"));
-  }
-
-  @Test
-  public void bindings() throws Throwable {
-    Method lbind = moduleClass.getMethod("lbind");
-    MethodHandle mh = (MethodHandle) lbind.invoke(null);
-    Integer result = (Integer) mh.invokeWithArguments(2);
-    assertThat(result, is(8));
-
-    Method rbind = moduleClass.getMethod("rbind");
-    mh = (MethodHandle) rbind.invoke(null);
-    result = (Integer) mh.invokeWithArguments(2);
-    assertThat(result, is(-8));
-  }
-
-  @Test
-  public void chaining() throws Throwable {
-    Method chaining = moduleClass.getMethod("chaining");
-    MethodHandle mh = (MethodHandle) chaining.invoke(null);
-    Integer result = (Integer) mh.invokeWithArguments(4);
-    assertThat(result, is(-500));
-  }
-
-  @Test
   @SuppressWarnings("unchecked")
   public void lists_filter() throws Throwable {
     Method lists_filter = moduleClass.getMethod("lists_filter");

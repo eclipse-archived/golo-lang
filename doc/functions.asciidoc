@@ -33,7 +33,7 @@ a value:
 
 [source,golo]
 ----
-function printer = { 
+function printer = {
   println("Hey!")
 }
 ----
@@ -177,7 +177,7 @@ function plop = {
 }
 ----
 
-Golo modules have a set of implicit imports: 
+Golo modules have a set of implicit imports:
 
 * `gololang.Predefined`,
 * `gololang.StandardAugmentations`,
@@ -227,7 +227,7 @@ let a = 1
 
 var b = truth()
 
-local function truth = { 
+local function truth = {
   return 42
 }
 ----
@@ -246,4 +246,3 @@ one should keep it in mind _just in case_.
 CAUTION: Global state is a bad thing in general. We strongly advise you to *think twice* before you
 introduce module-level state. Beware of potential memory leaks, just like `static` class fields in
 the Java programming language.
-

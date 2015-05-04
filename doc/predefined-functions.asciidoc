@@ -169,8 +169,8 @@ equivalent to `range(begin, end)`.
 
 === Closures ===
 
-Given a closure reference or a method handle, one can convert it to an instance of an interface with
-a single method declaration, as in:
+Given a function reference, one can convert it to an instance of an interface with a single method
+declaration, as in:
 
 [source,golo]
 ----
