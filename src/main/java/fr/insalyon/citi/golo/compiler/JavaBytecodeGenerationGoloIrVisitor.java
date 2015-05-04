@@ -762,11 +762,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         (Integer) arity,
         (Boolean) isVarArgs);
     if (syntheticCount > 0) {
-      methodVisitor.visitMethodInsn(
-          INVOKEVIRTUAL,
-          "gololang/FunctionReference",
-          "handle",
-          "()Ljava/lang/invoke/MethodHandle;", false);
       String[] refs = closureReference.getCapturedReferenceNames().toArray(new String[syntheticCount]);
       loadInteger(methodVisitor, 0);
       loadInteger(methodVisitor, syntheticCount);
@@ -779,18 +774,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         methodVisitor.visitInsn(AASTORE);
       }
       methodVisitor.visitMethodInsn(
-          INVOKESTATIC,
-          "java/lang/invoke/MethodHandles",
-          "insertArguments",
-          "(Ljava/lang/invoke/MethodHandle;I[Ljava/lang/Object;)Ljava/lang/invoke/MethodHandle;", false);
-      methodVisitor.visitTypeInsn(NEW, "gololang/FunctionReference");
-      methodVisitor.visitInsn(DUP_X1);
-      methodVisitor.visitInsn(SWAP);
-      methodVisitor.visitMethodInsn(
-          INVOKESPECIAL,
+          INVOKEVIRTUAL,
           "gololang/FunctionReference",
-          "<init>",
-          "(Ljava/lang/invoke/MethodHandle;)V", false);
+          "insertArguments",
+          "(I[Ljava/lang/Object;)Lgololang/FunctionReference;", false);
       if (isVarArgs) {
         methodVisitor.visitLdcInsn(Type.getType(Object[].class));
         methodVisitor.visitMethodInsn(

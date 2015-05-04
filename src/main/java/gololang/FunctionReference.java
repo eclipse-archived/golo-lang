@@ -17,6 +17,7 @@
 package gololang;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
@@ -149,7 +150,19 @@ public class FunctionReference {
    * @return a partially applied function.
    */
   public FunctionReference bindAt(int position, Object value) {
-    return new FunctionReference(insertArguments(this.handle, position, value));
+    return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value));
+  }
+
+  /**
+   * Partial application.
+   *
+   * @param position the first argument position.
+   * @param values the values of the arguments from {@code position}.
+   * @return a partially applied function.
+   * @see java.lang.invoke.MethodHandles#insertArguments(MethodHandle, int, Object...)
+   */
+  public FunctionReference insertArguments(int position, Object... values) {
+    return new FunctionReference(MethodHandles.insertArguments(handle, position, values));
   }
 
   /**
