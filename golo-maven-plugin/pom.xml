@@ -71,7 +71,7 @@
 
   <properties>
 
-    <txtmark.version>0.12</txtmark.version>
+    <txtmark.version>0.13</txtmark.version>
 
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <surefire.useFile>false</surefire.useFile>
