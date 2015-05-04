@@ -31,6 +31,19 @@ println(addToTen: invoke(2))
 
 As one would expect, this prints `3` and `12`.
 
+In order to make closure's invocations more _fluent_ you can insert argument using the closure's parameter names.
+
+[source,golo]
+----
+let mul = |a, b| {
+  return a * b
+}
+
+let tenTimes = mul: bindAt("a", 10)
+# 20
+println(tenTimes: invoke(2))
+----
+
 === Compact closures ===
 
 Golo supports a compact form of closures for the cases where their body consists of a single

@@ -687,6 +687,21 @@ public class CompileAndRunTest {
     funRef = (FunctionReference) chaining.invoke(null);
     result = funRef.handle().invokeWithArguments(4);
     assertThat(result, is(-500));
+
+    Method named_binding = moduleClass.getMethod("named_binding");
+    funRef = (FunctionReference) named_binding.invoke(null);
+    result = funRef.handle().invokeWithArguments(2);
+    assertThat(result, is(8));
+
+    Method named_binding_with_error = moduleClass.getMethod("named_binding_with_error");
+    try {
+      named_binding_with_error.invoke(null);
+    } catch (InvocationTargetException ite) {
+      Throwable cause = ite.getCause();
+      assertThat(cause, instanceOf(IllegalArgumentException.class));
+      IllegalArgumentException exception = (IllegalArgumentException) cause;
+      assertThat(exception.getMessage(), is("'c' not in the parameter list [a, b]"));
+    }
   }
 
   @Test

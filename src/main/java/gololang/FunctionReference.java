@@ -20,9 +20,13 @@ import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
 import java.lang.reflect.Parameter;
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
 import static java.lang.invoke.MethodHandles.insertArguments;
+import static java.lang.invoke.MethodHandles.throwException;
 
 /**
  * A reference to a function / closure.
@@ -169,6 +173,25 @@ public class FunctionReference {
    * @return a partially applied function.
    */
   public FunctionReference bindAt(int position, Object value) {
+    return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value));
+  }
+
+  /**
+   * Partial application based on parameter's names.
+   *
+   * @param parameterName the parameter to bind.
+   * @param value the argument value.
+   * @return a partially applied function.
+   */
+  public FunctionReference bindAt(String parameterName, Object value) {
+    int position = -1;
+    for (int i = 0; i < this.parameters.length && this.parameters[i].getName().equals(parameterName); i++) {
+      position = i;
+    }
+    if (position == -1) {
+      List<String> parameterNames = Arrays.stream(this.parameters).map(Parameter::getName).collect(Collectors.toList());
+      throw new IllegalArgumentException("'" + parameterName + "' not in the parameter list " + parameterNames);
+    }
     return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value));
   }
 
