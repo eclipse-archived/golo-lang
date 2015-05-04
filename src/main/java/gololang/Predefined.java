@@ -420,7 +420,7 @@ public final class Predefined {
   }
 
   /**
-   * Obtains the first method handle / closure to a function.
+   * Obtains the first reference to a function.
    * <p>
    * This is the same as calling <code>fun(name, module, -1)</code>.
    *

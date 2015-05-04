@@ -33,7 +33,7 @@ Defining values also defines getter and setter methods, as illustrated by the ne
 
 [source,golo]
 ----
-let person = DynamicObject(): 
+let person = DynamicObject():
   define("name", "MrBean"):
   define("email", "mrbean@gmail.com")
 
@@ -70,12 +70,12 @@ Here is an example where we define a `toString`-style of method:
 
 [source,golo]
 ----
-local function mrbean = -> DynamicObject(): 
-  name("Mr Bean"): 
+local function mrbean = -> DynamicObject():
+  name("Mr Bean"):
   email("mrbean@gmail.com"):
   define("toString", |this| -> this: name() + " <" + this: email() + ">")
 
-function main = |args| {  
+function main = |args| {
 
   let bean = mrbean()
   println(bean: toString())
@@ -101,7 +101,7 @@ let obj = DynamicObject():
 ----
 
 Any call such as `obj: plop()` properly calls `plop()`. Because the dynamic object is fresh and new,
-the first call to `plop` creates a property since it is currently missing. 
+the first call to `plop` creates a property since it is currently missing.
 
 That being said, the following would fail:
 
@@ -140,7 +140,7 @@ function dump = |obj| {
 }
 ----
 
-Because dynamic object entries mix both values and method handles, do not forget that the predefined
+Because dynamic object entries mix both values and function references, do not forget that the predefined
 `isClosure(obj)` function can be useful to distinguish them.
 
 === Defining a fallback behavior ===
@@ -163,7 +163,6 @@ println(dynob: casperMethod("foo", "bar"))
 
 [source,console]
 ----
-Dispatch failed for method: casperGetter, with args: 
+Dispatch failed for method: casperGetter, with args:
 Dispatch failed for method: casperMethod, with args: foo bar
 ----
-

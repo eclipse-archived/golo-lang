@@ -22,10 +22,29 @@ import java.lang.invoke.MethodType;
 import static java.lang.invoke.MethodHandles.filterReturnValue;
 import static java.lang.invoke.MethodHandles.insertArguments;
 
-public final class FunctionReference {
+/**
+ * A reference to a function / closure.
+ *
+ * This class essentially boxes {@code MethodHandle} references, and provides as many delegations as possible.
+ * Previous versions of Golo used direct {@code MethodHandle} objects to deal with functions by reference, but that
+ * class does not provide any mean to attach local state, as required for, say, implementing named arguments.
+ *
+ * This boxed representation provides a sound abstraction while not hurting performance, as
+ * {@code fr.insalyon.citi.golo.runtime.ClosureCallSupport} still dispatches through a method handle.
+ *
+ * @see java.lang.invoke.MethodHandle
+ * @see fr.insalyon.citi.golo.runtime.ClosureCallSupport
+ */
+public class FunctionReference {
 
   private final MethodHandle handle;
 
+  /**
+   * Makes a function reference from a method handle.
+   *
+   * @param handle the method handle.
+   * @throws IllegalArgumentException if {@code handle} is {@code null}.
+   */
   public FunctionReference(MethodHandle handle) {
     if (handle == null) {
       throw new IllegalArgumentException("A method handle cannot be null");
@@ -33,6 +52,11 @@ public final class FunctionReference {
     this.handle = handle;
   }
 
+  /**
+   * Unboxes the method handle.
+   *
+   * @return the (boxed) method handle.
+   */
   public MethodHandle handle() {
     return handle;
   }
@@ -97,18 +121,44 @@ public final class FunctionReference {
     return handle.hashCode();
   }
 
+  /**
+   * Converts a function reference to an instance of an interface.
+   *
+   * @param interfaceClass the interface,
+   * @return a proxy object that satisfies {@code interfaceClass} and delegates to {@code this}.
+   */
   public Object to(Class<?> interfaceClass) {
     return Predefined.asInterfaceInstance(interfaceClass, this);
   }
 
+  /**
+   * Compose a function with another function.
+   *
+   * @param fun the function that processes the results of {@code this} function.
+   * @return a composed function.
+   */
   public FunctionReference andThen(FunctionReference fun) {
     return new FunctionReference(filterReturnValue(this.handle, fun.handle));
   }
 
+  /**
+   * Partial application.
+   *
+   * @param position the argument position (0-indexed).
+   * @param value the argument value.
+   * @return a partially applied function.
+   */
   public FunctionReference bindAt(int position, Object value) {
     return new FunctionReference(insertArguments(this.handle, position, value));
   }
 
+  /**
+   * Spread arguments over this function parameters.
+   *
+   * @param arguments arguments as an array.
+   * @return a return value.
+   * @throws Throwable ...because an exception can be thrown.
+   */
   public Object spread(Object... arguments) throws Throwable {
     int arity = this.handle.type().parameterCount();
     if (this.handle.isVarargsCollector() && (arity > 0) && (arguments[arity - 1] instanceof Object[])) {

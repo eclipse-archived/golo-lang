@@ -20,7 +20,7 @@ package gololang.concurrent.workers;
  * A worker function for asynchronously processing messages.
  * <p>
  * This interface is mostly used to facilitate the design of the Java API, as worker functions are made out of
- * closures / method handles in Golo.
+ * function references in Golo.
  */
 public interface WorkerFunction {
 

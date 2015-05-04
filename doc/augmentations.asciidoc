@@ -140,7 +140,7 @@ classes or structures.
 
 This can be seen as a kind of lightweight _traits_
 footnote:[ http://en.wikipedia.org/wiki/Trait_%28computer_programming%29[Wikipedia: Traits] ]
-, or _mixin_ 
+, or _mixin_
 footnote:[ http://en.wikipedia.org/wiki/Mixin[Wikipedia: Mixin] ],
 as found in Rust, Groovy or Scala.
 
@@ -243,7 +243,7 @@ The augmentations resolution order is as follows:
        and `augment MyType with Foo` in the current module. Multiple
        applications are searched in the application order,
     c. externally defined named augmentations with fully qualified
-       name: `augmentation Foo = { ... }` in module `Augmentations`, and 
+       name: `augmentation Foo = { ... }` in module `Augmentations`, and
        `augment MyType with Augmentations.Foo` in the current module,
     d. named augmentation defined in an imported module:
        `augmentation Foo = { ... }` in module `Augmentations`, and
@@ -281,5 +281,3 @@ println(m: getOrElse("foo", -> "bar"))
 
 The full set of standard augmentations is documented in the generated *golodoc* (hint: look for
 `doc/golodoc` in the Golo distribution).
-
-

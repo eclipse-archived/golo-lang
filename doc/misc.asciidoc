@@ -36,21 +36,6 @@ Repeat an operation many times:
 3: times(|i| -> println(i))
 ----
 
-Function references are method handles, and there are augmentations for them:
-
-[source,golo]
-----
-# Composition
-let f = |x| -> x + 1
-let g = |y| -> y * 10
-let h = f: andThen(g)
-
-# Partial application
-let adder = |x, y| -> x + y
-let add2 = adder: bindAt(1, 2)    # binds 'y'
-println(add2(1))
-----
-
 === JSON support (`gololang.JSON`)
 
 Golo includes the https://code.google.com/p/json-simple/[JSON Simple] library to provide JSON
@@ -176,7 +161,7 @@ local function fib = |n| {
 
 function main = |args| {
   let executor = Executors.newFixedThreadPool(2)
-  let results = [30, 34, 35, 38, 39, 40, 41, 42]: 
+  let results = [30, 34, 35, 38, 39, 40, 41, 42]:
     map(|n| -> executor: enqueue(-> fib(n)):
       map(|res| -> [n, res]))
   reduce(results, "", |acc, next| -> acc + next: get(0) + " -> " + next: get(1) + "\n"):
@@ -189,4 +174,3 @@ function main = |args| {
 
 This example takes advantages of an executor augmentation and composable promises and futures to
 compute Fibonacci numbers.
-

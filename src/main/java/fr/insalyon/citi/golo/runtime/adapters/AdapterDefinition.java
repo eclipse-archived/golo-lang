@@ -248,7 +248,7 @@ public final class AdapterDefinition {
 
   private void checkForOverriding(FunctionReference target) throws AdapterDefinitionProblem {
     if (target.type().parameterCount() < 2) {
-      throw new AdapterDefinitionProblem("An overriden method target must take at least 2 arguments (the 'super' method handle followed by the receiver): " + target);
+      throw new AdapterDefinitionProblem("An overriden method target must take at least 2 arguments (the 'super' function reference followed by the receiver): " + target);
     }
   }
 }
