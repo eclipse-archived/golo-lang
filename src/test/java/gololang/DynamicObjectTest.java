@@ -242,4 +242,36 @@ public class DynamicObjectTest {
     object.define("echo", new FunctionReference(lookup().findStatic(DynamicObjectTest.class, "echo", genericMethodType(2))));
     assertThat(DynamicObject.dispatchSetterStyle("echo", object, "Hello!"), is((Object) "Hello!"));
   }
+
+  @Test
+  public void test_toString() throws Throwable {
+    DynamicObject object = new DynamicObject();
+    assertThat(object.toString(), is("DynamicObject{}"));
+
+    object = new DynamicObject("Foo")
+      .define("bar", 42)
+      .define("echo", new FunctionReference(lookup().findStatic(DynamicObjectTest.class, "echo", genericMethodType(2))));
+    assertThat(object.toString(), is("Foo{bar=42}"));
+  }
+
+  private static enum Kinds {
+    FOO,
+    BAR;
+  }
+
+  @Test
+  public void test_kind() throws Throwable {
+    DynamicObject obj = new DynamicObject("Foo");
+    assertThat(obj.hasKind("Foo"), is(true));
+    assertThat(obj.hasKind("Bar"), is(false));
+
+    obj = new DynamicObject(Kinds.FOO);
+    assertThat(obj.hasKind(Kinds.FOO), is(true));
+    assertThat(obj.hasKind(Kinds.BAR), is(false));
+
+    assertThat(obj.sameKind(new DynamicObject(Kinds.FOO)), is(true));
+    assertThat(obj.sameKind(new DynamicObject(Kinds.BAR)), is(false));
+
+    assertThat(obj.copy().hasKind(Kinds.FOO), is(true));
+  }
 }
