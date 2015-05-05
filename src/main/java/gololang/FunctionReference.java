@@ -25,8 +25,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
-import static java.lang.invoke.MethodHandles.insertArguments;
-import static java.lang.invoke.MethodHandles.throwException;
 
 /**
  * A reference to a function / closure.
@@ -45,19 +43,32 @@ public class FunctionReference {
 
   private final MethodHandle handle;
 
-  private Parameter[] parameters;
+  private final String[] parameterNames;
 
   /**
    * Makes a function reference from a method handle.
    *
    * @param handle the method handle.
+   * @param parameterNames the target method parameter's names.
    * @throws IllegalArgumentException if {@code handle} is {@code null}.
    */
-  public FunctionReference(MethodHandle handle) {
+  public FunctionReference(MethodHandle handle, String[] parameterNames) {
     if (handle == null) {
       throw new IllegalArgumentException("A method handle cannot be null");
     }
     this.handle = handle;
+    this.parameterNames = parameterNames;
+  }
+
+  /**
+   * Makes a function reference from a method handle.
+   * The parameter names will be {@code null}.
+   *
+   * @param handle the method handle.
+   * @throws IllegalArgumentException if {@code handle} is {@code null}.
+   */
+  public FunctionReference(MethodHandle handle) {
+    this(handle, null);
   }
 
   /**
@@ -69,17 +80,13 @@ public class FunctionReference {
     return handle;
   }
 
-  public void setParameters(Parameter[] parameters) {
-    this.parameters = parameters;
-  }
-
   /**
-   * Get the target function parameters
+   * Get the target function parameter's names
    *
-   * @return the target @java.lang.Method parameters
+   * @return the array of parameter's names
    */
-  public Parameter[] getParameters() {
-    return parameters;
+  public String[] parameterNames() {
+    return parameterNames;
   }
 
   public MethodType type() {
@@ -185,12 +192,11 @@ public class FunctionReference {
    */
   public FunctionReference bindAt(String parameterName, Object value) {
     int position = -1;
-    for (int i = 0; i < this.parameters.length && this.parameters[i].getName().equals(parameterName); i++) {
+    for (int i = 0; i < this.parameterNames.length && this.parameterNames[i].equals(parameterName); i++) {
       position = i;
     }
     if (position == -1) {
-      List<String> parameterNames = Arrays.stream(this.parameters).map(Parameter::getName).collect(Collectors.toList());
-      throw new IllegalArgumentException("'" + parameterName + "' not in the parameter list " + parameterNames);
+      throw new IllegalArgumentException("'" + parameterName + "' not in the parameter list " + Arrays.toString(parameterNames));
     }
     return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value));
   }

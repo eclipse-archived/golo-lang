@@ -19,7 +19,6 @@ package fr.insalyon.citi.golo.runtime;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
-import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
@@ -90,7 +89,7 @@ public class ClosureCallSupport {
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, FunctionReference.class);
     MethodType type = invoker.type();
     if(callSite.argumentNames.length > 0) {
-      invoker = reorderArguments(targetFunctionReference.getParameters(), invoker, callSite.argumentNames);
+      invoker = reorderArguments(targetFunctionReference.parameterNames(), invoker, callSite.argumentNames);
     }
     if (target.isVarargsCollector()) {
       if (isLastArgumentAnArray(type.parameterCount(), args)) {
@@ -120,9 +119,8 @@ public class ClosureCallSupport {
     }
   }
 
-  private static MethodHandle reorderArguments(Parameter[] parameters, MethodHandle handle, String[] argumentNames) {
-    if (Arrays.stream(parameters).allMatch(p -> p.isNamePresent())) {
-      String[] parameterNames = Arrays.stream(parameters).map(Parameter::getName).toArray(String[]::new);
+  private static MethodHandle reorderArguments(String[] parameterNames, MethodHandle handle, String[] argumentNames) {
+    if (parameterNames.length > 0) {
       int[] argumentsOrder = new int[parameterNames.length + 1];
       argumentsOrder[0] = 0;
       argumentsOrder[1] = 1;
