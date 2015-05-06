@@ -31,15 +31,7 @@ import java.io.Serializable;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashSet;
-import java.util.Iterator;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-import java.util.NoSuchElementException;
-import java.util.Set;
+import java.util.*;
 import java.util.concurrent.Callable;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
@@ -675,23 +667,30 @@ public class CompileAndRunTest {
 
     Method lbind = moduleClass.getMethod("lbind");
     FunctionReference funRef = (FunctionReference) lbind.invoke(null);
-    result = funRef.handle().invokeWithArguments(2);
+    assertThat(funRef.parameterNames(), arrayWithSize(1));
+    assertThat(funRef.parameterNames(), arrayContaining("b"));
+    result = funRef.invoke(2);
     assertThat(result, is(8));
+    assertThat(funRef.parameterNames().length, is(1));
 
     Method rbind = moduleClass.getMethod("rbind");
     funRef = (FunctionReference) rbind.invoke(null);
-    result = funRef.handle().invokeWithArguments(2);
+    assertThat(funRef.parameterNames(), arrayWithSize(1));
+    assertThat(funRef.parameterNames(), arrayContaining("a"));
+    result = funRef.invoke(2);
     assertThat(result, is(-8));
 
     Method chaining = moduleClass.getMethod("chaining");
     funRef = (FunctionReference) chaining.invoke(null);
-    result = funRef.handle().invokeWithArguments(4);
+    result = funRef.invoke(4);
     assertThat(result, is(-500));
 
     Method named_binding = moduleClass.getMethod("named_binding");
     funRef = (FunctionReference) named_binding.invoke(null);
-    result = funRef.handle().invokeWithArguments(2);
-    assertThat(result, is(8));
+    assertThat(funRef.parameterNames(), arrayWithSize(2));
+    assertThat(funRef.parameterNames(), arrayContaining("a", "c"));
+    result = funRef.invoke(1, 2);
+    assertThat(result, is(9));
 
     Method named_binding_with_error = moduleClass.getMethod("named_binding_with_error");
     try {
@@ -702,6 +701,20 @@ public class CompileAndRunTest {
       IllegalArgumentException exception = (IllegalArgumentException) cause;
       assertThat(exception.getMessage(), is("'c' not in the parameter list [a, b]"));
     }
+
+    Method keep_param_names_after_binding = moduleClass.getMethod("keep_param_names_after_binding");
+    funRef = (FunctionReference) keep_param_names_after_binding.invoke(null);
+    assertThat(funRef.parameterNames(), arrayWithSize(3));
+    assertThat(funRef.parameterNames(), arrayContaining("a", "b", "f"));
+    result = funRef.invoke(10, 9, 5);
+    assertThat(result, is(45));
+
+    Method keep_first_function_param_names_when_chaining = moduleClass.getMethod("keep_first_function_param_names_when_chaining");
+    funRef = (FunctionReference) keep_first_function_param_names_when_chaining.invoke(null);
+    assertThat(funRef.parameterNames(), arrayWithSize(3));
+    assertThat(funRef.parameterNames(), arrayContaining("x", "y", "z"));
+    result = funRef.invoke(2, 3, 5);
+    assertThat(result, is(0));
   }
 
   @Test
