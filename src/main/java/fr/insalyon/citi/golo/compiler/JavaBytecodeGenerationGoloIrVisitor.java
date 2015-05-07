@@ -59,7 +59,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/MethodInvocationSupport";
     bootstrapMethod = "bootstrap";
-    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;I)Ljava/lang/invoke/CallSite;";
+    description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;[Ljava/lang/Object;)Ljava/lang/invoke/CallSite;";
     METHOD_INVOCATION_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
 
     bootstrapOwner = "fr/insalyon/citi/golo/runtime/ClassReferenceSupport";
@@ -463,7 +463,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private List<String> visitInvocationArguments(AbstractInvocation invocation) {
     List<String> argumentNames = new ArrayList<>();
     for (ExpressionStatement argument : invocation.getArguments()) {
-      if (invocation instanceof FunctionInvocation && ((FunctionInvocation) invocation).usesNamedArguments()) {
+      if (invocation.usesNamedArguments()) {
         NamedArgument namedArgument = (NamedArgument) argument;
         argumentNames.add(namedArgument.getName());
         argument = namedArgument.getExpression();
@@ -503,12 +503,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitMethodInvocation(MethodInvocation methodInvocation) {
-    visitInvocationArguments(methodInvocation);
+    List<Object> bootstrapArgs = new ArrayList<>();
+    bootstrapArgs.add(methodInvocation.isNullSafeGuarded() ? 1 : 0);
+    List<String> argumentNames = visitInvocationArguments(methodInvocation);
+    bootstrapArgs.addAll(argumentNames);
     methodVisitor.visitInvokeDynamicInsn(
         methodInvocation.getName().replaceAll("\\.", "#"),
         goloFunctionSignature(methodInvocation.getArity() + 1),
         METHOD_INVOCATION_HANDLE,
-        (Boolean) methodInvocation.isNullSafeGuarded());
+        bootstrapArgs.toArray());
     for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
       invocation.accept(this);
     }

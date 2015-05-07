@@ -1735,6 +1735,7 @@ public class CompileAndRunTest {
 
   }
 
+  @Test
   public void lambda8_interop() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "java8-lambda.golo");
     Method sum_it = moduleClass.getMethod("sum_it");
@@ -1771,5 +1772,13 @@ public class CompileAndRunTest {
       Problem problem = e.getProblems().get(0);
       assertThat(problem.getType(), is(INCOMPLETE_NAMED_ARGUMENTS_USAGE));
     }
+
+    Method golo_decoratored = moduleClass.getMethod("golo_decoratored");
+    result = (String) golo_decoratored.invoke(null);
+    assertThat(result, is("<Golo>"));
+
+    Method golo_augmentation_varargs = moduleClass.getMethod("golo_augmentation_varargs");
+    result = (String) golo_augmentation_varargs.invoke(null);
+    assertThat(result, is("abc"));
   }
 }

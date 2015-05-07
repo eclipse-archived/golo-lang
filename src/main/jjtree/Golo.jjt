@@ -1098,7 +1098,7 @@ void MethodInvocation():
   Token token;
 }
 {
-  token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
+  token=<IDENTIFIER> "("  (BlankLine())? (Arguments())? ")"
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(token.image);

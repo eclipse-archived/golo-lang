@@ -19,3 +19,12 @@ function joiner = |delimiter, values...| {
 }
 
 function csv_builder = -> joiner(values = array["a", "b", "c"], delimiter = ",")
+
+augment java.lang.String {
+ function decorate = |this, prefix, suffix| -> prefix + this + suffix
+ function append = |this, values...| -> joiner("", values)
+}
+
+function golo_decoratored = -> "Golo": decorate(suffix = ">", prefix = "<")
+
+function golo_augmentation_varargs = -> "": append(values = array["a", "b", "c"])

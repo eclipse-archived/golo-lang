@@ -190,7 +190,7 @@ public final class FunctionCallSupport {
     }
   }
 
-  private static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
+  public static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
     if (Arrays.stream(method.getParameters()).allMatch(p -> p.isNamePresent())) {
     String[] parameterNames = Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new);
         int[] argumentsOrder = new int[parameterNames.length];

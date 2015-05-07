@@ -36,6 +36,7 @@ class RegularMethodFinder implements MethodFinder {
   private final Lookup lookup;
   private final boolean makeAccessible;
   private final int arity;
+  private final String[] argumentNames;
 
   public RegularMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.args = args;
@@ -45,6 +46,9 @@ class RegularMethodFinder implements MethodFinder {
     this.lookup = inlineCache.callerLookup;
     this.makeAccessible = !isPublic(receiverClass.getModifiers());
     this.arity = type.parameterArray().length;
+    this.argumentNames = new String[inlineCache.argumentNames.length + 1];
+    this.argumentNames[0] = "this";
+    System.arraycopy(inlineCache.argumentNames,0, argumentNames, 1, inlineCache.argumentNames.length);
   }
 
   @Override
@@ -86,6 +90,9 @@ class RegularMethodFinder implements MethodFinder {
       target = lookup.unreflect(method).asFixedArity().asType(type);
     } else {
       target = lookup.unreflect(method).asType(type);
+    }
+    if(argumentNames.length > 1) {
+      target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
     }
     return FunctionCallSupport.insertSAMFilter(target, lookup, method.getParameterTypes(), 1);
   }

@@ -731,12 +731,23 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     int i = 0;
     final int numChildren = node.jjtGetNumChildren();
     for (i = 0; i < numChildren; i++) {
-      GoloASTNode parameterNode = (GoloASTNode) node.jjtGetChild(i);
-      if (parameterNode instanceof ASTAnonymousFunctionInvocation) {
+      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
+      if (argumentNode instanceof ASTAnonymousFunctionInvocation) {
         break;
       }
-      parameterNode.jjtAccept(this, data);
-      methodInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
+      argumentNode.jjtAccept(this, data);
+      ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
+      if (statement instanceof NamedArgument) {
+        if (!methodInvocation.getArguments().isEmpty() && !methodInvocation.usesNamedArguments()) {
+          getOrCreateExceptionBuilder(context).report(INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+              "Function `" + node.getName() + "` invocation should name either all or none of its arguments" +
+                  " at (line=" + node.getLineInSourceCode() +
+                  ", column=" + node.getColumnInSourceCode() + ")"
+          );
+        }
+        methodInvocation.setUsesNamedArguments(true);
+      }
+      methodInvocation.addArgument(statement);
     }
     context.objectStack.push(methodInvocation);
     node.setIrElement(methodInvocation);
