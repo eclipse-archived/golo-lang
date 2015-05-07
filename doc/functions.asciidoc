@@ -144,7 +144,9 @@ post(
 
 NOTE: Once you are using named parameters in your function call, the order doesn't matter anymore.
 
-CAUTION: If you name one argument then you must name all the remaining argument. Otherwise, a compilation error will be raised.
+Note: To name varargs argument, you have be box the values into an `array[]` (just has it's done with the `tags` argument in the above snippet)
+
+CAUTION: You must name either or none of the arguments. A compilation error will be raised, if you mix named an unamed arguments in a function invocation.
 
 === Functions from other modules and imports ===
 
