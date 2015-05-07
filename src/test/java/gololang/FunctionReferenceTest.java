@@ -93,4 +93,15 @@ public class FunctionReferenceTest {
     assertThat(fun.handle().invoke("1", "2", "3"), is("123"));
     assertThat(fun.spread("1", new Object[]{"2", "3"}), is("123"));
   }
+
+  @Test
+  public void andThen() throws Throwable {
+    FunctionReference fun = new FunctionReference(ping).andThen(new FunctionReference(ping));
+    assertThat(fun.invoke("Plop"), is("Plop"));
+  }
+
+  @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*1 parameter.*")
+  public void andThen_bad_arity() throws Throwable {
+    new FunctionReference(ping).andThen(new FunctionReference(collectN));
+  }
 }
