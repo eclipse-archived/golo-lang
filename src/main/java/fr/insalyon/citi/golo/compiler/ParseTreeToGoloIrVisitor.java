@@ -59,6 +59,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private static class Context {
     GoloModule module;
+    Union currentUnion;
     boolean inNamedAugmentation;
     String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
@@ -81,7 +82,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTCompilationUnit node, Object data) {
     Context context = (Context) data;
     Object ret = node.childrenAccept(this, data);
-    context.module.internStructAugmentations();
+    context.module.internTypesAugmentations();
     return ret;
   }
 
@@ -151,6 +152,28 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     block.addStatement(new ReturnStatement(call));
     module.addFunction(factory);
 
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTUnionDeclaration node, Object data) {
+    Context context = (Context) data;
+    GoloModule module = context.module;
+
+    PackageAndClass unionClass = new PackageAndClass(
+        module.getPackageAndClass().toString() + ".types",
+        node.getName());
+    Union currentUnion = new Union(unionClass);
+    context.currentUnion = currentUnion ;
+    module.addUnion(currentUnion);
+    module.addImport(new ModuleImport(unionClass));
+    return node.childrenAccept(this, data);
+  }
+
+  @Override
+  public Object visit(ASTUnionValue node, Object data) {
+    Context context = (Context) data;
+    context.currentUnion.addValue(node.getName(), node.getMembers());
     return data;
   }
 

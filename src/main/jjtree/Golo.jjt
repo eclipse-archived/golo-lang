@@ -170,6 +170,8 @@ TOKEN :
   < CONTINUE: "continue" >
   |
   < STRUCT: "struct" >
+  |
+  < UNION: "union" >
 }
 
 // Operators
@@ -702,6 +704,7 @@ void ToplevelDeclaration():
   ASTFunctionDeclaration functionDecl;
   ASTAugmentDeclaration augmentDecl;
   ASTStructDeclaration structDecl;
+  ASTUnionDeclaration unionDecl;
   ASTNamedAugmentationDeclaration namedAugmentationDecl;
   ASTLetOrVar state;
   Token local = null;
@@ -727,6 +730,11 @@ void ToplevelDeclaration():
       structDecl=StructDeclaration()
       {
         structDecl.setDocumentation(documentation);
+      }
+      |
+      unionDecl=UnionDeclaration()
+      {
+        unionDecl.setDocumentation(documentation);
       }
       |
       namedAugmentationDecl=NamedAugmentationDeclaration()
@@ -764,6 +772,52 @@ ASTStructDeclaration StructDeclaration():
   {
     jjtThis.setName(name.image);
     jjtThis.setMembers(members);
+    return jjtThis;
+  }
+}
+
+void UnionValue():
+{
+  Token name;
+  Token member;
+  LinkedHashSet<String> members = new LinkedHashSet<String>();
+  String documentation = null;
+}
+{
+  (documentation=Documentation())?
+  name=<IDENTIFIER> 
+  ("=" "{" BlankLines()
+    member=<IDENTIFIER> BlankLines()
+    {
+      members.add(member.image);
+    }
+    (
+      "," BlankLines() member=<IDENTIFIER> BlankLines()
+      {
+        members.add(member.image);
+      }
+    )*
+  "}")?
+  {
+    jjtThis.setName(name.image);
+    jjtThis.setMembers(members);
+    jjtThis.setDocumentation(documentation);
+  }
+}
+
+ASTUnionDeclaration UnionDeclaration():
+{
+  Token name;
+  Token valueName;
+}
+{
+  <UNION> name=<IDENTIFIER> "=" "{" BlankLines()
+  (
+    UnionValue() BlankLines()
+  )*
+  "}"
+  {
+    jjtThis.setName(name.image);
     return jjtThis;
   }
 }

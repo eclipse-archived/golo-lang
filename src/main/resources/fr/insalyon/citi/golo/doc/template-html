@@ -134,6 +134,16 @@
   </ul></li>
   <% } %>
 
+  <% if not doc: unions(): isEmpty() { %>
+  <li><a href="#unions">Unions</a><ul>
+    <% foreach unionDoc in doc: unions() { %>
+    <li><a href="#<%= unionDoc: name() %>"><%= unionDoc: name() %></a></li>
+    <% } %>
+  </ul></li>
+  <% } %>
+
+
+
   <% if not doc: namedAugmentations(): isEmpty() { %>
   <li><a href="#namedAugmentations">Named Augmentations</a><ul>
     <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
@@ -189,6 +199,36 @@
   <% } %>
 <% } %>
 
+<% if not doc: unions(): isEmpty() { %>
+  <h2 id="unions">Unions</h2>
+  <% foreach unionDoc in doc: unions() { %> 
+    <h3 id="<%= unionDoc: name() %>"><%= unionDoc: name() %>
+    <a class="permalink" href="#<%= unionDoc: name() %>" title="link to this section">&#182;</a></h3>
+    
+    <div>
+    <%= process(unionDoc: documentation()) %>
+    </div>
+
+    <% foreach unionValueDoc in unionDoc: values() { %>
+    <h4 id="<%= unionDoc: name() %>.<%= unionValueDoc: name() %>">
+        <%= unionValueDoc: name() %>
+        <a class="permalink" href="#<%= unionDoc: name() %>.<%= unionValueDoc: name() %>"
+            title="link to this section">&#182;</a>
+    </h4>
+    
+    <% if not unionValueDoc: members(): isEmpty() { %>
+      <ul>
+      <% foreach member in unionValueDoc: members() { %>
+        <li><code><%= member %></code></li>
+      <% } %>
+      </ul>
+    <% } %>
+
+    <div><%= process(unionValueDoc: documentation()) %></div>
+
+    <% } %>
+  <% } %>
+<% } %>
 
 <% if not doc: namedAugmentations(): isEmpty() { %>
   <h2 id="namedAugmentations">Named Augmentations</h2>

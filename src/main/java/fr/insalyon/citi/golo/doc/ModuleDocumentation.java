@@ -47,6 +47,7 @@ class ModuleDocumentation implements DocumentationElement {
   private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
   private final Map<String, AugmentationDocumentation> augmentations = new TreeMap<>();
   private final SortedSet<StructDocumentation> structs = new TreeSet<>();
+  private final SortedSet<UnionDocumentation> unions = new TreeSet<>();
   private final Set<NamedAugmentationDocumentation> namedAugmentations = new TreeSet<>();
 
   ModuleDocumentation(ASTCompilationUnit compilationUnit) {
@@ -55,6 +56,10 @@ class ModuleDocumentation implements DocumentationElement {
 
   public SortedSet<StructDocumentation> structs() {
     return structs;
+  }
+
+  public SortedSet<UnionDocumentation> unions() {
+    return unions;
   }
 
   public SortedSet<FunctionDocumentation> functions() {
@@ -114,6 +119,7 @@ class ModuleDocumentation implements DocumentationElement {
 
     private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
     private FunctionDocumentation currentFunction = null;
+    private UnionDocumentation currentUnion;
 
     @Override
     public Object visit(ASTCompilationUnit node, Object data) {
@@ -150,6 +156,25 @@ class ModuleDocumentation implements DocumentationElement {
         .line(node.getLineInSourceCode())
         .members(node.getMembers())
       );
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTUnionDeclaration node, Object data) {
+      this.currentUnion = new UnionDocumentation()
+        .name(node.getName())
+        .documentation(node.getDocumentation())
+        .line(node.getLineInSourceCode());
+      unions.add(this.currentUnion);
+      return node.childrenAccept(this, data);
+    }
+
+    @Override
+    public Object visit(ASTUnionValue node, Object data) {
+      this.currentUnion.addValue(node.getName())
+        .documentation(node.getDocumentation())
+        .line(node.getLineInSourceCode())
+        .members(node.getMembers());
       return data;
     }
 

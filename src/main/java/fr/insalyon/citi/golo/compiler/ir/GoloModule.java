@@ -62,6 +62,7 @@ public final class GoloModule extends GoloElement {
   private final ApplicationRegister augmentationApplications = new ApplicationRegister();
   private final FunctionRegister namedAugmentations = new FunctionRegister();
   private final Set<Struct> structs = new LinkedHashSet<>();
+  private final Set<Union> unions = new LinkedHashSet<>();
   private final Set<LocalReference> moduleState = new LinkedHashSet<>();
   private GoloFunction moduleStateInitializer = null;
 
@@ -120,6 +121,10 @@ public final class GoloModule extends GoloElement {
     return unmodifiableSet(structs);
   }
 
+  public Set<Union> getUnions() {
+    return unmodifiableSet(unions);
+  }
+
   public Set<LocalReference> getModuleState() {
     return unmodifiableSet(moduleState);
   }
@@ -150,6 +155,10 @@ public final class GoloModule extends GoloElement {
     structs.add(struct);
   }
 
+  public void addUnion(Union e) {
+    unions.add(e);
+  }
+
   public void addLocalState(LocalReference reference) {
     moduleState.add(reference);
   }
@@ -162,7 +171,7 @@ public final class GoloModule extends GoloElement {
     visitor.visitModule(this);
   }
 
-  private void internStructAugmentations(Set<String> structNames, Register<String,?> augmentations) {
+  private void internTypesAugmentations(Set<String> structNames, Register<String,?> augmentations) {
     HashSet<String> trash = new HashSet<>();
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {
@@ -175,13 +184,19 @@ public final class GoloModule extends GoloElement {
     trash.clear();
   }
 
-  public void internStructAugmentations() {
-    HashSet<String> structNames = new HashSet<>();
+  public void internTypesAugmentations() {
+    HashSet<String> typesNames = new HashSet<>();
     for (Struct struct : structs) {
-      structNames.add(struct.getPackageAndClass().className());
+      typesNames.add(struct.getPackageAndClass().className());
     }
-    internStructAugmentations(structNames, augmentations);
-    internStructAugmentations(structNames, augmentationApplications);
-    structNames.clear();
+    for (Union union : unions) {
+      typesNames.add(union.getPackageAndClass().className());
+      for (Union.Value value : union.getValues()) {
+        typesNames.add(value.getPackageAndClass().className());
+      }
+    }
+    internTypesAugmentations(typesNames, augmentations);
+    internTypesAugmentations(typesNames, augmentationApplications);
+    typesNames.clear();
   }
 }

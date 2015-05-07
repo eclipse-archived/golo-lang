@@ -49,6 +49,13 @@ public final class PackageAndClass {
   }
 
   /**
+   * @return a new {@code PackageAndClass} identifying an inner class of this class
+   */
+  public PackageAndClass createInnerClass(String name) {
+    return new PackageAndClass(this.packageName, this.className + "$" + name);
+  }
+
+  /**
    * @return the package name.
    */
   public String packageName() {
@@ -72,10 +79,18 @@ public final class PackageAndClass {
   }
 
   /**
-   * @return a JVM type representation for this object, e.g.: <code>foo.Bar</code> gives <code>foo/Bar</code>.
+   * @return a JVM type representation for this object, e.g.: {@code foo.Bar} gives {@code foo/Bar}.
    */
   public String toJVMType() {
     return toString().replaceAll("\\.", "/");
+  }
+
+  /**
+   * @return a JVM reference type representation for this object, e.g.: {@code foo.Bar} gives
+   * {@code Lfoo/Bar;}
+   */
+  public String toJVMRef() {
+    return "L" + toJVMType() + ";";
   }
 
   @Override

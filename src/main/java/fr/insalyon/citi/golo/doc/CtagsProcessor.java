@@ -93,6 +93,29 @@ public class CtagsProcessor extends AbstractProcessor {
         String.format("s\tline:%s", line));
   }
 
+  private void ctagsUnion(UnionDocumentation unionDoc) {
+    ctagsLine(unionDoc.name(),
+        String.format("/^union[:blank:]+%s[:blank:]+=[:blank:]+{/", unionDoc.name()),
+        String.format("g\tline:%s", unionDoc.line()));
+
+    for (UnionDocumentation.UnionValueDocumentation valueDoc : unionDoc.values()) {
+      ctagsUnionValue(unionDoc.name(), valueDoc);
+    }
+  }
+
+  private void ctagsUnionValue(String unionName, UnionDocumentation.UnionValueDocumentation valueDoc) {
+    ctagsLine(valueDoc.name(),
+        String.format("/[:blank:]+%s[:blank:]+%s", valueDoc.name(),
+                    valueDoc.hasMembers() ? "[:blank:]*=[:blank:]+{" : ""),
+        String.format("e\tline:%s\tunion:%s", valueDoc.line(), unionName));
+
+    for (String member : valueDoc.members()) {
+      ctagsLine(member,
+        String.format("/[:blank:]+%s[:blank:]+=/", valueDoc.name()),
+        String.format("m\tline:%s\taccess:public\tunion:%s.%s", valueDoc.line(), unionName, valueDoc.name()));
+    }
+  }
+
   private void ctagsImport(String name, int line) {
     ctagsLine(name,
         String.format("/^import[:blank:]+%s/", name.replace(".","\\.")),
@@ -106,18 +129,17 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private void ctagsStructMember(String struct, String member, int line) {
-    StringBuilder fields = new StringBuilder("m");
-    fields.append("\tline:").append(line);
-    if (member.charAt(0) == '_') {
-      fields.append("\taccess:private");
-    } else {
-      fields.append("\taccess:public");
-    }
-    fields.append("\tstruct:").append(struct);
     ctagsLine(member,
         String.format("/struct[:blank:]+%s[:blank:]+=/", struct),
-        fields.toString());
+        String.format("m\tline:%s\taccess:%s\tstruct:%s", 
+          line,
+          (member.charAt(0) == '_') ? "private" : "public",
+          struct));
   }
+
+  private void ctagsUnionMember(String unionVal, String member, int line) {
+  }
+
 
   private String ctagsAsString() {
     java.util.Collections.sort(ctags);
@@ -140,6 +162,9 @@ public class CtagsProcessor extends AbstractProcessor {
       for (String member : struct.members()) {
         ctagsStructMember(struct.name(), member, struct.line());
       }
+    }
+    for (UnionDocumentation unionDoc : documentation.unions()) {
+      ctagsUnion(unionDoc);
     }
     for (NamedAugmentationDocumentation augment : documentation.namedAugmentations()) {
       ctagsAugmentation(augment.name(), augment.line());

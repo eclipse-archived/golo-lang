@@ -12,6 +12,20 @@
 <%}%>
 <%= structDoc: documentation() %>
 <%}}%>
+<% if not doc: unions(): isEmpty() { %>
+## Unions
+<% foreach unionDoc in doc: unions() { %>
+### `<%= unionDoc: name() %>`
+<%= unionDoc: documentation() %>
+<% foreach unionValueDoc in unionDoc: values() { %>
+#### `<%= unionValueDoc: name() %>`
+<% foreach member in unionValueDoc: members() { %>
+- <%= member %>
+<%}%>
+<%= unionValueDoc: documentation() %>
+<%}%>
+<%}%>
+<%}%>
 <%if not doc: namedAugmentations(): isEmpty() {%>
 ## Named Augmentations
 <%foreach namedAugmentationDoc in doc: namedAugmentations() {%>
