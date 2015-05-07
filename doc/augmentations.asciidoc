@@ -138,10 +138,9 @@ It is possible for augmentations to have a name.
 A named augmentation is a set of functions that can be applied to some
 classes or structures.
 
-This can be seen as a kind of lightweight _traits_
-footnote:[ http://en.wikipedia.org/wiki/Trait_%28computer_programming%29[Wikipedia: Traits] ]
-, or _mixin_
-footnote:[ http://en.wikipedia.org/wiki/Mixin[Wikipedia: Mixin] ],
+This can be seen as a kind of lightweight
+http://en.wikipedia.org/wiki/Trait_%28computer_programming%29[trait],
+or http://en.wikipedia.org/wiki/Mixin[mixin],
 as found in Rust, Groovy or Scala.
 
 Named augmentations are defined with the `augmentation` keyword.

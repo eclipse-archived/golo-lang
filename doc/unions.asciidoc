@@ -1,9 +1,8 @@
 == Unions
 
 Golo allows the definition of sum algebraic data types, also known as
-_tagged_union_
-footnote:[ http://en.wikipedia.org/wiki/Tagged_union[Wikipedia: Tagged union]
-], as present in many functional languages: OCaml, Haskell, Rust, Scala to
+http://en.wikipedia.org/wiki/Tagged_union[tagged union],
+as present in many functional languages: OCaml, Haskell, Rust, Scala to
 name a few.
 The dual algebraic data type, the product type is provided by `struct` and `tuple`.
 
@@ -30,7 +29,7 @@ function main = |args| {
 
 === Usage example
 
-Some well known usages of sum types are:
+Some well known usages of sum types are the following.
 
 ==== Enumerations
 
@@ -88,7 +87,7 @@ union Tree = {
 
 === JVM existence
 
-An `union` type is compiled to an abstract JVM class. Each alternative value
+A `union` type is compiled to an abstract JVM class. Each alternative value
 type is itself compiled to a final immutable JVM class extending the `union` abstract class.
 The value classes are member classes of the `union` one.
 
