@@ -16,34 +16,16 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
-public class ASTAnonymousFunctionInvocation extends GoloASTNode {
+public class ASTEqualityExpression extends GoloASTNode {
 
-  private boolean constant;
+  private String operator;
 
-  private boolean onExpression;
-
-  public ASTAnonymousFunctionInvocation(int id) {
+  public ASTEqualityExpression(int id) {
     super(id);
   }
 
-  public ASTAnonymousFunctionInvocation(GoloParser p, int id) {
+  public ASTEqualityExpression(GoloParser p, int id) {
     super(p, id);
-  }
-
-  public void setConstant(boolean constant) {
-    this.constant = constant;
-  }
-
-  public boolean isConstant() {
-    return constant;
-  }
-
-  public boolean isOnExpression() {
-    return onExpression;
-  }
-
-  public void setOnExpression(boolean onExpression) {
-    this.onExpression = onExpression;
   }
 
   @Override
@@ -51,11 +33,18 @@ public class ASTAnonymousFunctionInvocation extends GoloASTNode {
     return visitor.visit(this, data);
   }
 
+  public String getOperator() {
+    return operator;
+  }
+
+  public void setOperator(String operator) {
+    this.operator = operator;
+  }
+
   @Override
   public String toString() {
-    return "ASTAnonymousFunctionInvocation{" +
-        "constant=" + constant +
-        ", onExpression=" + onExpression +
+    return "ASTEqualityExpression{" +
+        "operator='" + operator + '\'' +
         '}';
   }
 }

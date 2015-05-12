@@ -17,7 +17,6 @@
 package fr.insalyon.citi.golo.doc;
 
 import fr.insalyon.citi.golo.compiler.parser.*;
-import fr.insalyon.citi.golo.compiler.utils.Register;
 import fr.insalyon.citi.golo.compiler.utils.AbstractRegister;
 
 import java.util.*;
@@ -67,10 +66,14 @@ class ModuleDocumentation implements DocumentationElement {
   }
 
   public SortedSet<FunctionDocumentation> functions(boolean withLocal) {
-    if (withLocal) { return functions; }
+    if (withLocal) {
+      return functions;
+    }
     TreeSet<FunctionDocumentation> pubFunctions = new TreeSet<>();
     for (FunctionDocumentation f : functions) {
-      if (!f.local()) { pubFunctions.add(f); }
+      if (!f.local()) {
+        pubFunctions.add(f);
+      }
     }
     return pubFunctions;
   }
@@ -151,10 +154,10 @@ class ModuleDocumentation implements DocumentationElement {
     @Override
     public Object visit(ASTStructDeclaration node, Object data) {
       structs.add(new StructDocumentation()
-        .name(node.getName())
-        .documentation(node.getDocumentation())
-        .line(node.getLineInSourceCode())
-        .members(node.getMembers())
+              .name(node.getName())
+              .documentation(node.getDocumentation())
+              .line(node.getLineInSourceCode())
+              .members(node.getMembers())
       );
       return data;
     }
@@ -162,9 +165,9 @@ class ModuleDocumentation implements DocumentationElement {
     @Override
     public Object visit(ASTUnionDeclaration node, Object data) {
       this.currentUnion = new UnionDocumentation()
-        .name(node.getName())
-        .documentation(node.getDocumentation())
-        .line(node.getLineInSourceCode());
+          .name(node.getName())
+          .documentation(node.getDocumentation())
+          .line(node.getLineInSourceCode());
       unions.add(this.currentUnion);
       return node.childrenAccept(this, data);
     }
@@ -172,9 +175,9 @@ class ModuleDocumentation implements DocumentationElement {
     @Override
     public Object visit(ASTUnionValue node, Object data) {
       this.currentUnion.addValue(node.getName())
-        .documentation(node.getDocumentation())
-        .line(node.getLineInSourceCode())
-        .members(node.getMembers());
+          .documentation(node.getDocumentation())
+          .line(node.getLineInSourceCode())
+          .members(node.getMembers());
       return data;
     }
 
@@ -191,9 +194,9 @@ class ModuleDocumentation implements DocumentationElement {
       String target = node.getName();
       if (!augmentations.containsKey(target)) {
         augmentations.put(target, new AugmentationDocumentation()
-            .target(target)
-            .augmentationNames(node.getAugmentationNames())
-            .line(node.getLineInSourceCode())
+                .target(target)
+                .augmentationNames(node.getAugmentationNames())
+                .line(node.getLineInSourceCode())
         );
       }
       functionContext.push(augmentations.get(target).documentation(node.getDocumentation()));
@@ -218,11 +221,11 @@ class ModuleDocumentation implements DocumentationElement {
     @Override
     public Object visit(ASTFunctionDeclaration node, Object data) {
       currentFunction = new FunctionDocumentation()
-        .name(node.getName())
-        .documentation(node.getDocumentation())
-        .augmentation(node.isAugmentation())
-        .line(node.getLineInSourceCode())
-        .local(node.isLocal());
+          .name(node.getName())
+          .documentation(node.getDocumentation())
+          .augmentation(node.isAugmentation())
+          .line(node.getLineInSourceCode())
+          .local(node.isLocal());
       functionContext.peek().add(currentFunction);
       node.childrenAccept(this, data);
       currentFunction = null;
@@ -233,8 +236,8 @@ class ModuleDocumentation implements DocumentationElement {
     public Object visit(ASTFunction node, Object data) {
       if (currentFunction != null) {
         currentFunction
-          .arguments(node.getArguments())
-          .varargs(node.isVarargs());
+            .arguments(node.getArguments())
+            .varargs(node.isVarargs());
       }
       return data;
     }
@@ -288,12 +291,43 @@ class ModuleDocumentation implements DocumentationElement {
     }
 
     @Override
-    public Object visit(ASTCommutativeExpression node, Object data) {
+    public Object visit(ASTExpressionStatement node, Object data) { return data; }
+
+    @Override
+    public Object visit(ASTInvocationExpression node, Object data) { return data; }
+
+    @Override
+    public Object visit(ASTMultiplicativeExpression node, Object data) {
       return data;
     }
 
     @Override
-    public Object visit(ASTAssociativeExpression node, Object data) {
+    public Object visit(ASTAdditiveExpression node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTRelationalExpression node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTEqualityExpression node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTAndExpression node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTOrExpression node, Object data) {
+      return data;
+    }
+
+    @Override
+    public Object visit(ASTOrIfNullExpression node, Object data) {
       return data;
     }
 

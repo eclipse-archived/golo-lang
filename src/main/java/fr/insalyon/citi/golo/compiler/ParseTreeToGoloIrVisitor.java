@@ -20,6 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.*;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 
+import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
@@ -31,7 +32,9 @@ import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
 import static fr.insalyon.citi.golo.compiler.ir.LocalReference.Kind.*;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.LET;
 import static fr.insalyon.citi.golo.compiler.parser.ASTLetOrVar.Type.VAR;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ANON_CALL;
 import static fr.insalyon.citi.golo.runtime.OperatorType.ELVIS_METHOD_CALL;
+import static fr.insalyon.citi.golo.runtime.OperatorType.ORIFNULL;
 
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
@@ -75,7 +78,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(SimpleNode node, Object data) {
-    throw new IllegalStateException("visit(SimpleNode) shall never be invoked");
+    throw new IllegalStateException("visit(SimpleNode) shall never be invoked: " + node.getClass());
   }
 
   @Override
@@ -164,7 +167,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         module.getPackageAndClass().toString() + ".types",
         node.getName());
     Union currentUnion = new Union(unionClass);
-    context.currentUnion = currentUnion ;
+    context.currentUnion = currentUnion;
     module.addUnion(currentUnion);
     module.addImport(new ModuleImport(unionClass));
     return node.childrenAccept(this, data);
@@ -183,8 +186,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.augmentation = node.getTarget();
     if (node.isNamedAugmentation()) {
       context.module.addAugmentationApplication(
-        node.getTarget(),
-        node.getAugmentationNames());
+          node.getTarget(),
+          node.getAugmentationNames());
       return data;
     } else {
       return node.childrenAccept(this, data);
@@ -223,11 +226,11 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         node.isAugmentation() ? AUGMENT : MODULE);
     node.setIrElement(function);
     while (context.objectStack.peek() instanceof Decorator) {
-      function.addDecorator((Decorator)context.objectStack.pop());
+      function.addDecorator((Decorator) context.objectStack.pop());
     }
     context.objectStack.push(function);
     if (!function.getDecorators().isEmpty()) {
-      ASTFunction original = (ASTFunction)node.jjtGetChild(0);
+      ASTFunction original = (ASTFunction) node.jjtGetChild(0);
       Node wrapped = wrapFunctionWithDecorators(original, function.getDecorators());
       wrapped.jjtAccept(this, data);
     } else {
@@ -252,14 +255,14 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     for (Decorator decorator : decorators) {
       if (decorator.getExpressionStatement() instanceof ReferenceLookup) {
         nested = wrapWithReferenceLookupDecorator(
-                nested,
-                (ReferenceLookup)decorator.getExpressionStatement(),
-                decorator.isConstant());
+            nested,
+            (ReferenceLookup) decorator.getExpressionStatement(),
+            decorator.isConstant());
       } else {
         nested = wrapWithFunctionInvocationDecorator(
-                nested,
-                (FunctionInvocation)decorator.getExpressionStatement(),
-                decorator.isConstant());
+            nested,
+            (FunctionInvocation) decorator.getExpressionStatement(),
+            decorator.isConstant());
       }
     }
     nested = invokeDecoratorWithOriginalParameters(nested, wrapped);
@@ -269,14 +272,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private Node invokeDecoratorWithOriginalParameters(Node wrapped, ASTFunction function) {
     ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
-    for(String argument : function.getArguments()) {
-      ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
-      functionInvocation.jjtAddChild(commutativeExpression, functionInvocation.jjtGetNumChildren());
-      ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
-      commutativeExpression.jjtAddChild(associativeExpression, 0);
+    for (String argument : function.getArguments()) {
       ASTReference ref = new ASTReference(0);
       ref.setName(argument);
-      associativeExpression.jjtAddChild(ref, 0);
+      functionInvocation.jjtAddChild(ref, functionInvocation.jjtGetNumChildren());
     }
     wrapped.jjtAddChild(functionInvocation, wrapped.jjtGetNumChildren());
     return wrapped;
@@ -286,11 +285,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Node decorator = invocation.getASTNode();
     ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
     functionInvocation.setConstant(constant);
-    ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
-    functionInvocation.jjtAddChild(commutativeExpression, 0);
-    ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
-    commutativeExpression.jjtAddChild(associativeExpression, 0);
-    associativeExpression.jjtAddChild(wrapped, 0);
+    functionInvocation.jjtAddChild(wrapped, 0);
     decorator.jjtAddChild(functionInvocation, decorator.jjtGetNumChildren());
     return decorator;
   }
@@ -299,11 +294,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ASTFunctionInvocation functionInvocation = new ASTFunctionInvocation(0);
     functionInvocation.setName(reference.getName());
     functionInvocation.setConstant(constant);
-    ASTCommutativeExpression commutativeExpression = new ASTCommutativeExpression(0);
-    functionInvocation.jjtAddChild(commutativeExpression, 0);
-    ASTAssociativeExpression associativeExpression = new ASTAssociativeExpression(0);
-    commutativeExpression.jjtAddChild(associativeExpression, 0);
-    associativeExpression.jjtAddChild(wrapped, 0);
+    functionInvocation.jjtAddChild(wrapped, 0);
     return functionInvocation;
   }
 
@@ -348,8 +339,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     if (AUGMENT.equals(function.getScope())) {
       if (context.inNamedAugmentation) {
         context.module.addNamedAugmentation(context.augmentation, function);
-      }
-      else {
+      } else {
         context.module.addAugmentation(context.augmentation, function);
       }
     } else {
@@ -397,7 +387,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, data);
     UnaryOperation unaryOperation = new UnaryOperation(
-        operationFrom(node.getOperator()),
+        OperatorType.NOT,
         (ExpressionStatement) context.objectStack.pop());
     context.objectStack.push(unaryOperation);
     node.setIrElement(unaryOperation);
@@ -449,66 +439,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       default:
         throw new IllegalArgumentException(symbol);
     }
-  }
-
-  private void makeBinaryOperation(GoloASTNode node, List<String> symbols, Context context) {
-    Deque<ExpressionStatement> expressions = new LinkedList<>();
-    Deque<OperatorType> operators = new LinkedList<>();
-    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-      node.jjtGetChild(i).jjtAccept(this, context);
-      expressions.push((ExpressionStatement) context.objectStack.pop());
-    }
-    for (String operatorSymbol : symbols) {
-      operators.push(operationFrom(operatorSymbol));
-    }
-    ExpressionStatement right = expressions.pop();
-    ExpressionStatement left = expressions.pop();
-    OperatorType operator = OperatorType.ANON_CALL;
-    if (!operators.isEmpty()) {
-      operator = operators.pop();
-    }
-    BinaryOperation current = new BinaryOperation(operator, left, right);
-
-    if (operator == ELVIS_METHOD_CALL) {
-      MethodInvocation invocation = (MethodInvocation) right;
-      invocation.setNullSafeGuarded(true);
-    }
-    while (!expressions.isEmpty()) {
-      left = expressions.pop();
-      operator = OperatorType.ANON_CALL;
-      if (!operators.isEmpty()) {
-        operator = operators.pop();
-      }
-      if (operator == ELVIS_METHOD_CALL) {
-        MethodInvocation invocation = (MethodInvocation) current.getLeftExpression();
-        invocation.setNullSafeGuarded(true);
-      }
-      current = new BinaryOperation(operator, left, current);
-    }
-    node.setIrElement(current);
-    context.objectStack.push(current);
-  }
-
-  @Override
-  public Object visit(ASTCommutativeExpression node, Object data) {
-    Context context = (Context) data;
-    if (node.jjtGetNumChildren() > 1) {
-      makeBinaryOperation(node, node.getOperators(), context);
-    } else {
-      node.childrenAccept(this, data);
-    }
-    return data;
-  }
-
-  @Override
-  public Object visit(ASTAssociativeExpression node, Object data) {
-    Context context = (Context) data;
-    if (node.jjtGetNumChildren() > 1) {
-      makeBinaryOperation(node, node.getOperators(), context);
-    } else {
-      node.childrenAccept(this, data);
-    }
-    return data;
   }
 
   @Override
@@ -695,7 +625,13 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       argumentNode.jjtAccept(this, data);
       invocation.addArgument((ExpressionStatement) context.objectStack.pop());
     }
-    context.objectStack.push(invocation);
+    if (node.isOnExpression()) {
+      ExpressionStatement receiver = (ExpressionStatement) context.objectStack.pop();
+      context.objectStack.push(new BinaryOperation(ANON_CALL, receiver, invocation));
+    }
+    else {
+      context.objectStack.push(invocation);
+    }
     node.setIrElement(invocation);
     return data;
   }
@@ -963,6 +899,153 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         finallyBlock);
     context.objectStack.push(tryCatchFinally);
     node.setIrElement(tryCatchFinally);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTExpressionStatement node, Object data) {
+    node.childrenAccept(this, data);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTInvocationExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    List<String> operators = node.getOperators();
+    Collections.reverse(operators);
+    for (String symbol : operators) {
+      OperatorType operator = operationFrom(symbol);
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+        if (operator == ELVIS_METHOD_CALL) {
+          ((MethodInvocation) right).setNullSafeGuarded(true);
+        }
+      } else if (operator == ELVIS_METHOD_CALL) {
+        BinaryOperation rOp = (BinaryOperation) right;
+        ((MethodInvocation) rOp.getLeftExpression()).setNullSafeGuarded(true);
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(operator, left, right);
+    }
+    context.objectStack.push(current);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTMultiplicativeExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    List<String> symbols = node.getOperators();
+    Collections.reverse(symbols);
+    for (String symbol : symbols) {
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(operationFrom(symbol), left, right);
+    }
+    context.objectStack.push(current);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTAdditiveExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    List<String> symbols = node.getOperators();
+    Collections.reverse(symbols);
+    for (String symbol : symbols) {
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(operationFrom(symbol), left, right);
+    }
+    context.objectStack.push(current);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTRelationalExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    ExpressionStatement right = (ExpressionStatement) context.objectStack.pop();
+    ExpressionStatement left = (ExpressionStatement) context.objectStack.pop();
+    context.objectStack.push(new BinaryOperation(operationFrom(node.getOperator()), left, right));
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTEqualityExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    ExpressionStatement right = (ExpressionStatement) context.objectStack.pop();
+    ExpressionStatement left = (ExpressionStatement) context.objectStack.pop();
+    context.objectStack.push(new BinaryOperation(operationFrom(node.getOperator()), left, right));
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTAndExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    for (int i = 0; i < node.count(); i++) {
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(OperatorType.AND, left, right);
+    }
+    context.objectStack.push(current);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTOrExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    for (int i = 0; i < node.count(); i++) {
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(OperatorType.OR, left, right);
+    }
+    context.objectStack.push(current);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTOrIfNullExpression node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, context);
+    BinaryOperation current = null;
+    ExpressionStatement left;
+    ExpressionStatement right = null;
+    for (int i = 0; i < node.count(); i++) {
+      if (right == null) {
+        right = (ExpressionStatement) context.objectStack.pop();
+      }
+      left = (ExpressionStatement) context.objectStack.pop();
+      right = current = new BinaryOperation(OperatorType.ORIFNULL, left, right);
+    }
+    context.objectStack.push(current);
     return data;
   }
 }

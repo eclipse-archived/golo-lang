@@ -177,7 +177,7 @@ TOKEN :
 // Operators
 TOKEN :
 {
-  < ASSOCIATIVE_OPERATOR: ("*" | "/" | "%" |
+/*  < ASSOCIATIVE_OPERATOR: ("*" | "/" | "%" |
                            "<" | "<=" | "==" | "!=" | ">" | ">=" |
                            "is" | "isnt" |
                            "oftype" ) >
@@ -185,6 +185,21 @@ TOKEN :
   < COMMUTATIVE_OPERATOR: ("+" | "-" |
                            "and" | "or" |
                            "orIfNull" ) >
+  |
+*/
+  < MULTIPLICATIVE_OPERATOR: ("*" | "/" | "%") >
+  |
+  < ADDITIVE_OPERATOR: ("+" | "-") >
+  |
+  < RELATIONAL_OPERATOR: ("<" | "<=" | ">" | ">=" | "oftype") >
+  |
+  < EQUALITY_OPERATOR: ("==" | "!=" | "is" | "isnt") >
+  |
+  < AND_OPERATOR: "and" >
+  |
+  < OR_OPERATOR: "or" >
+  |
+  < OR_IFNULL_OPERATOR: "orIfNull" >
   |
   < UNARY_OPERATOR: "not" >
   |
@@ -1016,12 +1031,12 @@ void TryCatchFinally():
   )
 }
 
-void ExpressionStatement() #void: {}
+void ExpressionStatement(): {}
 {
-  CommutativeExpression()
+  OrIfNullExpression() (LOOKAHEAD(1) BlankLine())?
 }
 
-void TerminalExpression() #void: {}
+void Atom() #void: {}
 {
   LOOKAHEAD(2) FunctionInvocation()
   |
@@ -1034,63 +1049,138 @@ void TerminalExpression() #void: {}
   Function()
   |
   CollectionLiteral()
+  |
+  "(" (BlankLine())? ExpressionStatement() (BlankLine())? ")"
 }
 
-void UnaryExpression():
+void UnaryExpression() #void:
 {
-  Token token;
+  Token token = null;
 }
 {
-  token=<UNARY_OPERATOR> CommutativeExpression()
-  {
-    jjtThis.setOperator(token.image);
-  }
+  (token=<UNARY_OPERATOR>)? InvocationExpression() #UnaryExpression(token != null)
 }
 
-void CommutativeExpression():
+void InvocationExpression() #void:
 {
-  Token token;
+  Token token = null;
+  ASTAnonymousFunctionInvocation anon = null;
 }
 {
-  AssociativeExpression()
+  Atom()
   (
-    LOOKAHEAD(2) (BlankLine())? token=<COMMUTATIVE_OPERATOR> (BlankLine())? AssociativeExpression()
+    LOOKAHEAD(2) (BlankLine())? token=<INVOCATION> (BlankLine())? MethodInvocation()
     {
       jjtThis.addOperator(token.image);
+    }
+  )* #InvocationExpression(token != null)
+  (
+    LOOKAHEAD(2) anon=AnonymousFunctionInvocation()
+    {
+      anon.setOnExpression(true);
     }
   )*
 }
 
-void AssociativeExpression():
+void MultiplicativeExpression() #void:
 {
-  Token token;
+  Token token = null;
 }
 {
+  UnaryExpression()
   (
-    "(" (BlankLine())? CommutativeExpression() (BlankLine())? ")"
-    |
-    TerminalExpression()
-    |
-    UnaryExpression()
-  )
-  (LOOKAHEAD(1) BlankLine())?
+    LOOKAHEAD(2) (BlankLine())? token=<MULTIPLICATIVE_OPERATOR> (BlankLine())? InvocationExpression()
+    {
+      jjtThis.addOperator(token.image);
+    }
+  )* #MultiplicativeExpression(token != null)
+}
+
+void AdditiveExpression() #void:
+{
+  Token token = null;
+}
+{
+  MultiplicativeExpression()
   (
-    LOOKAHEAD(2)
-    (
-      token=<ASSOCIATIVE_OPERATOR> (BlankLine())? AssociativeExpression()
-      {
-        jjtThis.addOperator(token.image);
-      }
-    |
-      (BlankLine())? token=<INVOCATION> (BlankLine())? MethodInvocation()
-      {
-        jjtThis.addOperator(token.image);
-      }
-    |
-      AnonymousFunctionInvocation()
-    )
-  )*
-  (LOOKAHEAD(1) BlankLine())?
+    LOOKAHEAD(2) (BlankLine())? token=<ADDITIVE_OPERATOR> (BlankLine())? MultiplicativeExpression()
+    {
+      jjtThis.addOperator(token.image);
+    }
+  )* #AdditiveExpression(token != null)
+}
+
+void RelationalExpression() #void:
+{
+  Token token = null;
+}
+{
+  AdditiveExpression()
+  (
+    LOOKAHEAD(2) (BlankLine())? token=<RELATIONAL_OPERATOR>(BlankLine())?  AdditiveExpression()
+    {
+      jjtThis.setOperator(token.image);
+    }
+  )? #RelationalExpression(token != null)
+}
+
+void EqualityExpression() #void:
+{
+  Token token = null;
+}
+{
+  RelationalExpression()
+  (
+    LOOKAHEAD(2) (BlankLine())? token=<EQUALITY_OPERATOR> (BlankLine())? RelationalExpression()
+    {
+      jjtThis.setOperator(token.image);
+    }
+  )? #EqualityExpression(token != null)
+}
+
+void AndExpression() #void:
+{
+  int count = 0;
+}
+{
+  EqualityExpression()
+  (
+    LOOKAHEAD(2) (BlankLine())? <AND_OPERATOR> (BlankLine())? EqualityExpression()
+    {
+      jjtThis.increaseCount();
+      count++;
+    }
+  )* #AndExpression(count > 0)
+}
+
+void OrExpression() #void:
+{
+  int count = 0;
+}
+{
+  AndExpression()
+  (
+    LOOKAHEAD(2) (BlankLine())? <OR_OPERATOR> (BlankLine())? AndExpression()
+    {
+      jjtThis.increaseCount();
+      count++;
+    }
+  )* #OrExpression(count > 0)
+}
+
+void OrIfNullExpression() #void:
+{
+  int count = 0;
+}
+{
+  OrExpression()
+  (
+    LOOKAHEAD(2)(BlankLine())? <OR_IFNULL_OPERATOR> (BlankLine())? OrExpression()
+    {
+      jjtThis.increaseCount();
+      count++;
+    }
+  )* #OrIfNullExpression(count > 0)
 }
 
 void MethodInvocation():
@@ -1104,7 +1194,6 @@ void MethodInvocation():
     jjtThis.setName(token.image);
   }
 }
-
 
 void Block(): {}
 {
@@ -1296,7 +1385,7 @@ void Expressions() #void: {}
   ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
 }
 
-void AnonymousFunctionInvocation():
+ASTAnonymousFunctionInvocation AnonymousFunctionInvocation():
 {
   Token constant = null;
 }
@@ -1306,6 +1395,7 @@ void AnonymousFunctionInvocation():
     if (constant != null) {
       jjtThis.setConstant(true);
     }
+    return jjtThis;
   }
 }
 

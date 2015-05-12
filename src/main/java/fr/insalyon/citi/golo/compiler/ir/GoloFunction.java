@@ -21,7 +21,7 @@ import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class GoloFunction extends GoloElement {
+public final class GoloFunction extends ExpressionStatement {
 
   public static enum Visibility {
     PUBLIC, LOCAL
