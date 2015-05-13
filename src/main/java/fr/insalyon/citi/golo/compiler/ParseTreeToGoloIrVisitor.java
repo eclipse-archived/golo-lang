@@ -932,6 +932,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       right = current = new BinaryOperation(operator, left, right);
     }
     context.objectStack.push(current);
+    node.setIrElement(current);
     return data;
   }
 
@@ -952,6 +953,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       right = current = new BinaryOperation(operationFrom(symbol), left, right);
     }
     context.objectStack.push(current);
+    node.setIrElement(current);
     return data;
   }
 
@@ -972,6 +974,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       right = current = new BinaryOperation(operationFrom(symbol), left, right);
     }
     context.objectStack.push(current);
+    node.setIrElement(current);
     return data;
   }
 
@@ -981,7 +984,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     ExpressionStatement right = (ExpressionStatement) context.objectStack.pop();
     ExpressionStatement left = (ExpressionStatement) context.objectStack.pop();
-    context.objectStack.push(new BinaryOperation(operationFrom(node.getOperator()), left, right));
+    BinaryOperation operation = new BinaryOperation(operationFrom(node.getOperator()), left, right);
+    context.objectStack.push(operation);
+    node.setIrElement(operation);
     return data;
   }
 
@@ -991,7 +996,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     ExpressionStatement right = (ExpressionStatement) context.objectStack.pop();
     ExpressionStatement left = (ExpressionStatement) context.objectStack.pop();
-    context.objectStack.push(new BinaryOperation(operationFrom(node.getOperator()), left, right));
+    BinaryOperation operation = new BinaryOperation(operationFrom(node.getOperator()), left, right);
+    context.objectStack.push(operation);
+    node.setIrElement(operation);
     return data;
   }
 
@@ -1010,6 +1017,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       right = current = new BinaryOperation(OperatorType.AND, left, right);
     }
     context.objectStack.push(current);
+    node.setIrElement(current);
     return data;
   }
 
@@ -1028,6 +1036,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       right = current = new BinaryOperation(OperatorType.OR, left, right);
     }
     context.objectStack.push(current);
+    node.setIrElement(current);
     return data;
   }
 
@@ -1046,6 +1055,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       right = current = new BinaryOperation(OperatorType.ORIFNULL, left, right);
     }
     context.objectStack.push(current);
+    node.setIrElement(current);
     return data;
   }
 }
