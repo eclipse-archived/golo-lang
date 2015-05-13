@@ -461,6 +461,38 @@ Evaluates an expression and returns the value of another one if `null`.|
 
 |===
 
+The operator precedence rules are as follows:
+
+[options="header",id="operator-precedence"]
+|===
+|Precedence |Operator
+|Strongest  | `:`, `?:`
+|           |`not`
+|           |`*`, `/`, `%`
+|           |`+`, `-`
+|           |`<`, `<=`, `>`, `>=`, `oftype`
+|           |`==`, `!=`, `is`, `isnt` 
+|           |`and`
+|           |`or`
+|Lowest     |`orIfNull`
+|===
+
+This means that:
+
+[source,golo]
+----
+not foo: bar() orIfNull "yo"
+----
+
+reads as:
+
+[source,golo]
+----
+(not (foo: bar())) orIfNull "yo"
+----
+
+
+
 === Calling a method ===
 
 Although we will discuss this in more details later on, you should already know that `:` is used to
