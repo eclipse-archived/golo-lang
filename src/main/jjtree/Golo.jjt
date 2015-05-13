@@ -177,16 +177,6 @@ TOKEN :
 // Operators
 TOKEN :
 {
-/*  < ASSOCIATIVE_OPERATOR: ("*" | "/" | "%" |
-                           "<" | "<=" | "==" | "!=" | ">" | ">=" |
-                           "is" | "isnt" |
-                           "oftype" ) >
-  |
-  < COMMUTATIVE_OPERATOR: ("+" | "-" |
-                           "and" | "or" |
-                           "orIfNull" ) >
-  |
-*/
   < MULTIPLICATIVE_OPERATOR: ("*" | "/" | "%") >
   |
   < ADDITIVE_OPERATOR: ("+" | "-") >
