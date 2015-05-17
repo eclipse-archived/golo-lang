@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package fr.insalyon.citi.golo.cli;
+package fr.insalyon.citi.golo.cli.command;
 
 import java.io.IOException;
 import java.io.InputStream;

@@ -1,0 +1,7 @@
+fr.insalyon.citi.golo.cli.command.CompilerCommand
+fr.insalyon.citi.golo.cli.command.DiagnoseCommand
+fr.insalyon.citi.golo.cli.command.DocCommand
+fr.insalyon.citi.golo.cli.command.GoloGoloCommand
+fr.insalyon.citi.golo.cli.command.InitCommand
+fr.insalyon.citi.golo.cli.command.RunCommand
+fr.insalyon.citi.golo.cli.command.VersionCommand
