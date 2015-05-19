@@ -40,6 +40,7 @@ class AugmentationMethodFinder implements MethodFinder {
     new ExternalFQNAugmentationStrategy(),
     new ImportedExternalNamedAugmentationStrategy()
   };
+  private final String[] argumentNames;
 
   public AugmentationMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.receiverClass = receiverClass;
@@ -51,6 +52,9 @@ class AugmentationMethodFinder implements MethodFinder {
     this.callerClass = inlineCache.callerLookup.lookupClass();
     this.classLoader = callerClass.getClassLoader();
     this.methodHandle = null;
+    this.argumentNames = new String[inlineCache.argumentNames.length + 1];
+    this.argumentNames[0] = "this";
+    System.arraycopy(inlineCache.argumentNames,0, argumentNames, 1, inlineCache.argumentNames.length);
   }
 
 
@@ -172,6 +176,9 @@ class AugmentationMethodFinder implements MethodFinder {
   private MethodHandle toMethodHandle(Method method) {
     try {
       MethodHandle target = lookup.unreflect(method);
+      if(argumentNames.length > 1) {
+        target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
+      }
       if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
         return target.asFixedArity().asType(type);
       } else {

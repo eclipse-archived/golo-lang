@@ -20,7 +20,7 @@ import java.util.List;
 
 public class ASTFunction extends GoloASTNode {
 
-  private List<String> arguments;
+  private List<String> parameters;
   private boolean varargs = false;
   private boolean compactForm = false;
 
@@ -32,12 +32,12 @@ public class ASTFunction extends GoloASTNode {
     super(p, i);
   }
 
-  public List<String> getArguments() {
-    return arguments;
+  public List<String> getParameters() {
+    return parameters;
   }
 
-  public void setArguments(List<String> arguments) {
-    this.arguments = arguments;
+  public void setParameters(List<String> parameters) {
+    this.parameters = parameters;
   }
 
   public boolean isVarargs() {
@@ -59,7 +59,7 @@ public class ASTFunction extends GoloASTNode {
   @Override
   public String toString() {
     return "ASTFunction{" +
-        "arguments=" + arguments +
+        "parameters=" + parameters +
         ", varargs=" + varargs +
         ", compactForm=" + compactForm +
         '}';

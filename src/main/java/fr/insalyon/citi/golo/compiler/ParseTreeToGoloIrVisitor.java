@@ -26,6 +26,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.LOCAL;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
@@ -242,7 +243,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private ASTFunction wrapFunctionWithDecorators(ASTFunction function, List<Decorator> decorators) {
     ASTFunction wrapped = new ASTFunction(0);
-    wrapped.setArguments(function.getArguments());
+    wrapped.setParameters(function.getParameters());
     wrapped.setCompactForm(function.isCompactForm());
     wrapped.setVarargs(function.isVarargs());
     ASTBlock astBlock = new ASTBlock(0);
@@ -272,9 +273,9 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private Node invokeDecoratorWithOriginalParameters(Node wrapped, ASTFunction function) {
     ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
-    for (String argument : function.getArguments()) {
+    for(String parameter : function.getParameters()) {
       ASTReference ref = new ASTReference(0);
-      ref.setName(argument);
+      ref.setName(parameter);
       functionInvocation.jjtAddChild(ref, functionInvocation.jjtGetNumChildren());
     }
     wrapped.jjtAddChild(functionInvocation, wrapped.jjtGetNumChildren());
@@ -334,7 +335,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     node.setIrElement(function);
 
-    function.setParameterNames(node.getArguments());
+    function.setParameterNames(node.getParameters());
     function.setVarargs(node.isVarargs());
     if (AUGMENT.equals(function.getScope())) {
       if (context.inNamedAugmentation) {
@@ -550,6 +551,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTArgument node, Object data) {
+    Context context = (Context) data;
+    node.childrenAccept(this, data);
+    ExpressionStatement argument = (ExpressionStatement) context.objectStack.pop();
+    if(node.isNamed()) {
+      argument = new NamedArgument(node.getName(), argument);
+    }
+    context.objectStack.push(argument);
+    return data;
+  }
+
+  @Override
   public Object visit(ASTThrow node, Object data) {
     Context context = (Context) data;
     node.childrenAccept(this, data);
@@ -600,7 +613,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         break;
       }
       argumentNode.jjtAccept(this, data);
-      functionInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
+      ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
+      if (statement instanceof NamedArgument) {
+        if (!functionInvocation.getArguments().isEmpty() && !functionInvocation.usesNamedArguments()) {
+          getOrCreateExceptionBuilder(context).report(INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+            "Function `" + node.getName() + "` invocation should name either all or none of its arguments" +
+            " at (line=" + node.getLineInSourceCode() +
+            ", column=" + node.getColumnInSourceCode() + ")"
+          );
+        }
+        functionInvocation.setUsesNamedArguments(true);
+      }
+      functionInvocation.addArgument(statement);
     }
     context.objectStack.push(functionInvocation);
     node.setIrElement(functionInvocation);
@@ -621,8 +645,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     FunctionInvocation invocation = new FunctionInvocation();
     invocation.setConstant(node.isConstant());
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
-      argumentNode.jjtAccept(this, data);
+      GoloASTNode parameterNode = (GoloASTNode) node.jjtGetChild(i);
+      parameterNode.jjtAccept(this, data);
       invocation.addArgument((ExpressionStatement) context.objectStack.pop());
     }
     if (node.isOnExpression()) {
@@ -648,7 +672,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         break;
       }
       argumentNode.jjtAccept(this, data);
-      methodInvocation.addArgument((ExpressionStatement) context.objectStack.pop());
+      ExpressionStatement statement = (ExpressionStatement) context.objectStack.pop();
+      if (statement instanceof NamedArgument) {
+        if (!methodInvocation.getArguments().isEmpty() && !methodInvocation.usesNamedArguments()) {
+          getOrCreateExceptionBuilder(context).report(INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+              "Function `" + node.getName() + "` invocation should name either all or none of its arguments" +
+                  " at (line=" + node.getLineInSourceCode() +
+                  ", column=" + node.getColumnInSourceCode() + ")"
+          );
+        }
+        methodInvocation.setUsesNamedArguments(true);
+      }
+      methodInvocation.addArgument(statement);
     }
     context.objectStack.push(methodInvocation);
     node.setIrElement(methodInvocation);

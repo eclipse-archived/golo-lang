@@ -39,15 +39,18 @@ public class MethodInvocationSupport {
     final MethodHandles.Lookup callerLookup;
     final String name;
     final boolean nullSafeGuarded;
+    final String[] argumentNames;
+
 
     int depth = 0;
     WeakHashMap<Class, MethodHandle> vtable;
 
-    InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded) {
+    InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded, String... argumentNames) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
       this.nullSafeGuarded = nullSafeGuarded;
+      this.argumentNames = argumentNames;
     }
 
     boolean isMegaMorphic() {
@@ -98,8 +101,13 @@ public class MethodInvocationSupport {
     }
   }
 
-  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int nullSafeGuarded) {
-    InlineCache callSite = new InlineCache(caller, name, type, (nullSafeGuarded != 0));
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type,  Object... bsmArgs) {
+    boolean nullSafeGuarded = ((int)bsmArgs[0]) == 1;
+    String[] argumentNames = new String[bsmArgs.length - 1];
+    for (int i = 0; i < bsmArgs.length -1; i++) {
+      argumentNames[i] = (String) bsmArgs[i+1];
+    }
+    InlineCache callSite = new InlineCache(caller, name, type, nullSafeGuarded, argumentNames);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())

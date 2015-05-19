@@ -19,9 +19,9 @@ package gololang;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
+import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.filterReturnValue;
-import static java.lang.invoke.MethodHandles.insertArguments;
 
 /**
  * A reference to a function / closure.
@@ -40,17 +40,32 @@ public class FunctionReference {
 
   private final MethodHandle handle;
 
+  private final String[] parameterNames;
+
   /**
    * Makes a function reference from a method handle.
+   *
+   * @param handle the method handle.
+   * @param parameterNames the target method parameter's names.
+   * @throws IllegalArgumentException if {@code handle} is {@code null}.
+   */
+  public FunctionReference(MethodHandle handle, String[] parameterNames) {
+    if (handle == null) {
+      throw new IllegalArgumentException("A method handle cannot be null");
+    }
+    this.handle = handle;
+    this.parameterNames = parameterNames;
+  }
+
+  /**
+   * Makes a function reference from a method handle.
+   * The parameter names will be {@code null}.
    *
    * @param handle the method handle.
    * @throws IllegalArgumentException if {@code handle} is {@code null}.
    */
   public FunctionReference(MethodHandle handle) {
-    if (handle == null) {
-      throw new IllegalArgumentException("A method handle cannot be null");
-    }
-    this.handle = handle;
+    this(handle, null);
   }
 
   /**
@@ -62,28 +77,37 @@ public class FunctionReference {
     return handle;
   }
 
+  /**
+   * Get the target function parameter's names
+   *
+   * @return the array of parameter's names
+   */
+  public String[] parameterNames() {
+    return parameterNames;
+  }
+
   public MethodType type() {
     return handle.type();
   }
 
   public FunctionReference asCollector(Class<?> arrayType, int arrayLength) {
-    return new FunctionReference(handle.asCollector(arrayType, arrayLength));
+    return new FunctionReference(handle.asCollector(arrayType, arrayLength), this.parameterNames);
   }
 
   public FunctionReference asFixedArity() {
-    return new FunctionReference(handle.asFixedArity());
+    return new FunctionReference(handle.asFixedArity(), this.parameterNames);
   }
 
   public FunctionReference asType(MethodType newType) {
-    return new FunctionReference(handle.asType(newType));
+    return new FunctionReference(handle.asType(newType), this.parameterNames);
   }
 
   public FunctionReference asVarargsCollector(Class<?> arrayType) {
-    return new FunctionReference(handle.asVarargsCollector(arrayType));
+    return new FunctionReference(handle.asVarargsCollector(arrayType), this.parameterNames);
   }
 
   public FunctionReference bindTo(Object x) {
-    return new FunctionReference(handle.bindTo(x));
+    return new FunctionReference(handle.bindTo(x), dropParameterNames(0, 1));
   }
 
   public boolean isVarargsCollector() {
@@ -142,7 +166,7 @@ public class FunctionReference {
     if (fun.type().parameterCount() != 1) {
       throw new IllegalArgumentException("andThen requires a function with exactly 1 parameter");
     }
-    return new FunctionReference(filterReturnValue(this.handle, fun.handle));
+    return new FunctionReference(filterReturnValue(this.handle, fun.handle), this.parameterNames);
   }
 
   /**
@@ -153,7 +177,28 @@ public class FunctionReference {
    * @return a partially applied function.
    */
   public FunctionReference bindAt(int position, Object value) {
-    return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value));
+    return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value), dropParameterNames(position, 1));
+  }
+
+  /**
+   * Partial application based on parameter's names.
+   *
+   * @param parameterName the parameter to bind.
+   * @param value the argument value.
+   * @return a partially applied function.
+   */
+  public FunctionReference bindAt(String parameterName, Object value) {
+    int position = -1;
+    for (int i = 0; i < this.parameterNames.length; i++) {
+      if (this.parameterNames[i].equals(parameterName)) {
+        position = i;
+        break;
+      }
+    }
+    if (position == -1) {
+      throw new IllegalArgumentException("'" + parameterName + "' not in the parameter list " + Arrays.toString(parameterNames));
+    }
+    return bindAt(position, value);
   }
 
   /**
@@ -165,7 +210,7 @@ public class FunctionReference {
    * @see java.lang.invoke.MethodHandles#insertArguments(MethodHandle, int, Object...)
    */
   public FunctionReference insertArguments(int position, Object... values) {
-    return new FunctionReference(MethodHandles.insertArguments(handle, position, values));
+    return new FunctionReference(MethodHandles.insertArguments(handle, position, values), dropParameterNames(position, values.length));
   }
 
   /**
@@ -186,5 +231,13 @@ public class FunctionReference {
     return this.handle
         .asSpreader(Object[].class, arguments.length)
         .invoke(arguments);
+  }
+
+
+  private String[] dropParameterNames(int from, int size) {
+    String[] filtered = new String[this.parameterNames.length - size];
+    System.arraycopy(parameterNames, 0, filtered, 0, from);
+    System.arraycopy(parameterNames, from + size, filtered, from, this.parameterNames.length - size - from);
+    return filtered;
   }
 }

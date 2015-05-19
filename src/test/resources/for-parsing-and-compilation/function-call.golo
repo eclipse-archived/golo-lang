@@ -27,3 +27,6 @@ function var_arg_ed = |index, args...| {
 }
 
 function functional = -> foo(1)(2)(3)
+
+function dummy = |who| -> who
+function namedParameterCall = -> dummy(who = "Golo")

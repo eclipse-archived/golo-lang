@@ -476,25 +476,25 @@ String QualifiedName() #void:
   }
 }
 
-List<String> Arguments() #void:
+List<String> Parameters() #void:
 {
   Token rootToken;
   Token nextToken;
-  List<String> arguments = new LinkedList<String>();
+  List<String> parameters = new LinkedList<String>();
 }
 {
   rootToken=<IDENTIFIER>
   {
-    arguments.add(rootToken.image);
+    parameters.add(rootToken.image);
   }
   (
     "," (BlankLine())? nextToken=<IDENTIFIER>
     {
-      arguments.add(nextToken.image);
+      parameters.add(nextToken.image);
     }
   )*
   {
-    return arguments;
+    return parameters;
   }
 }
 
@@ -840,7 +840,7 @@ void AugmentationDeclaration(String context) #void:
         func.setAugmentation(true);
         func.setDocumentation(documentation);
         ASTFunction body = (ASTFunction) func.jjtGetChild(0);
-        if (body.getArguments().isEmpty()) {
+        if (body.getParameters().isEmpty()) {
           String description = "Error: augmentation function " +
             func.getName() + " " + context +
             " must take at least 1 argument ('this' would be a good idea...)";
@@ -1178,7 +1178,7 @@ void MethodInvocation():
   Token token;
 }
 {
-  token=<IDENTIFIER> "("  (BlankLine())? (Expressions())? ")"
+  token=<IDENTIFIER> "("  (BlankLine())? (Arguments())? ")"
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(token.image);
@@ -1206,12 +1206,12 @@ void Block(): {}
 
 void Function():
 {
-  List<String> arguments = null;
+  List<String> parameters = null;
   Token varargsToken = null;
   boolean compactForm = false;
 }
 {
-  ("|" arguments=Arguments() (varargsToken="...")? "|")?
+  ("|" parameters=Parameters() (varargsToken="...")? "|")?
   (
     Block()
     |
@@ -1221,11 +1221,11 @@ void Function():
     }
   )
   {
-    if (arguments == null) {
-      arguments = Collections.emptyList();
+    if (parameters == null) {
+      parameters = Collections.emptyList();
     }
     jjtThis.setCompactForm(compactForm);
-    jjtThis.setArguments(arguments);
+    jjtThis.setParameters(parameters);
     jjtThis.setVarargs(varargsToken != null);
   }
 }
@@ -1375,12 +1375,32 @@ void Expressions() #void: {}
   ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
 }
 
+void Argument():
+{
+  Token parameterId = null;
+  Token expression;
+}
+{
+  (LOOKAHEAD(2) (parameterId=<IDENTIFIER> "="))? ExpressionStatement()
+  {
+    if (parameterId != null) {
+      jjtThis.setName(parameterId.image);
+      jjtThis.setNamed(true);
+    }
+  }
+}
+
+void Arguments() #void: {}
+{
+  Argument() ("," (BlankLine())? Argument())*
+}
+
 ASTAnonymousFunctionInvocation AnonymousFunctionInvocation():
 {
   Token constant = null;
 }
 {
-  (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Expressions())? ")"
+  (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Arguments())? ")"
   {
     if (constant != null) {
       jjtThis.setConstant(true);
@@ -1395,7 +1415,7 @@ void FunctionInvocation():
   Token constant = null;
 }
 {
-  name=QualifiedName() (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Expressions())? ")"
+  name=QualifiedName() (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Arguments())? ")"
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(name);

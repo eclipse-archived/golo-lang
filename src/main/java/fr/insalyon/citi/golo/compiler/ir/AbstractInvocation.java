@@ -25,6 +25,7 @@ public abstract class AbstractInvocation extends ExpressionStatement {
   private final String name;
   private final List<ExpressionStatement> arguments = new LinkedList<>();
   private final List<FunctionInvocation> anonymousFunctionInvocations = new LinkedList<>();
+  protected boolean usesNamedArguments = false;
 
   public AbstractInvocation(String name) {
     super();
@@ -53,5 +54,13 @@ public abstract class AbstractInvocation extends ExpressionStatement {
 
   public List<FunctionInvocation> getAnonymousFunctionInvocations() {
     return Collections.unmodifiableList(anonymousFunctionInvocations);
+  }
+
+  public boolean usesNamedArguments() {
+    return usesNamedArguments;
+  }
+
+  public void setUsesNamedArguments(boolean usesNamedArguments) {
+    this.usesNamedArguments = usesNamedArguments;
   }
 }
