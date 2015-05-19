@@ -44,6 +44,34 @@ public class ParseTreeToGoloIrAndVisitorsTest {
     return TestUtils.goloFilesIn("src/test/resources/for-parsing-and-compilation");
   }
 
+  /*
+   * Julien:
+   *
+   * I'm leaving that test method for reference, disabled in regular tests.
+   *
+   * It is quite useful to debug picky AST <-> IR transformations.
+   *
+   * I suggest naming the file z_something, as it outputs outputs at the end of the traces for
+   * rake test:{parser,visitors,bytecode} which is very very useful.
+   */
+  @Test(enabled = false)
+  public void _debug() throws Throwable {
+    GoloParser parser = new GoloOffsetParser(new FileInputStream("src/test/resources/for-parsing-and-compilation/z_debug-operators-fix.golo"), "UTF-8");
+    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
+    ParseTreeToGoloIrVisitor visitor = new ParseTreeToGoloIrVisitor();
+
+    GoloModule module = null;
+    try {
+      module = visitor.transform(compilationUnit);
+    } catch (GoloCompilationException e) {
+      for (GoloCompilationException.Problem problem : e.getProblems()) {
+        println("[Problem] " + problem.getDescription());
+      }
+      throw e;
+    }
+    dump(module);
+  }
+
   @Test(dataProvider = "golo-files")
   public void convert_then_apply_visitors(File goloFile) throws FileNotFoundException, ParseException {
     GoloParser parser = new GoloOffsetParser(new FileInputStream(goloFile), "UTF-8");
