@@ -17,6 +17,7 @@
 package fr.insalyon.citi.golo.runtime;
 
 import gololang.DynamicObject;
+import gololang.FunctionReference;
 
 import java.lang.invoke.*;
 import java.util.*;
@@ -159,6 +160,26 @@ public class MethodInvocationSupport {
     Class<?> receiverClass = args[0].getClass();
     MethodHandle target = lookupTarget(receiverClass, inlineCache, args);
 
+    if (target == null) {
+      InlineCache fallbackCallSite = new InlineCache(
+          inlineCache.callerLookup,
+          "fallback",
+          methodType(Object.class, Object.class, Object.class, Object[].class),
+          false,
+          "name", "args");
+      Object[] fallbackArgs = new Object[] {
+          args[0],
+          inlineCache.name,
+          Arrays.copyOfRange(args,1,args.length)
+      };
+      target = lookupTarget(receiverClass, fallbackCallSite, fallbackArgs);
+      if (target != null) {
+        return fallback(fallbackCallSite, fallbackArgs);
+      } else {
+        throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
+      }
+    }
+
     MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
     MethodHandle fallback = inlineCache.getTarget();
     MethodHandle root = guardWithTest(guard, target, fallback);
@@ -214,6 +235,6 @@ public class MethodInvocationSupport {
     target = new AugmentationMethodFinder(inlineCache, receiverClass, args).find();
     if (target != null) { return target; }
 
-    throw new NoSuchMethodError(receiverClass + "::" + inlineCache.name);
+    return null;
   }
 }
