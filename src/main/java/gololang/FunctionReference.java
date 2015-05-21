@@ -126,6 +126,7 @@ public class FunctionReference {
   public String toString() {
     return "FunctionReference{" +
         "handle=" + handle +
+        ", parameterNames=" + Arrays.toString(parameterNames) +
         '}';
   }
 
@@ -237,10 +238,14 @@ public class FunctionReference {
   }
 
   private String[] dropParameterNames(int from, int size) {
-    if (this.parameterNames == null) { return null; }
+    if (this.parameterNames == null) {
+      return null;
+    }
     String[] filtered = new String[this.parameterNames.length - size];
-    System.arraycopy(parameterNames, 0, filtered, 0, from);
-    System.arraycopy(parameterNames, from + size, filtered, from, this.parameterNames.length - size - from);
+    if(filtered.length > 0) {
+      System.arraycopy(parameterNames, 0, filtered, 0, from);
+      System.arraycopy(parameterNames, from + size, filtered, from, this.parameterNames.length - size - from);
+    }
     return filtered;
   }
 }
