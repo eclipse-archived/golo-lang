@@ -97,7 +97,7 @@ public class DocCommand implements CliCommand {
     }
   }
 
-  class DocFormatValidator implements IParameterValidator {
+  public static class DocFormatValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {

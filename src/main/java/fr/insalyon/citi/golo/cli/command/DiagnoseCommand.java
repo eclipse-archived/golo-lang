@@ -121,7 +121,7 @@ public class DiagnoseCommand implements CliCommand {
     }
   }
 
-  class DiagnoseModeValidator implements IParameterValidator {
+  public static class DiagnoseModeValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
