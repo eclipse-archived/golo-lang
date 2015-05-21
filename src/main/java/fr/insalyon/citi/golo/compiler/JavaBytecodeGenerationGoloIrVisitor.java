@@ -424,7 +424,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
           "gololang#Predefined#fun",
           "(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;",
           FUNCTION_INVOCATION_HANDLE,
-          (Object) 0);
+          (Object) 1); // this specific call can be banged
       return;
     }
     if (value instanceof Double) {
