@@ -26,6 +26,7 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.*;
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
@@ -149,12 +150,16 @@ public final class FunctionCallSupport {
     if (result instanceof Method) {
       Method method = (Method) result;
       checkLocalFunctionCallFromSameModuleAugmentation(method, callerClass.getName());
-      types = method.getParameterTypes();
-      //TODO improve varargs support on named arguments. Matching the last param type + according argument
-      if (method.isVarArgs() && (isLastArgumentAnArray(types.length, args) || argumentNames.length > 0)) {
-        handle = caller.unreflect(method).asFixedArity().asType(type);
+      if (isMethodDecorated(method)) {
+        handle = getDecoratedMethodHandle(caller, method, type.parameterCount());
       } else {
-        handle = caller.unreflect(method).asType(type);
+        types = method.getParameterTypes();
+        //TODO improve varargs support on named arguments. Matching the last param type + according argument
+        if (method.isVarArgs() && (isLastArgumentAnArray(types.length, args) || argumentNames.length > 0)) {
+          handle = caller.unreflect(method).asFixedArity().asType(type);
+        } else {
+          handle = caller.unreflect(method).asType(type);
+        }
       }
       if (argumentNames.length > 0) {
         handle = reorderArguments(method, handle, argumentNames);
@@ -340,10 +345,14 @@ public final class FunctionCallSupport {
 
   private static boolean methodMatches(String name, Object[] arguments, Method method) {
     if (method.getName().equals(name) && isStatic(method.getModifiers())) {
-      Class<?>[] parameterTypes = method.getParameterTypes();
-      if (haveSameNumberOfArguments(arguments, parameterTypes) || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
-        if (canAssign(parameterTypes, arguments, method.isVarArgs())) {
-          return true;
+      if (isMethodDecorated(method)) {
+       return true;
+      } else {
+        Class<?>[] parameterTypes = method.getParameterTypes();
+        if (haveSameNumberOfArguments(arguments, parameterTypes) || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes)) {
+          if (canAssign(parameterTypes, arguments, method.isVarArgs())) {
+            return true;
+          }
         }
       }
     }

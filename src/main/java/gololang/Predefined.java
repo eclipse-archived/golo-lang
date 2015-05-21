@@ -34,7 +34,8 @@ import java.util.*;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.reflect.Modifier.isStatic;
-
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
  * default.
@@ -400,7 +401,7 @@ public final class Predefined {
     LinkedHashSet<Method> validCandidates = new LinkedHashSet<>();
     for (Method method : candidates) {
       if (method.getName().equals(functionName) && Modifier.isStatic(method.getModifiers())) {
-        if ((functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
+        if (isMethodDecorated(method) || (functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
           validCandidates.add(method);
         }
       }
@@ -408,6 +409,13 @@ public final class Predefined {
     if (validCandidates.size() == 1) {
       targetMethod = validCandidates.iterator().next();
       targetMethod.setAccessible(true);
+      if(isMethodDecorated(targetMethod)) {
+        if (functionArity < 0) {
+          return new FunctionReference(getDecoratedMethodHandle(targetMethod));
+        } else {
+          return new FunctionReference(getDecoratedMethodHandle(targetMethod, functionArity));
+        }
+      }
       return new FunctionReference(MethodHandles.publicLookup().unreflect(targetMethod));
     }
     if (validCandidates.size() > 1) {

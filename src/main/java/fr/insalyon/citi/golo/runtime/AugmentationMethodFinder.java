@@ -22,6 +22,7 @@ import java.lang.reflect.Method;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.*;
 
 class AugmentationMethodFinder implements MethodFinder {
 
@@ -164,7 +165,7 @@ class AugmentationMethodFinder implements MethodFinder {
         method.getName().equals(methodName)
         && isPublic(method.getModifiers())
         && !isAbstract(method.getModifiers())
-        && matchesArity(method)
+        && (matchesArity(method) || isMethodDecorated(method))
     );
   }
 
@@ -175,15 +176,21 @@ class AugmentationMethodFinder implements MethodFinder {
 
   private MethodHandle toMethodHandle(Method method) {
     try {
-      MethodHandle target = lookup.unreflect(method);
-      if(argumentNames.length > 1) {
-        target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
-      }
-      if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
-        return target.asFixedArity().asType(type);
+      MethodHandle target = null;
+      if (isMethodDecorated(method)) {
+        target = getDecoratedMethodHandle(lookup, method, arity);
       } else {
-        return target.asType(type);
+        target = lookup.unreflect(method);
+        if (argumentNames.length > 1) {
+          target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
+        }
+        if (target.isVarargsCollector() && isLastArgumentAnArray(arity, args)) {
+          target = target.asFixedArity().asType(type);
+        } else {
+          target = target.asType(type);
+        }
       }
+      return target;
     } catch (IllegalAccessException e) {
       return null;
     }

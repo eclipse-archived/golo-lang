@@ -262,6 +262,73 @@ function main = |args| {
 }
 ----
 
+A last thing (but not the least), the function returned by the decorator can
+have a different arity than the original one:
+
+[source,golo]
+----
+function curry = |f| -> |a| -> |b| -> f(a, b)
+
+@curry
+function add = |a,b| -> a + b
+
+function main = |args| {
+  add(12)(30)
+}
+----
+
+The `@curry` decorator transform the `add` function that takes two arguments, in a function
+that takes only one arguments and return a function that takes the second argument and finally
+return the result of the addition.
+
+NOTE: A decorator is applied only if the decorated function is called from Golo
+code. For example if you try to call a decorated Golo function from Java code
+it will be not the decorated function that will be called but the original one.
+
+TIP: It is possible to create decorator and decorated functions in pure Java:
+
+[source,java]
+----
+package decorators;
+
+import gololang.DecoratedBy;
+import gololang.FunctionReference;
+
+public class Decorators {
+
+  public static Object decorator(Object original) {
+    FunctionReference reference = (FunctionReference) original;
+    // do some transformations
+    System.out.println("decorator!");
+    return reference;
+  }
+
+  @DecoratedBy("decorator")
+  public static int add(int a, int b) {
+    return a + b;
+  }
+
+}
+----
+
+Let's call this from Golo:
+
+[source,golo]
+----
+import decorators.Decorators
+
+function main = |args| {
+  println(add(10,32))
+}
+----
+
+will print:
+
+----
+decorator!
+42
+----
+
 
 Let's now illustrate with some use cases and examples, with a presentation of
 some decorators of the standard module

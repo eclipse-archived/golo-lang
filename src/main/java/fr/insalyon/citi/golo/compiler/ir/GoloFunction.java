@@ -41,7 +41,10 @@ public final class GoloFunction extends ExpressionStatement {
   private boolean varargs;
   private Block block;
   private boolean synthetic = false;
+  private boolean decorated = false;
+  private boolean decorator = false;
   private String syntheticSelfName = null;
+  private String decoratorRef = null;
   private LinkedList<Decorator> decorators = new LinkedList<>();
 
   public GoloFunction(String name, Visibility visibility, Scope scope) {
@@ -98,12 +101,36 @@ public final class GoloFunction extends ExpressionStatement {
     this.synthetic = synthetic;
   }
 
+  public boolean isDecorated() {
+    return decorated;
+  }
+
+  public void setDecorated(boolean decorated) {
+    this.decorated = decorated;
+  }
+
+  public boolean isDecorator() {
+    return decorator;
+  }
+
+  public void setDecorator(boolean decorator) {
+    this.decorator = decorator;
+  }
+
   public String getSyntheticSelfName() {
     return syntheticSelfName;
   }
 
   public void setSyntheticSelfName(String syntheticSelfName) {
     this.syntheticSelfName = syntheticSelfName;
+  }
+
+  public String getDecoratorRef() {
+    return decoratorRef;
+  }
+
+  public void setDecoratorRef(String decoratorRef) {
+    this.decoratorRef = decoratorRef;
   }
 
   public Visibility getVisibility() {

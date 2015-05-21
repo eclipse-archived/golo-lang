@@ -298,7 +298,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     } else {
       signature = goloFunctionSignature(function.getArity());
     }
-    if (function.isSynthetic()) {
+    if (function.isSynthetic() || function.isDecorator()) {
       accessFlags = accessFlags | ACC_SYNTHETIC;
     }
     methodVisitor = classWriter.visitMethod(
@@ -306,6 +306,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         function.getName(),
         signature,
         null, null);
+    if (function.isDecorated()) {
+      AnnotationVisitor annotation = methodVisitor.visitAnnotation("Lgololang/DecoratedBy;", true);
+      annotation.visit("value", function.getDecoratorRef());
+      annotation.visitEnd();
+    }
     for(String parameter: function.getParameterNames()) {
       methodVisitor.visitParameter(parameter, ACC_FINAL);
     }

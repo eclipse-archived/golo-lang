@@ -1651,34 +1651,44 @@ public class CompileAndRunTest {
     assertThat(result, instanceOf(String.class));
     assertThat(result, is((Object) "12"));
 
-    decorated = moduleClass.getMethod("test_generic_decorator_simple", Object.class, Object.class);
-    result = decorated.invoke(null, "4", "2");
+    decorated = moduleClass.getMethod("test_generic_decorator_simple");
+    result = decorated.invoke(null);
     assertThat(result, instanceOf(String.class));
     assertThat(result, is((Object) "(42)"));
 
-    decorated = moduleClass.getMethod("test_generic_decorator_varargs", Object[].class);
-    result = decorated.invoke(null, (Object) new String[]{});
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs0");
+    result = decorated.invoke(null);
     assertThat(result, instanceOf(String.class));
     assertThat(result, is((Object) "()"));
 
-    decorated = moduleClass.getMethod("test_generic_decorator_varargs", Object[].class);
-    result = decorated.invoke(null, (Object) new String[]{"4", "2"});
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs1");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "(4)"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs2");
+    result = decorated.invoke(null);
     assertThat(result, instanceOf(String.class));
     assertThat(result, is((Object) "(42)"));
 
-    decorated = moduleClass.getMethod("test_generic_decorator_varargs", Object[].class);
-    result = decorated.invoke(null, (Object) new String[]{"4"});
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs2_from_reference");
+    result = decorated.invoke(null);
     assertThat(result, instanceOf(String.class));
-    assertThat(result, is((Object) "(4)"));
+    assertThat(result, is((Object) "(42)"));
+
+    decorated = moduleClass.getMethod("test_generic_decorator_varargs2_from_enclosed_reference");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "(42)"));
 
     decorated = moduleClass.getMethod("test_generic_decorator_parameterless");
     result = decorated.invoke(null);
     assertThat(result, instanceOf(String.class));
     assertThat(result, is((Object) "(test)"));
 
-    decorated = moduleClass.getMethod("test_check_args", Object.class);
+    decorated = moduleClass.getMethod("test_check_args");
     try {
-      decorated.invoke(null, "42");
+      decorated.invoke(null);
       fail("An exception should have been thrown");
     } catch (InvocationTargetException invocationTargetException) {
       Throwable cause = invocationTargetException.getCause();
@@ -1686,6 +1696,21 @@ public class CompileAndRunTest {
       AssertionError exception = (AssertionError) cause;
       assertThat(exception.getMessage(), is("arg0 must be a class java.lang.Integer"));
     }
+
+    decorated = moduleClass.getMethod("test_struct_decorated_augmentation");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "struct Point{x=40, y=20}"));
+
+    decorated = moduleClass.getMethod("test_struct_decorated_named_augmentation");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "struct Point{x=40, y=20}"));
+
+    decorated = moduleClass.getMethod("test_curryfied_function");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(Integer.class));
+    assertThat(result, is((Object) 42));
   }
 
   @Test
@@ -1693,18 +1718,18 @@ public class CompileAndRunTest {
 
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "bang.golo");
 
-    Method banged = moduleClass.getMethod("func_test",Object.class);
-    Object result = banged.invoke(null,42);
+    Method banged = moduleClass.getMethod("func_test", Object.class);
+    Object result = banged.invoke(null, 42);
     assertThat(result, equalTo(banged.invoke(null, 1337)));
 
-    banged = moduleClass.getMethod("null_test",Object.class);
+    banged = moduleClass.getMethod("null_test", Object.class);
     result = banged.invoke(null, (Object) null);
-    assertThat(result,equalTo(null));
+    assertThat(result, equalTo(null));
     assertThat(result, equalTo(banged.invoke(null, 1337)));
 
-    banged = moduleClass.getMethod("reference_test",Object.class);
+    banged = moduleClass.getMethod("reference_test", Object.class);
     result = banged.invoke(null, 42);
-    assertThat(result, equalTo(banged.invoke(null,1337)));
+    assertThat(result, equalTo(banged.invoke(null, 1337)));
 
     banged = moduleClass.getMethod("singleton");
     result = banged.invoke(null);
@@ -1714,24 +1739,24 @@ public class CompileAndRunTest {
     result = banged.invoke(null, 10, 12, 20);
     assertThat(result, equalTo(banged.invoke(null, 42, 42, 42)));
 
-    banged = moduleClass.getMethod("decorated");
+    banged = moduleClass.getMethod("test_decorated");
     result = banged.invoke(null);
     assertThat(result, equalTo(banged.invoke(null)));
     assertThat(result, not((Object) 42));
 
     Method set_param = moduleClass.getMethod("set_decorator_parameter", Object.class);
-    set_param.invoke(null,(Object)1337);
+    set_param.invoke(null, (Object) 1337);
 
-    banged = moduleClass.getMethod("parametrized_decorated");
+    banged = moduleClass.getMethod("test_parametrized_decorated");
     result = banged.invoke(null);
     assertThat(result, equalTo(banged.invoke(null)));
-    assertThat(result, not((Object)42));
+    assertThat(result, not((Object) 42));
 
     set_param.invoke(null, (Object) 42);
 
     result = banged.invoke(null);
     assertThat(result, equalTo(banged.invoke(null)));
-    assertThat(result, not((Object)42));
+    assertThat(result, not((Object) 42));
 
   }
 

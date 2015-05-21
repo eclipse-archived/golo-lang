@@ -69,6 +69,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
     int nextClosureId = 0;
+    int nextDecoratorId = 0;
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
@@ -225,33 +226,45 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         node.getName(),
         node.isLocal() ? LOCAL : PUBLIC,
         node.isAugmentation() ? AUGMENT : MODULE);
+    if (node.isDecorator()) {
+      function.setDecorator(true);
+    }
     node.setIrElement(function);
     while (context.objectStack.peek() instanceof Decorator) {
       function.addDecorator((Decorator) context.objectStack.pop());
     }
     context.objectStack.push(function);
     if (!function.getDecorators().isEmpty()) {
-      ASTFunction original = (ASTFunction) node.jjtGetChild(0);
-      Node wrapped = wrapFunctionWithDecorators(original, function.getDecorators());
-      wrapped.jjtAccept(this, data);
-    } else {
-      node.childrenAccept(this, data);
+      function.setDecorated(true);
+      function.setDecoratorRef("__$$_" + function.getName() + "_decorator_" + context.nextDecoratorId++);
     }
+    node.childrenAccept(this, data);
     context.objectStack.pop();
+    if (!function.getDecorators().isEmpty()) {
+      ASTFunctionDeclaration decorator = createDecorator(
+          function.getDecoratorRef(),
+          function.getDecorators());
+      decorator.setAugmentation(node.isAugmentation());
+      decorator.jjtAccept(this, data);
+    }
     return data;
   }
 
-  private ASTFunction wrapFunctionWithDecorators(ASTFunction function, List<Decorator> decorators) {
-    ASTFunction wrapped = new ASTFunction(0);
-    wrapped.setParameters(function.getParameters());
-    wrapped.setCompactForm(function.isCompactForm());
-    wrapped.setVarargs(function.isVarargs());
+  private ASTFunctionDeclaration createDecorator(String name, List<Decorator> decorators) {
+    ASTFunctionDeclaration declaration = new ASTFunctionDeclaration(0);
+    declaration.setName(name);
+    declaration.setDecorator(true);
+    ASTFunction getter = new ASTFunction(0);
+    declaration.jjtAddChild(getter, 0);
+    getter.setParameters(Collections.singletonList("__$$_original"));
     ASTBlock astBlock = new ASTBlock(0);
-    wrapped.jjtAddChild(astBlock, 0);
+    getter.jjtAddChild(astBlock, 0);
     ASTReturn astReturn = new ASTReturn(0);
     astBlock.jjtAddChild(astReturn, 0);
 
-    Node nested = function;
+    ASTReference original = new ASTReference(0);
+    original.setName("__$$_original");
+    Node nested = original;
 
     for (Decorator decorator : decorators) {
       if (decorator.getExpressionStatement() instanceof ReferenceLookup) {
@@ -266,20 +279,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
             decorator.isConstant());
       }
     }
-    nested = invokeDecoratorWithOriginalParameters(nested, wrapped);
     astReturn.jjtAddChild(nested, 0);
-    return wrapped;
-  }
-
-  private Node invokeDecoratorWithOriginalParameters(Node wrapped, ASTFunction function) {
-    ASTAnonymousFunctionInvocation functionInvocation = new ASTAnonymousFunctionInvocation(0);
-    for(String parameter : function.getParameters()) {
-      ASTReference ref = new ASTReference(0);
-      ref.setName(parameter);
-      functionInvocation.jjtAddChild(ref, functionInvocation.jjtGetNumChildren());
-    }
-    wrapped.jjtAddChild(functionInvocation, wrapped.jjtGetNumChildren());
-    return wrapped;
+    return declaration;
   }
 
   private Node wrapWithFunctionInvocationDecorator(Node wrapped, FunctionInvocation invocation, boolean constant) {
