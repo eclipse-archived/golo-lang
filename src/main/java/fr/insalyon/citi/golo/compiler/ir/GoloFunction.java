@@ -41,7 +41,6 @@ public final class GoloFunction extends ExpressionStatement {
   private boolean varargs;
   private Block block;
   private boolean synthetic = false;
-  private boolean decorated = false;
   private boolean decorator = false;
   private String syntheticSelfName = null;
   private String decoratorRef = null;
@@ -102,11 +101,7 @@ public final class GoloFunction extends ExpressionStatement {
   }
 
   public boolean isDecorated() {
-    return decorated;
-  }
-
-  public void setDecorated(boolean decorated) {
-    this.decorated = decorated;
+    return !decorators.isEmpty();
   }
 
   public boolean isDecorator() {

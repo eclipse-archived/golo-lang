@@ -307,7 +307,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         signature,
         null, null);
     if (function.isDecorated()) {
-      AnnotationVisitor annotation = methodVisitor.visitAnnotation("Lgololang/DecoratedBy;", true);
+      AnnotationVisitor annotation = methodVisitor.visitAnnotation("Lgololang/annotations/DecoratedBy;", true);
       annotation.visit("value", function.getDecoratorRef());
       annotation.visitEnd();
     }
