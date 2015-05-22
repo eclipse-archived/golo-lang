@@ -25,6 +25,7 @@ import gololang.GoloStruct;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.copyOfRange;
+import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.*;
 import static fr.insalyon.citi.golo.runtime.TypeMatching.*;
 
 class RegularMethodFinder implements MethodFinder {
@@ -86,10 +87,14 @@ class RegularMethodFinder implements MethodFinder {
     if (makeAccessible || isValidPrivateStructAccess(method)) {
       method.setAccessible(true);
     }
-    if ((method.isVarArgs() && isLastArgumentAnArray(type.parameterCount(), args))) {
-      target = lookup.unreflect(method).asFixedArity().asType(type);
+    if (isMethodDecorated(method)) {
+      target = getDecoratedMethodHandle(method, arity);
     } else {
-      target = lookup.unreflect(method).asType(type);
+      if ((method.isVarArgs() && isLastArgumentAnArray(type.parameterCount(), args))) {
+        target = lookup.unreflect(method).asFixedArity().asType(type);
+      } else {
+        target = lookup.unreflect(method).asType(type);
+      }
     }
     if(argumentNames.length > 1) {
       target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
@@ -135,6 +140,9 @@ class RegularMethodFinder implements MethodFinder {
     if (candidates.size() == 1) { return toMethodHandle(candidates.get(0)); }
 
     for (Method method : candidates) {
+      if (isMethodDecorated(method)) {
+        return toMethodHandle(method);
+      }
       Class<?>[] parameterTypes = method.getParameterTypes();
       Object[] argsWithoutReceiver = copyOfRange(args, 1, args.length);
       if (haveSameNumberOfArguments(argsWithoutReceiver, parameterTypes) || haveEnoughArgumentsForVarargs(argsWithoutReceiver, method, parameterTypes)) {

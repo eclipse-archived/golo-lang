@@ -11,7 +11,7 @@ function identity = |a| -> a
 function adder = |a| -> |b| -> |c| -> a + b + c
 
 function decorator = |func| {
-  let marker =java.lang.Object()
+  let marker = java.lang.Object()
   let wrapper = -> marker:hashCode()
   return wrapper
 }
@@ -40,3 +40,7 @@ function decorated = -> 42
 
 @!parametrized_decorator(decorator_parameter)
 function parametrized_decorated =  -> 42
+
+function test_parametrized_decorated = -> parametrized_decorated()
+
+function test_decorated = -> decorated()
