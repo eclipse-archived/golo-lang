@@ -277,13 +277,13 @@ function main = |args| {
 }
 ----
 
-The `@curry` decorator transform the `add` function that takes two arguments, in a function
-that takes only one arguments and return a function that takes the second argument and finally
-return the result of the addition.
+The `@curry` decorator transform the `add` function that takes two arguments,
+into a function that takes only one argument and returns a function that takes
+the second argument and finally return the result of the addition.
 
 NOTE: A decorator is applied only if the decorated function is called from Golo
 code. For example if you try to call a decorated Golo function from Java code
-it will be not the decorated function that will be called but the original one.
+it will not be the decorated function that will be called but the original one.
 
 TIP: It is possible to create decorator and decorated functions in pure Java:
 
@@ -291,7 +291,7 @@ TIP: It is possible to create decorator and decorated functions in pure Java:
 ----
 package decorators;
 
-import gololang.DecoratedBy;
+import gololang.annotations.DecoratedBy;
 import gololang.FunctionReference;
 
 public class Decorators {
