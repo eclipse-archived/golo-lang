@@ -260,6 +260,24 @@ augmentations, being local, external or imported, and involving class
 hierarchies, knowing which method will be applied on a given type can be difficult.
 A good modularisation and a careful application are recommended.
 
+=== Defining a fallback behavior ===
+
+Users can augment a class with a `fallback` behavior to give a very last chance to a failed
+method dispacth.
+
+[source,golo]
+----
+augment java.lang.String {
+  function fallback = |this, name, args...| {
+    return "Dispatch failed for method: " + name + " on instance " + this + ", with args: " + args: asList(): join(" ")
+  }
+}
+
+println("golo": notExistingMethod(1,2))
+# Prints "Dispatch failed for method: notExistingMethod on instance golo, with args: [1, 2]"
+----
+
+Note: The `fallback` method must respect the signature and parameter names `fallback = |this, name, args...|`
 
 === Standard augmentations ===
 
