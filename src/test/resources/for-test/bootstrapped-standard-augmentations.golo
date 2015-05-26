@@ -36,6 +36,8 @@ function lists_each = {
   return int: get()
 }
 
+function lists_join = -> list["a", 3, false, ArrayList(): append("foo")]: join("-")
+
 function list_reverse = {
   return list_data(): reverse()
 }
@@ -254,6 +256,8 @@ function tuple_exists = {
 function tuple_not_exists = {
  return tuple_data(): exists(|item| -> item >= 6)
 }
+
+function tuple_join = -> ["a", 3, false, ArrayList(): append("foo")]: join("-")
 
 # ............................................................................................... #
 
