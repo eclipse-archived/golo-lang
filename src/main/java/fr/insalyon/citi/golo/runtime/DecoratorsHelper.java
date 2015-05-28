@@ -24,13 +24,13 @@ import java.lang.reflect.Method;
 
 public final class DecoratorsHelper {
 
-  private static final MethodHandle FUNCCTION_REFEFERENCE_TO_METHODHANDLE;
+  private static final MethodHandle FUNCTION_REFERENCE_TO_METHODHANDLE;
   private static final MethodHandle INVOKE_WITH_ARGUMENTS;
 
   static {
     try {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
-      FUNCCTION_REFEFERENCE_TO_METHODHANDLE = lookup.findStatic(
+      FUNCTION_REFERENCE_TO_METHODHANDLE = lookup.findStatic(
           DecoratorsHelper.class,
           "functionReferenceToMethodHandle",
           MethodType.methodType(Object.class, Object.class));
@@ -66,7 +66,7 @@ public final class DecoratorsHelper {
     try {
       Method decoratorMethod = getDecoratorMethod(originalMethod);
       MethodHandle decorator = caller.unreflect(decoratorMethod);
-      decorator = MethodHandles.filterReturnValue(decorator, FUNCCTION_REFEFERENCE_TO_METHODHANDLE);
+      decorator = MethodHandles.filterReturnValue(decorator, FUNCTION_REFERENCE_TO_METHODHANDLE);
       MethodHandle original = caller.unreflect(originalMethod);
       decorator = decorator.bindTo(new gololang.FunctionReference(original)).asType(methodType(MethodHandle.class));
       if (arity < 0) {
