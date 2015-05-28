@@ -50,6 +50,25 @@ local function _closureWithIndexArgument = |target| -> match {
     target
 }
 
+local function _join = |this, separator| {
+  let size = this: size()
+  case {
+    when size == 0 {
+      return ""
+    }
+    when size == 1 {
+      return this: get(0): toString()
+    }
+    otherwise {
+      let buffer = java.lang.StringBuilder(this: get(0): toString())
+      for (var i = 1, i < size, i = i + 1) {
+        buffer: append(separator): append(this: get(i): toString())
+      }
+      return buffer: toString()
+    }
+  }
+}
+
 # ............................................................................................... #
 
 ----
@@ -423,18 +442,7 @@ augment java.util.List {
 
   The returned string is `""` when the list is empty.
   ----
-  function join = |this, separator| {
-    var buffer = java.lang.StringBuilder("")
-    if not (this: isEmpty()) {
-      buffer: append(this: head())
-      let tail = this: tail()
-      if not (tail: isEmpty()) {
-        buffer: append(separator)
-        buffer: append(tail: join(separator))
-      }
-    }
-    return buffer: toString()
-  }
+  function join = |this, separator| -> _join(this, separator)
 
   ----
   Reverse the elements of the list and returns the list.
@@ -829,24 +837,7 @@ augment gololang.Tuple {
   ----
   Joins the elements of a tuple into a string and using a separator.
   ----
-  function join = |this, separator| {
-    let size = this: size()
-    case {
-      when size == 0 {
-        return ""
-      }
-      when size == 1 {
-        return this: get(0): toString()
-      }
-      otherwise {
-        let buffer = java.lang.StringBuilder(this: get(0): toString())
-        for (var i = 1, i < size, i = i + 1) {
-          buffer: append(separator): append(this: get(i): toString())
-        }
-        return buffer: toString()
-      }
-    }
-  }
+  function join = |this, separator| -> _join(this, separator)
 }
 
 # ............................................................................................... #

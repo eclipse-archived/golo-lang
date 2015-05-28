@@ -95,6 +95,16 @@ public class StandardAugmentationsTest {
   }
 
   @Test
+  public void lists_join() throws Throwable {
+    Method lists_join = moduleClass.getMethod("lists_join");
+    Object result = lists_join.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("a-3-false-[foo]"));
+  }
+
+
+
+  @Test
   @SuppressWarnings("unchecked")
   public void list_reverse() throws Throwable {
     Method list_reverse = moduleClass.getMethod("list_reverse");
@@ -534,6 +544,15 @@ public class StandardAugmentationsTest {
     Object result = tuple_not_exists.invoke(null);
     assertThat((Boolean) result, is(false));
   }
+
+  @Test
+  public void tuple_join() throws Throwable {
+    Method tuple_join = moduleClass.getMethod("tuple_join");
+    Object result = tuple_join.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat((String) result, is("a-3-false-[foo]"));
+  }
+
 
   @Test
   public void vector_count() throws Throwable {
