@@ -400,7 +400,7 @@ public final class Predefined {
     candidates.addAll(Arrays.asList(moduleClass.getMethods()));
     LinkedHashSet<Method> validCandidates = new LinkedHashSet<>();
     for (Method method : candidates) {
-      if (method.getName().equals(functionName) && Modifier.isStatic(method.getModifiers())) {
+      if (method.getName().equals(functionName)) {
         if (isMethodDecorated(method) || (functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
           validCandidates.add(method);
         }

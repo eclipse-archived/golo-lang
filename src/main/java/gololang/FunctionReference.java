@@ -189,6 +189,9 @@ public class FunctionReference {
    */
   public FunctionReference bindAt(String parameterName, Object value) {
     int position = -1;
+    if (this.parameterNames == null) {
+      throw new RuntimeException("Can't bind on parameter name, " + this.toString() + " has none");
+    }
     for (int i = 0; i < this.parameterNames.length; i++) {
       if (this.parameterNames[i].equals(parameterName)) {
         position = i;
@@ -233,8 +236,8 @@ public class FunctionReference {
         .invoke(arguments);
   }
 
-
   private String[] dropParameterNames(int from, int size) {
+    if (this.parameterNames == null) { return null; }
     String[] filtered = new String[this.parameterNames.length - size];
     System.arraycopy(parameterNames, 0, filtered, 0, from);
     System.arraycopy(parameterNames, from + size, filtered, from, this.parameterNames.length - size - from);

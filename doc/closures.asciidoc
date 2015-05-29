@@ -269,6 +269,22 @@ function call_local_fun = {
 }
 ----
 
+Note that you can in the same way get a reference to a Java static method. For
+instance:
+
+[source,golo]
+----
+list["Foo", null, 42]: filter(^java.util.Objects::nonNull)
+----
+
+You can also get a reference to a non-static method. In this case, the function
+will accept an instance of the class as first argument, as in:
+
+[source,golo]
+----
+list["Foo", "Bar", "Hello", "Goodbye"]: map(^String::length)
+----
+
 === Binding and composing ===
 
 You can bind a function first argument using the `bindTo(value)` method. If you need to bind an
