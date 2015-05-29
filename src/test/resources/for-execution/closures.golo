@@ -114,12 +114,12 @@ function call_java_func_literal = {
 
 function call_java_method_literal_arity2 = {
   let f = ^String::endsWith: bindAt(1, "o")
-  return list["Hello", "Goodbye", "Foo", "Bar"]: filter(f)
+  return list[f("Hello"), f("Goodbye"), f("Foo"), f("Bar")]
 }
 
 function call_java_method_literal = {
   let f = ^String::length
-  return list["Hello", "Goodbye", "Foo", "Bar"]: map(f)
+  return list[f("Hello"), f("Goodbye"), f("Foo"), f("Bar")]
 }
 
 function nested_closures = {

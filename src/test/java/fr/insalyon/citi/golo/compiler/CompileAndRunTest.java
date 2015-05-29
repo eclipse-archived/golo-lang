@@ -869,7 +869,7 @@ public class CompileAndRunTest {
     assertThat((List) call_java_method_literal.invoke(null), is(equalTo(asList(5, 7, 3, 3))));
     
     Method call_java_method_literal_arity2 = moduleClass.getMethod("call_java_method_literal_arity2");
-    assertThat((List) call_java_method_literal_arity2.invoke(null), is(equalTo(asList("Hello", "Foo"))));
+    assertThat((List) call_java_method_literal_arity2.invoke(null), is(equalTo(asList(true, false, true, false))));
     
     Method nested_closures = moduleClass.getMethod("nested_closures");
     result = nested_closures.invoke(null);
