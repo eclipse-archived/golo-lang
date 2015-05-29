@@ -862,6 +862,15 @@ public class CompileAndRunTest {
       assertThat(cause, instanceOf(AmbiguousFunctionReferenceException.class));
     }
 
+    Method call_java_func_literal = moduleClass.getMethod("call_java_func_literal");
+    assertThat((Tuple) call_java_func_literal.invoke(null), is(equalTo(new Tuple(true, false))));
+
+    Method call_java_method_literal = moduleClass.getMethod("call_java_method_literal");
+    assertThat((List) call_java_method_literal.invoke(null), is(equalTo(asList(5, 7, 3, 3))));
+    
+    Method call_java_method_literal_arity2 = moduleClass.getMethod("call_java_method_literal_arity2");
+    assertThat((List) call_java_method_literal_arity2.invoke(null), is(equalTo(asList("Hello", "Foo"))));
+    
     Method nested_closures = moduleClass.getMethod("nested_closures");
     result = nested_closures.invoke(null);
     assertThat(result, notNullValue());

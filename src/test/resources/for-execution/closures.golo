@@ -107,6 +107,21 @@ function call_local_overloaded_fun_full_literal = {
   return f(1, 2)
 }
 
+function call_java_func_literal = {
+  let f = ^java.util.Objects::isNull
+  return [ f(null), f("42") ]
+}
+
+function call_java_method_literal_arity2 = {
+  let f = ^String::endsWith: bindAt(1, "o")
+  return list["Hello", "Goodbye", "Foo", "Bar"]: filter(f)
+}
+
+function call_java_method_literal = {
+  let f = ^String::length
+  return list["Hello", "Goodbye", "Foo", "Bar"]: map(f)
+}
+
 function nested_closures = {
   let s = "plop"
   let f1 = |x| -> x
