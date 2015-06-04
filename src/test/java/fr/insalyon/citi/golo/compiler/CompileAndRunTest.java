@@ -1773,7 +1773,7 @@ public class CompileAndRunTest {
   public void lambda8_interop() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "java8-lambda.golo");
     Method sum_it = moduleClass.getMethod("sum_it");
-    assertThat(sum_it.invoke(null), is((Object) 150));
+    assertThat(sum_it.invoke(null), is((Object) 60));
   }
 
   @Test
