@@ -6,7 +6,7 @@ augment java.lang.String {
   function fallback = |this, name, args...| -> "Fallback for this " + this + " named " + name + " with args" + args: asList()
 }
 
-augment Fluent {
+augmentation Fluent = {
   function fallback = |this, name, args...| {
     return match {
       when args: length() is 1 then this: bindAt(name, args: get(0))
