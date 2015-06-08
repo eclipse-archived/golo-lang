@@ -97,7 +97,7 @@ public final class FunctionCallSupport {
             caller,
             method.getName(),
             methodType(type),
-            handle.type(),
+            lambdaType,
             handle,
             lambdaType);
         return callSite.dynamicInvoker().invoke();
