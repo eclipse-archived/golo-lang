@@ -55,7 +55,7 @@ function emptyList = -> gololang.LazyList.EMPTY()
 
 ----
 Create a new lazy list from a head and tail values. Automatically wraps the
-tail is a closure if its not already one.
+tail in a closure if its not already one.
 
 For example:
 
@@ -83,7 +83,7 @@ Variadic function to create lazy lists from values.
 
     let myList = lazyList(1, 2, 3, 4)
 
-is the same as
+is the equivalent to
 
     let myList = cons(1, cons(2, cons(3, cons(4, emptyList()))))
 ----
@@ -109,6 +109,10 @@ function fromIter = |it| -> match {
 
 augment Iterable {
   function asLazyList = |this| -> iteratorToLazyList(this: iterator())
+}
+
+augment java.util.Iterator {
+  function asLazyList = |this| -> iteratorToLazyList(this)
 }
 
 local function iteratorToLazyList = |iterator| {
@@ -194,14 +198,34 @@ augment gololang.LazyList {
     }
     return buffer: toString()
   }
-
 }
 
-function generator = |unspool, finished, x| {
-  if finished(x) {
+----
+Generator function on lazy lists.
+
+This function generate a (possibly infinite) lazy list. Starting with the
+`seed` value, if `finished(seed)` is `true`, the generation stops and an empty
+list is returned. Otherwise, `unspool` is called on `seed`, and must generate
+two values: the head of the list (current value) and the next seed that will be
+used to generate the tail.
+
+As an example, one can write a simple `range` function as:
+
+    let range = |start, end| -> generator(
+      |seed| -> [seed, seed + 1],
+      |seed| -> seed >= end,
+      start
+    )
+
+* `unspool`: the generative function
+* `finished`: the condition function
+* `seed`: the initial value
+----
+function generator = |unspool, finished, seed| {
+  if finished(seed) {
     return emptyList()
   }
-  let r = unspool(x)
+  let r = unspool(seed)
   return gololang.LazyList.cons(
     r:get(0),
     -> generator(unspool, finished, r:get(1))
