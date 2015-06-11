@@ -48,10 +48,6 @@ import java.util
 # ............................................................................................... #
 # Utils, constructors and conversions
 
-local function head = |l| -> l: head()
-local function tail = |l| -> l: tail()
-local function isEmpty = |l| -> l: isEmpty()
-
 ----
 Returns the empty list.
 ----
@@ -112,7 +108,7 @@ function fromIter = |it| -> match {
 }
 
 augment Iterable {
-  
+  function asLazyList = |this| -> iteratorToLazyList(this: iterator())
 }
 
 local function iteratorToLazyList = |iterator| {
@@ -136,14 +132,12 @@ local function any = |it| {
 }
 
 
-function zip = |lists| {
-  return match {
-    when any(lists: map(^isEmpty)) then emptyList()
-    otherwise gololang.LazyList.cons(
-      Tuple.fromArray(lists: map(^head): toArray()),
-      -> zip(lists: map(^tail))
-    )
-  }
+function zip = |lists| -> match {
+  when any(lists: map(^isEmpty)) then emptyList()
+  otherwise gololang.LazyList.cons(
+    Tuple.fromArray(lists: map(^head): toArray()),
+    -> zip(lists: map(^tail))
+  )
 }
 
 
@@ -308,7 +302,7 @@ augment gololang.LazyList {
 
 }
 
-#=== HOF ===
+#=== HOF and generators ===
 
 
 function generator = |unspool, finished, x| {
@@ -322,13 +316,13 @@ function generator = |unspool, finished, x| {
   )
 }
 
-function count = |start| -> 
+function count = |start| ->
   gololang.LazyList.cons(start, -> gololang.lazylist.count(start + 1))
 
 function count = -> gololang.lazylist.count(0)
 
 ----
-Cycle infinitely through the lazy list
+Cycle infinitely through a collection.
 
     cycle(lazyList(1, 2, 3))
 
@@ -337,6 +331,9 @@ returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
     cycle(emptyList())
 
 returns `emptyList()`
+
+* `list`: any object having a `head` and a `tail`
+
 ----
 function cycle = |list| -> memocycle(list, list)
 
@@ -345,6 +342,6 @@ local function memocycle = |start, list| -> match {
   when list: tail(): isEmpty() then
     gololang.LazyList.cons(list: head(), -> memocycle(start, start))
   otherwise
-    gololang.LazyList.cons(list: head(), -> memocycle(start, list:tail()))
+    gololang.LazyList.cons(list: head(), -> memocycle(start, list: tail()))
 }
 
