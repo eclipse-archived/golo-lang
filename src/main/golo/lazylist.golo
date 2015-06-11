@@ -52,11 +52,10 @@ local function head = |l| -> l: head()
 local function tail = |l| -> l: tail()
 local function isEmpty = |l| -> l: isEmpty()
 
-# TODO: rename emptyList() ?
 ----
 Returns the empty list.
 ----
-function Empty = -> gololang.LazyList.EMPTY()
+function emptyList = -> gololang.LazyList.EMPTY()
 
 ----
 Create a new lazy list from a head and tail values. Automatically wraps the
@@ -64,23 +63,24 @@ tail is a closure if its not already one.
 
 For example:
 
-    let myList = cons(1, cons(2, cons(3, Empty())))
+    let myList = cons(1, cons(2, cons(3, emptyList())))
 
 gives a lazy list equivalent to `list[1, 2, 3]`
 
 ----
 function cons = |head, tail| -> match {
-  when isClosure(tail) then gololang.LazyList(head, tail)
-  otherwise gololang.LazyList(head, -> tail)
+  when isClosure(tail) then gololang.LazyList.cons(head, tail)
+  when tail is null then gololang.LazyList.cons(head, ^emptyList)
+  otherwise gololang.LazyList.cons(head, -> tail)
 }
 
-#----
-#Unary version of [`cons(head, tail)`](#cons_head_tail).
-#
-#Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
-#of the form `[head, tail]`.
-#----
-#function cons = |ht| -> cons(ht: get(0), ht: get(1))
+----
+Unary version of [`cons(head, tail)`](#cons_head_tail).
+
+Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
+of the form `[head, tail]`.
+----
+function cons = |ht| -> cons(ht: get(0), ht: get(1))
 
 ----
 Variadic function to create lazy lists from values.
@@ -89,7 +89,7 @@ Variadic function to create lazy lists from values.
 
 is the same as
 
-    let myList = cons(1, cons(2, cons(3, cons(4, Empty()))))
+    let myList = cons(1, cons(2, cons(3, cons(4, emptyList()))))
 ----
 function lazyList = |values...| -> iteratorToLazyList(values: asList(): iterator())
 
@@ -111,12 +111,16 @@ function fromIter = |it| -> match {
   otherwise raise("Invalid argument for fromIter")
 }
 
+augment Iterable {
+  
+}
+
 local function iteratorToLazyList = |iterator| {
   if not iterator: hasNext() {
     return gololang.LazyList.EMPTY()
   } else {
     let head = iterator: next()
-    return gololang.LazyList(head, -> iteratorToLazyList(iterator))
+    return gololang.LazyList.cons(head, -> iteratorToLazyList(iterator))
   }
 }
 
@@ -134,8 +138,8 @@ local function any = |it| {
 
 function zip = |lists| {
   return match {
-    when any(lists: map(^isEmpty)) then Empty()
-    otherwise gololang.LazyList(
+    when any(lists: map(^isEmpty)) then emptyList()
+    otherwise gololang.LazyList.cons(
       Tuple.fromArray(lists: map(^head): toArray()),
       -> zip(lists: map(^tail))
     )
@@ -156,8 +160,8 @@ augment gololang.LazyList {
   This is a recursive implementation.
   ----
   function map = |this, func| -> match {
-    when this: isEmpty() then Empty()
-    otherwise gololang.LazyList(
+    when this: isEmpty() then emptyList()
+    otherwise gololang.LazyList.cons(
       func(this: head()), -> this: tail(): map(func)
     )
   }
@@ -199,8 +203,8 @@ augment gololang.LazyList {
   everything remains lazy. `take` can thus be used on infinite lists.
   ----
   function take = |this, nb| -> match {
-    when nb == 0 or this: isEmpty() then Empty()
-    otherwise gololang.LazyList(
+    when nb == 0 or this: isEmpty() then emptyList()
+    otherwise gololang.LazyList.cons(
       this: head(),
       -> this: tail(): take(nb - 1)
     )
@@ -209,22 +213,22 @@ augment gololang.LazyList {
   ----
   ----
   function takeWhile = |this, pred| -> match {
-    when this: isEmpty() or not pred(this: head()) then Empty()
-    otherwise gololang.LazyList(this: head(), -> this: tail() :takeWhile(pred))
+    when this: isEmpty() or not pred(this: head()) then emptyList()
+    otherwise gololang.LazyList.cons(this: head(), -> this: tail() :takeWhile(pred))
   }
   
   ----
   ----
   function drop = |this, nb| -> match {
     when nb == 0 then this
-    when this: isEmpty() then Empty()
+    when this: isEmpty() then emptyList()
     otherwise this: tail(): drop(nb - 1)
   }
 
   ----
   ----
   function dropWhile = |this, pred| -> match {
-    when this: isEmpty() then Empty()
+    when this: isEmpty() then emptyList()
     when not pred(this: head()) then this
     otherwise this: tail(): dropWhile(pred)
   }
@@ -234,9 +238,9 @@ augment gololang.LazyList {
   Returns a new lazy list.
   ----
   function filter = |this, pred| -> match {
-    when this: isEmpty() then Empty()
+    when this: isEmpty() then emptyList()
     when pred(this: head()) then
-      gololang.LazyList(this: head(), -> this: tail(): filter(pred))
+      gololang.LazyList.cons(this: head(), -> this: tail(): filter(pred))
     otherwise this: tail(): filter(pred)
   }
 
@@ -296,9 +300,9 @@ augment gololang.LazyList {
 
   returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
 
-      Empty(): cycle()
+      emptyList(): cycle()
 
-  returns `Empty()`
+  returns `emptyList()`
   ----
   function cycle = |this| -> memocycle(this, this)
 
@@ -309,17 +313,17 @@ augment gololang.LazyList {
 
 function generator = |unspool, finished, x| {
   if finished(x) {
-    return Empty()
+    return emptyList()
   }
   let r = unspool(x)
-  return gololang.LazyList(
+  return gololang.LazyList.cons(
     r:get(0),
     -> generator(unspool, finished, r:get(1))
   )
 }
 
 function count = |start| -> 
-  gololang.LazyList(start, -> gololang.lazylist.count(start + 1))
+  gololang.LazyList.cons(start, -> gololang.lazylist.count(start + 1))
 
 function count = -> gololang.lazylist.count(0)
 
@@ -330,17 +334,17 @@ Cycle infinitely through the lazy list
 
 returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
 
-    cycle(Empty())
+    cycle(emptyList())
 
-returns `Empty()`
+returns `emptyList()`
 ----
 function cycle = |list| -> memocycle(list, list)
 
 local function memocycle = |start, list| -> match {
-  when list: isEmpty() then Empty()
+  when list: isEmpty() then emptyList()
   when list: tail(): isEmpty() then
-    gololang.LazyList(list: head(), -> memocycle(start, start))
+    gololang.LazyList.cons(list: head(), -> memocycle(start, start))
   otherwise
-    gololang.LazyList(list: head(), -> memocycle(start, list:tail()))
+    gololang.LazyList.cons(list: head(), -> memocycle(start, list:tail()))
 }
 
