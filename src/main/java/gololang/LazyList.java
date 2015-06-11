@@ -34,7 +34,7 @@ import java.util.Objects;
  * guarantee when, or even if, it will be called, this closure must be 
  * a pure, side-effect free, function.
  */
-public class LazyList implements Collection<Object> {
+public class LazyList implements Collection<Object>, HeadTail<Object> {
 
   /**
    * Represents the empty list.
@@ -63,6 +63,11 @@ public class LazyList implements Collection<Object> {
     @Override
     public LazyList tail() {
       return this;
+    }
+
+    @Override
+    public String toString() {
+      return "LazyList.EMPTY";
     }
   };
 
@@ -335,6 +340,12 @@ public class LazyList implements Collection<Object> {
     }
     return true;
   }
+
+  @Override
+  public String toString() {
+    return String.format("LazyList<head=%s, tail=%s>", head, tail);
+  }
+
 
   @Override
   public boolean add(Object e) {
