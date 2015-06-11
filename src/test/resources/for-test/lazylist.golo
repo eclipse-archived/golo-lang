@@ -3,29 +3,29 @@ module golo.test.LazyList
 import gololang.lazylist
 
 local function longLL = ->
-      LazyList(1, -> LazyList(2, -> LazyList(3, -> LazyList(4, -> LazyList(5, -> Empty())))))
+      LazyList.cons(1, -> LazyList.cons(2, -> LazyList.cons(3, -> LazyList.cons(4, -> LazyList.cons(5, -> emptyList())))))
 
 local function longL = -> list[1, 2, 3, 4, 5]
 
 #========================================================
 function test_empty = -> (
-  Empty():isEmpty()
-  and (Empty() is Empty())
-  and lazyList() is Empty()
+  emptyList():isEmpty()
+  and (emptyList() is emptyList())
+  and lazyList() is emptyList()
 )
 
 function test_head = {
-  let ll = LazyList(1, -> Empty())
+  let ll = LazyList.cons(1, -> emptyList())
   return [ll: head(), 1]
 }
 
 function test_tail = {
-  let ll = LazyList(1, -> LazyList(2, -> Empty()))
+  let ll = LazyList.cons(1, -> LazyList.cons(2, -> emptyList()))
   return [ll:tail():head(), 2]
 }
 
 function test_tail_empty = {
-  let ll = LazyList(1, -> Empty())
+  let ll = LazyList.cons(1, -> emptyList())
   return [ll:tail():isEmpty(), true]
 }
 
@@ -36,7 +36,7 @@ function test_head_tails = {
      ll:tail():tail():tail():head(),
      ll:tail():tail():tail():tail():head(),
      ll:tail():tail():tail():tail():tail()],
-    [1, 2, 3, 4, 5, Empty()]
+    [1, 2, 3, 4, 5, emptyList()]
   ]
 }
 
@@ -49,20 +49,11 @@ function test_equals = -> [
 
 function test_from_iter = -> [fromIter(longL()), longLL()]
 
-#    Skip(Test("infinite gen to LList")({
-#      let ll = ittoLazyList(gololang.iterutils.count())
-#      assertEquals(ll:tail():tail():tail():tail():head(), 4)
-#    })),
-
 function test_to_list = -> [
-  [longLL(): asList(), Empty(): asList()],
+  [longLL(): asList(), emptyList(): asList()],
   [longL(), list[]]
 ]
 
-
-#    Test("convert to array")({
-#      assertEquals(longLL():toArray():asList(), longL())
-#    }),
 
 function test_get = -> [longLL():get(3), 4]
 
@@ -92,27 +83,28 @@ function test_iterable = {
 
 function test_constVar = -> [lazyList(1, 2, 3, 4, 5), longLL()]
 function test_cons = -> [
-  cons(1, cons(2, cons(3, cons(4, cons(5, Empty()))))),
+  cons(1, cons(2, cons(3, cons(4, cons(5, emptyList()))))),
   longLL()
 ]
 
 function test_map = {
-  let res = LazyList(2, -> LazyList(4, -> LazyList(6, -> LazyList(8, -> LazyList(10, -> Empty())))))
+  let res = LazyList.cons(2, -> LazyList.cons(4, -> LazyList.cons(6, ->
+  LazyList.cons(8, -> LazyList.cons(10, -> emptyList())))))
   return [longLL():map(|a| -> 2* a), res]
 }
 
-function test_mapEmpty = -> [Empty():map(|a| -> a):isEmpty(), true]
+function test_mapEmpty = -> [emptyList():map(|a| -> a):isEmpty(), true]
 
 function test_foldr = -> [lazyList(1, 2, 3): foldr(|a, b| -> a + b, 0), 6]
 
 function test_foldrCopy = ->
-  [longLL():foldr(|v, l| -> cons(v, l), Empty()):asList(), longL()]
+  [longLL():foldr(|v, l| -> cons(v, l), emptyList()):asList(), longL()]
 
-function test_foldrEmpty = -> [Empty():foldr(|a, b| -> a + b, 0), 0]
+function test_foldrEmpty = -> [emptyList():foldr(|a, b| -> a + b, 0), 0]
 
 function test_foldl = -> [lazyList(1, 2, 3): foldl(|a, b| -> a + b, 0), 6]
 
-function test_foldlEmpty = -> [Empty(): foldl(|a, b| -> a + b, 0), 0]
+function test_foldlEmpty = -> [emptyList(): foldl(|a, b| -> a + b, 0), 0]
 
 function test_filter = ->
   [longLL(): filter(|a| -> (a % 2) == 0), lazyList(2, 4)]
@@ -121,7 +113,7 @@ function test_filterCopy = ->
   [longLL(): filter(|a| -> true), longLL()]
 
 function test_filterEmpty = ->
-  [Empty(): filter(|a| -> true), Empty()]
+  [emptyList(): filter(|a| -> true), emptyList()]
 
 function test_range = {
   let r = |s, e| -> generator(
@@ -131,7 +123,7 @@ function test_range = {
   )
   return [
   [r(2, 5):asList(), r(0,1):asList(), r(1, 0)],
-  [list[2, 3, 4], list[0], Empty()]
+  [list[2, 3, 4], list[0], emptyList()]
 ]
 }
 
@@ -153,24 +145,24 @@ function test_zipMeth = {
 }
 
 function test_enumerate = -> [
-  [longLL(): enumerate(): asList(), Empty(): enumerate()],
-  [list[[1, 0], [2, 1], [3, 2], [4, 3], [5, 4]], Empty()]
+  [longLL(): enumerate(): asList(), emptyList(): enumerate()],
+  [list[[1, 0], [2, 1], [3, 2], [4, 3], [5, 4]], emptyList()]
 ]
 
 function test_take = -> [
-  [longLL():take(3), longLL():take(42), Empty(): take(2)],
-  [lazyList(1, 2, 3), longLL(), Empty()]
+  [longLL():take(3), longLL():take(42), emptyList(): take(2)],
+  [lazyList(1, 2, 3), longLL(), emptyList()]
 ]
 
 function test_takeWhile = -> [
   [longLL():takeWhile(|v| -> v < 4), longLL():takeWhile(|v| -> false),
    longLL():takeWhile(|v|->true)],
-  [lazyList(1, 2, 3), Empty(), longLL()]
+  [lazyList(1, 2, 3), emptyList(), longLL()]
 ]
 
 function test_drop = -> [
-  [longLL():drop(3), longLL():drop(0), longLL(): drop(42), Empty():drop(3)],
-  [lazyList(4, 5), longLL(), Empty(), Empty()]
+  [longLL():drop(3), longLL():drop(0), longLL(): drop(42), emptyList():drop(3)],
+  [lazyList(4, 5), longLL(), emptyList(), emptyList()]
 ]
 
 function test_dropWhile = -> [
@@ -186,7 +178,7 @@ function test_find = -> [
 ]
 
 function test_join = -> [
-  [lazyList(1, 2, 3): join(","), Empty(): join(",")],
+  [lazyList(1, 2, 3): join(","), emptyList(): join(",")],
   ["1,2,3", ""]
 ]
 
@@ -199,12 +191,12 @@ function test_cycle = -> [
   [cycle(list[1, 2, 3]): take(7): asList(),
    lazyList(1, 2, 3): cycle(): take(7): asList(),
    cycle(list[]),
-   Empty(): cycle()
+   emptyList(): cycle()
    ],
   [list[1, 2, 3, 1, 2, 3, 1], 
    list[1, 2, 3, 1, 2, 3, 1],
-   Empty(),
-   Empty()
+   emptyList(),
+   emptyList()
 
    ]
 ]
