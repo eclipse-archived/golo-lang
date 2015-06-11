@@ -122,25 +122,6 @@ local function iteratorToLazyList = |iterator| {
 
 # ............................................................................................... #
 
-local function any = |it| {
-  foreach elt in it {
-    if elt {
-      return true
-    }
-  }
-  return false
-}
-
-
-function zip = |lists| -> match {
-  when any(lists: map(^isEmpty)) then emptyList()
-  otherwise gololang.LazyList.cons(
-    Tuple.fromArray(lists: map(^head): toArray()),
-    -> zip(lists: map(^tail))
-  )
-}
-
-
 augment gololang.LazyList {
 
   ----
@@ -160,72 +141,6 @@ augment gololang.LazyList {
     )
   }
 
-  ----
-  Folds left `this` using `func` with `zero` as initial value.
-  This is a recursive implementation.
-
-      lazyList(a, b, c): foldl(f, z) == f(f(f(z, a), b), c)
-
-  Equivalent to `foldr` if `func` is commutative.
-  ----
-  function foldl = |this, func, zero| -> match {
-    when this: isEmpty() then zero
-    otherwise this: tail(): foldl(func, func(zero, this: head()))
-  }
-
-  ----
-  Folds right `this` using `func` with `zero` as initial value.
-  This is a recursive implementation.
-
-      lazyList(a, b, c): foldr(f, z) == f(a, f(b, f(c, z)))
-
-  Equivalent to `foldl` if `func` is commutative.
-  ----
-  function foldr = |this, func, zero| -> match {
-    when this: isEmpty() then zero
-    otherwise func(this: head(), this: tail(): foldr(func, zero))
-  }
-
-  ----
-  ----
-  function zip = |this, others...| ->
-    gololang.lazylist.zip(java.util.ArrayList(others: asList()): prepend(this))
-
-  ----
-  Takes the `nb` first elements of the lazy list, as a lazy list.
-  This is a wrapper, the underlying list is resolved on demand, such that
-  everything remains lazy. `take` can thus be used on infinite lists.
-  ----
-  function take = |this, nb| -> match {
-    when nb == 0 or this: isEmpty() then emptyList()
-    otherwise gololang.LazyList.cons(
-      this: head(),
-      -> this: tail(): take(nb - 1)
-    )
-  }
-
-  ----
-  ----
-  function takeWhile = |this, pred| -> match {
-    when this: isEmpty() or not pred(this: head()) then emptyList()
-    otherwise gololang.LazyList.cons(this: head(), -> this: tail() :takeWhile(pred))
-  }
-  
-  ----
-  ----
-  function drop = |this, nb| -> match {
-    when nb == 0 then this
-    when this: isEmpty() then emptyList()
-    otherwise this: tail(): drop(nb - 1)
-  }
-
-  ----
-  ----
-  function dropWhile = |this, pred| -> match {
-    when this: isEmpty() then emptyList()
-    when not pred(this: head()) then this
-    otherwise this: tail(): dropWhile(pred)
-  }
   ----
   Filters elements based on a predicate.
 
@@ -280,30 +195,7 @@ augment gololang.LazyList {
     return buffer: toString()
   }
 
-  ----
-  Enumerate the list elements
-
-  Returns a new lazy list containing `[elt, idx]` tuples.
-  ----
-  function enumerate = |this| -> this: zip(count())
-
-  ----
-  Cycle infinitely through the lazy list
-  
-      lazyList(1, 2, 3): cycle()
-
-  returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
-
-      emptyList(): cycle()
-
-  returns `emptyList()`
-  ----
-  function cycle = |this| -> memocycle(this, this)
-
 }
-
-#=== HOF and generators ===
-
 
 function generator = |unspool, finished, x| {
   if finished(x) {
@@ -316,32 +208,4 @@ function generator = |unspool, finished, x| {
   )
 }
 
-function count = |start| ->
-  gololang.LazyList.cons(start, -> gololang.lazylist.count(start + 1))
-
-function count = -> gololang.lazylist.count(0)
-
-----
-Cycle infinitely through a collection.
-
-    cycle(lazyList(1, 2, 3))
-
-returns a infinite lazy list containing 1, 2, 3, 1, 2, 3, ...
-
-    cycle(emptyList())
-
-returns `emptyList()`
-
-* `list`: any object having a `head` and a `tail`
-
-----
-function cycle = |list| -> memocycle(list, list)
-
-local function memocycle = |start, list| -> match {
-  when list: isEmpty() then emptyList()
-  when list: tail(): isEmpty() then
-    gololang.LazyList.cons(list: head(), -> memocycle(start, start))
-  otherwise
-    gololang.LazyList.cons(list: head(), -> memocycle(start, list: tail()))
-}
 

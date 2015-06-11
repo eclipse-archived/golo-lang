@@ -95,17 +95,6 @@ function test_map = {
 
 function test_mapEmpty = -> [emptyList():map(|a| -> a):isEmpty(), true]
 
-function test_foldr = -> [lazyList(1, 2, 3): foldr(|a, b| -> a + b, 0), 6]
-
-function test_foldrCopy = ->
-  [longLL():foldr(|v, l| -> cons(v, l), emptyList()):asList(), longL()]
-
-function test_foldrEmpty = -> [emptyList():foldr(|a, b| -> a + b, 0), 0]
-
-function test_foldl = -> [lazyList(1, 2, 3): foldl(|a, b| -> a + b, 0), 6]
-
-function test_foldlEmpty = -> [emptyList(): foldl(|a, b| -> a + b, 0), 0]
-
 function test_filter = ->
   [longLL(): filter(|a| -> (a % 2) == 0), lazyList(2, 4)]
 
@@ -127,51 +116,6 @@ function test_range = {
 ]
 }
 
-function test_zip = {
-  let l1 = lazyList(1, 2, 3, 4)
-  let l2 = lazyList('a', 'b', 'c')
-  let l3 = lazyList(5, 6)
-  return [zip(list[l1, l2, l3]), lazyList(
-    [1, 'a', 5],
-    [2, 'b', 6]
-  )]
-}
-
-function test_zipMeth = {
-  let l1 = lazyList(1, 2, 3, 4)
-  let l2 = list['a', 'b', 'c']
-  let l3 = lazyList(5, 6)
-  return [l1:zip(l2, l3):asList(), list[[1, 'a', 5], [2, 'b', 6]]]
-}
-
-function test_enumerate = -> [
-  [longLL(): enumerate(): asList(), emptyList(): enumerate()],
-  [list[[1, 0], [2, 1], [3, 2], [4, 3], [5, 4]], emptyList()]
-]
-
-function test_take = -> [
-  [longLL():take(3), longLL():take(42), emptyList(): take(2)],
-  [lazyList(1, 2, 3), longLL(), emptyList()]
-]
-
-function test_takeWhile = -> [
-  [longLL():takeWhile(|v| -> v < 4), longLL():takeWhile(|v| -> false),
-   longLL():takeWhile(|v|->true)],
-  [lazyList(1, 2, 3), emptyList(), longLL()]
-]
-
-function test_drop = -> [
-  [longLL():drop(3), longLL():drop(0), longLL(): drop(42), emptyList():drop(3)],
-  [lazyList(4, 5), longLL(), emptyList(), emptyList()]
-]
-
-function test_dropWhile = -> [
-  [longLL():dropWhile(|v| -> v < 4): asList(),
-   longLL():dropWhile(|v| -> false): asList(),
-   longLL():dropWhile(|v| -> true): asList()],
-  [list[4, 5], longL(), list[]]
-]
-
 function test_find = -> [
   [longLL():find(|n| -> n > 3), longLL():find(|v| -> false)],
   [4, null]
@@ -182,21 +126,3 @@ function test_join = -> [
   ["1,2,3", ""]
 ]
 
-function test_count = -> [
-  [count(2): take(5): asList(), count(): take(2): asList()],
-  [list[2, 3, 4, 5, 6], list[0, 1]]
-]
-
-function test_cycle = -> [
-  [cycle(list[1, 2, 3]): take(7): asList(),
-   lazyList(1, 2, 3): cycle(): take(7): asList(),
-   cycle(list[]),
-   emptyList(): cycle()
-   ],
-  [list[1, 2, 3, 1, 2, 3, 1], 
-   list[1, 2, 3, 1, 2, 3, 1],
-   emptyList(),
-   emptyList()
-
-   ]
-]
