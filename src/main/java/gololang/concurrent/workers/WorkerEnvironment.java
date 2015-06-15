@@ -16,12 +16,12 @@
 
 package gololang.concurrent.workers;
 
-import java.lang.invoke.MethodHandle;
+import gololang.FunctionReference;
+import gololang.Predefined;
+
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
-
-import static java.lang.invoke.MethodHandleProxies.asInterfaceInstance;
 
 /**
  * A worker environment is an abstraction over a set of spawned functions that can asynchronously process messages
@@ -100,11 +100,11 @@ public final class WorkerEnvironment {
   /**
    * Spawns a worker function.
    *
-   * @param handle the worker target.
+   * @param func the worker target.
    * @return a port to send messages to <code>handle</code>.
    */
-  public Port spawn(MethodHandle handle) {
-    return spawnWorker(asInterfaceInstance(WorkerFunction.class, handle));
+  public Port spawn(FunctionReference func) {
+    return spawnWorker((WorkerFunction) Predefined.asInterfaceInstance(WorkerFunction.class, func));
   }
 
   /**
