@@ -71,36 +71,6 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
     }
   };
 
-  /**
-   * Iterator over a {@code LazyList}.
-   */
-  class LazyListIterator implements Iterator<Object> {
-
-    private LazyList list;
-
-    LazyListIterator(LazyList aLazyList) {
-      this.list = aLazyList;
-    }
-
-    @Override
-    public boolean hasNext() {
-      return !list.isEmpty();
-    }
-
-    @Override
-    public Object next() {
-      Object h = list.head();
-      list = list.tail();
-      return h;
-    }
-
-    @Override
-    public void remove() {
-      throw new UnsupportedOperationException(
-          "remove() is not supported on a lazy list iterator");
-    }
-  }
-
   private final Object head;
   private final FunctionReference tail;
   private LazyList memoTail = null;
@@ -168,7 +138,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    */
   @Override
   public Iterator<Object> iterator() {
-    return new LazyListIterator(this);
+    return new HeadTailIterator<Object>(this);
   }
 
   /**

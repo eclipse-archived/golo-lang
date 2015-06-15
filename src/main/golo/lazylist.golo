@@ -107,7 +107,7 @@ function fromIter = |it| -> match {
   otherwise raise("Invalid argument for fromIter")
 }
 
-augment Iterable {
+augment java.lang.Iterable {
   function asLazyList = |this| -> iteratorToLazyList(this: iterator())
 }
 
@@ -139,7 +139,7 @@ augment gololang.LazyList {
   This is a recursive implementation.
   ----
   function map = |this, func| -> match {
-    when this: isEmpty() then emptyList()
+    when this: isEmpty() then gololang.LazyList.EMPTY()
     otherwise gololang.LazyList.cons(
       func(this: head()), -> this: tail(): map(func)
     )
@@ -151,7 +151,7 @@ augment gololang.LazyList {
   Returns a new lazy list.
   ----
   function filter = |this, pred| -> match {
-    when this: isEmpty() then emptyList()
+    when this: isEmpty() then gololang.LazyList.EMPTY()
     when pred(this: head()) then
       gololang.LazyList.cons(this: head(), -> this: tail(): filter(pred))
     otherwise this: tail(): filter(pred)
@@ -198,6 +198,7 @@ augment gololang.LazyList {
     }
     return buffer: toString()
   }
+
 }
 
 ----
@@ -223,7 +224,7 @@ As an example, one can write a simple `range` function as:
 ----
 function generator = |unspool, finished, seed| {
   if finished(seed) {
-    return emptyList()
+    return gololang.LazyList.EMPTY()
   }
   let r = unspool(seed)
   return gololang.LazyList.cons(
@@ -232,4 +233,36 @@ function generator = |unspool, finished, seed| {
   )
 }
 
+local function False = |args...| -> false
+
+----
+Produces a infinite list of values. If the argument is a closure, it must have
+no parameters, and it's used to produce the values (called for each `tail`
+access).
+
+For instance, `repeat(5)` will return an infinite lazy list of `5`s, and 
+`repeate(^f)` will return a infinte lazy list of calls to `f`
+([f(), f(), f(), ...])
+
+* `value`: a value or a closure
+----
+function repeat = |value| -> match {
+  when isClosure(value) then generator(|seed| -> [value(), null], ^False, null)
+  otherwise generator(|seed| -> [value, null], ^False, null)
+}
+
+----
+Returns an infinite lazy list produced by iterative application of a function 
+to an initial element.
+`iterate(z, f)` thus yield `z, f(z), f(f(z)), ...`
+
+For instance, one can create a infinite list of integers using:
+    
+    iterate(0, |x| -> x + 1)
+
+
+* `zero`: the initial element of the list
+* `func`: the function to apply
+----
+function iterate = |zero, func| -> generator(|seed| -> [seed, func(seed)], ^False, zero)
 
