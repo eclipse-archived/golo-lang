@@ -129,7 +129,7 @@ function post = |title, body, promoted, tags...| {
     ["title", title],
     ["body", body],
     ["promoted", promoted],
-    ["tags", values: asList()]
+    ["tags", tags: asList()]
   ]
   return gololang.JSON.stringify(data)
 }
