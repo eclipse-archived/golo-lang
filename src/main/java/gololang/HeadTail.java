@@ -16,6 +16,8 @@
 
 package gololang;
 
+import java.util.Iterator;
+
 /**
  * Structure having a head and a tail.
  * <p>
@@ -46,7 +48,7 @@ package gololang;
  *
  * @param <E> the type of the elements held in this structure.
  */
-public interface HeadTail<E> {
+public interface HeadTail<E> extends Iterable<E> {
 
   /**
    * Get the head of the structure.
@@ -72,4 +74,20 @@ public interface HeadTail<E> {
    * @return {@code true} if the structure contains no element, {@code false} otherwise.
    */
   boolean isEmpty();
+
+  /**
+   * Util method to wrap a {@code HeadTail} instance into an {@Iterable}
+   *
+   * @param headTail the instance to wrap
+   * @return an iterable on the values contained in the wrapped instance
+   */
+  public static <E> Iterable<E> toIterable(HeadTail<E> headTail) {
+    return new Iterable<E>() {
+      @Override
+      public Iterator<E> iterator() {
+        return new HeadTailIterator<E>(headTail);
+      }
+    };
+  }
+
 }
