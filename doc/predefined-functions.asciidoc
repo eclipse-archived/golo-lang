@@ -28,7 +28,7 @@ disabled. It always returns a string.  There are also `secureReadPassword()` and
 ----
 let name = readln("what's your name? ")
 let value = readln()
-let pwd = readpwd("type your password:")
+let pwd = readPassword("type your password:")
 ----
 
 === Number type conversions ===
