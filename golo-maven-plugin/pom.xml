@@ -16,7 +16,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo-maven-plugin</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0-incubation-M1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -27,7 +27,7 @@
 
   <packaging>maven-plugin</packaging>
 
-  <name>Golo Maven Plugin</name>
+  <name>Golo Maven Plugin (Incubation)</name>
   <description>Golo Maven Plugin.</description>
   <url>http://golo-lang.org/</url>
 

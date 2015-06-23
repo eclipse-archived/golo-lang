@@ -16,7 +16,7 @@
 
   <groupId>org.golo-lang</groupId>
   <artifactId>golo</artifactId>
-  <version>3.0.0-SNAPSHOT</version>
+  <version>3.0.0-incubation-M1-SNAPSHOT</version>
 
   <parent>
     <groupId>org.sonatype.oss</groupId>
@@ -26,7 +26,7 @@
 
   <packaging>jar</packaging>
 
-  <name>Golo Programming Language</name>
+  <name>Golo Programming Language (Incubation)</name>
   <description>Golo: a lightweight dynamic language for the JVM.</description>
   <url>http://golo-lang.org/</url>
 
