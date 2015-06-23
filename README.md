@@ -12,7 +12,7 @@ Golo is a simple dynamic, weakly-typed language for the JVM.
 Built from day 1 with `invokedynamic`, Golo takes advantage of the latest advances of
 the JVM. It is also a showcase on how to build a language runtime with `invokedynamic`.
 
-Golo is originally being developed as part of the research activities of the
+Golo was originally being developed as part of the research activities of the
 [DynaMid](http://dynamid.citi-lab.fr/) group of the
 [CITI Laboratory](http://www.citi-lab.fr/) at
 [INSA-Lyon](http://www.insa-lyon.fr/).
@@ -24,7 +24,7 @@ Golo joined the Eclipse Foundation as an incubating technology project in June 2
 * Website: [http://golo-lang.org/](http://golo-lang.org/)
 * Twitter: [@golo_lang](https://twitter.com/golo_lang)
 * GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
-* Mailing-list: [http://groups.google.com/group/golo-lang](http://groups.google.com/group/golo-lang)
+* Mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-dev](https://dev.eclipse.org/mailman/listinfo/golo-dev)
 * Gitter.im chats: [https://gitter.im/golo-lang/golo-lang](https://gitter.im/golo-lang/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
