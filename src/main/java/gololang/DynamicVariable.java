@@ -16,8 +16,6 @@
 
 package gololang;
 
-import java.lang.invoke.MethodHandle;
-
 /**
  * A dynamic variable has the semantics of an inheritable thread-local reference.
  * This class is modeled after the eponymous class from the Scala standard library.
@@ -73,7 +71,7 @@ public final class DynamicVariable {
    * @return the result of the call to {@code func}.
    * @throws Throwable in case an exception occurs.
    */
-  public Object withValue(Object value, MethodHandle func) throws Throwable {
+  public Object withValue(Object value, FunctionReference func) throws Throwable {
     if (func.type().parameterCount() != 0) {
       throw new IllegalArgumentException("withValue requires a function with no parameters");
     }

@@ -75,10 +75,10 @@ public class DynamicVariableTest {
   public void check_with_value() throws Throwable {
     final DynamicVariable var = new DynamicVariable("A");
 
-    Object result = var.withValue("B", thunkHandle);
+    Object result = var.withValue("B", new FunctionReference(thunkHandle));
     assertThat(result, is((Object) "Ok"));
 
-    result = var.withValue("Yeah!", capturingThunkHandle.bindTo(var));
+    result = var.withValue("Yeah!", new FunctionReference(capturingThunkHandle.bindTo(var)));
     assertThat(result, is((Object) "Yeah!"));
     assertThat(var.value(), is((Object) "A"));
   }
