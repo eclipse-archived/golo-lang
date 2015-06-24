@@ -1,17 +1,10 @@
 /*
- * Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
- * Licensed under the Apache License, Version 2.0 (the "License");
- * you may not use this file except in compliance with the License.
- * You may obtain a copy of the License at
- *
- *     http://www.apache.org/licenses/LICENSE-2.0
- *
- * Unless required by applicable law or agreed to in writing, software
- * distributed under the License is distributed on an "AS IS" BASIS,
- * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
- * See the License for the specific language governing permissions and
- * limitations under the License.
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
  */
 
 package gololang;
@@ -27,11 +20,11 @@ import java.util.Objects;
  * <p>
  * A lazy list behaves like a linked list, but each next element
  * is represented by a closure that is evaluated only if needed.
- * The value is memoized, so that the closure representing the tail 
- * is evaluated only once. 
+ * The value is cached, so that the closure representing the tail
+ * is evaluated only once.
  *
- * Since the tail closure will be called at most once, and we can't 
- * guarantee when, or even if, it will be called, this closure must be 
+ * Since the tail closure will be called at most once, and we can't
+ * guarantee when, or even if, it will be called, this closure must be
  * a pure, side-effect free, function.
  */
 public class LazyList implements Collection<Object>, HeadTail<Object> {
