@@ -20,11 +20,11 @@ import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
+import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -354,7 +354,7 @@ public final class Predefined {
             put("interfaces", new Tuple(theType.getCanonicalName()));
             put("implements", new HashMap<String, FunctionReference>() {
               {
-                put(method.getName(), new FunctionReference(dropArguments(((FunctionReference) func).handle(), 0, Object.class)));
+                put(method.getName(), new FunctionReference(dropArguments(((FunctionReference) func).handle(), 0, Object.class), Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new)));
               }
             });
           }
@@ -409,14 +409,15 @@ public final class Predefined {
     if (validCandidates.size() == 1) {
       targetMethod = validCandidates.iterator().next();
       targetMethod.setAccessible(true);
+      String[] parameterNames = Arrays.stream(targetMethod.getParameters()).map(Parameter::getName).toArray(String[]::new);
       if(isMethodDecorated(targetMethod)) {
         if (functionArity < 0) {
-          return new FunctionReference(getDecoratedMethodHandle(targetMethod));
+          return new FunctionReference(getDecoratedMethodHandle(targetMethod), parameterNames);
         } else {
-          return new FunctionReference(getDecoratedMethodHandle(targetMethod, functionArity));
+          return new FunctionReference(getDecoratedMethodHandle(targetMethod, functionArity), parameterNames);
         }
       }
-      return new FunctionReference(MethodHandles.publicLookup().unreflect(targetMethod));
+      return new FunctionReference(MethodHandles.publicLookup().unreflect(targetMethod), parameterNames);
     }
     if (validCandidates.size() > 1) {
       throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module
