@@ -137,3 +137,38 @@ function test_join = -> [
   ["1,2,3", ""]
 ]
 
+function test_foldr = -> [lazyList(1, 2, 3): foldr(|a, b| -> a + b, 0), 6]
+
+function test_foldrCopy = ->
+  [longLL():foldr(|v, l| -> cons(v, l), emptyList()):asList(), longL()]
+
+function test_foldrEmpty = -> [emptyList():foldr(|a, b| -> a + b, 0), 0]
+
+function test_foldl = -> [lazyList(1, 2, 3): foldl(|a, b| -> a + b, 0), 6]
+
+function test_foldlEmpty = -> [emptyList(): foldl(|a, b| -> a + b, 0), 0]
+
+function test_take = -> [
+  [longLL():take(3), longLL():take(42), emptyList(): take(2)],
+  [lazyList(1, 2, 3), longLL(), emptyList()]
+]
+
+function test_takeWhile = -> [
+  [longLL():takeWhile(|v| -> v < 4), longLL():takeWhile(|v| -> false),
+   longLL():takeWhile(|v|->true)],
+  [lazyList(1, 2, 3), emptyList(), longLL()]
+]
+
+function test_drop = -> [
+  [longLL():drop(3), longLL():drop(0), longLL(): drop(42), emptyList():drop(3)],
+  [lazyList(4, 5), longLL(), emptyList(), emptyList()]
+]
+
+function test_dropWhile = -> [
+  [longLL():dropWhile(|v| -> v < 4): asList(),
+   longLL():dropWhile(|v| -> false): asList(),
+   longLL():dropWhile(|v| -> true): asList()],
+  [list[4, 5], longL(), list[]]
+]
+
+

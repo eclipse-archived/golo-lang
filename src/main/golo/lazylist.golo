@@ -205,6 +205,87 @@ augment gololang.LazyList {
     return buffer: toString()
   }
 
+  ----
+  Folds left `this` using `func` with `zero` as initial value.
+  This is a recursive implementation.
+
+      lazyList(a, b, c): foldl(f, z) == f(f(f(z, a), b), c)
+
+  Equivalent to `foldr` if `func` is commutative.
+  ----
+  function foldl = |this, func, zero| -> match {
+    when this: isEmpty() then zero
+    otherwise this: tail(): foldl(func, func(zero, this: head()))
+  }
+
+  ----
+  Folds right `this` using `func` with `zero` as initial value.
+  This is a recursive implementation.
+
+      lazyList(a, b, c): foldr(f, z) == f(a, f(b, f(c, z)))
+
+  Equivalent to `foldl` if `func` is commutative.
+  ----
+  function foldr = |this, func, zero| -> match {
+    when this: isEmpty() then zero
+    otherwise func(this: head(), this: tail(): foldr(func, zero))
+  }
+
+
+  ----
+  Takes the `nb` first elements of the lazy list, as a lazy list. 
+  This is a wrapper, the underlying list is resolved on demand, such that
+  everything remains lazy. `take` can thus be used on infinite lists.
+  ----
+  function take = |this, nb| -> match {
+    when nb <= 0 or this: isEmpty() then emptyList()
+    otherwise gololang.LazyList.cons(
+      this: head(),
+      -> this: tail(): take(nb - 1)
+    )
+  }
+
+  ----
+  Takes elements from the list as long as the given predicate is true.
+
+  * `pred`: the predicate function used to end the list.
+  ----
+  function takeWhile = |this, pred| -> match {
+    when this: isEmpty() or not pred(this: head()) then emptyList()
+    otherwise gololang.LazyList.cons(this: head(), -> this: tail() :takeWhile(pred))
+  }
+  
+  ----
+  Remove `nb` elements from the list and return the rest as a lazy list.
+  ----
+  function drop = |this, nb| -> match {
+    when nb <= 0 then this
+    when this: isEmpty() then emptyList()
+    otherwise this: tail(): drop(nb - 1)
+  }
+
+  ----
+  Remove elements from the list as long as the given predicate is true.
+
+  * `pred`: the predicate function used to end the list.
+  ----
+  function dropWhile = |this, pred| -> match {
+    when this: isEmpty() then emptyList()
+    when not pred(this: head()) then this
+    otherwise this: tail(): dropWhile(pred)
+  }
+
+  ----
+  Extract a lazy sublist.
+
+  This is just a convenient method for `list: drop(from):take(to - from)`, so
+  the list remains lazy.
+
+  * `from`: low endpoint (inclusive) of the `subList`
+  * `to`: high endpoint (exclusive) of the `subList`
+  ----
+  function subList = |this, from, to| -> this:drop(from):take(to - from)
+
 }
 
 ----
