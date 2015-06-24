@@ -1,3 +1,9 @@
+# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+#
+# All rights reserved. This Example Content is intended to demonstrate
+# usage of Eclipse technology. It is provided to you under the terms and
+# conditions of the Eclipse Distribution License v1.0 which is available
+# at http://www.eclipse.org/org/documents/edl-v10.php
 
 module samples.LogDeco
 
@@ -15,8 +21,8 @@ function foo = |a| {
     println("foo got a " + a)
 }
 
-@log1("I'am a bar")
-function bar = |a| -> 2*a
+@log1("I'm a bar")
+function bar = |a| -> 2 * a
 
 let sayHello = log1("Hello")
 
@@ -43,10 +49,10 @@ function egg = { println("doing something...") }
 function main = |args| {
 
     foo("bar")
-    
+
     println("---")
     println(bar(21))
-    
+
     println("---")
     println(baz())
 
