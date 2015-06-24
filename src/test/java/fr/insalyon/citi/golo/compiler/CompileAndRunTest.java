@@ -20,10 +20,7 @@ import fr.insalyon.citi.golo.compiler.ir.ReferenceLookup;
 import fr.insalyon.citi.golo.compiler.parser.ASTAssignment;
 import fr.insalyon.citi.golo.compiler.parser.ParseException;
 import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
-import gololang.FunctionReference;
-import gololang.GoloStruct;
-import gololang.Tuple;
-import gololang.Range;
+import gololang.*;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -949,6 +946,28 @@ public class CompileAndRunTest {
 
     Method bang_plop = moduleClass.getMethod("bang_plop");
     assertThat((String) bang_plop.invoke(null), is("Plop!"));
+  }
+
+  @Test
+  public void augmentations_with_fallback() throws Throwable {
+    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "augmentations-with-fallback.golo", goloClassLoader);
+    assertThat((String) moduleClass.getMethod("fallbackExists").invoke(null), is("Fallback for this bouh named casper with args[1, 2, 3]"));
+
+    Method fallbackDoesNotExists = moduleClass.getMethod("fallbackDoesNotExists");
+    try {
+      fallbackDoesNotExists.invoke(null);
+      fail("NoSuchMethodError should have been thrown");
+    } catch (Throwable e) {
+      assertThat(e.getCause(), instanceOf(NoSuchMethodError.class));
+      assertThat(e.getCause().getMessage(), containsString("class java.util.ArrayList::casper"));
+    }
+
+    Method fallbackOnAugmentedFunctionReference = moduleClass.getMethod("fallbackOnAugmentedFunctionReference");
+    assertThat((String) fallbackOnAugmentedFunctionReference.invoke(null) , is("Hello John Doe!"));
+
+    Method fallbackOnAugmentedClosure = moduleClass.getMethod("fallbackOnAugmentedClosure");
+    assertThat((String) fallbackOnAugmentedClosure.invoke(null), is("1-2-3"));
   }
 
   @Test
