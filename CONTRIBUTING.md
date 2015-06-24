@@ -4,6 +4,8 @@ Thank you for your interest in Golo!
 
 You can propose contributions by sending pull requests through GitHub.
 
+And of course you can [report issues](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Golo) and [browse the current ones](https://bugs.eclipse.org/bugs/describecomponents.cgi?product=Golo).
+
 ## Legal considerations
 
 Please read the [Eclipse Foundation policy on accepting contributions via Git](http://wiki.eclipse.org/Development_Resources/Contributing_via_Git).
@@ -28,9 +30,23 @@ When submitting code, please make every effort to follow existing conventions an
 keep the code as readable as possible.
 
 Please provide meaningful commit messages. You can take inspiration from
-http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html
+[http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 
-A contribution is not a good contribution unless it comes with unit tests, integration tests and
+Do not forget to mention the related Eclipse Bugzilla issue, if any.
+
+Here is a sample _good_ Git commit log message:
+
+    [666999] Quick summary
+
+    This is a discussion of the change with details on the impact, limitations, etc.
+
+    Write just like if you were discussing with fellows :-)
+
+    Bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=666999
+    Also-By: Somebody Who Contributted <foo@bar.com>
+    Signed-off-by: Another Person <baz@foobar.org>
+
+Finally, a contribution is not a good contribution unless it comes with unit tests, integration tests and
 documentation.
 
 ## Misc.
