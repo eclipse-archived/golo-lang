@@ -1,18 +1,11 @@
 # ............................................................................................... #
 #
-# Copyright 2012-2014 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
 #
-# Licensed under the Apache License, Version 2.0 (the "License");
-# you may not use this file except in compliance with the License.
-# You may obtain a copy of the License at
-#
-#     http://www.apache.org/licenses/LICENSE-2.0
-#
-# Unless required by applicable law or agreed to in writing, software
-# distributed under the License is distributed on an "AS IS" BASIS,
-# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-# See the License for the specific language governing permissions and
-# limitations under the License.
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
 #
 # ............................................................................................... #
 
@@ -20,21 +13,27 @@
 This module defines utility functions and augmentations to ease the use of
 the `gololang.LazyList` object.
 
-A lazy list is a *immutable* list that is evaluated only when needed, as can be
-found in Haskell for example.
+A lazy list is an *immutable* list whose elements are evaluated only when needed,
+as can be found in Haskell for example.
 
 This is very useful when using higher order function such as `map`. Mapping
-long a lazy list with a function and using only the 3 first elements will only
-apply the function to these elements, as oposed to regular lists.
+a long lazy list with a function and using only the 3 first elements will only
+apply the function to these elements, as opposed to regular lists.
 
-Lazy lists can also be used to create infinite lists or generators.
+Lazy lists can also be used to create infinite lists, also known as generators
+(or anamorphisms).
 
 Lastly, they allow for elegant recursive implementations of several classical
 algorithms.
 
+For instance, one can create a infinite lazy list containing integers as:
+
+    function count = |start| -> cons(start, -> count(start + 1_L))
+    function count = -> count(0_L)
+
 On the other hand, functions or methods like `equals`, `size` or `contains` are
 not very efficients, since they must evaluate the whole list, and thus negate
-the lazyness. They are here for completeness and compatibility with the regular
+the laziness. They are here for completeness and compatibility with the regular
 lists interface, but you should avoid such methods.
 
 Some functions in this module are recursive (re)implementation of standard list
@@ -108,10 +107,17 @@ function fromIter = |it| -> match {
 }
 
 augment java.lang.Iterable {
+  ----
+  Returns a lazy list from this `Iterable`. Can be used for instance to lazily
+  map a list.
+  ----
   function asLazyList = |this| -> iteratorToLazyList(this: iterator())
 }
 
 augment java.util.Iterator {
+  ----
+  Returns a lazy list view of this `Iterator`.
+  ----
   function asLazyList = |this| -> iteratorToLazyList(this)
 }
 
@@ -177,7 +183,7 @@ augment gololang.LazyList {
   }
 
   ----
-  Join the elements into a string:
+  Joins the elements into a string:
 
       println(list[1, 2, 3]: join(", "))
 
@@ -202,9 +208,9 @@ augment gololang.LazyList {
 }
 
 ----
-Generator function on lazy lists.
+Generator function on lazy lists (anamorphism).
 
-This function generate a (possibly infinite) lazy list. Starting with the
+This function generates a (possibly infinite) lazy list. Starting with the
 `seed` value, if `finished(seed)` is `true`, the generation stops and an empty
 list is returned. Otherwise, `unspool` is called on `seed`, and must generate
 two values: the head of the list (current value) and the next seed that will be
@@ -241,7 +247,7 @@ no parameters, and it's used to produce the values (called for each `tail`
 access).
 
 For instance, `repeat(5)` will return an infinite lazy list of `5`s, and 
-`repeate(^f)` will return a infinte lazy list of calls to `f`
+`repeat(^f)` will return a infinite lazy list of calls to `f`
 ([f(), f(), f(), ...])
 
 * `value`: a value or a closure
@@ -254,7 +260,7 @@ function repeat = |value| -> match {
 ----
 Returns an infinite lazy list produced by iterative application of a function 
 to an initial element.
-`iterate(z, f)` thus yield `z, f(z), f(f(z)), ...`
+`iterate(z, f)` thus yields `z, f(z), f(f(z)), ...`
 
 For instance, one can create a infinite list of integers using:
     
