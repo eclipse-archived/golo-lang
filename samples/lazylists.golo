@@ -1,17 +1,13 @@
-# ............................................................................................... #
-#
 # Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
 #
-# All rights reserved. This program and the accompanying materials
-# are made available under the terms of the Eclipse Public License v1.0
-# which accompanies this distribution, and is available at
-# http://www.eclipse.org/legal/epl-v10.html
-#
-# ............................................................................................... #
+# All rights reserved. This Example Content is intended to demonstrate
+# usage of Eclipse technology. It is provided to you under the terms and
+# conditions of the Eclipse Distribution License v1.0 which is available
+# at http://www.eclipse.org/org/documents/edl-v10.php
 
 module samples.LazyLists
 
-import gololang.lazylist
+import gololang.LazyLists
 
 ----
 create a lazy list of all integers
@@ -52,4 +48,8 @@ let lst1 = cons(1, cons(2, cons(3, cons(4, emptyList()))))
 # or simpler
 let lst2 = lazyList(1, 2, 3, 4)
 
+# alternative count using a generator
+function countGen = |start| -> generator(|x| -> [x, x + 1], |_| -> false, start)
 
+# alternative count using the iterate generator
+function countIter = |start| -> iterate(start, |x| -> x + 1)

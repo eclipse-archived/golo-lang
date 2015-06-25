@@ -11,7 +11,7 @@
 
 module golo.test.LazyList
 
-import gololang.lazylist
+import gololang.LazyLists
 
 local function longLL = ->
       LazyList.cons(1, -> LazyList.cons(2, -> LazyList.cons(3, -> LazyList.cons(4, -> LazyList.cons(5, -> emptyList())))))
