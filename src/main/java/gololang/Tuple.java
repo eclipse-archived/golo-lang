@@ -24,7 +24,7 @@ import java.util.Iterator;
  * let t2 = tuple[1, 2, 3]
  * </pre>
  */
-public final class Tuple implements Iterable<Object>, HeadTail<Object>, Comparable<Tuple> {
+public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
 
   private final Object[] data;
 
