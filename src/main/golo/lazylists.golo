@@ -40,7 +40,7 @@ Some functions in this module are recursive (re)implementation of standard list
 HOF, such as `map` or `filter`. The recursive aspect should not be limiting since
 the resulting list is lazy.
 ----
-module gololang.lazylist
+module gololang.LazyLists
 
 import java.util
 
