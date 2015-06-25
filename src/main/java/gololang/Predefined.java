@@ -720,5 +720,18 @@ public final class Predefined {
     throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
   }
 
+  /**
+   * Removes an element of a List by index.
+   *
+   * @param lst the list to remove the element from.
+   * @param idx an Integer representing the index of the element to remove.
+   * @return the element that was removed.
+   * @throws IndexOutOfBoundsException if {@code idx}
+   */
+  public static Object removeByIndex(List<?> lst, Integer idx) {
+    return lst.remove(idx.intValue());
+  }
+
+
   // ...................................................................................................................
 }
