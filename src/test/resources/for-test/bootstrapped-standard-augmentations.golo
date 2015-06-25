@@ -94,6 +94,12 @@ function list_tail_empty = {
   return list[]: tail(): isEmpty()
 }
 
+function lists_removeAt = {
+  let l = list[5, 2, 0]
+  let r = l: removeAt(0)
+  return (r == 5 and l == list[2, 0])
+}
+
 
 # ............................................................................................... #
 

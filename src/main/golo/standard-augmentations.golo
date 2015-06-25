@@ -481,14 +481,21 @@ augment java.util.List {
 
   ----
   Returns a new list where the elements have been sorted using a comparator.
-  See `java.util.Collections.sort`.:w
-
+  See `java.util.Collections.sort`.
   ----
   function ordered = |this, comparator| {
     let sortedList = this: newWithSameType()
     sortedList: addAll(this)
     return sortedList: order(comparator)
   }
+
+  ----
+  Removes the element at the specified position.
+
+  This method has the same behaviour as `java.util.List.remove(int)`, but is
+  needed since for Golo everything is an `Object` and `remove` is overloaded.
+  ----
+  function removeAt = |this, idx| -> removeByIndex(this, idx)
 }
 
 # ............................................................................................... #

@@ -19,6 +19,9 @@ import java.lang.invoke.MethodHandles;
 import java.lang.invoke.WrongMethodTypeException;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
+import java.util.List;
+import java.util.ArrayList;
+import static java.util.Arrays.asList;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -259,4 +262,18 @@ public class PredefinedTest {
   private static Object ohce(Object obj) {
     return obj;
   }
+
+  @Test
+  public void check_removeByIndex() {
+    List<Integer> lst = new ArrayList<Integer>(asList(5, 2, 0));
+    Object v = Predefined.removeByIndex(lst, 0);
+    assertThat(v, is(5));
+    assertThat(lst, contains(2, 0));
+  }
+
+  @Test(expectedExceptions = IndexOutOfBoundsException.class)
+  public void check_bogus_value_removeByIndex() {
+    Predefined.removeByIndex(new ArrayList<Integer>(asList(3)), 3);
+  }
+
 }
