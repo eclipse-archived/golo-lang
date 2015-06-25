@@ -1,0 +1,278 @@
+== Functions ==
+
+Functions are first-class citizen in Golo. Here is how to define and
+call some.
+
+=== Parameter-less functions ===
+
+Golo modules can define functions as follows:
+
+[source,golo]
+----
+module sample
+
+function hello = {
+  return "Hello!"
+}
+----
+
+In turn, you may invoke a function with a familiar notation:
+
+[source,golo]
+----
+let str = hello()
+----
+
+A function needs to return a value using the `return` keyword. Some
+languages state that the last statement is the return value, but Golo
+does not follow that trend. We believe that `return` is more explicit,
+and that a few keystrokes in favour of readability is still a good deal.
+
+Still, you may omit `return` statements if your function does not return
+a value:
+
+[source,golo]
+----
+function printer = {
+  println("Hey!")
+}
+----
+
+If you do so, the function will actually return `null`, hence `result`
+in the next statement is `null`:
+
+[source,golo]
+----
+# result will be null
+let result = printer()
+----
+
+=== Functions with parameters ===
+
+Of course functions may take some parameters, as in:
+
+[source,golo]
+----
+function addition = |a, b| {
+  return a + b
+}
+----
+
+NOTE: Parameters are constant references, hence they cannot be reassigned.
+
+Invoking functions that take parameters is straightforward, too:
+
+[source,golo]
+----
+let three = addition(1, 2)
+let hello_world = addition("hello ", "world!")
+----
+
+=== Variable-arity functions ===
+
+Functions may take a varying number of parameters. To define one, just
+add `...` to the last parameter name:
+
+[source,golo]
+----
+function foo = |a, b, c...| {
+  # ...
+}
+----
+
+Here, `c` catches the variable arguments in an array, just like it would
+be the case with Java. You can thus treat `c` as being a Java object of
+type `Object[]`.
+
+Calling variable-arity functions does not require wrapping the last
+arguments in an array. While invoking the `foo` function above, the
+following examples are legit:
+
+[source,golo]
+----
+# a=1, b=2, c=[]
+foo(1, 2)
+
+# a=1, b=2, c=[3]
+foo(1, 2, 3)
+
+# a=1, b=2, c=[3,4]
+foo(1, 2, 3, 4)
+----
+
+Because the parameter that catches the last arguments is an array, you
+may call array methods. Given:
+
+[source,golo]
+----
+function elementAt = |index, args...| {
+  return args: get(index)
+}
+----
+
+then:
+
+[source,golo]
+----
+# prints "2"
+println(elementAt(1, 1, 2, 3))
+----
+
+=== Named parameters ===
+
+When you invoke Golo functions, you can use the name of the parameters explicitly in the call like so:
+
+[source,golo]
+----
+function post = |title, body, promoted, tags...| {
+  let data = map[
+    ["title", title],
+    ["body", body],
+    ["promoted", promoted],
+    ["tags", tags: asList()]
+  ]
+  return gololang.JSON.stringify(data)
+}
+
+post(
+  tags = array["feature", "syntax"],
+  body = "it rocks!"
+  title = "Named parameters are alive",
+  promoted = true
+)
+----
+
+NOTE: Once you are using named parameters in your function call, the order doesn't matter anymore.
+
+Note: To name varargs argument, you have be box the values into an `array[]` (just has it's done with the `tags` argument in the above snippet)
+
+CAUTION: You must name either or none of the arguments. A compilation error will be raised, if you mix named an unamed arguments in a function invocation.
+
+=== Functions from other modules and imports ===
+
+Suppose that we have a module `foo.Bar`:
+
+[source,golo]
+----
+module foo.Bar
+
+function f = {
+  return "f()"
+}
+----
+
+We can invoke `f` from another module by prefixing it with its module
+name:
+
+[source,golo]
+----
+let r = foo.Bar.f()
+----
+
+Of course, we may also take advantage of an `import` statement:
+
+[source,golo]
+----
+module Somewhere.Else
+
+import foo.Bar
+
+function plop = {
+  return f()
+}
+----
+
+NOTE: Imports in Golo do not work as in Java.
+Golo is a dynamic language where symbols are being resolved at runtime. Module imports are
+**not** checked at compilation time, and their sole purpose is to help in dynamic resolution. Back
+to the previous example, `f` cannot be resolved from the current module, and the Golo runtime
+subsequently tries to resolve `f` from each `import` statement. Also, note that the order of
+`import` statements is important, as the resolution stops at the first module having the `f`
+function.
+
+Last but not least, you may prepend the last piece of the module name. The following invocations are
+equivalent:
+
+[source,golo]
+----
+module Somewhere.Else
+
+import foo.Bar
+
+function plop = {
+  let result = f()
+  let result_bis = Bar.f()
+  let result_full = foo.Bar.f()
+  return result
+}
+----
+
+Golo modules have a set of implicit imports:
+
+* `gololang.Predefined`,
+* `gololang.StandardAugmentations`,
+* `gololang`,
+* `java.lang`.
+
+=== Local functions ===
+
+By default, functions are visible outside of their module. You may
+restrict the visibility of a function by using the `local` keyword:
+
+[source,golo]
+----
+module Foo
+
+local function a = {
+  return 666
+}
+
+function b = {
+  return a()
+}
+----
+
+Here, `b` is visible while `a` can only be invoked from within the `Foo`
+module. Given another module called `Bogus`, the following would fail at
+runtime:
+
+[source,golo]
+----
+module Bogus
+
+function i_will_crash = {
+  return Foo.a()
+}
+----
+
+=== Module-level state ===
+
+You can declare `let` and `var` references at the module level, as in:
+
+[source,golo]
+----
+module Sample
+
+let a = 1
+
+var b = truth()
+
+local function truth = {
+  return 42
+}
+----
+
+These references get initialized when the module is being loaded by the Java virtual machine. In
+fact, module-level state is implemented using `private static` fields that get initialized in a
+`<clinit>` method.
+
+Module-level references are only visible from their module, although a function may provide
+accessors to them.
+
+It is important to note that such references get initialized in the order of declaration in the
+source file. Having initialization dependencies between such references would be silly anyway, but
+one should keep it in mind _just in case_.
+
+CAUTION: Global state is a bad thing in general. We strongly advise you to *think twice* before you
+introduce module-level state. Beware of potential memory leaks, just like `static` class fields in
+the Java programming language.

@@ -1,0 +1,3 @@
+# Modules index
+<% foreach moduleName in params: keySet() { %>
+* [<%= moduleName %>](<%= params: get(moduleName) %>)<% } %>

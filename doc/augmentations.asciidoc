@@ -1,0 +1,300 @@
+== Class augmentations ==
+
+Many dynamic languages support the ability to extend existing classes by adding new methods to them.
+You may think of categories in Objective-C and Groovy, or *open classes* in Ruby.
+
+This is generally implemented by providing *meta-classes*. When some piece of code adds a method
+`foo` to, say, `SomeClass`, then all instances of `SomeClass` get that new `foo` method. While very
+convenient, such an open system may lead to well-known conflicts between the added methods.
+
+Golo provides a more limited but explicit way to add methods to existing classes in the form of
+**class augmentations**.
+
+=== Wrapping a string with a function ===
+
+Let us motivate the value of *augmentations* by starting with the following example. Suppose that we would
+like a function to wrap a string with a left and right string. We could do that in Golo as follows:
+
+[source,golo]
+----
+function wrap = |left, str, right| -> left + str + right
+
+# (...)
+let str = wrap("(", "foo", ")")
+println(str) # prints "(abc)"
+----
+
+Defining functions for such tasks makes perfect sense, but what if we could just add the `wrap`
+method to all instances of `java.lang.String` instead?
+
+=== Augmenting classes ===
+
+Defining an augmentation is a matter of adding a `augment` block in a module:
+
+[source,golo]
+----
+module foo
+
+augment java.lang.String {
+  function wrap = |this, left, right| -> left + this + right
+}
+
+function wrapped = -> "abc": wrap("(", ")")
+----
+
+More specifically:
+
+1. a `augment` definition is made on a fully-qualified class name, and
+2. an augmentation function takes the receiver object as its first argument, followed by optional
+   arguments, and
+3. there can be as many augmentation functions as you want, and
+4. there can be as many augmentations as you want.
+
+It is a good convention to name the receiver `this`, but you are free to call it differently.
+
+Also, augmentation functions can take variable-arity arguments, as in:
+
+[source,golo]
+----
+augment java.lang.String {
+
+  function concatWith = |this, args...| {
+    var result = this
+    foreach(arg in args) {
+      result = result + arg
+    }
+    return result
+  }
+}
+
+# (...)
+function varargs = -> "a": concatWith("b", "c", "d")
+----
+
+It should be noted that augmentations work with class hierarchies too. The following example adds an
+augmentation to `java.util.Collection`, which also adds it to concrete subclasses such as `java.util.LinkedList`:
+
+[source,golo]
+----
+augment java.util.Collection {
+  function plop = |this| -> "plop!"
+}
+
+# (...)
+function plop_in_a_list = -> java.util.LinkedList(): plop()
+----
+
+=== Augmentation scopes, reusable augmentations ===
+
+By default, an augmentation is only visible from its defining module.
+
+**Augmentations are clear and explicit as they
+only affect the instances from which you have decided to make them visible.**
+
+It is advised to place reusable augmentations in separate module definitions. Then, a module that needs such
+augmentations can make them available through imports.
+
+Suppose that you want to define augmentations for dealing with URLs from strings. You could define a
+`string-url-augmentations.golo` module source as follows:
+
+[source,golo]
+----
+module my.StringUrlAugmentations
+
+import java.net
+
+augment java.lang.String {
+
+  function toURL = |this| -> URL(this)
+
+  function httpGet = |this| {
+    # Open the URL, get a connection, grab the body as a string, etc
+    # (...)
+  }
+
+  # (...)
+}
+----
+
+Then, a module willing to take advantage of those augmentations can simply import their defining module:
+
+[source,golo]
+----
+module my.App
+
+import my.StringUrlAugmentations
+
+function googPageBody = -> "http://www.google.com/": httpGet()
+----
+
+TIP: As a matter of style, we suggest that your module names end with `Augmentations`. Because importing a
+module imports **all** of its augmentation definitions, we suggest that you modularize them with *fine
+taste* (for what it means).
+
+
+=== Named augmentations ===
+
+It is possible for augmentations to have a name.
+A named augmentation is a set of functions that can be applied to some
+classes or structures.
+
+This can be seen as a kind of lightweight
+http://en.wikipedia.org/wiki/Trait_%28computer_programming%29[trait],
+or http://en.wikipedia.org/wiki/Mixin[mixin],
+as found in Rust, Groovy or Scala.
+
+Named augmentations are defined with the `augmentation` keyword.
+
+As an example:
+[source,golo]
+----
+augmentation FooBar = {
+  function foo = |this| -> "foo"
+  function bar = |this, a| -> this: length() + a
+}
+
+augmentation Spamable = {
+  function spam = |this| -> "spam"
+}
+----
+
+A named augmentation is applied using the `augment ... with` construct, as in
+[source,golo]
+----
+augment java.util.Collection with FooBar
+
+augment MyStruct with Spamable
+
+augment java.lang.String with FooBar, Spamable
+----
+
+When applying several named augmentations, they are used in the application
+order. For instance, if `AugmentA` and `AugmentB` define both the method
+`meth`, and we augment `augment java.lang.String with AugmentA, AugmentB`, then
+calling `"": meth()` will call `AugmentA::meth`.
+
+Augmentation rules about scopes and reusability apply.
+So, if we create a module
+
+[source,golo]
+----
+module MyAugmentations
+
+augmentation Searchable = {
+  function search = |this, value| -> ...
+}
+
+augment java.util.Collection with Searchable
+----
+
+and import it, we can use the applied augmentation
+[source,golo]
+----
+import MyAugmentations
+
+#...
+list[1, 2, 3, 4]: search(2)
+----
+
+The augmentations defined in an other module can also be applied, provided they
+are fully qualified or the module is imported:
+[source,golo]
+----
+augment java.lang.String with MyAugmentations.Searchable
+----
+
+or
+[source,golo]
+----
+import MyAugmentations
+
+augment java.lang.String with Searchable
+----
+
+NOTE: If several imported modules define augmentations with the same name, the
+*first* imported one will be used.
+
+The validity of the application is not checked at compile time. Thus augmenting
+without importing the coresponding module, as in:
+[source,golo]
+----
+augment java.lang.String with Searchable
+----
+
+will not raise an error, but trying to call `search` on a `String` will throw a
+`java.lang.NoSuchMethodError: class java.lang.String::search` at *runtime*.
+
+IMPORTANT: As for every augmentation, no checks are made that the augmentation
+can be applied to the augmented class. For instance, augmenting `java.lang.Number`
+with the previous `FooBar` augmentation will raise
+`java.lang.NoSuchMethodError: class java.lang.Integer::length`
+at *runtime* when trying to call `1:bar(1)`. Calling `1:foo()` will be OK however.
+
+
+=== Augmentations Resolution Order ===
+
+The augmentations resolution order is as follows:
+
+1. native java method (i.e. an augmentation can't override a native java method),
+2. locally applied augmentations:
+    a. simple augmentations: `augment MyType { ... }`,
+    b. named augmentations: `augmentation Foo = { ... }`
+       and `augment MyType with Foo` in the current module. Multiple
+       applications are searched in the application order,
+    c. externally defined named augmentations with fully qualified
+       name: `augmentation Foo = { ... }` in module `Augmentations`, and
+       `augment MyType with Augmentations.Foo` in the current module,
+    d. named augmentation defined in an imported module:
+       `augmentation Foo = { ... }` in module `Augmentations`, and
+       `augment MyType with Foo` in the current module that `import Augmentations`
+       (imported module are searched in the importation order),
+3. augmentations applied in imported modules:
+   using the same order than locally applied ones, in the importation order.
+
+The first matching method found is used. It is thus possible to “override” an
+augmentation with a more higher priority one (in the sens of the previous order).
+
+TIP: Since importing a module imports all the applied augmentations, and given
+the somewhat complex resolution order when involving simple and named
+augmentations, being local, external or imported, and involving class
+hierarchies, knowing which method will be applied on a given type can be difficult.
+A good modularisation and a careful application are recommended.
+
+=== Defining a fallback behavior ===
+
+Users can augment a class with a `fallback` behavior to give a very last chance to a failed
+method dispacth.
+
+[source,golo]
+----
+augment java.lang.String {
+  function fallback = |this, name, args...| {
+    return "Dispatch failed for method: " + name + " on instance " + this + ", with args: " + args: asList(): join(" ")
+  }
+}
+
+println("golo": notExistingMethod(1,2))
+# Prints "Dispatch failed for method: notExistingMethod on instance golo, with args: [1, 2]"
+----
+
+Note: The `fallback` method must respect the signature and parameter names `fallback = |this, name, args...|`
+
+=== Standard augmentations ===
+
+Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
+
+These augmentation do not require a special import, and they are defined in the
+link:./golodoc/gololang/StandardAugmentations[`gololang.StandardAugmentations`] module.
+
+Here is an example:
+
+[source,golo]
+----
+let odd = [1, 2, 3, 4, 5]: filter(|n| -> (n % 2) == 0)
+
+let m = map[]
+println(m: getOrElse("foo", -> "bar"))
+----
+
+The full set of standard augmentations is documented in the generated *golodoc* (hint: look for
+`doc/golodoc` in the Golo distribution).

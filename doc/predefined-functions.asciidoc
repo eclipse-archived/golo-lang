@@ -1,0 +1,299 @@
+== Predefined functions ==
+
+Every Golo module definition comes with `gololang.Predefined` as a default import. It provides
+useful functions.
+
+=== Console output ===
+
+`print` and `println` do just what you would expect.
+
+[source,golo]
+----
+print("Hey")
+println()
+
+println("Hey")
+----
+
+=== Console input ===
+
+`readln()` or `readln(strMessage)` reads a single line of text from the console. It always returns a
+string.
+
+`readPassword()` or `readPassword(strPassword)` reads a password from the console with echoing
+disabled. It always returns a string.  There are also `secureReadPassword()` and
+`secureReadPassword(strPassword)` variants that return a `char[]` array.
+
+[source,golo]
+----
+let name = readln("what's your name? ")
+let value = readln()
+let pwd = readPassword("type your password:")
+----
+
+=== Number type conversions ===
+
+The following functions convert any number of string value to another number type:
+`intValue(n)`, `longValue(n)`, `charValue(n)`, `doubleValue(n)` and `floatValue(n)`.
+
+The usual Java type narrowing or widening conventions apply.
+
+[source,golo]
+----
+let i = intValue("666")   # 666 (string to integer)
+let j = intValue(1.234)   # 1 (double to integer)
+let k = intValue(666_L)   # 666 (long to integer)
+# etc
+----
+
+=== Exceptions ===
+
+`raise` can be used to throw a `java.lang.RuntimeException`. It comes in two forms: one with a
+message as a string, and one with a message and a cause.
+
+[source,golo]
+----
+try {
+  ...
+  raise("Somehow something is wrong")
+} catch (e) {
+  ...
+  raise("Something was wrong, and here is the cause", e)
+}
+----
+
+=== Preconditions ===
+
+Preconditions are useful, especially in a dynamically-typed language.
+
+`require` can check for a boolean expression along with an error message. In case of error, it
+throws an `AssertionError`.
+
+[source,golo]
+----
+function foo = |a| {
+  require(a oftype String.class, "a must be a String")
+  ...
+}
+----
+
+You may also use `requireNotNull` that... well... checks that its argument is not `null`:
+
+[source,golo]
+----
+function foo = |a| {
+  requireNotNull(a)
+  ...
+}
+----
+
+=== Arrays ===
+
+Golo arrays can be created using the `array[...]` literal syntax. Such arrays are of JVM type `Object[]`.
+
+There are cases where one needs typed arrays rather than `Object[]` arrays, especially when dealing with existing Java
+libraries.
+
+The `newTypedArray` predefined function can help:
+
+[source,golo]
+----
+let data = newTypedArray(java.lang.String.class, 3)
+data: set(0, "A")
+data: set(1, "B")
+data: set(2, "C")
+----
+
+=== Ranges ===
+
+The `range` function yields an iterable range over either `Integer`, `Long` or
+`Character` bounds:
+
+[source,golo]
+----
+# Prints 1 2 (...) 100
+foreach i in range(1, 101) {
+  print(i + " ")
+}
+
+# Prints a b c d
+foreach c in range('a', 'e') {
+  print(c + " ")
+}
+
+let r = range(0, 6): incrementBy(2)
+println("Start: " + r: from())
+println("End: " + r: to())
+foreach i in r {
+  println(i)
+}
+
+println("Increment: " + r: increment())
+----
+
+The lower bound is inclusive, the upper bound is exclusive.
+
+A `range` with a lower bound greater than its upper bound will be empty, except
+if the increment is explicitly negative:
+
+[source,golo]
+----
+# Prints nothing
+foreach i in range(3, 0) {
+  print(i + " ")
+}
+
+# Prints 3 2 1
+foreach i in range(3, 0): incrementBy(-1) {
+  print(i + " ")
+}
+
+# Prints 0 -2 -4
+foreach i in range(0, -6):decrementBy(2) {
+  print(i + " ")
+}
+----
+
+The `reversed_range` function is an alias for `range` with an increment of -1,
+such that `reversed_range(5, 1)` is the same as `range(5, 1): decrementBy(1)`.
+
+When `range` is called with only one value, it is used as the upper bound, the
+lower one being a default value (0 for numbers, 'A' for chars). For example,
+`range(5) == range(0, 5)` and `range('Z') == range('A', 'Z')`. In the same way,
+`reversed_range(5) == reversed_range(5, 0)`.
+
+Two ranges are equals if they have the same bounds and increment.
+
+A range can also be defined with the literal notation `[begin..end]`, which is
+equivalent to `range(begin, end)`.
+
+=== Closures ===
+
+Given a function reference, one can convert it to an instance of an interface with a single method
+declaration, as in:
+
+[source,golo]
+----
+local function listener = |handler| -> asInterfaceInstance(ActionListener.class, handler)
+
+# (...)
+let button = JButton("Click me!")
+button: addActionListener(listener(|event| -> println("Clicked!")))
+----
+
+It is possible to test if an object is a closure or not with the `isClosure` function. This is
+useful to support values and delayed evaluation, as in:
+
+[source,golo]
+----
+if isClosure(value) {
+  map: put(key, value())
+} else {
+  map: put(key, value)
+}
+----
+
+You can get a reference to a closure using the predefined `fun` function:
+
+[source,golo]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+  let f = fun("local_fun", golotest.Closures.module)
+  return f(1)
+}
+----
+
+Because functions may be overloaded, there is a form that accepts an extra parameter for specifying
+the number of parameters:
+
+[source,golo]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+  let f = fun("local_fun", golotest.Closures.module, 1)
+  return f(1)
+}
+----
+
+While `asInterfaceInstance` works for single-method interfaces, Java 8 introduced default methods
+and functional interfaces to support the so-called _lambda_ expressions.
+
+The `asFunctionalInterface` function is similar to `asInterfaceInstance` and supports these types of
+adaptations:
+
+[source,golo]
+----
+let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
+----
+
+=== File I/O ===
+
+Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:
+
+[source,golo]
+----
+let text = fileToText("/some/file.txt", "UTF-8")
+----
+
+The first parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`. The second parameter
+represents the encoding charset, either as a `java.lang.String` or a `java.nio.charset.Charset`.
+
+We can write some text to a file, too:
+
+[source,golo]
+----
+textToFile("Hello, world!", "/foo/bar.txt")
+----
+
+The `textToFile` function overwrites existing files, and creates new ones if needed.
+
+These functions are provided for convenience, so if you need more fine-grained control over reading and writing text
+then we suggest that you look into the `java.nio.file` package.
+
+In addition, if you need to verify that a file exists, you can use the `fileExists` function.
+
+[source,golo]
+----
+if fileExists("/foo/bar.txt") {
+  println("file found!")
+}
+----
+
+As in the other File I/O methods, the parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`.
+The `fileExists` function will return true if the file exists, false if it doesn't.
+
+If you need the current path of execution, you can use the `currentDir` function.
+
+[source,golo]
+----
+println(currentDir())
+----
+
+=== Array types ===
+
+Golo does not provide a literal syntax for array types, such as `Object[].class` in Java.
+
+Instead, we provide 3 helper functions.
+
+* `isArray(object)`: returns a boolean if `object` is an array.
+* `objectArrayType()`: returns `Object[].class`.
+* `arrayTypeOf(type)`: given `type` as a `java.lang.Class`, returns an array of type `type[]`.
+
+=== Misc. ===
+
+`mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:
+
+[source,golo]
+----
+let e = mapEntry("foo", "bar")
+
+# prints "foo => bar"
+println(e: getKey() + " => " + e: getValue())
+----

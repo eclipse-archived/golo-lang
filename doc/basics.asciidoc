@@ -1,0 +1,573 @@
+== Basics ==
+
+Let us start with the Golo basics.
+
+=== Editor / IDE support ===
+
+Editor and IDE support for Golo is available for:
+
+- https://github.com/jponge/vim-golo[Vim]
+- https://github.com/k33g/sublime-golo[Sublime Text 2 & 3]
+- https://github.com/k33g/golo-storm[IntelliJ IDEA (syntax highthing)]
+- https://github.com/golo-lang/gldt[Eclipse] (contributed by Jeff Maury)
+- https://github.com/golo-lang/golo-netbeans[Netbeans] (contributed by http://www.serli.com/[Serli])
+
+=== Hello world ===
+
+Golo source code need to be placed in _modules_. Module names are
+separated with dots, as in:
+
+[source,golo]
+----
+Foo
+foo.Bar
+foo.bar.Baz
+(...)
+----
+
+It is suggested yet not enforced that the first elements in a module
+name are in lowercase, and that the last one have an uppercase first
+letter.
+
+A Golo module can be executable if it has a _function_ named `main` and
+that takes an argument for the JVM program arguments:
+
+[source,golo]
+----
+module hello.World
+
+function main = |args| {
+  println("Hello world!")
+}
+----
+
+`println` is a predefined function that outputs a value to the standard
+console. As you can easily guess, here we output `Hello, world!` and
+that is an awesome achievement.
+
+NOTE: Newlines are important in Golo, so make sure that your editor ends files with a newline.
+
+NOTE: Golo identifiers can be non-ascii characters (e.g., Japanese, Emoji, Arabic, etc).
+
+=== Running _"Hello world"_ ===
+
+Of course, we need to run this incredibly complex application.
+
+Golo comes with a `golo` script found in the distribution `bin/` folder. It provides several
+commands, notably:
+
+- `version` to query the Golo version, and
+- `compile` to compile some Golo code to JVM classes, and
+- `run` to execute some already compiled Golo code, and
+- `golo` to directly execute Golo code from source files, and
+- `diagnose` to print compiler internal diagnosis information, and
+- `doc` to generate module(s) documentation, and
+- `new` to generate new project(s).
+
+The complete commands usage instructions can be listed by running `golo --help`.
+A command usage instructions can be listed by running `golo --usage ${command}`.
+
+IMPORTANT: The `golo` script comes with JVM tuning settings that may not be appropriate to your
+environment. We also provide a `vanilla-golo` script with no tuning. You may use the `$JAVA_OPTS`
+environment variable to provide custom JVM tuning to `vanilla-golo`.
+
+Provided that `golo` is available from your current `$PATH`, you may run the program above as
+follows:
+
+[source,console]
+----
+$ golo golo --files samples/helloworld.golo
+Hello world!
+$ golo golo --files samples/ --module hello.World
+Hello world!
+$
+----
+
+`golo golo` takes several Golo source files (*.golo and directories) as input.
+It expects the last one to have a `main` function to call (or use
+`--module` to define the golo module with the `main` function).
+The Golo code is compiled on the fly and executed straight into a JVM.
+
+You may also pass arguments to the `main` function by appending `--args`
+on the command line invocation. Suppose that we have a module `EchoArgs`
+as follows:
+
+[source,golo]
+----
+module EchoArgs
+
+function main = |args| {
+  foreach arg in args {
+    println("->  " + arg)
+  }
+}
+----
+
+We may invoke it as follows:
+
+[source,console]
+----
+$ golo golo --files samples/echo-args.golo --args plop da plop
+-> plop
+-> da
+-> plop
+$
+----
+
+Note that `args` is expected to be an array.
+
+Finally, the `--classpath` flag allows to specify a list of classpath elements, which can be either
+directories or `.jar` files. See the `golo help` command for details on the various Golo commands.
+
+=== Compiling Golo source code ===
+
+Golo comes with a compiler that generates JVM bytecode in `.class` files. We will give more details
+in the chapter on interoperability with Java.
+
+Compiling Golo files is straightforward:
+
+[source,console]
+----
+$ golo compile --output classes samples/helloworld.golo
+$
+----
+
+This compiles the code found in `samples/helloworld.golo` and outputs
+the generated classes to a `classes` folder (it will be created if
+needed):
+
+[source,console]
+----
+$ tree classes/
+classes/
+└── hello
+    └── World.class
+
+1 directory, 1 file
+$
+----
+
+=== Running compiled Golo code ===
+
+Golo provides a `golo` command for running compiled Golo code:
+
+[source,console]
+----
+$ cd classes
+$ golo run --module hello.World
+Hello world!
+$
+----
+
+Simple, isn't it?
+
+=== Passing JVM-specific flags ===
+
+Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment
+variable.
+
+As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
+
+[source,console]
+----
+# Exporting an environment variable
+$ export JAVA_OPTS=-XX:+PrintCompilation
+$ golo golo --files samples/fibonacci.golo
+
+# ...or you may use this one-liner
+$ JAVA_OPTS=-XX:+PrintCompilation golo golo --files samples/fibonacci.golo
+----
+
+=== Bash autocompletion ===
+
+A bash script can be found in `share/shell-completion/` called `golo-bash-completion` that will provide autocomplete support for the `golo` and `vanilla-golo` CLI scripts. You may either `source` the script, or drop the script into your `bash_completion.d/` folder and restart your terminal.
+
+TIP: Not sure where your `bash_completion.d/` folder is? Try `/etc/bash_completion.d/` on Linux or `/usr/local/etc/bash_completion.d/` for Mac Homebrew users.
+
+=== Zsh autocompletion ===
+
+A zsh script can be found in `share/shell-completion/` called `golo-zsh-completion` that works using the `golo-bash-completion` to provide autocomplete support using the bash autocomplete support provided by zsh. Place both files into the same directory and `source golo-zsh-completion` from your terminal or `.zshrc` to give it a try!
+
+=== Comments ===
+
+Golo comments start with a `#`, just like in Bash, Python or Ruby:
+
+[source,golo]
+----
+# This is a comment
+println("WTF?") # it works here, too
+----
+
+=== Variable and constant references ===
+
+Golo does not check for types at compile time, and they are not declared. Everything happens at
+runtime in Golo.
+
+Variables are declared using the `var` keyword, while constant references are declared with `let`.
+It is strongly advised that you favour `let` over `var` unless you are certain that you need
+mutability.
+
+Variables and constants need to be initialized when declared. Failing to do so results in a
+compilation error.
+
+Here are a few examples:
+
+[source,golo]
+----
+# Ok
+var i = 3
+i = i + 1
+
+# The assignment fails because truth is a constant
+let truth = 42
+truth = 666
+
+# Invalid statement, variables / constants have to be initialized
+var foo
+----
+
+Valid names contain upper and lower case letters within the `[a..z]` range, underscores (`_`),
+dollar symbols (`$`) and numbers. In any case, an identifier must not start with a number.
+
+[source,golo]
+----
+# Ok, but not necessarily great for humans...
+let _$_f_o_$$666 = 666
+
+# Wrong!
+let 666_club = 666
+----
+
+=== Data literals ===
+
+Golo supports a set of data literals. They directly map to their counterparts from the Java Standard
+API. We give them along with examples in <<data-literals,the data literals table>> below.
+
+[options="header",id="data-literals"]
+|===
+|Java type | Golo literals
+
+|`null` | `null`
+
+|`java.lang.Boolean` | `true` or `false`
+
+|`java.lang.String` | `"hello world"`
+
+|`java.lang.Character` | `'a'`, `'b'`, ...
+
+|`java.lang.Integer` | `123`, `-123`, `1_234`, ...
+
+|`java.lang.Long` | `123_L`, `-123_L`, `1_234_L`, ...
+
+|`java.lang.Double` | `1.234`, `-1.234`, `1.234e9`, ...
+
+|`java.lang.Float` | `1.234_F`, `-1.234_F`, `1.234e9_F`, ...
+
+|`java.lang.Class` | `String.class`, `java.lang.String.class`, `gololang.Predef.module`, ...
+
+| `gololang.FunctionReference` | `^foo`, `^some.module::foo`, ...
+
+|===
+
+Speaking of strings, Golo also supports multi-line strings using the `"""` delimiters, as in:
+
+[source,golo]
+----
+let text = """This is
+a multi-line string.
+  How
+    cool
+      is
+        that?"""
+
+println(text)
+----
+
+This snippet would print the following to the standard console output:
+
+----
+This is
+a multi-line string.
+  How
+    cool
+      is
+        that?
+----
+
+=== Collection literals ===
+
+Golo support special support for common collections. The syntax uses brackets prefixed by a
+collection name, as in:
+
+[source,golo]
+----
+let s = set[1, 2, "a", "b"]
+let v = vector[1, 2, 3]
+let m = map[[1, "a"], [2, "b"]]
+# (...)
+----
+
+The syntax and type matchings are the following:
+
+[options="header",id="collection-literals-matching"]
+|===
+|Collection |Java type |Syntax
+
+|Tuple|
+`gololang.Tuple`|
+`tuple[1, 2, 3]`, or simply `[1, 2, 3]`
+
+|Array|
+`java.lang.Object[]`|
+`array[1, 2, 3]`
+
+|List|
+`java.util.LinkedList`|
+`list[1, 2, 3]`
+
+|Vector|
+`java.util.ArrayList`|
+`vector[1, 2, 3]`
+
+|Set|
+`java.util.LinkedHashSet`|
+`set[1, 2, 3]`
+
+|Map|
+`java.util.LinkedHashMap`|
+`map[[1, "a"], [2, "b"]]`
+
+|Range|
+`gololang.Range`|
+`[1..10]`, `['a'..'f']`
+
+|===
+
+
+==== A note on lists ====
+
+Since in Golo, every value is actually an instance of `Object`, there is no
+overloading, and thus the `remove` method on lists can't be used to remove an
+element at a given position. If you want to remove a list element given its
+position, use the `removeAt` method.
+
+==== A note on tuples ====
+
+Tuples essentially behave as immutable arrays.
+
+The `gololang.Tuple` class provides the following methods:
+
+- a constructor with a variable-arguments list of values,
+- a `get(index)` method to get the element at a specified index,
+- a `head()` method to get the first element,
+- a `tail()` method returning a copy without the first element,
+- `size()` and `isEmpty()` methods that do what their names suggest,
+- an `iterator()` method because tuples are iterable, and
+- `equals(other)`, `hashCode()` and `toString()` do just what you would expect.
+
+==== A note on maps ====
+
+The map collection literal expects entries to be specified as tuples where the first entry is the
+key, and the second entry is the value. This allows nested structures to be specified as in:
+
+[source,golo]
+----
+map[
+  ["foo", "bar"],
+  ["plop", set[1, 2, 3, 4, 5]],
+  ["mrbean", map[
+    ["name", "Mr Bean"],
+    ["email", "bean@outlook.com"]
+  ]]
+]
+----
+
+There are a few rules to observe:
+
+- not providing a series of tuples will yield class cast exceptions,
+- tuples must have at least 2 entries or will yield index bound exceptions,
+- tuples with more than 2 entries are ok, but only the first 2 entries matter.
+
+Because of that, the following code compiles but raises exceptions at runtime:
+
+[source,golo]
+----
+let m1 = map[1, 2, 4, 5]
+let m2 = map[
+  [1],
+  ["a", "b"]
+]
+----
+
+The rationale for map literals to be loose is that we let you put any valid Golo expression, like
+functions returning valid tuples:
+
+[source,golo]
+----
+let a = -> [1, 'a']
+let b = -> [2, 'b']
+let m = map[a(), b()]
+----
+
+=== Operators ===
+
+Golo supports the following <<operators,set of operators>>.
+
+[options="header",id="operators"]
+|===
+|Symbol(s) |Description |Examples
+
+|`+`|
+Addition on numbers and strings.|
+`1 + 2` gives 3.
+
+`"foo" + "bar"` gives `"foobar"`.
+
+`"foo" + something` where `something` is any object instance is equivalent to
+`"foo" + something.toString()` in Java.
+
+|`-`|
+Subtraction on numbers.|
+`4 - 1` gives `3`.
+
+|`*`|
+Multiplication on numbers and strings.|
+`2 * 2` gives `4`.
+
+`"a" * 3` gives `"aaa"`.
+
+|`/`|
+Division on numbers.|
+`4 / 2` gives `2`.
+
+|'%'|
+Modulo on numbers.|
+`4 % 2` gives `0`, `3 % 2` gives `1`.
+
+|`"<"`, `"<="`, `"=="`, `"!="`, `">"`, `">="`|
+Comparison between numbers and objects that implement `java.lang.Comparable`.
+`==` is equivalent to calling `Object#equals(Object)` in Java.|
+`1 < 2` gives `true`.
+
+|`is`, `isnt`|
+Comparison of reference equality.|
+`a is b` gives `true` only if `a` and `b` reference the same object instance.
+
+|`and`, `or`, `not`|
+Boolean operators. `not` is of course a unary operator.|
+`true and true` gives `true`, `not(true)` gives `false`.
+
+|`oftype`|
+Checks the type of an object instance, equivalent to the `instanceof` operator
+in Java.|
+`("plop" oftype String.class)` gives `true`.
+
+|`orIfNull`|
+Evaluates an expression and returns the value of another one if `null`.|
+`null orIfNull "a"` gives `"a"`. `foo() orIfNull 0` gives the value of calling `foo()`, or `0` if
+`foo()` returns `null`.
+
+|===
+
+The operator precedence rules are as follows:
+
+[options="header",id="operator-precedence"]
+|===
+|Precedence |Operator
+|Strongest  | `:`, `?:`
+|           |`not`
+|           |`*`, `/`, `%`
+|           |`+`, `-`
+|           |`<`, `<=`, `>`, `>=`, `oftype`
+|           |`==`, `!=`, `is`, `isnt` 
+|           |`and`
+|           |`or`
+|Lowest     |`orIfNull`
+|===
+
+This means that:
+
+[source,golo]
+----
+not foo: bar() orIfNull "yo"
+----
+
+reads as:
+
+[source,golo]
+----
+(not (foo: bar())) orIfNull "yo"
+----
+
+
+
+=== Calling a method ===
+
+Although we will discuss this in more details later on, you should already know that `:` is used to
+invoke instance methods.
+
+You could for instance call the `toString()` method that any Java object has, and print it out as
+follows:
+
+[source,golo]
+----
+println(123: toString())
+println(someObject: toString())
+----
+
+=== Java / JVM arrays ===
+
+As you probably know, arrays on the JVM are special objects. Golo deals with such arrays as being
+instances of `Object[]` and does not provide a wrapper class like many languages do. A Java / JVM
+array is just what it is supposed to be.
+
+Golo adds some sugar to relieve the pain of working with arrays. Golo allows some special methods to
+be invoked on arrays:
+
+- `get(index)` returns the value at `index`,
+- `set(index, value)` sets `value` at `index`,
+- `length()` and `size()` return the array length,
+- `iterator()` returns a `java.util.Iterator`,
+- `toString()` delegates to `java.util.Arrays.toString(Object[])`,
+- `asList()` delegates to `java.util.Arrays.asList(Object[])`,
+- `equals(someArray)` delegates to `java.util.Arrays.equals(this, someArray)`,
+- `getClass()` returns the array class,
+- `head()` returns the first element of the array (or `null` if empty),
+- `tail()` returns a copy of the array without its first element (or an empty
+  array if empty),
+- `isEmpty()` checks if the array is empty.
+
+Given a reference `a` on some array:
+
+[source,golo]
+----
+# Gets the element at index 0
+a: get(0)
+
+# Replaces the element at index 1 with "a"
+a: set(1, "a")
+
+# Nice print
+println(a: toString())
+
+# Convert to a real collection
+let list = a: asList()
+----
+
+WARNING: The methods above do **not** perform array bound checks.
+
+Finally, arrays can be created with the `Array` function, as in:
+
+[source,golo]
+----
+let a = Array(1, 2, 3, 4)
+let b = Array("a", "b")
+----
+
+You can of course take advantage of the `array` collection literal, too:
+
+[source,golo]
+----
+let a = array[1, 2, 3, 4]
+let b = array["a", "b"]
+----

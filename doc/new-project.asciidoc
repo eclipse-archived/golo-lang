@@ -1,0 +1,131 @@
+== Creating new project(s)
+
+The `golo new` command can create new Golo project(s):
+
+[source,console]
+----
+$ golo new Foo
+----
+
+The command creates a new Golo module named `Foo` in a `main.golo` file with a simple __function__
+named `main` that takes an argument for the JVM program arguments.
+
+By default we create a new free-form project but you can specify the type of project with the
+`--type` command argument. Three types of projects are currently available:
+
+ * Free-form project,
+ * Maven-driven project,
+ * Gradle-driven project.
+
+As an example if you want to create a Maven-driven project, just add `--type maven`:
+
+[source,console]
+----
+$ golo new Foo --type maven
+----
+
+By default we create the project directory where the `golo` command is run. If you need to create
+your project directory elsewhere you can use the `--path` command argument:
+
+[source,console]
+----
+$ golo new Bar --path /opt/golo
+----
+
+This creates the project directory named `Bar` in `/opt/golo`.
+
+=== Free-form project
+
+The structure of a free-form project is as follows:
+
+[source,console]
+----
+$ tree Foo
+Foo
+├── imports
+├── jars
+└── main.golo
+----
+
+=== Maven-driven project
+
+The structure of a Maven-driven project is as follows:
+
+[source,console]
+----
+$ tree Foo
+Foo
+├── pom.xml
+└── src
+    └── main
+        └── golo
+            └── main.golo
+----
+
+The project can be built and packaged with Maven using the following command:
+[source,console]
+----
+$ mvn package
+----
+
+You can now run the module `Foo` with:
+
+ * `mvn`
+
+[source,console]
+----
+$ mvn exec:java
+----
+
+ * `java`
+
+[source,console]
+----
+$ java -jar target/Foo-*-jar-with-dependencies.jar
+----
+
+ * `golo`
+
+[source,console]
+----
+$ cd target/classes
+$ golo run --module Foo
+----
+
+=== Gradle-driven project
+
+The structure of a Gradle-driven project is as follows:
+
+[source,console]
+----
+$ tree Foo
+Foo
+├── build.gradle
+└── src
+    └── main
+        └── golo
+            └── main.golo
+----
+
+The project can be built and packaged with Gradle using the following command:
+[source,console]
+----
+$ gradle build
+----
+
+You can now run the module `Foo` with:
+
+ * `gradle`
+
+[source,console]
+----
+$ gradle run
+----
+
+ * `golo`
+
+[source,console]
+----
+$ cd build/classes/main
+$ golo run --module Foo
+----

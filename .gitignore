@@ -1,0 +1,12 @@
+target/
+*.ipr
+*.iml
+*.iws
+.idea/
+dependency-reduced-pom.xml
+*.swp
+.benchmarks.h2.db
+benchmarks/*.json
+benchmarks/*.html
+doc/output/
+tags

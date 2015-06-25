@@ -1,0 +1,228 @@
+== Misc. modules
+
+Not everything fits into the main documentation. We encourage you to also look at the _javadocs_
+and _golodocs_.
+
+The next subsections provide summaries of misc. modules found as part of Golo.
+
+=== Standard augmentations (`gololang.StandardAugmentations`) ===
+
+This Golo module provides standard augmentations for various classes of the Java standard classes
+and Golo types. It does not have to be imported explicitely.
+
+Here are a few examples.
+
+Java collections can be have functional methods:
+
+[source,golo]
+----
+println(list[1, 2, 3, 4]: filter(|n| -> (n % 2) == 0))
+println(list[1, 2, 3]: map(|n| -> n * 10))
+----
+
+Insert a map entry only if the key is not present, and get a default value if an entry is missing:
+
+[source,golo]
+----
+map: putIfAbsent(key, -> expensiveOperation())
+map: getOrElse(key, "n/a")
+----
+
+Repeat an operation many times:
+
+[source,golo]
+----
+3: times(-> println("Hey!")
+3: times(|i| -> println(i))
+----
+
+=== JSON support (`gololang.JSON`)
+
+Golo includes the https://code.google.com/p/json-simple/[JSON Simple] library to provide JSON
+support.
+
+While `json-simple` only supports encoding from lists and maps, this API brings support for sets,
+arrays, Golo tuples, dynamic objects and structs.
+
+Given a simple data structure, we can obtain a JSON representation:
+
+[source,golo]
+----
+let data = map[
+  ["name", "Somebody"],
+  ["age", 69],
+  ["friends", list[
+    "Mr Bean", "John B", "Larry"
+  ]]
+]
+let asText = JSON.stringify(data)
+----
+
+Given some JSON as text, we can get back a data structure:
+
+[source,golo]
+----
+let data = JSON.parse(text)
+println(data: get("name"))
+----
+
+The `gololang.JSON` module also provides helpers for JSON serialization and deserialization
+with both dynamic objects and structs.
+
+=== Scala-like dynamic variable (`gololang.DynamicVariable`)
+
+Golo has a `DynamicVariable` type that mimics the eponymous class from the Scala standard library.
+
+A dynamic variable has inheritable thread-local semantics: updates to its value are confined to the
+current thread and its future child threads.
+
+Given the following code:
+
+[source,golo]
+----
+let dyn = DynamicVariable("Foo")
+println(dyn: value())
+
+let t1 = Thread({
+  dyn: withValue(666, {
+    println(dyn: value())
+  })
+})
+
+let t2 = Thread({
+  dyn: withValue(69, {
+    println(dyn: value())
+  })
+})
+
+t1: start()
+t2: start()
+t1: join()
+t2: join()
+println(dyn: value())
+----
+
+one gets an output similar to:
+
+----
+Foo
+69
+666
+Foo
+----
+
+with the `69` and `666` swapping order over runs.
+
+=== Observable references (`gololang.Observable`)
+
+An observable value notifies observers of updates in a thread-safe manner. An observable can also be
+constructed from another observable using the `map` and `filter` combinators:
+
+[source,golo]
+----
+let foo = Observable("Foo")
+foo: onChange(|v| -> println("foo = " + v))
+
+let mapped = foo: map(|v| -> v + "!")
+mapped: onChange(|v| -> println("mapped = " + v))
+
+foo: set("69")
+----
+
+This yields the following output:
+
+----
+foo = 69
+mapped = 69!
+----
+
+=== Asynchronous programming helpers (`gololang.Async`) ===
+
+This module offers asynchronous programming helpers, especially execution context agnostic promises
+and futures. The provided APIs are orthogonal to the execution strategy: it is up to you to execute
+code from the same thread, from a separate thread, or by pushing new tasks to a service executor.
+
+Here is an example:
+
+[source,golo]
+----
+module samples.Concurrency
+
+import java.util.concurrent
+import gololang.Async
+
+local function fib = |n| {
+  if n <= 1 {
+    return n
+  } else {
+    return fib(n - 1) + fib(n - 2)
+  }
+}
+
+function main = |args| {
+  let executor = Executors.newFixedThreadPool(2)
+  let results = [30, 34, 35, 38, 39, 40, 41, 42]:
+    map(|n| -> executor: enqueue(-> fib(n)):
+      map(|res| -> [n, res]))
+  reduce(results, "", |acc, next| -> acc + next: get(0) + " -> " + next: get(1) + "\n"):
+    onSet(|s| -> println("Results:\n" + s)):
+    onFail(|e| -> e: printStackTrace())
+  executor: shutdown()
+  executor: awaitTermination(120_L, TimeUnit.SECONDS())
+}
+----
+
+This example takes advantages of an executor augmentation and composable promises and futures to
+compute Fibonacci numbers.
+
+
+=== Lazy lists (`gololang.lazylist`) ===
+
+This module defines a lazy list structure, as well as some utilities to work
+with it.
+
+A lazy list behaves like an _immutable_ linked list whose elements are evaluated 
+only when needed, as can be found in Haskell for example. 
+
+The next element in the list (the tail) is represented by a closure. The generated value
+is cached so that the closure representing the next element is evaluated only once.
+
+This is very useful when using higher order function such as `map`. Mapping
+a long lazy list with a function and using only the 3 first elements will only
+apply the function to these elements, as opposed to regular lists.
+
+Since the tail closure will be called at most once, and we can't
+guarantee when, or even if, it will be called, this closure must be
+a pure, side-effect free, function.
+
+Lazy lists can also be used to create infinite lists, also known as generators
+(or anamorphisms).
+
+Lastly, they allow for elegant recursive implementations of several classical
+algorithms.
+
+For instance, one can create a infinite lazy list containing integers as:
+
+[source,golo]
+----
+function count = |start| -> cons(start, -> count(start + 1_L))
+function count = -> count(0_L)
+----
+
+To construct a infinite list of all even multiples of 3, one can then use:
+
+[source,golo]
+----
+let l = count(): map(|x| -> 3 * x): filter(|x| -> (x % 2) == 0)
+----
+
+The `cons` function returns a new lazy list whose head is its first argument,
+and the tail its second.
+
+A lazy list implement the `Collection`, interface, while remaining lazy. It is
+thus possible to use it in imperative style with a `foreach` construct, or
+recursively using `head` and `tail`.
+On the other hand, functions or methods like `equals`, `size` or `contains` are
+not very efficients, since they must evaluate the whole list, and thus negate
+the laziness. They are here for completeness and compatibility with the regular
+lists interface, but you should avoid such methods.

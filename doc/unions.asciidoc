@@ -1,0 +1,154 @@
+== Unions
+
+Golo allows the definition of sum algebraic data types, also known as
+http://en.wikipedia.org/wiki/Tagged_union[tagged union],
+as present in many functional languages: OCaml, Haskell, Rust, Scala to
+name a few.
+The dual algebraic data type, the product type is provided by `struct` and `tuple`.
+
+=== Definition
+
+Unions are defined at the module-level:
+[source,golo]
+----
+module sample
+
+union Option = {
+ Some = { value }
+ None
+}
+
+function main = |args| {
+  let aString = Option.Some("Hello")
+  println(aString: value())
+
+  let noString = Option.None()
+  println(noString)
+}
+----
+
+=== Usage example
+
+Some well known usages of sum types are the following.
+
+==== Enumerations
+
+The plain old list of predefined values.
+
+[source,golo]
+----
+union Color = {
+  RED
+  GREEN
+  BLUE
+}
+----
+
+This use is similar to Java `enum`, with the same power since Golo `union` can be extended through augmentation.
+
+==== Option type
+
+The monadic type as found for instance in OCaml (`Option`), Haskell (`Maybe`)
+and many other languages (Rust, Scala, etc.)
+
+[source,golo]
+----
+union Option = {
+  Some = {value}
+  None
+}
+----
+
+As illustrated here, and contrary to Java `enum`, each alternative value can
+have different fields. A `union` alternative type is in this respect similar to `struct`
+
+==== Recursive data structures
+
+The usual functional representation of linked lists:
+
+[source,golo]
+----
+union ConsList = {
+  List = { head, tail }
+  Empty
+}
+----
+
+Binary trees:
+
+[source,golo]
+----
+union Tree = {
+  Empty
+  Leaf = { value }
+  Node = { left, right }
+}
+----
+
+=== JVM existence
+
+A `union` type is compiled to an abstract JVM class. Each alternative value
+type is itself compiled to a final immutable JVM class extending the `union` abstract class.
+The value classes are member classes of the `union` one.
+
+Given:
+[source,golo]
+----
+module sample
+
+union Option = {
+  Some = { value }
+  None
+}
+----
+
+three classes are generated:
+
+1. an abstract class `sample.types.Option`,
+2. a concrete final immutable inner class `sample.types.Option$Some` extending the first
+one,
+3. a similar class `sample.types.Option$None`.
+
+For your convenience, the abstract class provides factories static methods for each of the possible
+values, and you can't instantiate values directly, since values without fields
+are actually singletons.
+
+Note that proper definitions of `toString()`, `hashCode()` and `equals()` are
+being provided. These definitions are similar to the ones defined for frozen `struct`.
+
+IMPORTANT: `union` values with fields are similar to frozen `struct`, that is
+are immutable, have getters for fields and are compared by values. However,
+these types does not feature the same helper methods, and can't have private
+members.
+
+
+=== Augmenting unions
+
+Since the `union` itself is a abstract class, and each possible value is a
+concrete class extending it, it is possible to augment the whole `union`, as in:
+
+[source,golo]
+----
+augment Option {
+  function fmap = |this, func| -> match {
+    when this is Option.None() then this
+    otherwise Option.Some(func(this: value()))
+  }
+}
+----
+
+or just a value, as in:
+
+[source,golo]
+----
+augment ConsList$Empty {
+  function isEmpty = |this| -> true
+  function head = |this| -> null
+  function tail = |this| -> this
+}
+
+augment ConsList$List {
+  function isEmpty = |this| -> false
+}
+----
+

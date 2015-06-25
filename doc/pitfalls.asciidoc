@@ -1,0 +1,82 @@
+== Common pitfalls
+
+Discovering a new programming language is fun. Yet, we all make mistakes in the beginning, as we
+idiomatically repeat habits from other languages.
+
+Because Golo works closely with the Java programming language, it is likely that Java programmers
+will make some of the following mistakes early on.
+
+=== `new` ===
+
+Golo does not have a `new` operator for allocating objects. Instead, one should just call a
+constructor as a function:
+
+[source,golo]
+----
+# Good
+let foo = java.util.LinkedList()
+
+# Compilation fails
+let foo = new java.util.LinkedList()
+----
+
+=== Imports ===
+
+Golo does not have *star* imports like in Java. Imports are only used at runtime as Golo tries to
+resolve names of types, functions, and so on.
+
+You must think of `import` statements as a notational shortcut, nothing else. Golo tries to resolve
+a name as-is, then tries to complete with every import until a match is found.
+
+[source,golo]
+----
+import java.util
+import java.util.concurrent.AtomicInteger
+
+# (...)
+
+# Direct resolution at runtime
+let foo = java.util.LinkedList()
+
+# Resolution with the 1st import
+let foo = LinkedList()
+
+# Resolution with the 2nd import
+let foo = AtomicInteger(666)
+----
+
+=== Method invocations ===
+
+Keep in mind that instance methods are invoked using the `:` operator, not with dots (`.`) like in
+many languages.
+
+This is a common mistake!
+
+[source,golo]
+----
+# Calls toString() on foo
+foo: toString()
+
+# Looks for a function toString() in module foo
+foo.toString()
+----
+
+=== `match` is not a closure ===
+
+One thing to keep in mind is that `match` returns a value, and that it is not a closure unless you
+want it to.
+
+[source,golo]
+----
+let foo = match {
+  case plop then 1
+  case ploped then 2
+  otherwise -1
+}
+
+# Ok
+println(foo)
+
+# Bad! foo is an integer!
+println(foo("abc"))
+----

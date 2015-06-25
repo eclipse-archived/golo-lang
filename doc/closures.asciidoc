@@ -1,0 +1,355 @@
+== Closures ==
+
+Golo supports *closures*, which means that functions can be treated as first-class citizen.
+
+=== Defining and using a closure ===
+
+Defining a closure is straightforward as it derives from the way a function can be defined:
+
+[source,golo]
+----
+let adder = |a, b| {
+  return a + b
+}
+----
+
+At runtime, a closure is an instance of `gololang.FunctionReference`, which is essentially a boxing
+of `java.lang.invoke.MethodHandle`. This means that you can do all the operations that method
+handles support, such as invoking them or inserting arguments as illustrated in the following
+example:
+
+[source,golo]
+----
+let adder = |a, b| {
+  return a + b
+}
+println(adder: invoke(1, 2))
+
+let addToTen = adder: bindTo(10)
+println(addToTen: invoke(2))
+----
+
+As one would expect, this prints `3` and `12`.
+
+In order to make closure's invocations more _fluent_ you can insert argument using the closure's parameter names.
+
+[source,golo]
+----
+let mul = |a, b| {
+  return a * b
+}
+
+let tenTimes = mul: bindAt("a", 10)
+# 20
+println(tenTimes: invoke(2))
+----
+
+=== Compact closures ===
+
+Golo supports a compact form of closures for the cases where their body consists of a single
+expression. The example above can be simplified as:
+
+[source,golo]
+----
+let adder = |a, b| -> a + b
+----
+
+You may also use this compact form when defining regular functions, as in:
+
+[source,golo]
+----
+module Foo
+
+local function sayHello = |who| -> "Hello " + who + "!"
+
+# Prints "Hello Julien!"
+function main = |args| {
+  println(sayHello("Julien"))
+}
+----
+
+=== Calling closures ===
+
+While you may call function references using `invoke`, there is a (much) better way.
+
+When you have a reference to a closure, you may simply call it as a regular function. The previous
+`adder` example can be equivalently rewritten as:
+
+[source,golo]
+----
+let adder = |a, b| -> a + b
+println(adder(1, 2))
+
+let addToTen = adder: bindTo(10)
+println(addToTen(2))
+----
+
+=== Limitations ===
+
+Closures have access to the lexical scope of their defining environment. Consider this example:
+
+[source,golo]
+----
+function plus_3 = {
+  let foo = 3
+  return |x| -> x + foo
+}
+----
+
+The `plus_3` function returns a closure that has access to the `foo` reference, just as you would
+expect. The `foo` reference is said to have been *captured* and made available in the closure.
+
+It is important to **note that captured references are constants within the closure**. Consider the
+following example:
+
+[source,golo]
+----
+var a = 1
+let f = {
+  a = 2   # Compilation error!
+}
+----
+
+The compilation fails because although `a` is declared using `var` in its original scope, it is
+actually passed as an argument to the `f` closure. Because function parameters are implicitly
+constant references, this results in a compilation error.
+
+That being said, a closure has a reference on the same object as its defining environment, so a
+mutable object is a sensible way to pass data back from a closure as a side-effect, as in:
+
+[source,golo]
+----
+let list = java.util.LinkedList()
+let pump_it = {
+  list: add("I heard you say")
+  list: add("Hey!")
+  list: add("Hey!")
+}
+pump_it()
+println(list)
+----
+
+which prints `[I heard you say, Hey!, Hey!]`.
+
+=== Closures to single-method interfaces ===
+
+The Java SE APIs have plenty of interfaces with a single method: `java.util.concurrent.Callable`,
+`java.lang.Runnable`, `javax.swing.ActionListener`, etc.
+
+The predefined function `asInterfaceInstance` can be used to convert a method handle or Golo closure
+to an instance of a specific interface.
+
+Here is how one could pass an action listener to a `javax.swing.JButton`:
+
+[source,golo]
+----
+let button = JButton("Click me!")
+let handler = |event| -> println("Clicked!")
+button: addActionListener(asInterfaceInstance(ActionListener.class, handler))
+----
+
+Because the `asInterfaceInstance` call consumes some readability budget, you may refactor it with a
+local function as in:
+
+[source,golo]
+----
+local function listener = |handler| -> asInterfaceInstance(ActionListener.class, handler)
+
+# (...)
+let button = JButton("Click me!")
+button: addActionListener(listener(|event| -> println("Clicked!")))
+----
+
+Here is another example that uses the `java.util.concurrent` APIs to obtain an executor, pass it a
+task, fetch the result with a `Future` object then shut it down:
+
+[source,golo]
+----
+function give_me_hey = {
+  let executor = Executors.newSingleThreadExecutor()
+  let future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
+  let result = future: get()
+  executor: shutdown()
+  return result
+}
+----
+
+=== Closures to Java 8 functional interfaces ===
+
+Java 8 introduced support for the so-called _lambdas_.
+The mechanism works through
+http://docs.oracle.com/javase/8/docs/api/java/lang/FunctionalInterface.html[functional interfaces],
+that is, interfaces with a single abstract method that are annotated with `@FunctionalInterface`.
+
+Golo provides a `asFunctionalInterface` pre-defined function to convert closures and that works like
+the `asInterfaceInstance` function:
+
+[source,golo]
+----
+let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
+----
+
+=== Direct closure passing works ===
+
+When a function or method parameter of a Java API expects a single method interface type or a
+functional interface, you can pass a closure directly, as in:
+
+[source,golo]
+----
+# Swing action listeners, a classic!
+let button = JButton("Click me!")
+button: addActionListener(|event| -> println("Clicked!"))
+
+# Java 8 streams / lambdas interop
+let result = list[1, 2, 3, 4, 5]:
+  stream():
+  map(|n| -> n * 10):
+  reduce(0, |acc, next| -> acc + next)
+----
+
+Note that this causes the creation of a method handle proxy object for each function or method
+invocation. For performance-sensitive contexts, we suggest that you use either
+`asInterfaceInstance`, the `to` conversion method described hereafter, or `asFunctionalInterface`.
+
+=== Conversion to single-method interfaces ===
+
+Instead of using `asInterfaceInstance`, you may use a *class augmentation* which is described later in this
+documentation. In short, it allows you to call a `to` method on instances of `MethodHandle`, which
+in turn calls `asInterfaceInstance`. Back to the previous examples, the next 2 lines are equivalent:
+
+[source,golo]
+----
+# Calling asInterfaceInstance
+future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
+
+# Using a class augmentation
+future = executor: submit((-> "hey!"): to(Callable.class))
+----
+
+=== Getting a reference to a closure / Golo function ===
+
+You may also take advantage of the predefined `fun` function to obtain a reference to a closure, as
+in:
+
+[source,golo]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+
+  # local_fun, with a parameter
+  var f = fun("local_fun", golotest.Closures.module, 1)
+
+  # ...or just like this if there is only 1 local_fun definition
+  f = fun("local_fun", golotest.Closures.module)
+
+  return f(1)
+}
+----
+
+Last but not least, we have an even shorter notation if function are not overridden:
+
+[source,golo]
+----
+import golotest.Closures
+
+local function local_fun = |x| -> x + 1
+
+function call_local_fun = {
+
+  # In the current module
+  var f = ^local_fun
+
+  # ...or with a full module name
+  f = ^golotest.Closures::local_fun
+
+  return f(1)
+}
+----
+
+Note that you can in the same way get a reference to a Java static method. For
+instance:
+
+[source,golo]
+----
+list["Foo", null, 42]: filter(^java.util.Objects::nonNull)
+----
+
+You can also get a reference to a non-static method. In this case, the function
+will accept an instance of the class as first argument, as in:
+
+[source,golo]
+----
+list["Foo", "Bar", "Hello", "Goodbye"]: map(^String::length)
+----
+
+=== Binding and composing ===
+
+You can bind a function first argument using the `bindTo(value)` method. If you need to bind an
+argument at another position than 0, you may take advantage of `bindAt(position, value)`:
+
+[source,golo]
+----
+let diff = |a, b| -> a - b
+let minus10 = diff: bindAt(1, 10)
+
+# 10
+println(minus10(20))
+----
+
+You may compose functions using the `andThen` method:
+
+[source,golo]
+----
+let f = (|x| -> x + 1): andThen(|x| -> x - 10): andThen(|x| -> x * 100)
+
+# -500
+println(f(4))
+----
+
+or:
+
+[source,golo]
+----
+function foo = |x| -> x + 1
+function bar = |x| -> 2 * x
+
+function main = |args| {
+  let newFunction = ^foo: andThen(^bar)
+
+  # 8
+  println(newFunction(3))
+}
+----
+
+=== Calling functions that return functions ===
+
+Given that functions are first-class objects in Golo, you may define functions (or closures) that
+return functions, as in:
+
+[source,golo]
+----
+let f = |x| -> |y| -> |z| -> x + y + z
+----
+
+You could use intermediate references to use the `f` function above:
+
+[source,golo]
+----
+let f1 = f(1)
+let f2 = f1(2)
+let f3 = f2(3)
+
+# Prints '6'
+println(f3())
+----
+
+Golo supports a nicer syntax if you don't need intermediate references:
+
+[source,golo]
+----
+# Prints '6'
+println(f(1)(2)(3)())
+----

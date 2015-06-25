@@ -1,0 +1,69 @@
+<%@params doc %>
+# Documentation for `<%= doc: moduleName() %>`
+<%= doc: moduleDocumentation() %>
+<% if not doc: structs(): isEmpty() { %>
+## Structs
+<% foreach structDoc in doc: structs() { %>
+### `<%= structDoc: name() %>`
+
+##### Members
+<% foreach member in structDoc: members() { %>
+- <%= member %>
+<%}%>
+<%= structDoc: documentation() %>
+<%}}%>
+<% if not doc: unions(): isEmpty() { %>
+## Unions
+<% foreach unionDoc in doc: unions() { %>
+### `<%= unionDoc: name() %>`
+<%= unionDoc: documentation() %>
+<% foreach unionValueDoc in unionDoc: values() { %>
+#### `<%= unionValueDoc: name() %>`
+<% foreach member in unionValueDoc: members() { %>
+- <%= member %>
+<%}%>
+<%= unionValueDoc: documentation() %>
+<%}%>
+<%}%>
+<%}%>
+<%if not doc: namedAugmentations(): isEmpty() {%>
+## Named Augmentations
+<%foreach namedAugmentationDoc in doc: namedAugmentations() {%>
+### <%= namedAugmentationDoc: name()%>
+<%=namedAugmentationDoc: documentation()%>
+<%foreach funcDoc in namedAugmentationDoc {%>
+<%if funcDoc: varargs() {%>
+#### <%=funcDoc: name() %>(<%= funcDoc: arguments(): join(", ")%>...)
+<%} else {%>
+#### <%=funcDoc: name() %>(<%= funcDoc: arguments(): join(", ")%>)
+<%}%>
+<%= funcDoc: documentation() %>
+<%}}}%>
+<% if not doc: augmentations(): isEmpty() { %>
+## Augmentations
+<% foreach augmentDoc in doc: augmentations() { %>
+### `<%= augmentDoc: target() %>`
+<%= augmentDoc: documentation() %>
+<%if not augmentDoc: augmentationNames(): isEmpty() {%>
+##### Named augmentations applied
+<%foreach name in augmentDoc: augmentationNames() {%>
+- <%= name %>
+<%}}%>
+<% foreach funcDoc in augmentDoc { %>
+<%if funcDoc: varargs() {%>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)`
+<%} else {%>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
+<%}%>
+<%= funcDoc: documentation() %>
+<% }}} %>
+<% if not doc: functions(): isEmpty() { %>
+## Functions
+<% foreach funcDoc in doc: functions() { %>
+<%if funcDoc: varargs() {%>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)`
+<%} else {%>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
+<%}%>
+<%= funcDoc: documentation() %>
+<%}}%>

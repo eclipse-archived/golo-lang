@@ -1,0 +1,280 @@
+== Structs ==
+
+Golo allows the definition of simple structures using the `struct` keyword. They resemble structures
+in procedural languages such as C `struct` or Pascal *records*. They are useful to store data when
+the set of named entries is fixed.
+
+=== Definition ===
+
+Structures are defined at the module-level:
+
+[source,golo]
+----
+module sample
+
+struct Person = { name, age, email }
+
+function main = |args| {
+  let p1 = Person("Mr Bean", 54, "bean@gmail.com")
+  println(p1: name())
+  let p2 = Person(): name("John"): age(32): email("john@b-root.com")
+  println(p2: age())
+}
+----
+
+When declaring a structure, it also defines two factory functions: one with no arguments, and one
+with all arguments in their order of declaration in the `struct` statement. When not initialized,
+member values are `null`.
+
+Each member yields a *getter* and a *setter* method: given a member `a`, the getter is method `a()`
+while the setter is method `a(newValue)`. It should be noted that setter methods return the
+structure instance which makes it possible to chain calls as illustrated in the previous example
+while building `p2`.
+
+=== JVM existence ===
+
+Each `struct` is compiled to a self-contained JVM class.
+
+Given:
+
+[source,golo]
+----
+module sample
+
+struct Point = { x, y }
+----
+
+a class `sample.types.Point` is being generated.
+
+It is important to note that:
+
+1. each `struct` class is `final`,
+2. each `struct` class inherits from `gololang.GoloStruct`,
+3. proper definitions of `toString()`, `hashCode()` and `equals()` are being provided.
+
+=== `toString()` behavior ===
+
+The `toString()` method is being overridden to provide a meaningful description of a structure
+content.
+
+Given the following program:
+
+[source,golo]
+----
+module test
+
+struct Point = { x, y }
+
+function main = |args| {
+  println(Point(1, 2))  
+}
+----
+
+running it prints the following console output:
+
+[source,golo]
+----
+struct Point{x=1, y=2}
+----
+
+=== Immutable structs ===
+
+Structure instances are mutable by default. Golo generates a factory function with the `Immutable`
+prefix to directly build immutable instances:
+
+[source,golo]
+----
+module test
+
+struct Point = { x, y }
+
+function main = |args| {
+
+  let p = ImmutablePoint(1, 2)
+  println(p)
+
+  try {
+    # Fails! (p is immutable)
+    p: x(100)
+  } catch (expected) {
+    println(expected: getMessage())
+  }
+}
+----
+
+=== Copying ===
+
+Instances of a structure provide copying methods:
+
+- `copy()` returns a *shallow* copy of the structure instance, and
+- `frozenCopy()` returns a read-only *shallow* copy.
+
+Trying to invoke any setter methods on an instance obtained through `frozenCopy()` raises a
+`java.lang.IllegalStateException`.
+
+IMPORTANT: The result of calling `copy()` on a frozen instance **is a mutable** copy, not a frozen
+copy.
+
+=== `equals()` and `hashCode()` semantics ===
+
+Golo structures honor the contract of Java objects regarding equality and hash codes.
+
+By default, `equals()` and `hashCode()` are the ones of `java.lang.Object`. Indeed, structure
+members can be changed, so they cannot be used to compute stable values.
+
+Nevertheless, structure instances returned by `frozenCopy()` have stable members, and members are
+being used.
+
+Consider the following program:
+
+[source,golo]
+----
+module test
+
+struct Point = { x, y }
+
+function main = |args| {
+  
+  let p1 = Point(1, 2)
+  let p2 = Point(1, 2)
+  let p3 = p1: frozenCopy()
+  let p4 = p1: frozenCopy()
+
+  println("p1 == p2 " + (p1 == p2))
+  println("p1 == p3 " + (p1 == p3))
+  println("p3 == p4 " + (p3 == p4))
+
+  println("#p1 " + p1: hashCode())
+  println("#p2 " + p2: hashCode())
+  println("#p3 " + p3: hashCode())
+  println("#p4 " + p4: hashCode())
+}
+----
+
+the console output is the following:
+
+[source,golo]
+----
+p1 == p2 false
+p1 == p3 false
+p3 == p4 true
+#p1 1555845260
+#p2 104739310
+#p3 994
+#p4 994
+----
+
+TIP: It is recommended that you use `Immutable<name of struct>(...)` or `frozenCopy()` when you can,
+especially when storing values into collections.
+
+=== Helper methods ===
+
+A number of helper methods are being generated:
+
+- `members()` returns a tuple of the member names,
+- `values()` returns a tuple with the current member values,
+- `isFrozen()` returns a boolean to check for frozen structure instances,
+- `iterator()` provides an iterator over a structure where each element is a tuple `[member, value]`,
+- `get(name)` returns the value of a member by its name,
+- `set(name, value)` updates the value of a member by its name, and returns the same structure.
+
+=== Private members ===
+
+By default, all members in a struct can be accessed. It is possible to make some elements private by
+prefixing them with `_`, as in:
+
+[source,golo]
+----
+struct Foo = { a, _b, c }
+
+# (...)
+
+let foo = Foo(1, 2, 3)
+----
+
+In this case, `_b` is a private struct member. This means that `foo: _b()` and `foo: _b(666)` are
+valid calls only if made from:
+
+- a function from the declaring module, or
+- an augmentation defined in the declaring module.
+
+Any call to, say, `foo: _b()` from another module will yield a `NoSuchMethodError` exception.
+
+Private struct members also have the following impact:
+
+- they do not appear in `members()` and `values()` calls, and
+- they are not iterated through `iterator()`-provided iterators, and
+- they are being used like other members in `equals()` and `hashCode()`, and
+- they do not appear in `toString()` representations.
+
+=== Augmenting structs ===
+
+Structs provide a simple data model, especially with private members for encapsulation.
+
+Augmenting structs is encouraged, as in:
+
+[source,golo]
+----
+module Plop
+
+struct Point = { _id, x, y }
+
+augment Plop.types.Point {
+
+  function str = |this| -> "{id=" + this: _id() + ",x=" + this: x() + ",y=" + this: y() + "}"
+}
+----
+
+When an augmentation on a struct is defined **within the same module**, then you can omit the full
+type name of the struct:
+
+[source,golo]
+----
+module Plop
+
+struct Point = { _id, x, y }
+
+augment Point {
+
+  function str = |this| -> "{id=" + this: _id() + ",x=" + this: x() + ",y=" + this: y() + "}"
+}
+----
+
+Again, it is important to note that augmentations can only access private struct members when they
+originate from the same module.
+
+[WARNING]
+.Don't do this at home
+====
+Of course doing the following is a bad idea, with the concise augmentation taking over the
+fully-qualified one:
+
+[source,golo]
+----
+module Foo
+
+struct Value = { v }
+
+augment Foo.types.Value {
+
+  function a = |this| -> "a"
+}
+
+# This will discard the previous augmentation...
+augment Value {
+
+  function b = |this| -> "a"
+}
+
+function check = {
+  let v = Value(666)
+
+  # Ok
+  v: b()
+
+  # Fails, the concise augmentation overrides the fully-qualifed one
+  v: a()
+}
+----
+====
+

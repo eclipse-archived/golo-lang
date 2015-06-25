@@ -1,0 +1,66 @@
+# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+
+OUTPUT = 'output'
+MAIN = 'golo-guide.asciidoc'
+
+# Some helpers to help us determine where to look for the images.
+def is_mac?
+  `uname`.chomp == 'Darwin'
+end
+
+def using_homebrew?
+  `brew` != ""
+end
+
+def using_macports?
+  `port` != ""
+end
+
+def brew_prefix
+  `brew --prefix asciidoc`
+end
+
+def icons_dir
+  base_icon_dir = '/etc/asciidoc/images/icons'
+  if is_mac? && using_homebrew?
+    "#{`brew --prefix asciidoc`.chomp}#{base_icon_dir}"
+  elsif is_mac? && using_macports?
+    "/opt/local/#{base_icon_dir}"
+  else
+    "#{base_icon_dir}"
+  end
+end
+
+task :default => [:all]
+
+task :prepare do
+  mkdir_p OUTPUT
+end
+
+desc "generates the HTML documentation"
+task :html => [:prepare] do
+  sh "asciidoc -b html5 -a iconsdir=#{icons_dir} -o output/index.html #{MAIN}"
+end
+
+desc "generates the PDF documentation"
+task :pdf => [:prepare] do
+  sh "a2x --verbose -L -f pdf --fop -D output --icons --icons-dir=#{icons_dir} #{MAIN}"
+end
+
+desc "generates the HTML chunked documentation"
+task :html_chunked => [:prepare] do
+  sh "a2x --verbose -L -f chunked -D output #{MAIN}"
+end
+
+desc "generate all formats"
+task :all => [:html, :pdf, :html_chunked]
+
+desc "cleanup"
+task :clean do
+  rm_rf OUTPUT
+end

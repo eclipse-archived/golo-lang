@@ -1,0 +1,119 @@
+== Dynamic code evaluation ==
+
+Golo provides facilities for dynamically evaluating code from strings in the form of the
+`gololang.EvaluationEnvironment` class. It provides an API that is useful both when used from Golo
+code, or when used from a polyglot JVM application that embeds Golo.
+
+=== Loading a module ===
+
+The code of a complete module can be evaluated by the `asModule` method:
+
+[source,golo]
+----
+let env = gololang.EvaluationEnvironment()
+let code =
+"""
+module foo
+
+function a = -> "a!"
+function b = -> "b!"
+"""
+let mod = env: asModule(code)
+let a = fun("a", mod)
+let b = fun("b", mod)
+println(a())
+println(b())
+----
+
+It is important to note that an `EvaluationEnvironment` instance has a `GoloClassloader`, and that
+attempting to evaluate module code with the same `module` declaration will cause an error. Indeed, a
+class loader cannot load classes with the same name twice.
+
+=== Anonymous modules ===
+
+The `anonymousModule` method is similar to `asModule`, except that the code to evaluate is free of
+`module` declaration:
+
+[source,golo]
+----
+let env = gololang.EvaluationEnvironment()
+let code =
+"""
+function a = -> "a!"
+function b = -> "b!"
+"""
+let mod = env: anonymousModule(code)
+let a = fun("a", mod)
+let b = fun("b", mod)
+println(a())
+println(b())
+----
+
+The modules that get evaluated through `anonymousModule` have unique names, hence this method is
+suitable in cases where the same code is to be re-evaluated several times.
+
+=== Functions ===
+
+The `asFunction` and `def` methods evaluate function code. Here is how `asFunction` can be used:
+
+[source,golo]
+----
+let env = gololang.EvaluationEnvironment()
+let code = "return (a + b) * 2"
+let f = env: asFunction(code, "a", "b")
+println(f(10, 20))
+----
+
+It evaluates straight code as the body of a function. Note that `imports` can be used to specify
+`import` statements to be available while evaluation the code:
+
+[source,golo]
+----
+env:
+  imports("java.util.LinkedList", "java.util.HashMap"):
+  asFunction("""let l = LinkedList()
+let m = HashMap()""")
+----
+
+The `def` method is similar, except that it has the parameters definition in the code to evaluate:
+
+[source,golo]
+----
+let env = gololang.EvaluationEnvironment()
+let code = "|a, b| -> (a + b) * 2"
+let f = env: def(code)
+println(f(10, 20))
+----
+
+=== Running code ===
+
+The first form of `run` method works as follows:
+
+[source,golo]
+----
+let env = gololang.EvaluationEnvironment()
+let code = """println(">>> run")
+foreach i in range(0, 3) {
+  println("w00t")
+}
+return 666"""
+println(env: run(code)) # => "w00t"x3 and "666"
+----
+
+The second form allows passing parameter values in a map:
+
+[source,golo]
+----
+let env = gololang.EvaluationEnvironment()
+let code = """println(">>> run_map")
+println(a)
+println(b)
+"""
+let values = java.util.TreeMap(): add("a", 1): add("b", 2)
+env: run(code, values)
+----
+
+It is important not to abuse `run`, as each invocation triggers the generation of a one-shot
+class. If the same code is to be run several times, we suggest that you take advantage of either
+`def` or `asFunction`.
+

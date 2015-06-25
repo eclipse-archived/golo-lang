@@ -1,0 +1,389 @@
+== Java interoperability
+
+Golo aims at providing a seamless 2-way interoperability with the Java programming language.
+
+=== Main function Java compliance ===
+
+If the Golo compiler find a unary function named `main`, it will be compiled to a `void(String[])` static method.
+This `main` method can servers as a JVM entry point.
+
+Suppose that we have the following Golo module:
+
+[source,golo]
+----
+module mainEntryPoint
+
+
+function main = |args| {
+  println("-> " + args: get(0))
+}
+----
+
+Once compiled, we may invoke it as follows:
+
+[source,console]
+----
+$ golo compile mainEntryPoint.golo
+$ java -cp ".:golo.jar" mainEntryPoint GoloRocks
+-> GoloRocks
+$
+----
+
+=== Calling static methods ===
+
+Golo can invoke public Java static methods by treating them as functions:
+
+[source,golo]
+------------------------
+module sample
+
+import java.util.Arrays
+
+function oneTwoThree = {
+  return asList(1, 2, 3)
+}
+------------------------
+
+In this example, `asList` is resolved from the `java.util.Arrays` import and called as a function.
+Note that we could equivalently have written a qualified invocation as `Arrays.asList(1, 2, 3)`.
+
+=== Calling instance methods ===
+
+When you have an object, you may invoke its methods using the `:` operator.
+
+The following would call the `toString` method of any kind, then print it:
+
+[source,golo]
+----------------------------------------
+println(">>> " + someObject: toString())
+----------------------------------------
+
+Of course, you may chain calls as long as a method is not of a `void` return type. Golo converts
+Java `void` methods by making them return `null`. This is neither a bug or a feature: the
+*invokedynamic* support on the JVM simply does so.
+
+=== Named arguments ===
+
+If you compile your Java 8 source code with the `-parameters` option, then you will be able to invoke the functions
+from Golo with named arguments.
+
+[source, java]
+----------------------------------------
+package io;
+
+public class Printer {
+ public static Object print(Object prefix, Object what) {
+    System.out.println(prefix +  " " + what);
+    return null;
+ }
+}
+----------------------------------------
+
+[source,console]
+----
+$ javac -parameters Printer.java
+----
+
+[source,golo]
+----------------------------------------
+module bar
+import io.Printer
+
+let obj = DynamicObject()
+
+function main = |args...| {
+  print(what = obj, prefix = ">")
+}
+----------------------------------------
+
+Further documentation about https://docs.oracle.com/javase/tutorial/reflect/member/methodparameterreflection.html[Names Method Parameters with Java 8.]
+
+=== `null`-safe instance method invocations ===
+
+Golo supports *`null`-safe* methods invocations using the *"Elvis"* symbol: `?:`.
+
+Suppose that we invoke the method `bar()` on some reference `foo`: `foo: bar()`. If `foo` is `null`,
+then invoking `bar()` throws a `java.lang.NullPointerException`, just like you would expect in Java.
+
+By contrast:
+
+* `foo?: bar()` simply returns `null`, and
+* `null?: anything()` returns `null`, too.
+
+This is quite useful when querying data models where `null` values could be returned. This can be
+elegantly combined with the `orIfNull` operator to return a default value, as illustrated by the
+following example:
+
+[source,golo]
+----
+let person = dao: findByName("Mr Bean")
+let city = person?: address()?: city() orIfNull "n/a"
+----
+
+This is more elegant than, say:
+
+[source,golo]
+----
+let person = dao: findByName("Mr Bean")
+var city = "n/a"
+if person isnt null {
+  let address = person: address()
+  if address isnt null {
+    city = address: city() ofIfNull "n/a"
+  }
+}
+----
+
+NOTE: The runtime implementation of `null`-safe method invocations is *optimistic* as it behaves
+like a `try` block catching a `NullPointerException`. Performance is good unless most invocations
+happen to be on `null`, in which case using `?:` is probably not a great idea.
+
+=== Creating objects ===
+
+Golo doesn't have an instantiation operator like `new` in Java. Instead, creating an object and
+calling its constructor is done as if it was just another function.
+
+As an example, we may allocate a `java.util.LinkedList` as follows:
+
+[source,golo]
+---------------------
+module sample
+
+import java.util
+
+function aList = {
+  return LinkedList()
+}
+---------------------
+
+Another example would be using a `java.lang.StringBuilder`.
+
+[source,golo]
+--------------------------------------
+function str_build = {
+  return java.lang.StringBuilder("h"):
+    append("e"):
+    append("l"):
+    append("l"):
+    append("o"):
+    toString()
+}
+--------------------------------------
+
+As one would expect, the `str_build` function above gives the `"hello"` string.
+
+=== Static fields ===
+
+Golo treats public static fields as function, so one could get the maximum value for an `Integer` as
+follows:
+
+[source,golo]
+--------------------------------------
+module samples.MaxInt
+
+local function max_int = {
+  return java.lang.Integer.MAX_VALUE()
+}
+
+function main = |args| {
+  println(max_int())
+}
+--------------------------------------
+
+NOTE: Given than most static fields are used as constants in Java, Golo does not provide support to
+change their values. This may change in the future if compelling general-interest use-cases emerge.
+
+=== Instance fields ===
+
+Instance fields can be accessed as functions, both for reading and writing. Suppose that we have a
+Java class that looks as follows:
+
+[source,java]
+----
+public class Foo {
+  public String bar;
+}
+----
+
+We can access the `bar` field as follows:
+
+[source,golo]
+----
+let foo = Foo()
+
+# Write
+foo: bar("baz")
+
+# Read, prints "baz"
+println(foo: bar())
+----
+
+An interesting behavior when writing fields is that the *"methods"* return the object, which means
+that you can chain invocations.
+
+Suppose that we have a Java class as follows:
+
+[source,java]
+----
+public class Foo {
+  public String bar;
+  public String baz;
+}
+----
+
+We can set all fields by chaining invocations as in:
+
+[source,golo]
+----
+let foo = Foo(): bar(1): baz(2)
+----
+
+It should be noted that Golo won't bypass the regular Java visibility access rules on fields.
+
+[NOTE]
+.What happens if there is both a field and a method with the same names?
+====
+Back to the previous example, suppose that we have both a field and a method with the same name, as
+in:
+[source,java]
+----
+public class Foo {
+  public String bar;
+
+  public String bar() {
+    return bar;
+  }
+}
+----
+
+**Golo resolves methods first, fields last.** Hence, the following Golo code will resolve the
+`bar()` method, not the `bar` field:
+
+[source,golo]
+----
+let foo = Foo()
+
+# Write the field
+foo: bar("baz")
+
+# Calls the bar() method
+println(foo: bar())
+----
+====
+
+=== Inner classes and enumerations ===
+
+We will illustrate both how to deal with public static inner classes and enumerations at once.
+
+The rules to deal with them in Golo are as follows.
+
+1. Inner classes are identified by their real name in the JVM, with nested classes being separated
+   by a `$` sign. Hence, `Thread.State` in Java is written `Thread$State` in Golo.
+2. Enumerations are just normal objects. They expose each entry as a static field, and each entry is
+   an instance of the enumeration class.
+
+Let us consider the following example:
+
+[source,golo]
+--------------------------------------------------------------------------
+module sample.EnumsThreadState
+
+import java.lang.Thread$State
+
+function main = |args| {
+
+  # Call the enum entry like a function
+  let new = Thread$State.NEW()
+  println("name=" + new: name() + ", ordinal=" + new: ordinal())
+
+  # Walk through all enum entries
+  foreach element in Thread$State.values() {
+    println("name=" + element: name() + ", ordinal=" + element: ordinal())
+  }
+}
+--------------------------------------------------------------------------
+
+Running it yields the following console output:
+
+[source,console]
+------------------------------------------
+$ golo golo --files samples/enums-thread-state.golo
+name=NEW, ordinal=0
+name=NEW, ordinal=0
+name=RUNNABLE, ordinal=1
+name=BLOCKED, ordinal=2
+name=WAITING, ordinal=3
+name=TIMED_WAITING, ordinal=4
+name=TERMINATED, ordinal=5
+$
+------------------------------------------
+
+=== Clashes with Golo operators and escaping ===
+
+Because Golo provides a few named operators such as `is`, `and` or `not`, they are recognized as
+operator tokens.
+
+However, you may find yourself in a situation where you need to invoke a Java method whose name is
+a Golo operator, such as:
+
+[source,golo]
+-------------------------------------
+# Function call
+is()
+
+# Method call
+someObject: foo(): is(): not(): bar()
+-------------------------------------
+
+This results in a parsing error, as `is` and `not` will be matched as operators instead of method
+identifiers.
+
+The solution is to use *escaping*, by prefixing identifiers with a backtick, as in:
+
+[source,golo]
+---------------------------------------
+# Function call
+`is()
+
+# Method call
+someObject: foo(): `is(): `not(): bar()
+---------------------------------------
+
+=== Golo class loader ===
+
+Golo provides a class loader for directly loading and compiling Golo modules. You may use it as
+follows:
+
+[source,java]
+----
+import fr.insalyon.citi.golo.compiler.GoloClassLoader;
+
+public class Foo {
+
+  public static void main(String... args) throws Throwable {
+    GoloClassLoader classLoader = new GoloClassLoader();
+    Class<?> moduleClass = classLoader.load("foo.golo", new FileInputStream("/path/to/foo.golo"));
+    Method bar = moduleClass.getMethod("bar", Object.class);
+    bar.invoke(null, "golo golo");
+  }
+}
+----
+
+This would work with a Golo module defined as in:
+
+[source,golo]
+----
+module foo.Bar
+
+function bar = |wat| -> println(wat)
+----
+
+Indeed, a Golo module is viewable as a Java class where each function is a static method.
+
+IMPORTANT: `GoloClassLoader` is rather dumb at this stage, and you will get an exception if you try
+to load two Golo source files with the same `module` name declaration. This is because it will
+attempt to redefine an already defined class.
+
+CAUTION: Later in the glorious and glamorous future, Golo will have objects and not just functions.
+Be patient, it's coming in!
+

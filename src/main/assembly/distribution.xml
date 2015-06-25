@@ -1,0 +1,72 @@
+<!--
+  ~ Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+  ~
+  ~ All rights reserved. This program and the accompanying materials
+  ~ are made available under the terms of the Eclipse Public License v1.0
+  ~ which accompanies this distribution, and is available at
+  ~ http://www.eclipse.org/legal/epl-v10.html
+  -->
+
+<assembly xmlns="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0"
+          xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+          xsi:schemaLocation="http://maven.apache.org/plugins/maven-assembly-plugin/assembly/1.1.0 http://maven.apache.org/xsd/assembly-1.1.0.xsd">
+  <id>distribution</id>
+  <formats>
+    <format>dir</format>
+    <format>zip</format>
+    <format>tar.gz</format>
+  </formats>
+  <fileSets>
+    <fileSet>
+      <directory>${project.basedir}</directory>
+      <includes>
+        <include>README*</include>
+        <include>LICENSE*</include>
+        <include>CONTRIB*</include>
+        <include>THIRD-PARTY*</include>
+        <include>notice.html</include>
+        <include>epl-v10.html</include>
+        <include>samples/**/*</include>
+        <include>share/**/*</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <directory>doc/output</directory>
+      <outputDirectory>/doc</outputDirectory>
+      <includes>
+        <include>**/*</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <directory>target/appassembler/lib</directory>
+      <outputDirectory>/lib</outputDirectory>
+      <includes>
+        <include>*.jar</include>
+      </includes>
+      <useDefaultExcludes>true</useDefaultExcludes>
+    </fileSet>
+    <fileSet>
+      <directory>target/appassembler/bin</directory>
+      <outputDirectory>/bin</outputDirectory>
+      <fileMode>0755</fileMode>
+      <lineEnding>unix</lineEnding>
+      <includes>
+        <include>golo</include>
+        <include>vanilla-golo</include>
+      </includes>
+      <excludes>
+        <exclude>*.bat</exclude>
+      </excludes>
+    </fileSet>
+    <fileSet>
+      <directory>target/appassembler/bin</directory>
+      <outputDirectory>/bin</outputDirectory>
+      <lineEnding>dos</lineEnding>
+      <includes>
+        <include>*.bat</include>
+      </includes>
+    </fileSet>
+  </fileSets>
+</assembly>

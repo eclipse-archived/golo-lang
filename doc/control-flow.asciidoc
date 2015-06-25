@@ -1,0 +1,228 @@
+== Control flow ==
+
+Control flow in Golo is imperative and has the usual constructions found in upstream languages.
+
+=== Conditional branching ===
+
+Golo supports the traditional `if` / `else` constructions, as in:
+
+[source,golo]
+----
+if goloIsGreat() {
+  println("Golo Golo")
+}
+
+if (someCondition) {
+  doThis()
+} else if someOtherCondition {
+  doThat()
+} else {
+  doThatThing()
+}
+----
+
+The condition of an `if` statement does not need parenthesis. You may add some to clarify a more
+elaborated expression, though.
+
+=== `case` branching ===
+
+Golo offers a versatile `case` construction for conditional branching. It may be used in place of
+multiple nested `if` / `else` statements, as in:
+
+[source,golo]
+----
+function what = |obj| {
+  case {
+    when obj oftype String.class {
+      return "String"
+    }
+    when obj oftype Integer.class {
+      return "Integer"
+    }
+    otherwise {
+      return "alien"
+    }
+  }
+}
+----
+
+A `case` statement requires at least 1 `when` clause and a mandatory `otherwise` clause. Each clause
+is being associated with a block. It is semantically equivalent to the corresponding `if` / `else`
+chain:
+
+[source,golo]
+----
+function what = |obj| {
+  if obj oftype String.class {
+    return "String"
+  } else if obj oftype Integer.class {
+    return "Integer"
+  } else {
+    return "alien"
+  }
+}
+----
+
+IMPORTANT: `when` clauses are being evaluated in the declaration order, and only the first satisfied
+one is being executed.
+
+=== `match` statements ===
+
+The `match` statement is a convenient shortcut for cases where a `case` statement would be used to
+match a value, and give back a result. While it may resemble *pattern matching* operators in some
+other languages it is not fully equivalent, as Golo does not support destructuring.
+
+`match` is a great addition to the Golo programmer:
+
+[source,golo]
+----
+let item = "foo@bar.com"
+
+let what_it_could_be = -> match {
+  when item: contains("@") then "an email?"
+  when item: startsWith("+33") then "a French phone number?"
+  when item: startsWith("http://") then "a website URL?"
+  otherwise "I have no clue, mate!"
+}
+
+# prints "an email?"
+println(what_it_could_be(item))
+----
+
+The values to be returned are specified after a `then` keyword that follows a boolean expression to
+be evaluated.
+
+Like `case` statements, a `match` construct needs at least one `when` clause and one `otherwise`
+clause.
+
+=== `while` loops ===
+
+While loops in Golo are straightforward:
+
+[source,golo]
+----
+function times = |n| {
+  var times = 0
+  while (times < n) { times = times + 1 }
+  return times
+}
+----
+
+The parenthesis in the `while` condition may be omitted like it is the case for `if` statements.
+
+=== `for` loops ===
+
+This is the most versatile loop construction, as it features:
+
+1. a variable declaration and initialization (a Golo variable is always initialized anyway), and
+2. a loop progress condition, and
+3. a loop progress statement.
+
+The following function shows a `for` loop:
+
+[source,golo]
+----
+function fact = |value, n| {
+  var result = 1
+  for (var i = 0, i < n, i = i + 1) {
+    result = result * value
+  }
+  return result
+}
+----
+
+As you can see, it is very much like a `for` loop in Java, except that:
+
+* the `for` loop elements are separated by `','` instead of `';'`, and
+* there cannot be multiple variables in the loop, and
+* there cannot be multiple loop progress statements.
+
+Again, this choice is dictated by the pursue of simplicity. 
+
+=== `foreach` loops ===
+
+Golo provides a "for each" style of iteration over iterable elements. Any object that is an instance
+of `java.lang.Iterable` can be used in `foreach` loops, as in:
+
+[source,golo]
+----
+function concat_to_string = |iterable| {
+  var result = ""
+  foreach item in iterable {
+    result = result + item
+  }
+  return result
+}
+----
+
+In this example, `item` is a variable within the `foreach` loop scope, and `iterable` is an object
+that is expected to be iterable.
+
+You may use parenthesis around a `foreach` expression, so `foreach (foo in bar)` is equivalent to
+`foreach foo in bar`.
+
+NOTE: Although Java arrays (`Object[]`) are not real objects, they can be used with `foreach` loops.
+Golo provides a `iterator()` method for them.
+
+=== `break` and `continue` ===
+
+Although not strictly necessary, the `break` and `continue` statements can be useful to simplify
+some loops in imperative languages.
+
+Like in Java and many other languages:
+
+* `break` exits the current inner-most loop, and
+* `continue` skips to the next iteration of the current inner-most loop.
+
+Consider the following contrived example:
+
+[source,golo]
+----
+module test
+ 
+function main = |args| {
+  var i = 0
+  while true {
+    i = i + 1
+    if i < 40 {
+      continue
+    } else {
+      print(i + " ")
+    }
+    if i == 50 {
+      break
+    } 
+  }
+  println("bye")
+}
+----
+
+It prints the following output:
+
+----
+40 41 42 43 44 45 46 47 48 49 50 bye
+----
+
+Golo does not support `break` statements to labels like Java does. In fact, this is a `goto`
+statement in disguise.
+
+=== Why no value from most control flow constructions? ===
+
+Some programming languages return values from selected control flow constructions, with the returned
+value being the evaluation of the last statement in a block. This can be handy in some situations
+such as the following code snippet in Scala:
+
+[source,scala]
+----
+println(if (4 % 2 == 0) "even" else "odd")
+----
+
+The Golo original author recognizes and appreciates the expressiveness of such construct. However,
+he often finds it harder to spot the returned values with such constructs, and he thought that
+trading a few keystrokes for *explicitness* was better than shorter construct based in
+*implicitness*.
+
+Therefore, most Golo control flow constructions do not return values, and programmers are instead
+required to extract a variable or provide an explicit `return` statement.
+
+
