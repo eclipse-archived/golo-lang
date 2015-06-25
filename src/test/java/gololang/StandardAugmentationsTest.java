@@ -80,9 +80,9 @@ public class StandardAugmentationsTest {
   }
 
   @Test
-  public void lists_removeidx() throws Throwable {
-    Method lists_removeidx = moduleClass.getMethod("lists_removeidx");
-    Object result = lists_removeidx.invoke(null);
+  public void lists_removeAt() throws Throwable {
+    Method lists_removeAt = moduleClass.getMethod("lists_removeAt");
+    Object result = lists_removeAt.invoke(null);
     assertThat((Boolean) result, is(true));
   }
 

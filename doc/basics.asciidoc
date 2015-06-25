@@ -343,6 +343,14 @@ The syntax and type matchings are the following:
 
 |===
 
+
+==== A note on lists ====
+
+Since in Golo, every value is actually an instance of `Object`, there is no
+overloading, and thus the `remove` method on lists can't be used to remove an
+element at a given position. If you want to remove a list element given its
+position, use the `removeAt` method.
+
 ==== A note on tuples ====
 
 Tuples essentially behave as immutable arrays.

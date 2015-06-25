@@ -495,7 +495,7 @@ augment java.util.List {
   This method has the same behaviour as `java.util.List.remove(int)`, but is
   needed since for Golo everything is an `Object` and `remove` is overloaded.
   ----
-  function removeIdx = |this, idx| -> removeByIndex(this, idx)
+  function removeAt = |this, idx| -> removeByIndex(this, idx)
 }
 
 # ............................................................................................... #
