@@ -383,6 +383,9 @@ public class CompileAndRunTest {
 
     Method null_guarded = moduleClass.getMethod("null_guarded");
     assertThat((String) null_guarded.invoke(null), is("n/a"));
+
+    Method polymorphic_number_comparison = moduleClass.getMethod("polymorphic_number_comparison");
+    assertThat((Boolean) polymorphic_number_comparison.invoke(null), is(true));
   }
 
   @Test

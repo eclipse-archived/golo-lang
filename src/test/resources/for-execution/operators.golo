@@ -77,3 +77,49 @@ function null_guarded = {
   let map = map[]
   return map: get("bogus") orIfNull "n/a"
 }
+
+function polymorphic_number_comparison = {
+  let left = list[1, 1_L, 1.0, 1.0_F]
+  let right = list[2, 2_L, 1.1, 1.1_F]
+
+  var res = true
+  foreach a in left {
+    foreach b in right {
+      res = res and (not (a == b))
+      res = res and (not (b == a))
+      res = res and (b != a)
+      res = res and (a != b)
+      
+      res = res and (a <= b)
+      res = res and (not (a >= b))
+      res = res and (b >= a)
+      res = res and (not (b <= a))
+
+      res = res and (a < b)
+      res = res and (not (a > b))
+      res = res and (b > a)
+      res = res and (not (b < a))
+    }
+  }
+
+  foreach a in left {
+    foreach b in left {
+      res = res and (a == b)
+      res = res and (b == a)
+      res = res and (not (a != b))
+      res = res and (not (b != a))
+      
+      res = res and (a <= b)
+      res = res and (a >= b)
+      res = res and (b >= a)
+      res = res and (b <= a)
+
+      res = res and (not (a < b))
+      res = res and (not (a > b))
+      res = res and (not (b > a))
+      res = res and (not (b < a))
+    }
+  }
+
+  return res
+}

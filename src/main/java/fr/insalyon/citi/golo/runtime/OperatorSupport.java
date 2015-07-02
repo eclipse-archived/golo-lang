@@ -706,15 +706,24 @@ public class OperatorSupport {
   // comparisons ......................................................................................................
 
   public static Object equals_noguard(Object a, Object b) {
+    if (bothNotNull(a, b) && isNumber(a) && isNumber(b)) {
+      return compareNumbers(a, b) == 0;
+    }
     return (a == b) || ((a != null) && a.equals(b));
   }
 
   public static Object notequals_noguard(Object a, Object b) {
+    if (bothNotNull(a, b) && isNumber(a) && isNumber(b)) {
+      return compareNumbers(a, b) != 0;
+    }
     return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
   }
 
   @SuppressWarnings("unchecked")
   public static Object less_noguard(Object a, Object b) {
+    if (bothNotNull(a, b) && isNumber(a) && isNumber(b)) {
+      return compareNumbers(a, b) < 0;
+    }
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
@@ -723,6 +732,9 @@ public class OperatorSupport {
 
   @SuppressWarnings("unchecked")
   public static Object lessorequals_noguard(Object a, Object b) {
+    if (bothNotNull(a, b) && isNumber(a) && isNumber(b)) {
+      return compareNumbers(a, b) <= 0;
+    }
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
@@ -731,6 +743,9 @@ public class OperatorSupport {
 
   @SuppressWarnings("unchecked")
   public static Object more_noguard(Object a, Object b) {
+    if (bothNotNull(a, b) && isNumber(a) && isNumber(b)) {
+      return compareNumbers(a, b) > 0;
+    }
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
     }
@@ -739,6 +754,9 @@ public class OperatorSupport {
 
   @SuppressWarnings("unchecked")
   public static Object moreorequals_noguard(Object a, Object b) {
+    if (bothNotNull(a, b) && isNumber(a) && isNumber(b)) {
+      return compareNumbers(a, b) >= 0;
+    }
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }
@@ -790,6 +808,14 @@ public class OperatorSupport {
 
   private static boolean isComparable(Object obj) {
     return obj instanceof Comparable<?>;
+  }
+
+  private static int compareNumbers(Object a, Object b) {
+    return Double.compare(((Number) a).doubleValue(), ((Number) b).doubleValue());
+  }
+
+  private static boolean isNumber(Object obj) {
+    return obj instanceof Number;
   }
 
   private static boolean isClass(Object obj) {
