@@ -12,6 +12,7 @@ package gololang;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.util.LinkedList;
 
 abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection<T> implements Range<T> {
   private final T from;
@@ -129,5 +130,13 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
   @Override
   public boolean isEmpty() {
     return from.compareTo(to) >= 0;
+  }
+
+  public Tuple destruct() {
+    LinkedList<T> vals = new LinkedList<>();
+    for (T v : this) {
+      vals.add(v);
+    }
+    return Tuple.fromArray(vals.toArray());
   }
 }

@@ -182,10 +182,22 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    */
   @Override
   public Tuple tail() {
+    return this.subTuple(1);
+  }
+
+  /**
+   *
+   */
+  public Tuple destruct() { return this; }
+
+  public Tuple subTuple(int start) {
+    return this.subTuple(start, data.length);
+  }
+
+  public Tuple subTuple(int start, int end) {
     if (this.isEmpty()) {
-      // we can return this since a Tuple is immutable.
       return this;
     }
-    return fromArray(Arrays.copyOfRange(data, 1, data.length));
+    return fromArray(Arrays.copyOfRange(data, start, end));
   }
 }

@@ -529,6 +529,41 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTDestructuringAssignment node, Object data) {
+    Context context = (Context) data;
+    ReferenceTable localTable = context.referenceTableStack.peek().fork();
+    Block block = new Block(localTable);
+    String varName = "__$$_destruct_" + System.currentTimeMillis();
+    LocalReference destructReference = new LocalReference(CONSTANT, varName, true);
+    localTable.add(destructReference);
+
+    node.jjtGetChild(0).jjtAccept(this, data);
+    ExpressionStatement destructExpressionStatement = (ExpressionStatement) context.objectStack.pop();
+    AssignmentStatement init = new AssignmentStatement(destructReference,
+                                    new BinaryOperation(OperatorType.METHOD_CALL,
+                                        destructExpressionStatement,
+                                        new MethodInvocation("destruct")));
+    init.setDeclaring(true);
+    init.setASTNode(node);
+    block.addStatement(init);
+    int idx = 0;
+    int last = node.getNames().size() - 1;
+    for (String name : node.getNames()) {
+      LocalReference val = new LocalReference(node.getType() == LET ? CONSTANT : VARIABLE, name, true);
+      MethodInvocation get = new MethodInvocation(!node.isVarargs() || idx != last ? "get" : "subTuple");
+      get.addArgument(new ConstantStatement(idx));
+      context.referenceTableStack.peek().add(val);
+      AssignmentStatement valInit = new AssignmentStatement(val,
+                    new BinaryOperation(OperatorType.METHOD_CALL,
+                        new ReferenceLookup(varName), get));
+      block.addStatement(valInit);
+      idx++;
+    }
+    context.objectStack.push(block);
+    return data;
+  }
+
+  @Override
   public Object visit(ASTReturn node, Object data) {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 0) {

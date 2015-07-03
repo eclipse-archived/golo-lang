@@ -496,6 +496,13 @@ augment java.util.List {
   needed since for Golo everything is an `Object` and `remove` is overloaded.
   ----
   function removeAt = |this, idx| -> removeByIndex(this, idx)
+
+  ----
+  Destructuration helper.
+  
+  * return a tuple of the values
+  ----
+  function destruct = |this| -> Tuple.fromArray(this: toArray())
 }
 
 # ............................................................................................... #

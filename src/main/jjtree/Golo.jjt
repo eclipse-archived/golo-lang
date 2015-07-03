@@ -928,7 +928,9 @@ void Statement() #void:{}
   |
   Return()
   |
-  LetOrVar()
+  LOOKAHEAD(3) DestructuringAssignment()
+  |
+  LOOKAHEAD(3) LetOrVar()
   |
   ConditionalBranching()
   |
@@ -1328,6 +1330,51 @@ void Reference():{}
   <IDENTIFIER>
   {
     jjtThis.setName(jjtThis.jjtGetFirstToken().image);
+  }
+}
+
+ASTDestructuringAssignment DestructuringAssignment():
+{
+  List<String> names;
+  Token varargsToken = null;
+}
+{
+  <LET> names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
+  {
+    jjtThis.setType(ASTLetOrVar.Type.LET);
+    jjtThis.setNames(names);
+    jjtThis.setVarargs(varargsToken != null);
+    return jjtThis;
+  }
+  |
+  <VAR> names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
+  {
+    jjtThis.setType(ASTLetOrVar.Type.VAR);
+    jjtThis.setNames(names);
+    jjtThis.setVarargs(varargsToken != null);
+    return jjtThis;
+  }
+}
+
+List<String> DestructuredNames() #void:
+{
+  List<String> names = new LinkedList<String>();
+  Token rootToken;
+  Token nextToken;
+}
+{
+  rootToken=<IDENTIFIER>
+  {
+    names.add(rootToken.image);
+  }
+  (
+    "," (BlankLine())? nextToken=<IDENTIFIER>
+    {
+      names.add(nextToken.image);
+    }
+  )+
+  {
+    return names;
   }
 }
 

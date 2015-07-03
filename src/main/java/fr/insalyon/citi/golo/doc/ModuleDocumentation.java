@@ -244,6 +244,11 @@ class ModuleDocumentation implements DocumentationElement {
     }
 
     @Override
+    public Object visit(ASTDestructuringAssignment node, Object data) {
+      return data;
+    }
+
+    @Override
     public Object visit(ASTContinue node, Object data) {
       return data;
     }
