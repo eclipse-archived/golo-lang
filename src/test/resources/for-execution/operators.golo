@@ -82,44 +82,43 @@ function polymorphic_number_comparison = {
   let left = list[1, 1_L, 1.0, 1.0_F]
   let right = list[2, 2_L, 1.1, 1.1_F]
 
-  var res = true
   foreach a in left {
     foreach b in right {
-      res = res and (not (a == b))
-      res = res and (not (b == a))
-      res = res and (b != a)
-      res = res and (a != b)
+      require((not (a == b)), "equals failed")
+      require((not (b == a)), "equals failed")
+      require((b != a), "not equals failed")
+      require((a != b), "not equals failed")
       
-      res = res and (a <= b)
-      res = res and (not (a >= b))
-      res = res and (b >= a)
-      res = res and (not (b <= a))
+      require((a <= b), "less or equals failed")
+      require((not (a >= b)), "more or equals failed")
+      require((b >= a), "more or equals failed")
+      require((not (b <= a)), "less or equals failed")
 
-      res = res and (a < b)
-      res = res and (not (a > b))
-      res = res and (b > a)
-      res = res and (not (b < a))
+      require((a < b), "less failed")
+      require((not (a > b)), "more failed")
+      require((b > a), "more failed")
+      require((not (b < a)), "less failed")
     }
   }
 
   foreach a in left {
     foreach b in left {
-      res = res and (a == b)
-      res = res and (b == a)
-      res = res and (not (a != b))
-      res = res and (not (b != a))
+      require((a == b), "equals failed")
+      require((b == a), "equals failed")
+      require((not (a != b)), "not equals failed")
+      require((not (b != a)), "not equals failed")
       
-      res = res and (a <= b)
-      res = res and (a >= b)
-      res = res and (b >= a)
-      res = res and (b <= a)
+      require((a <= b), "less or equals failed")
+      require((a >= b), "more or equals failed")
+      require((b >= a), "more or equals failed")
+      require((b <= a), "less or equals failed")
 
-      res = res and (not (a < b))
-      res = res and (not (a > b))
-      res = res and (not (b > a))
-      res = res and (not (b < a))
+      require((not (a < b)), "less failed")
+      require((not (a > b)), "more failed")
+      require((not (b > a)), "more failed")
+      require((not (b < a)), "less failed")
     }
   }
 
-  return res
+  return true
 }
