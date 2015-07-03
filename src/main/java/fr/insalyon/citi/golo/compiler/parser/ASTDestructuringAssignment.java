@@ -16,7 +16,7 @@ import static java.util.Collections.unmodifiableList;
 public class ASTDestructuringAssignment extends GoloASTNode {
 
   private ASTLetOrVar.Type type;
-  private List<String> names;
+  private List<String> names = new ArrayList<>();
   private boolean isVarargs = false;
 
   public ASTDestructuringAssignment(int id) {
@@ -40,7 +40,7 @@ public class ASTDestructuringAssignment extends GoloASTNode {
   }
 
   public void setNames(List<String> names) {
-    this.names = new ArrayList<>();
+    this.names.clear();
     this.names.addAll(names);
   }
 

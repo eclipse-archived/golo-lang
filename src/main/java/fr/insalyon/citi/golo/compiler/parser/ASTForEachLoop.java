@@ -9,9 +9,14 @@
 
 package fr.insalyon.citi.golo.compiler.parser;
 
+import java.util.List;
+import java.util.LinkedList;
+
 public class ASTForEachLoop extends GoloASTNode {
 
   private String elementIdentifier;
+  private List<String> names = new LinkedList<>();
+  private boolean isVarargs = false;
 
   public ASTForEachLoop(int id) {
     super(id);
@@ -27,6 +32,23 @@ public class ASTForEachLoop extends GoloASTNode {
 
   public void setElementIdentifier(String elementIdentifier) {
     this.elementIdentifier = elementIdentifier;
+  }
+
+  public List<String> getNames() {
+    return this.names;
+  }
+
+  public void setNames(List<String> names) {
+    this.names.clear();
+    this.names.addAll(names);
+  }
+
+  public void setVarargs(boolean b) {
+    this.isVarargs = b;
+  }
+
+  public boolean isVarargs() {
+    return this.isVarargs;
   }
 
   @Override
