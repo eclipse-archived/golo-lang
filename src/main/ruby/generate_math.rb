@@ -9,14 +9,21 @@
 
 TYPES = [ :Character, :Integer, :Long, :Double, :Float ]
 
-OPS = [ :plus, :minus, :divide, :times, :modulo ]
+OPS = [ :plus, :minus, :divide, :times, :modulo,
+        :equals, :notequals, :less, :lessorequals, :more, :moreorequals ]
 
 OPS_SYMB = {
   :plus => '+',
   :minus => '-',
   :times => '*',
   :divide => '/',
-  :modulo => '%'
+  :modulo => '%',
+  :less => '<',
+  :more => '>',
+  :lessorequals => '<=',
+  :moreorequals => '>=',
+  :equals => '==',
+  :notequals => '!='
 }
 
 PRIM = {
@@ -37,9 +44,9 @@ WEIGHT = {
 
 TYPES.each do |type|
   OPS.each do |op|
-    puts "public static Object #{op}(#{type} a, #{type} b) {"
-    puts "  return a #{OPS_SYMB[op]} b;"
-    puts "}"
+    puts "  public static Object #{op}(#{type} a, #{type} b) {"
+    puts "    return ((#{PRIM[type]}) a) #{OPS_SYMB[op]} ((#{PRIM[type]}) b);"
+    puts "  }"
     puts
   end
 end
@@ -50,13 +57,14 @@ combinations.each do |pair|
   left = pair[0]
   right = pair[1]
   OPS.each do |op|
-    puts "public static Object #{op}(#{left} a, #{right} b) {"
+    puts "  public static Object #{op}(#{left} a, #{right} b) {"
     if WEIGHT[left] < WEIGHT[right]
-      puts "  return ((#{PRIM[right]}) a) #{OPS_SYMB[op]} b;"
+        type = PRIM[right]
     else
-      puts "  return a #{OPS_SYMB[op]} ((#{PRIM[left]}) b);"
+        type = PRIM[left]
     end
-    puts "}"
+    puts "    return ((#{type}) a) #{OPS_SYMB[op]} ((#{type}) b);"
+    puts "  }"
     puts
   end
 end
