@@ -327,16 +327,23 @@ public class CompileAndRunTest {
 
     Method half = moduleClass.getMethod("half", Object.class);
     assertThat((Integer) half.invoke(null, 12), is(6));
+    assertThat((Integer) half.invoke(null, 'T'), is(42));
 
     Method twice = moduleClass.getMethod("twice", Object.class);
     assertThat((Integer) twice.invoke(null, 6), is(12));
+    assertThat((Integer) twice.invoke(null, '*'), is(84));
     assertThat((String) twice.invoke(null, "Plop"), is("PlopPlop"));
 
     Method compute_92 = moduleClass.getMethod("compute_92");
     assertThat((Integer) compute_92.invoke(null), is(92));
 
     Method eq = moduleClass.getMethod("eq", Object.class, Object.class);
+    assertThat((Boolean) eq.invoke(null, 'a', 'a'), is(true));
+    assertThat((Boolean) eq.invoke(null, '*', 42), is(true));
+    assertThat((Boolean) eq.invoke(null, 'a', 'b'), is(false));
+    assertThat((Boolean) eq.invoke(null, 66.6, 66.6), is(true));
     assertThat((Boolean) eq.invoke(null, 666, 666), is(true));
+    assertThat((Boolean) eq.invoke(null, 666, 666.0), is(true));
     assertThat((Boolean) eq.invoke(null, 999, 666), is(false));
 
     Method at_least_5 = moduleClass.getMethod("at_least_5", Object.class);
@@ -383,6 +390,9 @@ public class CompileAndRunTest {
 
     Method null_guarded = moduleClass.getMethod("null_guarded");
     assertThat((String) null_guarded.invoke(null), is("n/a"));
+
+    Method polymorphic_number_comparison = moduleClass.getMethod("polymorphic_number_comparison");
+    assertThat((Boolean) polymorphic_number_comparison.invoke(null), is(true));
   }
 
   @Test

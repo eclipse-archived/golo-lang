@@ -12,6 +12,7 @@ package fr.insalyon.citi.golo.runtime;
 import java.lang.invoke.*;
 import java.util.HashSet;
 import java.util.Set;
+import java.util.Objects;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.insertArguments;
@@ -43,14 +44,6 @@ public class OperatorSupport {
       add("is");
       add("isnt");
       add("oftype");
-
-      add("equals");
-      add("notequals");
-
-      add("more");
-      add("less");
-      add("moreorequals");
-      add("lessorequals");
 
       add("orifnull");
     }
@@ -170,507 +163,1111 @@ public class OperatorSupport {
     return callSite;
   }
 
-  // arithmetic (generated, use generate_math.rb) ......................................................................
+  // primitive specific arithmetic and comparisons (generated, use generate_math.rb) ......................................................................
 
+  // BEGIN GENERATED
   public static Object plus(Character a, Character b) {
-    return a + b;
+    return ((char) a) + ((char) b);
   }
 
   public static Object minus(Character a, Character b) {
-    return a - b;
+    return ((char) a) - ((char) b);
   }
 
   public static Object divide(Character a, Character b) {
-    return a / b;
+    return ((char) a) / ((char) b);
   }
 
   public static Object times(Character a, Character b) {
-    return a * b;
+    return ((char) a) * ((char) b);
   }
 
   public static Object modulo(Character a, Character b) {
-    return a % b;
+    return ((char) a) % ((char) b);
+  }
+
+  public static Object equals(Character a, Character b) {
+    return ((char) a) == ((char) b);
+  }
+
+  public static Object notequals(Character a, Character b) {
+    return ((char) a) != ((char) b);
+  }
+
+  public static Object less(Character a, Character b) {
+    return ((char) a) < ((char) b);
+  }
+
+  public static Object lessorequals(Character a, Character b) {
+    return ((char) a) <= ((char) b);
+  }
+
+  public static Object more(Character a, Character b) {
+    return ((char) a) > ((char) b);
+  }
+
+  public static Object moreorequals(Character a, Character b) {
+    return ((char) a) >= ((char) b);
   }
 
   public static Object plus(Integer a, Integer b) {
-    return a + b;
+    return ((int) a) + ((int) b);
   }
 
   public static Object minus(Integer a, Integer b) {
-    return a - b;
+    return ((int) a) - ((int) b);
   }
 
   public static Object divide(Integer a, Integer b) {
-    return a / b;
+    return ((int) a) / ((int) b);
   }
 
   public static Object times(Integer a, Integer b) {
-    return a * b;
+    return ((int) a) * ((int) b);
   }
 
   public static Object modulo(Integer a, Integer b) {
-    return a % b;
+    return ((int) a) % ((int) b);
+  }
+
+  public static Object equals(Integer a, Integer b) {
+    return ((int) a) == ((int) b);
+  }
+
+  public static Object notequals(Integer a, Integer b) {
+    return ((int) a) != ((int) b);
+  }
+
+  public static Object less(Integer a, Integer b) {
+    return ((int) a) < ((int) b);
+  }
+
+  public static Object lessorequals(Integer a, Integer b) {
+    return ((int) a) <= ((int) b);
+  }
+
+  public static Object more(Integer a, Integer b) {
+    return ((int) a) > ((int) b);
+  }
+
+  public static Object moreorequals(Integer a, Integer b) {
+    return ((int) a) >= ((int) b);
   }
 
   public static Object plus(Long a, Long b) {
-    return a + b;
+    return ((long) a) + ((long) b);
   }
 
   public static Object minus(Long a, Long b) {
-    return a - b;
+    return ((long) a) - ((long) b);
   }
 
   public static Object divide(Long a, Long b) {
-    return a / b;
+    return ((long) a) / ((long) b);
   }
 
   public static Object times(Long a, Long b) {
-    return a * b;
+    return ((long) a) * ((long) b);
   }
 
   public static Object modulo(Long a, Long b) {
-    return a % b;
+    return ((long) a) % ((long) b);
+  }
+
+  public static Object equals(Long a, Long b) {
+    return ((long) a) == ((long) b);
+  }
+
+  public static Object notequals(Long a, Long b) {
+    return ((long) a) != ((long) b);
+  }
+
+  public static Object less(Long a, Long b) {
+    return ((long) a) < ((long) b);
+  }
+
+  public static Object lessorequals(Long a, Long b) {
+    return ((long) a) <= ((long) b);
+  }
+
+  public static Object more(Long a, Long b) {
+    return ((long) a) > ((long) b);
+  }
+
+  public static Object moreorequals(Long a, Long b) {
+    return ((long) a) >= ((long) b);
   }
 
   public static Object plus(Double a, Double b) {
-    return a + b;
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Double a, Double b) {
-    return a - b;
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Double a, Double b) {
-    return a / b;
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Double a, Double b) {
-    return a * b;
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Double a, Double b) {
-    return a % b;
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Double a, Double b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Double a, Double b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Double a, Double b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Double a, Double b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Double a, Double b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Double a, Double b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Float a, Float b) {
-    return a + b;
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Float a, Float b) {
-    return a - b;
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Float a, Float b) {
-    return a / b;
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Float a, Float b) {
-    return a * b;
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Float a, Float b) {
-    return a % b;
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Float a, Float b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Float a, Float b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Float a, Float b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Float a, Float b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Float a, Float b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Float a, Float b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Character a, Integer b) {
-    return ((int) a) + b;
+    return ((int) a) + ((int) b);
   }
 
   public static Object minus(Character a, Integer b) {
-    return ((int) a) - b;
+    return ((int) a) - ((int) b);
   }
 
   public static Object divide(Character a, Integer b) {
-    return ((int) a) / b;
+    return ((int) a) / ((int) b);
   }
 
   public static Object times(Character a, Integer b) {
-    return ((int) a) * b;
+    return ((int) a) * ((int) b);
   }
 
   public static Object modulo(Character a, Integer b) {
-    return ((int) a) % b;
+    return ((int) a) % ((int) b);
+  }
+
+  public static Object equals(Character a, Integer b) {
+    return ((int) a) == ((int) b);
+  }
+
+  public static Object notequals(Character a, Integer b) {
+    return ((int) a) != ((int) b);
+  }
+
+  public static Object less(Character a, Integer b) {
+    return ((int) a) < ((int) b);
+  }
+
+  public static Object lessorequals(Character a, Integer b) {
+    return ((int) a) <= ((int) b);
+  }
+
+  public static Object more(Character a, Integer b) {
+    return ((int) a) > ((int) b);
+  }
+
+  public static Object moreorequals(Character a, Integer b) {
+    return ((int) a) >= ((int) b);
   }
 
   public static Object plus(Character a, Long b) {
-    return ((long) a) + b;
+    return ((long) a) + ((long) b);
   }
 
   public static Object minus(Character a, Long b) {
-    return ((long) a) - b;
+    return ((long) a) - ((long) b);
   }
 
   public static Object divide(Character a, Long b) {
-    return ((long) a) / b;
+    return ((long) a) / ((long) b);
   }
 
   public static Object times(Character a, Long b) {
-    return ((long) a) * b;
+    return ((long) a) * ((long) b);
   }
 
   public static Object modulo(Character a, Long b) {
-    return ((long) a) % b;
+    return ((long) a) % ((long) b);
+  }
+
+  public static Object equals(Character a, Long b) {
+    return ((long) a) == ((long) b);
+  }
+
+  public static Object notequals(Character a, Long b) {
+    return ((long) a) != ((long) b);
+  }
+
+  public static Object less(Character a, Long b) {
+    return ((long) a) < ((long) b);
+  }
+
+  public static Object lessorequals(Character a, Long b) {
+    return ((long) a) <= ((long) b);
+  }
+
+  public static Object more(Character a, Long b) {
+    return ((long) a) > ((long) b);
+  }
+
+  public static Object moreorequals(Character a, Long b) {
+    return ((long) a) >= ((long) b);
   }
 
   public static Object plus(Character a, Double b) {
-    return ((double) a) + b;
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Character a, Double b) {
-    return ((double) a) - b;
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Character a, Double b) {
-    return ((double) a) / b;
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Character a, Double b) {
-    return ((double) a) * b;
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Character a, Double b) {
-    return ((double) a) % b;
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Character a, Double b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Character a, Double b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Character a, Double b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Character a, Double b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Character a, Double b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Character a, Double b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Character a, Float b) {
-    return ((float) a) + b;
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Character a, Float b) {
-    return ((float) a) - b;
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Character a, Float b) {
-    return ((float) a) / b;
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Character a, Float b) {
-    return ((float) a) * b;
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Character a, Float b) {
-    return ((float) a) % b;
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Character a, Float b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Character a, Float b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Character a, Float b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Character a, Float b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Character a, Float b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Character a, Float b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Integer a, Long b) {
-    return ((long) a) + b;
+    return ((long) a) + ((long) b);
   }
 
   public static Object minus(Integer a, Long b) {
-    return ((long) a) - b;
+    return ((long) a) - ((long) b);
   }
 
   public static Object divide(Integer a, Long b) {
-    return ((long) a) / b;
+    return ((long) a) / ((long) b);
   }
 
   public static Object times(Integer a, Long b) {
-    return ((long) a) * b;
+    return ((long) a) * ((long) b);
   }
 
   public static Object modulo(Integer a, Long b) {
-    return ((long) a) % b;
+    return ((long) a) % ((long) b);
+  }
+
+  public static Object equals(Integer a, Long b) {
+    return ((long) a) == ((long) b);
+  }
+
+  public static Object notequals(Integer a, Long b) {
+    return ((long) a) != ((long) b);
+  }
+
+  public static Object less(Integer a, Long b) {
+    return ((long) a) < ((long) b);
+  }
+
+  public static Object lessorequals(Integer a, Long b) {
+    return ((long) a) <= ((long) b);
+  }
+
+  public static Object more(Integer a, Long b) {
+    return ((long) a) > ((long) b);
+  }
+
+  public static Object moreorequals(Integer a, Long b) {
+    return ((long) a) >= ((long) b);
   }
 
   public static Object plus(Integer a, Double b) {
-    return ((double) a) + b;
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Integer a, Double b) {
-    return ((double) a) - b;
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Integer a, Double b) {
-    return ((double) a) / b;
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Integer a, Double b) {
-    return ((double) a) * b;
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Integer a, Double b) {
-    return ((double) a) % b;
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Integer a, Double b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Integer a, Double b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Integer a, Double b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Integer a, Double b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Integer a, Double b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Integer a, Double b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Integer a, Float b) {
-    return ((float) a) + b;
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Integer a, Float b) {
-    return ((float) a) - b;
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Integer a, Float b) {
-    return ((float) a) / b;
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Integer a, Float b) {
-    return ((float) a) * b;
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Integer a, Float b) {
-    return ((float) a) % b;
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Integer a, Float b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Integer a, Float b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Integer a, Float b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Integer a, Float b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Integer a, Float b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Integer a, Float b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Long a, Double b) {
-    return ((double) a) + b;
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Long a, Double b) {
-    return ((double) a) - b;
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Long a, Double b) {
-    return ((double) a) / b;
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Long a, Double b) {
-    return ((double) a) * b;
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Long a, Double b) {
-    return ((double) a) % b;
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Long a, Double b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Long a, Double b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Long a, Double b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Long a, Double b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Long a, Double b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Long a, Double b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Long a, Float b) {
-    return ((float) a) + b;
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Long a, Float b) {
-    return ((float) a) - b;
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Long a, Float b) {
-    return ((float) a) / b;
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Long a, Float b) {
-    return ((float) a) * b;
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Long a, Float b) {
-    return ((float) a) % b;
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Long a, Float b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Long a, Float b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Long a, Float b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Long a, Float b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Long a, Float b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Long a, Float b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Double a, Float b) {
-    return a + ((double) b);
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Double a, Float b) {
-    return a - ((double) b);
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Double a, Float b) {
-    return a / ((double) b);
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Double a, Float b) {
-    return a * ((double) b);
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Double a, Float b) {
-    return a % ((double) b);
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Double a, Float b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Double a, Float b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Double a, Float b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Double a, Float b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Double a, Float b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Double a, Float b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Integer a, Character b) {
-    return a + ((int) b);
+    return ((int) a) + ((int) b);
   }
 
   public static Object minus(Integer a, Character b) {
-    return a - ((int) b);
+    return ((int) a) - ((int) b);
   }
 
   public static Object divide(Integer a, Character b) {
-    return a / ((int) b);
+    return ((int) a) / ((int) b);
   }
 
   public static Object times(Integer a, Character b) {
-    return a * ((int) b);
+    return ((int) a) * ((int) b);
   }
 
   public static Object modulo(Integer a, Character b) {
-    return a % ((int) b);
+    return ((int) a) % ((int) b);
+  }
+
+  public static Object equals(Integer a, Character b) {
+    return ((int) a) == ((int) b);
+  }
+
+  public static Object notequals(Integer a, Character b) {
+    return ((int) a) != ((int) b);
+  }
+
+  public static Object less(Integer a, Character b) {
+    return ((int) a) < ((int) b);
+  }
+
+  public static Object lessorequals(Integer a, Character b) {
+    return ((int) a) <= ((int) b);
+  }
+
+  public static Object more(Integer a, Character b) {
+    return ((int) a) > ((int) b);
+  }
+
+  public static Object moreorequals(Integer a, Character b) {
+    return ((int) a) >= ((int) b);
   }
 
   public static Object plus(Long a, Character b) {
-    return a + ((long) b);
+    return ((long) a) + ((long) b);
   }
 
   public static Object minus(Long a, Character b) {
-    return a - ((long) b);
+    return ((long) a) - ((long) b);
   }
 
   public static Object divide(Long a, Character b) {
-    return a / ((long) b);
+    return ((long) a) / ((long) b);
   }
 
   public static Object times(Long a, Character b) {
-    return a * ((long) b);
+    return ((long) a) * ((long) b);
   }
 
   public static Object modulo(Long a, Character b) {
-    return a % ((long) b);
+    return ((long) a) % ((long) b);
+  }
+
+  public static Object equals(Long a, Character b) {
+    return ((long) a) == ((long) b);
+  }
+
+  public static Object notequals(Long a, Character b) {
+    return ((long) a) != ((long) b);
+  }
+
+  public static Object less(Long a, Character b) {
+    return ((long) a) < ((long) b);
+  }
+
+  public static Object lessorequals(Long a, Character b) {
+    return ((long) a) <= ((long) b);
+  }
+
+  public static Object more(Long a, Character b) {
+    return ((long) a) > ((long) b);
+  }
+
+  public static Object moreorequals(Long a, Character b) {
+    return ((long) a) >= ((long) b);
   }
 
   public static Object plus(Double a, Character b) {
-    return a + ((double) b);
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Double a, Character b) {
-    return a - ((double) b);
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Double a, Character b) {
-    return a / ((double) b);
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Double a, Character b) {
-    return a * ((double) b);
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Double a, Character b) {
-    return a % ((double) b);
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Double a, Character b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Double a, Character b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Double a, Character b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Double a, Character b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Double a, Character b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Double a, Character b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Float a, Character b) {
-    return a + ((float) b);
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Float a, Character b) {
-    return a - ((float) b);
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Float a, Character b) {
-    return a / ((float) b);
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Float a, Character b) {
-    return a * ((float) b);
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Float a, Character b) {
-    return a % ((float) b);
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Float a, Character b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Float a, Character b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Float a, Character b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Float a, Character b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Float a, Character b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Float a, Character b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Long a, Integer b) {
-    return a + ((long) b);
+    return ((long) a) + ((long) b);
   }
 
   public static Object minus(Long a, Integer b) {
-    return a - ((long) b);
+    return ((long) a) - ((long) b);
   }
 
   public static Object divide(Long a, Integer b) {
-    return a / ((long) b);
+    return ((long) a) / ((long) b);
   }
 
   public static Object times(Long a, Integer b) {
-    return a * ((long) b);
+    return ((long) a) * ((long) b);
   }
 
   public static Object modulo(Long a, Integer b) {
-    return a % ((long) b);
+    return ((long) a) % ((long) b);
+  }
+
+  public static Object equals(Long a, Integer b) {
+    return ((long) a) == ((long) b);
+  }
+
+  public static Object notequals(Long a, Integer b) {
+    return ((long) a) != ((long) b);
+  }
+
+  public static Object less(Long a, Integer b) {
+    return ((long) a) < ((long) b);
+  }
+
+  public static Object lessorequals(Long a, Integer b) {
+    return ((long) a) <= ((long) b);
+  }
+
+  public static Object more(Long a, Integer b) {
+    return ((long) a) > ((long) b);
+  }
+
+  public static Object moreorequals(Long a, Integer b) {
+    return ((long) a) >= ((long) b);
   }
 
   public static Object plus(Double a, Integer b) {
-    return a + ((double) b);
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Double a, Integer b) {
-    return a - ((double) b);
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Double a, Integer b) {
-    return a / ((double) b);
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Double a, Integer b) {
-    return a * ((double) b);
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Double a, Integer b) {
-    return a % ((double) b);
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Double a, Integer b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Double a, Integer b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Double a, Integer b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Double a, Integer b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Double a, Integer b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Double a, Integer b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Float a, Integer b) {
-    return a + ((float) b);
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Float a, Integer b) {
-    return a - ((float) b);
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Float a, Integer b) {
-    return a / ((float) b);
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Float a, Integer b) {
-    return a * ((float) b);
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Float a, Integer b) {
-    return a % ((float) b);
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Float a, Integer b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Float a, Integer b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Float a, Integer b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Float a, Integer b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Float a, Integer b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Float a, Integer b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Double a, Long b) {
-    return a + ((double) b);
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Double a, Long b) {
-    return a - ((double) b);
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Double a, Long b) {
-    return a / ((double) b);
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Double a, Long b) {
-    return a * ((double) b);
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Double a, Long b) {
-    return a % ((double) b);
+    return ((double) a) % ((double) b);
+  }
+
+  public static Object equals(Double a, Long b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Double a, Long b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Double a, Long b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Double a, Long b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Double a, Long b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Double a, Long b) {
+    return ((double) a) >= ((double) b);
   }
 
   public static Object plus(Float a, Long b) {
-    return a + ((float) b);
+    return ((float) a) + ((float) b);
   }
 
   public static Object minus(Float a, Long b) {
-    return a - ((float) b);
+    return ((float) a) - ((float) b);
   }
 
   public static Object divide(Float a, Long b) {
-    return a / ((float) b);
+    return ((float) a) / ((float) b);
   }
 
   public static Object times(Float a, Long b) {
-    return a * ((float) b);
+    return ((float) a) * ((float) b);
   }
 
   public static Object modulo(Float a, Long b) {
-    return a % ((float) b);
+    return ((float) a) % ((float) b);
+  }
+
+  public static Object equals(Float a, Long b) {
+    return ((float) a) == ((float) b);
+  }
+
+  public static Object notequals(Float a, Long b) {
+    return ((float) a) != ((float) b);
+  }
+
+  public static Object less(Float a, Long b) {
+    return ((float) a) < ((float) b);
+  }
+
+  public static Object lessorequals(Float a, Long b) {
+    return ((float) a) <= ((float) b);
+  }
+
+  public static Object more(Float a, Long b) {
+    return ((float) a) > ((float) b);
+  }
+
+  public static Object moreorequals(Float a, Long b) {
+    return ((float) a) >= ((float) b);
   }
 
   public static Object plus(Float a, Double b) {
-    return ((double) a) + b;
+    return ((double) a) + ((double) b);
   }
 
   public static Object minus(Float a, Double b) {
-    return ((double) a) - b;
+    return ((double) a) - ((double) b);
   }
 
   public static Object divide(Float a, Double b) {
-    return ((double) a) / b;
+    return ((double) a) / ((double) b);
   }
 
   public static Object times(Float a, Double b) {
-    return ((double) a) * b;
+    return ((double) a) * ((double) b);
   }
 
   public static Object modulo(Float a, Double b) {
-    return ((double) a) % b;
+    return ((double) a) % ((double) b);
   }
+
+  public static Object equals(Float a, Double b) {
+    return ((double) a) == ((double) b);
+  }
+
+  public static Object notequals(Float a, Double b) {
+    return ((double) a) != ((double) b);
+  }
+
+  public static Object less(Float a, Double b) {
+    return ((double) a) < ((double) b);
+  }
+
+  public static Object lessorequals(Float a, Double b) {
+    return ((double) a) <= ((double) b);
+  }
+
+  public static Object more(Float a, Double b) {
+    return ((double) a) > ((double) b);
+  }
+
+  public static Object moreorequals(Float a, Double b) {
+    return ((double) a) >= ((double) b);
+  }
+
+
+  // END GENERATED
 
   // arithmetic fallbacks .............................................................................................
 
@@ -703,18 +1300,18 @@ public class OperatorSupport {
     return builder.toString();
   }
 
-  // comparisons ......................................................................................................
+  // comparisons fallback .............................................................................................
 
-  public static Object equals_noguard(Object a, Object b) {
-    return (a == b) || ((a != null) && a.equals(b));
+  public static Object equals_fallback(Object a, Object b) {
+    return Objects.equals(a, b);
   }
 
-  public static Object notequals_noguard(Object a, Object b) {
-    return (a != b) && (((a != null) && !a.equals(b)) || ((b != null) && !b.equals(a)));
+  public static Object notequals_fallback(Object a, Object b) {
+    return !Objects.equals(a, b);
   }
 
   @SuppressWarnings("unchecked")
-  public static Object less_noguard(Object a, Object b) {
+  public static Object less_fallback(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
@@ -722,7 +1319,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object lessorequals_noguard(Object a, Object b) {
+  public static Object lessorequals_fallback(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
@@ -730,7 +1327,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object more_noguard(Object a, Object b) {
+  public static Object more_fallback(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
     }
@@ -738,7 +1335,7 @@ public class OperatorSupport {
   }
 
   @SuppressWarnings("unchecked")
-  public static Object moreorequals_noguard(Object a, Object b) {
+  public static Object moreorequals_fallback(Object a, Object b) {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }

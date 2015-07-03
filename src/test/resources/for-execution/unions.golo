@@ -80,7 +80,6 @@ function test_hashcode = {
   let t1 = Tree.Node(Tree.Node(Tree.Leaf(1), Tree.Empty()), Tree.Leaf(0))
   let t2 = Tree.Node(Tree.Node(Tree.Leaf(1), Tree.Empty()), Tree.Leaf(0))
   require(t1: hashCode() == t2: hashCode(), "hashcode")
-
 }
 
 # ............................................................................................... #
