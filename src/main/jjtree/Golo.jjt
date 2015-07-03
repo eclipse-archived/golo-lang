@@ -980,9 +980,9 @@ void ForEachLoop():
 {
   <FOREACH>
   (
-    (elementId=<IDENTIFIER> <IN> ExpressionStatement())
+    (elementId=<IDENTIFIER> <IN> ExpressionStatement() (<WHEN> ExpressionStatement())?)
     |
-    ("(" elementId=<IDENTIFIER> <IN> ExpressionStatement() ")")
+    ("(" elementId=<IDENTIFIER> <IN> ExpressionStatement() (<WHEN> ExpressionStatement())? ")")
   )
   Block()
   {

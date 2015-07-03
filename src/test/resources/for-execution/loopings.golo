@@ -24,3 +24,11 @@ function concat_to_string = |iterable| {
   }
   return result
 }
+
+function foreach_guarded = |iterable| {
+  var result = ""
+  foreach item in iterable when item >= 10 {
+    result = result + item
+  }
+  return result
+}

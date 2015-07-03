@@ -23,4 +23,9 @@ function main = |args| {
   foreach i in range(0, args: length()) {
     println("  #" + i + " -> " + args: get(i))
   }
+
+  println("With a foreach and a guard to keep arguments with at least 3 characters:")
+  foreach arg in args when arg: length() > 2 {
+    println("  " + arg)
+  }
 }

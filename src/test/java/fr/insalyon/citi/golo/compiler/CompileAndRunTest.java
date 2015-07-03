@@ -417,6 +417,9 @@ public class CompileAndRunTest {
 
     Method concat_to_string = moduleClass.getMethod("concat_to_string", Object.class);
     assertThat((String) concat_to_string.invoke(null, asList("a", "b", "c")), is("abc"));
+
+    Method foreach_guarded = moduleClass.getMethod("foreach_guarded", Object.class);
+    assertThat(foreach_guarded.invoke(null, asList(666, 2, 3, 4, 5, 10, 999)), is("66610999"));
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)

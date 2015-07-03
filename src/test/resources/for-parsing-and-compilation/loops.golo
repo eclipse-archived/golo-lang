@@ -58,3 +58,9 @@ function for_each = |iterable| {
     println(elem)
   }
 }
+
+function for_each_guarded = |iterable| {
+  foreach elem in iterable when elem < 10 {
+    println(elem)
+  }
+}

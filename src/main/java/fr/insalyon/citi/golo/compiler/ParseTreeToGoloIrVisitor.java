@@ -844,8 +844,23 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.referenceTableStack.push(localTable);
     node.jjtGetChild(0).jjtAccept(this, data);
     ExpressionStatement iterableExpressionStatement = (ExpressionStatement) context.objectStack.pop();
-    node.jjtGetChild(1).jjtAccept(this, data);
+
+    boolean hasWhen = node.jjtGetNumChildren() > 2;
+    ExpressionStatement whenGuard = null;
+    if (hasWhen) {
+      node.jjtGetChild(1).jjtAccept(this, data);
+      whenGuard = (ExpressionStatement) context.objectStack.pop();
+    }
+
+    node.jjtGetChild(hasWhen ? 2 : 1).jjtAccept(this, data);
     Block block = (Block) context.objectStack.pop();
+
+    if (hasWhen) {
+      Block dummy = null;
+      Block old = block;
+      block = new Block(old.getReferenceTable());
+      block.addStatement(new ConditionalBranching(whenGuard, old, dummy));
+    }
 
     AssignmentStatement init =
         new AssignmentStatement(

@@ -164,6 +164,32 @@ You may use parenthesis around a `foreach` expression, so `foreach (foo in bar)`
 NOTE: Although Java arrays (`Object[]`) are not real objects, they can be used with `foreach` loops.
 Golo provides a `iterator()` method for them.
 
+=== `foreach` loops with a guard ===
+
+There is a variant of the `foreach` loop with a `when` guard.
+
+The following code:
+
+[source,golo]
+----
+foreach item in collection {
+  if item < 10 {
+    println(item)
+  }
+}
+----
+
+can be simplified as:
+
+[source,golo]
+----
+foreach item in collection when item < 10 {
+  println(item)
+}
+----
+
+The `when` guard can be any expression that evaluates to a boolean.
+
 === `break` and `continue` ===
 
 Although not strictly necessary, the `break` and `continue` statements can be useful to simplify
