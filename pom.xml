@@ -39,9 +39,9 @@
   </licenses>
 
   <scm>
-    <connection>scm:git:git@github.com:golo-lang/golo-lang.git</connection>
-    <url>scm:git:git@github.com:golo-lang/golo-lang.git</url>
-    <developerConnection>scm:git:git@github.com:golo-lang/golo-lang.git</developerConnection>
+    <connection>scm:git:git@github.com:eclipse/golo-lang.git</connection>
+    <url>scm:git:git@github.com:eclipse/golo-lang.git</url>
+    <developerConnection>scm:git:git@github.com:eclipse/golo-lang.git</developerConnection>
   </scm>
 
   <properties>
