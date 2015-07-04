@@ -1849,13 +1849,16 @@ public class CompileAndRunTest {
 
   @Test
   public void destructuring() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "destruct.golo");
     for (Method testMethod : getTestMethods(moduleClass)) {
       try {
         testMethod.invoke(null);
       } catch (InvocationTargetException e) {
         fail("method " + testMethod.getName() + " in " + SRC + "destruct.golo failed: " + 
-              e.getCause().getMessage());
+              e.getCause());
       }
     }
   }
