@@ -12,6 +12,7 @@ package fr.insalyon.citi.golo.compiler.parser;
 public class ASTCollectionLiteral extends GoloASTNode {
 
   private String type;
+  private boolean isComprehension = false;
 
   public ASTCollectionLiteral(int id) {
     super(id);
@@ -32,6 +33,14 @@ public class ASTCollectionLiteral extends GoloASTNode {
 
   public void setType(String type) {
     this.type = type;
+  }
+
+  public void setComprehension(boolean v) {
+    this.isComprehension = v;
+  }
+
+  public boolean isComprehension() {
+    return this.isComprehension;
   }
 
   @Override

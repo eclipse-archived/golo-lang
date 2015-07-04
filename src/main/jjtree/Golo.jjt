@@ -787,7 +787,7 @@ void UnionValue():
 }
 {
   (documentation=Documentation())?
-  name=<IDENTIFIER> 
+  name=<IDENTIFIER>
   ("=" "{" BlankLines()
     member=<IDENTIFIER> BlankLines()
     {
@@ -976,7 +976,7 @@ void ForLoop(): {}
   <FOR> "("  (BlankLine())? LetOrVar() ","
                    (BlankLine())? ExpressionStatement() ","
                    (LOOKAHEAD(1) BlankLine())? Statement() ")"
-  Block()
+  (Block())?
 }
 
 void ForEachLoop():
@@ -1007,7 +1007,7 @@ void ForEachLoop():
       jjtThis.setVarargs(varargsToken != null);
     }
   )
-  Block()
+  (Block())?
 }
 
 void TryCatchFinally():
@@ -1310,6 +1310,7 @@ void CollectionLiteral():
 {
   Token token;
   boolean isRange = false;
+  boolean isComprehension = false;
 }
 {
   token=<COLL_START> (BlankLine())?
@@ -1321,6 +1322,11 @@ void CollectionLiteral():
       ".." ExpressionStatement()
       {
         isRange = true;
+      }
+      |
+      (ForEachLoop()|ForLoop())+
+      {
+        isComprehension = true;
       }
     )?
     (BlankLine())?
@@ -1335,9 +1341,9 @@ void CollectionLiteral():
     if (isRange) {
       jjtThis.setType("range");
     }
+    jjtThis.setComprehension(isComprehension);
   }
 }
-
 
 void Reference():{}
 {

@@ -15,6 +15,7 @@ public class LoopStatement extends GoloStatement {
   private final ExpressionStatement conditionStatement;
   private final GoloStatement postStatement;
   private final Block block;
+  private boolean hasWhen = false;
 
   public LoopStatement(AssignmentStatement initStatement, ExpressionStatement conditionStatement, Block block, GoloStatement postStatement) {
     super();
@@ -22,6 +23,10 @@ public class LoopStatement extends GoloStatement {
     this.conditionStatement = conditionStatement;
     this.postStatement = postStatement;
     this.block = block;
+  }
+
+  public void setHasWhen(boolean hw) {
+    this.hasWhen = hw;
   }
 
   public boolean hasInitStatement() {
@@ -37,6 +42,14 @@ public class LoopStatement extends GoloStatement {
   }
 
   public Block getBlock() {
+    return block;
+  }
+
+  public Block getMainBlock() {
+    if (hasWhen) {
+      return ((ConditionalBranching) block.getStatements().get(1))
+        .getTrueBlock();
+    }
     return block;
   }
 

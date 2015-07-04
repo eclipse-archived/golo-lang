@@ -89,7 +89,7 @@ public class GoloCompilationException extends RuntimeException {
       this.lastToken = pe.currentToken;
       this.description = pe.getMessage();
     }
-    
+
     public Problem(UnsupportedCharsetException uce) {
       this.type = Type.INVALID_ENCODING;
       this.source = null;

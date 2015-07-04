@@ -877,10 +877,10 @@ public class CompileAndRunTest {
 
     Method call_java_method_literal = moduleClass.getMethod("call_java_method_literal");
     assertThat((List) call_java_method_literal.invoke(null), is(equalTo(asList(5, 7, 3, 3))));
-    
+
     Method call_java_method_literal_arity2 = moduleClass.getMethod("call_java_method_literal_arity2");
     assertThat((List) call_java_method_literal_arity2.invoke(null), is(equalTo(asList(true, false, true, false))));
-    
+
     Method nested_closures = moduleClass.getMethod("nested_closures");
     result = nested_closures.invoke(null);
     assertThat(result, notNullValue());
@@ -1226,7 +1226,7 @@ public class CompileAndRunTest {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "unions.golo");
     Method testMethod;
 
-    for (String methodName : asList("toString", "equality", "hashcode", "augmentations", 
+    for (String methodName : asList("toString", "equality", "hashcode", "augmentations",
                                     "immutable", "singleton", "not_instantiable")) {
       testMethod = moduleClass.getMethod("test_" + methodName);
       try {
@@ -1499,7 +1499,7 @@ public class CompileAndRunTest {
     ArrayList<String> arrayList = (ArrayList<String>) result;
     assertThat(arrayList.size(), is(3));
     assertThat(arrayList, contains("foo", "bar", "baz"));
-    
+
     Method add_arraylist = moduleClass.getMethod("add_arraylist");
     result = add_arraylist.invoke(null);
     assertThat(result, instanceOf(List.class));
@@ -1857,7 +1857,23 @@ public class CompileAndRunTest {
       try {
         testMethod.invoke(null);
       } catch (InvocationTargetException e) {
-        fail("method " + testMethod.getName() + " in " + SRC + "destruct.golo failed: " + 
+        fail("method " + testMethod.getName() + " in " + SRC + "destruct.golo failed: " +
+              e.getCause());
+      }
+    }
+  }
+
+  @Test
+  public void comprehension() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "comprehension.golo");
+    for (Method testMethod : getTestMethods(moduleClass)) {
+      try {
+        testMethod.invoke(null);
+      } catch (InvocationTargetException e) {
+        fail("method " + testMethod.getName() + " in " + SRC + "comprehension.golo failed: " +
               e.getCause());
       }
     }
