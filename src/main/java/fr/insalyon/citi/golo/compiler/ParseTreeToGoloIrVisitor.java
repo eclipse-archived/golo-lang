@@ -531,7 +531,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTDestructuringAssignment node, Object data) {
     Context context = (Context) data;
-    ReferenceTable localTable = context.referenceTableStack.peek().fork();
+    ReferenceTable parentTable = context.referenceTableStack.peek();
+    ReferenceTable localTable = parentTable.fork();
     Block block = new Block(localTable);
     String varName = "__$$_destruct_" + System.currentTimeMillis();
     LocalReference destructReference = new LocalReference(CONSTANT, varName, true);
@@ -548,14 +549,28 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     block.addStatement(init);
     int idx = 0;
     int last = node.getNames().size() - 1;
+    boolean declaring = (node.getType() != null);
     for (String name : node.getNames()) {
-      LocalReference val = new LocalReference(node.getType() == LET ? CONSTANT : VARIABLE, name, true);
+      LocalReference val;
+      if (declaring) {
+        val = new LocalReference(node.getType() == LET ? CONSTANT : VARIABLE, name, true);
+        parentTable.add(val);
+      } else {
+        if (!parentTable.hasReferenceFor(name)) {
+          getOrCreateExceptionBuilder(context).report(UNDECLARED_REFERENCE, node,
+          "Assigning to either a parameter or an undeclared reference `" + name +
+              "` at (line=" + node.getLineInSourceCode() +
+              ", column=" + node.getColumnInSourceCode() + ")");
+          continue;
+        }
+        val = parentTable.get(name);
+      }
       MethodInvocation get = new MethodInvocation(!node.isVarargs() || idx != last ? "get" : "subTuple");
       get.addArgument(new ConstantStatement(idx));
-      context.referenceTableStack.peek().add(val);
       AssignmentStatement valInit = new AssignmentStatement(val,
                     new BinaryOperation(OperatorType.METHOD_CALL,
                         new ReferenceLookup(varName), get));
+      valInit.setDeclaring(declaring);
       block.addStatement(valInit);
       idx++;
     }

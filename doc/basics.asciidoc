@@ -453,6 +453,14 @@ let lst = list[1, 2, 3, 4, 5]
 let head, tail... = lst        # head = 1, tail = [2, 3, 4, 5]
 ----
 
+Already defined variables can also be assigned with destructuring. For
+instance, one can easily swap two variables:
+[source,golo]
+----
+var a, b = [1, 2]  # a = 1, b = 2
+a, b = [b, a]      # a = 2, b = 1
+----
+
 Destucturing can also be used in
 xref:_span_class_monospaced_foreach_span_loops[`foreach` loops]:
 [source,golo]

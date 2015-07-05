@@ -924,13 +924,13 @@ void Statement() #void:{}
   |
   LOOKAHEAD(2) Assignment()
   |
-  ExpressionStatement()
-  |
-  Return()
-  |
   LOOKAHEAD(3) DestructuringAssignment()
   |
   LOOKAHEAD(3) LetOrVar()
+  |
+  ExpressionStatement()
+  |
+  Return()
   |
   ConditionalBranching()
   |
@@ -1364,6 +1364,14 @@ ASTDestructuringAssignment DestructuringAssignment():
   <VAR> names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
   {
     jjtThis.setType(ASTLetOrVar.Type.VAR);
+    jjtThis.setNames(names);
+    jjtThis.setVarargs(varargsToken != null);
+    return jjtThis;
+  }
+  |
+  names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
+  {
+    jjtThis.setType(null);
     jjtThis.setNames(names);
     jjtThis.setVarargs(varargsToken != null);
     return jjtThis;

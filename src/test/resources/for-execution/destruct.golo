@@ -107,6 +107,22 @@ function test_union = {
   require(c == "c", "err")
 }
 
+function test_swap = {
+  var a, b = [1, 2]
+  require(a == 1, "err")
+  require(b == 2, "err")
+
+  a, b = [b, a]
+  require(a == 2, "err")
+  require(b == 1, "err")
+
+  var c = 0
+  a, b, c = [c, a, b]
+  require(a == 0, "err")
+  require(b == 2, "err")
+  require(c == 1, "err")
+}
+
 function main = |args| {
   test_tuple_samesize()
   test_tuple_rest()
@@ -117,5 +133,6 @@ function main = |args| {
   test_range()
   test_foreach()
   test_map()
+  test_swap()
   println("ok")
 }
