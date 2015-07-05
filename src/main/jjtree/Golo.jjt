@@ -222,7 +222,11 @@ TOKEN :
     ("\\" (["n", "t", "b", "r", "f", "\\", "'", "\""]) )
   )* "\"" >
   |
-  < CHAR: "'" (~["\n", "\r", "\""]) "'" >
+  < CHAR: "'" (
+    (~["\n", "\r", "\""])
+    |
+    ("\\" (["n", "t", "b", "r", "f", "\\", "'"]) )
+  ) "'" >
   |
   < NULL: "null" >
   |
@@ -541,7 +545,7 @@ Character CharLiteral() #void:
 {
   literal=<CHAR>
   {
-    return Character.valueOf(literal.image.charAt(1));
+    return Character.valueOf(StringUnescaping.unescape(literal.image.substring(1, literal.image.length() - 1)).charAt(0));
   }
 }
 

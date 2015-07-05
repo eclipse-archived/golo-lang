@@ -11,34 +11,42 @@ package fr.insalyon.citi.golo.compiler.utils;
 
 public class StringUnescaping {
 
-  private static final String[] ESCAPE_STRINGS = {
-      String.valueOf('\n'),
-      String.valueOf('\t'),
-      String.valueOf('\b'),
-      String.valueOf('\r'),
-      String.valueOf('\f'),
-      String.valueOf('\''),
-      String.valueOf('"'),
-      String.valueOf('\\')
-  };
-
-  private static final String[] SEQS = {
-      "\\n",
-      "\\t",
-      "\\b",
-      "\\r",
-      "\\f",
-      "\\'",
-      "\\\"",
-      "\\\\"
-  };
-
   public static String unescape(String str) {
-    String result = str;
-    for (int i = 0; i < ESCAPE_STRINGS.length; i++) {
-      result = result.replace(SEQS[i], ESCAPE_STRINGS[i]);
+    StringBuilder sb = new StringBuilder(str.length());
+    for (int i = 0; i < str.length(); i++) {
+      char ch = str.charAt(i);
+      if (ch == '\\') {
+        char nextChar = (i == str.length() - 1) ? '\\' : str.charAt(i + 1);
+        switch (nextChar) {
+          case '\\':
+            ch = '\\';
+            break;
+          case 'b':
+            ch = '\b';
+            break;
+          case 'f':
+            ch = '\f';
+            break;
+          case 'n':
+            ch = '\n';
+            break;
+          case 'r':
+            ch = '\r';
+            break;
+          case 't':
+            ch = '\t';
+            break;
+          case '\"':
+            ch = '\"';
+            break;
+          case '\'':
+            ch = '\'';
+            break;
+        }
+        i++;
+      }
+      sb.append(ch);
     }
-    return result;
-    // TODO: this is a rather inefficient algorithm...
+    return sb.toString();
   }
 }
