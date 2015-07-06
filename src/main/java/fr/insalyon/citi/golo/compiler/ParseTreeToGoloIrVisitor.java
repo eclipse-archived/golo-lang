@@ -13,10 +13,7 @@ import fr.insalyon.citi.golo.compiler.ir.*;
 import fr.insalyon.citi.golo.compiler.parser.*;
 import fr.insalyon.citi.golo.runtime.OperatorType;
 
-import java.util.Collections;
-import java.util.Deque;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE;
@@ -1071,16 +1068,19 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, context);
     BinaryOperation current = null;
-    ExpressionStatement left;
-    ExpressionStatement right = null;
     List<String> symbols = node.getOperators();
-    Collections.reverse(symbols);
+    LinkedList<ExpressionStatement> statements = new LinkedList<>();
+    for (int i = 0; i < symbols.size() + 1; i++) {
+      statements.addFirst((ExpressionStatement) context.objectStack.pop());
+    }
+    int i = 2;
     for (String symbol : symbols) {
-      if (right == null) {
-        right = (ExpressionStatement) context.objectStack.pop();
+      if (current == null) {
+        current = new BinaryOperation(operationFrom(symbol), statements.get(0), statements.get(1));
+      } else {
+        current = new BinaryOperation(operationFrom(symbol), current, statements.get(i));
+        i = i + 1;
       }
-      left = (ExpressionStatement) context.objectStack.pop();
-      right = current = new BinaryOperation(operationFrom(symbol), left, right);
     }
     context.objectStack.push(current);
     node.setIrElement(current);
@@ -1092,16 +1092,19 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, context);
     BinaryOperation current = null;
-    ExpressionStatement left;
-    ExpressionStatement right = null;
     List<String> symbols = node.getOperators();
-    Collections.reverse(symbols);
+    LinkedList<ExpressionStatement> statements = new LinkedList<>();
+    for (int i = 0; i < symbols.size() + 1; i++) {
+      statements.addFirst((ExpressionStatement) context.objectStack.pop());
+    }
+    int i = 2;
     for (String symbol : symbols) {
-      if (right == null) {
-        right = (ExpressionStatement) context.objectStack.pop();
+      if (current == null) {
+        current = new BinaryOperation(operationFrom(symbol), statements.get(0), statements.get(1));
+      } else {
+        current = new BinaryOperation(operationFrom(symbol), current, statements.get(i));
+        i = i + 1;
       }
-      left = (ExpressionStatement) context.objectStack.pop();
-      right = current = new BinaryOperation(operationFrom(symbol), left, right);
     }
     context.objectStack.push(current);
     node.setIrElement(current);
@@ -1137,14 +1140,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, context);
     BinaryOperation current = null;
-    ExpressionStatement left;
-    ExpressionStatement right = null;
-    for (int i = 0; i < node.count(); i++) {
-      if (right == null) {
-        right = (ExpressionStatement) context.objectStack.pop();
+    LinkedList<ExpressionStatement> statements = new LinkedList<>();
+    for (int i = 0; i < node.count() + 1; i++) {
+      statements.addFirst((ExpressionStatement) context.objectStack.pop());
+    }
+    int i = 2;
+    for (int j = 0; j < node.count(); j++) {
+      if (current == null) {
+        current = new BinaryOperation(OperatorType.AND, statements.get(0), statements.get(1));
+      } else {
+        current = new BinaryOperation(OperatorType.AND, current, statements.get(i));
+        i = i + 1;
       }
-      left = (ExpressionStatement) context.objectStack.pop();
-      right = current = new BinaryOperation(OperatorType.AND, left, right);
     }
     context.objectStack.push(current);
     node.setIrElement(current);
@@ -1156,14 +1163,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, context);
     BinaryOperation current = null;
-    ExpressionStatement left;
-    ExpressionStatement right = null;
-    for (int i = 0; i < node.count(); i++) {
-      if (right == null) {
-        right = (ExpressionStatement) context.objectStack.pop();
+    LinkedList<ExpressionStatement> statements = new LinkedList<>();
+    for (int i = 0; i < node.count() + 1; i++) {
+      statements.addFirst((ExpressionStatement) context.objectStack.pop());
+    }
+    int i = 2;
+    for (int j = 0; j < node.count(); j++) {
+      if (current == null) {
+        current = new BinaryOperation(OperatorType.OR, statements.get(0), statements.get(1));
+      } else {
+        current = new BinaryOperation(OperatorType.OR, current, statements.get(i));
+        i = i + 1;
       }
-      left = (ExpressionStatement) context.objectStack.pop();
-      right = current = new BinaryOperation(OperatorType.OR, left, right);
     }
     context.objectStack.push(current);
     node.setIrElement(current);
@@ -1175,14 +1186,18 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     node.childrenAccept(this, context);
     BinaryOperation current = null;
-    ExpressionStatement left;
-    ExpressionStatement right = null;
-    for (int i = 0; i < node.count(); i++) {
-      if (right == null) {
-        right = (ExpressionStatement) context.objectStack.pop();
+    LinkedList<ExpressionStatement> statements = new LinkedList<>();
+    for (int i = 0; i < node.count() + 1; i++) {
+      statements.addFirst((ExpressionStatement) context.objectStack.pop());
+    }
+    int i = 2;
+    for (int j = 0; j < node.count(); j++) {
+      if (current == null) {
+        current = new BinaryOperation(OperatorType.ORIFNULL, statements.get(0), statements.get(1));
+      } else {
+        current = new BinaryOperation(OperatorType.ORIFNULL, current, statements.get(i));
+        i = i + 1;
       }
-      left = (ExpressionStatement) context.objectStack.pop();
-      right = current = new BinaryOperation(OperatorType.ORIFNULL, left, right);
     }
     context.objectStack.push(current);
     node.setIrElement(current);
