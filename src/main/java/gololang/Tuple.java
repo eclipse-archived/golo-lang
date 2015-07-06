@@ -186,18 +186,41 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
   }
 
   /**
+   * Helper for destructuring.
    *
+   * @return the tuple itself
    */
   public Tuple destruct() { return this; }
 
+  /**
+   * Extract a sub-tuple.
+   *
+   * @param start the index of the first element.
+   * @return a new tuple containing the elements from {@code start} to the end.
+   */
   public Tuple subTuple(int start) {
     return this.subTuple(start, data.length);
   }
 
+  /**
+   * Extract a sub-tuple.
+   *
+   * @param start the index of the first element (inclusive).
+   * @param end the index of the last element (exclusive).
+   * @return a new tuple containing the elements between indices {@start} inclusive and {@code end}
+   * exclusive.
+   */
   public Tuple subTuple(int start, int end) {
     if (this.isEmpty()) {
       return this;
     }
     return fromArray(Arrays.copyOfRange(data, start, end));
+  }
+
+  /**
+   * Returns a array of this tuple data.
+   */
+  public Object[] toArray() {
+    return Arrays.copyOf(data, data.length);
   }
 }
