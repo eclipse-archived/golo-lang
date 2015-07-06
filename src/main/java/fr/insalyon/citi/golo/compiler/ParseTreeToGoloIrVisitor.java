@@ -529,6 +529,56 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTDestructuringAssignment node, Object data) {
+    Context context = (Context) data;
+    ReferenceTable parentTable = context.referenceTableStack.peek();
+    ReferenceTable localTable = parentTable.fork();
+    Block block = new Block(localTable);
+    String varName = "__$$_destruct_" + System.currentTimeMillis();
+    LocalReference destructReference = new LocalReference(CONSTANT, varName, true);
+    localTable.add(destructReference);
+
+    node.jjtGetChild(0).jjtAccept(this, data);
+    ExpressionStatement destructExpressionStatement = (ExpressionStatement) context.objectStack.pop();
+    AssignmentStatement init = new AssignmentStatement(destructReference,
+                                    new BinaryOperation(OperatorType.METHOD_CALL,
+                                        destructExpressionStatement,
+                                        new MethodInvocation("destruct")));
+    init.setDeclaring(true);
+    init.setASTNode(node);
+    block.addStatement(init);
+    int idx = 0;
+    int last = node.getNames().size() - 1;
+    boolean declaring = (node.getType() != null);
+    for (String name : node.getNames()) {
+      LocalReference val;
+      if (declaring) {
+        val = new LocalReference(node.getType() == LET ? CONSTANT : VARIABLE, name, true);
+        parentTable.add(val);
+      } else {
+        if (!parentTable.hasReferenceFor(name)) {
+          getOrCreateExceptionBuilder(context).report(UNDECLARED_REFERENCE, node,
+          "Assigning to either a parameter or an undeclared reference `" + name +
+              "` at (line=" + node.getLineInSourceCode() +
+              ", column=" + node.getColumnInSourceCode() + ")");
+          continue;
+        }
+        val = parentTable.get(name);
+      }
+      MethodInvocation get = new MethodInvocation(!node.isVarargs() || idx != last ? "get" : "subTuple");
+      get.addArgument(new ConstantStatement(idx));
+      AssignmentStatement valInit = new AssignmentStatement(val,
+                    new BinaryOperation(OperatorType.METHOD_CALL,
+                        new ReferenceLookup(varName), get));
+      valInit.setDeclaring(declaring);
+      block.addStatement(valInit);
+      idx++;
+    }
+    context.objectStack.push(block);
+    return data;
+  }
+
+  @Override
   public Object visit(ASTReturn node, Object data) {
     Context context = (Context) data;
     if (node.jjtGetNumChildren() > 0) {
@@ -834,9 +884,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     ReferenceTable localTable = context.referenceTableStack.peek().fork();
 
-    LocalReference elementReference = new LocalReference(VARIABLE, node.getElementIdentifier());
-    localTable.add(elementReference);
-
     String iteratorId = "$$__iterator__$$__" + System.currentTimeMillis();
     LocalReference iteratorReference = new LocalReference(VARIABLE, iteratorId, true);
     localTable.add(iteratorReference);
@@ -880,16 +927,56 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
             new MethodInvocation("hasNext"));
     condition.setASTNode(node);
 
-    AssignmentStatement next = new AssignmentStatement(
-        elementReference,
-        new BinaryOperation(
-            OperatorType.METHOD_CALL,
-            new ReferenceLookup(iteratorId),
-            new MethodInvocation("next"))
-    );
-    next.setDeclaring(true);
-    next.setASTNode(node);
-    block.prependStatement(next);
+    if (node.getElementIdentifier() != null) {
+      LocalReference elementReference = new LocalReference(VARIABLE, node.getElementIdentifier());
+      localTable.add(elementReference);
+
+      AssignmentStatement next = new AssignmentStatement(
+          elementReference,
+          new BinaryOperation(
+              OperatorType.METHOD_CALL,
+              new ReferenceLookup(iteratorId),
+              new MethodInvocation("next"))
+      );
+      next.setDeclaring(true);
+      next.setASTNode(node);
+      block.prependStatement(next);
+    } else if (!node.getNames().isEmpty()) {
+      Deque<AssignmentStatement> inits = new LinkedList<AssignmentStatement>();
+      String tmpName = "__$$_destruct_" + System.currentTimeMillis();
+      LocalReference destructReference = new LocalReference(VARIABLE, tmpName, true);
+      localTable.add(destructReference);
+      AssignmentStatement next = new AssignmentStatement(destructReference,
+                                    new BinaryOperation(OperatorType.METHOD_CALL,
+                                        new ReferenceLookup(iteratorId),
+                                        new BinaryOperation(OperatorType.METHOD_CALL,
+                                          new MethodInvocation("next"),
+                                          new MethodInvocation("destruct"))));
+      next.setDeclaring(true);
+      next.setASTNode(node);
+
+      inits.push(next);
+      
+      int idx = 0;
+      int last = node.getNames().size() - 1;
+      for (String name : node.getNames()) {
+        LocalReference val = new LocalReference(VARIABLE, name, true);
+        MethodInvocation get = new MethodInvocation(!node.isVarargs() || idx != last ? "get" : "subTuple");
+        get.addArgument(new ConstantStatement(idx));
+        localTable.add(val);
+        AssignmentStatement valInit = new AssignmentStatement(val,
+                      new BinaryOperation(OperatorType.METHOD_CALL,
+                          new ReferenceLookup(tmpName), get));
+        inits.push(valInit);
+        idx++;
+      }
+
+      while (!inits.isEmpty()) {
+        block.prependStatement(inits.pop());
+      }
+    } else {
+      throw new IllegalStateException();
+    }
 
     LoopStatement loopStatement = new LoopStatement(init, condition, block, null);
     Block localBlock = new Block(localTable);

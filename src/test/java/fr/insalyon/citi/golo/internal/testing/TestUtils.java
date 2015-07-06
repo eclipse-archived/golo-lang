@@ -21,6 +21,10 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
+import java.lang.reflect.Method;
+
+import static java.lang.reflect.Modifier.isStatic;
+import static java.lang.reflect.Modifier.isPublic;
 
 public class TestUtils {
 
@@ -55,5 +59,24 @@ public class TestUtils {
 
   private static boolean shouldTestNgReportToConsole() {
     return Boolean.valueOf(System.getProperty("testng-report-to-console", "false"));
+  }
+
+  public static boolean isTestMethod(Method m) {
+    return (
+      isPublic(m.getModifiers()) &&
+      isStatic(m.getModifiers()) &&
+      m.getName().startsWith("test_") &&
+      m.getParameterCount() == 0
+    );
+  }
+
+  public static Iterable<Method> getTestMethods(Class<?> module) {
+    List<Method> methods = new LinkedList<>();
+    for (Method m : module.getDeclaredMethods()) {
+      if (isTestMethod(m)) {
+        methods.add(m);
+      }
+    }
+    return methods;
   }
 }

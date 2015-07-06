@@ -145,6 +145,7 @@ class JavaBytecodeUnionGenerator {
       makeValuedConstructor(classWriter, value);
       makeHashCode(classWriter, value);
       makeEquals(classWriter, value);
+      makeDestruct(classWriter, value);
     } else {
       makeDefaultConstructor(classWriter, unionType);
       parentClassWriter.visitField(ACC_PUBLIC | ACC_FINAL | ACC_STATIC, value.getName(),
@@ -216,6 +217,14 @@ class JavaBytecodeUnionGenerator {
   private void makeHashCode(ClassWriter cw, Union.Value value) {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "hashCode", "()I", null, null);
     mv.visitCode();
+    loadMembersArray(mv, value);
+    mv.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I", false);
+    mv.visitInsn(IRETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+  }
+
+  private void loadMembersArray(MethodVisitor mv, Union.Value value) {
     loadInteger(mv, value.getMembers().size());
     mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;
@@ -225,9 +234,16 @@ class JavaBytecodeUnionGenerator {
       mv.visitVarInsn(ALOAD, 0);
       mv.visitFieldInsn(GETFIELD, value.getPackageAndClass().toJVMType(), member, "Ljava/lang/Object;");
       mv.visitInsn(AASTORE);
+      i++;
     }
-    mv.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I", false);
-    mv.visitInsn(IRETURN);
+  }
+
+  private void makeDestruct(ClassWriter cw, Union.Value value) {
+    MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "destruct", "()Lgololang/Tuple;", null, null);
+    mv.visitCode();
+    loadMembersArray(mv, value);
+    mv.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;", false);
+    mv.visitInsn(ARETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
   }

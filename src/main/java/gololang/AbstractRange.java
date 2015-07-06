@@ -130,4 +130,14 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
   public boolean isEmpty() {
     return from.compareTo(to) >= 0;
   }
+
+  public Tuple destruct() {
+    Object[] data = new Object[this.size()];
+    int i = 0;
+    for (T v : this) {
+      data[i] = v;
+      i++;
+    }
+    return Tuple.fromArray(data);
+  }
 }

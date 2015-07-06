@@ -409,6 +409,69 @@ let b = -> [2, 'b']
 let m = map[a(), b()]
 ----
 
+=== Destructuring ===
+
+Golo supports simple destructuring, that is automatic extraction of values
+from an object and assignment to multiple variables in one instruction.
+
+For instance, using destructuring on a tuple:
+[source,golo]
+----
+let a, b = [1, 2]
+# a = 1, b = 2
+----
+
+If there are more variables than values, an exception is raised. If there are
+fewer, the remaining values are ignored. A special syntax is available to
+assign the rest of the values, similar to varargs notation. For instance:
+
+[source,golo]
+----
+let a, b, c = [1, 2]               # raises an exception
+let a, b = [1, 2, 3]               # a = 1, b = 2, 3 ignored
+let a, b, c... = [1, 2, 3, 4, 5]   # a = 1, b = 2, c = [3, 4, 5]
+----
+
+Any object having a `destruct()` method returning a tuple can be used in
+destructuring assignments. Golo specific data structures and some Java native
+ones can be destructured. Augmentations can be used to make an existing class
+destructurable.
+
+For instance, xref:_structs[golo structures] are destructurable:
+[source,golo]
+----
+struct Point = {x, y}
+#...
+let p = Point(42, 1337)
+let x, y = p   # x = 42, y = 1337
+----
+
+as well as java lists:
+[source,golo]
+----
+let lst = list[1, 2, 3, 4, 5]
+let head, tail... = lst        # head = 1, tail = [2, 3, 4, 5]
+----
+
+Already defined variables can also be assigned with destructuring. For
+instance, one can easily swap two variables:
+[source,golo]
+----
+var a, b = [1, 2]  # a = 1, b = 2
+a, b = [b, a]      # a = 2, b = 1
+----
+
+Destucturing can also be used in
+xref:_span_class_monospaced_foreach_span_loops[`foreach` loops]:
+[source,golo]
+----
+foreach key, value in myMap: entrySet() {
+  # do something...
+}
+----
+
+
+
 === Operators ===
 
 Golo supports the following <<operators,set of operators>>.

@@ -924,11 +924,13 @@ void Statement() #void:{}
   |
   LOOKAHEAD(2) Assignment()
   |
+  LOOKAHEAD(3) DestructuringAssignment()
+  |
+  LOOKAHEAD(3) LetOrVar()
+  |
   ExpressionStatement()
   |
   Return()
-  |
-  LetOrVar()
   |
   ConditionalBranching()
   |
@@ -980,18 +982,32 @@ void ForLoop(): {}
 void ForEachLoop():
 {
   Token elementId;
+  List<String> names;
+  Token varargsToken = null;
 }
 {
   <FOREACH>
   (
-    (elementId=<IDENTIFIER> <IN> ExpressionStatement() (<WHEN> ExpressionStatement())?)
+    LOOKAHEAD(2)(
+      (elementId=<IDENTIFIER> <IN> ExpressionStatement() (<WHEN> ExpressionStatement())?)
+      |
+      ("(" elementId=<IDENTIFIER> <IN> ExpressionStatement() (<WHEN> ExpressionStatement())? ")")
+    )
+    {
+      jjtThis.setElementIdentifier(elementId.image);
+    }
     |
-    ("(" elementId=<IDENTIFIER> <IN> ExpressionStatement() (<WHEN> ExpressionStatement())? ")")
+    LOOKAHEAD(2)(
+      (names=DestructuredNames()(varargsToken="...")? <IN> ExpressionStatement() (<WHEN> ExpressionStatement())?)
+      |
+      ("(" names=DestructuredNames()(varargsToken="...")? <IN> ExpressionStatement() (<WHEN> ExpressionStatement())? ")")
+    )
+    {
+      jjtThis.setNames(names);
+      jjtThis.setVarargs(varargsToken != null);
+    }
   )
   Block()
-  {
-    jjtThis.setElementIdentifier(elementId.image);
-  }
 }
 
 void TryCatchFinally():
@@ -1328,6 +1344,59 @@ void Reference():{}
   <IDENTIFIER>
   {
     jjtThis.setName(jjtThis.jjtGetFirstToken().image);
+  }
+}
+
+ASTDestructuringAssignment DestructuringAssignment():
+{
+  List<String> names;
+  Token varargsToken = null;
+}
+{
+  <LET> names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
+  {
+    jjtThis.setType(ASTLetOrVar.Type.LET);
+    jjtThis.setNames(names);
+    jjtThis.setVarargs(varargsToken != null);
+    return jjtThis;
+  }
+  |
+  <VAR> names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
+  {
+    jjtThis.setType(ASTLetOrVar.Type.VAR);
+    jjtThis.setNames(names);
+    jjtThis.setVarargs(varargsToken != null);
+    return jjtThis;
+  }
+  |
+  names=DestructuredNames() (varargsToken="...")? "=" (BlankLine())? ExpressionStatement()
+  {
+    jjtThis.setType(null);
+    jjtThis.setNames(names);
+    jjtThis.setVarargs(varargsToken != null);
+    return jjtThis;
+  }
+}
+
+List<String> DestructuredNames() #void:
+{
+  List<String> names = new LinkedList<String>();
+  Token rootToken;
+  Token nextToken;
+}
+{
+  rootToken=<IDENTIFIER>
+  {
+    names.add(rootToken.image);
+  }
+  (
+    "," (BlankLine())? nextToken=<IDENTIFIER>
+    {
+      names.add(nextToken.image);
+    }
+  )+
+  {
+    return names;
   }
 }
 

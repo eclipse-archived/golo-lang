@@ -232,6 +232,16 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
     return this.asList().toArray(a);
   }
 
+
+  /**
+   * Destructuration helper.
+   *
+   * @return a tuple of head and tail
+   */
+  public Tuple destruct() {
+    return new Tuple(head(), tail());
+  }
+
   /**
    * Returns the element at the specified position in this list.
    * <p>

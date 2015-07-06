@@ -54,6 +54,15 @@ public abstract class GoloStruct implements Iterable<Tuple> {
   public abstract Tuple values();
 
   /**
+   * Destructuration helper.
+   *
+   * @return a tuple with the current values.
+   */
+  public Tuple destruct() { 
+    return values();
+  }
+
+  /**
    * Gets a member value by name.
    *
    * @param member the member name.

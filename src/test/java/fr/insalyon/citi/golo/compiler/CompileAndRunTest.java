@@ -28,6 +28,7 @@ import java.util.concurrent.Callable;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.*;
 import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
+import static fr.insalyon.citi.golo.internal.testing.TestUtils.getTestMethods;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
@@ -1234,7 +1235,6 @@ public class CompileAndRunTest {
         fail("method test_" + methodName + " in " + SRC + "unions.golo failed");
       }
     }
-
   }
 
   @Test
@@ -1846,4 +1846,21 @@ public class CompileAndRunTest {
     result = (String) golo_augmentation_varargs.invoke(null);
     assertThat(result, is("abc"));
   }
+
+  @Test
+  public void destructuring() throws Throwable {
+    if (bootstraping()) {
+      return;
+    }
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "destruct.golo");
+    for (Method testMethod : getTestMethods(moduleClass)) {
+      try {
+        testMethod.invoke(null);
+      } catch (InvocationTargetException e) {
+        fail("method " + testMethod.getName() + " in " + SRC + "destruct.golo failed: " + 
+              e.getCause());
+      }
+    }
+  }
+
 }

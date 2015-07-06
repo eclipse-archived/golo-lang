@@ -10,32 +10,33 @@
 package fr.insalyon.citi.golo.compiler.parser;
 
 import java.util.List;
-import java.util.LinkedList;
+import java.util.ArrayList;
+import static java.util.Collections.unmodifiableList;
 
-public class ASTForEachLoop extends GoloASTNode {
+public class ASTDestructuringAssignment extends GoloASTNode {
 
-  private String elementIdentifier;
-  private List<String> names = new LinkedList<>();
+  private ASTLetOrVar.Type type;
+  private List<String> names = new ArrayList<>();
   private boolean isVarargs = false;
 
-  public ASTForEachLoop(int id) {
+  public ASTDestructuringAssignment(int id) {
     super(id);
   }
 
-  public ASTForEachLoop(GoloParser p, int id) {
+  public ASTDestructuringAssignment(GoloParser p, int id) {
     super(p, id);
   }
 
-  public String getElementIdentifier() {
-    return elementIdentifier;
+  public ASTLetOrVar.Type getType() {
+    return type;
   }
 
-  public void setElementIdentifier(String elementIdentifier) {
-    this.elementIdentifier = elementIdentifier;
+  public void setType(ASTLetOrVar.Type type) {
+    this.type = type;
   }
 
   public List<String> getNames() {
-    return this.names;
+    return unmodifiableList(names);
   }
 
   public void setNames(List<String> names) {
@@ -53,9 +54,11 @@ public class ASTForEachLoop extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTForEachLoop{" +
-        "elementIdentifier='" + elementIdentifier + '\'' +
-        '}';
+    return "ASTDestructuringAssignment{" +
+        "type=" + type +
+        ", names=" + names +
+        ", varargs=" + isVarargs +
+      "}";
   }
 
   @Override

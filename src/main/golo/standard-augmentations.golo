@@ -284,6 +284,12 @@ augment java.util.Collection {
   ----
   function newWithSameType = |this| -> _newWithSameType(this)
 
+  ----
+  Destructuration helper.
+  
+  * return a tuple of the values
+  ----
+  function destruct = |this| -> Tuple.fromArray(this: toArray())
 }
 
 # ............................................................................................... #
@@ -791,6 +797,13 @@ augment java.util.Map {
     this: filter(pred): size() > 0
 }
 
+
+augment java.util.Map$Entry {
+  ----
+  Destructurate a map entry in key and value
+  ----
+  function destruct = |this| -> [ this: getKey(), this: getValue() ]
+}
 # ............................................................................................... #
 
 ----
