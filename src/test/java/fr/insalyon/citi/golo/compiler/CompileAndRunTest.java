@@ -90,11 +90,16 @@ public class CompileAndRunTest {
     Method no = moduleClass.getMethod("no");
     assertThat((Boolean) no.invoke(null), is(Boolean.FALSE));
 
-    Method escaped = moduleClass.getMethod("escaped");
-    String str = (String) escaped.invoke(null);
-    String expected = "\nFoo\r\n";
-    assertThat(str.length(), is(expected.length()));
-    assertThat(str, is(expected));
+    Method escaped_string = moduleClass.getMethod("escaped_string");
+    String str = (String) escaped_string.invoke(null);
+    String expected_string = "\nFoo\r\n\\n";
+    assertThat(str.length(), is(expected_string.length()));
+    assertThat(str, is(expected_string));
+
+    Method escaped_char = moduleClass.getMethod("escaped_char");
+    char character = (char) escaped_char.invoke(null);
+    char expected_char = '\n';
+    assertThat(character, is(expected_char));
 
     Method multiline = moduleClass.getMethod("multiline");
     assertThat((String) multiline.invoke(null), is("This is\n*awesome*"));

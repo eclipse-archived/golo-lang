@@ -14,8 +14,12 @@ function yes = { return ((true)) }
 
 function no = { return (false) }
 
-function escaped = {
-  return "\nFoo\r\n"
+function escaped_string = {
+  return "\nFoo\r\n\\n"
+}
+
+function escaped_char = {
+  return '\n'
 }
 
 function multiline = {
