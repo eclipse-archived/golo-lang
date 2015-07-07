@@ -1,9 +1,9 @@
-== Dynamic objects ==
+== Dynamic objects
 
 Dynamic objects can have values and methods being added and removed dynamically at runtime. You can
 think of it as an enhancement over using hash maps and putting closures in them.
 
-=== Creating dynamic objects ===
+=== Creating dynamic objects
 
 Creating a dynamic object is as simple as calling the `DynamicObject` function:
 
@@ -27,7 +27,7 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 - `invoker(name, type)` which is mostly used by the Golo runtime internals, and
 - `fallback(handler)` defines a fallback behavior for property invocation.
 
-=== Defining values ===
+=== Defining values
 
 Defining values also defines getter and setter methods, as illustrated by the next example:
 
@@ -60,7 +60,7 @@ person: name("Mr Beanz")
 println(person: name())
 ----
 
-=== Defining methods ===
+=== Defining methods
 
 Dynamic object methods are simply defined as closures. They must take the dynamic object object as
 their first argument, and we suggest that you call it `this`. You can then define as many parameters
@@ -126,7 +126,7 @@ methods).**
 
 ====
 
-=== Querying the properties ===
+=== Querying the properties
 
 The `properties()` method returns a set of entries, as instances of `java.util.Map.Entry`. You can
 thus write code such as:
@@ -143,7 +143,7 @@ function dump = |obj| {
 Because dynamic object entries mix both values and function references, do not forget that the predefined
 `isClosure(obj)` function can be useful to distinguish them.
 
-=== Defining a fallback behavior ===
+=== Defining a fallback behavior
 
 The `fallback(handler)` method let's the user define a method that is invoked whenever the initial method dispatch fails.
 Here is an example of how to define a fallback.

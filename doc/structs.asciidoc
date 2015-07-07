@@ -1,10 +1,10 @@
-== Structs ==
+== Structs
 
 Golo allows the definition of simple structures using the `struct` keyword. They resemble structures
 in procedural languages such as C `struct` or Pascal *records*. They are useful to store data when
 the set of named entries is fixed.
 
-=== Definition ===
+=== Definition
 
 Structures are defined at the module-level:
 
@@ -31,7 +31,7 @@ while the setter is method `a(newValue)`. It should be noted that setter methods
 structure instance which makes it possible to chain calls as illustrated in the previous example
 while building `p2`.
 
-=== JVM existence ===
+=== JVM existence
 
 Each `struct` is compiled to a self-contained JVM class.
 
@@ -52,7 +52,7 @@ It is important to note that:
 2. each `struct` class inherits from `gololang.GoloStruct`,
 3. proper definitions of `toString()`, `hashCode()` and `equals()` are being provided.
 
-=== `toString()` behavior ===
+=== `toString()` behavior
 
 The `toString()` method is being overridden to provide a meaningful description of a structure
 content.
@@ -66,7 +66,7 @@ module test
 struct Point = { x, y }
 
 function main = |args| {
-  println(Point(1, 2))  
+  println(Point(1, 2))
 }
 ----
 
@@ -77,7 +77,7 @@ running it prints the following console output:
 struct Point{x=1, y=2}
 ----
 
-=== Immutable structs ===
+=== Immutable structs
 
 Structure instances are mutable by default. Golo generates a factory function with the `Immutable`
 prefix to directly build immutable instances:
@@ -102,7 +102,7 @@ function main = |args| {
 }
 ----
 
-=== Copying ===
+=== Copying
 
 Instances of a structure provide copying methods:
 
@@ -115,7 +115,7 @@ Trying to invoke any setter methods on an instance obtained through `frozenCopy(
 IMPORTANT: The result of calling `copy()` on a frozen instance **is a mutable** copy, not a frozen
 copy.
 
-=== `equals()` and `hashCode()` semantics ===
+=== `equals()` and `hashCode()` semantics
 
 Golo structures honor the contract of Java objects regarding equality and hash codes.
 
@@ -134,7 +134,7 @@ module test
 struct Point = { x, y }
 
 function main = |args| {
-  
+
   let p1 = Point(1, 2)
   let p2 = Point(1, 2)
   let p3 = p1: frozenCopy()
@@ -167,7 +167,7 @@ p3 == p4 true
 TIP: It is recommended that you use `Immutable<name of struct>(...)` or `frozenCopy()` when you can,
 especially when storing values into collections.
 
-=== Helper methods ===
+=== Helper methods
 
 A number of helper methods are being generated:
 
@@ -178,7 +178,7 @@ A number of helper methods are being generated:
 - `get(name)` returns the value of a member by its name,
 - `set(name, value)` updates the value of a member by its name, and returns the same structure.
 
-=== Private members ===
+=== Private members
 
 By default, all members in a struct can be accessed. It is possible to make some elements private by
 prefixing them with `_`, as in:
@@ -207,7 +207,7 @@ Private struct members also have the following impact:
 - they are being used like other members in `equals()` and `hashCode()`, and
 - they do not appear in `toString()` representations.
 
-=== Augmenting structs ===
+=== Augmenting structs
 
 Structs provide a simple data model, especially with private members for encapsulation.
 
@@ -277,4 +277,3 @@ function check = {
 }
 ----
 ====
-

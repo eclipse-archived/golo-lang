@@ -1,10 +1,10 @@
 // vim:ft=asciidoc:tw=79:foldmethod=marker:foldmarker=<<<,>>>
 
-== Decorators ==
+== Decorators
 
 Golo features Python-like decorators.
 
-=== Presentation ===
+=== Presentation
 //<<<
 Decorators are similar in syntax and purpose to Java annotations.
 However, the concepts behind them are very different. Indeed, whereas Java
@@ -27,7 +27,7 @@ being "function" (more precisely a `gololang.FunctionReference`).
 
 //>>>
 
-=== Principles and syntax ===
+=== Principles and syntax
 //<<<
 As in Python, and similarly to Java annotations, a decorator is used with a
 `@` prefix before the function definition. As an example, the decorator
@@ -335,7 +335,7 @@ some decorators of the standard module
 link:./golodoc/gololang/Decorators[`gololang.Decorators`].
 //>>>
 
-=== Use cases and examples ===
+=== Use cases and examples
 //<<<
 
 Use cases are at least the same as
@@ -345,7 +345,7 @@ http://en.wikipedia.org/wiki/Decorator_pattern[Decorator design pattern],
 but your imagination is your limit.
 Some are presented here for illustration.
 
-==== Logging ====
+==== Logging
 //<<<
 
 Logging is a classical example use case of AOP. See the
@@ -353,7 +353,7 @@ xref:_principles_and_syntax[Principles and syntax] section for an example.
 
 //>>>
 
-==== Pre/post conditions checking ====
+==== Pre/post conditions checking
 //<<<
 Decorators can be used to check pre-conditions, that is conditions that must
 hold for arguments, and post-conditions, that is conditions that must hold for
@@ -457,7 +457,7 @@ The full set of standard checkers is documented in the generated *golodoc*
 (hint: look for `doc/golodoc` in the Golo distribution).
 //>>>
 
-==== Locking ====
+==== Locking
 //<<<
 
 As seen, decorator can be used to wrap a function call between checking
@@ -486,7 +486,7 @@ function foo = |a, b| {
 //>>>
 
 
-==== Memoization ====
+==== Memoization
 //<<<
 
 Memoization is the optimization technique that stores the results of a expensive
@@ -546,7 +546,7 @@ function fact = |n| {
 
 //>>>
 
-==== Generic context ====
+==== Generic context 
 //<<<
 Decorators can be used to define a generic wrapper around a function, that
 extends the previous example (and can be used to implement most of them).

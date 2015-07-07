@@ -1,9 +1,9 @@
-== Functions ==
+== Functions
 
 Functions are first-class citizen in Golo. Here is how to define and
 call some.
 
-=== Parameter-less functions ===
+=== Parameter-less functions
 
 Golo modules can define functions as follows:
 
@@ -47,7 +47,7 @@ in the next statement is `null`:
 let result = printer()
 ----
 
-=== Functions with parameters ===
+=== Functions with parameters
 
 Of course functions may take some parameters, as in:
 
@@ -68,7 +68,7 @@ let three = addition(1, 2)
 let hello_world = addition("hello ", "world!")
 ----
 
-=== Variable-arity functions ===
+=== Variable-arity functions
 
 Functions may take a varying number of parameters. To define one, just
 add `...` to the last parameter name:
@@ -118,7 +118,7 @@ then:
 println(elementAt(1, 1, 2, 3))
 ----
 
-=== Named parameters ===
+=== Named parameters
 
 When you invoke Golo functions, you can use the name of the parameters explicitly in the call like so:
 
@@ -148,7 +148,7 @@ Note: To name varargs argument, you have be box the values into an `array[]` (ju
 
 CAUTION: You must name either or none of the arguments. A compilation error will be raised, if you mix named an unamed arguments in a function invocation.
 
-=== Functions from other modules and imports ===
+=== Functions from other modules and imports
 
 Suppose that we have a module `foo.Bar`:
 
@@ -214,7 +214,7 @@ Golo modules have a set of implicit imports:
 * `gololang`,
 * `java.lang`.
 
-=== Local functions ===
+=== Local functions
 
 By default, functions are visible outside of their module. You may
 restrict the visibility of a function by using the `local` keyword:
@@ -245,7 +245,7 @@ function i_will_crash = {
 }
 ----
 
-=== Module-level state ===
+=== Module-level state
 
 You can declare `let` and `var` references at the module level, as in:
 

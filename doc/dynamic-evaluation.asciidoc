@@ -1,10 +1,10 @@
-== Dynamic code evaluation ==
+== Dynamic code evaluation
 
 Golo provides facilities for dynamically evaluating code from strings in the form of the
 `gololang.EvaluationEnvironment` class. It provides an API that is useful both when used from Golo
 code, or when used from a polyglot JVM application that embeds Golo.
 
-=== Loading a module ===
+=== Loading a module
 
 The code of a complete module can be evaluated by the `asModule` method:
 
@@ -29,7 +29,7 @@ It is important to note that an `EvaluationEnvironment` instance has a `GoloClas
 attempting to evaluate module code with the same `module` declaration will cause an error. Indeed, a
 class loader cannot load classes with the same name twice.
 
-=== Anonymous modules ===
+=== Anonymous modules
 
 The `anonymousModule` method is similar to `asModule`, except that the code to evaluate is free of
 `module` declaration:
@@ -52,7 +52,7 @@ println(b())
 The modules that get evaluated through `anonymousModule` have unique names, hence this method is
 suitable in cases where the same code is to be re-evaluated several times.
 
-=== Functions ===
+=== Functions
 
 The `asFunction` and `def` methods evaluate function code. Here is how `asFunction` can be used:
 
@@ -85,7 +85,7 @@ let f = env: def(code)
 println(f(10, 20))
 ----
 
-=== Running code ===
+=== Running code 
 
 The first form of `run` method works as follows:
 
@@ -116,4 +116,3 @@ env: run(code, values)
 It is important not to abuse `run`, as each invocation triggers the generation of a one-shot
 class. If the same code is to be run several times, we suggest that you take advantage of either
 `def` or `asFunction`.
-

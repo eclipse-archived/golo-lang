@@ -1,11 +1,11 @@
-The Golo Programming Language
-=============================
+= The Golo Programming Language
 :doctype: book
-:icons:
-:toc2:
+:icons: font
 :data-uri:
-:theme: flask
-:source-highlighter: pygments
+:toc: left
+:numbered:
+:stylesheet: readthedocs.css
+:source-highlighter: prettify
 
 This is the documentation for the Golo programming language.
 
