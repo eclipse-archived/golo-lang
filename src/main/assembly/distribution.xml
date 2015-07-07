@@ -34,7 +34,8 @@
       <directory>target/generated-docs/</directory>
       <outputDirectory>/doc</outputDirectory>
       <includes>
-        <include>golo-guide.html</include>
+        <include>*.html</include>
+        <include>*.pdf</include>
       </includes>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
