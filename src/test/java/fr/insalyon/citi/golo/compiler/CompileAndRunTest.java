@@ -1048,7 +1048,7 @@ public class CompileAndRunTest {
     assertThat((Integer) with_function_update.invoke(null), is(40));
 
     Method mixins = moduleClass.getMethod("mixins");
-    assertThat((String) mixins.invoke(null), is("22[plop]"));
+    assertThat((String) mixins.invoke(null), is("4[plop]"));
 
     Method copying = moduleClass.getMethod("copying");
     assertThat((Integer) copying.invoke(null), is(3));
