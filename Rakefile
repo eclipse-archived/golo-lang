@@ -8,7 +8,7 @@
 task :default => [:all]
 
 desc "Build a complete distribution (packages + documentation)"
-task :all => [:doc, :rebuild]
+task :all => [:rebuild]
 
 desc "Clean"
 task :clean do
@@ -26,14 +26,6 @@ end
 desc "Clean, build and install"
 task :rebuild do
   sh "mvn clean install"
-end
-
-desc "Build the documentation"
-task :doc do
-  Dir.chdir("doc") do
-    sh "rake clean all"
-  end
-  sh "mvn org.golo-lang:golo-maven-plugin:golodoc -DoutputDirectory=doc/output/golodoc"
 end
 
 desc "Build tags file"
