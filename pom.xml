@@ -17,7 +17,7 @@
   <groupId>org.eclipse.golo</groupId>
   <artifactId>golo</artifactId>
   <version>3.0.0-SNAPSHOT</version>
-
+  
   <packaging>jar</packaging>
 
   <name>Golo Programming Language (Incubation)</name>
@@ -73,12 +73,13 @@
     <maven-bundle-plugin.version>2.5.0</maven-bundle-plugin.version>
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
-
+    <asciidoctor-maven-plugin.version>1.5.2</asciidoctor-maven-plugin.version>
+    
     <distribution.repo.id>repo.eclipse.org</distribution.repo.id>
     <distribution.repo.url>https://repo.eclipse.org/content/repositories/golo-releases/</distribution.repo.url>
     <distribution.snapshots.id>repo.eclipse.org</distribution.snapshots.id>
     <distribution.snapshots.url>https://repo.eclipse.org/content/repositories/golo-snapshots/</distribution.snapshots.url>
-
+    
   </properties>
 
   <distributionManagement>
@@ -348,6 +349,28 @@
             <phase>compile</phase>
             <goals>
               <goal>modernizer</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.asciidoctor</groupId>
+        <artifactId>asciidoctor-maven-plugin</artifactId>
+        <version>${asciidoctor-maven-plugin.version}</version>
+        <configuration>
+          <sourceDirectory>doc</sourceDirectory>
+          <sourceDocumentName>golo-guide.asciidoc</sourceDocumentName>
+          <backend>html5</backend>
+          <sourceHighlighter>prettify</sourceHighlighter>
+          <embedAssets>true</embedAssets>
+        </configuration>
+        <executions>
+          <execution>
+            <id>asciidoc-html</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>process-asciidoc</goal>
             </goals>
           </execution>
         </executions>
