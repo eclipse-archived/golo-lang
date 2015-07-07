@@ -409,6 +409,88 @@ let b = -> [2, 'b']
 let m = map[a(), b()]
 ----
 
+=== Collection comprehension
+
+In addition to literals, collections can be created using collection
+comprehension. This is a simple way to create a new collection based on another
+one (actually on any iterable object), by filtering and transforming its
+content. For instance:
+[source,golo]
+----
+let l1 = list[1, 2, 3, 4, 5, 6]
+let l2 = list[x * 2 foreach x in l1 when (x % 2) == 0]
+# l2 == list[4, 8, 12]
+----
+
+This is a more readable and more powerful version of `filter`+`map`. The
+previous example could be rewritten as
+[source,golo]
+----
+let l2 = l2: filter(|x| -> (x % 2) == 0): map(|x| -> x * 2)
+----
+
+The general syntax is an collection literal containing an expression followed
+by one or more loop-like expression. If more than one loop is given, it is
+equivalent to nested loops. Thus
+[source,golo]
+----
+let l = list[ [x, y] foreach x in [1..4] foreach y in ["a", "b", "c"] ]
+----
+
+is equivalent to:
+[source,golo]
+----
+let l = list[]
+foreach x in [1..4] {
+  foreach y in ["a", "b", "c"] {
+    l: add([x, y])
+  }
+}
+----
+
+`for` loop can be used, as in
+[source,golo]
+----
+let l = list[ 3 * x + 1 for (var x=0, i < 10, i = i + 2) ]
+----
+
+Contrary to the `filter`+`map` approach, where the kind on collection is kept,
+comprehension can transform the source collection type, which can be any
+iterable. For instance:
+[source,golo]
+----
+let dices = set[ x + y foreach x in [1..7] foreach y in [1..7]]
+# dices == set[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+----
+
+However, the result collection can only be one of the predefined collection
+literals.
+
+xref:_destructuring[Destructuring] can also be used in collection
+comprehension, as in
+[source,golo]
+----
+let couples = [ [1, 2], [2, 3], [3, 4] ]
+let sums = [ a + b foreach a, b in couples ]
+----
+
+Maps can also be created, provided the given expression is either a 2-tuple or
+a instance of `Map.Entry` (you can use the predefined `mapEntry(key, value)`
+function to create such objects). For instance:
+[source,golo]
+----
+let myMap = map[ ["key" + i, 2 * i] foreach i in [0..4] ]
+# myMap is {key0=0, key1=2, key2=4, key3=6}
+----
+
+A collection comprehension is a expression, and can thus be used as such. E.g.
+[source,golo]
+----
+foreach v in [[x,x] foreach x in [0..3]] {
+  println(v)
+}
+----
+
 === Destructuring
 
 Golo supports simple destructuring, that is automatic extraction of values
