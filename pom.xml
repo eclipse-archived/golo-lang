@@ -460,6 +460,53 @@
             </configuration>
           </plugin>
 
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>test-coverage</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>${jacoco-maven-plugin.version}</version>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-surefire-plugin</artifactId>
+            <configuration>
+              <environmentVariables>
+                <golo.bootstrapped>yes</golo.bootstrapped>
+              </environmentVariables>
+            </configuration>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+
+    <profile>
+      <id>build-documentation</id>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+      <build>
+        <plugins>
           <plugin>
             <groupId>org.asciidoctor</groupId>
             <artifactId>asciidoctor-maven-plugin</artifactId>
@@ -506,43 +553,6 @@
                 </configuration>
               </execution>
             </executions>
-          </plugin>
-
-        </plugins>
-      </build>
-    </profile>
-
-    <profile>
-      <id>test-coverage</id>
-      <build>
-        <plugins>
-          <plugin>
-            <groupId>org.jacoco</groupId>
-            <artifactId>jacoco-maven-plugin</artifactId>
-            <version>${jacoco-maven-plugin.version}</version>
-            <executions>
-              <execution>
-                <goals>
-                  <goal>prepare-agent</goal>
-                </goals>
-              </execution>
-              <execution>
-                <id>report</id>
-                <phase>test</phase>
-                <goals>
-                  <goal>report</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-          <plugin>
-            <groupId>org.apache.maven.plugins</groupId>
-            <artifactId>maven-surefire-plugin</artifactId>
-            <configuration>
-              <environmentVariables>
-                <golo.bootstrapped>yes</golo.bootstrapped>
-              </environmentVariables>
-            </configuration>
           </plugin>
         </plugins>
       </build>
