@@ -51,9 +51,9 @@ Golo is built with [Apache Maven](http://maven.apache.org/). We suggest that you
 [Rake](http://rake.rubyforge.org), too. The provided `Rakefile` acts as a frontend
 to the Maven build and simplifies some invocations.
 
-Golo needs Java SE 7 or more to build and run. We suggest a fresh build of OpenJDK 8 as
-`invokedynamic` advances are happening there first, before being backported to OpenJDK 7
-and eventually to the official Oracle JDK.
+Golo needs Java SE 8 or more to build and run.
+
+The Maven build is self-contained, including the documentation generation.
 
 ### Building from sources
 
@@ -69,35 +69,6 @@ can be listed using:
     rake -T
 
 Of course you can just call Maven directly if you like.
-
-### Building the documentation
-
-The documentation is located in `doc/` and is built using [AsciiDoc](http://asciidoc.org).
-
-The documentation can be built using the provided `Rakefile`. For instance one may build a HTML
-output using:
-
-    rake html
-
-#### Building documentation on Ubuntu Linux
-
-You'll need to perform the following steps before building the golo-lang docs on Ubuntu:
-
-1.  Perform *sudo apt-get install asciidoc python-pygments fop* to get the required dependencies.
-2.  Uncomment a line in /etc/asciidoc/asciidoc.conf to allow use of pygments highligher:
-
-```
-#Uncomment to use the Pygments source highlighter instead of GNU highlighter.
-#pygments=
-```
-
-#### Building documentation on Fedora Linux
-
-You'll need to install the following packages before building the golo-lang docs on Fedora:
-
-*  asciidoc
-*  python-pygments
-*  fop
 
 ## License
 
