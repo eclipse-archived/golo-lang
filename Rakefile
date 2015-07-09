@@ -44,7 +44,7 @@ end
 
 desc "Deploy snapshots"
 task :deploy => [:clean, :build, :doc] do
-  MAGIC = "mvn deploy"
+  MAGIC = "mvn deploy -P release"
   sh MAGIC
   Dir.chdir("golo-maven-plugin") do
     sh MAGIC
@@ -53,7 +53,7 @@ end
 
 desc "Release"
 task :release => [:clean, 'special:bootstrap', :all] do
-  MAGIC = "mvn deploy -P sonatype-oss-release"
+  MAGIC = "mvn deploy -P release"
   sh MAGIC
   Dir.chdir("golo-maven-plugin") do
     sh MAGIC
