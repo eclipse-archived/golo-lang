@@ -31,6 +31,13 @@
   <description>Golo Maven Plugin.</description>
   <url>http://golo-lang.org/</url>
 
+  <developers>
+    <developer>
+      <name>Golo committers</name>
+      <email>golo-dev@eclipse.org</email>
+    </developer>
+  </developers>
+
   <licenses>
     <license>
       <name>Eclipse Public License - v 1.0</name>
