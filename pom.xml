@@ -306,7 +306,6 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${maven-assembly-plugin.version}</version>
         <configuration>
-          <tarLongFileMode>gnu</tarLongFileMode>
           <attach>true</attach>
           <descriptors>
             <descriptor>src/main/assembly/distribution.xml</descriptor>
@@ -317,7 +316,7 @@
             <id>assembly-with-package</id>
             <phase>package</phase>
             <goals>
-              <goal>attached</goal>
+              <goal>single</goal>
             </goals>
           </execution>
         </executions>
