@@ -112,7 +112,7 @@ namespace :special do
 
   desc "Check for Maven dependency updates"
   task :check_dependency_updates do
-    CMD = "mvn versions:display-dependency-updates"
+    CMD = "mvn versions:display-dependency-updates -P test-coverage -P release"
     sh CMD
     Dir.chdir("golo-maven-plugin") do
       sh CMD
@@ -121,7 +121,7 @@ namespace :special do
 
   desc "Check for Maven plugin updates"
   task :check_plugin_updates do
-    CMD = "mvn versions:display-plugin-updates"
+    CMD = "mvn versions:display-plugin-updates -P test-coverage -P release"
     sh CMD
     Dir.chdir("golo-maven-plugin") do
       sh CMD
@@ -130,7 +130,7 @@ namespace :special do
 
   desc "Check for property updates (dependencies + plugins)"
   task :check_property_updates do
-    CMD = "mvn versions:display-property-updates"
+    CMD = "mvn versions:display-property-updates -P test-coverage -P release"
     sh CMD
     Dir.chdir("golo-maven-plugin") do
       sh CMD
