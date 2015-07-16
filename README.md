@@ -28,6 +28,7 @@ Golo joined the Eclipse Foundation as an incubating technology project in June 2
 * Issues: [create a new one](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Golo), or [browse all](https://bugs.eclipse.org/bugs/describecomponents.cgi?product=Golo)
 * Mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-dev](https://dev.eclipse.org/mailman/listinfo/golo-dev)
 * Commits + new issues mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-commit](https://dev.eclipse.org/mailman/listinfo/golo-commit)
+* Wiki: [https://wiki.eclipse.org/Golo](https://wiki.eclipse.org/Golo)
 * Gitter.im chats: [https://gitter.im/golo-lang/golo-lang](https://gitter.im/golo-lang/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
