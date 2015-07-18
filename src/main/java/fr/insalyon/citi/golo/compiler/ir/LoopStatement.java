@@ -47,8 +47,10 @@ public class LoopStatement extends GoloStatement {
 
   public Block getMainBlock() {
     if (hasWhen) {
-      return ((ConditionalBranching) block.getStatements().get(1))
-        .getTrueBlock();
+      for (GoloStatement stm : block.getStatements()) {
+        if (stm instanceof AssignmentStatement) continue;
+        return ((ConditionalBranching) stm).getTrueBlock();
+      }
     }
     return block;
   }

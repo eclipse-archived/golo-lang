@@ -108,6 +108,28 @@ function test_destruct = {
   require(l == list[3, 5, 7], "destruct failed")
 }
 
+function test_filtered_destruct_two = {
+  let aMap = map[
+    ["foo", 5],
+    ["bar", 45],
+    ["plop", 10]
+  ]
+  let l = list[
+    (k + ": " + (x * v))
+    foreach x in [1..10] when (x % 2) == 1
+    foreach k, v in aMap:entrySet() when k: startsWith("f") or v >= 42
+  ]
+
+  let result = list[ 
+    "foo: 5", "bar: 45", 
+    "foo: 15", "bar: 135",
+    "foo: 25", "bar: 225",
+    "foo: 35", "bar: 315", 
+    "foo: 45", "bar: 405"
+  ]
+  require(l == result, "filtered destruct failed")
+}
+
 function test_map_destruct = {
   let base = map[
     ["a", 1],
@@ -157,6 +179,7 @@ function main = |args| {
     ^test_two_mixed_loops,
     ^test_more_loops,
     ^test_destruct,
-    ^test_map_destruct
+    ^test_map_destruct,
+    ^test_filtered_destruct_two 
   )
 }
