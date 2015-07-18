@@ -491,6 +491,70 @@ foreach v in [[x,x] foreach x in [0..3]] {
 }
 ----
 
+==== Collection comprehension vs. `map` and `filter`
+
+Collection comprehension is actually quite similar to using `map` and `filter`
+HOF on a collection. Indeed, a comprehension such as:
+[source,golo]
+----
+list[f(x) foreach x in aList when pred(x)]
+----
+is equivalent to
+[source,golo]
+----
+aList: filter(^pred): map(^f)
+----
+
+Thus, should you use collection comprehension or HOF? Despite some
+implementation differences, it's above all a matter of taste. Some people
+consider comprehension more readable, since it is more similar to the
+mathematical 
+[set-builder notation](https://en.wikipedia.org/wiki/Set-builder_notation).
+As an example, compare the two functionally equivalent expressions:
+[source,golo]
+----
+list[ 2 * x for x in aList when (x % 2) == 0 ]
+aList: filter(x -> (x % 2) == 0): map(x -> 2 * x)
+----
+
+The more powerful expressiveness of comprehension shines when using nested
+iterators or xref:_destructuring[destructuring]. For instance, an expression such as
+[source,golo]
+----
+list[ k + ": " + (x * v)
+    foreach x in [1..10] when (x % 2) == 1
+    foreach k, v in aMap:entrySet() when k: startsWith("f") or v >= 42]
+----
+
+would be cumbersome to write using only `map` and `filter`.
+
+The comprehension approach has also several advantages. First, while the code
+executed is almost identical when mapping a function and using a comprehension,
+that is something similar to 
+[source,golo]
+----
+let tmp = list[]
+foreach elt in aList {
+  tmp: add(f(elt))
+}
+return tmp
+----
+
+the comprehension code is generated at compile time, whereas the `map`
+application is a function called at runtime.
+As such, when using a filtering clause, the use of `filter` creates an
+intermediate list that will be fed to `map`. This is not the case with
+comprehension. Moreover, since the expression used to build the values of the
+new collection is used at compile time, no closure is created, neither for the
+filter.
+
+An other advantage of comprehension is the fact that it can be used with any
+iterable, to build a different kind of collection. The `map` and `filter` methods are
+not (yet) available for any iterable, and for those that have them, the
+result collection is of the same type as the initial one. This approach is more
+polymorphic, but can be less readable if you need to change the collection type.
+
+
 === Destructuring
 
 Golo supports simple destructuring, that is automatic extraction of values
