@@ -59,9 +59,9 @@
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
 
     <distribution.repo.id>repo.eclipse.org</distribution.repo.id>
-    <distribution.repo.url>https://repo.eclipse.org/content/repositories/project-releases/</distribution.repo.url>
+    <distribution.repo.url>https://repo.eclipse.org/content/repositories/golo-releases/</distribution.repo.url>
     <distribution.snapshots.id>repo.eclipse.org</distribution.snapshots.id>
-    <distribution.snapshots.url>https://repo.eclipse.org/content/repositories/project-snapshots/</distribution.snapshots.url>
+    <distribution.snapshots.url>https://repo.eclipse.org/content/repositories/golo-snapshots/</distribution.snapshots.url>
 
   </properties>
 
