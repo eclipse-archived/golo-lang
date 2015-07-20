@@ -18,6 +18,9 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
+
+
 
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.PARSING;
@@ -36,8 +39,10 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private GoloCompilationException.Builder exceptionBuilder;
 
+  private static AtomicLong syntheticNameCounter = new AtomicLong();
+
   private static String syntheticName(String base) {
-    return "__$$_" + base + "_" + System.currentTimeMillis();
+    return "__$$_" + base + "_" + syntheticNameCounter.getAndIncrement();
   }
 
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
@@ -67,8 +72,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
-    int nextClosureId = 0;
-    int nextDecoratorId = 0;
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
@@ -234,7 +237,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     context.objectStack.push(function);
     if (!function.getDecorators().isEmpty()) {
-      function.setDecoratorRef("__$$_" + function.getName() + "_decorator_" + context.nextDecoratorId++);
+      function.setDecoratorRef(syntheticName(function.getName() + "_decorator"));
     }
     node.childrenAccept(this, data);
     context.objectStack.pop();
@@ -323,7 +326,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function;
     if (isSynthetic) {
       function = new GoloFunction(
-          "__$$_closure_" + context.nextClosureId++,
+          syntheticName("closure"),
           LOCAL,
           CLOSURE);
       function.setSynthetic(true);
