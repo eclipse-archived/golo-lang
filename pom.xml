@@ -74,8 +74,8 @@
     <maven-source-plugin.version>2.4</maven-source-plugin.version>
     <maven-javadoc-plugin.version>2.10.3</maven-javadoc-plugin.version>
 
-    <distribution.repo.id>bintray</distribution.repo.id>
-    <distribution.repo.url>https://api.bintray.com/maven/golo-lang/golo-lang/golo</distribution.repo.url>
+    <distribution.repo.id>repo.eclipse.org</distribution.repo.id>
+    <distribution.repo.url>https://repo.eclipse.org/content/repositories/project-releases/</distribution.repo.url>
     <distribution.snapshots.id>repo.eclipse.org</distribution.snapshots.id>
     <distribution.snapshots.url>https://repo.eclipse.org/content/repositories/project-snapshots/</distribution.snapshots.url>
 
@@ -483,6 +483,14 @@
           </plugin>
         </plugins>
       </build>
+    </profile>
+
+    <profile>
+      <id>bintray</id>
+      <properties>
+        <distribution.repo.id>bintray</distribution.repo.id>
+        <distribution.repo.url>https://api.bintray.com/maven/golo-lang/golo-lang/golo</distribution.repo.url>
+      </properties>
     </profile>
 
   </profiles>

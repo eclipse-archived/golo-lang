@@ -60,6 +60,15 @@ task :release => [:clean, 'special:bootstrap', :all] do
   end
 end
 
+desc "Release to Bintray"
+task :release_bintray => [:clean, 'special:bootstrap', :all] do
+  MAGIC = "mvn deploy -P release -P bintray"
+  sh MAGIC
+  Dir.chdir("golo-maven-plugin") do
+    sh MAGIC
+  end
+end
+
 namespace :test do
 
   desc "Run all tests"
