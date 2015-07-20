@@ -429,7 +429,7 @@ previous example could be rewritten as
 let l2 = l2: filter(|x| -> (x % 2) == 0): map(|x| -> x * 2)
 ----
 
-The general syntax is an collection literal containing an expression followed
+The general syntax is a collection literal containing an expression followed
 by one or more loop-like expression. If more than one loop is given, it is
 equivalent to nested loops. Thus
 [source,golo]
@@ -463,8 +463,8 @@ let dices = set[ x + y foreach x in [1..7] foreach y in [1..7]]
 # dices == set[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
 ----
 
-However, the result collection can only be one of the predefined collection
-literals.
+However, the result collection can only be of the type of one of the predefined 
+collection literal types.
 
 xref:_destructuring[Destructuring] can also be used in collection
 comprehension, as in
@@ -474,7 +474,7 @@ let couples = [ [1, 2], [2, 3], [3, 4] ]
 let sums = [ a + b foreach a, b in couples ]
 ----
 
-Maps can also be created, provided the given expression is either a 2-tuple or
+Maps can also be created, provided the given expression is either a pair tuple or
 a instance of `Map.Entry` (you can use the predefined `mapEntry(key, value)`
 function to create such objects). For instance:
 [source,golo]
@@ -494,7 +494,7 @@ foreach v in [[x,x] foreach x in [0..3]] {
 ==== Collection comprehension vs. `map` and `filter`
 
 Collection comprehension is actually quite similar to using `map` and `filter`
-HOF on a collection. Indeed, a comprehension such as:
+higher-order function on a collection. Indeed, a comprehension such as:
 [source,golo]
 ----
 list[f(x) foreach x in aList when pred(x)]
@@ -505,7 +505,7 @@ is equivalent to
 aList: filter(^pred): map(^f)
 ----
 
-Thus, should you use collection comprehension or HOF? Despite some
+Thus, should you use collection comprehension or higher-order functions? Despite some
 implementation differences, it's above all a matter of taste. Some people
 consider comprehension more readable, since it is more similar to the
 mathematical 
