@@ -16,7 +16,7 @@
 
   <dependencies>
     <dependency>
-      <groupId>org.golo-lang</groupId>
+      <groupId>org.eclipse.golo</groupId>
       <artifactId>golo</artifactId>
       <version>${golo.version}</version>
     </dependency>
@@ -35,7 +35,7 @@
         </configuration>
       </plugin>
       <plugin>
-        <groupId>org.golo-lang</groupId>
+        <groupId>org.eclipse.golo</groupId>
         <artifactId>golo-maven-plugin</artifactId>
         <version>${golo.version}</version>
         <executions>

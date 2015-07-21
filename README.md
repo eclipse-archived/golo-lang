@@ -38,7 +38,7 @@ Golo follows the [semantic versioning scheme](http://semver.org).
 
 Go to the [Golo downloads page](http://golo-lang.org/download/) for general download instructions.
 
-You can fetch Golo from Maven central under the `org.golo-lang` group.
+You can fetch Golo from Maven central under the `org.eclipse.golo` group.
 
 We also provide [Docker](http://docker.com/) images based on Ubuntu 14.04 and Java SE 8:
 `docker pull jponge/golo-lang` ([https://registry.hub.docker.com/u/jponge/golo-lang/](https://registry.hub.docker.com/u/jponge/golo-lang/))

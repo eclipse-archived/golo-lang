@@ -15,7 +15,7 @@ repositories {
 }
 
 dependencies {
-    golo 'org.golo-lang:golo:${project.version}'
+    golo 'org.eclipse.golo:golo:${project.version}'
 }
 
 golo {
