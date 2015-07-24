@@ -1,8 +1,8 @@
-== Control flow ==
+== Control flow
 
 Control flow in Golo is imperative and has the usual constructions found in upstream languages.
 
-=== Conditional branching ===
+=== Conditional branching
 
 Golo supports the traditional `if` / `else` constructions, as in:
 
@@ -24,7 +24,7 @@ if (someCondition) {
 The condition of an `if` statement does not need parenthesis. You may add some to clarify a more
 elaborated expression, though.
 
-=== `case` branching ===
+=== `case` branching
 
 Golo offers a versatile `case` construction for conditional branching. It may be used in place of
 multiple nested `if` / `else` statements, as in:
@@ -66,7 +66,7 @@ function what = |obj| {
 IMPORTANT: `when` clauses are being evaluated in the declaration order, and only the first satisfied
 one is being executed.
 
-=== `match` statements ===
+=== `match` statements
 
 The `match` statement is a convenient shortcut for cases where a `case` statement would be used to
 match a value, and give back a result. While it may resemble *pattern matching* operators in some
@@ -95,7 +95,7 @@ be evaluated.
 Like `case` statements, a `match` construct needs at least one `when` clause and one `otherwise`
 clause.
 
-=== `while` loops ===
+=== `while` loops
 
 While loops in Golo are straightforward:
 
@@ -110,7 +110,7 @@ function times = |n| {
 
 The parenthesis in the `while` condition may be omitted like it is the case for `if` statements.
 
-=== `for` loops ===
+=== `for` loops
 
 This is the most versatile loop construction, as it features:
 
@@ -137,9 +137,9 @@ As you can see, it is very much like a `for` loop in Java, except that:
 * there cannot be multiple variables in the loop, and
 * there cannot be multiple loop progress statements.
 
-Again, this choice is dictated by the pursue of simplicity. 
+Again, this choice is dictated by the pursue of simplicity.
 
-=== `foreach` loops ===
+=== `foreach` loops
 
 Golo provides a "for each" style of iteration over iterable elements. Any object that is an instance
 of `java.lang.Iterable` can be used in `foreach` loops, as in:
@@ -164,7 +164,7 @@ You may use parenthesis around a `foreach` expression, so `foreach (foo in bar)`
 NOTE: Although Java arrays (`Object[]`) are not real objects, they can be used with `foreach` loops.
 Golo provides a `iterator()` method for them.
 
-=== `foreach` loops with a guard ===
+=== `foreach` loops with a guard
 
 There is a variant of the `foreach` loop with a `when` guard.
 
@@ -190,7 +190,7 @@ foreach item in collection when item < 10 {
 
 The `when` guard can be any expression that evaluates to a boolean.
 
-=== `break` and `continue` ===
+=== `break` and `continue`
 
 Although not strictly necessary, the `break` and `continue` statements can be useful to simplify
 some loops in imperative languages.
@@ -205,7 +205,7 @@ Consider the following contrived example:
 [source,golo]
 ----
 module test
- 
+
 function main = |args| {
   var i = 0
   while true {
@@ -217,7 +217,7 @@ function main = |args| {
     }
     if i == 50 {
       break
-    } 
+    }
   }
   println("bye")
 }
@@ -232,7 +232,7 @@ It prints the following output:
 Golo does not support `break` statements to labels like Java does. In fact, this is a `goto`
 statement in disguise.
 
-=== Why no value from most control flow constructions? ===
+=== Why no value from most control flow constructions?
 
 Some programming languages return values from selected control flow constructions, with the returned
 value being the evaluation of the last statement in a block. This can be handy in some situations
@@ -250,5 +250,4 @@ trading a few keystrokes for *explicitness* was better than shorter construct ba
 
 Therefore, most Golo control flow constructions do not return values, and programmers are instead
 required to extract a variable or provide an explicit `return` statement.
-
 

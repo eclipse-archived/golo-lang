@@ -1,4 +1,4 @@
-== Banged function call ==
+== Banged function call
 
 Golo uses invokedynamic
 footnote:[ http://www.oraclejavamagazine-digital.com/javamagazine_open/20130102#pg50[Oracle Java Magazine 2013-01-02] ]
@@ -23,8 +23,7 @@ A banged invocation is executed like this:
 footnote:[ http://docs.oracle.com/javase/8/docs/api/java/lang/invoke/MethodHandles.html#constant(java.lang.Class,%20java.lang.Object)[Constant MethodHandle] ]
 which returns the target computation result as a constant value.
 
-
-=== Principles and syntax ===
+=== Principles and syntax
 
 A function call marked with bang (`!`) will be called only once,
 the result is stored as a constant and will be directly returned for every subsequent call.
@@ -151,7 +150,7 @@ In this example `closure(i)!(i)` always return `0` because:
 The `singleton` function return a new java Object but the `java.lang.Object` is created with a banged constructor call, then the returned reference is constant.
 
 
-=== Banged decorators ===
+=== Banged decorators 
 
 As explained in the xref:_decorators[decorators part] the following `identity` function:
 

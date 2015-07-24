@@ -1,9 +1,9 @@
-== Golo template engine ==
+== Golo template engine
 
 Golo comes with a built-in template engine that is reminiscent of Java Server Pages or Ruby ERB. It
 compiles template text into Golo functions.
 
-=== Example ===
+=== Example
 
 Consider the following example.
 
@@ -42,7 +42,7 @@ let tpl = gololang.TemplateEngine(): compile(template)
 println(tpl(someDataModel: posts()))
 ----
 
-=== Directives ===
+=== Directives
 
 As you may have guess from the previous example:
 
@@ -58,4 +58,3 @@ WARNING: The template engine is a simple one and makes **no** verification eithe
 or the resulting Golo source code. The `compile` method may throw a `GoloCompilation` exception
 though, and you can query the exception `getSourceCode()` and `getProblems()` methods to obtain
 more details.
-

@@ -1,8 +1,8 @@
-== Closures ==
+== Closures
 
 Golo supports *closures*, which means that functions can be treated as first-class citizen.
 
-=== Defining and using a closure ===
+=== Defining and using a closure
 
 Defining a closure is straightforward as it derives from the way a function can be defined:
 
@@ -44,7 +44,7 @@ let tenTimes = mul: bindAt("a", 10)
 println(tenTimes: invoke(2))
 ----
 
-=== Compact closures ===
+=== Compact closures
 
 Golo supports a compact form of closures for the cases where their body consists of a single
 expression. The example above can be simplified as:
@@ -68,7 +68,7 @@ function main = |args| {
 }
 ----
 
-=== Calling closures ===
+=== Calling closures
 
 While you may call function references using `invoke`, there is a (much) better way.
 
@@ -84,7 +84,7 @@ let addToTen = adder: bindTo(10)
 println(addToTen(2))
 ----
 
-=== Limitations ===
+=== Limitations
 
 Closures have access to the lexical scope of their defining environment. Consider this example:
 
@@ -131,7 +131,7 @@ println(list)
 
 which prints `[I heard you say, Hey!, Hey!]`.
 
-=== Closures to single-method interfaces ===
+=== Closures to single-method interfaces
 
 The Java SE APIs have plenty of interfaces with a single method: `java.util.concurrent.Callable`,
 `java.lang.Runnable`, `javax.swing.ActionListener`, etc.
@@ -174,7 +174,7 @@ function give_me_hey = {
 }
 ----
 
-=== Closures to Java 8 functional interfaces ===
+=== Closures to Java 8 functional interfaces
 
 Java 8 introduced support for the so-called _lambdas_.
 The mechanism works through
@@ -189,7 +189,7 @@ the `asInterfaceInstance` function:
 let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
 ----
 
-=== Direct closure passing works ===
+=== Direct closure passing works
 
 When a function or method parameter of a Java API expects a single method interface type or a
 functional interface, you can pass a closure directly, as in:
@@ -211,7 +211,7 @@ Note that this causes the creation of a method handle proxy object for each func
 invocation. For performance-sensitive contexts, we suggest that you use either
 `asInterfaceInstance`, the `to` conversion method described hereafter, or `asFunctionalInterface`.
 
-=== Conversion to single-method interfaces ===
+=== Conversion to single-method interfaces
 
 Instead of using `asInterfaceInstance`, you may use a *class augmentation* which is described later in this
 documentation. In short, it allows you to call a `to` method on instances of `MethodHandle`, which
@@ -226,7 +226,7 @@ future = executor: submit(asInterfaceInstance(Callable.class, -> "hey!"))
 future = executor: submit((-> "hey!"): to(Callable.class))
 ----
 
-=== Getting a reference to a closure / Golo function ===
+=== Getting a reference to a closure / Golo function
 
 You may also take advantage of the predefined `fun` function to obtain a reference to a closure, as
 in:
@@ -285,7 +285,7 @@ will accept an instance of the class as first argument, as in:
 list["Foo", "Bar", "Hello", "Goodbye"]: map(^String::length)
 ----
 
-=== Binding and composing ===
+=== Binding and composing
 
 You can bind a function first argument using the `bindTo(value)` method. If you need to bind an
 argument at another position than 0, you may take advantage of `bindAt(position, value)`:
@@ -324,7 +324,7 @@ function main = |args| {
 }
 ----
 
-=== Calling functions that return functions ===
+=== Calling functions that return functions
 
 Given that functions are first-class objects in Golo, you may define functions (or closures) that
 return functions, as in:

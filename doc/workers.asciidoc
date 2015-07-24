@@ -1,4 +1,4 @@
-== Concurrency with workers ==
+== Concurrency with workers
 
 Concurrency is **hard**. Fortunately for us the `java.util.concurrent` packages bring useful
 abstractions, data types and execution mechanisms to get concurrency *"a little bit better"*.
@@ -10,7 +10,7 @@ That being said we provide a simple abstraction for concurrent executions in the
 They pretty much resemble JavaScript web workers or *isolates* in Dart, albeit they do not really
 isolate the workers data space.
 
-=== The big picture ===
+=== The big picture
 
 A *worker* is simply a Golo function that can be executed concurrently. You can pass *messages* to a
 worker, and they are eventually received and handled by their target worker. In other words, workers
@@ -23,7 +23,7 @@ Ports are obtained by *spawning* a worker function from a *worker environment*. 
 environment manages a `java.util.concurrent` executor, which means that you do not have to deal with
 thread management.
 
-=== Worker environments ===
+=== Worker environments
 
 Worker environments are defined in the `gololang.concurrent.workers.WorkerEnvironment` class /
 module.
@@ -46,7 +46,7 @@ call `shutdown()` to close the workers environment and release the threads pool.
 the `awaitTermination`, `isShutdown` and `isTerminated` methods whose semantics are exactly those of
 `java.util.concurrent.ExecutorService`.
 
-=== Spawning a worker and passing messages ===
+=== Spawning a worker and passing messages
 
 Worker functions take a single parameter which is the message to be received. To obtain a port, you
 need to call the `spawn(target)` function of a worker environment, as in:
@@ -66,7 +66,7 @@ port: send("hello"): send("world")
 
 Messages are being put in a queue, and eventually dispatched to the function that we spawned.
 
-=== A complete and useless example ===
+=== A complete and useless example
 
 To better understand how workers can be used, here is a (fairly useless) example:
 
@@ -91,8 +91,8 @@ function main = |args| {
   let env = WorkerEnvironment.builder(): withFixedThreadPool()
   let queue = ConcurrentLinkedQueue()
 
-  let pusherPort = env: spawn(^pusher: bindTo(queue))       
-  let generatorPort = env: spawn(^generator: bindTo(pusherPort))  
+  let pusherPort = env: spawn(^pusher: bindTo(queue))
+  let generatorPort = env: spawn(^generator: bindTo(pusherPort))
 
   let finishPort = env: spawn(|any| -> env: shutdown()) # <5>
 
@@ -125,4 +125,3 @@ each function passed to `spawn` only expects a single message as its argument, a
 - `^generator: bindTo(pusherPort)`, and
 - `env: spawn(|any| -> env: shutdown())` where the worker function is defined as a closure, and
   implicitly captures its `env` dependency from the surrounding context.
-

@@ -179,11 +179,11 @@ import spark.Spark
 function main = |args| {
   let sparkRouteAdapter = Adapter()   # <1>
     : extends("spark.Route")   # <2>
-    : implements("handle", |this, request, response| {   # <3>  # <4>
+    : implements("handle", |this, request, response| {   # <3>
         return "Golo, world!"
       })
-  let route = sparkRouteAdapter: newInstance("/hello")  # <5>
-  get(route)  # <6>
+  let route = sparkRouteAdapter: newInstance("/hello")  # <4>
+  get(route)  # <5>
 
 }
 ----
@@ -192,11 +192,11 @@ function main = |args| {
 <2> The `extends` method specifies the name of the parent class (`java.lang.Object` by
     default).
 <3> The `implements` method specifies the method implementations.
-<4> The implementation is given by a closure whose signature matches the parent class definition,
+    The implementation is given by a closure whose signature matches the parent class definition,
     and where the first argument is the receiver object that is going to be the adapter instance.
-<5> The `newInstance()` method calls the right constructor based on the parent class constructors
+<4> The `newInstance()` method calls the right constructor based on the parent class constructors
     and provided argument types.
-<6> The `spark.Spark.get()` static is method is happy as we feed it a subclass of `spark.Route`.
+<5> The `spark.Spark.get()` static is method is happy as we feed it a subclass of `spark.Route`.
 
 ==== Implementing interfaces
 
@@ -248,3 +248,4 @@ list: add("baz")  # <1>
 ----
 
 <1> At this point `carbonCopy` contains `["foo", "bar", "baz"]` (and so does `list`, too).
+

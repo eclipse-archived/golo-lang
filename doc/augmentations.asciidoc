@@ -1,4 +1,4 @@
-== Class augmentations ==
+== Class augmentations
 
 Many dynamic languages support the ability to extend existing classes by adding new methods to them.
 You may think of categories in Objective-C and Groovy, or *open classes* in Ruby.
@@ -10,7 +10,7 @@ convenient, such an open system may lead to well-known conflicts between the add
 Golo provides a more limited but explicit way to add methods to existing classes in the form of
 **class augmentations**.
 
-=== Wrapping a string with a function ===
+=== Wrapping a string with a function
 
 Let us motivate the value of *augmentations* by starting with the following example. Suppose that we would
 like a function to wrap a string with a left and right string. We could do that in Golo as follows:
@@ -27,7 +27,7 @@ println(str) # prints "(abc)"
 Defining functions for such tasks makes perfect sense, but what if we could just add the `wrap`
 method to all instances of `java.lang.String` instead?
 
-=== Augmenting classes ===
+=== Augmenting classes
 
 Defining an augmentation is a matter of adding a `augment` block in a module:
 
@@ -84,7 +84,7 @@ augment java.util.Collection {
 function plop_in_a_list = -> java.util.LinkedList(): plop()
 ----
 
-=== Augmentation scopes, reusable augmentations ===
+=== Augmentation scopes, reusable augmentations
 
 By default, an augmentation is only visible from its defining module.
 
@@ -132,7 +132,7 @@ module imports **all** of its augmentation definitions, we suggest that you modu
 taste* (for what it means).
 
 
-=== Named augmentations ===
+=== Named augmentations
 
 It is possible for augmentations to have a name.
 A named augmentation is a set of functions that can be applied to some
@@ -231,7 +231,7 @@ with the previous `FooBar` augmentation will raise
 at *runtime* when trying to call `1:bar(1)`. Calling `1:foo()` will be OK however.
 
 
-=== Augmentations Resolution Order ===
+=== Augmentations Resolution Order
 
 The augmentations resolution order is as follows:
 
@@ -260,7 +260,7 @@ augmentations, being local, external or imported, and involving class
 hierarchies, knowing which method will be applied on a given type can be difficult.
 A good modularisation and a careful application are recommended.
 
-=== Defining a fallback behavior ===
+=== Defining a fallback behavior
 
 Users can augment a class with a `fallback` behavior to give a very last chance to a failed
 method dispacth.
@@ -279,7 +279,7 @@ println("golo": notExistingMethod(1,2))
 
 Note: The `fallback` method must respect the signature and parameter names `fallback = |this, name, args...|`
 
-=== Standard augmentations ===
+=== Standard augmentations
 
 Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
 
@@ -298,5 +298,3 @@ println(m: getOrElse("foo", -> "bar"))
 
 The full set of standard augmentations is documented in the generated *golodoc* (hint: look for
 `doc/golodoc` in the Golo distribution).
-
-

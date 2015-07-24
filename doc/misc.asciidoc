@@ -5,7 +5,7 @@ and _golodocs_.
 
 The next subsections provide summaries of misc. modules found as part of Golo.
 
-=== Standard augmentations (`gololang.StandardAugmentations`) ===
+=== Standard augmentations (`gololang.StandardAugmentations`)
 
 This Golo module provides standard augmentations for various classes of the Java standard classes
 and Golo types. It does not have to be imported explicitely.
@@ -136,7 +136,7 @@ foo = 69
 mapped = 69!
 ----
 
-=== Asynchronous programming helpers (`gololang.Async`) ===
+=== Asynchronous programming helpers (`gololang.Async`)
 
 This module offers asynchronous programming helpers, especially execution context agnostic promises
 and futures. The provided APIs are orthogonal to the execution strategy: it is up to you to execute
@@ -176,13 +176,13 @@ This example takes advantages of an executor augmentation and composable promise
 compute Fibonacci numbers.
 
 
-=== Lazy lists (`gololang.lazylist`) ===
+=== Lazy lists (`gololang.lazylist`)
 
 This module defines a lazy list structure, as well as some utilities to work
 with it.
 
-A lazy list behaves like an _immutable_ linked list whose elements are evaluated 
-only when needed, as can be found in Haskell for example. 
+A lazy list behaves like an _immutable_ linked list whose elements are evaluated
+only when needed, as can be found in Haskell for example.
 
 The next element in the list (the tail) is represented by a closure. The generated value
 is cached so that the closure representing the next element is evaluated only once.

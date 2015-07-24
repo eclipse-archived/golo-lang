@@ -1,8 +1,8 @@
-== Basics ==
+== Basics
 
 Let us start with the Golo basics.
 
-=== Editor / IDE support ===
+=== Editor / IDE support
 
 Editor and IDE support for Golo is available for:
 
@@ -12,7 +12,7 @@ Editor and IDE support for Golo is available for:
 - https://github.com/golo-lang/gldt[Eclipse] (contributed by Jeff Maury)
 - https://github.com/golo-lang/golo-netbeans[Netbeans] (contributed by http://www.serli.com/[Serli])
 
-=== Hello world ===
+=== Hello world
 
 Golo source code need to be placed in _modules_. Module names are
 separated with dots, as in:
@@ -49,7 +49,7 @@ NOTE: Newlines are important in Golo, so make sure that your editor ends files w
 
 NOTE: Golo identifiers can be non-ascii characters (e.g., Japanese, Emoji, Arabic, etc).
 
-=== Running _"Hello world"_ ===
+=== Running _"Hello world"_
 
 Of course, we need to run this incredibly complex application.
 
@@ -119,7 +119,7 @@ Note that `args` is expected to be an array.
 Finally, the `--classpath` flag allows to specify a list of classpath elements, which can be either
 directories or `.jar` files. See the `golo help` command for details on the various Golo commands.
 
-=== Compiling Golo source code ===
+=== Compiling Golo source code
 
 Golo comes with a compiler that generates JVM bytecode in `.class` files. We will give more details
 in the chapter on interoperability with Java.
@@ -147,7 +147,7 @@ classes/
 $
 ----
 
-=== Running compiled Golo code ===
+=== Running compiled Golo code
 
 Golo provides a `golo` command for running compiled Golo code:
 
@@ -161,7 +161,7 @@ $
 
 Simple, isn't it?
 
-=== Passing JVM-specific flags ===
+=== Passing JVM-specific flags
 
 Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment
 variable.
@@ -178,17 +178,17 @@ $ golo golo --files samples/fibonacci.golo
 $ JAVA_OPTS=-XX:+PrintCompilation golo golo --files samples/fibonacci.golo
 ----
 
-=== Bash autocompletion ===
+=== Bash autocompletion
 
 A bash script can be found in `share/shell-completion/` called `golo-bash-completion` that will provide autocomplete support for the `golo` and `vanilla-golo` CLI scripts. You may either `source` the script, or drop the script into your `bash_completion.d/` folder and restart your terminal.
 
 TIP: Not sure where your `bash_completion.d/` folder is? Try `/etc/bash_completion.d/` on Linux or `/usr/local/etc/bash_completion.d/` for Mac Homebrew users.
 
-=== Zsh autocompletion ===
+=== Zsh autocompletion
 
 A zsh script can be found in `share/shell-completion/` called `golo-zsh-completion` that works using the `golo-bash-completion` to provide autocomplete support using the bash autocomplete support provided by zsh. Place both files into the same directory and `source golo-zsh-completion` from your terminal or `.zshrc` to give it a try!
 
-=== Comments ===
+=== Comments
 
 Golo comments start with a `#`, just like in Bash, Python or Ruby:
 
@@ -198,7 +198,7 @@ Golo comments start with a `#`, just like in Bash, Python or Ruby:
 println("WTF?") # it works here, too
 ----
 
-=== Variable and constant references ===
+=== Variable and constant references
 
 Golo does not check for types at compile time, and they are not declared. Everything happens at
 runtime in Golo.
@@ -238,7 +238,7 @@ let _$_f_o_$$666 = 666
 let 666_club = 666
 ----
 
-=== Data literals ===
+=== Data literals
 
 Golo supports a set of data literals. They directly map to their counterparts from the Java Standard
 API. We give them along with examples in <<data-literals,the data literals table>> below.
@@ -294,7 +294,7 @@ a multi-line string.
         that?
 ----
 
-=== Collection literals ===
+=== Collection literals
 
 Golo support special support for common collections. The syntax uses brackets prefixed by a
 collection name, as in:
@@ -344,14 +344,14 @@ The syntax and type matchings are the following:
 |===
 
 
-==== A note on lists ====
+==== A note on lists
 
 Since in Golo, every value is actually an instance of `Object`, there is no
 overloading, and thus the `remove` method on lists can't be used to remove an
 element at a given position. If you want to remove a list element given its
 position, use the `removeAt` method.
 
-==== A note on tuples ====
+==== A note on tuples
 
 Tuples essentially behave as immutable arrays.
 
@@ -365,7 +365,7 @@ The `gololang.Tuple` class provides the following methods:
 - an `iterator()` method because tuples are iterable, and
 - `equals(other)`, `hashCode()` and `toString()` do just what you would expect.
 
-==== A note on maps ====
+==== A note on maps
 
 The map collection literal expects entries to be specified as tuples where the first entry is the
 key, and the second entry is the value. This allows nested structures to be specified as in:
@@ -409,7 +409,7 @@ let b = -> [2, 'b']
 let m = map[a(), b()]
 ----
 
-=== Destructuring ===
+=== Destructuring
 
 Golo supports simple destructuring, that is automatic extraction of values
 from an object and assignment to multiple variables in one instruction.
@@ -470,9 +470,7 @@ foreach key, value in myMap: entrySet() {
 }
 ----
 
-
-
-=== Operators ===
+=== Operators
 
 Golo supports the following <<operators,set of operators>>.
 
@@ -542,7 +540,7 @@ The operator precedence rules are as follows:
 |           |`*`, `/`, `%`
 |           |`+`, `-`
 |           |`<`, `<=`, `>`, `>=`, `oftype`
-|           |`==`, `!=`, `is`, `isnt` 
+|           |`==`, `!=`, `is`, `isnt`
 |           |`and`
 |           |`or`
 |Lowest     |`orIfNull`
@@ -562,9 +560,7 @@ reads as:
 (not (foo: bar())) orIfNull "yo"
 ----
 
-
-
-=== Calling a method ===
+=== Calling a method
 
 Although we will discuss this in more details later on, you should already know that `:` is used to
 invoke instance methods.
@@ -578,7 +574,7 @@ println(123: toString())
 println(someObject: toString())
 ----
 
-=== Java / JVM arrays ===
+=== Java / JVM arrays
 
 As you probably know, arrays on the JVM are special objects. Golo deals with such arrays as being
 instances of `Object[]` and does not provide a wrapper class like many languages do. A Java / JVM

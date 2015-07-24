@@ -1,9 +1,9 @@
-== Predefined functions ==
+== Predefined functions
 
 Every Golo module definition comes with `gololang.Predefined` as a default import. It provides
 useful functions.
 
-=== Console output ===
+=== Console output
 
 `print` and `println` do just what you would expect.
 
@@ -15,7 +15,7 @@ println()
 println("Hey")
 ----
 
-=== Console input ===
+=== Console input
 
 `readln()` or `readln(strMessage)` reads a single line of text from the console. It always returns a
 string.
@@ -31,7 +31,7 @@ let value = readln()
 let pwd = readPassword("type your password:")
 ----
 
-=== Number type conversions ===
+=== Number type conversions
 
 The following functions convert any number of string value to another number type:
 `intValue(n)`, `longValue(n)`, `charValue(n)`, `doubleValue(n)` and `floatValue(n)`.
@@ -46,7 +46,7 @@ let k = intValue(666_L)   # 666 (long to integer)
 # etc
 ----
 
-=== Exceptions ===
+=== Exceptions
 
 `raise` can be used to throw a `java.lang.RuntimeException`. It comes in two forms: one with a
 message as a string, and one with a message and a cause.
@@ -62,7 +62,7 @@ try {
 }
 ----
 
-=== Preconditions ===
+=== Preconditions
 
 Preconditions are useful, especially in a dynamically-typed language.
 
@@ -87,7 +87,7 @@ function foo = |a| {
 }
 ----
 
-=== Arrays ===
+=== Arrays
 
 Golo arrays can be created using the `array[...]` literal syntax. Such arrays are of JVM type `Object[]`.
 
@@ -104,7 +104,7 @@ data: set(1, "B")
 data: set(2, "C")
 ----
 
-=== Ranges ===
+=== Ranges
 
 The `range` function yields an iterable range over either `Integer`, `Long` or
 `Character` bounds:
@@ -167,7 +167,7 @@ Two ranges are equals if they have the same bounds and increment.
 A range can also be defined with the literal notation `[begin..end]`, which is
 equivalent to `range(begin, end)`.
 
-=== Closures ===
+=== Closures
 
 Given a function reference, one can convert it to an instance of an interface with a single method
 declaration, as in:
@@ -233,7 +233,7 @@ adaptations:
 let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
 ----
 
-=== File I/O ===
+=== File I/O
 
 Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:
 
@@ -276,7 +276,7 @@ If you need the current path of execution, you can use the `currentDir` function
 println(currentDir())
 ----
 
-=== Array types ===
+=== Array types
 
 Golo does not provide a literal syntax for array types, such as `Object[].class` in Java.
 
@@ -286,7 +286,7 @@ Instead, we provide 3 helper functions.
 * `objectArrayType()`: returns `Object[].class`.
 * `arrayTypeOf(type)`: given `type` as a `java.lang.Class`, returns an array of type `type[]`.
 
-=== Misc. ===
+=== Misc.
 
 `mapEntry` gives instances of `java.util.AbstractMap.SimpleEntry`, and is used as follows:
 

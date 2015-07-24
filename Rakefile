@@ -8,7 +8,7 @@
 task :default => [:all]
 
 desc "Build a complete distribution (packages + documentation)"
-task :all => [:doc, :rebuild]
+task :all => [:rebuild]
 
 desc "Clean"
 task :clean do
@@ -23,17 +23,14 @@ task :build do
   sh "mvn install"
 end
 
+desc "Build and install, without generating documentation"
+task :build_nodocs do
+  sh "mvn install -P !build-documentation"
+end
+
 desc "Clean, build and install"
 task :rebuild do
   sh "mvn clean install"
-end
-
-desc "Build the documentation"
-task :doc do
-  Dir.chdir("doc") do
-    sh "rake clean all"
-  end
-  sh "mvn org.golo-lang:golo-maven-plugin:golodoc -DoutputDirectory=doc/output/golodoc"
 end
 
 desc "Build tags file"
@@ -103,7 +100,7 @@ namespace :special do
 
   desc "Bootstrap Golo and the Maven plug-in for a clean-room environment"
   task :bootstrap do
-    sh "mvn clean install -P !bootstrapped"
+    sh "mvn clean install -P !bootstrapped -P !build-documentation"
     Dir.chdir("golo-maven-plugin") do
       sh "mvn clean install"
     end

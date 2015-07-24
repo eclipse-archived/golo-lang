@@ -2,7 +2,7 @@
 
 Golo aims at providing a seamless 2-way interoperability with the Java programming language.
 
-=== Main function Java compliance ===
+=== Main function Java compliance
 
 If the Golo compiler find a unary function named `main`, it will be compiled to a `void(String[])` static method.
 This `main` method can servers as a JVM entry point.
@@ -29,12 +29,12 @@ $ java -cp ".:golo.jar" mainEntryPoint GoloRocks
 $
 ----
 
-=== Calling static methods ===
+=== Calling static methods
 
 Golo can invoke public Java static methods by treating them as functions:
 
 [source,golo]
-------------------------
+----
 module sample
 
 import java.util.Arrays
@@ -42,33 +42,33 @@ import java.util.Arrays
 function oneTwoThree = {
   return asList(1, 2, 3)
 }
-------------------------
+----
 
 In this example, `asList` is resolved from the `java.util.Arrays` import and called as a function.
 Note that we could equivalently have written a qualified invocation as `Arrays.asList(1, 2, 3)`.
 
-=== Calling instance methods ===
+=== Calling instance methods
 
 When you have an object, you may invoke its methods using the `:` operator.
 
 The following would call the `toString` method of any kind, then print it:
 
 [source,golo]
-----------------------------------------
+----
 println(">>> " + someObject: toString())
-----------------------------------------
+----
 
 Of course, you may chain calls as long as a method is not of a `void` return type. Golo converts
 Java `void` methods by making them return `null`. This is neither a bug or a feature: the
 *invokedynamic* support on the JVM simply does so.
 
-=== Named arguments ===
+=== Named arguments
 
 If you compile your Java 8 source code with the `-parameters` option, then you will be able to invoke the functions
 from Golo with named arguments.
 
 [source, java]
-----------------------------------------
+----
 package io;
 
 public class Printer {
@@ -77,7 +77,7 @@ public class Printer {
     return null;
  }
 }
-----------------------------------------
+----
 
 [source,console]
 ----
@@ -85,7 +85,7 @@ $ javac -parameters Printer.java
 ----
 
 [source,golo]
-----------------------------------------
+----
 module bar
 import io.Printer
 
@@ -94,11 +94,11 @@ let obj = DynamicObject()
 function main = |args...| {
   print(what = obj, prefix = ">")
 }
-----------------------------------------
+----
 
 Further documentation about https://docs.oracle.com/javase/tutorial/reflect/member/methodparameterreflection.html[Names Method Parameters with Java 8.]
 
-=== `null`-safe instance method invocations ===
+=== `null`-safe instance method invocations
 
 Golo supports *`null`-safe* methods invocations using the *"Elvis"* symbol: `?:`.
 
@@ -138,7 +138,7 @@ NOTE: The runtime implementation of `null`-safe method invocations is *optimisti
 like a `try` block catching a `NullPointerException`. Performance is good unless most invocations
 happen to be on `null`, in which case using `?:` is probably not a great idea.
 
-=== Creating objects ===
+=== Creating objects
 
 Golo doesn't have an instantiation operator like `new` in Java. Instead, creating an object and
 calling its constructor is done as if it was just another function.
@@ -146,7 +146,7 @@ calling its constructor is done as if it was just another function.
 As an example, we may allocate a `java.util.LinkedList` as follows:
 
 [source,golo]
----------------------
+----
 module sample
 
 import java.util
@@ -154,12 +154,12 @@ import java.util
 function aList = {
   return LinkedList()
 }
----------------------
+----
 
 Another example would be using a `java.lang.StringBuilder`.
 
 [source,golo]
---------------------------------------
+----
 function str_build = {
   return java.lang.StringBuilder("h"):
     append("e"):
@@ -168,17 +168,17 @@ function str_build = {
     append("o"):
     toString()
 }
---------------------------------------
+----
 
 As one would expect, the `str_build` function above gives the `"hello"` string.
 
-=== Static fields ===
+=== Static fields
 
 Golo treats public static fields as function, so one could get the maximum value for an `Integer` as
 follows:
 
 [source,golo]
---------------------------------------
+----
 module samples.MaxInt
 
 local function max_int = {
@@ -188,12 +188,12 @@ local function max_int = {
 function main = |args| {
   println(max_int())
 }
---------------------------------------
+----
 
 NOTE: Given than most static fields are used as constants in Java, Golo does not provide support to
 change their values. This may change in the future if compelling general-interest use-cases emerge.
 
-=== Instance fields ===
+=== Instance fields
 
 Instance fields can be accessed as functions, both for reading and writing. Suppose that we have a
 Java class that looks as follows:
@@ -271,7 +271,7 @@ println(foo: bar())
 ----
 ====
 
-=== Inner classes and enumerations ===
+=== Inner classes and enumerations
 
 We will illustrate both how to deal with public static inner classes and enumerations at once.
 
@@ -285,7 +285,7 @@ The rules to deal with them in Golo are as follows.
 Let us consider the following example:
 
 [source,golo]
---------------------------------------------------------------------------
+----
 module sample.EnumsThreadState
 
 import java.lang.Thread$State
@@ -301,12 +301,12 @@ function main = |args| {
     println("name=" + element: name() + ", ordinal=" + element: ordinal())
   }
 }
---------------------------------------------------------------------------
+----
 
 Running it yields the following console output:
 
 [source,console]
-------------------------------------------
+----
 $ golo golo --files samples/enums-thread-state.golo
 name=NEW, ordinal=0
 name=NEW, ordinal=0
@@ -316,9 +316,9 @@ name=WAITING, ordinal=3
 name=TIMED_WAITING, ordinal=4
 name=TERMINATED, ordinal=5
 $
-------------------------------------------
+----
 
-=== Clashes with Golo operators and escaping ===
+=== Clashes with Golo operators and escaping
 
 Because Golo provides a few named operators such as `is`, `and` or `not`, they are recognized as
 operator tokens.
@@ -327,13 +327,13 @@ However, you may find yourself in a situation where you need to invoke a Java me
 a Golo operator, such as:
 
 [source,golo]
--------------------------------------
+----
 # Function call
 is()
 
 # Method call
 someObject: foo(): is(): not(): bar()
--------------------------------------
+----
 
 This results in a parsing error, as `is` and `not` will be matched as operators instead of method
 identifiers.
@@ -341,15 +341,15 @@ identifiers.
 The solution is to use *escaping*, by prefixing identifiers with a backtick, as in:
 
 [source,golo]
----------------------------------------
+----
 # Function call
 `is()
 
 # Method call
 someObject: foo(): `is(): `not(): bar()
----------------------------------------
+----
 
-=== Golo class loader ===
+=== Golo class loader
 
 Golo provides a class loader for directly loading and compiling Golo modules. You may use it as
 follows:
@@ -386,4 +386,3 @@ attempt to redefine an already defined class.
 
 CAUTION: Later in the glorious and glamorous future, Golo will have objects and not just functions.
 Be patient, it's coming in!
-

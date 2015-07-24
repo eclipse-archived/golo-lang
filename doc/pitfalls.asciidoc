@@ -6,7 +6,7 @@ idiomatically repeat habits from other languages.
 Because Golo works closely with the Java programming language, it is likely that Java programmers
 will make some of the following mistakes early on.
 
-=== `new` ===
+=== `new`
 
 Golo does not have a `new` operator for allocating objects. Instead, one should just call a
 constructor as a function:
@@ -20,7 +20,7 @@ let foo = java.util.LinkedList()
 let foo = new java.util.LinkedList()
 ----
 
-=== Imports ===
+=== Imports
 
 Golo does not have *star* imports like in Java. Imports are only used at runtime as Golo tries to
 resolve names of types, functions, and so on.
@@ -45,7 +45,7 @@ let foo = LinkedList()
 let foo = AtomicInteger(666)
 ----
 
-=== Method invocations ===
+=== Method invocations
 
 Keep in mind that instance methods are invoked using the `:` operator, not with dots (`.`) like in
 many languages.
@@ -61,7 +61,7 @@ foo: toString()
 foo.toString()
 ----
 
-=== `match` is not a closure ===
+=== `match` is not a closure
 
 One thing to keep in mind is that `match` returns a value, and that it is not a closure unless you
 want it to.
