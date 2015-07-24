@@ -308,7 +308,7 @@
         <artifactId>maven-assembly-plugin</artifactId>
         <version>${maven-assembly-plugin.version}</version>
         <configuration>
-          <attach>true</attach>
+          <attach>false</attach>
           <descriptors>
             <descriptor>src/main/assembly/distribution.xml</descriptor>
           </descriptors>
