@@ -16,7 +16,7 @@
 
   <groupId>org.eclipse.golo</groupId>
   <artifactId>golo</artifactId>
-  <version>3.0.0-incubation-M1</version>
+  <version>3.0.0-incubation-SNAPSHOT</version>
   
   <packaging>jar</packaging>
 
