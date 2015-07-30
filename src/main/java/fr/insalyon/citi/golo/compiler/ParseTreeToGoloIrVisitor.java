@@ -18,9 +18,13 @@ import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.concurrent.atomic.AtomicLong;
 
-import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE;
+
+
 import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.PARSING;
+import static fr.insalyon.citi.golo.compiler.GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Scope.*;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.LOCAL;
 import static fr.insalyon.citi.golo.compiler.ir.GoloFunction.Visibility.PUBLIC;
@@ -34,6 +38,12 @@ import static java.util.Collections.nCopies;
 class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private GoloCompilationException.Builder exceptionBuilder;
+
+  private static AtomicLong syntheticNameCounter = new AtomicLong();
+
+  private static String syntheticName(String base) {
+    return "__$$_" + base + "_" + syntheticNameCounter.getAndIncrement();
+  }
 
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
@@ -62,8 +72,6 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     String augmentation;
     Deque<Object> objectStack = new LinkedList<>();
     Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
-    int nextClosureId = 0;
-    int nextDecoratorId = 0;
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
@@ -229,7 +237,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
     context.objectStack.push(function);
     if (!function.getDecorators().isEmpty()) {
-      function.setDecoratorRef("__$$_" + function.getName() + "_decorator_" + context.nextDecoratorId++);
+      function.setDecoratorRef(syntheticName(function.getName() + "_decorator"));
     }
     node.childrenAccept(this, data);
     context.objectStack.pop();
@@ -318,7 +326,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function;
     if (isSynthetic) {
       function = new GoloFunction(
-          "__$$_closure_" + context.nextClosureId++,
+          syntheticName("closure"),
           LOCAL,
           CLOSURE);
       function.setSynthetic(true);
@@ -463,9 +471,64 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       node.setIrElement(range);
       return data;
     }
+    if (node.isComprehension()) {
+      Block comprehension = createCollectionComprehension(context, node.getType(), expressions);
+      comprehension.setASTNode(node);
+      context.objectStack.push(comprehension);
+      return data;
+    }
     CollectionLiteral.Type type = CollectionLiteral.Type.valueOf(node.getType());
     context.objectStack.push(new CollectionLiteral(type, expressions));
     return data;
+  }
+
+  private Block createCollectionComprehension(Context context, String type, List<ExpressionStatement> expressions) {
+    // TODO: special case for iter that create a generator
+    ReferenceTable localTable = context.referenceTableStack.peek().fork();
+    Block block = new Block(localTable);
+    String collectionName = syntheticName("comprehension");
+    LocalReference collectionRef = new LocalReference(VARIABLE, collectionName, true);
+    localTable.add(collectionRef);
+    CollectionLiteral.Type colType = ("tuple".equals(type) || "array".equals(type))
+                                      ? CollectionLiteral.Type.list
+                                      : CollectionLiteral.Type.valueOf(type);
+    AssignmentStatement init = new AssignmentStatement(collectionRef,
+                                  new CollectionLiteral(
+                                      colType,
+                                      Collections.emptyList()));
+    init.setDeclaring(true);
+    block.addStatement(init);
+    Block innerBlock = block;
+    ReferenceTable outerTable = localTable;
+    for (int i = 1; i < expressions.size(); i++) {
+      Block loopBlock = (Block) expressions.get(i);
+      loopBlock.getReferenceTable().relink(outerTable);
+      innerBlock.addStatement(loopBlock);
+      LoopStatement loop = (LoopStatement) loopBlock.getStatements().get(0);
+      innerBlock = loop.getMainBlock();
+      outerTable = loopBlock.getReferenceTable();
+    }
+    MethodInvocation add = new MethodInvocation("add");
+    add.addArgument(expressions.get(0));
+    innerBlock.addStatement(
+        new BinaryOperation(OperatorType.METHOD_CALL,
+          new ReferenceLookup(collectionName), add));
+
+    if ("array".equals(type) || "tuple".equals(type)) {
+      block.addStatement(
+          new AssignmentStatement(collectionRef,
+            new BinaryOperation(OperatorType.METHOD_CALL,
+              new ReferenceLookup(collectionName),
+              new MethodInvocation("toArray"))));
+    }
+    if ("tuple".equals(type)) {
+      FunctionInvocation toTuple = new FunctionInvocation("Tuple.fromArray");
+      toTuple.addArgument(new ReferenceLookup(collectionName));
+      block.addStatement(
+          new AssignmentStatement(collectionRef, toTuple));
+    }
+    block.addStatement(new ReferenceLookup(collectionName));
+    return block;
   }
 
   @Override
@@ -535,7 +598,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ReferenceTable parentTable = context.referenceTableStack.peek();
     ReferenceTable localTable = parentTable.fork();
     Block block = new Block(localTable);
-    String varName = "__$$_destruct_" + System.currentTimeMillis();
+    String varName = syntheticName("destruct");
     LocalReference destructReference = new LocalReference(CONSTANT, varName, true);
     localTable.add(destructReference);
 
@@ -807,7 +870,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ASTCase astCase = new ASTCase(0);
 
     int i = 0;
-    String varName = "__$$_match_" + System.currentTimeMillis();
+    String varName = syntheticName("match");
     while (i < node.jjtGetNumChildren() - 1) {
       astCase.jjtAddChild(node.jjtGetChild(i), i);
       i = i + 1;
@@ -868,8 +931,16 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     ExpressionStatement condition = (ExpressionStatement) context.objectStack.pop();
     node.jjtGetChild(2).jjtAccept(this, data);
     GoloStatement post = (GoloStatement) context.objectStack.pop();
-    node.jjtGetChild(3).jjtAccept(this, data);
-    Block block = (Block) context.objectStack.pop();
+    Block block;
+
+    // there can be no block if we are in a collection comprehension
+    if (node.jjtGetNumChildren() == 4) {
+      node.jjtGetChild(3).jjtAccept(this, data);
+      block = (Block) context.objectStack.pop();
+    } else {
+      block = new Block(localTable.fork());
+    }
+
     LoopStatement loopStatement = new LoopStatement(init, condition, block, post);
     Block localBlock = new Block(localTable);
     localBlock.addStatement(loopStatement);
@@ -884,7 +955,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = (Context) data;
     ReferenceTable localTable = context.referenceTableStack.peek().fork();
 
-    String iteratorId = "$$__iterator__$$__" + System.currentTimeMillis();
+    String iteratorId = syntheticName("iterator");
     LocalReference iteratorReference = new LocalReference(VARIABLE, iteratorId, true);
     localTable.add(iteratorReference);
 
@@ -892,15 +963,39 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.jjtGetChild(0).jjtAccept(this, data);
     ExpressionStatement iterableExpressionStatement = (ExpressionStatement) context.objectStack.pop();
 
-    boolean hasWhen = node.jjtGetNumChildren() > 2;
+    // there can be no block if we are in a collection comprehension, checking what we have...
+    boolean hasWhen = false;
     ExpressionStatement whenGuard = null;
-    if (hasWhen) {
+    Block block = null;
+    int numChildren = node.jjtGetNumChildren();
+
+    if (numChildren < 2) {
+      // no when no block: in collection comprehension
+      block = new Block(localTable.fork());
+    } else if (numChildren > 2) {
+      // when and block: regular loop
       node.jjtGetChild(1).jjtAccept(this, data);
       whenGuard = (ExpressionStatement) context.objectStack.pop();
+      hasWhen = true;
+      node.jjtGetChild(2).jjtAccept(this, data);
+      block = (Block) context.objectStack.pop();
+    } else {
+      // either a when and no block in collection comprehension or no when an block in regular loop
+      node.jjtGetChild(1).jjtAccept(this, data);
+      Object child = context.objectStack.pop();
+      if (child instanceof Block) {
+        block = (Block) child;
+      } else if (child instanceof ExpressionStatement) {
+        hasWhen = true;
+        whenGuard = (ExpressionStatement) child;
+        block = new Block(localTable.fork());
+      } else {
+        getOrCreateExceptionBuilder(context).report(PARSING, node,
+            "Malformed `foreach` loop at (line=" + node.getLineInSourceCode() +
+                ", column=" + node.getColumnInSourceCode() + ")"
+        );
+      }
     }
-
-    node.jjtGetChild(hasWhen ? 2 : 1).jjtAccept(this, data);
-    Block block = (Block) context.objectStack.pop();
 
     if (hasWhen) {
       Block dummy = null;
@@ -943,7 +1038,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       block.prependStatement(next);
     } else if (!node.getNames().isEmpty()) {
       Deque<AssignmentStatement> inits = new LinkedList<AssignmentStatement>();
-      String tmpName = "__$$_destruct_" + System.currentTimeMillis();
+      String tmpName = syntheticName("destruct");
       LocalReference destructReference = new LocalReference(VARIABLE, tmpName, true);
       localTable.add(destructReference);
       AssignmentStatement next = new AssignmentStatement(destructReference,
@@ -956,7 +1051,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       next.setASTNode(node);
 
       inits.push(next);
-      
+
       int idx = 0;
       int last = node.getNames().size() - 1;
       for (String name : node.getNames()) {
@@ -979,6 +1074,7 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
 
     LoopStatement loopStatement = new LoopStatement(init, condition, block, null);
+    loopStatement.setHasWhen(hasWhen);
     Block localBlock = new Block(localTable);
     localBlock.addStatement(loopStatement);
     context.objectStack.push(localBlock);

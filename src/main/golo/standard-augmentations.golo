@@ -286,7 +286,7 @@ augment java.util.Collection {
 
   ----
   Destructuration helper.
-  
+
   * return a tuple of the values
   ----
   function destruct = |this| -> Tuple.fromArray(this: toArray())
@@ -625,6 +625,25 @@ augment java.util.Map {
   ----
   function add = |this, key, value| {
     this: put(key, value)
+    return this
+  }
+
+  ----
+  Adds a tuple [key, value] or a map entry and returns the map.
+  ----
+  function add = |this, kv| {
+    case {
+      when kv oftype Tuple.class and kv: size() == 2 {
+        this: put(kv: get(0), kv: get(1))
+      }
+      when kv oftype java.util.Map$Entry.class {
+        this: put(kv: getKey(), kv: getValue())
+      }
+      otherwise {
+        throw IllegalArgumentException(
+          "expected a 2-tuple or a Map.Entry, got a " + kv: getClass())
+      }
+    }
     return this
   }
 
