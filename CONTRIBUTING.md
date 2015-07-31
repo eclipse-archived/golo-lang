@@ -43,7 +43,7 @@ Here is a sample _good_ Git commit log message:
     Write just like if you were discussing with fellows :-)
 
     Bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=666999
-    Also-By: Somebody Who Contributted <foo@bar.com>
+    Also-By: Somebody Who Contributed <foo@bar.com>
     Signed-off-by: Another Person <baz@foobar.org>
 
 Finally, a contribution is not a good contribution unless it comes with unit tests, integration tests and
