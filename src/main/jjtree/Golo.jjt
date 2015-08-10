@@ -976,7 +976,7 @@ void ForLoop(): {}
   <FOR> "("  (BlankLine())? LetOrVar() ","
                    (BlankLine())? ExpressionStatement() ","
                    (LOOKAHEAD(1) BlankLine())? Statement() ")"
-  (Block())?
+  (LOOKAHEAD(2) Block())?
 }
 
 void ForEachLoop():
@@ -1007,7 +1007,7 @@ void ForEachLoop():
       jjtThis.setVarargs(varargsToken != null);
     }
   )
-  (Block())?
+  (LOOKAHEAD(2) Block())?
 }
 
 void TryCatchFinally():
