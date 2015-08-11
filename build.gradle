@@ -1,0 +1,231 @@
+/*
+ * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+plugins {
+  id 'java'
+  id 'ca.coglinc.javacc' version '2.2.2'
+  id 'org.asciidoctor.convert' version '1.5.2'
+  id 'net.nemerosa.versioning' version '1.5.0'
+  id 'jacoco'
+  id 'application'
+  id 'maven-publish'
+  id 'eclipse'
+  id 'idea'
+}
+
+repositories {
+  jcenter()
+}
+
+ext {
+  goloCliMain = 'fr.insalyon.citi.golo.cli.Main'
+  goloSources = fileTree('src/main/golo').include('**/*.golo')
+  goloClasses = file("$buildDir/classes/golo")
+}
+
+group = 'org.eclipse.golo'
+version = '3.0.0-incubation-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+apply from: 'gradle/repo-detection.gradle'
+
+sourceSets {
+  main {
+    java {
+      srcDir compileJjtree.outputDirectory
+      srcDir compileJavacc.outputDirectory
+    }
+    output.dir goloClasses
+  }
+  test {
+     runtimeClasspath += files(goloClasses)
+   }
+}
+
+dependencies {
+
+  compile group: 'org.ow2.asm', name: 'asm', version:'5.0.4'
+  compile(group: 'com.googlecode.json-simple', name: 'json-simple', version:'1.1.1') {
+    exclude(module: 'junit')
+  }
+  compile group: 'com.beust', name: 'jcommander', version:'1.48'
+  compile group: 'com.github.rjeschke', name: 'txtmark', version:'0.13'
+
+  testCompile group: 'org.ow2.asm', name: 'asm-util', version:'5.0.4'
+  testCompile group: 'org.ow2.asm', name: 'asm-analysis', version:'5.0.4'
+  testCompile group: 'org.hamcrest', name: 'hamcrest-all', version:'1.3'
+  testCompile group: 'org.skyscreamer', name: 'jsonassert', version:'1.2.3'
+  testCompile(group: 'org.testng', name: 'testng', version:'6.9.4') {
+    exclude(module: 'junit')
+  }
+}
+
+eclipse {
+  project {
+    name = 'golo-lang'
+  }
+}
+
+eclipseClasspath.dependsOn("compileJavacc")
+
+task goloc(type: JavaExec, dependsOn: classes) {
+  main = goloCliMain
+  args = ['compile', '--output', goloClasses] + goloSources
+  classpath = sourceSets.main.runtimeClasspath
+  inputs.files goloSources
+  outputs.dir goloClasses
+  description = 'Compiles Golo source files'
+  group = 'Build'
+}
+
+if (!project.hasProperty('bootstrap')) {
+  jar.dependsOn goloc
+  test.dependsOn goloc
+  goloc.shouldRunAfter compileJava
+  test.environment 'golo.bootstrapped', 'yes'
+}
+
+test {
+  useTestNG()
+  testLogging.showStandardStreams = project.hasProperty('consoleTraceTests')
+  systemProperty 'golo.test.trace', project.hasProperty('traceTests') ? 'yes' : 'no'
+  systemProperty 'java.awt.headless', 'true'
+}
+
+processResources {
+  filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+    version: version,
+    timestamp: versioning.info.full
+  ])
+}
+
+asciidoctorj {
+  version = '1.5.2'
+}
+
+asciidoctor {
+  sourceDir 'doc'
+  sources {
+    include 'golo-guide.asciidoc'
+  }
+  backends 'html5'
+}
+
+assemble.dependsOn asciidoctor
+
+task createVanillaScripts(type: CreateStartScripts) {
+  outputDir = file('build/vanilla-golo')
+  mainClassName = goloCliMain
+  applicationName = 'vanilla-golo'
+  classpath = startScripts.classpath
+}
+
+mainClassName = goloCliMain
+applicationDefaultJvmArgs = [
+  '-Xms256m', '-Xmx1024M', '-Xss1024M', '-server', '-XX:-TieredCompilation', '-XX:+AggressiveOpts'
+]
+
+startScripts.dependsOn createVanillaScripts
+
+distributions {
+  main {
+    contents {
+      from(projectDir) {
+        include 'README*'
+        include 'CONTRIB*'
+        include 'THIRD-PARTY'
+        include 'notice.html'
+        include 'epl-v10.html'
+      }
+      into('samples') {
+        from('samples') {
+          include '**/*.golo'
+        }
+      }
+      into('share') {
+        from 'share'
+      }
+      from(asciidoctor.outputDir) {
+        into 'docs'
+      }
+      from(createVanillaScripts.outputDir) {
+        into 'bin'
+      }
+    }
+  }
+}
+
+publishing {
+  publications {
+    mavenJava(MavenPublication) {
+      pom.withXml {
+        asNode().children().last() + {
+          resolveStrategy = Closure.DELEGATE_FIRST
+          name 'Golo Programming Language (Incubation)'
+          description 'Golo: a lightweight dynamic language for the JVM.'
+          url 'http://golo-lang.org/'
+          developers {
+            developer {
+              name 'Golo committers'
+              email 'golo-dev@eclipse.org'
+            }
+          }
+          licenses {
+            license {
+              name 'Eclipse Public License - v 1.0'
+              url 'http://www.eclipse.org/legal/epl-v10.html'
+              distribution 'repo'
+            }
+          }
+          scm {
+            url 'https://github.com/eclipse/golo-lang'
+            connection 'scm:git:git@github.com:eclipse/golo-lang.git'
+            developerConnection 'scm:git:ssh:git@github.com:eclipse/golo-lang.git'
+          }
+        }
+      }
+      from components.java
+      artifact sourceJar {
+        classifier 'sources'
+      }
+      artifact javadocJar {
+        classifier 'javadoc'
+      }
+    }
+  }
+  repositories {
+    // Credentials shall be stored in ~/.gradle/gradle.properties
+    maven {
+      url goloMavenRepoUrl
+      credentials {
+        username goloMavenRepoUsername
+        password goloMavenRepoPassword
+      }
+    }
+  }
+}
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allJava
+}
+
+task javadocJar (type: Jar, dependsOn: javadoc) {
+  from javadoc.destinationDir
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.6'
+  description 'Generates the Gradle wrapper scripts'
+}
+
+tasks.withType(Javadoc) {
+  options.addStringOption('Xdoclint:none', '-quiet')
+}
