@@ -179,24 +179,31 @@ distributions {
 
 ext.mavenRepos = [
   [
-    name: 'eclipse',
-    url: 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/'),
-    user: eclipseRepoUsername,
-    password: eclipseRepoPassword
-  ],
-  [
-    name: 'bintray',
-    url: 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
-    user: bintrayRepoUsername,
-    password: bintrayRepoPassword
-  ],
-  [
     name: 'project',
     url: "$buildDir/maven-repo",
     user: '',
     password: ''
   ]
-];
+]
+
+if (project.hasProperty('eclipseRepoUsername')) {
+  mavenRepos.add([
+      name: 'eclipse',
+      url : 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith(
+          '-SNAPSHOT') ? 'snapshots/' : 'releases/'),
+      user: eclipseRepoUsername,
+      password: eclipseRepoPassword
+  ])
+}
+
+if (project.hasProperty('bintrayRepoUsername')) {
+  mavenRepos.add([
+      name: 'bintray',
+      url: 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
+      user: bintrayRepoUsername,
+      password: bintrayRepoPassword
+  ])
+}
 
 publishing {
   publications {
