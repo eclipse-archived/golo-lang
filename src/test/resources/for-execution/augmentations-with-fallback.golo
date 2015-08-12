@@ -3,14 +3,14 @@ module golotest.execution.AugmentationsWithFallback
 import java.util.stream.Collectors
 
 augment java.lang.String {
-  function fallback = |this, name, args...| -> "Fallback for this " + this + " named " + name + " with args" + args: asList()
+  function fallback = |this, functionName, args...| -> "Fallback for this " + this + " named " + functionName + " with args" + args: asList()
 }
 
 augmentation Fluent = {
-  function fallback = |this, name, args...| {
+  function fallback = |this, functionName, args...| {
     return match {
-      when args: length() is 1 then this: bindAt(name, args: get(0))
-      otherwise this: bindAt(name, args)
+      when args: length() is 1 then this: bindAt(functionName, args: get(0))
+      otherwise this: bindAt(functionName, args)
     }
   }
 }

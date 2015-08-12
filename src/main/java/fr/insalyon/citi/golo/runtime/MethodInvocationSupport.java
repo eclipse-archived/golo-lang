@@ -10,10 +10,11 @@
 package fr.insalyon.citi.golo.runtime;
 
 import gololang.DynamicObject;
-import gololang.FunctionReference;
 
 import java.lang.invoke.*;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashSet;
+import java.util.WeakHashMap;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
@@ -158,8 +159,7 @@ public class MethodInvocationSupport {
           inlineCache.callerLookup,
           "fallback",
           methodType(Object.class, Object.class, Object.class, Object[].class),
-          false,
-          "name", "args");
+          false);
       Object[] fallbackArgs = new Object[] {
           args[0],
           inlineCache.name,

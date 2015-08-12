@@ -277,8 +277,6 @@ println("golo": notExistingMethod(1,2))
 # Prints "Dispatch failed for method: notExistingMethod on instance golo, with args: [1, 2]"
 ----
 
-Note: The `fallback` method must respect the signature and parameter names `fallback = |this, name, args...|`
-
 === Standard augmentations
 
 Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
