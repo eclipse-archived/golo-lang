@@ -49,5 +49,5 @@ public interface GoloIrVisitor {
 
   void visitCollectionLiteral(CollectionLiteral collectionLiteral);
 
-  void visitReferenceLookup(NamedArgument namedArgument);
+  void visitNamedArgument(NamedArgument namedArgument);
 }

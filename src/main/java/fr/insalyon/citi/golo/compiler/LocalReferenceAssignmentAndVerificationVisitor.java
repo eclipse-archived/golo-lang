@@ -321,7 +321,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitReferenceLookup(NamedArgument namedArgument) {
+  public void visitNamedArgument(NamedArgument namedArgument) {
     namedArgument.getExpression().accept(this);
   }
 }

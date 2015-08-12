@@ -634,7 +634,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitReferenceLookup(NamedArgument namedArgument) {
+  public void visitNamedArgument(NamedArgument namedArgument) {
     // Nothing to do, it's already been done for us
   }
 

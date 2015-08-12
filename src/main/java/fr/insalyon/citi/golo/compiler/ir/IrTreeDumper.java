@@ -317,7 +317,7 @@ public class IrTreeDumper implements GoloIrVisitor {
   }
 
   @Override
-  public void visitReferenceLookup(NamedArgument namedArgument) {
+  public void visitNamedArgument(NamedArgument namedArgument) {
     incr();
     space();
     System.out.println("Named argument: " + namedArgument.getName());
