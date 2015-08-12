@@ -15,9 +15,9 @@ if (project.hasProperty('releaseProfile')) {
       ext.goloMavenRepoPassword = eclipseRepoPassword
       break
     case 'bintray':
-    ext.goloMavenRepoUrl = 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
-    ext.goloMavenRepoUsername = bintrayRepoUsername
-    ext.goloMavenRepoPassword = bintrayRepoPassword
+      ext.goloMavenRepoUrl = 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
+      ext.goloMavenRepoUsername = bintrayRepoUsername
+      ext.goloMavenRepoPassword = bintrayRepoPassword
       break
     default:
       throw new GradleException("Unknown release profile: $releaseProfile")
