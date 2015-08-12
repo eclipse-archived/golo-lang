@@ -36,8 +36,6 @@ version = '3.0.0-incubation-SNAPSHOT'
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
-apply from: 'gradle/repo-detection.gradle'
-
 sourceSets {
   main {
     java {
@@ -179,9 +177,30 @@ distributions {
   }
 }
 
+ext.mavenRepos = [
+  [
+    name: 'eclipse',
+    url: 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/'),
+    user: eclipseRepoUsername,
+    password: eclipseRepoPassword
+  ],
+  [
+    name: 'bintray',
+    url: 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
+    user: bintrayRepoUsername,
+    password: bintrayRepoPassword
+  ],
+  [
+    name: 'project',
+    url: "$buildDir/maven-repo",
+    user: '',
+    password: ''
+  ]
+];
+
 publishing {
   publications {
-    mavenJava(MavenPublication) {
+    golo(MavenPublication) {
       pom.withXml {
         asNode().children().last() + {
           resolveStrategy = Closure.DELEGATE_FIRST
@@ -219,11 +238,14 @@ publishing {
   }
   repositories {
     // Credentials shall be stored in ~/.gradle/gradle.properties
-    maven {
-      url goloMavenRepoUrl
-      credentials {
-        username goloMavenRepoUsername
-        password goloMavenRepoPassword
+    mavenRepos.each { repo ->
+      maven {
+        name repo.name
+        url repo.url
+        credentials {
+          username repo.user
+          password repo.password
+        }
       }
     }
   }
