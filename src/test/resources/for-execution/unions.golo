@@ -21,7 +21,7 @@ augment Option {
   }
 }
 
-function monadicAdd = |mx, my| -> 
+function monadicAdd = |mx, my| ->
   mx: bind(|x| ->
     my: bind(|y| ->
       Option.Some(x + y)))
@@ -34,15 +34,15 @@ union Tree = {
 }
 
 augment Tree$Node {
-  function isEmpty = |this| -> false
+  function isEmptyNode = |this| -> false
 }
 
 augment Tree$Empty {
-  function isEmpty = |this| -> true
+  function isEmptyNode = |this| -> true
 }
 
 augment Tree$Leaf {
-  function isEmpty = |this| -> false
+  function isEmptyNode = |this| -> false
 }
 
 augment Tree {
@@ -136,9 +136,9 @@ function test_augmentations = {
   require(n: fmap(double) == n, "err")
   require(s: fmap(double) == Option.Some(10), "err")
 
-  require(not Tree.Leaf(0): isEmpty(), "err on Tree.Leaf:isEmpty")
-  require(not Tree.Node(0, 0): isEmpty(), "err on Tree.Node:isEmpty")
-  require(Tree.Empty(): isEmpty(), "err on Tree.Empty:isEmpty")
+  require(not Tree.Leaf(0): isEmptyNode(), "err on Tree.Leaf:isEmpty")
+  require(not Tree.Node(0, 0): isEmptyNode(), "err on Tree.Node:isEmpty")
+  require(Tree.Empty(): isEmptyNode(), "err on Tree.Empty:isEmpty")
 
   require(Tree.Leaf(0): whoAreYou() == "I'm a leaf",
     "err on Tree.Leaf:whoAreYou")
@@ -178,6 +178,37 @@ function test_singleton = {
   }
 }
 
+function test_match_methods = {
+  let n = Tree.Node(0, 0)
+  let l = Tree.Leaf(0)
+  let e = Tree.Empty()
+  
+  require(not n: isEmpty(), "err")
+  require(not l: isEmpty(), "err")
+  require(e: isEmpty(), "err")
+
+  require(n: isNode(), "err")
+  require(not l: isNode(), "err")
+  require(not e: isNode(), "err")
+
+  require(not n: isLeaf(), "err")
+  require(l: isLeaf(), "err")
+  require(not e: isLeaf(), "err")
+
+  require(l: isLeaf(0), "err")
+  require(not l: isLeaf(42), "err")
+
+  require(n: isNode(0, 0), "err")
+  require(not n: isNode(42, 0), "err")
+  require(not n: isNode(0, 42), "err")
+  require(not n: isNode(42, 42), "err")
+
+  let _ = gololang.Unknown.get()
+  require(n: isNode(0, _), "err")
+  require(n: isNode(_,0), "err")
+  require(n: isNode(_,_), "err")
+}
+
 # ............................................................................................... #
 function main = |args| {
   test_toString()
@@ -187,6 +218,7 @@ function main = |args| {
   test_immutable()
   test_singleton()
   test_not_instantiable()
+  test_match_methods()
 
   println("OK")
 }
