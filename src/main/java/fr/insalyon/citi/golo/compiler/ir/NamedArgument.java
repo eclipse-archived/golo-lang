@@ -37,6 +37,6 @@ public class NamedArgument extends ExpressionStatement {
 
   @Override
   public void accept(GoloIrVisitor visitor) {
-
+    visitor.visitReferenceLookup(this);
   }
 }
