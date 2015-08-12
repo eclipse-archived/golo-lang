@@ -27,6 +27,7 @@ ext {
   goloCliMain = 'fr.insalyon.citi.golo.cli.Main'
   goloSources = fileTree('src/main/golo').include('**/*.golo')
   goloClasses = file("$buildDir/classes/golo")
+  goloDocs = file("$buildDir/docs/golodoc")
 }
 
 group = 'org.eclipse.golo'
@@ -82,7 +83,7 @@ task goloc(type: JavaExec, dependsOn: classes) {
   classpath = sourceSets.main.runtimeClasspath
   inputs.files goloSources
   outputs.dir goloClasses
-  description = 'Compiles Golo source files'
+  description = 'Compiles Golo source files.'
   group = 'Build'
 }
 
@@ -121,6 +122,18 @@ asciidoctor {
 
 assemble.dependsOn asciidoctor
 
+task golodoc(type: JavaExec, dependsOn: classes) {
+  main = goloCliMain
+  args = ['doc', '--format', 'html', '--output', goloDocs] + goloSources
+  classpath = sourceSets.main.runtimeClasspath
+  inputs.files goloSources
+  outputs.dir goloDocs
+  description = 'Generates documentation of the standard Golo modules.'
+  group = 'Documentation'
+}
+
+golodoc.dependsOn goloc
+
 task createVanillaScripts(type: CreateStartScripts) {
   outputDir = file('build/vanilla-golo')
   mainClassName = goloCliMain
@@ -155,6 +168,9 @@ distributions {
       }
       from(asciidoctor.outputDir) {
         into 'docs'
+      }
+      from(golodoc) {
+        into 'docs/golodoc'
       }
       from(createVanillaScripts.outputDir) {
         into 'bin'
@@ -225,5 +241,5 @@ task javadocJar (type: Jar, dependsOn: javadoc) {
 
 task wrapper(type: Wrapper) {
   gradleVersion = '2.6'
-  description 'Generates the Gradle wrapper scripts'
+  description 'Generates the Gradle wrapper scripts.'
 }
