@@ -28,3 +28,14 @@ augment java.lang.String {
 function golo_decoratored = -> "Golo": decorate(suffix = ">", prefix = "<")
 
 function golo_augmentation_varargs = -> "": append(values = array["a", "b", "c"])
+
+local function foo = -> "Foo"
+local function bar = -> null
+local function plop = -> "Plop!"
+
+function call_with_expressions = ->
+  create_post(
+    content = ">>> " + plop(),
+    title = foo(),
+    author = bar() orIfNull "Unknown"
+  )
