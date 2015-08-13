@@ -319,4 +319,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       statement.accept(this);
     }
   }
+
+  @Override
+  public void visitNamedArgument(NamedArgument namedArgument) {
+    namedArgument.getExpression().accept(this);
+  }
 }

@@ -48,4 +48,6 @@ public interface GoloIrVisitor {
   void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement);
 
   void visitCollectionLiteral(CollectionLiteral collectionLiteral);
+
+  void visitNamedArgument(NamedArgument namedArgument);
 }

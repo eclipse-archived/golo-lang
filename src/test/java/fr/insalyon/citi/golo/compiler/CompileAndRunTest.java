@@ -1845,6 +1845,10 @@ public class CompileAndRunTest {
     Method golo_augmentation_varargs = moduleClass.getMethod("golo_augmentation_varargs");
     result = (String) golo_augmentation_varargs.invoke(null);
     assertThat(result, is("abc"));
+
+    Method call_with_expressions = moduleClass.getMethod("call_with_expressions");
+    result = (String) call_with_expressions.invoke(null);
+    assertThat(result, is("Unknown Foo >>> Plop!"));
   }
 
   @Test

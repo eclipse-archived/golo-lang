@@ -315,4 +315,13 @@ public class IrTreeDumper implements GoloIrVisitor {
     }
     decr();
   }
+
+  @Override
+  public void visitNamedArgument(NamedArgument namedArgument) {
+    incr();
+    space();
+    System.out.println("Named argument: " + namedArgument.getName());
+    namedArgument.getExpression().accept(this);
+    decr();
+  }
 }
