@@ -1227,7 +1227,7 @@ public class CompileAndRunTest {
     Method testMethod;
 
     for (String methodName : asList("toString", "equality", "hashcode", "augmentations",
-                                    "immutable", "singleton", "not_instantiable")) {
+                                    "immutable", "singleton", "not_instantiable", "match_methods")) {
       testMethod = moduleClass.getMethod("test_" + methodName);
       try {
         testMethod.invoke(null);

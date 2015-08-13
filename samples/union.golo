@@ -35,24 +35,32 @@ union Tree = {
   Empty
 }
 
-augment Tree$Node {
-  function isEmpty = |this| -> false
-}
-
-augment Tree$Empty {
-  function isEmpty = |this| -> true
-}
-
-augment Tree$Leaf {
-  function isEmpty = |this| -> false
-}
-
 augment Tree {
   function whoAreYou = |this| -> match {
     when this oftype samples.Unions.types.Tree$Node.class then "I'm a node"
     when this oftype samples.Unions.types.Tree$Leaf.class then "I'm a leaf"
     otherwise "I'm empty"
   }
+}
+
+let _ = Unknown.get()
+
+function in_a_match = |tree| -> match {
+  when tree: isEmpty() then "empty tree"
+  when tree: isLeaf(0) then "a leaf with 0"
+  when tree: isLeaf() then "a leaf"
+  when tree: isNode(Tree.Empty(), _) or tree: isNode(_, Tree.Empty()) then "node with 1 child"
+  when tree: isNode() then "a node"
+  otherwise "wtf"
+}
+
+function test_match = {
+  require(in_a_match(Tree.Empty()) == "empty tree", "err")
+  require(in_a_match(Tree.Leaf(0)) == "a leaf with 0", "err")
+  require(in_a_match(Tree.Leaf(42)) == "a leaf", "err")
+  require(in_a_match(Tree.Node(0, 0)) == "a node", "err")
+  require(in_a_match(Tree.Node(Tree.Empty(), 0)) == "node with 1 child", "err")
+  require(in_a_match(Tree.Node(0, Tree.Empty())) == "node with 1 child", "err")
 }
 
 function test_option = {
@@ -97,6 +105,7 @@ function test_tree = {
 function main = |args| {
   test_option()
   test_tree()
+  test_match()
 
   println("OK")
 }

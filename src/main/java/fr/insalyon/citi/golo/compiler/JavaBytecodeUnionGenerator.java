@@ -35,6 +35,7 @@ class JavaBytecodeUnionGenerator {
     makeDefaultConstructor(classWriter, "java/lang/Object");
     HashMap<String, PackageAndClass> staticFields = new HashMap<>();
     for (Union.Value value : union.getValues()) {
+      makeMatchlikeTestMethod(classWriter, value, false);
       results.add(makeUnionValue(classWriter, sourceFilename, value));
       if (value.hasMembers()) {
         makeStaticFactory(classWriter, value);
@@ -87,6 +88,45 @@ class JavaBytecodeUnionGenerator {
     visitor.visitInsn(RETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();
+  }
+
+  private void makeMatchlikeTestMethod(ClassWriter classWriter, Union.Value value, boolean result) {
+    String methName = "is" + value.getName();
+    MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, methName, "()Z", null, null);
+    mv.visitCode();
+    mv.visitInsn(result ? ICONST_1 : ICONST_0);
+    mv.visitInsn(IRETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+
+    if (value.hasMembers()) {
+      mv = classWriter.visitMethod(ACC_PUBLIC, methName, argsSignature(value.getMembers().size()) + "Z", null, null);
+      mv.visitCode();
+      if (!result) {
+        mv.visitInsn(ICONST_0);
+      } else {
+        int i = 1;
+        Label allEquals = new Label();
+        Label notEqual = new Label();
+        String target = value.getPackageAndClass().toJVMType();
+        for (String member : value.getMembers()) {
+          mv.visitVarInsn(ALOAD, i);
+          mv.visitVarInsn(ALOAD, 0);
+          mv.visitFieldInsn(GETFIELD, target, member, "Ljava/lang/Object;");
+          mv.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z", false);
+          mv.visitJumpInsn(IFEQ, notEqual);
+          i++;
+        }
+        mv.visitInsn(ICONST_1);
+        mv.visitJumpInsn(GOTO, allEquals);
+        mv.visitLabel(notEqual);
+        mv.visitInsn(ICONST_0);
+        mv.visitLabel(allEquals);
+      }
+      mv.visitInsn(IRETURN);
+      mv.visitMaxs(0, 0);
+      mv.visitEnd();
+    }
   }
 
   private void makeToString(ClassWriter classWriter, Union.Value value) {
@@ -152,6 +192,7 @@ class JavaBytecodeUnionGenerator {
             value.getUnion().getPackageAndClass().toJVMRef(), null, null).visitEnd();
     }
     makeToString(classWriter, value);
+    makeMatchlikeTestMethod(classWriter, value, true);
     classWriter.visitEnd();
     return new CodeGenerationResult(classWriter.toByteArray(), value.getPackageAndClass());
   }
