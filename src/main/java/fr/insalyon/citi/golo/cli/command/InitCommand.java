@@ -122,7 +122,7 @@ public class InitCommand implements CliCommand {
   }
 
   private void mkdir(File directory) throws IOException {
-    if (!directory.mkdir()) {
+    if (!directory.mkdirs()) {
       throw new IOException("[error] Unable to create directory " + directory + ".");
     }
   }
