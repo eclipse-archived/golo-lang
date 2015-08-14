@@ -284,7 +284,7 @@ Instead, we provide 3 helper functions.
 
 * `isArray(object)`: returns a boolean if `object` is an array.
 * `objectArrayType()`: returns `Object[].class`.
-* `arrayTypeOf(type)`: given `type` as a `java.lang.Class`, returns an array of type `type[]`.
+* `arrayTypeOf(type)`: given `type` as a `java.lang.Class`, returns `type[].class`.
 
 === Misc.
 
