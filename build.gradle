@@ -27,7 +27,6 @@ repositories {
 ext {
   goloCliMain = 'fr.insalyon.citi.golo.cli.Main'
   goloSources = fileTree('src/main/golo').include('**/*.golo')
-  goloClasses = file("$buildDir/classes/golo")
   goloDocs = file("$buildDir/docs/golodoc")
 }
 
@@ -51,7 +50,6 @@ sourceSets {
       srcDir compileJjtree.outputDirectory
       srcDir compileJavacc.outputDirectory
     }
-    output.dir goloClasses
   }
 }
 
@@ -81,26 +79,24 @@ eclipse {
 
 eclipseClasspath.dependsOn("compileJavacc")
 
-task goloc(type: JavaExec, dependsOn: classes) {
+task goloc(type: JavaExec, dependsOn: [compileJava, processResources]) {
   main = goloCliMain
-  args = ['compile', '--output', goloClasses] + goloSources
-  classpath = sourceSets.main.runtimeClasspath
+  args = ['compile', '--output', sourceSets.main.output.classesDir] + goloSources
+  classpath = sourceSets.main.compileClasspath + files(compileJava.outputs) + files(processResources.outputs)
   inputs.files goloSources
-  outputs.dir goloClasses
+  outputs.dir sourceSets.main.output.classesDir
   description = 'Compiles Golo source files.'
   group = 'Build'
 }
 
 if (!project.hasProperty('bootstrap')) {
-  jar.dependsOn goloc
-  test.dependsOn goloc
-  goloc.shouldRunAfter compileJava
-  test.environment 'golo.bootstrapped', 'yes'
+  classes.dependsOn(goloc)
 }
 
 test {
   useTestNG()
   testLogging.showStandardStreams = project.hasProperty('consoleTraceTests')
+  environment 'golo.bootstrapped', project.hasProperty('bootstrap') ? 'yes' : 'no'
   systemProperty 'golo.test.trace', project.hasProperty('traceTests') ? 'yes' : 'no'
   systemProperty 'java.awt.headless', 'true'
 }
@@ -126,7 +122,7 @@ asciidoctor {
 
 assemble.dependsOn asciidoctor
 
-task golodoc(type: JavaExec, dependsOn: classes) {
+task golodoc(type: JavaExec, dependsOn: goloc) {
   main = goloCliMain
   args = ['doc', '--format', 'html', '--output', goloDocs] + goloSources
   classpath = sourceSets.main.runtimeClasspath
@@ -135,8 +131,6 @@ task golodoc(type: JavaExec, dependsOn: classes) {
   description = 'Generates documentation of the standard Golo modules.'
   group = 'Documentation'
 }
-
-golodoc.dependsOn goloc
 
 task createVanillaScripts(type: CreateStartScripts) {
   outputDir = file('build/vanilla-golo')
