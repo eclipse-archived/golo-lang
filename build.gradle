@@ -176,30 +176,6 @@ distributions {
   }
 }
 
-ext.mavenRepos = [[
-  name: 'project',
-  url: "$buildDir/maven-repo",
-  user: '',
-  password: ''
-]]
-
-if (project.hasProperty('eclipseRepoUsername')) {
-  mavenRepos.add([
-    name: 'eclipse',
-    url : 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/'),
-    user: eclipseRepoUsername,
-    password: eclipseRepoPassword
-  ])
-}
-
-if (project.hasProperty('bintrayRepoUsername')) {
-  mavenRepos.add([
-    name: 'bintray',
-    url: 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
-    user: bintrayRepoUsername,
-    password: bintrayRepoPassword
-  ])
-}
 
 publishing {
   publications {
@@ -240,17 +216,33 @@ publishing {
     }
   }
   repositories {
-    // Credentials shall be stored in ~/.gradle/gradle.properties
-    mavenRepos.each { repo ->
-      maven {
-        name repo.name
-        url repo.url
+    maven {
+      name 'project'
+      url "$buildDir/maven-repo"
+    }
+
+    maven {
+      name 'eclipse'
+      url 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
+      if (project.hasProperty('eclipseRepoUsername')) {
         credentials {
-          username repo.user
-          password repo.password
+          username eclipseRepoUsername
+          password eclipseRepoPassword
         }
       }
     }
+
+    maven {
+      name 'bintray'
+      url 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
+      if (project.hasProperty('bintrayRepoUsername')) {
+        credentials {
+          username bintrayRepoUsername
+          password bintrayRepoPassword
+        }
+      }
+    }
+
   }
 }
 
