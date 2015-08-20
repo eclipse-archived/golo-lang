@@ -131,7 +131,7 @@ task golodoc(type: JavaExec, dependsOn: goloc) {
   group = 'Documentation'
 }
 
-task createVanillaScripts(type: CreateStartScripts) {
+task vanillaScripts(type: CreateStartScripts) {
   outputDir = file('build/vanilla-golo')
   mainClassName = goloCliMain
   applicationName = 'vanilla-golo'
@@ -143,7 +143,7 @@ applicationDefaultJvmArgs = [
   '-Xms256m', '-Xmx1024M', '-Xss1024M', '-server', '-XX:-TieredCompilation', '-XX:+AggressiveOpts'
 ]
 
-startScripts.dependsOn createVanillaScripts
+startScripts.dependsOn vanillaScripts
 
 distributions {
   main {
@@ -163,13 +163,13 @@ distributions {
       into('share') {
         from 'share'
       }
-      from(asciidoctor.outputDir) {
+      from(asciidoctor) {
         into 'docs'
       }
       from(golodoc) {
         into 'docs/golodoc'
       }
-      from(createVanillaScripts.outputDir) {
+      from(vanillaScripts) {
         into 'bin'
       }
     }
