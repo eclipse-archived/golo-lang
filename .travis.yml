@@ -6,10 +6,6 @@ jdk:
 matrix:
   fast_finish: true
 
-install: "rake special:bootstrap"
-
-script: "mvn clean install"
-
 sudo: false
 
 notifications:
