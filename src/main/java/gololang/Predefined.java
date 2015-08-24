@@ -748,6 +748,29 @@ public final class Predefined {
     return lst.remove(idx.intValue());
   }
 
+  /**
+   * Returns a reference to the given object.
+   * <p>
+   * Useful whenever an explicit reference is needed, for instance to create a closure with internal
+   * mutable state:
+   * <pre>
+   *    function counter = |init| {
+   *      let current = ref(init)
+   *      return -> current: getAndSet(current: get() + 1)
+   *    }
+   *
+   *    let c = counter(3)
+   *    c() # 3
+   *    c() # 4
+   *    c() # 5
+   * </pre>
+   *
+   * @param obj the object to reference.
+   * @return a {@java.util.concurrent.atomic.AtomicReference} reference to the object
+   */
+  public static Object ref(Object obj) {
+    return new java.util.concurrent.atomic.AtomicReference<Object>(obj);
+  }
 
   // ...................................................................................................................
 }
