@@ -252,6 +252,27 @@ task javadocJar (type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
+task buildMavenPlugin(type: Exec, dependsOn: 'publishGoloPublicationToMavenLocal') {
+  workingDir 'golo-maven-plugin'
+  commandLine 'mvn', 'clean', 'install'
+  description 'Builds the Golo Maven plugin'
+  group 'Build'
+}
+
+task deployMavenPlugin(type: Exec, dependsOn: buildMavenPlugin) {
+  workingDir 'golo-maven-plugin'
+  commandLine 'mvn', 'deploy', '-P', 'release'
+  description 'Deploys the Golo Maven plugin'
+  group 'Publishing'
+}
+
+task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
+  workingDir 'golo-maven-plugin'
+  commandLine 'mvn', 'deploy', '-P', 'release', '-P', 'bintray'
+  description 'Deploys the Golo Maven plugin to Bintray'
+  group 'Publishing'
+}
+
 task wrapper(type: Wrapper) {
   gradleVersion = '2.6'
   description 'Generates the Gradle wrapper scripts.'
