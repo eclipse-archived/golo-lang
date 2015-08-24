@@ -216,7 +216,6 @@ publishing {
       name 'project'
       url "$buildDir/maven-repo"
     }
-
     maven {
       name 'eclipse'
       url 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
@@ -227,7 +226,6 @@ publishing {
         }
       }
     }
-
     maven {
       name 'bintray'
       url 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
@@ -238,7 +236,6 @@ publishing {
         }
       }
     }
-
   }
 }
 
