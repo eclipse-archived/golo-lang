@@ -74,6 +74,10 @@ eclipse {
 
 eclipseClasspath.dependsOn("compileJavacc")
 
+idea.module {
+  excludeDirs -= file("$buildDir")
+}
+
 task goloc(type: JavaExec, dependsOn: [compileJava, processResources]) {
   main = goloCliMain
   args = ['compile', '--output', sourceSets.main.output.classesDir] + goloSources

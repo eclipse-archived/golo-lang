@@ -66,6 +66,14 @@ Common tasks:
 
 The complete list of tasks is available by running `./gradlew tasks`.
 
+### IDE support
+
+The build applies the Gradle-provided `eclipse` and `idea` plugins.
+They provide tasks to generate project files for these IDEs.
+
+While there is no official Netbeans plugin in Gradle, Netbeans has
+[a recommended community-suppprted Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
+
 ### Special build profiles
 
 #### Bootstrap mode
