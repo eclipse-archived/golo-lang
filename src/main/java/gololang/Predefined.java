@@ -749,13 +749,13 @@ public final class Predefined {
   }
 
   /**
-   * Returns a reference to the given object.
+   * Returns a box containing the given object.
    * <p>
    * Useful whenever an explicit reference is needed, for instance to create a closure with internal
    * mutable state:
    * <pre>
    *    function counter = |init| {
-   *      let current = ref(init)
+   *      let current = box(init)
    *      return -> current: getAndSet(current: get() + 1)
    *    }
    *
@@ -766,9 +766,9 @@ public final class Predefined {
    * </pre>
    *
    * @param obj the object to reference.
-   * @return a {@java.util.concurrent.atomic.AtomicReference} reference to the object
+   * @return a {@java.util.concurrent.atomic.AtomicReference} instance wrapping the object
    */
-  public static Object ref(Object obj) {
+  public static Object box(Object obj) {
     return new java.util.concurrent.atomic.AtomicReference<Object>(obj);
   }
 
