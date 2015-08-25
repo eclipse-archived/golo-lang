@@ -276,7 +276,7 @@ public final class Predefined {
    * @return a range object.
    * @see gololang.Predefined.range
    */
-  public static Object reversed_range(Object from, Object to) {
+  public static Object reversedRange(Object from, Object to) {
     return ((Range<?>) range(from, to)).incrementBy(-1);
   }
 
@@ -288,11 +288,27 @@ public final class Predefined {
    * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
    *             <code>Character</code>.
    * @return a range object.
-   * @see gololang.Predefined.reversed_range
+   * @see gololang.Predefined.reversedRange
    * @see gololang.Predefined.range
    */
-  public static Object reversed_range(Object from) {
+  public static Object reversedRange(Object from) {
     return ((Range<?>) range(from)).reversed();
+  }
+
+  /**
+   * @deprecated renamed to {@code reversedRange} for consistency.
+   */
+  @Deprecated
+  public static Object reversed_range(Object from) {
+    return reversedRange(from);
+  }
+
+  /**
+   * @deprecated renamed to {@code reversedRange} for consistency.
+   */
+  @Deprecated
+  public static Object reversed_range(Object from, Object to) {
+    return reversedRange(from, to);
   }
 
   // ...................................................................................................................

@@ -154,13 +154,13 @@ foreach i in range(0, -6):decrementBy(2) {
 }
 ----
 
-The `reversed_range` function is an alias for `range` with an increment of -1,
-such that `reversed_range(5, 1)` is the same as `range(5, 1): decrementBy(1)`.
+The `reversedRange` function is an alias for `range` with an increment of -1,
+such that `reversedRange(5, 1)` is the same as `range(5, 1): decrementBy(1)`.
 
 When `range` is called with only one value, it is used as the upper bound, the
 lower one being a default value (0 for numbers, 'A' for chars). For example,
 `range(5) == range(0, 5)` and `range('Z') == range('A', 'Z')`. In the same way,
-`reversed_range(5) == reversed_range(5, 0)`.
+`reversedRange(5) == reversedRange(5, 0)`.
 
 Two ranges are equals if they have the same bounds and increment.
 

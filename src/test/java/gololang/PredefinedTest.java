@@ -93,21 +93,21 @@ public class PredefinedTest {
   }
 
   @Test
-  public void test_reversed_range() {
-    assertThat(Predefined.reversed_range(10, 1), instanceOf(IntRange.class));
-    assertThat(Predefined.reversed_range(10, 1L), instanceOf(LongRange.class));
-    assertThat(Predefined.reversed_range(10L, 1), instanceOf(LongRange.class));
-    assertThat(Predefined.reversed_range(10L, 1L), instanceOf(LongRange.class));
-    assertThat(Predefined.reversed_range(10), instanceOf(IntRange.class));
-    assertThat(Predefined.reversed_range(10L), instanceOf(LongRange.class));
-    assertThat(Predefined.reversed_range(10), is(Predefined.reversed_range(10, 0)));
-    assertThat(Predefined.reversed_range(10L), is(Predefined.reversed_range(10L, 0L)));
-    assertThat((IntRange)Predefined.reversed_range(5, 1), is(((IntRange)Predefined.range(5, 1)).incrementBy(-1)));
-    assertThat((LongRange)Predefined.reversed_range(5L, 1L), is(((LongRange)Predefined.range(5L, 1L)).incrementBy(-1)));
-    assertThat(Predefined.reversed_range('d', 'a'), instanceOf(CharRange.class));
-    assertThat(Predefined.reversed_range('D'), instanceOf(CharRange.class));
-    assertThat(Predefined.reversed_range('D'), is(Predefined.reversed_range('D', 'A')));
-    assertThat((CharRange)Predefined.reversed_range('D', 'A'), is(((CharRange)Predefined.range('D', 'A')).incrementBy(-1)));
+  public void test_reversedRange() {
+    assertThat(Predefined.reversedRange(10, 1), instanceOf(IntRange.class));
+    assertThat(Predefined.reversedRange(10, 1L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversedRange(10L, 1), instanceOf(LongRange.class));
+    assertThat(Predefined.reversedRange(10L, 1L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversedRange(10), instanceOf(IntRange.class));
+    assertThat(Predefined.reversedRange(10L), instanceOf(LongRange.class));
+    assertThat(Predefined.reversedRange(10), is(Predefined.reversedRange(10, 0)));
+    assertThat(Predefined.reversedRange(10L), is(Predefined.reversedRange(10L, 0L)));
+    assertThat((IntRange)Predefined.reversedRange(5, 1), is(((IntRange)Predefined.range(5, 1)).incrementBy(-1)));
+    assertThat((LongRange)Predefined.reversedRange(5L, 1L), is(((LongRange)Predefined.range(5L, 1L)).incrementBy(-1)));
+    assertThat(Predefined.reversedRange('d', 'a'), instanceOf(CharRange.class));
+    assertThat(Predefined.reversedRange('D'), instanceOf(CharRange.class));
+    assertThat(Predefined.reversedRange('D'), is(Predefined.reversedRange('D', 'A')));
+    assertThat((CharRange)Predefined.reversedRange('D', 'A'), is(((CharRange)Predefined.range('D', 'A')).incrementBy(-1)));
   }
 
   static class MyCallable {
