@@ -68,11 +68,29 @@ The complete list of tasks is available by running `./gradlew tasks`.
 
 ### IDE support
 
-The build applies the Gradle-provided `eclipse` and `idea` plugins.
-They provide tasks to generate project files for these IDEs.
+#### Eclipse
 
-While there is no official Netbeans plugin in Gradle, Netbeans has
+You should use the [buildship plugin](https://projects.eclipse.org/projects/tools.buildship).
+
+Note that you may have to manually adjust the Java source paths to include `build/generated/javacc`
+and `build/generated/jjtree`.
+
+#### Netbeans
+
+Netbeans has
 [a recommended community-suppprted Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
+
+It works with no required manual adjustment on the Golo code base in our tests.
+
+#### IntelliJ IDEA
+
+Gradle support is native in IntelliJ IDEA.
+
+Note that you may have to adjust the module settings to:
+
+1. remove `build` from the excluded folders, and
+2. add both `build/generated/javacc` and `build/generated/jjtree` as source folders, and
+3. exclude other folders in `build` to reduce completion scopes.
 
 ### Special build profiles
 
