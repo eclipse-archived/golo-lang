@@ -748,6 +748,29 @@ public final class Predefined {
     return lst.remove(idx.intValue());
   }
 
+  /**
+   * Returns a box containing the given object.
+   * <p>
+   * Useful whenever an explicit reference is needed, for instance to create a closure with internal
+   * mutable state:
+   * <pre>
+   *    function counter = |init| {
+   *      let current = box(init)
+   *      return -> current: getAndSet(current: get() + 1)
+   *    }
+   *
+   *    let c = counter(3)
+   *    c() # 3
+   *    c() # 4
+   *    c() # 5
+   * </pre>
+   *
+   * @param obj the object to reference.
+   * @return a {@java.util.concurrent.atomic.AtomicReference} instance wrapping the object
+   */
+  public static Object box(Object obj) {
+    return new java.util.concurrent.atomic.AtomicReference<Object>(obj);
+  }
 
   // ...................................................................................................................
 }
