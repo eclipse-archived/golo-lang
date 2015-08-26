@@ -299,7 +299,7 @@ println(e: getKey() + " => " + e: getValue())
 ----
 
 `box` gives instances of `java.util.concurrent.atomic.AtomicReference`, and can
-be used to create a muttable reference where not possible othewise, e.g. in
+be used to create a mutable reference where not possible otherwise, e.g. in
 closures, as in:
 
 [source,golo]
