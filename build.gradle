@@ -209,24 +209,27 @@ publishing {
     maven {
       name 'eclipse'
       url 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
-      if (project.hasProperty('eclipseRepoUsername')) {
-        credentials {
-          username eclipseRepoUsername
-          password eclipseRepoPassword
-        }
+      credentials {
+        username propertyOr('eclipseRepoUsername', 'UNKNOWN_ECLIPSE_USERNAME')
+        password propertyOr('eclipseRepoPassword', 'UNKNOWN_ECLIPSE_PASSWORD')
       }
     }
     maven {
       name 'bintray'
       url 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
-      if (project.hasProperty('bintrayRepoUsername')) {
-        credentials {
-          username bintrayRepoUsername
-          password bintrayRepoPassword
-        }
+      credentials {
+        username propertyOr('bintrayRepoUsername', 'UNKNOWN_BINTRAY_USERNAME')
+        password propertyOr('bintrayRepoPassword', 'UNKNOWN_BINTRAY_PASSWORD')
       }
     }
   }
+}
+
+def propertyOr(name, fallback) {
+  if (project.hasProperty(name)) {
+    return project.property(name)
+  }
+  return fallback
 }
 
 task sourceJar(type: Jar) {
