@@ -162,6 +162,32 @@ distributions {
   }
 }
 
+ext.mavenRepos = [
+  [
+    name: 'project',
+    url: "$buildDir/maven-repo",
+    user: '',
+    password: ''
+  ]
+]
+
+if (project.hasProperty('eclipseRepoUsername')) {
+  mavenRepos.add([
+    name: 'eclipse',
+    url : 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/'),
+    user: eclipseRepoUsername,
+    password: eclipseRepoPassword
+  ])
+}
+
+if (project.hasProperty('bintrayRepoUsername')) {
+  mavenRepos.add([
+    name: 'bintray',
+    url: 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
+    user: bintrayRepoUsername,
+    password: bintrayRepoPassword
+  ])
+}
 
 publishing {
   publications {
@@ -202,34 +228,17 @@ publishing {
     }
   }
   repositories {
-    maven {
-      name 'project'
-      url "$buildDir/maven-repo"
-    }
-    maven {
-      name 'eclipse'
-      url 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
-      credentials {
-        username propertyOr('eclipseRepoUsername', 'UNKNOWN_ECLIPSE_USERNAME')
-        password propertyOr('eclipseRepoPassword', 'UNKNOWN_ECLIPSE_PASSWORD')
-      }
-    }
-    maven {
-      name 'bintray'
-      url 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
-      credentials {
-        username propertyOr('bintrayRepoUsername', 'UNKNOWN_BINTRAY_USERNAME')
-        password propertyOr('bintrayRepoPassword', 'UNKNOWN_BINTRAY_PASSWORD')
+    mavenRepos.each { repo ->
+      maven {
+        name repo.name
+        url repo.url
+        credentials {
+          username repo.user
+          password repo.password
+        }
       }
     }
   }
-}
-
-def propertyOr(name, fallback) {
-  if (project.hasProperty(name)) {
-    return project.property(name)
-  }
-  return fallback
 }
 
 task sourceJar(type: Jar) {
