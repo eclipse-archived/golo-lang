@@ -69,7 +69,7 @@ public interface HeadTail<E> extends Iterable<E> {
   boolean isEmpty();
 
   /**
-   * Util method to wrap a {@code HeadTail} instance into an {@Iterable}
+   * Util method to wrap a {@code HeadTail} instance into an {@code Iterable}
    *
    * @param headTail the instance to wrap
    * @return an iterable on the values contained in the wrapped instance

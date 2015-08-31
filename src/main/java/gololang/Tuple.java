@@ -207,7 +207,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    *
    * @param start the index of the first element (inclusive).
    * @param end the index of the last element (exclusive).
-   * @return a new tuple containing the elements between indices {@start} inclusive and {@code end}
+   * @return a new tuple containing the elements between indices {@code start} inclusive and {@code end}
    * exclusive.
    */
   public Tuple subTuple(int start, int end) {

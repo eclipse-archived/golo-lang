@@ -195,8 +195,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * <b>not use</b> this method on infinite lists, since
    * no check is done.
    *
-   * @param o the object to be compared for equality with this list
-   * @return {@code true} if the specified object is equal to this list.
+   * @return the {@code hashCode}.
    */
   @Override
   public int hashCode() {

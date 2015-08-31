@@ -250,7 +250,7 @@ public final class Predefined {
    *
    * @param to the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
    * @return a range object.
-   * @see gololang.Predefined.range
+   * @see gololang.Predefined#range
    */
   public static Object range(Object to) {
     require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
@@ -274,7 +274,7 @@ public final class Predefined {
    * @param to   the lower-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
    *             <code>Character</code>.
    * @return a range object.
-   * @see gololang.Predefined.range
+   * @see gololang.Predefined#range
    */
   public static Object reversedRange(Object from, Object to) {
     return ((Range<?>) range(from, to)).incrementBy(-1);
@@ -288,8 +288,8 @@ public final class Predefined {
    * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
    *             <code>Character</code>.
    * @return a range object.
-   * @see gololang.Predefined.reversedRange
-   * @see gololang.Predefined.range
+   * @see gololang.Predefined#reversedRange
+   * @see gololang.Predefined#range
    */
   public static Object reversedRange(Object from) {
     return ((Range<?>) range(from)).reversed();
@@ -517,9 +517,10 @@ public final class Predefined {
   }
 
   /**
-   * Return current path of execution.
+   * Sleep on the current thread.
    *
-   * @return current path of execution
+   * @param ms time in milliseconds.
+   * @throws InterruptedException in case the thread gets interrupted.
    */
   public static void sleep(long ms) throws InterruptedException {
     java.lang.Thread.sleep(ms);
@@ -766,7 +767,7 @@ public final class Predefined {
    * </pre>
    *
    * @param obj the object to reference.
-   * @return a {@java.util.concurrent.atomic.AtomicReference} instance wrapping the object
+   * @return a {@code java.util.concurrent.atomic.AtomicReference} instance wrapping the object
    */
   public static Object box(Object obj) {
     return new java.util.concurrent.atomic.AtomicReference<Object>(obj);

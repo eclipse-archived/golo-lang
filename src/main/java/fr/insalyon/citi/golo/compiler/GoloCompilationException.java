@@ -188,7 +188,7 @@ public class GoloCompilationException extends RuntimeException {
     /**
      * Report an encoding error problem to the exception being built.
      *
-     * @param uee     the caught {@code UnsupportedCharsetException}.
+     * @param uce     the caught {@code UnsupportedCharsetException}.
      * @return the same builder object.
      */
     public Builder report(UnsupportedCharsetException uce) {
