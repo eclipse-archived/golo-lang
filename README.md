@@ -47,28 +47,84 @@ We also provide [Docker](http://docker.com/) images based on Ubuntu 14.04 and Ja
 
 ### Dependencies
 
-Golo is built with [Apache Maven](http://maven.apache.org/). We suggest that you use
-[Rake](http://rake.rubyforge.org), too. The provided `Rakefile` acts as a frontend
-to the Maven build and simplifies some invocations.
+Golo is built with [Gradle](https://gradle.org).
+Since the source code contains the [Gradle wrapper scripts](https://docs.gradle.org/current/userguide/gradle_wrapper.html),
+the build can bootstrap itself by downloading the qualified Gradle version from the Internet.
 
 Golo needs Java SE 8 or more to build and run.
 
-The Maven build is self-contained, including the documentation generation.
+### Building
 
-### Building from sources
+Common tasks:
 
-If this is the first time you are building Golo on a machine, you need to boostrap a subset
-of Golo, compile its Maven plugin and finally rebuild it all. Fortunately this is as simple
-as:
+* build: `./gradlew build`
+* test: `./gradlew test`
+* clean: `./gradlew clean`
+* documentation: `./gradlew asciidoctor golodoc javadoc`
+* assemble a working distribution in `build/install`: `./gradlew installDist`
+* generate a nice JaCoCo tests coverage report: `./gradlew jacocoTestReport`
 
-    rake special:bootstrap
+The complete list of tasks is available by running `./gradlew tasks`.
 
-Once this is done you can use the common `rebuild`, `clean` or `test:all` tasks. All tasks
-can be listed using:
+### IDE support
 
-    rake -T
+#### Eclipse
 
-Of course you can just call Maven directly if you like.
+You should use the [buildship plugin](https://projects.eclipse.org/projects/tools.buildship).
+
+Note that you may have to manually adjust the Java source paths to include `build/generated/javacc`
+and `build/generated/jjtree`.
+
+#### Netbeans
+
+Netbeans has
+[a recommended community-suppprted Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
+
+It works with no required manual adjustment on the Golo code base in our tests.
+
+#### IntelliJ IDEA
+
+Gradle support is native in IntelliJ IDEA.
+
+Note that you may have to adjust the module settings to:
+
+1. remove `build` from the excluded folders, and
+2. add both `build/generated/javacc` and `build/generated/jjtree` as source folders, and
+3. exclude other folders in `build` to reduce completion scopes.
+
+### Special build profiles
+
+#### Bootstrap mode
+
+Working on the compiler may cause your build to fail because proper compilation and bytecode
+generation doesn't work. In such cases the `goloc` task is likely to fail, and a wide range of unit tests
+will break because some Golo source files won't have been compiled.
+
+You can activate the bootstrap mode for that, and focus solely on the Java parts:
+
+    ./gradlew test -P bootstrap
+
+#### Tests console output
+
+By default Gradle redirects all tests console outputs, and makes them available from the HTML report
+found in `build/reports/tests/index.html`.
+
+You can instead opt to have all console outputs:
+
+    ./gradlew test -P consoleTraceTests
+
+#### Verbose tests
+
+It is often desirable to get more outputs from tests, like dumps of intermediate representation
+trees or generated JVM bytecode.
+
+Such verbosity can be activated using:
+
+    ./gradlew test -P traceTests
+
+Of course you can combine profiles, like:
+
+    ./gradlew test -P traceTests -P consoleTraceTests -P bootstrap
 
 ## License
 

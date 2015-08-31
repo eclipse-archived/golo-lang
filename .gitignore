@@ -10,3 +10,6 @@ benchmarks/*.json
 benchmarks/*.html
 doc/output/
 tags
+build/
+.gradle/
+/.nb-gradle/

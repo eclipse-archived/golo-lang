@@ -114,7 +114,7 @@ public class CompileAndRunTest {
     Method main = moduleClass.getMethod("main", String[].class);
     assertThat(main, notNullValue());
     assertThat(main.getReturnType().toString(), is("void"));
-    assertThat(main.invoke(null, new String[1]), nullValue());
+    assertThat(main.invoke(null, (Object[]) new String[1]), nullValue());
   }
 
   @Test
@@ -513,6 +513,7 @@ public class CompileAndRunTest {
   }
 
   @Test
+  @SuppressWarnings("unchecked")
   public void test_arrays_as_objects() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "arrays.golo");
 

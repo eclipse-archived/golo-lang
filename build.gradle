@@ -1,0 +1,266 @@
+/*
+ * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ *
+ * All rights reserved. This program and the accompanying materials
+ * are made available under the terms of the Eclipse Public License v1.0
+ * which accompanies this distribution, and is available at
+ * http://www.eclipse.org/legal/epl-v10.html
+ */
+
+plugins {
+  id 'java'
+  id 'ca.coglinc.javacc' version '2.3.1'
+  id 'org.asciidoctor.convert' version '1.5.2'
+  id 'net.nemerosa.versioning' version '1.5.1'
+  id 'jacoco'
+  id 'application'
+  id 'maven-publish'
+  id 'com.github.ben-manes.versions' version '0.11.3'
+}
+
+repositories {
+  jcenter()
+}
+
+ext {
+  goloCliMain = 'fr.insalyon.citi.golo.cli.Main'
+  goloSources = fileTree('src/main/golo').include('**/*.golo')
+  goloDocs = file("$buildDir/docs/golodoc")
+}
+
+group = 'org.eclipse.golo'
+version = '3.0.0-incubation-SNAPSHOT'
+
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+tasks.withType(JavaCompile) {
+  options.compilerArgs += ["-Xlint:unchecked", "-Xlint:deprecation"]
+}
+
+sourceSets {
+  main {
+    java {
+      srcDir compileJjtree.outputDirectory
+      srcDir compileJavacc.outputDirectory
+    }
+  }
+}
+
+configurations.all {
+  exclude module: 'junit'
+}
+
+dependencies {
+  compile 'org.ow2.asm:asm:5.0.4'
+  compile 'com.beust:jcommander:1.48'
+  compile 'com.github.rjeschke:txtmark:0.13'
+  compile 'com.googlecode.json-simple:json-simple:1.1.1'
+
+  testCompile 'org.ow2.asm:asm-util:5.0.4'
+  testCompile 'org.ow2.asm:asm-analysis:5.0.4'
+  testCompile 'org.hamcrest:hamcrest-all:1.3'
+  testCompile 'org.skyscreamer:jsonassert:1.2.3'
+  testCompile 'org.testng:testng:6.9.5'
+}
+
+task goloc(type: JavaExec, dependsOn: [compileJava, processResources]) {
+  main = goloCliMain
+  args = ['compile', '--output', sourceSets.main.output.classesDir] + goloSources
+  classpath = sourceSets.main.compileClasspath + files(compileJava.outputs) + files(processResources.outputs)
+  inputs.files goloSources
+  outputs.dir sourceSets.main.output.classesDir
+  description = 'Compiles Golo source files.'
+  group = 'Build'
+}
+
+if (!project.hasProperty('bootstrap')) {
+  classes.dependsOn(goloc)
+}
+
+test {
+  useTestNG()
+  testLogging.showStandardStreams = project.hasProperty('consoleTraceTests')
+  environment 'golo.bootstrapped', project.hasProperty('bootstrap') ? 'yes' : 'no'
+  systemProperty 'golo.test.trace', project.hasProperty('traceTests') ? 'yes' : 'no'
+  systemProperty 'java.awt.headless', 'true'
+}
+
+processResources {
+  filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
+    version: version,
+    timestamp: versioning.info.full
+  ])
+}
+
+asciidoctorj {
+  version = '1.5.2'
+}
+
+asciidoctor {
+  sourceDir 'doc'
+  sources {
+    include 'golo-guide.asciidoc'
+  }
+  backends 'html5'
+}
+
+assemble.dependsOn asciidoctor
+
+task golodoc(type: JavaExec, dependsOn: goloc) {
+  main = goloCliMain
+  args = ['doc', '--format', 'html', '--output', goloDocs] + goloSources
+  classpath = sourceSets.main.runtimeClasspath
+  inputs.files goloSources
+  outputs.dir goloDocs
+  description = 'Generates documentation of the standard Golo modules.'
+  group = 'Documentation'
+}
+
+task vanillaScripts(type: CreateStartScripts) {
+  outputDir = file('build/vanilla-golo')
+  mainClassName = goloCliMain
+  applicationName = 'vanilla-golo'
+  classpath = startScripts.classpath
+}
+
+mainClassName = goloCliMain
+applicationDefaultJvmArgs = [
+  '-Xms256m', '-Xmx1024M', '-Xss1024M', '-server', '-XX:-TieredCompilation', '-XX:+AggressiveOpts'
+]
+
+startScripts.dependsOn vanillaScripts
+
+distributions {
+  main {
+    contents {
+      from(projectDir) {
+        include 'README*'
+        include 'CONTRIB*'
+        include 'THIRD-PARTY'
+        include 'notice.html'
+        include 'epl-v10.html'
+      }
+      into('samples') {
+        from('samples') {
+          include '**/*.golo'
+        }
+      }
+      into('share') {
+        from 'share'
+      }
+      from(asciidoctor) {
+        into 'docs'
+      }
+      from(golodoc) {
+        into 'docs/golodoc'
+      }
+      from(vanillaScripts) {
+        into 'bin'
+      }
+    }
+  }
+}
+
+
+publishing {
+  publications {
+    golo(MavenPublication) {
+      pom.withXml {
+        asNode().children().last() + {
+          resolveStrategy = Closure.DELEGATE_FIRST
+          name 'Golo Programming Language (Incubation)'
+          description 'Golo: a lightweight dynamic language for the JVM.'
+          url 'http://golo-lang.org/'
+          developers {
+            developer {
+              name 'Golo committers'
+              email 'golo-dev@eclipse.org'
+            }
+          }
+          licenses {
+            license {
+              name 'Eclipse Public License - v 1.0'
+              url 'http://www.eclipse.org/legal/epl-v10.html'
+              distribution 'repo'
+            }
+          }
+          scm {
+            url 'https://github.com/eclipse/golo-lang'
+            connection 'scm:git:git@github.com:eclipse/golo-lang.git'
+            developerConnection 'scm:git:ssh:git@github.com:eclipse/golo-lang.git'
+          }
+        }
+      }
+      from components.java
+      artifact sourceJar {
+        classifier 'sources'
+      }
+      artifact javadocJar {
+        classifier 'javadoc'
+      }
+    }
+  }
+  repositories {
+    maven {
+      name 'project'
+      url "$buildDir/maven-repo"
+    }
+    maven {
+      name 'eclipse'
+      url 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/')
+      if (project.hasProperty('eclipseRepoUsername')) {
+        credentials {
+          username eclipseRepoUsername
+          password eclipseRepoPassword
+        }
+      }
+    }
+    maven {
+      name 'bintray'
+      url 'https://api.bintray.com/maven/golo-lang/golo-lang/golo'
+      if (project.hasProperty('bintrayRepoUsername')) {
+        credentials {
+          username bintrayRepoUsername
+          password bintrayRepoPassword
+        }
+      }
+    }
+  }
+}
+
+task sourceJar(type: Jar) {
+  from sourceSets.main.allJava
+}
+
+javadoc.options.addStringOption('Xdoclint:none', '-quiet')
+
+task javadocJar (type: Jar, dependsOn: javadoc) {
+  from javadoc.destinationDir
+}
+
+task buildMavenPlugin(type: Exec, dependsOn: 'publishGoloPublicationToMavenLocal') {
+  workingDir 'golo-maven-plugin'
+  commandLine 'mvn', 'clean', 'install'
+  description 'Builds the Golo Maven plugin.'
+  group 'Build'
+}
+
+task deployMavenPlugin(type: Exec, dependsOn: buildMavenPlugin) {
+  workingDir 'golo-maven-plugin'
+  commandLine 'mvn', 'deploy', '-P', 'release'
+  description 'Deploys the Golo Maven plugin.'
+  group 'Publishing'
+}
+
+task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
+  workingDir 'golo-maven-plugin'
+  commandLine 'mvn', 'deploy', '-P', 'release', '-P', 'bintray'
+  description 'Deploys the Golo Maven plugin to Bintray.'
+  group 'Publishing'
+}
+
+task wrapper(type: Wrapper) {
+  gradleVersion = '2.6'
+  description 'Generates the Gradle wrapper scripts.'
+}
