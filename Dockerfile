@@ -8,13 +8,15 @@ ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update &&\
   apt-get -y upgrade &&\
-  apt-get install -y maven rake &&\
+  apt-get install -y git &&\
   apt-get autoclean
 
 ADD . /src
-RUN cd /src &&\
-  rake special:bootstrap &&\
-  mkdir -p /opt/golo &&\
-  cp -R /src/target/golo-*-distribution/golo-*/* /opt/golo &&\
+RUN cd /src && ./gradlew -v
+
+RUN cd /src && ./gradlew installDist
+
+RUN mkdir -p /opt/golo &&\
+  cp -R /src/build/install/golo /opt &&\
   ln -s /opt/golo/bin/golo /usr/bin/golo &&\
-  rm -rf /src ~/.m2
+  cd /src && ./gradlew clean
