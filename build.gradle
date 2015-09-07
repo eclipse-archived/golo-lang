@@ -29,7 +29,7 @@ ext {
 }
 
 group = 'org.eclipse.golo'
-version = '3.0.0-incubation-M2'
+version = '3.0.0-incubation-SNAPSHOT'
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
