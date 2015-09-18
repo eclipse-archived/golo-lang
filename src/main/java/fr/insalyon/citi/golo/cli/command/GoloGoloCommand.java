@@ -48,6 +48,9 @@ public class GoloGoloCommand implements CliCommand {
       System.out.println("The module " + this.module + " does not exist in the classpath.");
       return;
     }
+    if (lastClass == null) {
+      return;
+    }
     callRun(lastClass, this.arguments.toArray(new String[this.arguments.size()]));
   }
 
