@@ -5,7 +5,7 @@
 :toc: left
 :numbered:
 :stylesheet: readthedocs.css
-:source-highlighter: prettify
+:source-highlighter: highlightjs
 
 This is the documentation for the Golo programming language.
 
