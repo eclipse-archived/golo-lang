@@ -109,15 +109,15 @@ public final class Observable {
         '}';
   }
 
-  public static interface Function {
+  public interface Function {
     Object apply(Object value);
   }
 
-  public static interface Predicate {
+  public interface Predicate {
     boolean apply(Object value);
   }
 
-  public static interface Observer {
+  public interface Observer {
     void apply(Object newValue);
   }
 }

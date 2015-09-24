@@ -14,16 +14,21 @@ import org.eclipse.golo.runtime.OperatorType;
 public class UnaryOperation extends ExpressionStatement {
 
   private final OperatorType type;
-  private final ExpressionStatement expressionStatement;
+  private ExpressionStatement expressionStatement;
 
-  public UnaryOperation(OperatorType type, ExpressionStatement expressionStatement) {
+  UnaryOperation(OperatorType type, ExpressionStatement expressionStatement) {
     super();
     this.type = type;
-    this.expressionStatement = expressionStatement;
+    setExpressionStatement(expressionStatement);
   }
 
   public ExpressionStatement getExpressionStatement() {
     return expressionStatement;
+  }
+
+  private void setExpressionStatement(ExpressionStatement statement) {
+    this.expressionStatement = statement;
+    makeParentOf(statement);
   }
 
   public OperatorType getType() {
@@ -33,5 +38,19 @@ public class UnaryOperation extends ExpressionStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitUnaryOperation(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    expressionStatement.accept(visitor);
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (expressionStatement.equals(original)) {
+      setExpressionStatement((ExpressionStatement) newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
   }
 }

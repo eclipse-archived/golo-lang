@@ -20,10 +20,11 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
+import static org.eclipse.golo.compiler.ir.Struct.IMMUTABLE_FACTORY_METHOD;
+
 class JavaBytecodeStructGenerator {
 
   private static final String $_frozen = "$_frozen";
-  public static final String IMMUTABLE_FACTORY_METHOD = "$_immutable";
 
   public CodeGenerationResult compile(Struct struct, String sourceFilename) {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);

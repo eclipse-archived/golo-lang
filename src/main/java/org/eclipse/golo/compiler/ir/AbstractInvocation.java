@@ -20,7 +20,7 @@ public abstract class AbstractInvocation extends ExpressionStatement {
   private final List<FunctionInvocation> anonymousFunctionInvocations = new LinkedList<>();
   protected boolean usesNamedArguments = false;
 
-  public AbstractInvocation(String name) {
+  AbstractInvocation(String name) {
     super();
     this.name = name;
   }
@@ -29,8 +29,16 @@ public abstract class AbstractInvocation extends ExpressionStatement {
     return name;
   }
 
-  public void addArgument(ExpressionStatement argument) {
+  private void addArgument(ExpressionStatement argument) {
     arguments.add(argument);
+    makeParentOf(argument);
+  }
+
+  public AbstractInvocation withArgs(Object... arguments) {
+    for (Object argument : arguments) {
+      addArgument(ExpressionStatement.of(argument));
+    }
+    return this;
   }
 
   public List<ExpressionStatement> getArguments() {
@@ -41,8 +49,11 @@ public abstract class AbstractInvocation extends ExpressionStatement {
     return arguments.size();
   }
 
-  public void addAnonymousFunctionInvocation(FunctionInvocation invocation) {
-    anonymousFunctionInvocations.add(invocation);
+  public AbstractInvocation followedBy(Object invocation) {
+    FunctionInvocation inv = (FunctionInvocation) invocation;
+    anonymousFunctionInvocations.add(inv);
+    makeParentOf(inv);
+    return this;
   }
 
   public List<FunctionInvocation> getAnonymousFunctionInvocations() {
@@ -53,7 +64,36 @@ public abstract class AbstractInvocation extends ExpressionStatement {
     return usesNamedArguments;
   }
 
-  public void setUsesNamedArguments(boolean usesNamedArguments) {
+  public boolean namedArgumentsComplete() {
+    return this.arguments.isEmpty() || this.usesNamedArguments;
+  }
+
+  public AbstractInvocation withNamedArguments() {
+    setUsesNamedArguments(true);
+    return this;
+  }
+
+  private void setUsesNamedArguments(boolean usesNamedArguments) {
     this.usesNamedArguments = usesNamedArguments;
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    for (ExpressionStatement arg : arguments) {
+      arg.accept(visitor);
+    }
+    for (FunctionInvocation inv : anonymousFunctionInvocations) {
+      inv.accept(visitor);
+    }
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (newElement instanceof ExpressionStatement && arguments.contains(original)) {
+      this.arguments.set(arguments.indexOf((ExpressionStatement) original),
+          (ExpressionStatement) newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
   }
 }

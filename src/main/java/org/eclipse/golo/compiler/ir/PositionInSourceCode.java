@@ -27,25 +27,22 @@ public final class PositionInSourceCode {
     return column;
   }
 
+  public boolean isNull() {
+    return line == 0 && column == 0;
+  }
+
   @Override
   public String toString() {
-    return "{" +
-        "line=" + line +
-        ", column=" + column +
-        '}';
+    return String.format("{line=%d, column=%d}", line, column);
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
 
     PositionInSourceCode that = (PositionInSourceCode) o;
-
-    if (column != that.column) return false;
-    if (line != that.line) return false;
-
-    return true;
+    return column == that.column && line == that.line;
   }
 
   @Override

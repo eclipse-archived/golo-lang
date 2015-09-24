@@ -153,7 +153,7 @@ public final class Predefined {
    * @param obj the object to test against <code>null</code>.
    * @throws AssertionError if <code>obj</code> is <code>null</code>.
    */
-  public static void requireNotNull(Object obj) throws AssertionError {
+  public static void requireNotNull(Object obj) {
     if (obj != null) {
       return;
     }
@@ -168,7 +168,7 @@ public final class Predefined {
    * @throws IllegalArgumentException if the arguments are of the wrong type.
    * @throws AssertionError           if <code>condition</code> is <code>false</code>.
    */
-  public static void require(Object condition, Object errorMessage) throws IllegalArgumentException, AssertionError {
+  public static void require(Object condition, Object errorMessage) {
     requireNotNull(condition);
     requireNotNull(errorMessage);
     if ((condition instanceof Boolean) && (errorMessage instanceof String)) {
@@ -361,9 +361,9 @@ public final class Predefined {
         configuration.put("interfaces", new Tuple(theType.getCanonicalName()));
         Map<String, FunctionReference> implementations = new HashMap<>();
         implementations.put(
-            method.getName(), 
+            method.getName(),
             new FunctionReference(
-              dropArguments(((FunctionReference) func).handle(), 0, Object.class), 
+              dropArguments(((FunctionReference) func).handle(), 0, Object.class),
               Arrays.stream(method.getParameters())
               .map(Parameter::getName)
               .toArray(String[]::new)));
@@ -419,7 +419,7 @@ public final class Predefined {
       targetMethod = validCandidates.iterator().next();
       targetMethod.setAccessible(true);
       String[] parameterNames = Arrays.stream(targetMethod.getParameters()).map(Parameter::getName).toArray(String[]::new);
-      if(isMethodDecorated(targetMethod)) {
+      if (isMethodDecorated(targetMethod)) {
         if (functionArity < 0) {
           return new FunctionReference(getDecoratedMethodHandle(targetMethod), parameterNames);
         } else {
@@ -509,10 +509,15 @@ public final class Predefined {
     }
     String str = (String) text;
     Path path = pathFrom(file);
-    if (path.toString().equals("-")) {
+    if ("-".equals(path.toString())) {
       System.out.write(str.getBytes(encoding));
     } else {
-      Files.write(path, str.getBytes(encoding), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+      Files.write(
+          path,
+          str.getBytes(encoding),
+          StandardOpenOption.WRITE,
+          StandardOpenOption.CREATE,
+          StandardOpenOption.TRUNCATE_EXISTING);
     }
   }
 
@@ -598,7 +603,7 @@ public final class Predefined {
    * @return the Character value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object charValue(Object obj) throws IllegalArgumentException {
+  public static Object charValue(Object obj) {
     if (obj instanceof Character) {
       return obj;
     }
@@ -631,7 +636,7 @@ public final class Predefined {
    * @return the Integer value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object intValue(Object obj) throws IllegalArgumentException {
+  public static Object intValue(Object obj) {
     if (obj instanceof Integer) {
       return obj;
     }
@@ -664,7 +669,7 @@ public final class Predefined {
    * @return the Long value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object longValue(Object obj) throws IllegalArgumentException {
+  public static Object longValue(Object obj) {
     if (obj instanceof Long) {
       return obj;
     }
@@ -697,7 +702,7 @@ public final class Predefined {
    * @return the Double value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object doubleValue(Object obj) throws IllegalArgumentException {
+  public static Object doubleValue(Object obj) {
     if (obj instanceof Double) {
       return obj;
     }
@@ -730,7 +735,7 @@ public final class Predefined {
    * @return the Float value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object floatValue(Object obj) throws IllegalArgumentException {
+  public static Object floatValue(Object obj) {
     if (obj instanceof Float) {
       return obj;
     }
@@ -793,4 +798,63 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
+
+  /**
+   * Varargs version of a list constructor.
+   *
+   * @return a list of the given values.
+   */
+  public static List<Object> list(Object... values) {
+    return new LinkedList<Object>(Arrays.asList(values));
+  }
+
+  /**
+   * Varargs version of a set constructor.
+   *
+   * @return a set of the given values.
+   */
+  public static Set<Object> set(Object... values) {
+    return new LinkedHashSet<Object>(Arrays.asList(values));
+  }
+
+  /**
+   * array constructor.
+   *
+   * @return an array of the given values.
+   */
+  public static Object[] array(Object... values) {
+    return values;
+  }
+
+  /**
+   * Varargs version of a vector constructor.
+   *
+   * @return a vector of the give values.
+   */
+  public static List<Object> vector(Object... values) {
+    return new ArrayList<Object>(Arrays.asList(values));
+  }
+
+  /**
+   * Tuple constructor.
+   *
+   * @return a tuple of the given values.
+   */
+  public static Tuple tuple(Object... values) {
+    return new Tuple(values);
+  }
+
+  /**
+   * Varargs version of a map constructor.
+   *
+   * @param items tuples containing the key and the value.
+   * @return a map corresponding to the given key/value pairs.
+   */
+  public static Map<Object, Object> map(Tuple... items) {
+    Map<Object, Object> m = new LinkedHashMap<>();
+    for (Tuple t : items) {
+      m.put(t.get(0), t.get(1));
+    }
+    return m;
+  }
 }

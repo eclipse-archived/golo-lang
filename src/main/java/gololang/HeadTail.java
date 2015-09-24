@@ -74,7 +74,7 @@ public interface HeadTail<E> extends Iterable<E> {
    * @param headTail the instance to wrap
    * @return an iterable on the values contained in the wrapped instance
    */
-  public static <E> Iterable<E> toIterable(HeadTail<E> headTail) {
+  static <E> Iterable<E> toIterable(HeadTail<E> headTail) {
     return new Iterable<E>() {
       @Override
       public Iterator<E> iterator() {

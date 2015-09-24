@@ -9,8 +9,6 @@
 
 package gololang;
 
-import org.eclipse.golo.runtime.ClosureCallSupport;
-
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -237,7 +235,7 @@ public class FunctionReference {
       return null;
     }
     String[] filtered = new String[this.parameterNames.length - size];
-    if(filtered.length > 0) {
+    if (filtered.length > 0) {
       System.arraycopy(parameterNames, 0, filtered, 0, from);
       System.arraycopy(parameterNames, from + size, filtered, from, this.parameterNames.length - size - from);
     }

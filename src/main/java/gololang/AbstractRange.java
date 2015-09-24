@@ -64,7 +64,7 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     return this.cmp;
   }
 
-  public boolean encloses (T v) {
+  public boolean encloses(T v) {
     return (v.compareTo(from()) == 0 || v.compareTo(from()) * cmp() > 0)
            && to().compareTo(v) * cmp() > 0;
 

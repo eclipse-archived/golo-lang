@@ -14,65 +14,70 @@ import org.eclipse.golo.compiler.PackageAndClass;
 import java.util.Collection;
 import java.util.Set;
 import java.util.LinkedHashSet;
+
+import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
-public final class Union {
+public final class Union extends GoloElement {
 
-  public static final class Value {
-    private final String name;
-    private final Union union;
-    private final PackageAndClass packageAndClass;
-    private final Set<String> members = new LinkedHashSet<>();
+  private PackageAndClass moduleName;
+  private final String name;
+  private final Set<UnionValue> values = new LinkedHashSet<>();
 
-    public Value(Union union, String name) {
-      this.name = name;
-      this.union = union;
-      this.packageAndClass = union.getPackageAndClass().createInnerClass(name);
-    }
-
-    public PackageAndClass getPackageAndClass() {
-      return packageAndClass;
-    }
-
-    public Union getUnion() {
-      return union;
-    }
-
-    public String getName() {
-      return name;
-    }
-
-    public void addMembers(Collection<String> memberNames) {
-      this.members.addAll(memberNames);
-    }
-
-    public boolean hasMembers() {
-      return !this.members.isEmpty();
-    }
-
-    public Set<String> getMembers() {
-      return unmodifiableSet(members);
-    }
-  }
-
-  private final PackageAndClass packageAndClass;
-  private final Set<Value> values = new LinkedHashSet<>();
-
-  public Union(PackageAndClass packageAndClass) {
-    this.packageAndClass = packageAndClass;
+  Union(String name) {
+    super();
+    this.name = name;
   }
 
   public PackageAndClass getPackageAndClass() {
-    return packageAndClass;
+    return new PackageAndClass(moduleName.toString() + ".types", name);
+  }
+
+  public void setModuleName(PackageAndClass module) {
+    this.moduleName = module;
   }
 
   public void addValue(String name, Collection<String> members) {
-    Value value = new Value(this, name);
+    UnionValue value = new UnionValue(this, name);
     value.addMembers(members);
     values.add(value);
+    makeParentOf(value);
   }
 
-  public Collection<Value> getValues() {
-    return unmodifiableSet(this.values);
+  public void addValue(UnionValue value) {
+    values.add(value);
+    makeParentOf(value);
   }
+
+  public Collection<UnionValue> getValues() {
+    return unmodifiableSet(values);
+  }
+
+  public Union value(String name, String... members) {
+    addValue(name, asList(members));
+    return this;
+  }
+
+  @Override
+  public void accept(GoloIrVisitor visitor) {
+    visitor.visitUnion(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    for (UnionValue value : getValues()) {
+      value.accept(visitor);
+    }
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (values.contains(original) && newElement instanceof UnionValue) {
+      values.remove(original);
+      addValue((UnionValue) newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
+  }
+
 }

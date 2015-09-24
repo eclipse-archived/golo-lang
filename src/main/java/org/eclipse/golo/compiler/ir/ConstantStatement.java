@@ -11,9 +11,9 @@ package org.eclipse.golo.compiler.ir;
 
 public class ConstantStatement extends ExpressionStatement {
 
-  private final Object value;
+  private Object value;
 
-  public ConstantStatement(Object value) {
+  ConstantStatement(Object value) {
     super();
     this.value = value;
   }
@@ -22,8 +22,28 @@ public class ConstantStatement extends ExpressionStatement {
     return value;
   }
 
+  public void setValue(Object v) {
+    value = v;
+  }
+
+  @Override
+  public String toString() {
+    return String.valueOf(value);
+  }
+
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitConstantStatement(this);
   }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    // nothing to do, not a composite
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    throw cantReplace();
+  }
+
 }

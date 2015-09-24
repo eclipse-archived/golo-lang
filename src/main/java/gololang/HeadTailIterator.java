@@ -9,7 +9,6 @@
 package gololang;
 
 import java.util.Iterator;
-import java.util.NoSuchElementException;
 
 /**
  * Wraps a {@code Headtail} into an iterator

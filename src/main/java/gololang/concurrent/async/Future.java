@@ -70,7 +70,7 @@ public interface Future {
   /**
    * Simple interface for a future observer / callback.
    */
-  public static interface Observer {
+  interface Observer {
 
     /**
      * Callback method.

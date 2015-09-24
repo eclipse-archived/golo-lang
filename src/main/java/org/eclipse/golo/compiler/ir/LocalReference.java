@@ -9,36 +9,68 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public final class LocalReference {
+import org.eclipse.golo.compiler.parser.GoloASTNode;
+
+public final class LocalReference extends GoloElement {
 
   public static enum Kind {
     CONSTANT, VARIABLE, MODULE_CONSTANT, MODULE_VARIABLE
   }
 
-  private final Kind kind;
+  private Kind kind = Kind.CONSTANT;
   private final String name;
-  private final boolean synthetic;
-
+  private boolean synthetic = false;
   private int index = -1;
 
-  public LocalReference(Kind kind, String name) {
-    this.kind = kind;
+  LocalReference(String name) {
+    super();
     this.name = name;
-    this.synthetic = false;
   }
 
-  public LocalReference(Kind kind, String name, boolean synthetic) {
-    this.kind = kind;
-    this.name = name;
-    this.synthetic = synthetic;
+  @Override
+  public LocalReference ofAST(GoloASTNode n) {
+    super.ofAST(n);
+    return this;
   }
 
   public Kind getKind() {
     return kind;
   }
 
+  public LocalReference variable() {
+    if (kind == Kind.MODULE_VARIABLE || kind == Kind.MODULE_CONSTANT) {
+      kind = Kind.MODULE_VARIABLE;
+    } else {
+      kind = Kind.VARIABLE;
+    }
+    return this;
+  }
+
+  public LocalReference moduleLevel() {
+    if (kind == Kind.CONSTANT || kind == Kind.MODULE_CONSTANT) {
+      kind = Kind.MODULE_CONSTANT;
+    } else {
+      kind = Kind.MODULE_VARIABLE;
+    }
+    return this;
+  }
+
+  public LocalReference kind(Kind k) {
+    kind = k;
+    return this;
+  }
+
   public String getName() {
     return name;
+  }
+
+  public LocalReference synthetic(boolean isSynthetic) {
+    this.synthetic = isSynthetic;
+    return this;
+  }
+
+  public LocalReference synthetic() {
+    return synthetic(true);
   }
 
   public boolean isSynthetic() {
@@ -49,6 +81,10 @@ public final class LocalReference {
     return kind == Kind.MODULE_CONSTANT || kind == Kind.MODULE_VARIABLE;
   }
 
+  public boolean isConstant() {
+    return kind == Kind.CONSTANT || kind == Kind.MODULE_CONSTANT;
+  }
+
   public int getIndex() {
     return index;
   }
@@ -57,26 +93,26 @@ public final class LocalReference {
     this.index = index;
   }
 
+  public LocalReference index(int index) {
+    setIndex(index);
+    return this;
+  }
+
+  public ReferenceLookup lookup() {
+    return new ReferenceLookup(name);
+  }
+
   @Override
   public String toString() {
-    return "LocalReference{" +
-        "kind=" + kind +
-        ", name='" + name + '\'' +
-        ", index=" + index +
-        '}';
+    return String.format("LocalReference{kind=%s, name='%s', index=%d}", kind, name, index);
   }
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
-
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
     LocalReference that = (LocalReference) o;
-
-    if (kind != that.kind) return false;
-    if (!name.equals(that.name)) return false;
-
-    return true;
+    return kind == that.kind && name.equals(that.name);
   }
 
   @Override
@@ -84,5 +120,20 @@ public final class LocalReference {
     int result = kind.hashCode();
     result = 31 * result + name.hashCode();
     return result;
+  }
+
+  @Override
+  public void accept(GoloIrVisitor visitor) {
+    visitor.visitLocalReference(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    // nothing to do, not a composite
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    throw cantReplace();
   }
 }

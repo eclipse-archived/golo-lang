@@ -47,4 +47,15 @@ public final class LoopBreakFlowStatement extends GoloStatement {
   public void accept(GoloIrVisitor visitor) {
     visitor.visitLoopBreakFlowStatement(this);
   }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    // nothing to do, not a composite
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    throw cantReplace();
+  }
+
 }

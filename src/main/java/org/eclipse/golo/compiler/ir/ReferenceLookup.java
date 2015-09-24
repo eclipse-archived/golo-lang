@@ -13,7 +13,7 @@ public class ReferenceLookup extends ExpressionStatement {
 
   private final String name;
 
-  public ReferenceLookup(String name) {
+  ReferenceLookup(String name) {
     super();
     this.name = name;
   }
@@ -26,8 +26,32 @@ public class ReferenceLookup extends ExpressionStatement {
     return referenceTable.get(name);
   }
 
+  public LocalReference varRef() {
+    return Builders.localRef(name).variable();
+  }
+
+  public LocalReference letRef() {
+    return Builders.localRef(name);
+  }
+
+  @Override
+  public String toString() {
+    return String.format("Ref{name=%s}", getName());
+  }
+
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitReferenceLookup(this);
   }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    // nothing to do, not a composite
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    throw cantReplace();
+  }
+
 }

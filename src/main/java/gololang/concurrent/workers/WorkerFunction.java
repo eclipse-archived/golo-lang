@@ -22,5 +22,5 @@ public interface WorkerFunction {
    *
    * @param message the message to process.
    */
-  public void apply(Object message);
+  void apply(Object message);
 }

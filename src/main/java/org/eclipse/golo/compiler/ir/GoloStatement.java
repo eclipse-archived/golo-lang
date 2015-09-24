@@ -9,10 +9,4 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public abstract class GoloStatement extends GoloElement {
-
-  public GoloStatement() {
-  }
-
-  public abstract void accept(GoloIrVisitor visitor);
-}
+public abstract class GoloStatement extends GoloElement { }

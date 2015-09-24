@@ -10,6 +10,7 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.ir.Union;
+import org.eclipse.golo.compiler.ir.UnionValue;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -34,7 +35,7 @@ class JavaBytecodeUnionGenerator {
         union.getPackageAndClass().toJVMType(), null, "java/lang/Object", null);
     makeDefaultConstructor(classWriter, "java/lang/Object");
     HashMap<String, PackageAndClass> staticFields = new HashMap<>();
-    for (Union.Value value : union.getValues()) {
+    for (UnionValue value : union.getValues()) {
       makeMatchlikeTestMethod(classWriter, value, false);
       results.add(makeUnionValue(classWriter, sourceFilename, value));
       if (value.hasMembers()) {
@@ -63,7 +64,7 @@ class JavaBytecodeUnionGenerator {
     mv.visitEnd();
   }
 
-  private void makeStaticFactory(ClassWriter cw, Union.Value value) {
+  private void makeStaticFactory(ClassWriter cw, UnionValue value) {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, value.getName(),
         argsSignature(value.getMembers().size()) + value.getUnion().getPackageAndClass().toJVMRef(),
         null, null);
@@ -90,7 +91,7 @@ class JavaBytecodeUnionGenerator {
     visitor.visitEnd();
   }
 
-  private void makeMatchlikeTestMethod(ClassWriter classWriter, Union.Value value, boolean result) {
+  private void makeMatchlikeTestMethod(ClassWriter classWriter, UnionValue value, boolean result) {
     String methName = "is" + value.getName();
     MethodVisitor mv = classWriter.visitMethod(ACC_PUBLIC, methName, "()Z", null, null);
     mv.visitCode();
@@ -129,7 +130,7 @@ class JavaBytecodeUnionGenerator {
     }
   }
 
-  private void makeToString(ClassWriter classWriter, Union.Value value) {
+  private void makeToString(ClassWriter classWriter, UnionValue value) {
     MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "toString", "()Ljava/lang/String;", null, null);
     visitor.visitCode();
     if (!value.hasMembers()) {
@@ -170,7 +171,7 @@ class JavaBytecodeUnionGenerator {
     visitor.visitEnd();
   }
 
-  private CodeGenerationResult makeUnionValue(ClassWriter parentClassWriter, String sourceFilename, Union.Value value) {
+  private CodeGenerationResult makeUnionValue(ClassWriter parentClassWriter, String sourceFilename, UnionValue value) {
     String unionType = value.getUnion().getPackageAndClass().toJVMType();
     String valueType = value.getPackageAndClass().toJVMType();
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
@@ -197,7 +198,7 @@ class JavaBytecodeUnionGenerator {
     return new CodeGenerationResult(classWriter.toByteArray(), value.getPackageAndClass());
   }
 
-  private void makeEquals(ClassWriter cw, Union.Value value) {
+  private void makeEquals(ClassWriter cw, UnionValue value) {
     String target = value.getPackageAndClass().toJVMType();
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "equals", "(Ljava/lang/Object;)Z", null, null);
     Label notSameInstance = new Label();
@@ -255,7 +256,7 @@ class JavaBytecodeUnionGenerator {
     mv.visitEnd();
   }
 
-  private void makeHashCode(ClassWriter cw, Union.Value value) {
+  private void makeHashCode(ClassWriter cw, UnionValue value) {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "hashCode", "()I", null, null);
     mv.visitCode();
     loadMembersArray(mv, value);
@@ -265,7 +266,7 @@ class JavaBytecodeUnionGenerator {
     mv.visitEnd();
   }
 
-  private void loadMembersArray(MethodVisitor mv, Union.Value value) {
+  private void loadMembersArray(MethodVisitor mv, UnionValue value) {
     loadInteger(mv, value.getMembers().size());
     mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;
@@ -279,7 +280,7 @@ class JavaBytecodeUnionGenerator {
     }
   }
 
-  private void makeDestruct(ClassWriter cw, Union.Value value) {
+  private void makeDestruct(ClassWriter cw, UnionValue value) {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "destruct", "()Lgololang/Tuple;", null, null);
     mv.visitCode();
     loadMembersArray(mv, value);
@@ -298,7 +299,7 @@ class JavaBytecodeUnionGenerator {
     return signature.toString();
   }
 
-  private void makeValuedConstructor(ClassWriter cw, Union.Value value) {
+  private void makeValuedConstructor(ClassWriter cw, UnionValue value) {
     MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "<init>",
         argsSignature(value.getMembers().size()) + "V", null, null);
     mv.visitCode();

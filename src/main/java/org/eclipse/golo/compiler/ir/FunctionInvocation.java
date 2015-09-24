@@ -9,6 +9,8 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import org.eclipse.golo.compiler.parser.GoloASTNode;
+
 public class FunctionInvocation extends AbstractInvocation {
 
   private boolean onReference = false;
@@ -16,45 +18,72 @@ public class FunctionInvocation extends AbstractInvocation {
   private boolean anonymous = false;
   private boolean constant = false;
 
-  public FunctionInvocation() {
+  FunctionInvocation() {
     super("anonymous");
     anonymous = true;
   }
 
-  public FunctionInvocation(String name) {
+  FunctionInvocation(String name) {
     super(name);
+  }
+
+  @Override
+  public FunctionInvocation ofAST(GoloASTNode n) {
+    super.ofAST(n);
+    return this;
+  }
+
+  public FunctionInvocation onReference(boolean isOnReference) {
+    this.onReference = isOnReference;
+    return this;
+  }
+
+  public FunctionInvocation onReference() {
+    return onReference(true);
   }
 
   public boolean isOnReference() {
     return onReference;
   }
 
-  public void setOnReference(boolean onReference) {
-    this.onReference = onReference;
-  }
-
   public boolean isAnonymous() {
     return anonymous;
+  }
+
+  public FunctionInvocation onModuleState(boolean isOnModuleState) {
+    this.onModuleState = isOnModuleState;
+    return this;
+  }
+
+  public FunctionInvocation onModuleState() {
+    return onModuleState(true);
   }
 
   public boolean isOnModuleState() {
     return onModuleState;
   }
 
-  public void setOnModuleState(boolean onModuleState) {
-    this.onModuleState = onModuleState;
+  public FunctionInvocation constant(boolean isConstant) {
+    this.constant = isConstant;
+    return this;
+  }
+
+  public FunctionInvocation constant() {
+    return this.constant(true);
   }
 
   public boolean isConstant() {
     return constant;
   }
 
-  public void setConstant(boolean constant) {
-    this.constant = constant;
+  @Override
+  public String toString() {
+    return String.format("FunctionInvocation{name=%s}", getName());
   }
 
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitFunctionInvocation(this);
   }
+
 }

@@ -9,40 +9,74 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public class AssignmentStatement extends GoloStatement {
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
+public final class AssignmentStatement extends GoloStatement {
   private LocalReference localReference;
-  private final ExpressionStatement expressionStatement;
+  private ExpressionStatement expressionStatement;
   private boolean declaring = false;
 
-  public AssignmentStatement(LocalReference localReference, ExpressionStatement expressionStatement) {
-    super();
-    this.localReference = localReference;
-    this.expressionStatement = expressionStatement;
+  AssignmentStatement() { super(); }
+
+  public AssignmentStatement ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
   }
 
   public boolean isDeclaring() {
     return declaring;
   }
 
-  public void setDeclaring(boolean declaring) {
-    this.declaring = declaring;
+  public AssignmentStatement declaring() {
+    return declaring(true);
+  }
+
+  public AssignmentStatement declaring(boolean isDeclaring) {
+    this.declaring = isDeclaring;
+    return this;
   }
 
   public LocalReference getLocalReference() {
     return localReference;
   }
 
-  public void setLocalReference(LocalReference localReference) {
-    this.localReference = localReference;
+  public AssignmentStatement to(Object ref) {
+    localReference = (LocalReference) ref;
+    makeParentOf(localReference);
+    return this;
   }
 
   public ExpressionStatement getExpressionStatement() {
     return expressionStatement;
   }
 
+  public AssignmentStatement as(Object expr) {
+    expressionStatement = (ExpressionStatement) expr;
+    makeParentOf(expressionStatement);
+    return this;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s = %s", localReference, expressionStatement);
+  }
+
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitAssignmentStatement(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    expressionStatement.accept(visitor);
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (original.equals(expressionStatement) && newElement instanceof ExpressionStatement) {
+      as(newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
   }
 }

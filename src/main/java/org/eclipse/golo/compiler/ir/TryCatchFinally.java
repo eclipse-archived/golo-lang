@@ -9,19 +9,25 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import org.eclipse.golo.compiler.parser.GoloASTNode;
+import java.util.Objects;
+
 public class TryCatchFinally extends GoloStatement {
 
   private final String exceptionId;
-  private final Block tryBlock;
-  private final Block catchBlock;
-  private final Block finallyBlock;
+  private Block tryBlock;
+  private Block catchBlock;
+  private Block finallyBlock;
 
-  public TryCatchFinally(String exceptionId, Block tryBlock, Block catchBlock, Block finallyBlock) {
+  TryCatchFinally(String exceptionId) {
     super();
     this.exceptionId = exceptionId;
-    this.tryBlock = tryBlock;
-    this.catchBlock = catchBlock;
-    this.finallyBlock = finallyBlock;
+  }
+
+  @Override
+  public TryCatchFinally ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
   }
 
   public String getExceptionId() {
@@ -32,12 +38,31 @@ public class TryCatchFinally extends GoloStatement {
     return tryBlock;
   }
 
+  public TryCatchFinally trying(Object block) {
+    tryBlock = (Block) block;
+    makeParentOf(tryBlock);
+    return this;
+  }
+
   public Block getCatchBlock() {
     return catchBlock;
   }
 
+  public TryCatchFinally catching(Object block) {
+    catchBlock = (Block) block;
+    makeParentOf(catchBlock);
+    catchBlock.getReferenceTable().add(Builders.localRef(exceptionId).synthetic());
+    return this;
+  }
+
   public Block getFinallyBlock() {
     return finallyBlock;
+  }
+
+  public TryCatchFinally finalizing(Object block) {
+    finallyBlock = (Block) block;
+    makeParentOf(finallyBlock);
+    return this;
   }
 
   public boolean hasFinallyBlock() {
@@ -63,5 +88,29 @@ public class TryCatchFinally extends GoloStatement {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitTryCatchFinally(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    tryBlock.accept(visitor);
+    if (catchBlock != null) {
+      catchBlock.accept(visitor);
+    }
+    if (finallyBlock != null) {
+      finallyBlock.accept(visitor);
+    }
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (Objects.equals(original, tryBlock)) {
+      trying(newElement);
+    } else if (Objects.equals(original, catchBlock)) {
+      catching(newElement);
+    } else if (Objects.equals(original, finallyBlock)) {
+      finalizing(newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
   }
 }
