@@ -1,7 +1,7 @@
 module golotest.execution.VariableAssignments
 
 import java.lang
-import fr.insalyon.citi.golo.compiler.testing.support.GoloTestHelperFunctions
+import org.eclipse.golo.compiler.testing.support.GoloTestHelperFunctions
 
 function echo = |what| { return what }
 

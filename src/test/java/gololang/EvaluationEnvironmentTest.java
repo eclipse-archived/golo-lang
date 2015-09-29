@@ -9,11 +9,10 @@
 
 package gololang;
 
-import fr.insalyon.citi.golo.compiler.GoloCompilationException;
+import org.eclipse.golo.compiler.GoloCompilationException;
 import org.testng.TestNGException;
 import org.testng.annotations.Test;
 
-import java.lang.invoke.MethodHandle;
 import java.util.HashMap;
 
 import static org.hamcrest.CoreMatchers.*;

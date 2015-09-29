@@ -1,6 +1,6 @@
 module golotest.execution.SamSupport
 
-import fr.insalyon.citi.golo.compiler.testing.support
+import org.eclipse.golo.compiler.testing.support
 
 function func = ->
   SamSupportHelpers.apply(|e| -> e + e)

@@ -23,7 +23,7 @@ repositories {
 }
 
 ext {
-  goloCliMain = 'fr.insalyon.citi.golo.cli.Main'
+  goloCliMain = 'org.eclipse.golo.cli.Main'
   goloSources = fileTree('src/main/golo').include('**/*.golo')
   goloDocs = file("$buildDir/docs/golodoc")
 }

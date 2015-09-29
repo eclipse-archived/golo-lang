@@ -9,13 +9,12 @@
 
 package gololang;
 
-import fr.insalyon.citi.golo.compiler.GoloClassLoader;
-import fr.insalyon.citi.golo.compiler.GoloCompilationException;
+import org.eclipse.golo.compiler.GoloClassLoader;
+import org.eclipse.golo.compiler.GoloCompilationException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.lang.invoke.MethodHandle;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 

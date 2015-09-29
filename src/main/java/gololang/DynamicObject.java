@@ -16,9 +16,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static fr.insalyon.citi.golo.runtime.TypeMatching.isLastArgumentAnArray;
 import static java.lang.System.arraycopy;
-import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 

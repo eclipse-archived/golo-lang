@@ -9,11 +9,10 @@
 
 package gololang;
 
-import fr.insalyon.citi.golo.runtime.TypeMatching;
-import fr.insalyon.citi.golo.runtime.adapters.AdapterDefinition;
-import fr.insalyon.citi.golo.runtime.adapters.JavaBytecodeAdapterGenerator;
+import org.eclipse.golo.runtime.TypeMatching;
+import org.eclipse.golo.runtime.adapters.AdapterDefinition;
+import org.eclipse.golo.runtime.adapters.JavaBytecodeAdapterGenerator;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Constructor;
 import java.util.Arrays;
 import java.util.Map;

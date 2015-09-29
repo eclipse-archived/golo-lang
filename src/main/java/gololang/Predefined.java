@@ -9,14 +9,13 @@
 
 package gololang;
 
-import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 
 import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
-import java.lang.reflect.Modifier;
 import java.lang.reflect.Parameter;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
@@ -27,8 +26,8 @@ import java.util.*;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.reflect.Modifier.isStatic;
-import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.isMethodDecorated;
-import static fr.insalyon.citi.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
+import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
  * default.

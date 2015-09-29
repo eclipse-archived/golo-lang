@@ -13,14 +13,12 @@ import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.Callable;
 
-import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
+import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 

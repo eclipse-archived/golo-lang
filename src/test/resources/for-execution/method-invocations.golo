@@ -1,6 +1,6 @@
 module golotest.execution.MethodInvocations
 
-import fr.insalyon.citi.golo.compiler.testing.support
+import org.eclipse.golo.compiler.testing.support
 
 function hello = {
   return "Hello": toString()
@@ -51,7 +51,7 @@ function field_accessors = {
 }
 
 function access_items_from_subclass = {
-  fr.insalyon.citi.golo.compiler.testing.support.SomeClass.FOO()
+  org.eclipse.golo.compiler.testing.support.SomeClass.FOO()
   let receiver = SomeClass()
   receiver: c()
   receiver: a()

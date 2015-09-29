@@ -9,6 +9,8 @@
 
 package gololang;
 
+import org.eclipse.golo.runtime.ClosureCallSupport;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.MethodType;
@@ -24,10 +26,10 @@ import static java.lang.invoke.MethodHandles.filterReturnValue;
  * class does not provide any mean to attach local state, as required for, say, implementing named arguments.
  *
  * This boxed representation provides a sound abstraction while not hurting performance, as
- * {@code fr.insalyon.citi.golo.runtime.ClosureCallSupport} still dispatches through a method handle.
+ * {@code org.eclipse.golo.runtime.ClosureCallSupport} still dispatches through a method handle.
  *
  * @see java.lang.invoke.MethodHandle
- * @see fr.insalyon.citi.golo.runtime.ClosureCallSupport
+ * @see ClosureCallSupport
  */
 public class FunctionReference {
 
