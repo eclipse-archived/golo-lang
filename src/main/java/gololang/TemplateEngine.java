@@ -9,7 +9,8 @@
 
 package gololang;
 
-import java.lang.invoke.MethodHandle;
+import org.eclipse.golo.compiler.GoloCompilationException;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -38,10 +39,10 @@ import java.util.regex.Pattern;
  * specified, template functions are assumed to take a single {@code params} parameter.
  * <p>
  * It is important to note that this template engine performs no validation, either on the template itself or the
- * generated function code. One may however catch the {@link fr.insalyon.citi.golo.compiler.GoloCompilationException}
+ * generated function code. One may however catch the {@link GoloCompilationException}
  * that {@link #compile(String)} may throw, and inspect the faulty code using
- * {@link fr.insalyon.citi.golo.compiler.GoloCompilationException#getSourceCode()} and
- * {@link fr.insalyon.citi.golo.compiler.GoloCompilationException#getProblems()}.
+ * {@link GoloCompilationException#getSourceCode()} and
+ * {@link GoloCompilationException#getProblems()}.
  */
 public class TemplateEngine {
 
@@ -55,7 +56,7 @@ public class TemplateEngine {
    *
    * @param template the template code.
    * @return a compiled function that evaluates the template given parameters, and returns a {@link String}.
-   * @throws fr.insalyon.citi.golo.compiler.GoloCompilationException
+   * @throws GoloCompilationException
    *          if a compilation error occurs in the generated Golo code.
    */
   public FunctionReference compile(String template) {

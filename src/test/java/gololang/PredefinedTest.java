@@ -27,7 +27,7 @@ import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
-import fr.insalyon.citi.golo.runtime.AmbiguousFunctionReferenceException;
+import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 
 public class PredefinedTest {
 

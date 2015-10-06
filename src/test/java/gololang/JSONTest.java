@@ -19,7 +19,7 @@ import java.lang.reflect.Method;
 import java.util.List;
 import java.util.Map;
 
-import static fr.insalyon.citi.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
+import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
