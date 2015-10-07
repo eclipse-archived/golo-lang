@@ -14,6 +14,7 @@ import com.beust.jcommander.Parameters;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
 import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -111,14 +112,18 @@ public class InitCommand implements CliCommand {
 
   private void writeProjectFile(File intoDir, String projectName, String sourcePath, String fileName) throws IOException {
     InputStream sourceInputStream = InitCommand.class.getClassLoader().getResourceAsStream(sourcePath);
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream));
+    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream, StandardCharsets.UTF_8));
     File projectFile = new File(intoDir, fileName);
     PrintWriter writer = new PrintWriter(projectFile, "UTF-8");
     String line;
-    while ((line = bufferedReader.readLine()) != null) {
-      writer.println(line.replace("{{projectName}}", projectName));
+    try {
+      while ((line = bufferedReader.readLine()) != null) {
+        writer.println(line.replace("{{projectName}}", projectName));
+      }
+    } finally {
+      writer.close();
+      bufferedReader.close();
     }
-    writer.close();
   }
 
   private void mkdir(File directory) throws IOException {

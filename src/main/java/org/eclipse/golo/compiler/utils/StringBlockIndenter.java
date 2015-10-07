@@ -9,7 +9,11 @@
 
 package org.eclipse.golo.compiler.utils;
 
-public class StringBlockIndenter {
+public final class StringBlockIndenter {
+
+  private StringBlockIndenter() {
+    // utility class
+  }
 
   public static String unindent(String block, int columns) {
     assert columns >= 0;

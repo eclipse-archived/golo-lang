@@ -44,7 +44,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
     }
 
     @Override
-    public boolean isEmpty() { 
+    public boolean isEmpty() {
       return true;
     }
 
@@ -157,7 +157,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * Note that it evaluates the whole list. Take care to
    * <b>not use</b> this method on infinite lists, since
    * no check is done.
-   * 
+   *
    * @return the number of elements in this list.
    */
   @Override
@@ -327,7 +327,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
   public void add(int index, Object element) {
     throw new UnsupportedOperationException("a LazyList is immutable");
   }
-  
+
   @Override
   public boolean addAll(Collection<?> c) {
     throw new UnsupportedOperationException("a LazyList is immutable");

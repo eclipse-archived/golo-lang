@@ -18,7 +18,7 @@ import java.util.Map;
 
 public class TypeMatching {
 
-  private static final Map<Class, Class> PRIMITIVE_MAP = new HashMap<Class, Class>() {
+  private static final Map<Class<?>, Class<?>> PRIMITIVE_MAP = new HashMap<Class<?>, Class<?>>() {
     {
       put(byte.class, Byte.class);
       put(short.class, Short.class);
@@ -31,7 +31,7 @@ public class TypeMatching {
     }
   };
 
-  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor constructor, Class<?>[] parameterTypes) {
+  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor<?> constructor, Class<?>[] parameterTypes) {
     return constructor.isVarArgs() && (arguments.length >= parameterTypes.length);
   }
 
@@ -41,6 +41,16 @@ public class TypeMatching {
 
   public static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
     return parameterTypes.length == arguments.length;
+  }
+
+  public static boolean argumentsNumberMatch(Object[] arguments, Method method, Class<?>[] parameterTypes) {
+    return haveSameNumberOfArguments(arguments, parameterTypes)
+      || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes);
+  }
+
+  public static boolean argumentsNumberMatch(Object[] arguments, Constructor<?> constructor, Class<?>[] parameterTypes) {
+    return haveSameNumberOfArguments(arguments, parameterTypes)
+      || haveEnoughArgumentsForVarargs(arguments, constructor, parameterTypes);
   }
 
   public static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {

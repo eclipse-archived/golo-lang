@@ -51,11 +51,10 @@ public class ASTFunction extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTFunction{" +
-        "parameters=" + parameters +
-        ", varargs=" + varargs +
-        ", compactForm=" + compactForm +
-        '}';
+    return String.format("ASTFunction{parameters=%s, varargs=%s, compactForm=%s}",
+        parameters,
+        varargs,
+        compactForm);
   }
 
   @Override

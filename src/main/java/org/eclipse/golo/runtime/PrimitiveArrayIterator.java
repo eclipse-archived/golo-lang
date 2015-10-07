@@ -17,7 +17,11 @@ public class PrimitiveArrayIterator implements Iterator<Object> {
   private int position = 0;
 
   public PrimitiveArrayIterator(Object[] array) {
-    this.array = array;
+    if (array == null) {
+      this.array = new Object[0];
+    } else {
+      this.array = java.util.Arrays.copyOf(array, array.length);
+    }
   }
 
   @Override

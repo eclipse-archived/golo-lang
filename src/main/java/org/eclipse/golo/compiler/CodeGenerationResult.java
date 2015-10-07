@@ -9,6 +9,8 @@
 
 package org.eclipse.golo.compiler;
 
+import java.util.Arrays;
+
 /**
  * A code generation result.
  * <p>
@@ -27,7 +29,11 @@ public final class CodeGenerationResult {
    * @param packageAndClass the package and class descriptor for the bytecode.
    */
   public CodeGenerationResult(byte[] bytecode, PackageAndClass packageAndClass) {
-    this.bytecode = bytecode;
+    if (bytecode == null) {
+      this.bytecode = new byte[0];
+    } else {
+      this.bytecode = Arrays.copyOf(bytecode, bytecode.length);
+    }
     this.packageAndClass = packageAndClass;
   }
 
@@ -35,7 +41,7 @@ public final class CodeGenerationResult {
    * @return the bytecode array.
    */
   public byte[] getBytecode() {
-    return bytecode;
+    return Arrays.copyOf(this.bytecode, this.bytecode.length);
   }
 
   /**

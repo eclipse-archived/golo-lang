@@ -10,7 +10,7 @@
 package org.eclipse.golo.doc;
 
 interface DocumentationElement {
-  
+
   String name();
   String documentation();
   int line();

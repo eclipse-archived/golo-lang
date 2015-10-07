@@ -54,11 +54,8 @@ public class ASTDestructuringAssignment extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTDestructuringAssignment{" +
-        "type=" + type +
-        ", names=" + names +
-        ", varargs=" + isVarargs +
-      "}";
+    return String.format("ASTDestructuringAssignment{type=%s, names=%s, varargs=%s}",
+           type, names, isVarargs);
   }
 
   @Override

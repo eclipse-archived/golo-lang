@@ -41,17 +41,17 @@ public class ASTAugmentDeclaration extends GoloASTNode implements NamedNode {
   }
 
   public boolean isNamedAugmentation() {
-    return (augmentationNames != null && ! augmentationNames.isEmpty());
+    return (augmentationNames != null && !augmentationNames.isEmpty());
   }
 
   @Override
   public String toString() {
-    return "ASTAugmentDeclaration{" +
-        "target='" + target + '\'' +
-        (isNamedAugmentation() 
+    return "ASTAugmentDeclaration{"
+      + "target='" + target + '\''
+      + (isNamedAugmentation()
          ? ", augmentations=" + augmentationNames
-         : "") +
-        '}';
+         : "")
+      + '}';
   }
 
   @Override

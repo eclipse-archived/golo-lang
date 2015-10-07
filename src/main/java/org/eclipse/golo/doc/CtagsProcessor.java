@@ -22,7 +22,7 @@ public class CtagsProcessor extends AbstractProcessor {
   private String file = "file";
 
   private void ctagsLine(String name, String address, String field) {
-    ctags.add(String.format("%s\t%s\t%s;\"\t%s\tlanguage:golo\n", name, file, address, field));
+    ctags.add(String.format("%s\t%s\t%s;\"\t%s\tlanguage:golo%n", name, file, address, field));
   }
 
   private void ctagsModule(ModuleDocumentation module) {
@@ -56,7 +56,7 @@ public class CtagsProcessor extends AbstractProcessor {
       fields.append("\taccess:public");
     }
     fields.append(signature);
-    if (parent != "") {
+    if (!parent.isEmpty()) {
       if (named) {
         fields.append("\taugmentation:").append(parent);
       } else {
@@ -68,7 +68,7 @@ public class CtagsProcessor extends AbstractProcessor {
 
   private void ctagsAugment(String name, int line) {
     ctagsLine(name,
-        String.format("/^augment[:blank:]+%s/", name.replace(".","\\.")),
+        String.format("/^augment[:blank:]+%s/", name.replace(".", "\\.")),
         String.format("a\tline:%s", line));
   }
 
@@ -103,13 +103,16 @@ public class CtagsProcessor extends AbstractProcessor {
     for (String member : valueDoc.members()) {
       ctagsLine(member,
         String.format("/[:blank:]+%s[:blank:]+=/", valueDoc.name()),
-        String.format("m\tline:%s\taccess:public\tunion:%s.%s", valueDoc.line(), unionName, valueDoc.name()));
+        String.format("m\tline:%s\taccess:public\tunion:%s.%s",
+          valueDoc.line(),
+          unionName,
+          valueDoc.name()));
     }
   }
 
   private void ctagsImport(String name, int line) {
     ctagsLine(name,
-        String.format("/^import[:blank:]+%s/", name.replace(".","\\.")),
+        String.format("/^import[:blank:]+%s/", name.replace(".", "\\.")),
         String.format("i\tline:%s", line));
   }
 
@@ -122,7 +125,7 @@ public class CtagsProcessor extends AbstractProcessor {
   private void ctagsStructMember(String struct, String member, int line) {
     ctagsLine(member,
         String.format("/struct[:blank:]+%s[:blank:]+=/", struct),
-        String.format("m\tline:%s\taccess:%s\tstruct:%s", 
+        String.format("m\tline:%s\taccess:%s\tstruct:%s",
           line,
           (member.charAt(0) == '_') ? "private" : "public",
           struct));
@@ -145,7 +148,7 @@ public class CtagsProcessor extends AbstractProcessor {
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
     ctagsModule(documentation);
-    for (Map.Entry<String,Integer> imp : documentation.imports().entrySet()) {
+    for (Map.Entry<String, Integer> imp : documentation.imports().entrySet()) {
       ctagsImport(imp.getKey(), imp.getValue());
     }
     for (StructDocumentation struct : documentation.structs()) {
@@ -169,7 +172,7 @@ public class CtagsProcessor extends AbstractProcessor {
         ctagsFunction(funct, augment.target(), false);
       }
     }
-    for (Map.Entry<String,Integer> state : documentation.moduleStates().entrySet()) {
+    for (Map.Entry<String, Integer> state : documentation.moduleStates().entrySet()) {
       ctagsModState(state.getKey(), state.getValue());
     }
     for (FunctionDocumentation funct : documentation.functions(true)) {
@@ -188,9 +191,9 @@ public class CtagsProcessor extends AbstractProcessor {
       targetFile = targetFolder.resolve("tags");
     }
     ctags.clear();
-    for (String src : units.keySet()) {
-      file = src;
-      render(units.get(src));
+    for (Map.Entry<String, ASTCompilationUnit> src : units.entrySet()) {
+      file = src.getKey();
+      render(src.getValue());
     }
     Predefined.textToFile(ctagsAsString(), targetFile);
   }

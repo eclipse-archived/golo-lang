@@ -42,7 +42,7 @@ public class LazyListTest {
     Tuple result = (Tuple)resultFor(method);
     assertThat(result.get(0), is(result.get(1)));
   }
- 
+
   @Test
   public void empty() throws Throwable {
     assertThat((Boolean)resultFor("test_empty"), is(true));
@@ -147,7 +147,7 @@ public class LazyListTest {
   public void find() throws Throwable {
     evalTest("test_find");
   }
-  
+
   @Test
   public void join() throws Throwable {
     evalTest("test_join");

@@ -31,7 +31,7 @@ class NamedAugmentationDocumentation extends AbstractSet<FunctionDocumentation> 
     return this;
   }
 
-  public String documentation() { 
+  public String documentation() {
     return (documentation != null ? documentation : "");
   }
 
@@ -67,7 +67,7 @@ class NamedAugmentationDocumentation extends AbstractSet<FunctionDocumentation> 
   @Override
   public Iterator<FunctionDocumentation> iterator() { return functions.iterator(); }
 
-  @Override 
+  @Override
   public int compareTo(NamedAugmentationDocumentation o) {
     return name().compareTo(o.name());
   }

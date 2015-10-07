@@ -49,7 +49,11 @@ public class FunctionReference {
       throw new IllegalArgumentException("A method handle cannot be null");
     }
     this.handle = handle;
-    this.parameterNames = parameterNames;
+    if (parameterNames != null) {
+      this.parameterNames = Arrays.copyOf(parameterNames, parameterNames.length);
+    } else {
+      this.parameterNames = new String[0];
+    }
   }
 
   /**
@@ -78,7 +82,7 @@ public class FunctionReference {
    * @return the array of parameter's names
    */
   public String[] parameterNames() {
-    return parameterNames;
+    return Arrays.copyOf(parameterNames, parameterNames.length);
   }
 
   public MethodType type() {

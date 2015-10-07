@@ -76,7 +76,7 @@ public interface Range<T> extends Collection<T>, HeadTail<T> {
   /**
    * Creates a new reversed range from this range.
    * <p>
-   * i.e. swaps the {@code from()} and {@code to()} values and sets the increment to 
+   * i.e. swaps the {@code from()} and {@code to()} values and sets the increment to
    * {@code -increment()}.
    */
   Range<T> reversed();

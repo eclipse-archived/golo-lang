@@ -33,9 +33,7 @@ public class ASTAssignment extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTAssignment{" +
-        "name='" + name + '\'' +
-        '}';
+    return String.format("ASTAssignment{name='%s'}", name);
   }
 
   @Override

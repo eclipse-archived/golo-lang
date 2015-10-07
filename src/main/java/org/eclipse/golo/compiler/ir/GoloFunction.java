@@ -150,7 +150,7 @@ public final class GoloFunction extends ExpressionStatement {
   }
 
   public boolean isMain() {
-    return name.equals("main") && getArity() == 1;
+    return "main".equals(name) && getArity() == 1;
   }
 
   public boolean isModuleInit() {

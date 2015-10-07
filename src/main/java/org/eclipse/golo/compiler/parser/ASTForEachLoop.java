@@ -53,9 +53,7 @@ public class ASTForEachLoop extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTForEachLoop{" +
-        "elementIdentifier='" + elementIdentifier + '\'' +
-        '}';
+    return String.format("ASTForEachLoop{elementIdentifier='%s'}", elementIdentifier);
   }
 
   @Override

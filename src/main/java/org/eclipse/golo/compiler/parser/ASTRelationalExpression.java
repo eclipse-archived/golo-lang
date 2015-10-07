@@ -36,8 +36,6 @@ public class ASTRelationalExpression extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTRelationalExpression{" +
-        "operator='" + operator + '\'' +
-        '}';
+    return String.format("ASTRelationalExpression{operator='%s'}", operator);
   }
 }

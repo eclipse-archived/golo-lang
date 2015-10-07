@@ -36,8 +36,6 @@ public class ASTTryCatchFinally extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTTryCatchFinally{" +
-        "exceptionId='" + exceptionId + '\'' +
-        '}';
+    return String.format("ASTTryCatchFinally{exceptionId='%s'}", exceptionId);
   }
 }

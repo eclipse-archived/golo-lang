@@ -55,7 +55,8 @@ class JavaBytecodeStructGenerator {
     for (String member : struct.getMembers()) {
       visitor.visitLdcInsn(member);
       visitor.visitVarInsn(ALOAD, 1);
-      visitor.visitJumpInsn(IF_ACMPNE, nextCase);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+      visitor.visitJumpInsn(IFEQ, nextCase);
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitVarInsn(ALOAD, 2);
       visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "(Ljava/lang/Object;)Lgololang/GoloStruct;", false);
@@ -77,7 +78,8 @@ class JavaBytecodeStructGenerator {
     for (String member : struct.getMembers()) {
       visitor.visitLdcInsn(member);
       visitor.visitVarInsn(ALOAD, 1);
-      visitor.visitJumpInsn(IF_ACMPNE, nextCase);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
+      visitor.visitJumpInsn(IFEQ, nextCase);
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "()Ljava/lang/Object;", false);
       visitor.visitInsn(ARETURN);

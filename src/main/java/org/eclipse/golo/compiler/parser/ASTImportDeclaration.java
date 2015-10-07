@@ -33,9 +33,7 @@ public class ASTImportDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTImportDeclaration{" +
-        "name='" + name + '\'' +
-        '}';
+    return String.format("ASTImportDeclaration{name='%s'}", name);
   }
 
   @Override

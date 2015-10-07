@@ -102,7 +102,7 @@ public final class GoloModule extends GoloElement {
     return unmodifiableMap(augmentations);
   }
 
-  public Map<String, Set<GoloFunction>> getNamedAugmentations(){
+  public Map<String, Set<GoloFunction>> getNamedAugmentations() {
     return unmodifiableMap(namedAugmentations);
   }
 
@@ -164,7 +164,7 @@ public final class GoloModule extends GoloElement {
     visitor.visitModule(this);
   }
 
-  private void internTypesAugmentations(Set<String> structNames, Register<String,?> augmentations) {
+  private void internTypesAugmentations(Set<String> structNames, Register<String, ?> augmentations) {
     HashSet<String> trash = new HashSet<>();
     for (String augmentation : augmentations.keySet()) {
       if (structNames.contains(augmentation)) {

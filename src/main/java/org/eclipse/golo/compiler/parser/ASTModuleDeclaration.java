@@ -33,9 +33,7 @@ public class ASTModuleDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTModuleDeclaration{" +
-        "name='" + name + '\'' +
-        '}';
+    return String.format("ASTModuleDeclaration{name='%s'}", name);
   }
 
   @Override

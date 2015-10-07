@@ -38,8 +38,6 @@ public class ASTMethodInvocation extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTMethodInvocation{" +
-        "name='" + name + '\'' +
-        '}';
+    return String.format("ASTMethodInvocation{name='%s'}", name);
   }
 }

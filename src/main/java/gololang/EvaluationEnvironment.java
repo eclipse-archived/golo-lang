@@ -15,6 +15,7 @@ import org.eclipse.golo.compiler.GoloCompilationException;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
 
@@ -130,7 +131,7 @@ public class EvaluationEnvironment {
    * @see Predefined#fun(Object, Object)
    */
   public Object asModule(String source) {
-    try (InputStream in = new ByteArrayInputStream(source.getBytes())) {
+    try (InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8))) {
       return goloClassLoader.load(anonymousFilename(), in);
     } catch (IOException e) {
       throw new RuntimeException(e);

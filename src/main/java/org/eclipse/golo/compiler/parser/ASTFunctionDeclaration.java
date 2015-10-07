@@ -60,12 +60,12 @@ public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTFunctionDeclaration{" +
-        "name='" + name + '\'' +
-        ", local=" + local +
-        ", decorator=" + decorator +
-        ", augmentation=" + augmentation +
-        '}';
+    return String.format(
+        "ASTFunctionDeclaration{name='%s', local=%s, decorator=%s, augmentation=%s}",
+        name,
+        local,
+        decorator,
+        augmentation);
   }
 
   @Override

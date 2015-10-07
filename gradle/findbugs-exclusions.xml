@@ -10,4 +10,13 @@
   <Match>
     <Class name="~org\.eclipse\.golo\.compiler\.parser.*" />
   </Match>
+  <Match>
+    <!-- Ignore naming conventions for methods and classes used in golo code -->
+    <Class name="~gololang.*" />
+    <Bug code="Nm" />
+  </Match>
+  <Match>
+    <Class name="gololang.Unknown" />
+    <Bug code="Eq" />
+  </Match>
 </FindBugsFilter>

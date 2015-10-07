@@ -19,7 +19,6 @@ import java.io.*;
 import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -160,7 +159,6 @@ public class GoloCompiler {
    */
   public final ASTCompilationUnit parse(String goloSourceFilename, GoloParser parser) throws GoloCompilationException {
     ASTCompilationUnit compilationUnit = null;
-    List<ParseException> errors = new LinkedList<>();
     parser.exceptionBuilder = getOrCreateExceptionBuilder(goloSourceFilename);
     try {
       compilationUnit = parser.CompilationUnit();

@@ -38,8 +38,6 @@ public class ASTNamedAugmentationDeclaration extends GoloASTNode implements Name
 
   @Override
   public String toString() {
-    return "ASTNamedAugmentationDeclaration{" +
-        "name='" + name + '\'' +
-        '}';
+    return String.format("ASTNamedAugmentationDeclaration{name='%s'}", name);
   }
 }

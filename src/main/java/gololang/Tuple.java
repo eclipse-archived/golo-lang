@@ -11,6 +11,7 @@ package gololang;
 
 import java.util.Arrays;
 import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 /**
  * Represents an tuple object.
@@ -99,6 +100,9 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
 
       @Override
       public Object next() {
+        if (i >= data.length) {
+          throw new NoSuchElementException();
+        }
         Object result = data[i];
         i = i + 1;
         return result;
@@ -113,8 +117,8 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
 
   @Override
   public boolean equals(Object o) {
-    if (this == o) return true;
-    if (o == null || getClass() != o.getClass()) return false;
+    if (this == o) { return true; }
+    if (o == null || getClass() != o.getClass()) { return false; }
 
     Tuple tuple = (Tuple) o;
     return Arrays.equals(data, tuple.data);

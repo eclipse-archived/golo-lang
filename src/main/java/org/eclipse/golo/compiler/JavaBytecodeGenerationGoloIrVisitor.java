@@ -183,7 +183,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     int[] keys = new int[applicationsSize];
     String[][] namesArrays = new String[applicationsSize][];
     // cases of the switch statement MUST be sorted
-    Collections.sort(applicationNames, new Comparator<String>(){
+    Collections.sort(applicationNames, new Comparator<String>() {
       @Override
       public int compare(String o1, String o2) {
         return Integer.compare(o1.hashCode(), o2.hashCode());
@@ -204,7 +204,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     methodVisitor.visitCode();
     methodVisitor.visitVarInsn(ILOAD, 0);
     methodVisitor.visitLookupSwitchInsn(defaultLabel, keys, labels);
-    for (i=0; i < applicationsSize; i++) {
+    for (i = 0; i < applicationsSize; i++) {
       methodVisitor.visitLabel(labels[i]);
       loadInteger(methodVisitor, namesArrays[i].length);
       methodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
@@ -305,7 +305,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       annotation.visit("value", function.getDecoratorRef());
       annotation.visitEnd();
     }
-    for(String parameter: function.getParameterNames()) {
+    for (String parameter: function.getParameterNames()) {
       methodVisitor.visitParameter(parameter, ACC_FINAL);
     }
     methodVisitor.visitCode();

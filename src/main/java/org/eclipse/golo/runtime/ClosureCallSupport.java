@@ -20,6 +20,10 @@ import static java.lang.invoke.MethodType.methodType;
 
 public class ClosureCallSupport {
 
+  private ClosureCallSupport() {
+    // utility class
+  }
+
   static class InlineCache extends MutableCallSite {
 
     MethodHandle fallback;
@@ -55,10 +59,10 @@ public class ClosureCallSupport {
   }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, Object... bsmArgs) {
-    boolean constant = ((int)bsmArgs[0]) == 1;
+    boolean constant = ((int) bsmArgs[0]) == 1;
     String[] argumentNames = new String[bsmArgs.length - 1];
-    for (int i = 0; i < bsmArgs.length -1; i++) {
-      argumentNames[i] = (String) bsmArgs[i+1];
+    for (int i = 0; i < bsmArgs.length - 1; i++) {
+      argumentNames[i] = (String) bsmArgs[i + 1];
     }
     InlineCache callSite = new InlineCache(type, constant, argumentNames);
     MethodHandle fallbackHandle = FALLBACK
@@ -79,14 +83,20 @@ public class ClosureCallSupport {
     MethodHandle target = targetFunctionReference.handle();
     MethodHandle invoker = MethodHandles.dropArguments(target, 0, FunctionReference.class);
     MethodType type = invoker.type();
-    if(callSite.argumentNames.length > 0) {
-      invoker = reorderArguments(targetFunctionReference.parameterNames(), invoker, callSite.argumentNames);
+    if (callSite.argumentNames.length > 0) {
+      invoker = reorderArguments(
+          targetFunctionReference.parameterNames(),
+          invoker,
+          callSite.argumentNames);
     }
     if (target.isVarargsCollector()) {
       if (TypeMatching.isLastArgumentAnArray(type.parameterCount(), args)) {
         invoker = invoker.asFixedArity().asType(callSite.type());
       } else {
-        invoker = invoker.asCollector(Object[].class, callSite.type().parameterCount() - target.type().parameterCount()).asType(callSite.type());
+        invoker = invoker.asCollector(
+            Object[].class,
+            callSite.type().parameterCount() - target.type().parameterCount())
+          .asType(callSite.type());
       }
     } else {
       invoker = invoker.asType(callSite.type());
@@ -95,7 +105,7 @@ public class ClosureCallSupport {
       Object constantValue = invoker.invokeWithArguments(args);
       MethodHandle constant;
       if (constantValue == null) {
-         constant = MethodHandles.constant(Object.class, constantValue);
+        constant = MethodHandles.constant(Object.class, null);
       } else {
         constant = MethodHandles.constant(constantValue.getClass(), constantValue);
       }
@@ -123,7 +133,9 @@ public class ClosureCallSupport {
           }
         }
         if (actualPosition == -1) {
-          throw new IllegalArgumentException("Argument name " + argumentNames[i] + " not in parameter names used in declaration: " + Arrays.toString(parameterNames));
+          throw new IllegalArgumentException(
+              "Argument name " + argumentNames[i]
+              + " not in parameter names used in declaration: " + Arrays.toString(parameterNames));
         }
         argumentsOrder[actualPosition + 1] = i + 1;
       }

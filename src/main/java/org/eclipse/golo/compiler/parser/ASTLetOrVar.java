@@ -55,11 +55,10 @@ public class ASTLetOrVar extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTLetOrVar{" +
-        "type=" + type +
-        ", name='" + name + '\'' +
-        ", moduleState=" + moduleState +
-        '}';
+    return String.format("ASTLetOrVar{type=%s, name='%s', moduleState=%s}",
+        type,
+        name,
+        moduleState);
   }
 
   @Override

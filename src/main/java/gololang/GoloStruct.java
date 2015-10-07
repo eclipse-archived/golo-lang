@@ -58,7 +58,7 @@ public abstract class GoloStruct implements Iterable<Tuple> {
    *
    * @return a tuple with the current values.
    */
-  public Tuple destruct() { 
+  public Tuple destruct() {
     return values();
   }
 

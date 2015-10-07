@@ -53,7 +53,7 @@ final class CharRange extends AbstractRange<Character> {
   @Override
   public boolean contains(Object o) {
     if (!(o instanceof Character)) {
-      return false; 
+      return false;
     }
     final Character obj = (Character) o;
     return encloses(obj)

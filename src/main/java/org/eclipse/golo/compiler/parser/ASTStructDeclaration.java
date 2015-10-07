@@ -47,9 +47,6 @@ public class ASTStructDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTStructDeclaration{" +
-        "name='" + name + '\'' +
-        ", members=" + members +
-        '}';
+    return String.format("ASTStructDeclaration{name='%s', members=%s}", name, members);
   }
 }

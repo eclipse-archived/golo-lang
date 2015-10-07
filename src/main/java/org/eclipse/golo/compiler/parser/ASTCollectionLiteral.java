@@ -45,8 +45,6 @@ public class ASTCollectionLiteral extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTCollectionLiteral{" +
-        "type='" + type + '\'' +
-        '}';
+    return String.format("ASTCollectionLiteral{type='%s'}", type);
   }
 }

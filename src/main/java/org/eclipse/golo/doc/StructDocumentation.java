@@ -9,6 +9,7 @@
 
 package org.eclipse.golo.doc;
 
+import java.util.Objects;
 import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.Collection;
@@ -59,7 +60,24 @@ class StructDocumentation implements Comparable<StructDocumentation>, Documentat
 
   @Override
   public int compareTo(StructDocumentation o) {
+    if (this.equals(o)) { return 0; }
     return name.compareTo(o.name());
   }
+
+  @Override
+  public boolean equals(Object o) {
+    if (o == null) { return false; }
+    if (o == this) { return true; }
+    if (!(o instanceof StructDocumentation)) { return false; }
+    StructDocumentation that = (StructDocumentation) o;
+    return this.name.equals(that.name)
+        && this.members.equals(that.members);
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name, this.members);
+  }
+
 }
 
