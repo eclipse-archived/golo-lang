@@ -70,7 +70,7 @@ final class CharRange extends AbstractRange<Character> {
 
   @Override
   public Iterator<Character> iterator() {
-    return new AbstractRange<Character>.RangeIterator() {
+    return new AbstractRange.RangeIterator<Character>() {
 
       private boolean started = false;
       private char current = from().charValue();

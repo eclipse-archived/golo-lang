@@ -19,7 +19,10 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
   private int increment = 1;
   private int cmp = 1;
 
-  abstract class RangeIterator implements Iterator<T> {
+  abstract static class RangeIterator<T extends Comparable<T>> implements Iterator<T> {
+
+    public RangeIterator() {
+    }
 
     @Override
     public void remove() {

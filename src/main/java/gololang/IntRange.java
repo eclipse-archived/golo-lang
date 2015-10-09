@@ -66,7 +66,7 @@ final class IntRange extends AbstractRange<Integer> {
 
   @Override
   public Iterator<Integer> iterator() {
-    return new AbstractRange<Integer>.RangeIterator() {
+    return new AbstractRange.RangeIterator<Integer>() {
 
       private boolean started = false;
       private int current = from();

@@ -66,7 +66,7 @@ final class LongRange extends AbstractRange<Long> {
 
   @Override
   public Iterator<Long> iterator() {
-    return new AbstractRange<Long>.RangeIterator() {
+    return new AbstractRange.RangeIterator<Long>() {
 
       private boolean started = false;
       private long current = from();
