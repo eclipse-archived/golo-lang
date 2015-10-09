@@ -183,12 +183,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     int[] keys = new int[applicationsSize];
     String[][] namesArrays = new String[applicationsSize][];
     // cases of the switch statement MUST be sorted
-    Collections.sort(applicationNames, new Comparator<String>() {
-      @Override
-      public int compare(String o1, String o2) {
-        return Integer.compare(o1.hashCode(), o2.hashCode());
-      }
-    });
+    Collections.sort(applicationNames, (o1, o2) -> Integer.compare(o1.hashCode(), o2.hashCode()));
     int i = 0;
     for (String applicationName : applicationNames) {
       labels[i] = new Label();
