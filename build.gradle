@@ -167,8 +167,8 @@ distributions {
       from(asciidoctor) {
         into 'docs'
       }
-      from(golodoc) {
-        into 'docs/golodoc'
+      from(project.file("$buildDir/asciidoctor/html5/*")) {
+        into 'docs'
       }
       from(vanillaScripts) {
         into 'bin'
