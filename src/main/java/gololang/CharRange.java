@@ -37,10 +37,10 @@ final class CharRange extends AbstractRange<Character> {
 
   @Override
   public int size() {
-    if (to() == from()) {
+    if (to().equals(from())) {
       return 0;
     }
-    final int s = ((int) to().charValue() - (int) from().charValue()) / increment();
+    final int s = ((int) to() - (int) from()) / increment();
     if (s < 0) {
       return 0;
     }
@@ -57,7 +57,7 @@ final class CharRange extends AbstractRange<Character> {
     }
     final Character obj = (Character) o;
     return encloses(obj)
-           && ((int) obj.charValue() - (int) from().charValue()) % increment() == 0;
+           && ((int) obj - (int) from()) % increment() == 0;
   }
 
   @Override
@@ -73,8 +73,8 @@ final class CharRange extends AbstractRange<Character> {
     return new AbstractRange.RangeIterator<Character>() {
 
       private boolean started = false;
-      private char current = from().charValue();
-      private char to = to().charValue();
+      private char current = from();
+      private char to = to();
 
       @Override
       public boolean hasNext() {
@@ -83,7 +83,7 @@ final class CharRange extends AbstractRange<Character> {
 
       @Override
       public Character next() {
-        final Character value = Character.valueOf(current);
+        final Character value = current;
         if (started && !hasNext()) {
           throw new NoSuchElementException("iteration has finished");
         } else {

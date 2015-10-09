@@ -11,6 +11,7 @@ package gololang;
 
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 
 final class LongRange extends AbstractRange<Long> {
 
@@ -34,7 +35,7 @@ final class LongRange extends AbstractRange<Long> {
 
   @Override
   public int size() {
-    if (to() == from()) {
+    if (Objects.equals(to(), from())) {
       return 0;
     }
     final int theSize = (int) ((to() - from()) / increment());
