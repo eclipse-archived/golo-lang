@@ -357,16 +357,17 @@ public final class Predefined {
     Class<?> theType = (Class<?>) type;
     for (Method method : theType.getMethods()) {
       if (!method.isDefault() && !isStatic(method.getModifiers())) {
-        Map<String, Object> configuration = new HashMap<String, Object>() {
-          {
-            put("interfaces", new Tuple(theType.getCanonicalName()));
-            put("implements", new HashMap<String, FunctionReference>() {
-              {
-                put(method.getName(), new FunctionReference(dropArguments(((FunctionReference) func).handle(), 0, Object.class), Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new)));
-              }
-            });
-          }
-        };
+        Map<String, Object> configuration = new HashMap<>();
+        configuration.put("interfaces", new Tuple(theType.getCanonicalName()));
+        Map<String, FunctionReference> implementations = new HashMap<>();
+        implementations.put(
+            method.getName(), 
+            new FunctionReference(
+              dropArguments(((FunctionReference) func).handle(), 0, Object.class), 
+              Arrays.stream(method.getParameters())
+              .map(Parameter::getName)
+              .toArray(String[]::new)));
+        configuration.put("implements", implementations);
         return new AdapterFabric().maker(configuration).newInstance();
       }
     }
