@@ -16,7 +16,19 @@
     <Bug code="Nm" />
   </Match>
   <Match>
+    <!-- Special object equals to anything but null. Ignore error on the equals
+         implementation -->
     <Class name="gololang.Unknown" />
     <Bug code="Eq" />
+  </Match>
+  <Match>
+    <!--
+    Ignore error about encapsulation violation by giving access to a mutable 
+    object.
+    We have an array that is kept private, and the values come from the runtime 
+    bootstrap, so we avoid making a defensive copy for performance reasons.
+    -->
+    <Class name="gololang.FunctionReference" />
+    <Bug code="EI2" />
   </Match>
 </FindBugsFilter>

@@ -112,17 +112,14 @@ public class InitCommand implements CliCommand {
 
   private void writeProjectFile(File intoDir, String projectName, String sourcePath, String fileName) throws IOException {
     InputStream sourceInputStream = InitCommand.class.getClassLoader().getResourceAsStream(sourcePath);
-    BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream, StandardCharsets.UTF_8));
     File projectFile = new File(intoDir, fileName);
-    PrintWriter writer = new PrintWriter(projectFile, "UTF-8");
     String line;
-    try {
+    try (
+      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream, StandardCharsets.UTF_8));
+      PrintWriter writer = new PrintWriter(projectFile, "UTF-8")) {
       while ((line = bufferedReader.readLine()) != null) {
         writer.println(line.replace("{{projectName}}", projectName));
       }
-    } finally {
-      writer.close();
-      bufferedReader.close();
     }
   }
 
