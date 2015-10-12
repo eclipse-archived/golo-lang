@@ -16,10 +16,12 @@
     <Bug code="Nm" />
   </Match>
   <Match>
-    <!-- Special object equals to anything but null. Ignore error on the equals
-         implementation -->
+    <!--
+    Special object equals to anything but null. Ignore error on the equals
+    implementation.
+    -->
     <Class name="gololang.Unknown" />
-    <Bug code="Eq" />
+    <Bug pattern="EQ_UNUSUAL" />
   </Match>
   <Match>
     <!--
@@ -29,6 +31,18 @@
     bootstrap, so we avoid making a defensive copy for performance reasons.
     -->
     <Class name="gololang.FunctionReference" />
-    <Bug code="EI2" />
+    <Bug pattern="EI_EXPOSE_REP2" />
+  </Match>
+
+  <Match>
+    <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED" />
+  </Match>
+
+  <Match>
+    <!--
+    Ignore complains on System.exit, since we are in a top-level command
+    -->
+    <Class name="org.eclipse.golo.cli.command.spi.CliCommand" />
+    <Bug pattern="DM_EXIT" />
   </Match>
 </FindBugsFilter>
