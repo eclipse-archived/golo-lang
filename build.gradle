@@ -7,6 +7,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
+// .................................................................................................................. //
+
 plugins {
   id 'java'
   id 'ca.coglinc.javacc' version '2.3.1'
@@ -19,9 +21,13 @@ plugins {
   id 'com.github.ben-manes.versions' version '0.11.3'
 }
 
+// .................................................................................................................. //
+
 repositories {
   jcenter()
 }
+
+// .................................................................................................................. //
 
 ext {
   goloCliMain = 'org.eclipse.golo.cli.Main'
@@ -29,8 +35,12 @@ ext {
   goloDocs = file("$buildDir/docs/golodoc")
 }
 
+// .................................................................................................................. //
+
 group = 'org.eclipse.golo'
 version = '3.0.0-incubation-SNAPSHOT'
+
+// .................................................................................................................. //
 
 sourceCompatibility = 1.8
 targetCompatibility = 1.8
@@ -38,6 +48,8 @@ targetCompatibility = 1.8
 tasks.withType(JavaCompile) {
   options.compilerArgs += ["-Xlint:unchecked", "-Xlint:deprecation"]
 }
+
+// .................................................................................................................. //
 
 sourceSets {
   main {
@@ -47,6 +59,8 @@ sourceSets {
     }
   }
 }
+
+// .................................................................................................................. //
 
 configurations.all {
   exclude module: 'junit'
@@ -65,6 +79,8 @@ dependencies {
   testCompile 'org.testng:testng:6.9.7'
 }
 
+// .................................................................................................................. //
+
 task goloc(type: JavaExec, dependsOn: [compileJava, processResources]) {
   main = goloCliMain
   args = ['compile', '--output', sourceSets.main.output.classesDir] + goloSources
@@ -79,6 +95,8 @@ if (!project.hasProperty('bootstrap')) {
   classes.dependsOn(goloc)
 }
 
+// .................................................................................................................. //
+
 test {
   useTestNG()
   testLogging.showStandardStreams = project.hasProperty('consoleTraceTests')
@@ -87,12 +105,16 @@ test {
   systemProperty 'java.awt.headless', 'true'
 }
 
+// .................................................................................................................. //
+
 processResources {
   filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
     version: version,
     timestamp: versioning.info.full
   ])
 }
+
+// .................................................................................................................. //
 
 findbugs {
   sourceSets = [sourceSets.main]
@@ -108,6 +130,8 @@ tasks.withType(FindBugs) {
   }
 }
 
+// .................................................................................................................. //
+
 asciidoctorj {
   version = '1.5.2'
 }
@@ -122,6 +146,8 @@ asciidoctor {
 
 assemble.dependsOn asciidoctor
 
+// .................................................................................................................. //
+
 task golodoc(type: JavaExec, dependsOn: goloc) {
   main = goloCliMain
   args = ['doc', '--format', 'html', '--output', goloDocs] + goloSources
@@ -131,6 +157,8 @@ task golodoc(type: JavaExec, dependsOn: goloc) {
   description = 'Generates documentation of the standard Golo modules.'
   group = 'Documentation'
 }
+
+// .................................................................................................................. //
 
 task vanillaScripts(type: CreateStartScripts) {
   outputDir = file('build/vanilla-golo')
@@ -145,6 +173,8 @@ applicationDefaultJvmArgs = [
 ]
 
 startScripts.dependsOn vanillaScripts
+
+// .................................................................................................................. //
 
 distributions {
   main {
@@ -177,6 +207,8 @@ distributions {
     }
   }
 }
+
+// .................................................................................................................. //
 
 ext.mavenRepos = [
   [
@@ -257,6 +289,8 @@ publishing {
   }
 }
 
+// .................................................................................................................. //
+
 task sourceJar(type: Jar) {
   from sourceSets.main.allJava
 }
@@ -266,6 +300,8 @@ javadoc.options.addStringOption('Xdoclint:none', '-quiet')
 task javadocJar (type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
+
+// .................................................................................................................. //
 
 task buildMavenPlugin(type: Exec, dependsOn: 'publishGoloPublicationToMavenLocal') {
   workingDir 'golo-maven-plugin'
@@ -288,7 +324,11 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
   group 'Publishing'
 }
 
+// .................................................................................................................. //
+
 task wrapper(type: Wrapper) {
   gradleVersion = '2.7'
   description 'Generates the Gradle wrapper scripts.'
 }
+
+// .................................................................................................................. //
