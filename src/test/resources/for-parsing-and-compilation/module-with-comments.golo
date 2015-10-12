@@ -2,8 +2,8 @@
 #
 # foo.bar.Baz module
 #
-# Author: Mr Bean
-# License: WTF
+# This is a sample text that is here with no particular purpose, except that
+# of checking that the parser does deal with comments fine.
 #
 # ........................................................................... #
 

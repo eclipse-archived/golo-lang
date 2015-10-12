@@ -195,7 +195,7 @@ Golo comments start with a `#`, just like in Bash, Python or Ruby:
 [source,golo]
 ----
 # This is a comment
-println("WTF?") # it works here, too
+println("Plop") # it works here, too
 ----
 
 === Variable and constant references
