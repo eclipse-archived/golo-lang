@@ -164,11 +164,12 @@ distributions {
       into('share') {
         from 'share'
       }
+      from(golodoc) {
+        into 'docs/golodoc'
+      }
       from(asciidoctor) {
         into 'docs'
-      }
-      from(project.file("$buildDir/asciidoctor/html5/*")) {
-        into 'docs'
+        exclude 'html5'
       }
       from(vanillaScripts) {
         into 'bin'
