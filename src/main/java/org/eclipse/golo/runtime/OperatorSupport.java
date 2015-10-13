@@ -14,8 +14,7 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
 
-import static java.lang.invoke.MethodHandles.guardWithTest;
-import static java.lang.invoke.MethodHandles.insertArguments;
+import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
 public class OperatorSupport {
@@ -33,7 +32,6 @@ public class OperatorSupport {
     }
   }
 
-  private static final MethodHandle GUARD_1;
   private static final MethodHandle FALLBACK_1;
 
   private static final MethodHandle GUARD_2;
@@ -53,11 +51,6 @@ public class OperatorSupport {
     try {
       MethodHandles.Lookup lookup = MethodHandles.lookup();
 
-      GUARD_1 = lookup.findStatic(
-          OperatorSupport.class,
-          "guard_1",
-          methodType(boolean.class, Class.class, Object.class));
-
       FALLBACK_1 = lookup.findStatic(
           OperatorSupport.class,
           "fallback_1",
@@ -75,11 +68,6 @@ public class OperatorSupport {
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
-  }
-
-  public static boolean guard_1(Class<?> expected, Object arg) {
-    Class<?> t = (arg == null) ? Object.class : arg.getClass();
-    return (t == expected);
   }
 
   public static boolean guard_2(Class<?> expected1, Class<?> expected2, Object arg1, Object arg2) {
@@ -104,12 +92,11 @@ public class OperatorSupport {
         return reject(args[0], inlineCache.name);
       }
     }
+
     target = target.asType(methodType(Object.class, Object.class));
+    target = catchException(target, ClassCastException.class, inlineCache.fallback);
+    inlineCache.setTarget(target);
 
-    MethodHandle guard = GUARD_1.bindTo(argClass);
-
-    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.fallback);
-    inlineCache.setTarget(guardedTarget);
     return target.invokeWithArguments(args);
   }
 
@@ -130,12 +117,16 @@ public class OperatorSupport {
         return reject(args[0], args[1], inlineCache.name);
       }
     }
+
     target = target.asType(methodType(Object.class, Object.class, Object.class));
+    if (arg1Class == String.class || arg2Class == String.class) {
+      MethodHandle guard = insertArguments(GUARD_2, 0, arg1Class, arg2Class);
+      target = guardWithTest(guard, target, inlineCache.fallback);
+    } else {
+      target = catchException(target, ClassCastException.class, dropArguments(inlineCache.fallback, 0, ClassCastException.class));
+    }
+    inlineCache.setTarget(target);
 
-    MethodHandle guard = insertArguments(GUARD_2, 0, arg1Class, arg2Class);
-
-    MethodHandle guardedTarget = guardWithTest(guard, target, inlineCache.fallback);
-    inlineCache.setTarget(guardedTarget);
     return target.invokeWithArguments(args);
   }
 
