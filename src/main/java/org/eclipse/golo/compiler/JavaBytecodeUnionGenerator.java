@@ -52,11 +52,11 @@ class JavaBytecodeUnionGenerator {
   private void initStaticFields(ClassWriter cw, PackageAndClass unionType, Map<String, PackageAndClass> staticFields) {
     MethodVisitor mv = cw.visitMethod(ACC_STATIC, "<clinit>", "()V", null, null);
     mv.visitCode();
-    for (String attr : staticFields.keySet()) {
-      mv.visitTypeInsn(NEW, staticFields.get(attr).toJVMType());
+    for (Map.Entry<String, PackageAndClass> attr : staticFields.entrySet()) {
+      mv.visitTypeInsn(NEW, attr.getValue().toJVMType());
       mv.visitInsn(DUP);
-      mv.visitMethodInsn(INVOKESPECIAL, staticFields.get(attr).toJVMType(), "<init>", "()V", false);
-      mv.visitFieldInsn(PUTSTATIC, unionType.toJVMType(), attr, unionType.toJVMRef());
+      mv.visitMethodInsn(INVOKESPECIAL, attr.getValue().toJVMType(), "<init>", "()V", false);
+      mv.visitFieldInsn(PUTSTATIC, unionType.toJVMType(), attr.getKey(), unionType.toJVMRef());
     }
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);

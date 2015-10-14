@@ -11,7 +11,7 @@ package org.eclipse.golo.doc;
 
 import java.util.List;
 import java.util.LinkedList;
-
+import java.util.Objects;
 
 class FunctionDocumentation implements Comparable<FunctionDocumentation>, DocumentationElement {
 
@@ -96,10 +96,29 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation>, Docume
 
   @Override
   public int compareTo(FunctionDocumentation o) {
+    if (this.equals(o)) { return 0; }
     int c = name.compareTo(o.name);
     if (c == 0) {
       return arity() < o.arity() ? -1 : 1;
     }
     return c;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == null) { return false; }
+    if (other == this) { return true; }
+    if (!(other instanceof FunctionDocumentation)) { return false; }
+    FunctionDocumentation that = (FunctionDocumentation) other;
+    return this.name.equals(that.name)
+        && this.local == that.local
+        && this.varargs == that.varargs
+        && this.augmentation == that.augmentation
+        && this.arity() == that.arity();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name, this.local, this.varargs, this.augmentation, this.arity());
   }
 }

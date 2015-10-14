@@ -31,9 +31,7 @@ public class ASTLiteral extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTLiteral{" +
-        "literalValue=" + literalValue +
-        '}';
+    return String.format("ASTLiteral{literalValue=%s}", literalValue);
   }
 
   @Override

@@ -33,9 +33,7 @@ public class ASTReference extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTReference{" +
-        "name='" + name + '\'' +
-        '}';
+    return String.format("ASTReference{name='%s'}", name);
   }
 
   @Override

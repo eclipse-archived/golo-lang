@@ -36,6 +36,6 @@ public class ASTDecoratorDeclaration extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTDecoratorDeclaration{constant='" + constant + "'}";
+    return String.format("ASTDecoratorDeclaration{constant='%s'}", constant);
   }
 }

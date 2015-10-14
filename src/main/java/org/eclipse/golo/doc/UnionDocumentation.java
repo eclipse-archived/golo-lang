@@ -120,4 +120,17 @@ class UnionDocumentation implements Comparable<UnionDocumentation>, Documentatio
     return name.compareTo(o.name());
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (o == null) { return false; }
+    if (o == this) { return true; }
+    if (!(o instanceof UnionDocumentation)) { return false; }
+    return this.name.equals(((UnionDocumentation) o).name);
+  }
+
+  @Override
+  public int hashCode() {
+    return this.name.hashCode();
+  }
+
 }

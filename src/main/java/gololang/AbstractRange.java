@@ -96,7 +96,7 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
 
   @Override
   public boolean equals(Object other) {
-    if (other == this) { 
+    if (other == this) {
       return true;
     }
     if (!(other instanceof Range)) {

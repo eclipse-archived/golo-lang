@@ -19,6 +19,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -40,7 +41,7 @@ public abstract class AbstractProcessor {
     if (in == null) {
       throw new IllegalArgumentException("There is no template " + name + " for format: " + format);
     }
-    try (InputStreamReader reader = new InputStreamReader(in)) {
+    try (InputStreamReader reader = new InputStreamReader(in, StandardCharsets.UTF_8)) {
       StringBuilder builder = new StringBuilder();
       char[] buffer = new char[1024];
       int nread;
@@ -54,7 +55,9 @@ public abstract class AbstractProcessor {
   }
 
   protected void ensureFolderExists(Path path) throws IOException {
-    Files.createDirectories(path);
+    if (path != null) {
+      Files.createDirectories(path);
+    }
   }
 
   protected Path outputFile(Path targetFolder, String moduleName, String extension) {

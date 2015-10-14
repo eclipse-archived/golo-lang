@@ -9,19 +9,22 @@ package gololang;
  * used with caution.
  */
 public final class Unknown {
-  private static final Unknown instance = new Unknown();
-  private Unknown() {}
-  public static Unknown get() { 
-    return instance;
+
+  private static final Unknown INSTANCE = new Unknown();
+
+  private Unknown() { }
+
+  public static Unknown get() {
+    return INSTANCE;
   }
 
   @Override
   public boolean equals(Object o) {
-    return o == null ? false : true;
+    return o != null;
   }
 
   @Override
-  public int hashCode() { 
-    return 0; 
+  public int hashCode() {
+    return 0;
   }
 }

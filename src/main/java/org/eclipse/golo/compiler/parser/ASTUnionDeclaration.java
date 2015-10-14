@@ -36,6 +36,6 @@ public class ASTUnionDeclaration extends GoloASTNode implements NamedNode {
 
   @Override
   public String toString() {
-    return "ASTUnionDeclaration{name='" + name + "'}";
+    return String.format("ASTUnionDeclaration{name='%s'}", name);
   }
 }

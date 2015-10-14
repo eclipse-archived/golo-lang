@@ -9,7 +9,7 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public class LoopBreakFlowStatement extends GoloStatement {
+public final class LoopBreakFlowStatement extends GoloStatement {
 
   public static enum Type {
     BREAK, CONTINUE

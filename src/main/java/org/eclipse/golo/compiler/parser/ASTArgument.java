@@ -40,10 +40,7 @@ public class ASTArgument extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTArgument{" +
-        "name=" + name +
-        ", named=" + named +
-        '}';
+    return String.format("ASTArgument{name=%s, named=%s}", name, named);
   }
 
   @Override

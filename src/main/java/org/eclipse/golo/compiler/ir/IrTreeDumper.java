@@ -79,7 +79,7 @@ public class IrTreeDumper implements GoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
-    for(Decorator decorator : function.getDecorators()) {
+    for (Decorator decorator : function.getDecorators()) {
       decorator.accept(this);
     }
     incr();

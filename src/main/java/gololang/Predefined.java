@@ -357,16 +357,17 @@ public final class Predefined {
     Class<?> theType = (Class<?>) type;
     for (Method method : theType.getMethods()) {
       if (!method.isDefault() && !isStatic(method.getModifiers())) {
-        Map<String, Object> configuration = new HashMap<String, Object>() {
-          {
-            put("interfaces", new Tuple(theType.getCanonicalName()));
-            put("implements", new HashMap<String, FunctionReference>() {
-              {
-                put(method.getName(), new FunctionReference(dropArguments(((FunctionReference) func).handle(), 0, Object.class), Arrays.stream(method.getParameters()).map(Parameter::getName).toArray(String[]::new)));
-              }
-            });
-          }
-        };
+        Map<String, Object> configuration = new HashMap<>();
+        configuration.put("interfaces", new Tuple(theType.getCanonicalName()));
+        Map<String, FunctionReference> implementations = new HashMap<>();
+        implementations.put(
+            method.getName(), 
+            new FunctionReference(
+              dropArguments(((FunctionReference) func).handle(), 0, Object.class), 
+              Arrays.stream(method.getParameters())
+              .map(Parameter::getName)
+              .toArray(String[]::new)));
+        configuration.put("implements", implementations);
         return new AdapterFabric().maker(configuration).newInstance();
       }
     }
@@ -486,13 +487,32 @@ public final class Predefined {
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
    */
   public static void textToFile(Object text, Object file) throws Throwable {
+    textToFile(text, file, Charset.defaultCharset());
+  }
+
+  /**
+   * Writes some text to a file using the given {@link Charset}.
+   * The file is created if it does not exist, and overwritten if it already exists.
+   *
+   * @param text the text to write.
+   * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
+   * @param charset the charset to encode the text in.
+   */
+  public static void textToFile(Object text, Object file, Object charset) throws Throwable {
     require(text instanceof String, "text must be a string");
+    Charset encoding;
+    if (charset instanceof String) {
+      encoding = Charset.forName((String) charset);
+    } else {
+      require(charset instanceof Charset, "not a charset");
+      encoding = (Charset) charset;
+    }
     String str = (String) text;
     Path path = pathFrom(file);
     if (path.toString().equals("-")) {
-      System.out.write(str.getBytes());
+      System.out.write(str.getBytes(encoding));
     } else {
-      Files.write(path, str.getBytes(), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
+      Files.write(path, str.getBytes(encoding), StandardOpenOption.WRITE, StandardOpenOption.CREATE, StandardOpenOption.TRUNCATE_EXISTING);
     }
   }
 

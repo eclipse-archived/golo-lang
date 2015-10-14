@@ -552,9 +552,13 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   private LocalReference.Kind referenceKindOf(ASTLetOrVar node) {
     if (node.isModuleState()) {
-      return node.getType() == ASTLetOrVar.Type.LET ? LocalReference.Kind.MODULE_CONSTANT : LocalReference.Kind.MODULE_VARIABLE;
+      return node.getType() == ASTLetOrVar.Type.LET
+        ? LocalReference.Kind.MODULE_CONSTANT
+        : LocalReference.Kind.MODULE_VARIABLE;
     } else {
-      return node.getType() == ASTLetOrVar.Type.LET ? LocalReference.Kind.CONSTANT : LocalReference.Kind.VARIABLE;
+      return node.getType() == ASTLetOrVar.Type.LET
+        ? LocalReference.Kind.CONSTANT
+        : LocalReference.Kind.VARIABLE;
     }
   }
 
@@ -979,8 +983,8 @@ class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         block = new Block(localTable.fork());
       } else {
         getOrCreateExceptionBuilder(context).report(GoloCompilationException.Problem.Type.PARSING, node,
-            "Malformed `foreach` loop at (line=" + node.getLineInSourceCode() +
-                ", column=" + node.getColumnInSourceCode() + ")"
+            "Malformed `foreach` loop at (line=" + node.getLineInSourceCode()
+            + ", column=" + node.getColumnInSourceCode() + ")"
         );
       }
     }

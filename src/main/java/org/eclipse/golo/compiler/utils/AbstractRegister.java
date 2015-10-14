@@ -14,7 +14,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.Collection;
 
-public abstract class AbstractRegister<K, V> extends AbstractMap<K,Set<V>> implements Register<K,V> {
+public abstract class AbstractRegister<K, V> extends AbstractMap<K, Set<V>> implements Register<K, V> {
 
   private Map<K, Set<V>> map;
 
@@ -23,9 +23,9 @@ public abstract class AbstractRegister<K, V> extends AbstractMap<K,Set<V>> imple
     this.map = initMap();
   };
 
-  abstract protected Map<K, Set<V>> initMap();
+  protected abstract Map<K, Set<V>> initMap();
 
-  abstract protected Set<V> emptyValue();
+  protected abstract Set<V> emptyValue();
 
   @SuppressWarnings("unchecked")
   private Set<V> getOrInit(Object key) {
@@ -40,7 +40,7 @@ public abstract class AbstractRegister<K, V> extends AbstractMap<K,Set<V>> imple
   }
 
   @Override
-  public Set<Map.Entry<K,Set<V>>> entrySet() {
+  public Set<Map.Entry<K, Set<V>>> entrySet() {
     return map.entrySet();
   }
 

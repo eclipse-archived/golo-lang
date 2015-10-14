@@ -321,8 +321,8 @@ public class StandardAugmentationsTest {
     Method sets_not_exists = moduleClass.getMethod("sets_not_exists");
     Object result = sets_not_exists.invoke(null);
     assertThat((Boolean) result, is(false));
-  }  
-  
+  }
+
   @Test
   public void maps_addIfAbsent() throws Throwable {
     Method maps_addIfAbsent = moduleClass.getMethod("maps_addIfAbsent");

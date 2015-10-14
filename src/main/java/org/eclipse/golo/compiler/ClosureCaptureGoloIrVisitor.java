@@ -15,7 +15,7 @@ import java.util.*;
 
 class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
 
-  class Context {
+  private static final class Context {
     final Set<String> parameterReferences = new HashSet<>();
     final Set<String> allReferences = new HashSet<>();
     final Set<String> localReferences = new HashSet<>();

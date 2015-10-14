@@ -38,7 +38,7 @@ class ArrayMethodFinder implements MethodFinder {
       throw new UnsupportedOperationException(name + " on arrays takes "
           + (value == 0 ? "no" : value)
           + " parameter" + (value > 1 ? "s" : "")
-      );
+          );
     }
   }
 
@@ -73,7 +73,7 @@ class ArrayMethodFinder implements MethodFinder {
         checkArity(0);
         return lookup.findStatic(
             Arrays.class, "asList", methodType(List.class, Object[].class))
-            .asFixedArity();
+          .asFixedArity();
       case "equals":
         checkArity(1);
         return lookup.findStatic(Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class));
@@ -84,17 +84,17 @@ class ArrayMethodFinder implements MethodFinder {
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "head", methodType(Object.class, Object[].class))
-            .asType(type);
+          .asType(type);
       case "tail":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "tail", methodType(Object[].class, Object[].class))
-            .asType(type);
+          .asType(type);
       case "isEmpty":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "isEmpty", methodType(boolean.class, Object[].class))
-            .asType(type);
+          .asType(type);
       default:
         throw new UnsupportedOperationException(name + " is not supported on arrays");
     }

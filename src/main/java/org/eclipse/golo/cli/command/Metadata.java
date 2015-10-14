@@ -13,15 +13,18 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-class Metadata {
+final class Metadata {
+
+  private Metadata() {
+    // purely static class
+  }
 
   public static final String VERSION;
   public static final String TIMESTAMP;
 
   static {
     Properties props = new Properties();
-    InputStream inputStream = Metadata.class.getResourceAsStream("/metadata.properties");
-    try {
+    try (InputStream inputStream = Metadata.class.getResourceAsStream("/metadata.properties")) {
       props.load(inputStream);
       VERSION = props.getProperty("version");
       TIMESTAMP = props.getProperty("timestamp");

@@ -26,8 +26,8 @@ public class GoloOffsetParserTokenManager extends GoloParserTokenManager {
   protected Token jjFillToken() {
     Token t = super.jjFillToken();
     if (input_stream instanceof JavaOffsetCharStream) {
-      t.startOffset = ((JavaOffsetCharStream)input_stream).getBeginOffset() - 1;
-      t.endOffset = ((JavaOffsetCharStream)input_stream).getCurrentOffset();
+      t.startOffset = ((JavaOffsetCharStream) input_stream).getBeginOffset() - 1;
+      t.endOffset = ((JavaOffsetCharStream) input_stream).getCurrentOffset();
     }
     return t;
   }

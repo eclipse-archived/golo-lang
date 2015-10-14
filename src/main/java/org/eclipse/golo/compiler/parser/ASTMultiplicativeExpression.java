@@ -39,8 +39,6 @@ public class ASTMultiplicativeExpression extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTMultiplicativeExpression{" +
-        "operators=" + operators +
-        '}';
+    return String.format("ASTMultiplicativeExpression{operators=%s}", operators);
   }
 }

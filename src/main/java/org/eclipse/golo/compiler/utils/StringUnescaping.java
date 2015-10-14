@@ -9,7 +9,11 @@
 
 package org.eclipse.golo.compiler.utils;
 
-public class StringUnescaping {
+public final class StringUnescaping {
+
+  private StringUnescaping() {
+    //utility class
+  }
 
   public static String unescape(String str) {
     StringBuilder sb = new StringBuilder(str.length());
@@ -41,6 +45,9 @@ public class StringUnescaping {
             break;
           case '\'':
             ch = '\'';
+            break;
+          default:
+            // not a special char, do nothing
             break;
         }
         i++;

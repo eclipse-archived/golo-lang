@@ -9,7 +9,11 @@
 
 package org.eclipse.golo.compiler.utils;
 
-public class NamingUtils {
+public final class NamingUtils {
+
+  private NamingUtils() {
+    // utility class
+  }
 
   public static int packageClassSeparatorIndex(String moduleName) {
     if (moduleName != null) {

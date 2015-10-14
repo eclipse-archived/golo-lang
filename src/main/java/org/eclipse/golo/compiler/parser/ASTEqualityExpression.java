@@ -36,8 +36,6 @@ public class ASTEqualityExpression extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTEqualityExpression{" +
-        "operator='" + operator + '\'' +
-        '}';
+    return String.format("ASTEqualityExpression{operator='%s'}", operator);
   }
 }

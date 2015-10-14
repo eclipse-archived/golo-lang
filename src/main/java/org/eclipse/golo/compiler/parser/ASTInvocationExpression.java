@@ -39,8 +39,6 @@ public class ASTInvocationExpression extends GoloASTNode {
 
   @Override
   public String toString() {
-    return "ASTInvocationExpression{" +
-        "operators=" + operators +
-        '}';
+    return String.format("ASTInvocationExpression{operators=%s}", operators);
   }
 }

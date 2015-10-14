@@ -78,7 +78,7 @@ public class FunctionReference {
    * @return the array of parameter's names
    */
   public String[] parameterNames() {
-    return parameterNames;
+    return Arrays.copyOf(parameterNames, parameterNames.length);
   }
 
   public MethodType type() {
