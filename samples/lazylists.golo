@@ -39,7 +39,7 @@ reimplementation of the map function
 ----
 function myMap = |lst, func| -> match {
   when lst: isEmpty() then emptyList()
-  otherwise cons(func(lst: head()), -> myMap(lst: tail(), func)))
+  otherwise cons(func(lst: head()), -> myMap(lst: tail(), func))
 }
 
 # a lazy list of known values
