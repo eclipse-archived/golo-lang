@@ -157,10 +157,15 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
     return block;
   }
 
+  public GoloFunction returns(Object expression) {
+    this.block.add(Builders.returns(expression));
+    return this;
+  }
+
   // XXX: here or in sugar expansion ?
   public void insertMissingReturnStatement() {
     if (!this.block.hasReturn() && !this.isModuleInit()) {
-      ReturnStatement missingReturnStatement = returns(constant(null));
+      ReturnStatement missingReturnStatement = Builders.returns(constant(null));
       if (this.isMain()) {
         missingReturnStatement.returningVoid();
       }
@@ -283,7 +288,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
       .decorator()
       .inScope(this.scope)
       .withParameters("__$$_original")
-      .block(returns(expr));
+      .returns(expr);
   }
 
   //-----------------------------------------------------------------------------------------------

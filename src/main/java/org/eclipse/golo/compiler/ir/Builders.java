@@ -108,8 +108,13 @@ public final class Builders {
     return new GoloFunction().name(name);
   }
 
-  public static GoloFunction lambda() {
-    return functionDeclaration().synthetic().local().asClosure();
+  public static ClosureReference lambda(String... parameters) {
+    return functionDeclaration()
+      .withParameters(parameters)
+      .synthetic()
+      .local()
+      .asClosure()
+      .asClosureReference();
   }
 
   public static FunctionInvocation functionInvocation() {

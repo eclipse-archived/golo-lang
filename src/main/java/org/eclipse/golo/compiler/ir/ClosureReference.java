@@ -41,6 +41,16 @@ public class ClosureReference extends ExpressionStatement {
     return capturedReferenceNames.add(referenceName);
   }
 
+  public ClosureReference block(Object... statements) {
+    this.target.block(statements);
+    return this;
+  }
+
+  public ClosureReference returns(Object expression) {
+    this.target.returns(expression);
+    return this;
+  }
+
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitClosureReference(this);
