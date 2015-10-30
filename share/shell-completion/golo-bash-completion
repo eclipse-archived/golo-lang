@@ -49,6 +49,10 @@ _golo ()
 			COMPREPLY=( $( compgen -W 'ast ir' -- "$cur" ) )
 			return 0
 			;;
+        --stage)
+			COMPREPLY=( $( compgen -W 'ast raw refined' -- "$cur" ) )
+			return 0
+			;;
 		--type)
 			COMPREPLY=( $( compgen -W 'maven gradle simple' -- "$cur" ) )
 			return 0
@@ -74,7 +78,7 @@ _golo ()
 			COMPREPLY=( $( compgen -W '--files --args --classpath --module' -- "$cur" ) )
 			;;
 		diagnose)
-			COMPREPLY=( $( compgen -W '--tool' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W '--tool --stage' -- "$cur" ) )
 			;;
 		new)
 			COMPREPLY=( $( compgen -W '--type --path' -- "$cur" ) )
