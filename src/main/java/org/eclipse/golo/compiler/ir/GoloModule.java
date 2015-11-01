@@ -168,9 +168,6 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     for (ModuleImport moduleImport : imports) {
       moduleImport.accept(visitor);
     }
-    for (GoloFunction function : functions) {
-      function.accept(visitor);
-    }
     for (Union union : unions) {
       union.accept(visitor);
     }
@@ -185,6 +182,9 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     }
     for (LocalReference moduleState : moduleState) {
       moduleState.accept(visitor);
+    }
+    for (GoloFunction function : new LinkedList<GoloFunction>(functions)) {
+      function.accept(visitor);
     }
   }
 

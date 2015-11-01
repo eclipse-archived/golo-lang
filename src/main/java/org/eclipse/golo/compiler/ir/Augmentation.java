@@ -12,6 +12,7 @@ package org.eclipse.golo.compiler.ir;
 import java.util.Collection;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 
 import org.eclipse.golo.compiler.PackageAndClass;
 
@@ -134,7 +135,7 @@ public final class Augmentation extends GoloElement implements FunctionContainer
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (GoloFunction func : functions) {
+    for (GoloFunction func : new LinkedList<GoloFunction>(functions)) {
       func.accept(visitor);
     }
   }

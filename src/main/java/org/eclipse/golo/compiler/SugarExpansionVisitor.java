@@ -44,6 +44,17 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     closure.walk(this);
   }
 
+  @Override
+  public void visitFunction(GoloFunction function) {
+    function.walk(this);
+    if (function.hasDecorators() && function.getParentNode().isPresent()) {
+      FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
+      GoloFunction decorator = function.createDecorator();
+      decorator.accept(this);
+      parent.addFunction(decorator);
+    }
+  }
+
   /**
    * Case expansion.
    * <p>

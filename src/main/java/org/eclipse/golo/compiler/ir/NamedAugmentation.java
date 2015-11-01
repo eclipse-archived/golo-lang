@@ -12,6 +12,7 @@ package org.eclipse.golo.compiler.ir;
 import java.util.Collection;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import java.util.LinkedList;
 import org.eclipse.golo.compiler.PackageAndClass;
 import static java.util.Collections.unmodifiableSet;
 
@@ -70,7 +71,7 @@ public final class NamedAugmentation extends GoloElement implements FunctionCont
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (GoloFunction fun : functions) {
+    for (GoloFunction fun : new LinkedList<GoloFunction>(functions)) {
       fun.accept(visitor);
     }
   }

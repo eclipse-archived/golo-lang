@@ -266,9 +266,6 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     context.push(function);
     node.childrenAccept(this, data);
     context.pop();
-    if (function.hasDecorators()) {
-      context.addFunction(function.createDecorator());
-    }
     return data;
   }
 
