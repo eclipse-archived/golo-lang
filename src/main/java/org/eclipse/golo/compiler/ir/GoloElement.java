@@ -18,10 +18,12 @@ import java.util.NoSuchElementException;
 public abstract class GoloElement {
   private WeakReference<GoloASTNode> nodeRef;
   private Optional<GoloElement> parent = Optional.empty();
+  private String documentation;
 
   public void setASTNode(GoloASTNode node) {
     if (node != null) {
       nodeRef = new WeakReference<>(node);
+      setDocumentationFrom(node);
     }
   }
 
@@ -37,8 +39,15 @@ public abstract class GoloElement {
   public GoloElement ofAST(GoloASTNode node) {
     if (node != null) {
       node.setIrElement(this);
+      setDocumentationFrom(node);
     }
     return this;
+  }
+
+  private void setDocumentationFrom(GoloASTNode node) {
+    if (node != null && node.getDocumentation() != null) {
+      documentation = node.getDocumentation();
+    }
   }
 
   protected void setParentNode(GoloElement parentElement) {
@@ -60,7 +69,6 @@ public abstract class GoloElement {
       }
     }
   }
-
 
   protected RuntimeException cantReplace() {
     return new UnsupportedOperationException(getClass().getName() + " can't replace elements");
@@ -90,10 +98,7 @@ public abstract class GoloElement {
   }
 
   public String getDocumentation() {
-    if (hasASTNode()) {
-      return getASTNode().getDocumentation();
-    }
-    return null;
+    return documentation;
   }
 
   public PositionInSourceCode getPositionInSourceCode() {
