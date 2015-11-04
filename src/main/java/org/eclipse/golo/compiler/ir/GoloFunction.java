@@ -32,7 +32,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   private final List<String> syntheticParameterNames = new LinkedList<>();
   private int syntheticParameterCount = 0;
   private boolean varargs = false;
-  private Block block = Builders.block();
+  private Block block;
   private boolean synthetic = false;
   private boolean decorator = false;
   private String syntheticSelfName = null;
@@ -45,6 +45,8 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
 
   GoloFunction() {
     super();
+    block = Builders.block();
+    makeParentOf(block);
   }
 
   @Override
@@ -165,7 +167,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   // XXX: here or in sugar expansion ?
   public void insertMissingReturnStatement() {
     if (!this.block.hasReturn() && !this.isModuleInit()) {
-      ReturnStatement missingReturnStatement = Builders.returns(constant(null));
+      ReturnStatement missingReturnStatement = Builders.returns(constant(null)).synthetic();
       if (this.isMain()) {
         missingReturnStatement.returningVoid();
       }
@@ -266,9 +268,6 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   public void addDecorator(Decorator decorator) {
     this.decorators.add(decorator);
     makeParentOf(decorator);
-    if (this.decoratorRef == null) {
-      this.decoratorRef = SYMBOLS.next(name + "_decorator");
-    }
   }
 
   public List<Decorator> getDecorators() {
@@ -284,6 +283,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
     for (Decorator decorator : this.getDecorators()) {
       expr = decorator.wrapExpression(expr);
     }
+    this.decoratorRef = SYMBOLS.next(name + "_decorator");
     return functionDeclaration(this.decoratorRef)
       .decorator()
       .inScope(this.scope)

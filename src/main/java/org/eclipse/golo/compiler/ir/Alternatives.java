@@ -9,10 +9,16 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public interface Alternatives<T> {
+import java.util.List;
+
+public interface Alternatives<T extends GoloElement> {
   Alternatives<T> when(Object cond);
 
   Alternatives<T> then(Object action);
 
   Alternatives<T> otherwise(Object action);
+
+  List<WhenClause<T>> getClauses();
+
+  T getOtherwise();
 }

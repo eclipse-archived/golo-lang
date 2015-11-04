@@ -50,8 +50,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     if (function.hasDecorators() && function.getParentNode().isPresent()) {
       FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
       GoloFunction decorator = function.createDecorator();
-      decorator.accept(this);
       parent.addFunction(decorator);
+      decorator.accept(this);
     }
   }
 

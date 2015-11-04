@@ -122,6 +122,16 @@ public final class Block extends ExpressionStatement implements Scope {
     return hasReturn;
   }
 
+  public int size() {
+    return statements.size();
+  }
+
+  public boolean hasOnlyReturn() {
+    return statements.size() == 1
+           && statements.get(0) instanceof ReturnStatement
+           && !((ReturnStatement) statements.get(0)).isReturningVoid();
+  }
+
   @Override
   public String toString() {
     return "{" + statements.toString() + "}";

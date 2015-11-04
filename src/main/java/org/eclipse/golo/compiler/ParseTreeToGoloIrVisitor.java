@@ -100,16 +100,17 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       return module;
     }
 
-    public void enterAugmentation(String target, Collection<String> names) {
-      functionContainersStack.push(this.module.addAugmentation(augment(target).with(names)));
+    public void enterAugmentation(ASTAugmentDeclaration node) {
+      functionContainersStack.push(this.module.addAugmentation(
+            augment(node.getTarget()).with(node.getAugmentationNames()).ofAST(node)));
     }
 
     public void leaveAugmentation() {
       functionContainersStack.pop();
     }
 
-    public void enterNamedAugmentation(String name) {
-      NamedAugmentation namedAugmentation = augmentation(name);
+    public void enterNamedAugmentation(ASTNamedAugmentationDeclaration node) {
+      NamedAugmentation namedAugmentation = augmentation(node.getName()).ofAST(node);
       functionContainersStack.push(namedAugmentation);
       this.module.addNamedAugmentation(namedAugmentation);
     }
@@ -226,7 +227,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTAugmentDeclaration node, Object data) {
     Context context = (Context) data;
-    context.enterAugmentation(node.getTarget(), node.getAugmentationNames());
+    context.enterAugmentation(node);
     node.childrenAccept(this, data);
     context.leaveAugmentation();
     return data;
@@ -246,7 +247,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
     Context context = (Context) data;
-    context.enterNamedAugmentation(node.getName());
+    context.enterNamedAugmentation(node);
     node.childrenAccept(this, data);
     context.leaveNamedAugmentation();
     return data;
@@ -590,7 +591,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.jjtGetChild(0).jjtAccept(this, data);
     context.push(
       whileLoop(context.pop()).ofAST(node)
-        .block(context.pop()));
+        .block((Block) context.pop()));
     return data;
   }
 
@@ -610,7 +611,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     if (node.jjtGetNumChildren() == 4) {
       node.jjtGetChild(3).jjtAccept(this, data);
-      loopStatement.block(context.pop());
+      loopStatement.block((Block) context.pop());
     }
     context.push(block.add(loopStatement));
     context.leaveScope();

@@ -15,6 +15,7 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.eclipse.golo.compiler.PackageAndClass;
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Collections.unmodifiableSet;
 
@@ -43,6 +44,12 @@ public final class Augmentation extends GoloElement implements FunctionContainer
   Augmentation(PackageAndClass target) {
     super();
     this.target = target;
+  }
+
+  @Override
+  public Augmentation ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
   }
 
   public PackageAndClass getTarget() {

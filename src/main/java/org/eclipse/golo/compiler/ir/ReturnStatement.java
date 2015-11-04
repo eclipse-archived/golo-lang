@@ -15,11 +15,13 @@ public final class ReturnStatement extends GoloStatement implements Scope {
 
   private GoloStatement expressionStatement;
   private boolean returningVoid;
+  private boolean synthetic;
 
   ReturnStatement(ExpressionStatement expression) {
     super();
     setExpressionStatement(expression);
     this.returningVoid = false;
+    this.synthetic = false;
   }
 
   public GoloStatement getExpressionStatement() {
@@ -37,6 +39,15 @@ public final class ReturnStatement extends GoloStatement implements Scope {
 
   public void returningVoid() {
     this.returningVoid = true;
+  }
+
+  public ReturnStatement synthetic() {
+    this.synthetic = true;
+    return this;
+  }
+
+  public boolean isSynthetic() {
+    return this.synthetic;
   }
 
   @Override
