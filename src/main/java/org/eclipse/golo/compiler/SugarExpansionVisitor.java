@@ -140,14 +140,14 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   }
 
   /**
-   * Range literal expansion.
+   * Literal expansion.
    * <p>
-   * Converts a range literal into a call to {@code Predefined.range}.
+   * Converts a collection literal into a call to {@code gololang.Predefined.<type>}.
    */
   @Override
   public void visitCollectionLiteral(CollectionLiteral collection) {
     collection.walk(this);
-    AbstractInvocation construct = call("Predefined." + collection.getType().toString())
+    AbstractInvocation construct = call("gololang.Predefined." + collection.getType().toString())
       .withArgs(collection.getExpressions().toArray());
     collection.replaceInParentBy(construct);
     construct.accept(this);
@@ -159,7 +159,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Object value = constantStatement.getValue();
     if (value instanceof GoloParser.FunctionRef) {
       GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
-      AbstractInvocation fun = call("Predefined.fun").constant()
+      AbstractInvocation fun = call("gololang.Predefined.fun").constant()
         .withArgs(
             constant(ref.name),
             classRef(ref.module == null

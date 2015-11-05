@@ -153,7 +153,7 @@ public final class Predefined {
    * @param obj the object to test against <code>null</code>.
    * @throws AssertionError if <code>obj</code> is <code>null</code>.
    */
-  public static void requireNotNull(Object obj) {
+  public static void requireNotNull(Object obj) throws AssertionError {
     if (obj != null) {
       return;
     }
@@ -168,7 +168,7 @@ public final class Predefined {
    * @throws IllegalArgumentException if the arguments are of the wrong type.
    * @throws AssertionError           if <code>condition</code> is <code>false</code>.
    */
-  public static void require(Object condition, Object errorMessage) {
+  public static void require(Object condition, Object errorMessage) throws IllegalArgumentException, AssertionError {
     requireNotNull(condition);
     requireNotNull(errorMessage);
     if ((condition instanceof Boolean) && (errorMessage instanceof String)) {
@@ -603,7 +603,7 @@ public final class Predefined {
    * @return the Character value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object charValue(Object obj) {
+  public static Object charValue(Object obj) throws IllegalArgumentException {
     if (obj instanceof Character) {
       return obj;
     }
@@ -636,7 +636,7 @@ public final class Predefined {
    * @return the Integer value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object intValue(Object obj) {
+  public static Object intValue(Object obj) throws IllegalArgumentException {
     if (obj instanceof Integer) {
       return obj;
     }
@@ -669,7 +669,7 @@ public final class Predefined {
    * @return the Long value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object longValue(Object obj) {
+  public static Object longValue(Object obj) throws IllegalArgumentException {
     if (obj instanceof Long) {
       return obj;
     }
@@ -702,7 +702,7 @@ public final class Predefined {
    * @return the Double value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object doubleValue(Object obj) {
+  public static Object doubleValue(Object obj) throws IllegalArgumentException {
     if (obj instanceof Double) {
       return obj;
     }
@@ -735,7 +735,7 @@ public final class Predefined {
    * @return the Float value.
    * @throws IllegalArgumentException if {@code obj} is not a number or a String.
    */
-  public static Object floatValue(Object obj) {
+  public static Object floatValue(Object obj) throws IllegalArgumentException {
     if (obj instanceof Float) {
       return obj;
     }
