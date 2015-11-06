@@ -40,11 +40,16 @@ public class GoloParser {
 
   public GoloCompilationException.Builder exceptionBuilder;
 
+  private boolean errorAlreadyReported = false;
+
   void skipto(int kind, ParseException e, GoloASTNode node) throws ParseException {
     if (exceptionBuilder == null) {
       throw e;
     }
-    exceptionBuilder.report(e, node);
+    if (!errorAlreadyReported) {
+      exceptionBuilder.report(e, node);
+      errorAlreadyReported = true;
+    }
     if ("<EOF>".equals(e.tokenImage[0])) {
       return;
     }
