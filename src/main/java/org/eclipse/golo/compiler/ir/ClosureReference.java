@@ -11,32 +11,62 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.Collections;
 
 public class ClosureReference extends ExpressionStatement {
 
-  private final GoloFunction target;
+  private GoloFunction target;
   private final Set<String> capturedReferenceNames = new LinkedHashSet<>();
 
-  public ClosureReference(GoloFunction target) {
+  ClosureReference(GoloFunction target) {
     super();
-    this.target = target;
-    this.setASTNode(target.getASTNode());
+    setTarget(target);
   }
 
   public GoloFunction getTarget() {
     return target;
   }
 
-  public Set<String> getCapturedReferenceNames() {
-    return capturedReferenceNames;
+  private void setTarget(GoloFunction target) {
+    this.target = target;
+    makeParentOf(target);
+    this.setASTNode(target.getASTNode());
   }
 
-  public boolean addCapturedReferenceName(String s) {
-    return capturedReferenceNames.add(s);
+  public Set<String> getCapturedReferenceNames() {
+    return Collections.unmodifiableSet(capturedReferenceNames);
+  }
+
+  public boolean addCapturedReferenceName(String referenceName) {
+    return capturedReferenceNames.add(referenceName);
+  }
+
+  public ClosureReference block(Object... statements) {
+    this.target.block(statements);
+    return this;
+  }
+
+  public ClosureReference returns(Object expression) {
+    this.target.returns(expression);
+    return this;
   }
 
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitClosureReference(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    target.accept(visitor);
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (newElement instanceof GoloFunction && target.equals(original)) {
+      setTarget((GoloFunction) newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
   }
 }

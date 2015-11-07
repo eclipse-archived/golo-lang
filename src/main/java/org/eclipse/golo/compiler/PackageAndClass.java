@@ -41,10 +41,28 @@ public final class PackageAndClass {
   }
 
   /**
-   * @return a new {@code PackageAndClass} identifying an inner class of this class
+   * @return a new {@code PackageAndClass} identifying an inner class of this class.
    */
   public PackageAndClass createInnerClass(String name) {
-    return new PackageAndClass(this.packageName, this.className + "$" + name);
+    return new PackageAndClass(
+        this.packageName,
+        this.className + "$" + name.replace('.', '$'));
+  }
+
+  /**
+   * @return a new {@code PackageAndClass} representing the same class in another package.
+   * @param qualifiedName the qualified name of the new package.
+   */
+  public PackageAndClass inPackage(String qualifiedName) {
+    return new PackageAndClass(qualifiedName, className);
+  }
+
+  /**
+   * @return a new {@code PackageAndClass} representing the same class in another package.
+   * @param parent the {@code PackageAndClass} representing the new package.
+   */
+  public PackageAndClass inPackage(PackageAndClass parent) {
+    return new PackageAndClass(parent.packageName(), className);
   }
 
   /**
@@ -83,6 +101,13 @@ public final class PackageAndClass {
    */
   public String toJVMRef() {
     return "L" + toJVMType() + ";";
+  }
+
+  /**
+   * @return a mangled named for this class.
+   */
+  public String mangledName() {
+    return toString().replace('.', '$');
   }
 
   @Override

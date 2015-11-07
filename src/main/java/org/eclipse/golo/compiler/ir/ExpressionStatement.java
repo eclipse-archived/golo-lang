@@ -11,7 +11,10 @@ package org.eclipse.golo.compiler.ir;
 
 public abstract class ExpressionStatement extends GoloStatement {
 
-  public ExpressionStatement() {
-    super();
+  public static ExpressionStatement of(Object expr) {
+    if (expr instanceof ExpressionStatement) {
+      return (ExpressionStatement) expr;
+    }
+    throw cantConvert("ExpressionStatement", expr);
   }
 }

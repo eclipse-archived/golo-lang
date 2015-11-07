@@ -9,34 +9,45 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public class NamedArgument extends ExpressionStatement {
+public final class NamedArgument extends ExpressionStatement {
 
   private String name;
   private ExpressionStatement expression;
 
-  public NamedArgument(String name, ExpressionStatement expression) {
+  NamedArgument(String name) {
+    super();
     this.name = name;
-    this.expression = expression;
   }
 
   public String getName() {
     return name;
   }
 
-  public void setName(String name) {
-    this.name = name;
-  }
-
   public ExpressionStatement getExpression() {
     return expression;
   }
 
-  public void setExpression(ExpressionStatement expression) {
-    this.expression = expression;
+  public NamedArgument value(Object value) {
+    expression = (ExpressionStatement) value;
+    makeParentOf(expression);
+    return this;
   }
 
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitNamedArgument(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    expression.accept(visitor);
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (expression != original) {
+      throw doesNotContain(original);
+    }
+    value((ExpressionStatement) newElement);
   }
 }

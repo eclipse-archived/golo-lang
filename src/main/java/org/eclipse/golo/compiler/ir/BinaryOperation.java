@@ -11,17 +11,24 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
 
-public class BinaryOperation extends ExpressionStatement {
-
+public final class BinaryOperation extends ExpressionStatement {
   private final OperatorType type;
-  private final ExpressionStatement leftExpression;
-  private final ExpressionStatement rightExpression;
+  private ExpressionStatement leftExpression;
+  private ExpressionStatement rightExpression;
 
-  public BinaryOperation(OperatorType type, ExpressionStatement leftExpression, ExpressionStatement rightExpression) {
+  BinaryOperation(OperatorType type) {
     super();
     this.type = type;
-    this.leftExpression = leftExpression;
-    this.rightExpression = rightExpression;
+  }
+
+  public static BinaryOperation of(Object type) {
+    if (type instanceof OperatorType) {
+      return new BinaryOperation((OperatorType) type);
+    }
+    if (type instanceof String) {
+      return new BinaryOperation(OperatorType.fromString((String) type));
+    }
+    throw cantConvert("BinaryOperation", type);
   }
 
   public OperatorType getType() {
@@ -32,12 +39,56 @@ public class BinaryOperation extends ExpressionStatement {
     return leftExpression;
   }
 
+  public BinaryOperation left(Object expr) {
+    leftExpression = (ExpressionStatement) expr;
+    makeParentOf(leftExpression);
+    return this;
+  }
+
+  public BinaryOperation right(Object expr) {
+    rightExpression = (ExpressionStatement) expr;
+    makeParentOf(rightExpression);
+    return this;
+  }
+
   public ExpressionStatement getRightExpression() {
     return rightExpression;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("%s %s %s", leftExpression, type, rightExpression);
+  }
+
+  public boolean isMethodCall() {
+    return this.getType() == OperatorType.METHOD_CALL
+      || this.getType() == OperatorType.ELVIS_METHOD_CALL
+      || this.getType() == OperatorType.ANON_CALL;
   }
 
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitBinaryOperation(this);
   }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    leftExpression.accept(visitor);
+    rightExpression.accept(visitor);
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (!(newElement instanceof ExpressionStatement)) {
+      throw cantConvert("ExpressionStatement", newElement);
+    }
+    if (leftExpression.equals(original)) {
+      left(newElement);
+    } else if (rightExpression.equals(original)) {
+      right(newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
+  }
+
 }

@@ -9,8 +9,6 @@
 
 package gololang;
 
-import org.eclipse.golo.compiler.GoloCompilationException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -48,7 +46,7 @@ public class TemplateEngine {
 
   private final EvaluationEnvironment evaluationEnvironment = new EvaluationEnvironment();
 
-  private final static Pattern PATTERN = Pattern.compile("<%(.*?)%>", Pattern.DOTALL);
+  private static final Pattern PATTERN = Pattern.compile("<%(.*?)%>", Pattern.DOTALL);
 
   /**
    * Compile a template into a function. The function takes parameters as specified using a {@code @params clause}, or

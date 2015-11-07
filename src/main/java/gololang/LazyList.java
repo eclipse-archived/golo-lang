@@ -352,7 +352,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
   }
 
   @Override
-  public boolean retainAll(Collection<?> c){
+  public boolean retainAll(Collection<?> c) {
     throw new UnsupportedOperationException("a LazyList is immutable");
   }
 

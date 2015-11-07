@@ -60,10 +60,15 @@ public class GoloCompilationException extends RuntimeException {
      */
     public Problem(Type type, GoloASTNode source, String description) {
       this.type = type;
-      this.source = source;
-      this.firstToken = source.jjtGetFirstToken();
-      this.lastToken = source.jjtGetLastToken();
       this.description = description;
+      this.source = source;
+      if (source != null) {
+        this.firstToken = source.jjtGetFirstToken();
+        this.lastToken = source.jjtGetLastToken();
+      } else {
+        this.firstToken = null;
+        this.lastToken = null;
+      }
     }
 
     /**

@@ -97,9 +97,7 @@ public class GoloCompiler {
   public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
     resetExceptionBuilder();
     ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(goloSourceFilename, sourceCodeInputStream));
-    throwIfErrorEncountered();
     GoloModule goloModule = check(compilationUnit);
-    throwIfErrorEncountered();
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
     return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
   }
@@ -165,7 +163,14 @@ public class GoloCompiler {
     } catch (ParseException pe) {
       exceptionBuilder.report(pe, compilationUnit);
     }
+    throwIfErrorEncountered();
     return compilationUnit;
+  }
+
+  public final ASTCompilationUnit parse(String goloSourceFilename) throws GoloCompilationException, IOException {
+    try (FileInputStream in = new FileInputStream(goloSourceFilename)) {
+      return parse(goloSourceFilename, initParser(goloSourceFilename, in));
+    }
   }
 
   /**
@@ -177,16 +182,22 @@ public class GoloCompiler {
    * @throws GoloCompilationException if an error exists in the source represented by the input parse tree.
    */
   public final GoloModule check(ASTCompilationUnit compilationUnit) {
-    ParseTreeToGoloIrVisitor parseTreeToIR = new ParseTreeToGoloIrVisitor();
-    parseTreeToIR.setExceptionBuilder(exceptionBuilder);
-    GoloModule goloModule = parseTreeToIR.transform(compilationUnit);
-    ClosureCaptureGoloIrVisitor closureCaptureVisitor = new ClosureCaptureGoloIrVisitor();
-    closureCaptureVisitor.visitModule(goloModule);
-    LocalReferenceAssignmentAndVerificationVisitor localReferenceVisitor = new LocalReferenceAssignmentAndVerificationVisitor();
-    localReferenceVisitor.setExceptionBuilder(exceptionBuilder);
-    localReferenceVisitor.visitModule(goloModule);
+    GoloModule goloModule = transform(compilationUnit);
+    refine(goloModule);
     return goloModule;
   }
+
+  public final GoloModule transform(ASTCompilationUnit compilationUnit) {
+    return new ParseTreeToGoloIrVisitor(exceptionBuilder).transform(compilationUnit);
+  }
+
+  public final void refine(GoloModule goloModule) {
+    goloModule.accept(new SugarExpansionVisitor());
+    goloModule.accept(new ClosureCaptureGoloIrVisitor());
+    goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+    throwIfErrorEncountered();
+  }
+
 
   /**
    * Makes a Golo parser from a reader.

@@ -38,7 +38,7 @@ public class MethodInvocationSupport {
 
 
     int depth = 0;
-    WeakHashMap<Class, MethodHandle> vtable;
+    WeakHashMap<Class<?>, MethodHandle> vtable;
 
     InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded, String... argumentNames) {
       super(type);
@@ -227,7 +227,6 @@ public class MethodInvocationSupport {
 
     target = new AugmentationMethodFinder(inlineCache, receiverClass, args).find();
     if (target != null) { return target; }
-
     return null;
   }
 }

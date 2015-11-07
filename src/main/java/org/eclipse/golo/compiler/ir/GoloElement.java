@@ -12,27 +12,113 @@ package org.eclipse.golo.compiler.ir;
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import java.lang.ref.WeakReference;
+import java.util.Optional;
+import java.util.NoSuchElementException;
 
-public class GoloElement {
+public abstract class GoloElement {
   private WeakReference<GoloASTNode> nodeRef;
+  private Optional<GoloElement> parent = Optional.empty();
+  private String documentation;
 
   public void setASTNode(GoloASTNode node) {
-    nodeRef = new WeakReference<>(node);
+    if (node != null) {
+      nodeRef = new WeakReference<>(node);
+      setDocumentationFrom(node);
+    }
   }
 
   public GoloASTNode getASTNode() {
+    if (nodeRef == null) { return null; }
     return nodeRef.get();
   }
 
   public boolean hasASTNode() {
-    return (nodeRef != null) && (nodeRef.get() != null);
+    return nodeRef != null && nodeRef.get() != null;
+  }
+
+  public GoloElement ofAST(GoloASTNode node) {
+    if (node != null) {
+      node.setIrElement(this);
+      setDocumentationFrom(node);
+    }
+    return this;
+  }
+
+  private void setDocumentationFrom(GoloASTNode node) {
+    if (node != null && node.getDocumentation() != null) {
+      documentation = node.getDocumentation();
+    }
+  }
+
+  protected void setParentNode(GoloElement parentElement) {
+    this.parent = Optional.ofNullable(parentElement);
+  }
+
+  public Optional<GoloElement> getParentNode() {
+    return this.parent;
+  }
+
+  public void makeParentOf(GoloElement childElement) {
+    if (childElement != null) {
+      childElement.setParentNode(this);
+      if (childElement instanceof Scope) {
+        Optional<ReferenceTable> referenceTable = this.getLocalReferenceTable();
+        if (referenceTable.isPresent()) {
+          ((Scope) childElement).relink(referenceTable.get());
+        }
+      }
+    }
+  }
+
+  protected RuntimeException cantReplace() {
+    return new UnsupportedOperationException(getClass().getName() + " can't replace elements");
+  }
+
+  protected RuntimeException cantReplace(GoloElement original, GoloElement replacement) {
+    return new IllegalArgumentException(this + " can't replace " + original + " with " + replacement);
+  }
+
+  protected RuntimeException doesNotContain(GoloElement element) {
+    return new NoSuchElementException(element + " not in " + this);
+  }
+
+  protected static RuntimeException cantConvert(String expected, Object value) {
+    return new IllegalArgumentException("expecting a " + expected + "but got a " + value.getClass());
+  }
+
+  public void replaceInParentBy(GoloElement newElement) {
+    if (this.parent.isPresent()) {
+      this.parent.get().replaceElement(this, newElement);
+      this.parent.get().makeParentOf(newElement);
+      if (hasASTNode()) {
+        getASTNode().setIrElement(newElement);
+      }
+      this.setParentNode(null);
+    }
+  }
+
+  public String getDocumentation() {
+    return documentation;
   }
 
   public PositionInSourceCode getPositionInSourceCode() {
-    GoloASTNode node = getASTNode();
-    if (node == null) {
-      return new PositionInSourceCode(0, 0);
+    if (hasASTNode()) {
+      return getASTNode().getPositionInSourceCode();
     }
-    return new PositionInSourceCode(node.jjtGetFirstToken().beginLine, node.jjtGetFirstToken().beginColumn);
+    return new PositionInSourceCode(0, 0);
   }
+
+  public Optional<ReferenceTable> getLocalReferenceTable() {
+    if (parent.isPresent()) {
+      return parent.get().getLocalReferenceTable();
+    }
+    return Optional.empty();
+  }
+
+  public abstract void accept(GoloIrVisitor visitor);
+
+  public abstract void walk(GoloIrVisitor visitor);
+
+  protected abstract void replaceElement(GoloElement original, GoloElement newElement);
+
 }

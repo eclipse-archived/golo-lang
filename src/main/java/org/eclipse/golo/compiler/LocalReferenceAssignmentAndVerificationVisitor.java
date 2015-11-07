@@ -15,11 +15,10 @@ import java.util.Deque;
 import java.util.HashSet;
 import java.util.LinkedList;
 import java.util.Set;
-import java.util.Collection;
 
 import static org.eclipse.golo.compiler.GoloCompilationException.Problem.Type.*;
 
-class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
+class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisitor {
 
   private GoloModule module = null;
   private AssignmentCounter assignmentCounter = new AssignmentCounter();
@@ -28,20 +27,27 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
   private Deque<LoopStatement> loopStack = new LinkedList<>();
   private GoloCompilationException.Builder exceptionBuilder;
+  private final HashSet<LocalReference> uninitializedReferences = new HashSet<>();
+
 
   private static class AssignmentCounter {
 
     private int counter = 0;
 
     public int next() {
-      int value = counter;
-      counter = counter + 1;
-      return value;
+      return counter++;
     }
 
     public void reset() {
       counter = 0;
     }
+  }
+
+  public LocalReferenceAssignmentAndVerificationVisitor() { }
+
+  public LocalReferenceAssignmentAndVerificationVisitor(GoloCompilationException.Builder builder) {
+    this();
+    setExceptionBuilder(builder);
   }
 
   public void setExceptionBuilder(GoloCompilationException.Builder builder) {
@@ -58,19 +64,7 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitModule(GoloModule module) {
     this.module = module;
-    for (GoloFunction function : module.getFunctions()) {
-      function.accept(this);
-    }
-    for (Collection<GoloFunction> functions : module.getAugmentations().values()) {
-      for (GoloFunction function : functions) {
-        function.accept(this);
-      }
-    }
-    for (Collection<GoloFunction> functions : module.getNamedAugmentations().values()) {
-      for (GoloFunction function : functions) {
-        function.accept(this);
-      }
-    }
+    module.walk(this);
   }
 
   @Override
@@ -83,43 +77,52 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
       uninitializedReferences.remove(reference);
       if (reference == null) {
         if (!function.isSynthetic()) {
-          throw new IllegalStateException("[please report this bug] " + parameterName + " is not declared in the references of function " + function.getName());
+          throw new IllegalStateException("[please report this bug] "
+              + parameterName + " is not declared in the references of function "
+              + function.getName());
         }
       } else {
         reference.setIndex(assignmentCounter.next());
       }
     }
-    function.getBlock().accept(this);
-    String selfName = function.getSyntheticSelfName();
-    if (function.isSynthetic() && selfName != null) {
-      LocalReference self = function.getBlock().getReferenceTable().get(selfName);
-      ClosureReference closureReference = new ClosureReference(function);
-      for (String syntheticRef : function.getSyntheticParameterNames()) {
-        closureReference.addCapturedReferenceName(syntheticRef);
-      }
-      AssignmentStatement assign = new AssignmentStatement(self, closureReference);
-      function.getBlock().prependStatement(assign);
-    }
+    function.walk(this);
+    captureClosedReference(function);
     functionStack.pop();
   }
 
-  @Override
-  public void visitDecorator(Decorator decorator) {
-    decorator.getExpressionStatement().accept(this);
+  private void captureClosedReference(GoloFunction function) {
+    String selfName = function.getSyntheticSelfName();
+    if (function.isSynthetic() && selfName != null) {
+      LocalReference self = function.getBlock().getReferenceTable().get(selfName);
+      ClosureReference closureReference = function.asClosureReference();
+      for (String syntheticRef : function.getSyntheticParameterNames()) {
+        closureReference.addCapturedReferenceName(syntheticRef);
+      }
+      function.getBlock().prependStatement(Builders.assign(closureReference).to(self));
+    }
   }
-
-  private final HashSet<LocalReference> uninitializedReferences = new HashSet<>();
 
   @Override
   public void visitBlock(Block block) {
     ReferenceTable table = block.getReferenceTable();
+    extractUninitializedReferences(table);
+    tableStack.push(table);
+    assignmentStack.push(extractAssignedReferences(table));
+    block.walk(this);
+    assignmentStack.pop();
+    tableStack.pop();
+  }
+
+  private void extractUninitializedReferences(ReferenceTable table) {
     for (LocalReference reference : table.ownedReferences()) {
-      if (reference.getIndex() < 0 && !isModuleState(reference)) {
+      if (reference.getIndex() < 0 && !reference.isModuleState()) {
         reference.setIndex(assignmentCounter.next());
         uninitializedReferences.add(reference);
       }
     }
-    tableStack.push(table);
+  }
+
+  private Set<LocalReference> extractAssignedReferences(ReferenceTable table) {
     HashSet<LocalReference> assigned = new HashSet<>();
     if (table == functionStack.peek().getBlock().getReferenceTable()) {
       for (String param : functionStack.peek().getParameterNames()) {
@@ -129,44 +132,21 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     if (!assignmentStack.isEmpty()) {
       assigned.addAll(assignmentStack.peek());
     }
-    assignmentStack.push(assigned);
-    for (GoloStatement statement : block.getStatements()) {
-      statement.accept(this);
-    }
-    tableStack.pop();
-    assignmentStack.pop();
-  }
-
-  private boolean isModuleState(LocalReference reference) {
-    return (reference.getKind().equals(LocalReference.Kind.MODULE_VARIABLE)) ||
-        (reference.getKind().equals(LocalReference.Kind.MODULE_CONSTANT));
-  }
-
-  @Override
-  public void visitConstantStatement(ConstantStatement constantStatement) {
-
-  }
-
-  @Override
-  public void visitReturnStatement(ReturnStatement returnStatement) {
-    returnStatement.getExpressionStatement().accept(this);
+    return assigned;
   }
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
-    if (tableStack.peek().hasReferenceFor(functionInvocation.getName())) {
-      if (tableStack.peek().get(functionInvocation.getName()).isModuleState()) {
-        functionInvocation.setOnModuleState(true);
-      } else {
-        functionInvocation.setOnReference(true);
+    if (!tableStack.isEmpty()) {
+      if (tableStack.peek().hasReferenceFor(functionInvocation.getName())) {
+        if (tableStack.peek().get(functionInvocation.getName()).isModuleState()) {
+          functionInvocation.onModuleState();
+        } else {
+          functionInvocation.onReference();
+        }
       }
     }
-    for (ExpressionStatement argument : functionInvocation.getArguments()) {
-      argument.accept(this);
-    }
-    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
+    functionInvocation.walk(this);
   }
 
   @Override
@@ -185,10 +165,23 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
               "` at " + assignmentStatement.getPositionInSourceCode()
       );
     }
+    bindReference(reference);
     assignedReferences.add(reference);
-    assignmentStatement.getExpressionStatement().accept(this);
+    assignmentStatement.walk(this);
     if (assignmentStatement.isDeclaring() && !reference.isSynthetic()) {
       uninitializedReferences.remove(reference);
+    }
+  }
+
+  private void bindReference(LocalReference reference) {
+    ReferenceTable table = tableStack.peek();
+    if (reference.getIndex() < 0) {
+      if (table.hasReferenceFor(reference.getName())) {
+        reference.setIndex(table.get(reference.getName()).getIndex());
+      } else if (reference.isSynthetic()) {
+        reference.setIndex(assignmentCounter.next());
+        table.add(reference);
+      }
     }
   }
 
@@ -197,12 +190,9 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   private boolean assigningConstant(LocalReference reference, Set<LocalReference> assignedReferences) {
-    return (reference.getKind().equals(LocalReference.Kind.MODULE_CONSTANT) && !"<clinit>".equals(functionStack.peek().getName())) ||
-        isConstantReference(reference) && assignedReferences.contains(reference);
-  }
-
-  private boolean isConstantReference(LocalReference reference) {
-    return reference.getKind().equals(LocalReference.Kind.CONSTANT) || reference.getKind().equals(LocalReference.Kind.MODULE_CONSTANT);
+    return reference.isConstant() && (
+        assignedReferences.contains(reference) ||
+        (reference.isModuleState() && !functionStack.peek().isModuleInit()));
   }
 
   private boolean referenceNameExists(LocalReference reference, Set<LocalReference> referencesInBlock) {
@@ -217,9 +207,14 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     ReferenceTable table = tableStack.peek();
+    if (table == null) { return; }
     if (!table.hasReferenceFor(referenceLookup.getName())) {
       getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
-          "Undeclared reference `" + referenceLookup.getName() + "` at " + referenceLookup.getPositionInSourceCode());
+          "Undeclared reference `" + referenceLookup.getName() + "`"
+          + (!functionStack.isEmpty() ? " in function " + functionStack.peek().getName() : "")
+          + (!referenceLookup.getPositionInSourceCode().isNull()
+              ? " at " + referenceLookup.getPositionInSourceCode()
+              : " (generated code)"));
     }
     LocalReference ref = referenceLookup.resolveIn(table);
     if (isUninitialized(ref)) {
@@ -233,65 +228,10 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
-    conditionalBranching.getCondition().accept(this);
-    conditionalBranching.getTrueBlock().accept(this);
-    if (conditionalBranching.hasFalseBlock()) {
-      conditionalBranching.getFalseBlock().accept(this);
-    } else if (conditionalBranching.hasElseConditionalBranching()) {
-      conditionalBranching.getElseConditionalBranching().accept(this);
-    }
-  }
-
-  @Override
-  public void visitBinaryOperation(BinaryOperation binaryOperation) {
-    binaryOperation.getLeftExpression().accept(this);
-    binaryOperation.getRightExpression().accept(this);
-  }
-
-  @Override
-  public void visitUnaryOperation(UnaryOperation unaryOperation) {
-    unaryOperation.getExpressionStatement().accept(this);
-  }
-
-  @Override
   public void visitLoopStatement(LoopStatement loopStatement) {
     loopStack.push(loopStatement);
-    if (loopStatement.hasInitStatement()) {
-      loopStatement.getInitStatement().accept(this);
-    }
-    loopStatement.getConditionStatement().accept(this);
-    loopStatement.getBlock().accept(this);
-    if (loopStatement.hasPostStatement()) {
-      loopStatement.getPostStatement().accept(this);
-    }
+    loopStatement.walk(this);
     loopStack.pop();
-  }
-
-  @Override
-  public void visitMethodInvocation(MethodInvocation methodInvocation) {
-    for (ExpressionStatement argument : methodInvocation.getArguments()) {
-      argument.accept(this);
-    }
-    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
-  }
-
-  @Override
-  public void visitThrowStatement(ThrowStatement throwStatement) {
-    throwStatement.getExpressionStatement().accept(this);
-  }
-
-  @Override
-  public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
-    tryCatchFinally.getTryBlock().accept(this);
-    if (tryCatchFinally.hasCatchBlock()) {
-      tryCatchFinally.getCatchBlock().accept(this);
-    }
-    if (tryCatchFinally.hasFinallyBlock()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-    }
   }
 
   @Override
@@ -311,17 +251,5 @@ class LocalReferenceAssignmentAndVerificationVisitor implements GoloIrVisitor {
     } else {
       loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }
-  }
-
-  @Override
-  public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
-    for (ExpressionStatement statement : collectionLiteral.getExpressions()) {
-      statement.accept(this);
-    }
-  }
-
-  @Override
-  public void visitNamedArgument(NamedArgument namedArgument) {
-    namedArgument.getExpression().accept(this);
   }
 }

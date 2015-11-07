@@ -13,6 +13,18 @@ public interface GoloIrVisitor {
 
   void visitModule(GoloModule module);
 
+  void visitModuleImport(ModuleImport moduleImport);
+
+  void visitStruct(Struct struct);
+
+  void visitUnion(Union union);
+
+  void visitUnionValue(UnionValue value);
+
+  void visitAugmentation(Augmentation augment);
+
+  void visitNamedAugmentation(NamedAugmentation augment);
+
   void visitFunction(GoloFunction function);
 
   void visitDecorator(Decorator decorator);
@@ -27,6 +39,8 @@ public interface GoloIrVisitor {
 
   void visitAssignmentStatement(AssignmentStatement assignmentStatement);
 
+  void visitDestructuringAssignment(DestructuringAssignment assignmentStatement);
+
   void visitReferenceLookup(ReferenceLookup referenceLookup);
 
   void visitConditionalBranching(ConditionalBranching conditionalBranching);
@@ -36,6 +50,14 @@ public interface GoloIrVisitor {
   void visitUnaryOperation(UnaryOperation unaryOperation);
 
   void visitLoopStatement(LoopStatement loopStatement);
+
+  void visitForEachLoopStatement(ForEachLoopStatement foreachStatement);
+
+  void visitCaseStatement(CaseStatement caseStatement);
+
+  void visitMatchExpression(MatchExpression matchExpression);
+
+  void visitWhenClause(WhenClause<?> whenClause);
 
   void visitMethodInvocation(MethodInvocation methodInvocation);
 
@@ -49,5 +71,9 @@ public interface GoloIrVisitor {
 
   void visitCollectionLiteral(CollectionLiteral collectionLiteral);
 
+  void visitCollectionComprehension(CollectionComprehension collectionComprehension);
+
   void visitNamedArgument(NamedArgument namedArgument);
+
+  void visitLocalReference(LocalReference localRef);
 }

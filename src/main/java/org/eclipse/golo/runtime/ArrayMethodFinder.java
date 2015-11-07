@@ -18,14 +18,12 @@ import static java.lang.invoke.MethodType.methodType;
 class ArrayMethodFinder implements MethodFinder {
 
   private final Class<?> receiverClass;
-  private final Object[] args;
   private final MethodType type;
   private final int arity;
   private final String name;
   private final Lookup lookup;
 
   public ArrayMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    this.args = args;
     this.receiverClass = receiverClass;
     this.type = inlineCache.type();
     this.arity = args.length - 1;

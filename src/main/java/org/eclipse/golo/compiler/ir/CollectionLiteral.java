@@ -10,19 +10,34 @@
 package org.eclipse.golo.compiler.ir;
 
 import java.util.List;
+import java.util.LinkedList;
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public class CollectionLiteral extends ExpressionStatement {
+public final class CollectionLiteral extends ExpressionStatement {
 
   public static enum Type {
-    array, list, set, map, tuple, vector
+    array, list, set, map, tuple, vector, range
   }
 
   private final Type type;
-  private final List<ExpressionStatement> expressions;
+  private final List<ExpressionStatement> expressions = new LinkedList<>();
 
-  public CollectionLiteral(Type type, List<ExpressionStatement> expressions) {
+  CollectionLiteral(Type type) {
+    super();
     this.type = type;
-    this.expressions = expressions;
+  }
+
+  @Override
+  public CollectionLiteral ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
+  }
+
+  public CollectionLiteral add(Object expression) {
+    ExpressionStatement expr = ExpressionStatement.of(expression);
+    this.expressions.add(expr);
+    makeParentOf(expr);
+    return this;
   }
 
   public Type getType() {
@@ -34,7 +49,28 @@ public class CollectionLiteral extends ExpressionStatement {
   }
 
   @Override
+  public String toString() {
+    return this.type.toString() + this.expressions.toString();
+  }
+
+  @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitCollectionLiteral(this);
+  }
+
+  @Override
+  public void walk(GoloIrVisitor visitor) {
+    for (ExpressionStatement expression : expressions) {
+      expression.accept(visitor);
+    }
+  }
+
+  @Override
+  protected void replaceElement(GoloElement original, GoloElement newElement) {
+    if (expressions.contains(original) && newElement instanceof ExpressionStatement) {
+      expressions.set(expressions.indexOf(original), (ExpressionStatement) newElement);
+    } else {
+      throw cantReplace(original, newElement);
+    }
   }
 }

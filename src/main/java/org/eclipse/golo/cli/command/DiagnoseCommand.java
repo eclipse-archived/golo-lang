@@ -19,7 +19,6 @@ import org.eclipse.golo.compiler.GoloCompiler;
 import org.eclipse.golo.compiler.ir.GoloModule;
 import org.eclipse.golo.compiler.ir.IrTreeDumper;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.compiler.parser.GoloOffsetParser;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,11 +32,21 @@ public class DiagnoseCommand implements CliCommand {
   @Parameter(names = "--tool", description = "The diagnosis tool to use: {ast, ir}", validateWith = DiagnoseModeValidator.class)
   String mode = "ir";
 
+  @Parameter(names = "--stage", description = "The compilation stage to diagnose: {ast, raw, refined}", validateWith = DiagnoseStageValidator.class)
+  String stage = "refined";
+
   @Parameter(description = "Golo source files (*.golo and directories)")
   List<String> files = new LinkedList<>();
 
   @Override
   public void execute() throws Throwable {
+    if ("ast".equals(this.stage) && !"ast".equals(this.mode)) {
+      this.mode = "ast";
+    }
+    if ("ast".equals(this.mode) && !"ast".equals(this.stage)) {
+      this.stage = "ast";
+    }
+
 
     try {
       switch (this.mode) {
@@ -74,8 +83,8 @@ public class DiagnoseCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       System.out.println(">>> AST for: " + goloFile);
-      try (FileInputStream in = new FileInputStream(goloFile)) {
-        ASTCompilationUnit ast = compiler.parse(goloFile, new GoloOffsetParser(in));
+      try {
+        ASTCompilationUnit ast = compiler.parse(goloFile);
         ast.dump("% ");
         System.out.println();
       } catch (IOException e) {
@@ -103,18 +112,20 @@ public class DiagnoseCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       System.out.println(">>> IR for: " + file);
-      try (FileInputStream in = new FileInputStream(goloFile)) {
-        ASTCompilationUnit ast = compiler.parse(goloFile, new GoloOffsetParser(in));
-        GoloModule module = compiler.check(ast);
-        dumper.visitModule(module);
-        System.out.println();
+      try {
+        GoloModule module = compiler.transform(compiler.parse(goloFile));
+        if ("refined".equals(this.stage)) {
+          compiler.refine(module);
+        }
+        module.accept(dumper);
       } catch (IOException e) {
         System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
       }
+      System.out.println();
     }
   }
 
-  public static class DiagnoseModeValidator implements IParameterValidator {
+  public static final class DiagnoseModeValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
@@ -128,5 +139,19 @@ public class DiagnoseCommand implements CliCommand {
     }
   }
 
+  public static final class DiagnoseStageValidator implements IParameterValidator {
+
+    @Override
+    public void validate(String name, String value) throws ParameterException {
+      switch (value) {
+        case "ast":
+        case "raw":
+        case "refined":
+          return;
+        default:
+          throw new ParameterException("Diagnosis stage must be in: {ast, raw, refined}");
+      }
+    }
+  }
 
 }

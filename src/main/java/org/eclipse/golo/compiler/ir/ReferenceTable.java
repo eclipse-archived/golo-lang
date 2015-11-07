@@ -13,8 +13,9 @@ import java.util.*;
 
 import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableSet;
+import static org.eclipse.golo.compiler.ir.Builders.localRef;
 
-public final class ReferenceTable {
+public final class ReferenceTable implements Scope {
 
   private ReferenceTable parent;
   private final Map<String, LocalReference> table = new LinkedHashMap<>();
@@ -33,7 +34,28 @@ public final class ReferenceTable {
   }
 
   public boolean hasReferenceFor(String name) {
-    return table.containsKey(name) || (parent != null && parent.hasReferenceFor(name));
+    return table.containsKey(name) || parent != null && parent.hasReferenceFor(name);
+  }
+
+  public void updateFrom(GoloStatement statement) {
+    if (statement instanceof AssignmentStatement) {
+      AssignmentStatement assign = (AssignmentStatement) statement;
+      if (assign.isDeclaring()) {
+        this.add(assign.getLocalReference());
+      }
+    }
+    if (statement instanceof LoopStatement) {
+      LoopStatement loop = (LoopStatement) statement;
+      if (loop.hasInitStatement()) {
+        this.add(loop.getInitStatement().getLocalReference());
+      }
+    }
+    if (statement instanceof ForEachLoopStatement) {
+      ForEachLoopStatement foreach = (ForEachLoopStatement) statement;
+      for (LocalReference r : foreach.getReferences()) {
+        this.add(r);
+      }
+    }
   }
 
   public LocalReference get(String name) {
@@ -55,8 +77,26 @@ public final class ReferenceTable {
     return unmodifiableCollection(table.values());
   }
 
+  @Override
   public void relink(ReferenceTable parent) {
     this.parent = parent;
+  }
+
+  private boolean isLinkedTo(ReferenceTable other) {
+    if (this != other && this.parent == null) {
+      return false;
+    }
+    return this == other || this.parent == other || this.parent.isLinkedTo(other);
+  }
+
+  @Override
+  public void relinkTopLevel(ReferenceTable topLevel) {
+    if (this == topLevel) { return; }
+    if (this.parent == null) {
+      this.parent = topLevel;
+    } else if (!this.isLinkedTo(topLevel) && !topLevel.isLinkedTo(this)) {
+      this.parent.relinkTopLevel(topLevel);
+    }
   }
 
   public Set<String> symbols() {
@@ -87,15 +127,17 @@ public final class ReferenceTable {
     ReferenceTable referenceTable = new ReferenceTable();
     Set<String> tableSymbols = ownedSymbols();
     for (LocalReference reference : references()) {
+      String refName = reference.getName();
       if (reference.isModuleState()) {
-        referenceTable.add(new LocalReference(reference.getKind(), reference.getName()));
+        referenceTable.add(localRef(refName).kind(reference.getKind()));
         continue;
       }
-      String refName = reference.getName();
       if (turnIntoConstants && !tableSymbols.contains(refName)) {
-        referenceTable.add(new LocalReference(LocalReference.Kind.CONSTANT, refName, reference.isSynthetic()));
+        referenceTable.add(localRef(refName).synthetic(reference.isSynthetic()));
       } else {
-        referenceTable.add(new LocalReference(reference.getKind(), refName, reference.isSynthetic()));
+        referenceTable.add(localRef(refName)
+            .kind(reference.getKind())
+            .synthetic(reference.isSynthetic()));
       }
     }
     return referenceTable;
@@ -103,5 +145,18 @@ public final class ReferenceTable {
 
   public void remove(String name) {
     table.remove(name);
+  }
+
+  @Override
+  public String toString() {
+    StringBuilder representation = new StringBuilder("ReferenceTable: {\n");
+    for (Map.Entry<String, LocalReference> elt : table.entrySet()) {
+      representation.append(elt.getKey()).append(": ").append(elt.getValue()).append('\n');
+    }
+    representation.append('}');
+    if (parent != null) {
+      representation.append(" => ").append(parent.toString());
+    }
+    return representation.toString();
   }
 }

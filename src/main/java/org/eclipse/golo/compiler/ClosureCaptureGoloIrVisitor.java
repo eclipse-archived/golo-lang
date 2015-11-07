@@ -13,7 +13,7 @@ import org.eclipse.golo.compiler.ir.*;
 
 import java.util.*;
 
-class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
+class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
 
   private static final class Context {
     final Set<String> parameterReferences = new HashSet<>();
@@ -103,40 +103,18 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   }
 
   @Override
-  public void visitModule(GoloModule module) {
-    for (GoloFunction function : module.getFunctions()) {
-      function.accept(this);
-    }
-    for (Collection<GoloFunction> functions : module.getAugmentations().values()) {
-      for (GoloFunction function : functions) {
-        function.accept(this);
-      }
-    }
-    for (Collection<GoloFunction> functions : module.getNamedAugmentations().values()) {
-      for (GoloFunction function : functions) {
-        function.accept(this);
-      }
-    }
-  }
-
-  @Override
   public void visitFunction(GoloFunction function) {
     if (function.isSynthetic()) {
       newContext();
       declaredParameters(function.getParameterNames());
       function.getBlock().internReferenceTable();
-      function.getBlock().accept(this);
+      function.walk(this);
       makeArguments(function, context().shouldBeArguments());
       dropUnused(context().shouldBeRemoved());
       dropContext();
     } else {
-      function.getBlock().accept(this);
+      function.walk(this);
     }
-  }
-
-  @Override
-  public void visitDecorator(Decorator decorator) {
-    decorator.getExpressionStatement().accept(this);
   }
 
   private void dropUnused(Set<String> refs) {
@@ -161,20 +139,8 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   public void visitBlock(Block block) {
     pushBlockTable(block);
     definedInBlock(block.getReferenceTable().ownedSymbols(), block);
-    for (GoloStatement statement : block.getStatements()) {
-      statement.accept(this);
-    }
+    super.visitBlock(block);
     dropBlockTable();
-  }
-
-  @Override
-  public void visitConstantStatement(ConstantStatement constantStatement) {
-
-  }
-
-  @Override
-  public void visitReturnStatement(ReturnStatement returnStatement) {
-    returnStatement.getExpressionStatement().accept(this);
   }
 
   @Override
@@ -184,19 +150,9 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
       String name = functionInvocation.getName();
       if (context.allReferences.contains(name)) {
         accessed(name);
-        if (context.referenceTableStack.peek().get(name).isModuleState()) {
-          functionInvocation.setOnModuleState(true);
-        } else {
-          functionInvocation.setOnReference(true);
-        }
       }
     }
-    for (ExpressionStatement statement : functionInvocation.getArguments()) {
-      statement.accept(this);
-    }
-    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
+    functionInvocation.walk(this);
   }
 
   @Override
@@ -205,7 +161,7 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
     String referenceName = localReference.getName();
     if (!localReference.isModuleState()) {
       if (!stack.isEmpty()) {
-        assignmentStatement.setLocalReference(context().referenceTableStack.peek().get(referenceName));
+        assignmentStatement.to(context().referenceTableStack.peek().get(referenceName));
       }
       if (assignmentStatement.isDeclaring()) {
         locallyDeclared(referenceName);
@@ -228,50 +184,6 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     accessed(referenceLookup.getName());
-  }
-
-  @Override
-  public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
-    conditionalBranching.getCondition().accept(this);
-    conditionalBranching.getTrueBlock().accept(this);
-    if (conditionalBranching.hasFalseBlock()) {
-      conditionalBranching.getFalseBlock().accept(this);
-    } else if (conditionalBranching.hasElseConditionalBranching()) {
-      conditionalBranching.getElseConditionalBranching().accept(this);
-    }
-  }
-
-  @Override
-  public void visitBinaryOperation(BinaryOperation binaryOperation) {
-    binaryOperation.getLeftExpression().accept(this);
-    binaryOperation.getRightExpression().accept(this);
-  }
-
-  @Override
-  public void visitUnaryOperation(UnaryOperation unaryOperation) {
-    unaryOperation.getExpressionStatement().accept(this);
-  }
-
-  @Override
-  public void visitLoopStatement(LoopStatement loopStatement) {
-    if (loopStatement.hasInitStatement()) {
-      loopStatement.getInitStatement().accept(this);
-    }
-    loopStatement.getConditionStatement().accept(this);
-    loopStatement.getBlock().accept(this);
-    if (loopStatement.hasPostStatement()) {
-      loopStatement.getPostStatement().accept(this);
-    }
-  }
-
-  @Override
-  public void visitMethodInvocation(MethodInvocation methodInvocation) {
-    for (ExpressionStatement statement : methodInvocation.getArguments()) {
-      statement.accept(this);
-    }
-    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
   }
 
   @Override
@@ -307,22 +219,5 @@ class ClosureCaptureGoloIrVisitor implements GoloIrVisitor {
         }
       }
     }
-  }
-
-  @Override
-  public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
-
-  }
-
-  @Override
-  public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
-    for (ExpressionStatement statement : collectionLiteral.getExpressions()) {
-      statement.accept(this);
-    }
-  }
-
-  @Override
-  public void visitNamedArgument(NamedArgument namedArgument) {
-    namedArgument.getExpression().accept(this);
   }
 }

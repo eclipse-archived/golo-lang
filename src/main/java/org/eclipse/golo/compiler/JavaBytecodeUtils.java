@@ -15,7 +15,11 @@ import org.objectweb.asm.MethodVisitor;
 
 import static org.objectweb.asm.Opcodes.*;
 
-class JavaBytecodeUtils {
+final class JavaBytecodeUtils {
+
+  private JavaBytecodeUtils() {
+    // utility class
+  }
 
   static boolean between(int value, int lower, int upper) {
     return (value >= lower) && (value <= upper);

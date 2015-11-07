@@ -10,6 +10,7 @@
 package org.eclipse.golo.compiler.parser;
 
 import org.eclipse.golo.compiler.ir.GoloElement;
+import org.eclipse.golo.compiler.ir.PositionInSourceCode;
 
 public class GoloASTNode extends SimpleNode {
 
@@ -47,6 +48,10 @@ public class GoloASTNode extends SimpleNode {
 
   public int getColumnInSourceCode() {
     return jjtGetFirstToken().beginColumn;
+  }
+
+  public PositionInSourceCode getPositionInSourceCode() {
+    return new PositionInSourceCode(getLineInSourceCode(), getColumnInSourceCode());
   }
 
   @Override

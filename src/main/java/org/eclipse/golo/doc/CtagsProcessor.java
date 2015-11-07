@@ -103,9 +103,8 @@ public class CtagsProcessor extends AbstractProcessor {
     for (String member : valueDoc.members()) {
       ctagsLine(member,
         String.format("/[:blank:]+%s[:blank:]+=/", valueDoc.name()),
-        String.format("m\tline:%s\taccess:public\tunion:%s.%s",
+        String.format("m\tline:%s\taccess:public\tvalue:%s",
           valueDoc.line(),
-          unionName,
           valueDoc.name()));
     }
   }
@@ -130,10 +129,6 @@ public class CtagsProcessor extends AbstractProcessor {
           (member.charAt(0) == '_') ? "private" : "public",
           struct));
   }
-
-  private void ctagsUnionMember(String unionVal, String member, int line) {
-  }
-
 
   private String ctagsAsString() {
     java.util.Collections.sort(ctags);

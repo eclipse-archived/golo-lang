@@ -42,7 +42,7 @@ class RegularMethodFinder implements MethodFinder {
     this.arity = type.parameterArray().length;
     this.argumentNames = new String[inlineCache.argumentNames.length + 1];
     this.argumentNames[0] = "this";
-    System.arraycopy(inlineCache.argumentNames,0, argumentNames, 1, inlineCache.argumentNames.length);
+    System.arraycopy(inlineCache.argumentNames, 0, argumentNames, 1, inlineCache.argumentNames.length);
   }
 
   @Override
@@ -89,7 +89,7 @@ class RegularMethodFinder implements MethodFinder {
         target = lookup.unreflect(method).asType(type);
       }
     }
-    if(argumentNames.length > 1) {
+    if (argumentNames.length > 1) {
       target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
     }
     return FunctionCallSupport.insertSAMFilter(target, lookup, method.getParameterTypes(), 1);
@@ -102,14 +102,15 @@ class RegularMethodFinder implements MethodFinder {
     }
     String receiverClassName = receiver.getClass().getName();
     String callerClassName = lookup.lookupClass().getName();
-    return method.getName().equals(methodName) &&
-        isPrivate(methodModifiers()) &&
-        (receiverClassName.startsWith(callerClassName) ||
-            callerClassName.equals(reverseStructAugmentation(receiverClassName)));
+    return method.getName().equals(methodName)
+      && isPrivate(methodModifiers())
+      && (receiverClassName.startsWith(callerClassName)
+          || callerClassName.equals(reverseStructAugmentation(receiverClassName)));
   }
 
   private static String reverseStructAugmentation(String receiverClassName) {
-    return receiverClassName.substring(0, receiverClassName.indexOf(".types")) + "$" + receiverClassName.replace('.', '$');
+    return receiverClassName.substring(0, receiverClassName.indexOf(".types"))
+      + "$" + receiverClassName.replace('.', '$');
   }
 
   private List<Method> getCandidates() {
@@ -138,7 +139,7 @@ class RegularMethodFinder implements MethodFinder {
       }
       Class<?>[] parameterTypes = method.getParameterTypes();
       Object[] argsWithoutReceiver = copyOfRange(args, 1, args.length);
-      if (TypeMatching.haveSameNumberOfArguments(argsWithoutReceiver, parameterTypes) || TypeMatching.haveEnoughArgumentsForVarargs(argsWithoutReceiver, method, parameterTypes)) {
+      if (TypeMatching.argumentsNumberMatch(argsWithoutReceiver, method, parameterTypes)) {
         if (TypeMatching.canAssign(parameterTypes, argsWithoutReceiver, method.isVarArgs())) {
           return toMethodHandle(method);
         }

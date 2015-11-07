@@ -1758,9 +1758,11 @@ public class CompileAndRunTest {
   public void banged() throws Throwable {
 
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "bang.golo");
+    Method banged;
+    Object result;
 
-    Method banged = moduleClass.getMethod("func_test", Object.class);
-    Object result = banged.invoke(null, 42);
+    banged = moduleClass.getMethod("func_test", Object.class);
+    result = banged.invoke(null, 42);
     assertThat(result, equalTo(banged.invoke(null, 1337)));
 
     banged = moduleClass.getMethod("null_test", Object.class);
