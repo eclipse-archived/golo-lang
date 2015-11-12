@@ -251,7 +251,7 @@ The augmentations resolution order is as follows:
    using the same order than locally applied ones, in the importation order.
 
 The first matching method found is used. It is thus possible to “override” an
-augmentation with a more higher priority one (in the sens of the previous order). xref:implicit_imports[Implicit modules] are imported after explicit ones to allow to redefined standard augmentations.
+augmentation with a more higher priority one (in the sens of the previous order). xref:implicit_imports[Implicit modules] are imported after explicit ones to allow to redefine standard augmentations.
 
 TIP: Since importing a module imports all the applied augmentations, and given
 the somewhat complex resolution order when involving simple and named
