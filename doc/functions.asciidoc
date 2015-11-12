@@ -144,7 +144,7 @@ post(
 
 NOTE: Once you are using named parameters in your function call, the order doesn't matter anymore.
 
-Note: To name varargs argument, you have be box the values into an `array[]` (just has it's done with the `tags` argument in the above snippet)
+NOTE: To name varargs argument, you have be box the values into an `array[]` (just has it's done with the `tags` argument in the above snippet)
 
 CAUTION: You must name either or none of the arguments. A compilation error will be raised, if you mix named an unamed arguments in a function invocation.
 
@@ -207,12 +207,15 @@ function plop = {
 }
 ----
 
+[[implicit_imports]]
 Golo modules have a set of implicit imports:
 
 * `gololang.Predefined`,
 * `gololang.StandardAugmentations`,
 * `gololang`,
 * `java.lang`.
+
+These modules are imported *after* the module explicitly imported in the module, so that elements defined in these modules (e.g. predefined functions or xref:_augmentations_resolution_order[augmentations]) can be redefined.
 
 === Local functions
 
