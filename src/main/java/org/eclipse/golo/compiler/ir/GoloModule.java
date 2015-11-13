@@ -48,7 +48,6 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     super();
     this.packageAndClass = name;
     this.globalReferences = references;
-    imports.addAll(DEFAULT_IMPORTS);
   }
 
   @Override
@@ -62,7 +61,9 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   public Set<ModuleImport> getImports() {
-    return unmodifiableSet(imports);
+    Set<ModuleImport> imp = new LinkedHashSet<>(imports);
+    imp.addAll(DEFAULT_IMPORTS);
+    return imp;
   }
 
   public Collection<Augmentation> getAugmentations() {
