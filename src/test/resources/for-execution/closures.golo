@@ -147,6 +147,16 @@ function call_varargs_overloaded_fun = {
   return [f(1), fv(1)]
 }
 
+function call_local_overloaded_fun_literal_with_arity1 = {
+  let f = ^golotest.execution.Closures::local_overloaded_fun\1
+  return f(2)
+}
+
+function call_local_overloaded_fun_literal_with_arity2 = {
+  let f = ^golotest.execution.Closures::local_overloaded_fun\2
+  return f(1, 2)
+}
+
 function nested_closures = {
   let s = "plop"
   let f1 = |x| -> x

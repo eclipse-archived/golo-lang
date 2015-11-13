@@ -77,15 +77,19 @@ public class GoloParser {
 
     public String module;
     public String name;
+    public int arity;
 
-    public FunctionRef(String module, String name) {
+    public FunctionRef(String module, String name, int arity) {
       this.module = module;
       this.name = name;
+      this.arity = arity;
     }
 
     @Override
     public String toString() {
-      return "FunctionRef{module=" + module + ",name=" + name + "}";
+      return "FunctionRef{module=" + module
+                          + ",name=" + name
+                          + ",arity=" + arity + "}";
     }
   }
 }
@@ -241,7 +245,7 @@ TOKEN :
   |
   < CLASSREF: <IDENTIFIER> ("." <IDENTIFIER>)* (".class" | ".module") >
   |
-  < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> >
+  < FUNREF: "^" (<IDENTIFIER> ("." <IDENTIFIER>)* "::")? <IDENTIFIER> ("\\" <NUMBER>)?>
   |
   < COLL_START: ("array" | "list" | "set" | "map" | "vector" | "tuple" )? "[" >
 }
@@ -620,13 +624,22 @@ GoloParser.FunctionRef FunctionRef() #void:
 {
   literal=<FUNREF>
   {
-    String image = literal.image.substring(1);
-    String[] parts = image.split("::");
+    String module = null;
+    String name;
+    int arity = -1;
+    String[] parts = literal.image.substring(1).split("::");
     if (parts.length > 1) {
-      return new GoloParser.FunctionRef(parts[0], parts[1]);
+      module = parts[0];
+      name = parts[1];
     } else {
-      return new GoloParser.FunctionRef(null, parts[0]);
+      name = parts[0];
     }
+    parts = name.split("\\\\");
+    if (parts.length > 1) {
+      name = parts[0];
+      arity = Integer.valueOf(parts[1]);
+    }
+    return new GoloParser.FunctionRef(module, name, arity);
   }
 }
 

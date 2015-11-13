@@ -172,11 +172,15 @@ public final class Builders {
   }
 
   public static ConstantStatement functionRef(Object funcName) {
-    return functionRef(null, funcName);
+    return functionRef(null, funcName, -1);
   }
 
   public static ConstantStatement functionRef(Object moduleName, Object funcName) {
-    return constant(new GoloParser.FunctionRef((String) moduleName, (String) funcName));
+    return functionRef(moduleName, funcName, -1);
+  }
+
+  public static ConstantStatement functionRef(Object moduleName, Object funcName, Object arity) {
+    return constant(new GoloParser.FunctionRef((String) moduleName, (String) funcName, (Integer) arity));
   }
 
   public static ReturnStatement returns(Object expr) {

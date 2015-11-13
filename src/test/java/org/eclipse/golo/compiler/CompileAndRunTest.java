@@ -866,6 +866,12 @@ public class CompileAndRunTest {
     Method call_local_overloaded_fun_with_arity2 = moduleClass.getMethod("call_local_overloaded_fun_with_arity2");
     assertThat((Integer) call_local_overloaded_fun_with_arity2.invoke(null), is(3));
 
+    Method call_local_overloaded_fun_literal_with_arity1 = moduleClass.getMethod("call_local_overloaded_fun_literal_with_arity1");
+    assertThat((Integer) call_local_overloaded_fun_literal_with_arity1.invoke(null), is(3));
+
+    Method call_local_overloaded_fun_literal_with_arity2 = moduleClass.getMethod("call_local_overloaded_fun_literal_with_arity2");
+    assertThat((Integer) call_local_overloaded_fun_literal_with_arity2.invoke(null), is(3));
+
     Method call_local_overloaded_fun_without_arity = moduleClass.getMethod("call_local_overloaded_fun_without_arity");
     try {
       call_local_overloaded_fun_without_arity.invoke(null);
