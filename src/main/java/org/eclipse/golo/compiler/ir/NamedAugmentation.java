@@ -78,7 +78,7 @@ public final class NamedAugmentation extends GoloElement implements FunctionCont
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (GoloFunction fun : new LinkedList<GoloFunction>(functions)) {
+    for (GoloFunction fun : new LinkedList<>(functions)) {
       fun.accept(visitor);
     }
   }
