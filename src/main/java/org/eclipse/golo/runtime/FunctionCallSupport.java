@@ -340,12 +340,22 @@ public final class FunctionCallSupport {
 
   private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
-      if (methodMatches(name, arguments, method)) {
+      if (methodMatches(name, arguments, method, false)) {
         return method;
       }
     }
     for (Method method : klass.getMethods()) {
-      if (methodMatches(name, arguments, method)) {
+      if (methodMatches(name, arguments, method, false)) {
+        return method;
+      }
+    }
+    for (Method method : klass.getDeclaredMethods()) {
+      if (methodMatches(name, arguments, method, true)) {
+        return method;
+      }
+    }
+    for (Method method : klass.getMethods()) {
+      if (methodMatches(name, arguments, method, true)) {
         return method;
       }
     }
@@ -364,14 +374,14 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static boolean methodMatches(String name, Object[] arguments, Method method) {
+  private static boolean methodMatches(String name, Object[] arguments, Method method, boolean varargs) {
     if (method.getName().equals(name) && isStatic(method.getModifiers())) {
       if (isMethodDecorated(method)) {
         return true;
       } else {
         Class<?>[] parameterTypes = method.getParameterTypes();
         if (TypeMatching.argumentsNumberMatch(arguments, method, parameterTypes)) {
-          if (TypeMatching.canAssign(parameterTypes, arguments, method.isVarArgs())) {
+          if (TypeMatching.canAssign(parameterTypes, arguments, varargs)) {
             return true;
           }
         }

@@ -585,6 +585,13 @@ public class CompileAndRunTest {
 
     Method test_arrays = moduleClass.getMethod("test_arrays");
     assertThat((String) test_arrays.invoke(null), is("[foo][[1, 2, 3, 4], [5, 6, 7], [8, 9], 0]"));
+
+    Method test_order_fixed = moduleClass.getMethod("test_order_fixed");
+    assertThat((String) test_order_fixed.invoke(null), is("fixed"));
+
+    Method test_order_var = moduleClass.getMethod("test_order_var");
+    assertThat((String) test_order_var.invoke(null), is("variable"));
+
   }
 
   @Test
@@ -664,6 +671,13 @@ public class CompileAndRunTest {
 
     Method funky = moduleClass.getMethod("funky");
     assertThat((Integer) funky.invoke(null), is(6));
+
+    Method test_order_fixed = moduleClass.getMethod("test_order_fixed");
+    assertThat((String) test_order_fixed.invoke(null), is("fixed"));
+
+    Method test_order_var = moduleClass.getMethod("test_order_var");
+    assertThat((String) test_order_var.invoke(null), is("variable"));
+
   }
 
   @Test
@@ -1382,6 +1396,12 @@ public class CompileAndRunTest {
     Method augmented_foo_bar_baz = moduleClass.getMethod("augmented_foo_bar_baz");
     result = augmented_foo_bar_baz.invoke(null);
     assertThat(result, is((Object) 2));
+
+    Method overloaded = moduleClass.getMethod("check_overload_factory");
+    result = overloaded.invoke(null);
+    assertThat(result, instanceOf(Integer.class));
+    assertThat(result, is(0));
+
   }
 
   @Test
@@ -1921,6 +1941,24 @@ public class CompileAndRunTest {
         fail("method " + testMethod.getName() + " in " + SRC + "comprehension.golo failed: " +
               e.getCause());
       }
+    }
+  }
+
+  @Test(expectedExceptions = GoloCompilationException.class)
+  public void test_error_shadowing_function() throws Throwable {
+    try {
+      compileAndLoadGoloModule(SRC, "failure-error-shadowing-function.golo");
+      fail("A GoloCompilationException was expected");
+    } catch (GoloCompilationException expected) {
+      List<GoloCompilationException.Problem> problems = expected.getProblems();
+      assertThat(problems.size(), is(1));
+      MatcherAssert.assertThat(problems.get(0).getFirstToken(), notNullValue());
+      assertThat(problems.get(0).getFirstToken().startOffset, greaterThan(-1));
+      assertThat(problems.get(0).getFirstToken().endOffset, greaterThan(-1));
+      MatcherAssert.assertThat(problems.get(0).getLastToken(), notNullValue());
+      assertThat(problems.get(0).getLastToken().startOffset, greaterThan(-1));
+      assertThat(problems.get(0).getLastToken().endOffset, greaterThan(-1));
+      throw expected;
     }
   }
 

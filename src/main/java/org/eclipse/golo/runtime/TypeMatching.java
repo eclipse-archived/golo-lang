@@ -76,6 +76,9 @@ public class TypeMatching {
   }
 
   public static boolean valueAndTypeMatch(Class<?> type, Object value) {
+    if (type == null) {
+      return false;
+    }
     return primitiveCompatible(type, value) || (type.isInstance(value) || value == null || samAssignment(type, value) || functionalInterfaceAssignment(type, value));
   }
 
