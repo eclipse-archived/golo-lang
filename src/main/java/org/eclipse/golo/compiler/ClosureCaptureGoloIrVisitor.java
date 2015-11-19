@@ -13,6 +13,8 @@ import org.eclipse.golo.compiler.ir.*;
 
 import java.util.*;
 
+// TODO: don't capture module state variables
+
 class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
 
   private static final class Context {
@@ -23,11 +25,11 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
     final Map<String, Block> definingBlock = new HashMap<>();
     final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
 
-    Set<String> shouldBeArguments() {
+    Set<String> shouldBeParameters() {
       Set<String> result = new HashSet<>();
-      for (String ref : accessedReferences) {
-        if (!localReferences.contains(ref)) {
-          result.add(ref);
+      for (String refName : accessedReferences) {
+        if (!localReferences.contains(refName)) {
+          result.add(refName);
         }
       }
       return result;
@@ -109,12 +111,13 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
       declaredParameters(function.getParameterNames());
       function.getBlock().internReferenceTable();
       function.walk(this);
-      makeArguments(function, context().shouldBeArguments());
+      function.addSyntheticParameters(context().shouldBeParameters());
       dropUnused(context().shouldBeRemoved());
       dropContext();
     } else {
       function.walk(this);
     }
+    function.captureClosedReference();
   }
 
   private void dropUnused(Set<String> refs) {
@@ -122,15 +125,6 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
     for (String ref : refs) {
       if (!context.parameterReferences.contains(ref)) {
         context.definingBlock.get(ref).getReferenceTable().remove(ref);
-      }
-    }
-  }
-
-  private void makeArguments(GoloFunction function, Set<String> refs) {
-    Set<String> existing = new HashSet<>(function.getParameterNames());
-    for (String ref : refs) {
-      if (!existing.contains(ref) && !ref.equals(function.getSyntheticSelfName())) {
-        function.addSyntheticParameter(ref);
       }
     }
   }
@@ -173,11 +167,7 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
     assignmentStatement.getExpressionStatement().accept(this);
     if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
       ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();
-      GoloFunction target = closure.getTarget();
-      if (target.getSyntheticParameterNames().contains(referenceName)) {
-        target.removeSyntheticParameter(referenceName);
-        target.setSyntheticSelfName(referenceName);
-      }
+      closure.getTarget().setSyntheticSelfName(referenceName);
     }
   }
 

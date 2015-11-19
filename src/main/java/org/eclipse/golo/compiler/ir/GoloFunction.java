@@ -11,6 +11,8 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.Collection;
 
 import org.eclipse.golo.compiler.parser.GoloASTNode;
@@ -30,7 +32,6 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
 
   private final List<String> parameterNames = new LinkedList<>();
   private final List<String> syntheticParameterNames = new LinkedList<>();
-  private int syntheticParameterCount = 0;
   private boolean varargs = false;
   private Block block;
   private boolean synthetic = false;
@@ -164,7 +165,6 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
     return this;
   }
 
-  // XXX: here or in sugar expansion ?
   public void insertMissingReturnStatement() {
     if (!this.block.hasReturn() && !this.isModuleInit()) {
       ReturnStatement missingReturnStatement = Builders.returns(constant(null)).synthetic();
@@ -190,7 +190,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   }
 
   public int getArity() {
-    return parameterNames.size() + syntheticParameterCount;
+    return parameterNames.size() + syntheticParameterNames.size();
   }
 
   public GoloFunction withParameters(String... names) {
@@ -210,7 +210,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   }
 
   public int getSyntheticParameterCount() {
-    return syntheticParameterCount;
+    return syntheticParameterNames.size();
   }
 
   public List<String> getParameterNames() {
@@ -223,26 +223,33 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
     return unmodifiableList(syntheticParameterNames);
   }
 
-  public void setParameterNames(List<String> parameterNames) {
-    this.parameterNames.addAll(parameterNames);
-  }
-
-  public void addSyntheticParameter(String name) {
-    this.syntheticParameterNames.add(name);
-    this.syntheticParameterCount = this.syntheticParameterCount + 1;
-  }
-
-  public void removeSyntheticParameter(String name) {
-    this.syntheticParameterNames.remove(name);
-    this.syntheticParameterCount = this.syntheticParameterCount - 1;
+  public void addSyntheticParameters(Set<String> names) {
+    Set<String> existing = new HashSet<>(getParameterNames());
+    for (String name : names) {
+      if (!existing.contains(name) && !name.equals(syntheticSelfName)) {
+        this.syntheticParameterNames.add(name);
+      }
+    }
   }
 
   public String getSyntheticSelfName() {
     return syntheticSelfName;
   }
 
-  public void setSyntheticSelfName(String syntheticSelfName) {
-    this.syntheticSelfName = syntheticSelfName;
+  public void setSyntheticSelfName(String name) {
+    if (syntheticParameterNames.contains(name)) {
+      this.syntheticParameterNames.remove(name);
+      this.syntheticSelfName = name;
+    }
+  }
+
+  public void captureClosedReference() {
+    if (synthetic && syntheticSelfName != null) {
+      LocalReference self = block.getReferenceTable().get(syntheticSelfName);
+      ClosureReference closureReference = asClosureReference();
+      closureReference.updateCapturedReferenceNames();
+      block.prependStatement(Builders.assign(closureReference).to(self));
+    }
   }
 
   // decorators -----------------------------------------------------------------------------------

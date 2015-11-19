@@ -86,20 +86,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
       }
     }
     function.walk(this);
-    captureClosedReference(function);
     functionStack.pop();
-  }
-
-  private void captureClosedReference(GoloFunction function) {
-    String selfName = function.getSyntheticSelfName();
-    if (function.isSynthetic() && selfName != null) {
-      LocalReference self = function.getBlock().getReferenceTable().get(selfName);
-      ClosureReference closureReference = function.asClosureReference();
-      for (String syntheticRef : function.getSyntheticParameterNames()) {
-        closureReference.addCapturedReferenceName(syntheticRef);
-      }
-      function.getBlock().prependStatement(Builders.assign(closureReference).to(self));
-    }
   }
 
   @Override
@@ -236,10 +223,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
 
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
-    GoloFunction target = closureReference.getTarget();
-    for (String name : target.getSyntheticParameterNames()) {
-      closureReference.addCapturedReferenceName(name);
-    }
+    closureReference.updateCapturedReferenceNames();
   }
 
   @Override
