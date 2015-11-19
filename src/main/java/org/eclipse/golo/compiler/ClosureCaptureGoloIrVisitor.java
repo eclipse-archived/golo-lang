@@ -139,7 +139,7 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
   public void visitBlock(Block block) {
     pushBlockTable(block);
     definedInBlock(block.getReferenceTable().ownedSymbols(), block);
-    super.visitBlock(block);
+    block.walk(this);
     dropBlockTable();
   }
 
@@ -206,7 +206,7 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
 
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
-    closureReference.getTarget().accept(this);
+    closureReference.walk(this);
     if (closureReference.getTarget().isSynthetic()) {
       Context context = context();
       if (context != null) {
