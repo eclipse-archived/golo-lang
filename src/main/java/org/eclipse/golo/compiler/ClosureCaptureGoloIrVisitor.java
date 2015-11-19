@@ -13,8 +13,6 @@ import org.eclipse.golo.compiler.ir.*;
 
 import java.util.*;
 
-// TODO: don't capture module state variables
-
 class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
 
   private static final class Context {

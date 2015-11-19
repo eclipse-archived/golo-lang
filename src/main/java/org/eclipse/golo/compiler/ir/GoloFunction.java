@@ -227,7 +227,10 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
     Set<String> existing = new HashSet<>(getParameterNames());
     for (String name : names) {
       if (!existing.contains(name) && !name.equals(syntheticSelfName)) {
-        this.syntheticParameterNames.add(name);
+        LocalReference ref = block.getReferenceTable().get(name);
+        if (ref == null || !ref.isModuleState()) {
+          this.syntheticParameterNames.add(name);
+        }
       }
     }
   }

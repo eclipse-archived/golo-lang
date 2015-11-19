@@ -1678,6 +1678,14 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void module_state_closures() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "module-state-closures.golo");
+    Method test = moduleClass.getMethod("test");
+    Object result = test.invoke(null);
+    assertThat(result, is(nullValue()));
+  }
+
+  @Test
   public void decorators() throws Throwable {
 
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "decorators.golo");
