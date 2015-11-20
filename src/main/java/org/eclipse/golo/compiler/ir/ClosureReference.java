@@ -31,14 +31,17 @@ public class ClosureReference extends ExpressionStatement {
     this.target = target;
     makeParentOf(target);
     this.setASTNode(target.getASTNode());
+    updateCapturedReferenceNames();
   }
 
   public Set<String> getCapturedReferenceNames() {
     return Collections.unmodifiableSet(capturedReferenceNames);
   }
 
-  public boolean addCapturedReferenceName(String referenceName) {
-    return capturedReferenceNames.add(referenceName);
+  public void updateCapturedReferenceNames() {
+    for (String name : target.getSyntheticParameterNames()) {
+      capturedReferenceNames.add(name);
+    }
   }
 
   public ClosureReference block(Object... statements) {

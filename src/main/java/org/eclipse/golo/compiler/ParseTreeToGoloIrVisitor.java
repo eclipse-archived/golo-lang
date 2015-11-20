@@ -320,6 +320,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       context.push(function.asClosureReference());
     } else {
       context.addFunction(function);
+      context.pop();
     }
     return data;
   }
