@@ -28,21 +28,21 @@ let CALL_FUNREF = identity(^foo)
 # Module state can be closure on other module state
 let CLOSED_FUNREF = addCurry(CONSTANT_VALUE)
 
-# FIXME: Module state can be a lambda
-# let CONSTANT_CONSTANT_LAMBDA = -> 42
-# let CALL_CONSTANT_LAMBDA = identity(-> 42)
-# let CONSTANT_LAMBDA = |x| -> 2 * x
-# let CALL_LAMBDA = identity(|x| -> 2 * x)
+# Module state can be a lambda
+let CONSTANT_CONSTANT_LAMBDA = -> 42
+let CALL_CONSTANT_LAMBDA = identity(-> 42)
+let CONSTANT_LAMBDA = |x| -> 2 * x
+let CALL_LAMBDA = identity(|x| -> 2 * x)
 
-# FIXME: Module state can be curryfied function
-# let CONSTANT_CURRY = |x| -> |y| -> x + y
-# let CALL_CURRY = identity(|x| -> |y| -> x + y)
+# Module state can be curryfied function
+let CONSTANT_CURRY = |x| -> |y| -> x + y
+let CALL_CURRY = identity(|x| -> |y| -> x + y)
 
-# FIXME: Module state can be a closure
-# let CONSTANT_CONSTANT_CLOSURE = -> CONSTANT_VALUE
-# let CALL_CONSTANT_CLOSURE = identity(-> CONSTANT_VALUE)
-# let CONSTANT_CLOSURE = |x| -> x + CONSTANT_VALUE
-# let CALL_CLOSURE = identity(|x| -> x + CONSTANT_VALUE)
+# Module state can be a closure
+let CONSTANT_CONSTANT_CLOSURE = -> CONSTANT_VALUE
+let CALL_CONSTANT_CLOSURE = identity(-> CONSTANT_VALUE)
+let CONSTANT_CLOSURE = |x| -> x + CONSTANT_VALUE
+let CALL_CLOSURE = identity(|x| -> x + CONSTANT_VALUE)
 
 function test = {
   # just check utility functions
@@ -78,21 +78,21 @@ function test = {
   require(CALL_FUNREF(1) == 43, "err")
   require(CLOSED_FUNREF(1) == 43, "err")
   
-  # FIXME: A module state containing a lambda can be called
-  # require(CONSTANT_CONSTANT_LAMBDA() == 42, "err")
-  # require(CALL_CONSTANT_LAMBDA() == 42, "err")
-  # require(CONSTANT_LAMBDA(21) == 42, "err")
-  # require(CALL_LAMBDA(21) == 42, "err")
+  # A module state containing a lambda can be called
+  require(CONSTANT_CONSTANT_LAMBDA() == 42, "err")
+  require(CALL_CONSTANT_LAMBDA() == 42, "err")
+  require(CONSTANT_LAMBDA(21) == 42, "err")
+  require(CALL_LAMBDA(21) == 42, "err")
 
-  # FIXME: A module state containing a curryfied function can be called
-  # require(CONSTANT_CURRY(21)(21) == 42, "err")
-  # require(CALL_CURRY(21)(21) == 42, "err")
+  # A module state containing a curryfied function can be called
+  require(CONSTANT_CURRY(21)(21) == 42, "err")
+  require(CALL_CURRY(21)(21) == 42, "err")
   
-  # FIXME: A module state containing a closure can be called
-  # require(CONSTANT_CONSTANT_CLOSURE() == 42, "err")
-  # require(CALL_CONSTANT_CLOSURE() == 42, "err")
-  # require(CONSTANT_CLOSURE(1) == 43, "err")
-  # require(CALL_CLOSURE(1) == 43, "err")
+  # A module state containing a closure can be called
+  require(CONSTANT_CONSTANT_CLOSURE() == 42, "err")
+  require(CALL_CONSTANT_CLOSURE() == 42, "err")
+  require(CONSTANT_CLOSURE(1) == 43, "err")
+  require(CALL_CLOSURE(1) == 43, "err")
 }
 
 
