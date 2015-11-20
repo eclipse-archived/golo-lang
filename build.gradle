@@ -327,7 +327,7 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
 // .................................................................................................................. //
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.8'
+  gradleVersion = '2.9'
   description 'Generates the Gradle wrapper scripts.'
 }
 
