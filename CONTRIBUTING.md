@@ -4,7 +4,7 @@ Thank you for your interest in Golo!
 
 You can propose contributions by sending pull requests through GitHub.
 
-And of course you can [report issues](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Golo) and [browse the current ones](https://bugs.eclipse.org/bugs/describecomponents.cgi?product=Golo).
+And of course you can [report issues](https://github.com/eclipse/golo-lang/issues).
 
 ## Legal considerations
 
@@ -42,7 +42,7 @@ Here is a sample _good_ Git commit log message:
 
     Write just like if you were discussing with fellows :-)
 
-    Bug: https://bugs.eclipse.org/bugs/show_bug.cgi?id=666999
+    Bug: https://github.com/eclipse/golo-lang/issues/69
     Also-By: Somebody Who Contributed <foo@bar.com>
     Signed-off-by: Another Person <baz@foobar.org>
 

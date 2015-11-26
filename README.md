@@ -25,7 +25,7 @@ Golo joined the Eclipse Foundation as an incubating technology project in June 2
 * Twitter: [@golo_lang](https://twitter.com/golo_lang)
 * Eclipse PMI: [https://projects.eclipse.org/projects/technology.golo](https://projects.eclipse.org/projects/technology.golo)
 * GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
-* Issues: [create a new one](https://bugs.eclipse.org/bugs/enter_bug.cgi?product=Golo), or [browse all](https://bugs.eclipse.org/bugs/describecomponents.cgi?product=Golo)
+* Issues: [https://github.com/eclipse/golo-lang/issues](https://github.com/eclipse/golo-lang/issues)
 * Mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-dev](https://dev.eclipse.org/mailman/listinfo/golo-dev)
 * Commits + new issues mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-commit](https://dev.eclipse.org/mailman/listinfo/golo-commit)
 * Wiki: [https://wiki.eclipse.org/Golo](https://wiki.eclipse.org/Golo)
