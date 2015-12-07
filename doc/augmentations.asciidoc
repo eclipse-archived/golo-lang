@@ -131,6 +131,19 @@ TIP: As a matter of style, we suggest that your module names end with `Augmentat
 module imports **all** of its augmentation definitions, we suggest that you modularize them with *fine
 taste* (for what it means).
 
+To allow building libraries of functions leveraging augmentations, the callstack is also looked up in order to find if a complying augmentation was applied to the function arguments. It is thus possible to create a function like:
+
+[source,golo]
+----
+module MyLib
+
+function sayPlop = |o| {
+  println(o: plop())
+}
+----
+
+that can be applied on any object having a `plop` method, provided this is a native method or it is defined in an augmentation imported in the calling module.
+
 
 === Named augmentations
 
