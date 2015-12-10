@@ -12,15 +12,15 @@
 ----
 This module provides helper functions to deal with ANSI escape codes for console outputs.
 
-All function names are self-explanatory. Note that `ansi_likely_supported` tests if the current
+All function names are self-explanatory. Note that `likelySupported` tests if the current
 operating system is _likely_ to support ANSI codes. It merely checks that the host operating
-system is not MS Windows.
+system is not MS Windows, which does not support ANSI codes without a 3rd-party driver.
 
 See also: [Wikipedia on ANSI escape codes](https://en.wikipedia.org/wiki/ANSI_escape_code)
 ----
 module gololang.AnsiCodes
 
-function ansi_likely_supported = ->
+function likelySupported = ->
   not System.getProperty("os.name"): contains("Windows")
 
 function reset = -> print("\u001B[0m")
