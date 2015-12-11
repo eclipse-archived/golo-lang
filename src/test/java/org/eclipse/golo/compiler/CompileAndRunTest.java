@@ -1427,6 +1427,36 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void structs_comparison() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
+    Method test_method;
+    Object result;
+
+    test_method = moduleClass.getMethod("check_compare");
+    result = test_method.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat((Boolean) result, is(true));
+
+    test_method = moduleClass.getMethod("check_equals");
+    result = test_method.invoke(null);
+    assertThat(result, notNullValue());
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void structs_not_comparable() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
+    Method test_method = moduleClass.getMethod("check_not_comparable");
+    try {
+      Object result = test_method.invoke(null);
+    } catch (InvocationTargetException e) {
+      assertThat(e.getCause(), instanceOf(ClassCastException.class));
+      assertThat(e.getCause().getMessage(),
+          containsString("struct Couple{x=1, y=2} and struct Point{x=1, y=3} can't be compared"));
+    }
+  }
+
+  @Test
   @SuppressWarnings("unchecked")
   public void adapters() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "adapters.golo");

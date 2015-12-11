@@ -133,7 +133,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    *
    * @param other the tuple to be compared.
    * @return a negative integer, zero, or a positive integer as this tuple is less than, equal to, or greater than the specified tuple.
-   * @throws NullPointerException if the specified tuple is null
+   * @throws NullPointerException if the specified tuple is null.
    * @throws ClassCastException  if the type of the elements in the specified tuple prevent them from being compared to this tuple elements.
    * @throws IllegalArgumentException if the specified tuple has a different size than this tuple.
    */
