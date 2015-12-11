@@ -167,6 +167,44 @@ p3 == p4 true
 TIP: It is recommended that you use `Immutable<name of struct>(...)` or `frozenCopy()` when you can,
 especially when storing values into collections.
 
+=== Comparison semantics
+
+Golo structures are comparable with structures of the same type, provided that their members are comparable pairwise. Two structure are compared by comparing their members lexicographically, that is pairwise in the order they are defined.
+
+For instance, the following listing:
+
+[source,golo]
+----
+module test
+
+struct Triplet = {x, y, z}
+
+struct Other = {x, y, z}
+
+function main = |args| {
+
+  let t1 = Triplet(1, 2, 3)
+  let t2 = Triplet(1, 3, 2)
+  let o = Other(1, 2, 4)
+
+  println(t1 < t2)
+  println(t1: values() < o: values())
+  println(t1 < o)
+}
+----
+
+will output:
+
+[source]
+----
+true
+true
+Exception in thread "main" java.lang.ClassCastException: struct Triplet{x=1, y=2, z=3} and struct Other{x=1, y=2, z=4} can't be compared
+----
+
+even if `Triplet` and `Other` have the same members.
+
+
 === Helper methods
 
 A number of helper methods are being generated:

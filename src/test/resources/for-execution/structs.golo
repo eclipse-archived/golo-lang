@@ -66,3 +66,17 @@ augment Point {
 }
 
 function check_concision = -> Point(1, 2): str()
+
+# ............................................................................................... #
+
+struct Couple = { x, y }
+
+function check_compare = -> 
+  Couple(1, 2) < Couple(1, 3)
+  and Couple(1, 10) < Couple(2, 1)
+
+function check_equals = -> 
+  Couple(1, 2) != Couple(1, 2) 
+  and ImmutableCouple(1, 2) == ImmutableCouple(1, 2)
+
+function check_not_comparable = -> Couple(1, 2) < Point(1, 3)
