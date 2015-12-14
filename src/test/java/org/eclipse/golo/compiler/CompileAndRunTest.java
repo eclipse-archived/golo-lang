@@ -1450,7 +1450,7 @@ public class CompileAndRunTest {
     try {
       Object result = test_method.invoke(null);
     } catch (InvocationTargetException e) {
-      assertThat(e.getCause(), instanceOf(ClassCastException.class));
+      assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
       assertThat(e.getCause().getMessage(),
           containsString("struct Couple{x=1, y=2} and struct Point{x=1, y=3} can't be compared"));
     }
