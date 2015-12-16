@@ -199,7 +199,7 @@ will output:
 ----
 true
 true
-Exception in thread "main" java.lang.ClassCastException: struct Triplet{x=1, y=2, z=3} and struct Other{x=1, y=2, z=4} can't be compared
+Exception in thread "main" java.lang.IllegalArgumentException: struct Triplet{x=1, y=2, z=3} and struct Other{x=1, y=2, z=4} can't be compared
 ----
 
 even if `Triplet` and `Other` have the same members.

@@ -84,7 +84,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * @param other the structure to be compared
    * @return a negative integer, zero, or a positive integer as this structure is less than, equal to, or greater than the specified structure
    * @throws NullPointerException if the specified structure is null
-   * @throws ClassCastException  if the structure are of different type, of if the type of the members prevent them from being compared pairwise
+   * @throws IllegalArgumentException  if the structure are of different type, of if the type of the members prevent them from being compared pairwise
    * @since Golo3.1
    */
   @Override
@@ -93,7 +93,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
       return 0;
     }
     if (getClass() != other.getClass()) {
-      throw new ClassCastException(String.format(
+      throw new IllegalArgumentException(String.format(
             "%s and %s can't be compared; try to compare their values", this, other));
     }
     return this.values().compareTo(other.values());
