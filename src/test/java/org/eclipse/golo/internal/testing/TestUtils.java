@@ -22,9 +22,11 @@ import java.util.Iterator;
 import java.util.LinkedList;
 import java.util.List;
 import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
 
 import static java.lang.reflect.Modifier.isStatic;
 import static java.lang.reflect.Modifier.isPublic;
+import static org.testng.Assert.fail;
 
 public class TestUtils {
 
@@ -79,4 +81,22 @@ public class TestUtils {
     }
     return methods;
   }
+
+  public static GoloClassLoader classLoader(Object o) {
+    return new GoloClassLoader(o.getClass().getClassLoader());
+  }
+
+  public static void runTests(String sourceFolder, String goloModuleName, GoloClassLoader classLoader) throws Throwable {
+    Class<?> testModule = compileAndLoadGoloModule(sourceFolder, goloModuleName, classLoader);
+    for (Method testMethod : getTestMethods(testModule)) {
+      try {
+        testMethod.invoke(null);
+      } catch (InvocationTargetException e) {
+        fail("method " + testMethod.getName()
+            + " in " + sourceFolder + goloModuleName + " failed: "
+            + e.getCause());
+      }
+    }
+  }
+
 }

@@ -11,6 +11,9 @@ package org.eclipse.golo.runtime;
 
 import java.lang.invoke.*;
 import java.lang.reflect.Method;
+import java.util.List;
+import static java.util.stream.Collectors.toList;
+import static java.util.Arrays.asList;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
@@ -36,7 +39,7 @@ class AugmentationMethodFinder implements MethodFinder {
   };
   private final String[] argumentNames;
 
-  public AugmentationMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
+  AugmentationMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
     this.receiverClass = receiverClass;
     this.args = args;
     this.methodName = inlineCache.name;
@@ -48,7 +51,7 @@ class AugmentationMethodFinder implements MethodFinder {
     this.methodHandle = null;
     this.argumentNames = new String[inlineCache.argumentNames.length + 1];
     this.argumentNames[0] = "this";
-    System.arraycopy(inlineCache.argumentNames,0, argumentNames, 1, inlineCache.argumentNames.length);
+    System.arraycopy(inlineCache.argumentNames, 0, argumentNames, 1, inlineCache.argumentNames.length);
   }
 
 
@@ -112,7 +115,9 @@ class AugmentationMethodFinder implements MethodFinder {
       MethodHandle method;
       for (String augmentationName : Module.augmentationApplications(definingModule, augmentedClass)) {
         method = findMethod(augmentationClassName(definingModule, augmentationName));
-        if (method != null) { return method; }
+        if (method != null) {
+          return method;
+        }
       }
       return null;
     }
@@ -129,7 +134,7 @@ class AugmentationMethodFinder implements MethodFinder {
     protected String augmentationClassName(Class<?> definingModule, String augmentationName) {
       int idx = augmentationName.lastIndexOf(".");
       if (idx == -1) { return augmentationName; }
-      return (new StringBuilder(augmentationName)).replace(idx, idx+1, "$").toString();
+      return (new StringBuilder(augmentationName)).replace(idx, idx + 1, "$").toString();
     }
   }
 
@@ -141,7 +146,9 @@ class AugmentationMethodFinder implements MethodFinder {
       for (String augmentationName : Module.augmentationApplications(definingModule, augmentedClass)) {
         for (String importSymbol : Module.imports(definingModule)) {
           method = findMethod(importSymbol + "$" + augmentationName);
-          if (method != null) { return method; }
+          if (method != null) {
+            return method;
+          }
         }
       }
       return null;
@@ -158,8 +165,7 @@ class AugmentationMethodFinder implements MethodFinder {
         method.getName().equals(methodName)
         && isPublic(method.getModifiers())
         && !isAbstract(method.getModifiers())
-        && (matchesArity(method) || isMethodDecorated(method))
-    );
+        && (matchesArity(method) || isMethodDecorated(method)));
   }
 
   private boolean matchesArity(Method method) {
@@ -197,41 +203,77 @@ class AugmentationMethodFinder implements MethodFinder {
           return toMethodHandle(method);
         }
       }
-    } catch (ClassNotFoundException ignored) {}
+    } catch (ClassNotFoundException ignored) { }
     return null;
   }
 
   private void findInClasses(Class<?> definingModule, FindingStrategy strategy) {
-    if (methodHandle != null) { return; }
+    if (methodHandle != null) {
+      return;
+    }
     for (String target : strategy.targets(definingModule)) {
       try {
         Class<?> augmentedClass = classLoader.loadClass(target);
         if (augmentedClass.isAssignableFrom(receiverClass)) {
           methodHandle = strategy.find(definingModule, augmentedClass);
         }
-      } catch (ClassNotFoundException ignored) {}
-      if (methodHandle != null) { break; }
+      } catch (ClassNotFoundException ignored) { }
+      if (methodHandle != null) {
+        break;
+      }
     }
   }
 
   private void findInImportedClasses(Class<?> sourceClass, FindingStrategy strategy) {
-    if (methodHandle != null) { return; }
+    if (methodHandle != null) {
+      return;
+    }
     for (String importSymbol : Module.imports(sourceClass)) {
       try {
         Class<?> importedClass = classLoader.loadClass(importSymbol);
         findInClasses(importedClass, strategy);
-        if (methodHandle != null) { break; }
-      } catch (ClassNotFoundException ignored) {}
+        if (methodHandle != null) {
+          break;
+        }
+      } catch (ClassNotFoundException ignored) { }
     }
+  }
+
+  private void findInCallStackImports(Class<?> callerClass, FindingStrategy strategy) {
+    if (methodHandle != null) {
+      return;
+    }
+    for (String calling : getCallStack()) {
+      try {
+        Class<?> callingClass = classLoader.loadClass(calling);
+        findInClasses(callingClass, strategy);
+        findInImportedClasses(callingClass, strategy);
+        if (methodHandle != null) {
+          break;
+        }
+      } catch (ClassNotFoundException ignored) { }
+    }
+  }
+
+  private List<String> getCallStack() {
+    return asList(Thread.currentThread().getStackTrace()).stream()
+      .map(StackTraceElement::getClassName)
+      .filter((className) -> !className.startsWith("java.lang")
+                          && !className.startsWith("org.eclipse.golo"))
+      .skip(1)
+      .collect(toList());
   }
 
   @Override
   public MethodHandle find() {
-    for (FindingStrategy strategie : strategies) {
-      findInClasses(callerClass, strategie);
+    for (FindingStrategy strategy : strategies) {
+      findInClasses(callerClass, strategy);
     }
-    for (FindingStrategy strategie : strategies) {
-      findInImportedClasses(callerClass, strategie);
+    for (FindingStrategy strategy : strategies) {
+      findInImportedClasses(callerClass, strategy);
+    }
+    for (FindingStrategy strategy : strategies) {
+      findInCallStackImports(callerClass, strategy);
     }
     return methodHandle;
   }
