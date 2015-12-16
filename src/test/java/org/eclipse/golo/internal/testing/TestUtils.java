@@ -82,8 +82,8 @@ public class TestUtils {
     return methods;
   }
 
-  public static GoloClassLoader classLoader(Class<?> testClass) {
-    return new GoloClassLoader(testClass.getClassLoader());
+  public static GoloClassLoader classLoader(Object o) {
+    return new GoloClassLoader(o.getClass().getClassLoader());
   }
 
   public static void runTests(String sourceFolder, String goloModuleName, GoloClassLoader classLoader) throws Throwable {

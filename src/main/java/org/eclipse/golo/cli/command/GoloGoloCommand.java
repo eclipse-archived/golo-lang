@@ -38,8 +38,8 @@ public class GoloGoloCommand implements CliCommand {
 
   public void execute() throws Throwable {
     URLClassLoader primaryClassLoader = primaryClassLoader(this.classpath);
-    Thread.currentThread().setContextClassLoader(primaryClassLoader);
     GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
+     Thread.currentThread().setContextClassLoader(loader);
     Class<?> lastClass = null;
     for (String goloFile : this.files) {
       lastClass = loadGoloFile(goloFile, this.module, loader);

@@ -23,7 +23,7 @@ public class AugmentationResolutionTest {
 
   @BeforeMethod
   public void setUp() {
-    loader = classLoader(this.getClass());
+    loader = classLoader(this);
   }
 
   @Test
