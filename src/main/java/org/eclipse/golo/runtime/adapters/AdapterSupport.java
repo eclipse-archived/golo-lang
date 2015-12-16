@@ -16,7 +16,11 @@ import java.util.Map;
 
 import static java.lang.invoke.MethodType.genericMethodType;
 
-public class AdapterSupport {
+public final class AdapterSupport {
+
+  private AdapterSupport() {
+    throw new UnsupportedOperationException("utility class");
+  }
 
   public static final String DEFINITION_FIELD = "_$_$adapter_$definition";
 
@@ -25,7 +29,8 @@ public class AdapterSupport {
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
-      FALLBACK = lookup.findStatic(AdapterSupport.class, "fallback", MethodType.methodType(Object.class, AdapterCallSite.class, Object[].class));
+      FALLBACK = lookup.findStatic(AdapterSupport.class, "fallback",
+          MethodType.methodType(Object.class, AdapterCallSite.class, Object[].class));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new Error("Could not bootstrap the required method handles", e);
     }
@@ -70,9 +75,11 @@ public class AdapterSupport {
     }
     if (target == null) {
       Map<String, FunctionReference> overrides = definition.getOverrides();
-      MethodHandle superTarget = callSite.callerLookup.findSpecial(receiverParentClass, callSite.name, callSite.type().dropParameterTypes(0, 1), receiverClass);
+      MethodHandle superTarget = callSite.callerLookup.findSpecial(receiverParentClass,
+          callSite.name, callSite.type().dropParameterTypes(0, 1), receiverClass);
       if (superTarget.isVarargsCollector()) {
-        superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount() - 1, true)).asVarargsCollector(Object[].class);
+        superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount() - 1, true))
+          .asVarargsCollector(Object[].class);
       } else {
         superTarget = superTarget.asType(genericMethodType(superTarget.type().parameterCount()));
       }

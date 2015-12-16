@@ -20,7 +20,11 @@ import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
 
-public class MethodInvocationSupport {
+public final class MethodInvocationSupport {
+
+  private MethodInvocationSupport() {
+    throw new UnsupportedOperationException("utility class");
+  }
 
   /*
    * This code is heavily inspired from the inline cache construction from
@@ -50,6 +54,10 @@ public class MethodInvocationSupport {
 
     boolean isMegaMorphic() {
       return depth > MEGAMORPHIC_THRESHOLD;
+    }
+
+    public MethodInvocation toMethodInvocation(Object[] args) {
+      return new MethodInvocation(name, type(), args, argumentNames);
     }
   }
 
@@ -97,10 +105,10 @@ public class MethodInvocationSupport {
   }
 
   public static CallSite bootstrap(Lookup caller, String name, MethodType type,  Object... bsmArgs) {
-    boolean nullSafeGuarded = ((int)bsmArgs[0]) == 1;
+    boolean nullSafeGuarded = ((int) bsmArgs[0]) == 1;
     String[] argumentNames = new String[bsmArgs.length - 1];
-    for (int i = 0; i < bsmArgs.length -1; i++) {
-      argumentNames[i] = (String) bsmArgs[i+1];
+    for (int i = 0; i < bsmArgs.length - 1; i++) {
+      argumentNames[i] = (String) bsmArgs[i + 1];
     }
     InlineCache callSite = new InlineCache(caller, name, type, nullSafeGuarded, argumentNames);
     MethodHandle fallbackHandle = FALLBACK
@@ -126,14 +134,15 @@ public class MethodInvocationSupport {
   }
 
   private static MethodHandle lookupTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
+    MethodInvocation invocation = inlineCache.toMethodInvocation(args);
     if (receiverClass.isArray()) {
-      return new ArrayMethodFinder(inlineCache, receiverClass, args).find();
+      return new ArrayMethodFinder(invocation, inlineCache.callerLookup).find();
     }
     if (isCallOnDynamicObject(inlineCache, args[0])) {
       DynamicObject dynamicObject = (DynamicObject) args[0];
       return dynamicObject.invoker(inlineCache.name, inlineCache.type());
     } else {
-      return findTarget(receiverClass, inlineCache, args);
+      return findTarget(invocation, inlineCache.callerLookup);
     }
   }
 
@@ -147,7 +156,8 @@ public class MethodInvocationSupport {
       if (shouldReturnNull(inlineCache, args[0])) {
         return null;
       } else {
-        throw new NullPointerException("On method: " + inlineCache.name + " " + inlineCache.type().dropParameterTypes(0, 1));
+        throw new NullPointerException("On method: "
+            + inlineCache.name + " " + inlineCache.type().dropParameterTypes(0, 1));
       }
     }
 
@@ -155,15 +165,16 @@ public class MethodInvocationSupport {
     MethodHandle target = lookupTarget(receiverClass, inlineCache, args);
 
     if (target == null) {
+      // TODO: extract method to look for a `fallback` method on the receiver
       InlineCache fallbackCallSite = new InlineCache(
           inlineCache.callerLookup,
           "fallback",
           methodType(Object.class, Object.class, Object.class, Object[].class),
           false);
       Object[] fallbackArgs = new Object[] {
-          args[0],
-          inlineCache.name,
-          Arrays.copyOfRange(args,1,args.length)
+        args[0],
+        inlineCache.name,
+        Arrays.copyOfRange(args, 1, args.length)
       };
       target = lookupTarget(receiverClass, fallbackCallSite, fallbackArgs);
       if (target != null) {
@@ -217,15 +228,15 @@ public class MethodInvocationSupport {
     return (arg instanceof DynamicObject) && !(DYNAMIC_OBJECT_RESERVED_METHOD_NAMES.contains(inlineCache.name));
   }
 
-  private static MethodHandle findTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
+  private static MethodHandle findTarget(MethodInvocation invocation, Lookup lookup) {
     MethodHandle target;
 
     // NOTE: magic for accessors and mutators would go here...
 
-    target = new RegularMethodFinder(inlineCache, receiverClass, args).find();
+    target = new RegularMethodFinder(invocation, lookup).find();
     if (target != null) { return target; }
 
-    target = new AugmentationMethodFinder(inlineCache, receiverClass, args).find();
+    target = new AugmentationMethodFinder(invocation, lookup).find();
     if (target != null) { return target; }
     return null;
   }

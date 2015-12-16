@@ -29,7 +29,7 @@ import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 public final class FunctionCallSupport {
 
   private FunctionCallSupport() {
-    // utility class
+    throw new UnsupportedOperationException("utility class");
   }
 
   static class FunctionCallSite extends MutableCallSite {
@@ -277,11 +277,8 @@ public final class FunctionCallSupport {
     try {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
-        Class<?>[] parameterTypes = constructor.getParameterTypes();
-        if (TypeMatching.argumentsNumberMatch(args, constructor, parameterTypes)) {
-          if (TypeMatching.canAssign(parameterTypes, args, constructor.isVarArgs())) {
-            return constructor;
-          }
+        if (TypeMatching.argumentsMatch(constructor, args)) {
+          return constructor;
         }
       }
     } catch (ClassNotFoundException ignored) {
@@ -379,11 +376,8 @@ public final class FunctionCallSupport {
       if (isMethodDecorated(method)) {
         return true;
       } else {
-        Class<?>[] parameterTypes = method.getParameterTypes();
-        if (TypeMatching.argumentsNumberMatch(arguments, method, parameterTypes)) {
-          if (TypeMatching.canAssign(parameterTypes, arguments, varargs)) {
-            return true;
-          }
+        if (TypeMatching.argumentsMatch(method, arguments, varargs)) {
+          return true;
         }
       }
     }

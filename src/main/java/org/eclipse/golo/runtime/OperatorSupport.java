@@ -17,7 +17,11 @@ import java.util.Objects;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
-public class OperatorSupport {
+public final class OperatorSupport {
+
+  private OperatorSupport() {
+    throw new UnsupportedOperationException("utility class");
+  }
 
   static class MonomorphicInlineCache extends MutableCallSite {
 
@@ -1385,10 +1389,12 @@ public class OperatorSupport {
   }
 
   private static Object reject(Object a, String symbol) throws IllegalArgumentException {
-    throw new IllegalArgumentException(String.format("Operator %s is not supported for type %s", symbol, a.getClass()));
+    throw new IllegalArgumentException(String.format(
+          "Operator %s is not supported for type %s", symbol, a.getClass()));
   }
 
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
-    throw new IllegalArgumentException(String.format("Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
+    throw new IllegalArgumentException(String.format(
+          "Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
   }
 }

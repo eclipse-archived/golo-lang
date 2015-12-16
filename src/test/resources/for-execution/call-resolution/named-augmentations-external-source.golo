@@ -22,7 +22,7 @@ augmentation Foo = {
 }
 
 augmentation Spam = {
-  function spam = |this| -> "Obj.spam"
+  function spam = |this| -> "Spam.spam"
 }
 
 augment java.lang.String with Bar1
