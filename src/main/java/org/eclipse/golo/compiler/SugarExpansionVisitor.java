@@ -315,14 +315,4 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     assignment.replaceInParentBy(block);
     block.accept(this);
   }
-
-  /**
-   * Add struct factories if they don't already exists
-   *
-   */
-  @Override
-  public void visitStruct(Struct struct) {
-    module.addFunctions(struct.createFactories());
-  }
-
 }

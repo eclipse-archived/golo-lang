@@ -133,6 +133,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     structs.add(struct);
     makeParentOf(struct);
     struct.setModuleName(getPackageAndClass());
+    this.addFunctions(struct.createFactories());
   }
 
   public void addUnion(Union union) {

@@ -19,7 +19,6 @@ import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Collections.unmodifiableList;
 import static java.util.Arrays.asList;
-import java.util.Objects;
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Objects.requireNonNull;
 
@@ -344,31 +343,5 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   @Override
   protected void replaceElement(GoloElement original, GoloElement newElement) {
     throw cantReplace();
-  }
-
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.name, this.getArity(), this.varargs);
-  }
-
-  @Override
-  public boolean equals(Object obj) {
-    if (obj == this) {
-      return true;
-    }
-    if (obj == null) {
-      return false;
-    }
-    if (getClass() != obj.getClass()) {
-      return false;
-    }
-    final GoloFunction other = (GoloFunction) obj;
-    if (!Objects.equals(this.name, other.name)) {
-      return false;
-    }
-    if (this.varargs != other.varargs) {
-      return false;
-    }
-    return this.getArity() == other.getArity();
   }
 }

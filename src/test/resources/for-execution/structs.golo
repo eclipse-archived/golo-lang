@@ -1,7 +1,5 @@
 module golotest.execution.Structs
 
-import java.util.ArrayList
-
 # ............................................................................................... #
 
 struct Contact = { name, email }
@@ -82,14 +80,3 @@ function check_equals = ->
   and ImmutableCouple(1, 2) == ImmutableCouple(1, 2)
 
 function check_not_comparable = -> Couple(1, 2) < Point(1, 3)
-
-struct AList = { _holder }
-
-augment golotest.execution.Structs.types.AList {
-  function add = |this, value| -> this: _holder(): add(value)
-  function size = |this| -> this: _holder(): size()
-}
-
-function AList = -> golotest.execution.Structs.types.AList(ArrayList())
-
-function check_overload_factory = -> AList(): size()

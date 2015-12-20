@@ -37,20 +37,3 @@ function test_arrays = {
   let bar = array[array[1, 2, 3, 4], array[5, 6, 7], array[8, 9], 0]
   return var_args_test("foo", bar)
 }
-
-function order_test = |a...| {
-  return "variable"
-}
-
-function order_test = |a| {
-  return "fixed"
-}
-
-function test_order_var = {
-  return order_test(1,2)
-}
-
-function test_order_fixed = {
-  return order_test(1)
-}
-
