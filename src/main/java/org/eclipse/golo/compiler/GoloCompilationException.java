@@ -41,7 +41,8 @@ public class GoloCompilationException extends RuntimeException {
       REFERENCE_ALREADY_DECLARED_IN_BLOCK,
       UNINITIALIZED_REFERENCE_ACCESS,
       INVALID_ENCODING,
-      INCOMPLETE_NAMED_ARGUMENTS_USAGE
+      INCOMPLETE_NAMED_ARGUMENTS_USAGE,
+      AMBIGUOUS_DECLARATION
     }
 
     private final Type type;

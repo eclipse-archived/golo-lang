@@ -17,47 +17,15 @@ import java.util.Collections;
 import java.util.Deque;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Collection;
 import java.util.stream.Collectors;
 
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Collections.nCopies;
+import static org.eclipse.golo.compiler.GoloCompilationException.Problem.Type.AMBIGUOUS_DECLARATION;
 
 public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
-  private GoloCompilationException.Builder exceptionBuilder;
-
   public ParseTreeToGoloIrVisitor() { }
-
-  public ParseTreeToGoloIrVisitor(GoloCompilationException.Builder builder) {
-    this();
-    setExceptionBuilder(builder);
-  }
-
-  public void setExceptionBuilder(GoloCompilationException.Builder builder) {
-    exceptionBuilder = builder;
-  }
-
-  public GoloCompilationException.Builder getExceptionBuilder() {
-    return exceptionBuilder;
-  }
-
-  private GoloCompilationException.Builder getOrCreateExceptionBuilder(Context context) {
-    if (exceptionBuilder == null) {
-      exceptionBuilder = new GoloCompilationException.Builder(context.module.getPackageAndClass().toString());
-    }
-    return exceptionBuilder;
-  }
-
-  private void errorMessage(Context context,
-                            GoloCompilationException.Problem.Type type,
-                            GoloASTNode node,
-                            String message) {
-    String errorMessage = String.format(
-        "%s at (line=%d, column=%d)",
-        message, node.getLineInSourceCode(), node.getColumnInSourceCode());
-    getOrCreateExceptionBuilder(context).report(type, node, errorMessage);
-  }
 
   @Override
   public Object visit(ASTerror node, Object data) {
@@ -69,6 +37,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     private Deque<FunctionContainer> functionContainersStack = new LinkedList<>();
     private Deque<Object> objectStack = new LinkedList<>();
     private Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
+    private GoloCompilationException.Builder exceptionBuilder;
 
     public void push(Object object) {
       objectStack.push(object);
@@ -120,7 +89,20 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
 
     public void addFunction(GoloFunction function) {
-      this.functionContainersStack.peek().addFunction(function);
+      FunctionContainer container = this.functionContainersStack.peek();
+      if(container.getFunctions().contains(function)) {
+        GoloFunction firstDeclaration = null;
+        for (GoloFunction f : container.getFunctions()) {
+          if (function.equals(f)) {
+            firstDeclaration = f;
+          }
+        }
+        errorMessage(AMBIGUOUS_DECLARATION, function.getASTNode(),
+            String.format("Declaring a function `%s` twice (declared first here: %s)",
+                function.getName(),
+                firstDeclaration == null ? "unknown" : firstDeclaration.getASTNode().getPositionInSourceCode()));
+      }
+      container.addFunction(function);
     }
 
     public GoloFunction getOrCreateFunction() {
@@ -162,10 +144,36 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       }
       return getReference(name, node);
     }
+
+    public void setExceptionBuilder(GoloCompilationException.Builder builder) {
+      exceptionBuilder = builder;
+    }
+
+    public GoloCompilationException.Builder getExceptionBuilder() {
+      return exceptionBuilder;
+    }
+
+    private GoloCompilationException.Builder getOrCreateExceptionBuilder() {
+      if (exceptionBuilder == null) {
+        exceptionBuilder = new GoloCompilationException.Builder(module.getPackageAndClass().toString());
+      }
+      return exceptionBuilder;
+    }
+
+    public void errorMessage(GoloCompilationException.Problem.Type type,
+                              GoloASTNode node,
+                              String message) {
+      String errorMessage = String.format(
+          "%s at %s",
+          message, node.getPositionInSourceCode());
+      getOrCreateExceptionBuilder().report(type, node, errorMessage);
+    }
+
   }
 
-  public GoloModule transform(ASTCompilationUnit compilationUnit) {
+  public GoloModule transform(ASTCompilationUnit compilationUnit, GoloCompilationException.Builder builder) {
     Context context = new Context();
+    context.setExceptionBuilder(builder);
     visit(compilationUnit, context);
     return context.module;
   }
@@ -400,7 +408,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     LocalReference reference = context.getReference(node.getName(), node);
     node.childrenAccept(this, data);
     if (reference == null) {
-      errorMessage(context, GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE, node,
+      context.errorMessage(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE, node,
           "Assigning to either a parameter or an undeclared reference `" + node.getName() + "`");
     } else {
       AssignmentStatement assignmentStatement = assign(context.pop()).to(reference).ofAST(node);
@@ -523,7 +531,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       ExpressionStatement statement = (ExpressionStatement) context.pop();
       if (statement instanceof NamedArgument) {
         if (!invocation.namedArgumentsComplete()) {
-          errorMessage(context, GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+          context.errorMessage(GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
               invocation.getClass() + " `" + invocation.getName()
               + "` invocation should name either all or none of its arguments");
         }
@@ -654,7 +662,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       } else if (child instanceof ExpressionStatement) {
         foreach.when(child);
       } else {
-        errorMessage(context, GoloCompilationException.Problem.Type.PARSING, node, "Malformed `foreach` loop");
+        context.errorMessage( GoloCompilationException.Problem.Type.PARSING, node, "Malformed `foreach` loop");
       }
     }
     context.push(block.add(foreach));
