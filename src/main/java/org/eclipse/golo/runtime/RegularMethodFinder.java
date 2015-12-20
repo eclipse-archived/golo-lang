@@ -119,16 +119,9 @@ class RegularMethodFinder implements MethodFinder {
     Collections.addAll(methods, receiverClass.getMethods());
     Collections.addAll(methods, receiverClass.getDeclaredMethods());
     for (Method method : methods) {
-      if (isCandidateMethod(method) && !method.isVarArgs()) {
+      if (isCandidateMethod(method)) {
         candidates.add(method);
-      } else if (isValidPrivateStructAccess(method) && !method.isVarArgs()) {
-        candidates.add(method);
-      }
-    }
-    for (Method method : methods) {
-      if (isCandidateMethod(method) && method.isVarArgs()) {
-        candidates.add(method);
-      } else if (isValidPrivateStructAccess(method) && method.isVarArgs()) {
+      } else if (isValidPrivateStructAccess(method)) {
         candidates.add(method);
       }
     }

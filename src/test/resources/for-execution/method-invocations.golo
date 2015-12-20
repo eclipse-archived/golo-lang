@@ -74,12 +74,3 @@ function funky = {
     define("adder", |this, x| -> |y| -> |z| -> x + y + z)
   return obj: adder(1)(2)(3)
 }
-
-augment java.lang.String {
-  function test = |this, a...| -> "variable"
-  function test = |this, a| -> "fixed"
-}
-
-function test_order_fixed = -> "":test(1)
-
-function test_order_var = -> "":test(1,2)

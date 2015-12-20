@@ -188,7 +188,7 @@ public class GoloCompiler {
   }
 
   public final GoloModule transform(ASTCompilationUnit compilationUnit) {
-    return new ParseTreeToGoloIrVisitor().transform(compilationUnit,exceptionBuilder);
+    return new ParseTreeToGoloIrVisitor(exceptionBuilder).transform(compilationUnit);
   }
 
   public final void refine(GoloModule goloModule) {
