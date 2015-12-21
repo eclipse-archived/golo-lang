@@ -226,3 +226,28 @@ On the other hand, functions or methods like `equals`, `size` or `contains` are
 not very efficients, since they must evaluate the whole list, and thus negate
 the laziness. They are here for completeness and compatibility with the regular
 lists interface, but you should avoid such methods.
+
+=== Console ANSI codes (`gololang.AnsiCodes`)
+
+The `gololang.AnsiCodes` modules offers a set of functions to work with
+https://en.wikipedia.org/wiki/ANSI_escape_code[ANSI codes].
+
+The following would print `Hello world!` in blinking yellow text:
+
+[source,golo]
+----
+import gololang.AnsiCodes
+
+# (...)
+
+function hello = {
+  blink()
+  fg_yellow
+  println("Hello world!")
+  reset()
+}
+----
+
+NOTE: ANSI codes support varies from terminal and operating system capacities. Microsoft Windows
+does not support these codes without a 3rd-party driver. You may use the `likelySupported()` function
+to test if the host operating system is _likely_ to support ANSI codes.
