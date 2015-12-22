@@ -160,6 +160,11 @@ task golodoc(type: JavaExec, dependsOn: goloc) {
   group = 'Documentation'
 }
 
+task doc(dependsOn: [asciidoctor, golodoc, javadoc]) {
+  description = 'Generates all the documentations.'
+  group = 'Documentation'
+}
+
 // .................................................................................................................. //
 
 task vanillaScripts(type: CreateStartScripts) {
