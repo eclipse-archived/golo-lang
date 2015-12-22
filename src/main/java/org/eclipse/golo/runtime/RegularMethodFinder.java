@@ -115,7 +115,7 @@ class RegularMethodFinder implements MethodFinder {
 
   private List<Method> getCandidates() {
     List<Method> candidates = new LinkedList<>();
-    HashSet<Method> methods = new HashSet<>();
+    Set<Method> methods = new HashSet<>();
     Collections.addAll(methods, receiverClass.getMethods());
     Collections.addAll(methods, receiverClass.getDeclaredMethods());
     for (Method method : methods) {

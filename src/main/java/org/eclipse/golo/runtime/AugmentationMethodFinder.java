@@ -160,18 +160,24 @@ class AugmentationMethodFinder implements MethodFinder {
     }
   }
 
-  private boolean isCandidate(Method method) {
+  private boolean isCandidate(Method method, boolean varargs) {
     return (
         method.getName().equals(methodName)
         && isPublic(method.getModifiers())
         && !isAbstract(method.getModifiers())
-        && (matchesArity(method) || isMethodDecorated(method)));
+        && ((varargs ? matchesVarargs(method) : matchesArity(method)) || isMethodDecorated(method)));
   }
 
   private boolean matchesArity(Method method) {
     int parameterCount = method.getParameterTypes().length;
-    return (parameterCount == arity) || (method.isVarArgs() && (parameterCount <= arity));
+    return (!method.isVarArgs() && parameterCount == arity);
   }
+
+  private boolean matchesVarargs(Method method) {
+    int parameterCount = method.getParameterTypes().length;
+    return (method.isVarArgs() && (parameterCount <= arity));
+  }
+
 
   private MethodHandle toMethodHandle(Method method) {
     try {
@@ -199,7 +205,12 @@ class AugmentationMethodFinder implements MethodFinder {
     try {
       Class<?> theClass = classLoader.loadClass(className);
       for (Method method : theClass.getMethods()) {
-        if (isCandidate(method)) {
+        if (isCandidate(method, false)) {
+          return toMethodHandle(method);
+        }
+      }
+      for (Method method : theClass.getMethods()) {
+        if (isCandidate(method, true)) {
           return toMethodHandle(method);
         }
       }
