@@ -7,14 +7,18 @@
   ~ http://www.eclipse.org/legal/epl-v10.html
 -->
 <FindBugsFilter>
+
   <Match>
+    <!-- The JavaCC-generated code is full of surprises. -->
     <Class name="~org\.eclipse\.golo\.compiler\.parser.*" />
   </Match>
+
   <Match>
     <!-- Ignore naming conventions for methods and classes used in golo code -->
     <Class name="~gololang.*" />
     <Bug code="Nm" />
   </Match>
+
   <Match>
     <!--
     Special object equals to anything but null. Ignore error on the equals
@@ -23,6 +27,7 @@
     <Class name="gololang.Unknown" />
     <Bug pattern="EQ_UNUSUAL" />
   </Match>
+
   <Match>
     <!--
     Ignore error about encapsulation violation by giving access to a mutable 
@@ -44,5 +49,13 @@
     -->
     <Class name="org.eclipse.golo.cli.command.spi.CliCommand" />
     <Bug pattern="DM_EXIT" />
+  </Match>
+
+  <Match>
+    <!--
+    Ignore ClassNotFoundException being ignored.
+    -->
+    <Class name="org.eclipse.golo.runtime.AugmentationMethodFinder" />
+    <Bug pattern="DE_MIGHT_IGNORE" />
   </Match>
 </FindBugsFilter>
