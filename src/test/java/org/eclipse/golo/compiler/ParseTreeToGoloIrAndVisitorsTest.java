@@ -55,7 +55,7 @@ public class ParseTreeToGoloIrAndVisitorsTest {
 
     GoloModule module = null;
     try {
-      module = visitor.transform(compilationUnit);
+      module = visitor.transform(compilationUnit, null);
     } catch (GoloCompilationException e) {
       for (GoloCompilationException.Problem problem : e.getProblems()) {
         Tracing.println("[Problem] " + problem.getDescription());
@@ -73,7 +73,7 @@ public class ParseTreeToGoloIrAndVisitorsTest {
 
     GoloModule module = null;
     try {
-      module = visitor.transform(compilationUnit);
+      module = visitor.transform(compilationUnit, null);
     } catch (GoloCompilationException e) {
       for (GoloCompilationException.Problem problem : e.getProblems()) {
         Tracing.println("[Problem] " + problem.getDescription());
