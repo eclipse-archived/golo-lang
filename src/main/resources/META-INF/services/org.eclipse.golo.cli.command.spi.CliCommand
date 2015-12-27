@@ -12,5 +12,6 @@ org.eclipse.golo.cli.command.DiagnoseCommand
 org.eclipse.golo.cli.command.DocCommand
 org.eclipse.golo.cli.command.GoloGoloCommand
 org.eclipse.golo.cli.command.InitCommand
+org.eclipse.golo.cli.command.TestCommand
 org.eclipse.golo.cli.command.RunCommand
 org.eclipse.golo.cli.command.VersionCommand

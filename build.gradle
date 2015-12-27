@@ -32,6 +32,7 @@ repositories {
 ext {
   goloCliMain = 'org.eclipse.golo.cli.Main'
   goloSources = fileTree('src/main/golo').include('**/*.golo')
+  goloTests = fileTree('src/test/golo').include('**/*.golo')
   goloDocs = file("$buildDir/docs/golodoc")
 }
 
@@ -103,6 +104,17 @@ test {
   environment 'golo.bootstrapped', project.hasProperty('bootstrap') ? 'yes' : 'no'
   systemProperty 'golo.test.trace', project.hasProperty('traceTests') ? 'yes' : 'no'
   systemProperty 'java.awt.headless', 'true'
+}
+
+// .................................................................................................................. //
+
+task golotest(type: JavaExec, dependsOn: [testClasses]) {
+  main = goloCliMain
+  args = ['test', '--files'] + goloTests
+  classpath = sourceSets.main.runtimeClasspath
+  inputs.files goloTests
+  description = 'Run Golo Tests'
+  group = 'Test'
 }
 
 // .................................................................................................................. //
