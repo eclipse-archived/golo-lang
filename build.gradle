@@ -130,15 +130,8 @@ tasks.withType(FindBugs) {
   }
 }
 
-jacocoTestReport {
-  reports {
-    xml.enabled = false
-    csv.enabled = false
-    html.enabled = true
-  }
-}
-
 check.dependsOn jacocoTestReport
+jacocoTestReport.dependsOn test
 
 // .................................................................................................................. //
 

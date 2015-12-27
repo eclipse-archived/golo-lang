@@ -20,7 +20,7 @@ import static java.lang.invoke.MethodType.methodType;
 public final class OperatorSupport {
 
   private OperatorSupport() {
-    throw new UnsupportedOperationException("utility class");
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   static class MonomorphicInlineCache extends MutableCallSite {

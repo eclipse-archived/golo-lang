@@ -9,6 +9,6 @@
 
 
 /**
- * Helper class to resolve methods added by an augmentation.
+ * Helper classes to resolve methods added by an augmentation.
  */
 package org.eclipse.golo.runtime.augmentation;

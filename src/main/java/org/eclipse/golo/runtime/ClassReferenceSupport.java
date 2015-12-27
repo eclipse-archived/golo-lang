@@ -20,7 +20,7 @@ import static java.lang.invoke.MethodHandles.constant;
 public final class ClassReferenceSupport {
 
   private ClassReferenceSupport() {
-    throw new UnsupportedOperationException("Don't instantiate utility class");
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws ClassNotFoundException {

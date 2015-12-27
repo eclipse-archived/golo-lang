@@ -29,7 +29,7 @@ import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 public final class FunctionCallSupport {
 
   private FunctionCallSupport() {
-    throw new UnsupportedOperationException("utility class");
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   static class FunctionCallSite extends MutableCallSite {

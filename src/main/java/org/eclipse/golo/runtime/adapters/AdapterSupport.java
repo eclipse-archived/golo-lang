@@ -19,7 +19,7 @@ import static java.lang.invoke.MethodType.genericMethodType;
 public final class AdapterSupport {
 
   private AdapterSupport() {
-    throw new UnsupportedOperationException("utility class");
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   public static final String DEFINITION_FIELD = "_$_$adapter_$definition";

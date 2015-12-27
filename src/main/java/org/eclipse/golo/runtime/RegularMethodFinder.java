@@ -31,7 +31,9 @@ class RegularMethodFinder extends MethodFinder {
 
   @Override
   public MethodHandle find() {
-    return Stream.concat(findInMethods(), findInFields())
+    return Stream.concat(
+        findInMethods().map(m -> toMethodHandle(m)),
+        findInFields().map(f -> toMethodHandle(f)))
       .findFirst()
       .flatMap(Function.identity())
       .orElse(null);
@@ -89,17 +91,15 @@ class RegularMethodFinder extends MethodFinder {
   }
 
 
-  private Stream<Optional<MethodHandle>> findInMethods() {
+  private Stream<Method> findInMethods() {
     return Extractors.getMethods(invocation.receiverClass)
-      .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m))
-      .map(m -> toMethodHandle(m));
+      .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m));
   }
 
-  private Stream<Optional<MethodHandle>> findInFields() {
+  private Stream<Field> findInFields() {
     if (invocation.arity > 3) { return Stream.empty(); }
     return Extractors.getFields(invocation.receiverClass)
-      .filter(f -> isMatchingField(f))
-      .map(f -> toMethodHandle(f));
+      .filter(f -> isMatchingField(f));
   }
 
   private boolean isMatchingField(Field field) {

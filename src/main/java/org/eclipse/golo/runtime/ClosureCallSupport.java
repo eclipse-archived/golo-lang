@@ -21,7 +21,7 @@ import static java.lang.invoke.MethodType.methodType;
 public final class ClosureCallSupport {
 
   private ClosureCallSupport() {
-    throw new UnsupportedOperationException("utility class");
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   static class InlineCache extends MutableCallSite {

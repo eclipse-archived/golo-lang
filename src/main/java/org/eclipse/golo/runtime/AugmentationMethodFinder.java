@@ -49,14 +49,14 @@ class AugmentationMethodFinder extends MethodFinder {
   private Stream<DefiningModule> getCallStack() {
     return Stream.of(Thread.currentThread().getStackTrace())
       .map(StackTraceElement::getClassName)
-      .filter(AugmentationMethodFinder::candidateStackTrace)
+      .filter(AugmentationMethodFinder::isCandidateInStackTrace)
       .skip(1)
       .map(loader)
       .filter(Objects::nonNull)
       .map(DefiningModule::ofCallstack);
   }
 
-  private static boolean candidateStackTrace(String className) {
+  private static boolean isCandidateInStackTrace(String className) {
     return !className.startsWith("java.lang") && !className.startsWith("org.eclipse.golo");
   }
 

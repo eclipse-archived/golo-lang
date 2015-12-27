@@ -21,7 +21,7 @@ import static java.lang.invoke.MethodType.genericMethodType;
 public final class ClosureReferenceSupport {
 
   private ClosureReferenceSupport() {
-    throw new UnsupportedOperationException("utility class");
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, String moduleClass, int arity, int varargs) throws Throwable {
