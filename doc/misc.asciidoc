@@ -242,7 +242,7 @@ import gololang.AnsiCodes
 
 function hello = {
   blink()
-  fg_yellow
+  fg_yellow()
   println("Hello world!")
   reset()
 }
