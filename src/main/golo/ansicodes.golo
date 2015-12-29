@@ -54,10 +54,10 @@ function cursor_position  = |line, column| -> print("\u001B[" + line + ";" + col
 function cursor_save_position     = -> print("\u001B[s")
 function cursor_restore_position  = -> print("\u001B[u")
 
-function cursor_up        = |lines| -> println("\u001B[" + lines + "A")
-function cursor_down      = |lines| -> println("\u001B[" + lines + "B")
-function cursor_forward   = |columns| -> println("\u001B[" + columns + "C")
-function cursor_backward  = |columns| -> println("\u001B[" + columns + "D")
+function cursor_up        = |lines| -> print("\u001B[" + lines + "A")
+function cursor_down      = |lines| -> print("\u001B[" + lines + "B")
+function cursor_forward   = |columns| -> print("\u001B[" + columns + "C")
+function cursor_backward  = |columns| -> print("\u001B[" + columns + "D")
 
 function erase_display  = -> print("\u001B[2J")
 function erase_line     = -> print("\u001B[K")
