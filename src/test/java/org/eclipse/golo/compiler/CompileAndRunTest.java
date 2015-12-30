@@ -13,6 +13,7 @@ import org.eclipse.golo.compiler.ir.AssignmentStatement;
 import org.eclipse.golo.compiler.ir.ReferenceLookup;
 import org.eclipse.golo.compiler.parser.ASTAssignment;
 import org.eclipse.golo.compiler.parser.ParseException;
+import org.eclipse.golo.compiler.testing.support.ClassWithOverloadedMethods;
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.*;
 import org.hamcrest.MatcherAssert;
@@ -1925,4 +1926,18 @@ public class CompileAndRunTest {
     }
   }
 
+  @Test
+  public void java_overloaded_methods() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "java-overloaded-methods.golo");
+    Method passInt = moduleClass.getMethod("passInt", Object.class);
+    Method passString = moduleClass.getMethod("passString", Object.class);
+    ClassWithOverloadedMethods receiver = new ClassWithOverloadedMethods();
+
+    assertThat(passInt.invoke(null, receiver), is("% 69"));
+    assertThat(passString.invoke(null, receiver), is("# Yo!"));
+    assertThat(passInt.invoke(null, receiver), is("% 69"));
+    assertThat(passInt.invoke(null, receiver), is("% 69"));
+    assertThat(passString.invoke(null, receiver), is("# Yo!"));
+    assertThat(passString.invoke(null, receiver), is("# Yo!"));
+  }
 }
