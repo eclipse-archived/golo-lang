@@ -13,16 +13,19 @@ import java.lang.invoke.*;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
-import java.util.function.Function;
 import java.util.Optional;
+import java.util.List;
 import gololang.GoloStruct;
 
+import static java.util.stream.Collectors.toList;
+import static java.util.Collections.unmodifiableList;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
 
 class RegularMethodFinder extends MethodFinder {
 
   private final boolean makeAccessible;
+  private List<MethodHandle> candidates;
 
   RegularMethodFinder(MethodInvocation invocation, Lookup lookup) {
     super(invocation, lookup);
@@ -31,12 +34,22 @@ class RegularMethodFinder extends MethodFinder {
 
   @Override
   public MethodHandle find() {
-    return Stream.concat(
+    this.candidates = Stream.concat(
         findInMethods().map(m -> toMethodHandle(m)),
         findInFields().map(f -> toMethodHandle(f)))
-      .findFirst()
-      .flatMap(Function.identity())
-      .orElse(null);
+      .filter(Optional::isPresent)
+      .map(Optional::get)
+      .collect(toList());
+    if (candidates.isEmpty()) { return null; }
+    return candidates.get(0);
+  }
+
+  public List<MethodHandle> getCandidates() {
+    return unmodifiableList(candidates);
+  }
+
+  public boolean isOverloaded() {
+    return candidates.size() > 1;
   }
 
   private Optional<MethodHandle> toMethodHandle(Field field) {

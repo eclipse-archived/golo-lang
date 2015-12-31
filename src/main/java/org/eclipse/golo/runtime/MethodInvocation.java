@@ -57,5 +57,10 @@ public class MethodInvocation {
       && TypeMatching.argumentsMatch(method, arguments);
   }
 
+  @Override
+  public String toString() {
+    return name + type + java.util.Arrays.asList(arguments);
+  }
+
 
 }

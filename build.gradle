@@ -130,7 +130,6 @@ tasks.withType(FindBugs) {
   }
 }
 
-check.dependsOn jacocoTestReport
 jacocoTestReport.dependsOn test
 
 // .................................................................................................................. //
