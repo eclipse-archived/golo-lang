@@ -25,7 +25,7 @@ import static java.lang.reflect.Modifier.*;
 class RegularMethodFinder extends MethodFinder {
 
   private final boolean makeAccessible;
-  private List<MethodHandle> candidates;
+  private boolean isOverloaded;
 
   RegularMethodFinder(MethodInvocation invocation, Lookup lookup) {
     super(invocation, lookup);
@@ -34,22 +34,19 @@ class RegularMethodFinder extends MethodFinder {
 
   @Override
   public MethodHandle find() {
-    this.candidates = Stream.concat(
+    final List<MethodHandle> candidates = Stream.concat(
         findInMethods().map(m -> toMethodHandle(m)),
         findInFields().map(f -> toMethodHandle(f)))
       .filter(Optional::isPresent)
       .map(Optional::get)
       .collect(toList());
     if (candidates.isEmpty()) { return null; }
+    isOverloaded = candidates.size() > 1;
     return candidates.get(0);
   }
 
-  public List<MethodHandle> getCandidates() {
-    return unmodifiableList(candidates);
-  }
-
   public boolean isOverloaded() {
-    return candidates.size() > 1;
+    return isOverloaded;
   }
 
   private Optional<MethodHandle> toMethodHandle(Field field) {
