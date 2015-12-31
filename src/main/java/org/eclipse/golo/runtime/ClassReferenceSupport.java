@@ -17,7 +17,11 @@ import java.lang.invoke.MethodType;
 import static org.eclipse.golo.runtime.Module.imports;
 import static java.lang.invoke.MethodHandles.constant;
 
-public class ClassReferenceSupport {
+public final class ClassReferenceSupport {
+
+  private ClassReferenceSupport() {
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
+  }
 
   public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws ClassNotFoundException {
     String className = name.replaceAll("#", "\\.");

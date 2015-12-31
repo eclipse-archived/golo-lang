@@ -7,7 +7,8 @@
  * http://www.eclipse.org/legal/epl-v10.html
  */
 
+
 /**
- * (this is an internal API)
+ * Helper classes to resolve methods added by an augmentation.
  */
-package org.eclipse.golo.runtime;
+package org.eclipse.golo.runtime.augmentation;

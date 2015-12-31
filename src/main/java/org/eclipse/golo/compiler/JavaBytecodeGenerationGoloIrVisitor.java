@@ -264,6 +264,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void generateAugmentationBytecode(PackageAndClass target, Set<GoloFunction> functions) {
+    if (functions.isEmpty()) {
+      return;
+    }
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.mangledName();
     PackageAndClass packageAndClass = this.currentModule.getPackageAndClass().createInnerClass(mangledClass);
