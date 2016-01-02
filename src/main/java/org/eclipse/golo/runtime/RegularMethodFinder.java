@@ -14,18 +14,15 @@ import gololang.GoloStruct;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.List;
 import java.util.Optional;
 import java.util.stream.Stream;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
-import static java.util.stream.Collectors.toList;
 
 class RegularMethodFinder extends MethodFinder {
 
   private final boolean makeAccessible;
-  private boolean isOverloaded;
 
   RegularMethodFinder(MethodInvocation invocation, Lookup lookup) {
     super(invocation, lookup);
@@ -34,21 +31,22 @@ class RegularMethodFinder extends MethodFinder {
 
   @Override
   public MethodHandle find() {
-    final List<MethodHandle> candidates = Stream.concat(
+    return Stream.concat(
         findInMethods().map(this::toMethodHandle),
         findInFields().map(this::toMethodHandle))
         .filter(Optional::isPresent)
         .map(Optional::get)
-        .collect(toList());
-    if (candidates.isEmpty()) {
-      return null;
-    }
-    isOverloaded = candidates.size() > 1;
-    return candidates.get(0);
+        .findFirst()
+        .orElse(null);
   }
 
   public boolean isOverloaded() {
-    return isOverloaded;
+    return Extractors.getMethods(invocation.receiverClass())
+        .filter(Extractors::isPublic)
+        .filter(Extractors::isConcrete)
+        .filter(m -> m.getName().equals(invocation.name()))
+        .filter(m -> (m.getParameterCount() + 1 == invocation.arity()) || (m.isVarArgs() && (m.getParameterCount() <= invocation.arity())))
+        .count() > 1;
   }
 
   private Optional<MethodHandle> toMethodHandle(Field field) {
