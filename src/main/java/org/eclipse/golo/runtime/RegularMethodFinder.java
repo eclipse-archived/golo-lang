@@ -9,18 +9,18 @@
 
 package org.eclipse.golo.runtime;
 
-import java.lang.invoke.*;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.stream.Stream;
-import java.util.Optional;
-import java.util.List;
 import gololang.GoloStruct;
 
-import static java.util.stream.Collectors.toList;
-import static java.util.Collections.unmodifiableList;
+import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
+import java.util.Optional;
+import java.util.stream.Stream;
+
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
+import static java.util.stream.Collectors.toList;
 
 class RegularMethodFinder extends MethodFinder {
 
@@ -35,12 +35,14 @@ class RegularMethodFinder extends MethodFinder {
   @Override
   public MethodHandle find() {
     final List<MethodHandle> candidates = Stream.concat(
-        findInMethods().map(m -> toMethodHandle(m)),
-        findInFields().map(f -> toMethodHandle(f)))
-      .filter(Optional::isPresent)
-      .map(Optional::get)
-      .collect(toList());
-    if (candidates.isEmpty()) { return null; }
+        findInMethods().map(this::toMethodHandle),
+        findInFields().map(this::toMethodHandle))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .collect(toList());
+    if (candidates.isEmpty()) {
+      return null;
+    }
     isOverloaded = candidates.size() > 1;
     return candidates.get(0);
   }
@@ -59,9 +61,9 @@ class RegularMethodFinder extends MethodFinder {
       } else {
         return Optional.of(
             filterReturnValue(
-              lookup.unreflectSetter(field),
-              constant(invocation.receiverClass(), invocation.arguments()[0]))
-            .asType(invocation.type()));
+                lookup.unreflectSetter(field),
+                constant(invocation.receiverClass(), invocation.arguments()[0]))
+                .asType(invocation.type()));
       }
     } catch (IllegalAccessException e) {
       /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
@@ -89,27 +91,29 @@ class RegularMethodFinder extends MethodFinder {
     String receiverClassName = receiver.getClass().getName();
     String callerClassName = callerClass.getName();
     return method.getName().equals(invocation.name())
-      && isPrivate(method.getModifiers())
-      && (receiverClassName.startsWith(callerClassName)
-          || callerClassName.equals(reverseStructAugmentation(receiverClassName)))
-      && TypeMatching.argumentsMatch(method, invocation.arguments());
+        && isPrivate(method.getModifiers())
+        && (receiverClassName.startsWith(callerClassName)
+        || callerClassName.equals(reverseStructAugmentation(receiverClassName)))
+        && TypeMatching.argumentsMatch(method, invocation.arguments());
   }
 
   private static String reverseStructAugmentation(String receiverClassName) {
     return receiverClassName.substring(0, receiverClassName.indexOf(".types"))
-      + "$" + receiverClassName.replace('.', '$');
+        + "$" + receiverClassName.replace('.', '$');
   }
 
 
   private Stream<Method> findInMethods() {
     return Extractors.getMethods(invocation.receiverClass())
-      .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m));
+        .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m));
   }
 
   private Stream<Field> findInFields() {
-    if (invocation.arity() > 3) { return Stream.empty(); }
+    if (invocation.arity() > 3) {
+      return Stream.empty();
+    }
     return Extractors.getFields(invocation.receiverClass())
-      .filter(f -> isMatchingField(f));
+        .filter(this::isMatchingField);
   }
 
   private boolean isMatchingField(Field field) {
