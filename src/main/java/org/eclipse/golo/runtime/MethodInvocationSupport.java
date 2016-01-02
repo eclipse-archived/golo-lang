@@ -42,7 +42,6 @@ public final class MethodInvocationSupport {
 
     int depth = 0;
     MethodHandle initialFallback;
-    boolean overloadedMethodDetected = false;
     WeakHashMap<Class<?>, MethodHandle> vtable;
 
     InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded, String... argumentNames) {
@@ -220,8 +219,6 @@ public final class MethodInvocationSupport {
 
   public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
 
-    inlineCache.overloadedMethodDetected = false;
-
     if (inlineCache.isMegaMorphic()) {
       return installVTableDispatch(inlineCache, args);
     }
@@ -258,36 +255,8 @@ public final class MethodInvocationSupport {
       }
     }
 
-    MethodHandle guard;
-    MethodHandle fallback;
-    if (inlineCache.overloadedMethodDetected) {
-      inlineCache.depth = 0;
-      Class[] types = new Class[args.length];
-      for (int i = 0; i < types.length; i++) {
-        types[i] = (args[i] == null) ? Object.class : args[i].getClass();
-      }
-      switch (args.length) {
-        case 2:
-          guard = insertArguments(OVERLOADED_GUARD_1, 0, types[0], types[1]);
-          break;
-        case 3:
-          guard = insertArguments(OVERLOADED_GUARD_2, 0, types[0], types[1], types[2]);
-          break;
-        case 4:
-          guard = insertArguments(OVERLOADED_GUARD_3, 0, types[0], types[1], types[2], types[3]);
-          break;
-        case 5:
-          guard = insertArguments(OVERLOADED_GUARD_4, 0, types[0], types[1], types[2], types[3], types[4]);
-          break;
-        default:
-          guard = OVERLOADED_GUARD_GENERIC.bindTo(types).asCollector(Object[].class, types.length);
-      }
-      fallback = inlineCache.initialFallback;
-    } else {
-      guard = CLASS_GUARD.bindTo(receiverClass);
-      fallback = inlineCache.getTarget();
-    }
-
+    MethodHandle guard = CLASS_GUARD.bindTo(receiverClass);
+    MethodHandle fallback = inlineCache.getTarget();
     MethodHandle root = guardWithTest(guard, target, fallback);
     if (inlineCache.nullSafeGuarded) {
       root = makeNullSafeGuarded(root);
@@ -338,7 +307,31 @@ public final class MethodInvocationSupport {
     RegularMethodFinder regularMethodFinder = new RegularMethodFinder(invocation, lookup);
     target = regularMethodFinder.find();
     if (target != null) {
-      inlineCache.overloadedMethodDetected = regularMethodFinder.isOverloaded();
+      if (regularMethodFinder.isOverloaded()) {
+        Object[] args = invocation.arguments();
+        Class[] types = new Class[args.length];
+        for (int i = 0; i < types.length; i++) {
+          types[i] = (args[i] == null) ? Object.class : args[i].getClass();
+        }
+        MethodHandle guard;
+        switch (args.length) {
+          case 2:
+            guard = insertArguments(OVERLOADED_GUARD_1, 0, types[0], types[1]);
+            break;
+          case 3:
+            guard = insertArguments(OVERLOADED_GUARD_2, 0, types[0], types[1], types[2]);
+            break;
+          case 4:
+            guard = insertArguments(OVERLOADED_GUARD_3, 0, types[0], types[1], types[2], types[3]);
+            break;
+          case 5:
+            guard = insertArguments(OVERLOADED_GUARD_4, 0, types[0], types[1], types[2], types[3], types[4]);
+            break;
+          default:
+            guard = OVERLOADED_GUARD_GENERIC.bindTo(types).asCollector(Object[].class, types.length);
+        }
+        return guardWithTest(guard, target, inlineCache.initialFallback);
+      }
       return target;
     }
 
