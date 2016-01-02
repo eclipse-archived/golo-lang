@@ -34,7 +34,7 @@ abstract class MethodFinder {
   protected Optional<MethodHandle> toMethodHandle(Method method) {
     MethodHandle target = null;
     if (isMethodDecorated(method)) {
-      target = getDecoratedMethodHandle(lookup, method, invocation.arity);
+      target = getDecoratedMethodHandle(lookup, method, invocation.arity());
     } else {
       try {
         target = lookup.unreflect(method);
@@ -46,8 +46,8 @@ abstract class MethodFinder {
         return Optional.empty();
       }
     }
-    if (invocation.argumentNames.length > 1) {
-      target = FunctionCallSupport.reorderArguments(method, target, invocation.argumentNames);
+    if (invocation.argumentNames().length > 1) {
+      target = FunctionCallSupport.reorderArguments(method, target, invocation.argumentNames());
     }
     return Optional.of(invocation.coerce(target));
   }

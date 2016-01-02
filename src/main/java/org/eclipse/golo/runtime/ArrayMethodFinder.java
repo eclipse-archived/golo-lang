@@ -22,8 +22,8 @@ class ArrayMethodFinder extends MethodFinder {
   }
 
   private void checkArity(int value) {
-    if (invocation.arity != value + 1) {
-      throw new UnsupportedOperationException(invocation.name + " on arrays takes "
+    if (invocation.arity() != value + 1) {
+      throw new UnsupportedOperationException(invocation.name() + " on arrays takes "
           + (value == 0 ? "no" : value)
           + " parameter" + (value > 1 ? "s" : "")
           );
@@ -33,20 +33,20 @@ class ArrayMethodFinder extends MethodFinder {
   @Override
   public MethodHandle find() {
     try {
-      return resolve().asType(invocation.type);
+      return resolve().asType(invocation.type());
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
   }
 
   private MethodHandle resolve() throws NoSuchMethodException, IllegalAccessException {
-    switch (invocation.name) {
+    switch (invocation.name()) {
       case "get":
         checkArity(1);
-        return MethodHandles.arrayElementGetter(invocation.receiverClass);
+        return MethodHandles.arrayElementGetter(invocation.receiverClass());
       case "set":
         checkArity(2);
-        return MethodHandles.arrayElementSetter(invocation.receiverClass);
+        return MethodHandles.arrayElementSetter(invocation.receiverClass());
       case "size":
       case "length":
         checkArity(0);
@@ -71,25 +71,25 @@ class ArrayMethodFinder extends MethodFinder {
       case "getClass":
         checkArity(0);
         return MethodHandles.dropArguments(
-            MethodHandles.constant(Class.class, invocation.receiverClass),
-            0, invocation.receiverClass);
+            MethodHandles.constant(Class.class, invocation.receiverClass()),
+            0, invocation.receiverClass());
       case "head":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "head", methodType(Object.class, Object[].class))
-          .asType(invocation.type);
+          .asType(invocation.type());
       case "tail":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "tail", methodType(Object[].class, Object[].class))
-          .asType(invocation.type);
+          .asType(invocation.type());
       case "isEmpty":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "isEmpty", methodType(boolean.class, Object[].class))
-          .asType(invocation.type);
+          .asType(invocation.type());
       default:
-        throw new UnsupportedOperationException(invocation.name + " is not supported on arrays");
+        throw new UnsupportedOperationException(invocation.name() + " is not supported on arrays");
     }
   }
 }

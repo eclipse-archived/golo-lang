@@ -40,7 +40,6 @@ public final class MethodInvocationSupport {
     final boolean nullSafeGuarded;
     final String[] argumentNames;
 
-
     int depth = 0;
     WeakHashMap<Class<?>, MethodHandle> vtable;
 

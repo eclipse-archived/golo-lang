@@ -29,7 +29,7 @@ class RegularMethodFinder extends MethodFinder {
 
   RegularMethodFinder(MethodInvocation invocation, Lookup lookup) {
     super(invocation, lookup);
-    this.makeAccessible = !isPublic(invocation.receiverClass.getModifiers());
+    this.makeAccessible = !isPublic(invocation.receiverClass().getModifiers());
   }
 
   @Override
@@ -54,14 +54,14 @@ class RegularMethodFinder extends MethodFinder {
       field.setAccessible(true);
     }
     try {
-      if (invocation.arity == 1) {
-        return Optional.of(lookup.unreflectGetter(field).asType(invocation.type));
+      if (invocation.arity() == 1) {
+        return Optional.of(lookup.unreflectGetter(field).asType(invocation.type()));
       } else {
         return Optional.of(
             filterReturnValue(
               lookup.unreflectSetter(field),
-              constant(invocation.receiverClass, invocation.arguments[0]))
-            .asType(invocation.type));
+              constant(invocation.receiverClass(), invocation.arguments()[0]))
+            .asType(invocation.type()));
       }
     } catch (IllegalAccessException e) {
       /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
@@ -82,17 +82,17 @@ class RegularMethodFinder extends MethodFinder {
   }
 
   private boolean isValidPrivateStructAccess(Method method) {
-    Object receiver = invocation.arguments[0];
+    Object receiver = invocation.arguments()[0];
     if (!(receiver instanceof GoloStruct)) {
       return false;
     }
     String receiverClassName = receiver.getClass().getName();
     String callerClassName = callerClass.getName();
-    return method.getName().equals(invocation.name)
+    return method.getName().equals(invocation.name())
       && isPrivate(method.getModifiers())
       && (receiverClassName.startsWith(callerClassName)
           || callerClassName.equals(reverseStructAugmentation(receiverClassName)))
-      && TypeMatching.argumentsMatch(method, invocation.arguments);
+      && TypeMatching.argumentsMatch(method, invocation.arguments());
   }
 
   private static String reverseStructAugmentation(String receiverClassName) {
@@ -102,17 +102,17 @@ class RegularMethodFinder extends MethodFinder {
 
 
   private Stream<Method> findInMethods() {
-    return Extractors.getMethods(invocation.receiverClass)
+    return Extractors.getMethods(invocation.receiverClass())
       .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m));
   }
 
   private Stream<Field> findInFields() {
-    if (invocation.arity > 3) { return Stream.empty(); }
-    return Extractors.getFields(invocation.receiverClass)
+    if (invocation.arity() > 3) { return Stream.empty(); }
+    return Extractors.getFields(invocation.receiverClass())
       .filter(f -> isMatchingField(f));
   }
 
   private boolean isMatchingField(Field field) {
-    return field.getName().equals(invocation.name) && !isStatic(field.getModifiers());
+    return field.getName().equals(invocation.name()) && !isStatic(field.getModifiers());
   }
 }
