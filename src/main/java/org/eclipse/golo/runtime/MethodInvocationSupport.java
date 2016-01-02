@@ -41,7 +41,7 @@ public final class MethodInvocationSupport {
     final String[] argumentNames;
 
     int depth = 0;
-    MethodHandle initialFallback;
+    MethodHandle resetFallback;
     WeakHashMap<Class<?>, MethodHandle> vtable;
 
     InlineCache(Lookup callerLookup, String name, MethodType type, boolean nullSafeGuarded, String... argumentNames) {
@@ -63,6 +63,7 @@ public final class MethodInvocationSupport {
 
   private static final MethodHandle CLASS_GUARD;
   private static final MethodHandle FALLBACK;
+  private static final MethodHandle RESET_FALLBACK;
   private static final MethodHandle VTABLE_LOOKUP;
 
   private static final MethodHandle OVERLOADED_GUARD_GENERIC;
@@ -99,6 +100,11 @@ public final class MethodInvocationSupport {
       FALLBACK = lookup.findStatic(
           MethodInvocationSupport.class,
           "fallback",
+          methodType(Object.class, InlineCache.class, Object[].class));
+
+      RESET_FALLBACK = lookup.findStatic(
+          MethodInvocationSupport.class,
+          "resetFallback",
           methodType(Object.class, InlineCache.class, Object[].class));
 
       VTABLE_LOOKUP = lookup.findStatic(
@@ -147,8 +153,11 @@ public final class MethodInvocationSupport {
         .bindTo(callSite)
         .asCollector(Object[].class, type.parameterCount())
         .asType(type);
+    callSite.resetFallback = RESET_FALLBACK
+        .bindTo(callSite)
+        .asCollector(Object[].class, type.parameterCount())
+        .asType(type);
     callSite.setTarget(fallbackHandle);
-    callSite.initialFallback = fallbackHandle;
     return callSite;
   }
 
@@ -215,6 +224,11 @@ public final class MethodInvocationSupport {
     } else {
       return findTarget(invocation, inlineCache.callerLookup, inlineCache);
     }
+  }
+
+  public static Object resetFallback(InlineCache inlineCache, Object[] args) throws Throwable {
+    inlineCache.depth = 0;
+    return fallback(inlineCache, args);
   }
 
   public static Object fallback(InlineCache inlineCache, Object[] args) throws Throwable {
@@ -330,7 +344,7 @@ public final class MethodInvocationSupport {
           default:
             guard = OVERLOADED_GUARD_GENERIC.bindTo(types).asCollector(Object[].class, types.length);
         }
-        return guardWithTest(guard, target, inlineCache.initialFallback);
+        return guardWithTest(guard, target, inlineCache.resetFallback);
       }
       return target;
     }
