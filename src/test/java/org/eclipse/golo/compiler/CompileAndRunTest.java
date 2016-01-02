@@ -1929,15 +1929,37 @@ public class CompileAndRunTest {
   @Test
   public void java_overloaded_methods() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "java-overloaded-methods.golo");
-    Method passInt = moduleClass.getMethod("passInt", Object.class);
-    Method passString = moduleClass.getMethod("passString", Object.class);
     ClassWithOverloadedMethods receiver = new ClassWithOverloadedMethods();
 
+    Method passInt = moduleClass.getMethod("passInt", Object.class);
+    Method passString = moduleClass.getMethod("passString", Object.class);
     assertThat(passInt.invoke(null, receiver), is("% 69"));
     assertThat(passString.invoke(null, receiver), is("# Yo!"));
     assertThat(passInt.invoke(null, receiver), is("% 69"));
     assertThat(passInt.invoke(null, receiver), is("% 69"));
     assertThat(passString.invoke(null, receiver), is("# Yo!"));
     assertThat(passString.invoke(null, receiver), is("# Yo!"));
+
+    Method barStringInt = moduleClass.getMethod("barStringInt", Object.class);
+    Method barIntLong = moduleClass.getMethod("barIntLong", Object.class);
+    assertThat(barStringInt.invoke(null, receiver), is("Plop @69"));
+    assertThat(barIntLong.invoke(null, receiver), is("69 :: 100"));
+    assertThat(barStringInt.invoke(null, receiver), is("Plop @69"));
+    assertThat(barIntLong.invoke(null, receiver), is("69 :: 100"));
+    assertThat(barStringInt.invoke(null, receiver), is("Plop @69"));
+    assertThat(barStringInt.invoke(null, receiver), is("Plop @69"));
+    assertThat(barIntLong.invoke(null, receiver), is("69 :: 100"));
+    assertThat(barIntLong.invoke(null, receiver), is("69 :: 100"));
+
+    Method bazAllString = moduleClass.getMethod("bazAllString", Object.class);
+    Method bazMixed = moduleClass.getMethod("bazMixed", Object.class);
+    assertThat(bazAllString.invoke(null, receiver), is("a ^ b ^ c ^ d ^ e ^ f ^ g ^ h"));
+    assertThat(bazMixed.invoke(null, receiver), is("a ~ b ~ c ~ d ~ e ~ f ~ 1 ~ 2"));
+    assertThat(bazAllString.invoke(null, receiver), is("a ^ b ^ c ^ d ^ e ^ f ^ g ^ h"));
+    assertThat(bazMixed.invoke(null, receiver), is("a ~ b ~ c ~ d ~ e ~ f ~ 1 ~ 2"));
+    assertThat(bazAllString.invoke(null, receiver), is("a ^ b ^ c ^ d ^ e ^ f ^ g ^ h"));
+    assertThat(bazAllString.invoke(null, receiver), is("a ^ b ^ c ^ d ^ e ^ f ^ g ^ h"));
+    assertThat(bazMixed.invoke(null, receiver), is("a ~ b ~ c ~ d ~ e ~ f ~ 1 ~ 2"));
+    assertThat(bazMixed.invoke(null, receiver), is("a ~ b ~ c ~ d ~ e ~ f ~ 1 ~ 2"));
   }
 }
