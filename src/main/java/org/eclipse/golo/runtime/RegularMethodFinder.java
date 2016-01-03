@@ -42,11 +42,15 @@ class RegularMethodFinder extends MethodFinder {
 
   public boolean isOverloaded() {
     return Extractors.getMethods(invocation.receiverClass())
-        .filter(Extractors::isPublic)
-        .filter(Extractors::isConcrete)
-        .filter(m -> m.getName().equals(invocation.name()))
-        .filter(m -> (m.getParameterCount() + 1 == invocation.arity()) || (m.isVarArgs() && (m.getParameterCount() <= invocation.arity())))
+        .filter(this::overloadMatch)
         .count() > 1;
+  }
+
+  private boolean overloadMatch(Method m) {
+    return Extractors.isPublic(m) &&
+        Extractors.isConcrete(m) &&
+        m.getName().equals(invocation.name()) &&
+        (m.getParameterCount() + 1 == invocation.arity()) || (m.isVarArgs() && (m.getParameterCount() <= invocation.arity()));
   }
 
   private Optional<MethodHandle> toMethodHandle(Field field) {
