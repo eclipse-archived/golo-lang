@@ -46,8 +46,6 @@ public final class OperatorSupport {
       add("is");
       add("isnt");
       add("oftype");
-
-      add("orifnull");
     }
   };
 
@@ -1356,10 +1354,6 @@ public final class OperatorSupport {
 
   public static Object isnt_noguard(Object a, Object b) {
     return a != b;
-  }
-
-  public static Object orifnull_noguard(Object a, Object b) {
-    return (a != null) ? a : b;
   }
 
   // helpers ..........................................................................................................

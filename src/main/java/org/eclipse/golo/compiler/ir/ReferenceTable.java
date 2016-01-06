@@ -33,6 +33,10 @@ public final class ReferenceTable implements Scope {
     return this;
   }
 
+  public int size() {
+    return table.size() + (parent != null ? parent.size() : 0);
+  }
+
   public boolean hasReferenceFor(String name) {
     return table.containsKey(name) || parent != null && parent.hasReferenceFor(name);
   }
