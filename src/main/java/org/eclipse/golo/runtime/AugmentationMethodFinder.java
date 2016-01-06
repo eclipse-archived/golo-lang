@@ -72,7 +72,7 @@ class AugmentationMethodFinder extends MethodFinder {
   @Override
   public MethodHandle find() {
     return getDefiningModules()
-        .flatMap(dm -> dm.augmentationsFor(loader, invocation.receiverClass))
+        .flatMap(dm -> dm.augmentationsFor(loader, invocation.receiverClass()))
         .flatMap(aug -> aug.methodsMaching(invocation))
         .min(Comparator.naturalOrder())
         .flatMap(am -> toMethodHandle(am.method()))

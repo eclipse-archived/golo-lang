@@ -19,12 +19,13 @@ import static java.lang.reflect.Modifier.*;
  * Encapsulate informations about a runtime method call.
  */
 public class MethodInvocation {
-  public final String name;
-  public final Class<?> receiverClass;
-  public final Object[] arguments;
-  public final int arity;
-  public final String[] argumentNames;
-  public final MethodType type;
+
+  private final String name;
+  private final Class<?> receiverClass;
+  private final Object[] arguments;
+  private final int arity;
+  private final String[] argumentNames;
+  private final MethodType type;
 
   MethodInvocation(String name, MethodType type, Object[] args, String[] argNames) {
     this.name = name;
@@ -35,6 +36,30 @@ public class MethodInvocation {
     this.argumentNames = new String[argNames.length + 1];
     this.argumentNames[0] = "this";
     System.arraycopy(argNames, 0, argumentNames, 1, argNames.length);
+  }
+
+  public String name() {
+    return name;
+  }
+
+  public Class<?> receiverClass() {
+    return receiverClass;
+  }
+
+  public Object[] arguments() {
+    return arguments;
+  }
+
+  public int arity() {
+    return arity;
+  }
+
+  public String[] argumentNames() {
+    return argumentNames;
+  }
+
+  public MethodType type() {
+    return type;
   }
 
   private boolean isLastArgumentAnArray() {
