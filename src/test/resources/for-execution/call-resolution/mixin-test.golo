@@ -32,7 +32,7 @@ function test_dispatch = {
 
   assertEquals(sayPlop(42), "no plop:42")
 
-  assertEquals(sayPlop(MyStruct(42)), 
+  assertEquals(sayPlop(MyStruct(42)),
     "say:plop:golotest.augmentations.MyData.types.MyStruct:42")
 
   assertEquals(sayPlop(MyUnion.Not()),

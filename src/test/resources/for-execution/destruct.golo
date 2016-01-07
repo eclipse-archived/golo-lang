@@ -99,7 +99,7 @@ function test_union = {
   let x, y = foo
   require(x == 1, "err")
   require(y == 2, "err")
-  
+
   let bar = MyUnion.Bar("a", "b", "c")
   let a, b, c = bar
   require(a == "a", "err")

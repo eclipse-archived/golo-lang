@@ -233,7 +233,7 @@ augment gololang.LazyList {
 
 
   ----
-  Takes the `nb` first elements of the lazy list, as a lazy list. 
+  Takes the `nb` first elements of the lazy list, as a lazy list.
   This is a wrapper, the underlying list is resolved on demand, such that
   everything remains lazy. `take` can thus be used on infinite lists.
   ----
@@ -254,7 +254,7 @@ augment gololang.LazyList {
     when this: isEmpty() or not pred(this: head()) then emptyList()
     otherwise gololang.LazyList.cons(this: head(), -> this: tail() :takeWhile(pred))
   }
-  
+
   ----
   Remove `nb` elements from the list and return the rest as a lazy list.
   ----
@@ -327,7 +327,7 @@ Produces a infinite list of values. If the argument is a closure, it must have
 no parameters, and it's used to produce the values (called for each `tail`
 access).
 
-For instance, `repeat(5)` will return an infinite lazy list of `5`s, and 
+For instance, `repeat(5)` will return an infinite lazy list of `5`s, and
 `repeat(^f)` will return a infinite lazy list of calls to `f`
 ([f(), f(), f(), ...])
 
@@ -339,12 +339,12 @@ function repeat = |value| -> match {
 }
 
 ----
-Returns an infinite lazy list produced by iterative application of a function 
+Returns an infinite lazy list produced by iterative application of a function
 to an initial element.
 `iterate(z, f)` thus yields `z, f(z), f(f(z)), ...`
 
 For instance, one can create a infinite list of integers using:
-    
+
     iterate(0, |x| -> x + 1)
 
 

@@ -70,7 +70,7 @@ function test_toString = {
 
 # ............................................................................................... #
 function test_hashcode = {
-  require(Option.None(): hashCode() == Option.None(): hashCode(), 
+  require(Option.None(): hashCode() == Option.None(): hashCode(),
     "singleton hashcode")
   require(Option.Some("bar"): hashCode() == Option.Some("bar"): hashCode(),
     "hashcode")
@@ -93,7 +93,7 @@ function test_equality = {
 
   require(n == Option.None(), "singleton equality")
   require(n is Option.None(), "singleton identity")
-  
+
   require(s == Option.Some(5), "value equality")
   require(s isnt Option.Some(5), "value identity")
 
@@ -144,7 +144,7 @@ function test_augmentations = {
     "err on Tree.Leaf:whoAreYou")
   require(Tree.Node(0, 0): whoAreYou() == "I'm a node",
     "err on Tree.Node:whoAreYou")
-  require(Tree.Empty(): whoAreYou() == "I'm empty", 
+  require(Tree.Empty(): whoAreYou() == "I'm empty",
     "err on Tree.Empty:whoAreYou")
 
 }
@@ -182,7 +182,7 @@ function test_match_methods = {
   let n = Tree.Node(0, 0)
   let l = Tree.Leaf(0)
   let e = Tree.Empty()
-  
+
   require(not n: isEmpty(), "err")
   require(not l: isEmpty(), "err")
   require(e: isEmpty(), "err")

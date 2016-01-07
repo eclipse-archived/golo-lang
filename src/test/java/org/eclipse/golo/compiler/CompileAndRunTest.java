@@ -1836,6 +1836,11 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_named_on_anon_call() throws Throwable {
+    runTests(SRC, "namedarguments-anoncall.golo", classLoader(this));
+  }
+
+  @Test
   public void test_named_parameters() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "namedparameters-function-calls.golo");
 
