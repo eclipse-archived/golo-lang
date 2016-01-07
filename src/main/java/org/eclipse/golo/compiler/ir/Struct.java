@@ -40,6 +40,10 @@ public final class Struct extends GoloElement {
     this.name = name;
   }
 
+  public String getName() {
+    return name;
+  }
+
   public Struct members(String... members) {
     return this.members(asList(members));
   }
