@@ -17,6 +17,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 
+import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
@@ -119,5 +120,29 @@ public class CompilerTest {
     GoloCompiler compiler = new GoloCompiler();
     String errSourceFile = "initialized-closure-args-reference.golo";
     compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+  }
+
+  @Test
+  public void verify_compile_error_duplicated_types() throws Throwable {
+    String errSourceFileDir = "src/test/resources/for-test/";
+    GoloCompiler compiler = new GoloCompiler();
+    GoloCompilationException.Problem problem;
+
+    for (String errSourceFile : asList("duplicated-struct.golo",
+                                       "duplicated-type.golo",
+                                       "duplicated-union.golo",
+                                       "duplicated-union-value.golo")) {
+      try {
+        compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      } catch (GoloCompilationException e) {
+        assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+        assertThat(e.getSourceCode(), is(errSourceFile));
+        assertThat(e.getProblems().size(), is(1));
+
+        problem = e.getProblems().get(0);
+        assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.AMBIGUOUS_DECLARATION));
+        assertThat(problem.getSource().getLineInSourceCode(), is(9));
+      }
+    }
   }
 }

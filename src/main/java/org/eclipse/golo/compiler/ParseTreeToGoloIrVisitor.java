@@ -105,6 +105,17 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       container.addFunction(function);
     }
 
+    public boolean checkExistingSubtype(GoloASTNode node, String name) {
+      GoloElement existing = module.getSubtypeByName(name);
+      if (existing != null) {
+        errorMessage(AMBIGUOUS_DECLARATION, node,
+            String.format("Declaring a type `%s` twice (declared first here: %s)",
+                name, existing.getASTNode().getPositionInSourceCode()));
+        return true;
+      }
+      return false;
+    }
+
     public GoloFunction getOrCreateFunction() {
       if (!(objectStack.peek() instanceof GoloFunction)) {
         objectStack.push(functionDeclaration().synthetic().local().asClosure());
@@ -210,25 +221,32 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTStructDeclaration node, Object data) {
     Context context = (Context) data;
-    context.module.addStruct(structure(node.getName())
-      .ofAST(node)
-      .members(node.getMembers()));
+    if (!context.checkExistingSubtype(node, node.getName())) {
+      context.module.addStruct(structure(node.getName())
+        .ofAST(node)
+        .members(node.getMembers()));
+    }
     return node.childrenAccept(this, data);
   }
 
   @Override
   public Object visit(ASTUnionDeclaration node, Object data) {
     Context context = (Context) data;
-    context.push(union(node.getName()));
-    node.childrenAccept(this, data);
-    context.module.addUnion((Union) context.pop());
+    if (!context.checkExistingSubtype(node, node.getName())) {
+      context.push(union(node.getName()).ofAST(node));
+      node.childrenAccept(this, data);
+      context.module.addUnion((Union) context.pop());
+    }
     return data;
   }
 
   @Override
   public Object visit(ASTUnionValue node, Object data) {
     Context context = (Context) data;
-    ((Union) context.peek()).addValue(node.getName(), node.getMembers());
+    if (!((Union) context.peek()).addValue(node.getName(), node.getMembers())) {
+      context.errorMessage(AMBIGUOUS_DECLARATION, node,
+          String.format("Declaring the union value `%s` twice", node.getName()));
+    }
     return node.childrenAccept(this, data);
   }
 
