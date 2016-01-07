@@ -27,12 +27,16 @@ import static org.hamcrest.Matchers.*;
 public class MethodInvocationSupportTest {
 
   public static class Person {
-    String name;
+    private String name;
+    private boolean goloCommitter;
+    private Object notAccessible;
+    private int score;
     String email;
 
-    public Person(String name, String email) {
+    public Person(String name, String email, boolean goloCommitter) {
       this.name = name;
       this.email = email;
+      this.goloCommitter = goloCommitter;
     }
 
     public String getName() {
@@ -43,12 +47,21 @@ public class MethodInvocationSupportTest {
       this.name = name;
     }
 
-    public String getEmail() {
-      return email;
+    public boolean isGoloCommitter() {
+      return goloCommitter;
     }
 
-    public void setEmail(String email) {
-      this.email = email;
+    public void setGoloCommitter(boolean goloCommitter) {
+      this.goloCommitter = goloCommitter;
+    }
+
+    public int setScore(int score) {
+      this.score = score;
+      return score / 2;
+    }
+
+    public boolean isRockStar() {
+      return goloCommitter;
     }
 
     public String greet(Person... people) {
@@ -64,6 +77,7 @@ public class MethodInvocationSupportTest {
       return "Person{" +
           "name='" + name + '\'' +
           ", email='" + email + '\'' +
+          ", goloCommitter=" + goloCommitter +
           '}';
     }
   }
@@ -98,7 +112,7 @@ public class MethodInvocationSupportTest {
   }
 
   public Person julien() {
-    return new Person("Julien", "julien.ponge@insa-lyon.fr");
+    return new Person("Julien", "julien.ponge@insa-lyon.fr", true);
   }
 
   public VarargsChecking varargsChecking() {
@@ -110,7 +124,7 @@ public class MethodInvocationSupportTest {
     CallSite toString = MethodInvocationSupport.bootstrap(lookup(), "toString", methodType(Object.class, Object.class), 0);
     String result = (String) toString.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
-    assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr'}"));
+    assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr', goloCommitter=true}"));
   }
 
   @Test
@@ -119,6 +133,64 @@ public class MethodInvocationSupportTest {
     Person julien = julien();
     setName.dynamicInvoker().invokeWithArguments(julien, "Julien Ponge");
     assertThat(julien.name, is("Julien Ponge"));
+  }
+
+  @Test
+  public void check_property_style_getter() throws Throwable {
+    CallSite getName = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class), 0);
+    Person julien = julien();
+    String name = (String) getName.dynamicInvoker().invokeWithArguments(julien);
+    assertThat(name, is("Julien"));
+  }
+
+  @Test(expectedExceptions = NoSuchMethodError.class, expectedExceptionsMessageRegExp = ".*Person::notAccessible.*")
+  public void check_property_style_resolution_fail_when_no_getter_setter_found() throws Throwable {
+    CallSite getNoAccessible = MethodInvocationSupport.bootstrap(lookup(), "notAccessible", methodType(Object.class, Object.class), 0);
+    Person julien = julien();
+    getNoAccessible.dynamicInvoker().invokeWithArguments(julien);
+  }
+
+  @Test
+  public void check_boolean_property_style_getter() throws Throwable {
+    CallSite isGoloCommitter = MethodInvocationSupport.bootstrap(lookup(), "goloCommitter", methodType(Object.class, Object.class), 0);
+    Person julien = julien();
+    boolean goloCommitter = (boolean) isGoloCommitter.dynamicInvoker().invokeWithArguments(julien);
+    assertThat(goloCommitter, is(true));
+  }
+
+  @Test
+  public void check_property_style_getter_on_computed_field() throws Throwable {
+    CallSite isRockStar = MethodInvocationSupport.bootstrap(lookup(), "rockStar", methodType(Object.class, Object.class), 0);
+    Person julien = julien();
+    boolean rockstar = (boolean) isRockStar.dynamicInvoker().invoke(julien);
+    assertThat(rockstar, is(true));
+  }
+
+  @Test
+  public void check_property_style_setter() throws Throwable {
+    CallSite setName = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class, Object.class), 0);
+    Person julien = julien();
+    Person instance = (Person) setName.dynamicInvoker().invokeWithArguments(julien, "Julien Ponge");
+    assertThat(julien.name, is("Julien Ponge"));
+    assertThat(instance, is(julien));
+  }
+
+  @Test
+  public void check_boolean_property_style_setter() throws Throwable {
+    CallSite setGoloCommitter = MethodInvocationSupport.bootstrap(lookup(), "goloCommitter", methodType(Object.class, Object.class, Object.class), 0);
+    Person julien = julien();
+    Person instance = (Person) setGoloCommitter.dynamicInvoker().invokeWithArguments(julien, false);
+    assertThat(julien.goloCommitter, is(false));
+    assertThat(instance, is(julien));
+  }
+
+  @Test
+  public void check_property_style_setter_with_return_value() throws Throwable {
+    CallSite setScore = MethodInvocationSupport.bootstrap(lookup(), "score", methodType(Object.class, Object.class, Object.class), 0);
+    Person julien = julien();
+    int halfScore = (int) setScore.dynamicInvoker().invokeWithArguments(julien, 100);
+    assertThat(julien.score, is(100));
+    assertThat(halfScore, is(50));
   }
 
   @Test
@@ -131,10 +203,10 @@ public class MethodInvocationSupportTest {
 
   @Test
   public void check_field_read() throws Throwable {
-    CallSite name = MethodInvocationSupport.bootstrap(lookup(), "name", methodType(Object.class, Object.class), 0);
-    String result = (String) name.dynamicInvoker().invokeWithArguments(julien());
+    CallSite email = MethodInvocationSupport.bootstrap(lookup(), "email", methodType(Object.class, Object.class), 0);
+    String result = (String) email.dynamicInvoker().invokeWithArguments(julien());
     assertThat(result, notNullValue());
-    assertThat(result, is("Julien"));
+    assertThat(result, is("julien.ponge@insa-lyon.fr"));
   }
 
   @Test(expectedExceptions = NoSuchMethodError.class)
@@ -150,7 +222,7 @@ public class MethodInvocationSupportTest {
 
     for (int i = 0; i < 5; i++) {
       String result = (String) toStringMH.invokeWithArguments(julien());
-      assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr'}"));
+      assertThat(result, is("Person{name='Julien', email='julien.ponge@insa-lyon.fr', goloCommitter=true}"));
 
       result = (String) toStringMH.invokeWithArguments("foo");
       assertThat(result, is("foo"));

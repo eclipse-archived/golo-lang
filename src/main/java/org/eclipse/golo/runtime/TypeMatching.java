@@ -122,4 +122,8 @@ public final class TypeMatching {
       argumentsNumberMatches(constructor.getParameterTypes().length, arguments.length, constructor.isVarArgs())
       && canAssign(constructor.getParameterTypes(), arguments, constructor.isVarArgs());
   }
+
+  public static boolean returnsValue(Method m) {
+    return !(m.getReturnType().equals(void.class) || m.getReturnType().equals(Void.class));
+  }
 }

@@ -316,7 +316,10 @@ public final class MethodInvocationSupport {
   private static MethodHandle findTarget(MethodInvocation invocation, Lookup lookup, InlineCache inlineCache) {
     MethodHandle target;
 
-    // NOTE: magic for accessors and mutators would go here...
+    target = new PropertyMethodFinder(invocation, lookup).find();
+    if (target != null) {
+      return target;
+    }
 
     RegularMethodFinder regularMethodFinder = new RegularMethodFinder(invocation, lookup);
     target = regularMethodFinder.find();
