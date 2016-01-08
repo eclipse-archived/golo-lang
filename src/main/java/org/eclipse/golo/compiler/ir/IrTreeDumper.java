@@ -193,7 +193,8 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println("Function call: " + functionInvocation.getName()
         + ", on reference? -> " + functionInvocation.isOnReference()
         + ", on module state? -> " + functionInvocation.isOnModuleState()
-        + ", anonymous? -> " + functionInvocation.isAnonymous());
+        + ", anonymous? -> " + functionInvocation.isAnonymous()
+        + ", named arguments? -> " + functionInvocation.usesNamedArguments());
 
     functionInvocation.walk(this);
     decr();

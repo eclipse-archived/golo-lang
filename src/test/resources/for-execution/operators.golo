@@ -101,7 +101,7 @@ function polymorphic_number_comparison = {
       require((not (b == a)), "equals failed")
       require((b != a), "not equals failed")
       require((a != b), "not equals failed")
-      
+
       require((a <= b), "less or equals failed")
       require((not (a >= b)), "more or equals failed")
       require((b >= a), "more or equals failed")
@@ -120,7 +120,7 @@ function polymorphic_number_comparison = {
       require((b == a), "equals failed")
       require((not (a != b)), "not equals failed")
       require((not (b != a)), "not equals failed")
-      
+
       require((a <= b), "less or equals failed")
       require((a >= b), "more or equals failed")
       require((b >= a), "more or equals failed")

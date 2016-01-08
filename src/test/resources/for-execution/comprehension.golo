@@ -92,7 +92,7 @@ function test_two_mixed_loops = {
 }
 
 function test_more_loops = {
-  let l = list[ [x,y,z] foreach x in [0,1,2] when (x % 2) == 1 
+  let l = list[ [x,y,z] foreach x in [0,1,2] when (x % 2) == 1
                         foreach y in [1,2,3] when y < 2
                         foreach z in [1] ]
   require(l == list[[1,1,1]], "more_loops failed")
@@ -120,11 +120,11 @@ function test_filtered_destruct_two = {
     foreach k, v in aMap:entrySet() when k: startsWith("f") or v >= 42
   ]
 
-  let result = list[ 
-    "foo: 5", "bar: 45", 
+  let result = list[
+    "foo: 5", "bar: 45",
     "foo: 15", "bar: 135",
     "foo: 25", "bar: 225",
-    "foo: 35", "bar: 315", 
+    "foo: 35", "bar: 315",
     "foo: 45", "bar: 405"
   ]
   require(l == result, "filtered destruct failed")
@@ -180,6 +180,6 @@ function main = |args| {
     ^test_more_loops,
     ^test_destruct,
     ^test_map_destruct,
-    ^test_filtered_destruct_two 
+    ^test_filtered_destruct_two
   )
 }

@@ -525,7 +525,9 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     FunctionInvocation invocation = functionInvocation().constant(node.isConstant()).ofAST(node);
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, data);
-      invocation.withArgs(context.pop());
+      ExpressionStatement statement = (ExpressionStatement) context.pop();
+      checkNamedArgument(context, node, invocation, statement);
+      invocation.withArgs(statement);
     }
     if (node.isOnExpression()) {
       context.push(anonCall(context.pop(), invocation));
@@ -533,6 +535,17 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       context.push(invocation);
     }
     return data;
+  }
+
+  private void checkNamedArgument(Context context, GoloASTNode node, AbstractInvocation invocation, ExpressionStatement statement) {
+    if (statement instanceof NamedArgument) {
+      if (!invocation.namedArgumentsComplete()) {
+        context.errorMessage(GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+            invocation.getClass() + " `" + invocation.getName()
+            + "` invocation should name either all or none of its arguments");
+      }
+      invocation.withNamedArguments();
+    }
   }
 
   private Object visitAbstractInvocation(Object data, GoloASTNode node, AbstractInvocation invocation) {
@@ -547,14 +560,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       }
       argumentNode.jjtAccept(this, context);
       ExpressionStatement statement = (ExpressionStatement) context.pop();
-      if (statement instanceof NamedArgument) {
-        if (!invocation.namedArgumentsComplete()) {
-          context.errorMessage(GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
-              invocation.getClass() + " `" + invocation.getName()
-              + "` invocation should name either all or none of its arguments");
-        }
-        invocation.withNamedArguments();
-      }
+      checkNamedArgument(context, node, invocation, statement);
       invocation.withArgs(statement);
     }
     context.push(invocation);

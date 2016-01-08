@@ -37,7 +37,7 @@ Future objects have the following methods.
 * `onFail(|e| {...})`: registers a callback when the corresponding promise fails with an exception.
 * `isResolved()`, `isFailed()` `get()` and `blockingGet()` delegate to the promise implementation.
 ----
-function promise = -> 
+function promise = ->
   gololang.concurrent.async.Promise()
 
 ----
@@ -83,7 +83,7 @@ augment gololang.concurrent.async.Promise {
 ----
 Returns a future set to `value`.
 ----
-function setFuture = |value| -> 
+function setFuture = |value| ->
   gololang.concurrent.async.AssignedFuture.setFuture(value)
 
 ----
@@ -99,8 +99,8 @@ class.
 augment gololang.concurrent.async.Future {
 
   ----
-  Returns a future whose value is mapped through the `fun` function. 
-  
+  Returns a future whose value is mapped through the `fun` function.
+
   If this future is set to `v`, then the returned future is set to `fun(v)`. If it fails, the
   returned future is also failed with the same exception.
   ----
@@ -265,25 +265,25 @@ The provided functions all forward to Golo futures, while `cancel` forwards to a
 ----
 augment gololang.Async.types.FutureBridge {
 
-  function onSet = |this, listener| -> 
+  function onSet = |this, listener| ->
     this: _goloFuture(): onSet(listener)
 
-  function onFail = |this, listener| -> 
+  function onFail = |this, listener| ->
     this: _goloFuture(): onFail(listener)
 
-  function map = |this, fun| -> 
+  function map = |this, fun| ->
     this: _goloFuture(): map(fun)
 
   function flatMap = |this, fun| ->
     this: _goloFuture(): flatMap(fun)
 
-  function filter = |this, pred| -> 
+  function filter = |this, pred| ->
     this: _goloFuture(): filter(pred)
 
-  function fallbackTo = |this, future| -> 
+  function fallbackTo = |this, future| ->
     this: _goloFuture(): fallbackTo(future)
 
-  function cancel = |this, mayInterruptIfRunning| -> 
+  function cancel = |this, mayInterruptIfRunning| ->
     this: _javaFuture(): cancel(mayInterruptIfRunning)
 }
 
@@ -309,7 +309,7 @@ augment java.util.concurrent.ExecutorService {
       })
 
       # Watch what could happen
-      f: onSet(|v| -> println(v)): 
+      f: onSet(|v| -> println(v)):
          onFail(|e| -> println(e: getMessage()))
 
       # ...but make it fail unless the CPU was too slow
