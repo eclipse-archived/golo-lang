@@ -8,6 +8,18 @@ local function assertEquals = |value, expected| {
 }
 # ............................................................................ #
 
+local function can_fail_or_null = |x| -> match {
+  when x oftype java.lang.String.class then raise(x)
+  otherwise x
+}
+
+function test_deco = {
+  let deco = option(^can_fail_or_null)
+  assertEquals(deco(42), Some(42))
+  assertEquals(deco(null), None())
+  assertEquals(deco("err"), None())
+}
+
 function test_testingmethods = {
   let s = Some(42)
   let n = None()
@@ -116,7 +128,29 @@ function test_toResult = {
   let err = IllegalArgumentException("err")
   assertEquals(Some(42): toResult(err), gololang.error.Result.ok(42))
   assertEquals(None(): toResult(err), gololang.error.Result.error(err))
+}
 
+@option
+function safeGetter = |aMap, aKey| -> aMap: get(aKey)
+
+function bar = -> 42
+function plus2 = |x| -> x + 2
+function mult2 = |x| -> x * 2
+
+function test_getter = {
+  let m = map[["a", 2], ["answer", 19]]
+
+  assertEquals(
+    safeGetter(m, "answer"): map(^plus2): map(^mult2): orElseGet(^bar),
+    42)
+
+  assertEquals(
+    safeGetter(m, "plop"): map(^plus2): map(^mult2): orElseGet(^bar),
+    42)
+
+  assertEquals(
+    safeGetter(null, "answer"): map(^plus2): map(^mult2): orElseGet(^bar),
+    42)
 }
 
 # ............................................................................ #
@@ -130,5 +164,7 @@ function main = |args| {
   test_orElseGet()
   test_applicative()
   test_toResult()
+  test_deco()
+  test_getter()
   println("ok")
 }

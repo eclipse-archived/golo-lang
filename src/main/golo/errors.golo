@@ -266,7 +266,7 @@ function result = |f| -> |args...| {
 
 ----
 Transform a function raising an exception into a function returning a option.
-The resulting function returns `Some(f(x))` if `f(x)` succeeds and `None` if
+The resulting function returns `Option(f(x))` if `f(x)` succeeds and `None` if
 `f(x)` raises an exception.
 
 Can be used as a decorator.
