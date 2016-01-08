@@ -2,10 +2,10 @@
 module golotest.error.Result
 
 import gololang.error
-import gololang.error.Errors
+import gololang.Errors
 
 local function assertEquals = |value, expected| {
-  require(value == expected, 
+  require(value == expected,
     String.format("expected %s, got %s", expected, value))
 }
 
@@ -68,6 +68,19 @@ function test_reduce = {
   assertEquals(Result.fail("error"): reduce(42, |x, y| -> x + y), 42)
 }
 
+function test_flatten = {
+  assertEquals(Ok(Ok(42)): flattened(), Ok(42))
+  assertEquals(Error("err"): flattened(), Error("err"))
+  assertEquals(Ok(Error("err")): flattened(), Error("err"))
+
+  try {
+    Ok(42): flattened()
+  } catch (e) {
+    require(e oftype java.lang.ClassCastException.class, "Bad Exception")
+  }
+
+}
+
 function test_result = {
   let failer = result(^canFail)
   assertEquals(failer(null), Result.empty())
@@ -95,13 +108,29 @@ function test_flatMap = {
 }
 
 function test_andThen = {
-  let plus2 = |x| -> Result.ok(x + 2)
-  assertEquals(Result.ok(38): andThen(plus2): andThen(plus2),
+  let plus2 = |x| -> x + 2
+  let mult2 = |x| -> Result.ok(x * 2)
+  assertEquals(Result.ok(19): andThen(plus2): andThen(mult2),
     Result.ok(42))
-  assertEquals(Result.ok(null): andThen(plus2): andThen(plus2),
+  assertEquals(Result.ok(20): andThen(mult2): andThen(plus2),
+    Result.ok(42))
+  assertEquals(Result.ok(null): andThen(plus2): andThen(mult2),
     Result.empty())
-  assertEquals(Result.fail("err"): andThen(plus2): andThen(plus2),
+  assertEquals(Result.ok(null): andThen(mult2): andThen(plus2),
+    Result.empty())
+  assertEquals(Result.fail("err"): andThen(plus2): andThen(mult2),
     Result.fail("err"))
+  assertEquals(Result.fail("err"): andThen(mult2): andThen(plus2),
+    Result.fail("err"))
+}
+
+function test_either = {
+  let twice = |x| -> 2 * x
+  let recover = |err| -> 42
+  let answer = -> 42
+  assertEquals(Ok(21): either(twice, recover), 42)
+  assertEquals(Error("err"): either(twice, recover), 42)
+  assertEquals(Ok(null): either(twice, recover, answer), 42)
 }
 
 function test_orElseGet = {
@@ -194,7 +223,7 @@ function impParsing = |a, b, c| {
 function test_imperative = {
   assertEquals(impParsing("11", "11", "20"), Ok(42))
 
-  assertEquals(impParsing("l", "21", "1"), 
+  assertEquals(impParsing("l", "21", "1"),
                Result(NumberFormatException("For input string: \"l\"")))
   assertEquals(impParsing("21", "m", "r"),
                Result(NumberFormatException("For input string: \"m\"")))
@@ -212,7 +241,7 @@ function monadicParsing = |a, b, c| ->
 function test_monadic = {
   assertEquals(monadicParsing("11", "11", "20"), Ok(42))
 
-  assertEquals(monadicParsing("l", "21", "1"), 
+  assertEquals(monadicParsing("l", "21", "1"),
                Result(NumberFormatException("For input string: \"l\"")))
   assertEquals(monadicParsing("21", "m", "r"),
                Result(NumberFormatException("For input string: \"m\"")))

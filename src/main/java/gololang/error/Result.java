@@ -400,10 +400,99 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
   }
 
   /**
-   * Alias for {@code flatMap}.
+   * Remove one level of result.
+   * <p>
+   * This is actually equivalent to {@code flatMap(identity)}
+   * (or {@code r.flatMap(f)} is equivalent to {@code r.map(f).flattened()})
+   * <p>
+   * For instance:
+   * <pre><code>
+   * ok(ok(42)).flattened() == ok(42)
+   * fail("error").flattened() == fail("error")
+   * empty().flattened() == empty()
+   * </code></pre>
+   *
+   * @return the value contained in this result if it's a result
+   * @throws ClassCastException when the result does not contain a result.
    */
-  public Result<Object, Throwable> andThen(FunctionReference mapper) {
-    return this.flatMap(mapper);
+  public Result<?, ?> flattened() {
+    if (value == null) {
+      return this;
+    }
+    return (Result) value;
+    // }
+    // throw new ClassCastException(String.format("%s cannot be cast to %s",
+    //       value.getClass(), Result.class));
+  }
+
+  /**
+   * Same as {@code map} or {@code flatMap} depending on the type returned by {@code mapper}.
+   * <p>
+   * This is a generic version for {@code map} and {@code flatMap}:
+   * if {@code mapper} returns a {@code Result}, it's equivalent to {@code flatMap},
+   * otherwise, it's equivalent to {@code map}.
+   * <p>
+   * This allows code such as:
+   * <pre><code>
+   * Ok(21): andThen(|x| -> x + 1): andThen(|x| -> Ok(2 * x)) == Ok(42)
+   * </code></pre>
+   */
+  public Result<? extends Object, ? extends Throwable> andThen(FunctionReference mapper) {
+    Objects.requireNonNull(mapper);
+    if (isEmpty() || isError()) {
+      return this;
+    }
+    Object result;
+    try {
+      result = mapper.invoke(value);
+    } catch (Throwable e) {
+      return error(e);
+    }
+    if (result instanceof Result) {
+      return (Result<?, ?>) result;
+    }
+    else {
+      return ok(result);
+    }
+  }
+
+  /**
+   * Case analysis for the result.
+   * <p>
+   * If the result is a value, apply the first function to it;
+   * if it is an error, apply the second function to it.
+   * <p>
+   * Note that if the result is empty, i.e. the value is {@code null},
+   * the {@code mapping} function is applied to {@code null}.
+   *
+   * @param mapping the function to apply to the contained value
+   * @param recover the function to apply to the contained error
+   * @return the result of applying the corresponding function
+   */
+  public Object either(FunctionReference mapping, FunctionReference recover) throws Throwable {
+    if (isError()) {
+      return recover.invoke(error);
+    }
+    return recover.invoke(value);
+  }
+
+    /**
+   * Three way case analysis for the result.
+   * <p>
+   * If the result is a value, apply the first function to it;
+   * if it is an error, apply the second function to it;
+   * if it is empty, invoke the third function.
+   *
+   * @param mapping the function to apply to the contained value
+   * @param recover the function to apply to the contained error
+   * @param def the function to invoke if the result is empty (takes no arguments)
+   * @return the result of applying the corresponding function
+   */
+  public Object either(FunctionReference mapping, FunctionReference recover, FunctionReference def) throws Throwable {
+    if (isEmpty()) {
+      return def.invoke();
+    }
+    return this.either(mapping, recover);
   }
 
   /**

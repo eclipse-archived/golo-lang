@@ -1,6 +1,6 @@
 module golotest.error.Option
 
-import gololang.error.Errors
+import gololang.Errors
 
 local function assertEquals = |value, expected| {
   require(value == expected, 
@@ -38,6 +38,23 @@ function test_iterator = {
   assertEquals(l, list[])
 }
 
+function test_reduce = {
+  assertEquals(Some("b"): reduce("a", |x, y| -> x + y), "ab")
+  assertEquals(None(): reduce(42, |x, y| -> x + y), 42)
+}
+
+function test_flattened = {
+  assertEquals(Some(Some(42)): flattened(), Some(42))
+  assertEquals(None(): flattened(), None())
+  assertEquals(Some(None()): flattened(), None())
+
+  try {
+    Some(42): flattened()
+  } catch (e) {
+    require(e oftype java.lang.ClassCastException.class, "Bad Exception")
+  }
+}
+
 function test_and = {
   let s1 = Some(1)
   let s2 = Some("2")
@@ -61,9 +78,17 @@ function test_or = {
 }
 
 function test_andThen = {
-  let plus2 = |x| -> Some(x + 2)
-  assertEquals(Some(38): andThen(plus2): andThen(plus2), Some(42))
-  assertEquals(None(): andThen(plus2): andThen(plus2), None())
+  let plus2 = |x| -> x + 2
+  let mult2 = |x| -> Some(x * 2)
+  assertEquals(Some(19): andThen(plus2): andThen(mult2), Some(42))
+  assertEquals(Some(20): andThen(mult2): andThen(plus2), Some(42))
+  assertEquals(None(): andThen(plus2): andThen(mult2), None())
+  assertEquals(None(): andThen(mult2): andThen(plus2), None())
+}
+
+function test_either = {
+  assertEquals(Some(21): either(|x| -> x * 2, -> "plop"), 42)
+  assertEquals(None(): either(|x| -> x * 2, -> "plop"), "plop")
 }
 
 function test_orElseGet = {

@@ -1,11 +1,29 @@
+# ............................................................................................... #
+#
+# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+#
+# All rights reserved. This program and the accompanying materials
+# are made available under the terms of the Eclipse Public License v1.0
+# which accompanies this distribution, and is available at
+# http://www.eclipse.org/legal/epl-v10.html
+#
+# ............................................................................................... #
+
 ----
 Useful augmentations, decorators and function to deal with errors in Golo.
 ----
-module gololang.error.Errors
+module gololang.Errors
+
+import java.util.`function
+
+# ............................................................................ #
+## Constructors
 
 function Ok = |v| -> gololang.error.Result.ok(v)
 
 function Error = |msg| -> gololang.error.Result.fail(msg)
+
+function Empty = -> gololang.error.Result.empty()
 
 function None = -> java.util.Optional.empty()
 
@@ -50,6 +68,37 @@ augment java.util.Optional {
   }
 
   ----
+  Reduce this option using `func` with `init` as initial value.
+
+  For instance:
+
+      Some("b"): reduce("a", |x, y| -> x + y) == "ab"
+      None(): reduce(42, |x, y| -> x + y) == 42
+
+  - *param* `init` the initial value
+  - *param* `func` the aggregation function
+  - *return* the initial value if this is empty, the aggregated result otherwise
+  ----
+  function reduce = |this, init, func| -> match {
+    when this: isPresent() then func: invoke(init, this: get())
+    otherwise init
+  }
+
+  ----
+  Remove one level of optional.
+
+  This is actually equivalent to `:flatMap(identity)`
+  (or `:flatMap(f)` is equivalent to `:map(f): flattened()`).
+
+  For instance:
+
+      Some(Some(42)): flattened() == Some(42)
+      None(): flattened() == None()
+      Some(None()): flattened() == None()
+  ----
+  function flattened = |this| -> this: flatMap(Function.identity())
+
+  ----
   Convert this optional into a list
 
   - *return* a singleton list containing the value if present, otherwise an
@@ -61,15 +110,45 @@ augment java.util.Optional {
   }
 
   ----
-  Same as `flatMap`
+  Same as `map` or `flatMap`, depending on the type returned by `f`.
+
+  This is a generic version for `map` and `flatMap`: if `f` returns an
+  `Optional`, it's equivalent to `flatMap`, otherwise, it's equivalent to `map`.
+
+  This allows code such as:
+
+      Some(21): andThen(|x| -> x + 1): andThen(|x| -> Some(2 * x)) == Some(42)
   ----
-  function andThen = |this, f| -> match {
-    when this: isPresent() then f: invoke(this: get())
-    otherwise this
+  function andThen = |this, f| {
+    case {
+      when this: isPresent() {
+        let r = f: invoke(this: get())
+        return match {
+          when r oftype java.util.Optional.class then r
+          otherwise java.util.Optional.ofNullable(r)
+        }
+      }
+      otherwise {
+        return this
+      }
+    }
   }
 
   ----
   Conjunctive chaining.
+
+  This is equivalent to `:flatMap(|_| -> other)`,
+  i.e. applicative or monadic sequence with discarding.
+  (Can also be seen as `:map(const(^id)): apply(other)`)
+
+  For instance:
+
+      Some(1): `and(None()) == None()
+      None(): `and(Some(1)) == None()
+      Some(1): `and(Some("2") == Some("2")
+
+  Note that this method is eager. If you want laziness, use the `flatMap`
+  equivalent.
 
   - *param* `other` the other optional
   - *return* `other` if this optional is present, otherwise `this`
@@ -82,7 +161,19 @@ augment java.util.Optional {
   ----
   Disjunctive chaining.
 
-  - *param* `other` the other opional
+  For instance:
+
+      Some(1): `or(Some(2)) == Some(1)
+      None(): `or(Some(1)) == Some(1)
+      Some(1): `or(None()) == Some(1)
+      None(): `or(None()) == None()
+
+  Note that this method is eager.
+
+    Some(1): orElseGet(-> Some(2))
+    None(): orElseGet(-> Some(2))
+
+  - *param* `other` the other optional
   - *return* `other` if this optional is empty, otherwise `this`
   ----
   function `or = |this, other| -> match {
@@ -91,7 +182,7 @@ augment java.util.Optional {
   }
 
   function toResult = |this, param| -> match {
-    when this: isSome() then 
+    when this: isSome() then
       gololang.error.Result.ok(this: get())
     when param oftype java.lang.Throwable.class then
       gololang.error.Result.error(param)
@@ -104,13 +195,13 @@ augment java.util.Optional {
 
   ----
   Apply the function contained is this optional to the given optional. If the
-  function has several parameters, an optional containing a partialized version 
+  function has several parameters, an optional containing a partialized version
   is returned, that can be `apply`ed to subsequent optionals.
   This makes `Optional` an “applicative functor”.
 
   For instance:
       let f = Some(|x| -> x + 10)
-      f: apply(Some(32) # Some(42)
+      f: apply(Some(32)) # Some(42)
       f: apply(None())  # None()
 
       Some(|a, b| -> a + b): apply(Some(21)): apply(Some(21)) # Some(42)
@@ -131,6 +222,28 @@ augment java.util.Optional {
       }
     }
   }
+
+  ----
+  Case analysis for the option.
+
+  If the result is not empty, apply the first function (similar to `flatMap`),
+  otherwise invoke the second function (similar to `orElseGet`). For instance:
+
+      Some(21): either(|x| -> x * 2, -> "plop") == 42
+      None(): either(|x| -> x * 2, -> "plop") == "plop"
+
+  This is indeed equivalent to
+
+      opt: map(mapping): orElseGet(default)
+
+  - *param* `mapping`: the function to apply to the contained value
+  - *param* `default`: the function to invoke if the option is empty (takes no arguments)
+  - *return* the result of applying the corresponding function
+  ----
+  function either = |this, mapping, default| -> match {
+    when this: isPresent() then mapping(this: get())
+    otherwise default()
+  }
 }
 
 # ............................................................................ #
@@ -138,7 +251,7 @@ augment java.util.Optional {
 
 ----
 Transform a function raising an exception into a function returning a `Result`.
-The resulting function returns `Result.ok(f(x))` if `f(x)` succeeds and 
+The resulting function returns `Result.ok(f(x))` if `f(x)` succeeds and
 `Result.error(e)` if `f(x)` raises `e`.
 
 Can be used as a decorator.
@@ -196,7 +309,7 @@ function trying = |f| {
 }
 
 ----
-Transforms a function returning a result or an option into a function returning 
+Transforms a function returning a result or an option into a function returning
 the associated value or raising an exception.
 
 Can be used as a decorator.
@@ -204,7 +317,7 @@ Can be used as a decorator.
 function raising = |f| -> |args...| -> f: invoke(args): get()
 
 ----
-Transform a function into one that can return `null` if something went wrong 
+Transform a function into one that can return `null` if something went wrong
 (i.e. None, Error or exception).
 
 Can be used as a decorator.
@@ -227,9 +340,9 @@ Allows an unary function to be called with an `Optional` or a `Result` value.
 Similar to `flatMap`, but using `default` on the exception if the call failed.
 
 For instance:
-    
+
     let foo = |x| -> x: toUpperCase()
-    
+
     let safeFoo = catching("plop")(foo)
 
     safeFoo(null)         # "plop"
