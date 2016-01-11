@@ -27,7 +27,7 @@ import static java.lang.invoke.MethodHandles.filterReturnValue;
  * {@code org.eclipse.golo.runtime.ClosureCallSupport} still dispatches through a method handle.
  *
  * @see java.lang.invoke.MethodHandle
- * @see ClosureCallSupport
+ * @see org.eclipse.golo.runtime.ClosureCallSupport
  */
 public class FunctionReference {
 
