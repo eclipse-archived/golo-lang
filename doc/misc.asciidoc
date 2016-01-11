@@ -251,3 +251,108 @@ function hello = {
 NOTE: ANSI codes support varies from terminal and operating system capacities. Microsoft Windows
 does not support these codes without a 3rd-party driver. You may use the `likelySupported()` function
 to test if the host operating system is _likely_ to support ANSI codes.
+
+=== Functional errors (`gololang.Errors`)
+
+The `gololang.Errors` module offers types, augmentations and decorators to deal with errors in a more functional way. This is similar for instance to Haskell
+https://hackage.haskell.org/package/base/docs/Data-Maybe.html[`Maybe`] and
+https://hackage.haskell.org/package/base/docs/Data-Either.html[`Either`] or Rust
+https://doc.rust-lang.org/std/option/[`Option`] and 
+https://doc.rust-lang.org/std/result/[`Result`].
+
+==== Option
+
+This is just an augmentation of the java `java.util.Optional` class together with factory functions and decorators. The added methods allows to better chain optional results and improve matching.
+
+This is particularly useful to chain and compose functions that can return no result. Instead of returning `null`, a `None()` value can be returned. Such functions can then be chained using the `andThen` method. The `option` decorator can be used to transform a regular function into a function returning an `Option`.
+
+For instance, given:
+
+[source,golo]
+----
+function foo = |arg| {
+  # can return an integer, null or even throw an exception
+}
+
+function bar = -> 42
+
+function plus2 = |x| -> x + 2
+function mult2 = |x| -> x * 2
+----
+
+code such as:
+
+[source,golo]
+----
+var r
+try {
+  r = foo(x)
+  if r is null {
+    r = bar()
+  } else {
+    r = mult2(plus2(r))
+  }
+} catch (e) {
+ r = bar()
+}
+----
+
+can be rewritten:
+
+[source,golo]
+----
+let optionalFoo = option(foo)
+
+r = optionalFoo(x): andThen(^plus2): either(^mult2, ^bar)
+----
+
+Of course, `Optional` methods such as `flatMap` and `orElseGet` can also be used:
+
+[source,golo]
+----
+@option
+function safeGetter = |aMap, aKey| -> aMap: get(aKey)
+
+let m = map[["a", 2], ["answer", 12]]
+
+# (19 + 2) * 2 = 42
+safeGetter(m, "answer"): map(^plus2): map(^mult2): orElseGet(^bar)    
+      
+# get null, option returns None, bar gives 42
+safeGetter(m, "plop"): map(^plus2): map(^mult2): orElseGet(^bar)
+
+# null pointer exception, option returns None, bar gives 42
+safeGetter(null, "answer"): map(^plus2): map(^mult2): orElseGet(^bar)
+----
+
+See the link:./golodoc/gololang/Errors[`gololang.Errors`] module documentation for a full description of the added methods.
+
+==== Result
+
+`Result` is a similar object, but it keep the errors, meaning that a result can be empty (similar to `None`), containing an error (a `Throwable`) or a result. It can be used in a way very similar to `Optional`, but gives more control on the behavior.
+
+The `result` decorator is the equivalent to `option`. The `trying` higher order function takes an anonymous block, executes it and returns a corresponding `Result`.
+
+See the link:./golodoc/gololang/Errors[`gololang.Errors`] module documentation and the javadoc for the link:./javadoc/gololang/error/Result.html[`gololang.error.Result`] class for more details.
+
+As a bonus, `Result` objects can be destructured into the error and the value. For instance:
+
+[source,golo]
+----
+@result
+function foo = { 
+  # can throw an exception, return null or a plain value
+}
+
+let e, v = foo()
+
+let err, val = trying({
+  # statements sequence than can throw an exception
+  ...
+  return somevalue
+})
+----
+
+The error is the left value, the correct one the right (mnemonic: “right” also means “correct”). This allows to deal with error in the same way as Go does for instance.
+
+The decorators `nullify` and `raising` are the duals of `option` or `result`
