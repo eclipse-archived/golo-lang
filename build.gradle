@@ -332,6 +332,14 @@ def tagFor(version) {
   }
 }
 
+bintrayUpload {
+  doFirst {
+    if (version.endsWith('-SNAPSHOT')) {
+      throw new GradleException('Snapshot versions must not be uploaded to Bintray')
+    }
+  }
+}
+
 // .................................................................................................................. //
 
 task sourceJar(type: Jar) {
