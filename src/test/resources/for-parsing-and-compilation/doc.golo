@@ -1,4 +1,4 @@
-  ----               
+  ----
   Waoo, this is a documented module!
 
   This is super *cool*.
@@ -9,7 +9,7 @@
       let bang = "----"
       let bangbang = "------"
 
-      ----     
+      ----
 module Documented
 
 import java.util.Map

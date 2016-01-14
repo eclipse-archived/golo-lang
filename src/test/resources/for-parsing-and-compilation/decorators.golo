@@ -19,7 +19,7 @@ function decorator3 = |func| {
 }
 
 function decorator4 = |closure| {
-        return  |func| {                        
+        return  |func| {
                 println("decorator4")
                 closure()
                return func
@@ -65,7 +65,7 @@ Golodoc
 @decorator1 #comment
 @decorator2(4,2) #comment
 @decorator3 #comment
-@decorator4( 
+@decorator4(
     -> {
         println("closure!")
     }
@@ -76,7 +76,7 @@ function adder4 = |a,b| {
 
 augment java.lang.String {
 
-  @decorator1  
+  @decorator1
   function append = |this, tail| -> this + tail
 
   @decorator2(4,2)

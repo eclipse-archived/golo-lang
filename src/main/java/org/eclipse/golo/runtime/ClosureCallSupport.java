@@ -18,10 +18,10 @@ import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
 
-public class ClosureCallSupport {
+public final class ClosureCallSupport {
 
   private ClosureCallSupport() {
-    // utility class
+    throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
   static class InlineCache extends MutableCallSite {
@@ -30,7 +30,7 @@ public class ClosureCallSupport {
     final boolean constant;
     final String[] argumentNames;
 
-    public InlineCache(MethodType type, boolean constant, String[] argumentNames) {
+    InlineCache(MethodType type, boolean constant, String[] argumentNames) {
       super(type);
       this.constant = constant;
       this.argumentNames = argumentNames;

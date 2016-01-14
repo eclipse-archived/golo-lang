@@ -10,9 +10,46 @@
 package org.eclipse.golo.runtime;
 
 import java.lang.invoke.MethodHandle;
+import java.lang.reflect.Method;
+import java.util.Optional;
+import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
+import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 
-interface MethodFinder {
+import static java.lang.invoke.MethodHandles.Lookup;
 
-  MethodHandle find();
+abstract class MethodFinder {
+
+  protected final MethodInvocation invocation;
+  protected final Lookup lookup;
+  protected final Class<?> callerClass;
+
+  MethodFinder(MethodInvocation invocation, Lookup lookup) {
+    this.invocation = invocation;
+    this.lookup = lookup;
+    this.callerClass = lookup.lookupClass();
+  }
+
+  public abstract MethodHandle find();
+
+  protected Optional<MethodHandle> toMethodHandle(Method method) {
+    MethodHandle target = null;
+    if (isMethodDecorated(method)) {
+      target = getDecoratedMethodHandle(lookup, method, invocation.arity());
+    } else {
+      try {
+        target = lookup.unreflect(method);
+      } catch (IllegalAccessException e) {
+        /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
+         * Example: augmenting HashSet with a map function.
+         *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
+         */
+        return Optional.empty();
+      }
+    }
+    if (invocation.argumentNames().length > 1) {
+      target = FunctionCallSupport.reorderArguments(method, target, invocation.argumentNames());
+    }
+    return Optional.of(invocation.coerce(target));
+  }
 
 }

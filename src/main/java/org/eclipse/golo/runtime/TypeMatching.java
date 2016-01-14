@@ -13,10 +13,18 @@ import gololang.FunctionReference;
 
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
+import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
 
-public class TypeMatching {
+import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static java.util.Arrays.copyOfRange;
+
+public final class TypeMatching {
+
+  private TypeMatching() {
+    throw new UnsupportedOperationException("Don't instantiate utility classes");
+  }
 
   private static final Map<Class<?>, Class<?>> PRIMITIVE_MAP = new HashMap<Class<?>, Class<?>>() {
     {
@@ -30,28 +38,6 @@ public class TypeMatching {
       put(boolean.class, Boolean.class);
     }
   };
-
-  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Constructor<?> constructor, Class<?>[] parameterTypes) {
-    return constructor.isVarArgs() && (arguments.length >= parameterTypes.length);
-  }
-
-  public static boolean haveEnoughArgumentsForVarargs(Object[] arguments, Method method, Class<?>[] parameterTypes) {
-    return method.isVarArgs() && (arguments.length >= (parameterTypes.length - 1));
-  }
-
-  public static boolean haveSameNumberOfArguments(Object[] arguments, Class<?>[] parameterTypes) {
-    return parameterTypes.length == arguments.length;
-  }
-
-  public static boolean argumentsNumberMatch(Object[] arguments, Method method, Class<?>[] parameterTypes) {
-    return haveSameNumberOfArguments(arguments, parameterTypes)
-      || haveEnoughArgumentsForVarargs(arguments, method, parameterTypes);
-  }
-
-  public static boolean argumentsNumberMatch(Object[] arguments, Constructor<?> constructor, Class<?>[] parameterTypes) {
-    return haveSameNumberOfArguments(arguments, parameterTypes)
-      || haveEnoughArgumentsForVarargs(arguments, constructor, parameterTypes);
-  }
 
   public static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
     if (types.length == 0 || arguments.length == 0) {
@@ -75,11 +61,15 @@ public class TypeMatching {
     return valueAndTypeMatch(types[last], arguments[last]);
   }
 
-  public static boolean valueAndTypeMatch(Class<?> type, Object value) {
+  private static boolean valueAndTypeMatch(Class<?> type, Object value) {
     if (type == null) {
       return false;
     }
-    return primitiveCompatible(type, value) || (type.isInstance(value) || value == null || samAssignment(type, value) || functionalInterfaceAssignment(type, value));
+    return primitiveCompatible(type, value)
+      || (type.isInstance(value)
+          || value == null
+          || samAssignment(type, value)
+          || functionalInterfaceAssignment(type, value));
   }
 
   private static boolean functionalInterfaceAssignment(Class<?> type, Object value) {
@@ -98,7 +88,7 @@ public class TypeMatching {
     return type.isAnnotationPresent(FunctionalInterface.class);
   }
 
-  public static boolean primitiveCompatible(Class<?> type, Object value) {
+  private static boolean primitiveCompatible(Class<?> type, Object value) {
     if (!type.isPrimitive() || value == null) {
       return false;
     }
@@ -107,5 +97,29 @@ public class TypeMatching {
 
   public static boolean isLastArgumentAnArray(int index, Object[] args) {
     return index > 0 && args.length == index && args[index - 1] instanceof Object[];
+  }
+
+  private static boolean argumentsNumberMatches(int paramsNumber, int argsNumber, boolean isVarArgs) {
+    return (!isVarArgs && paramsNumber == argsNumber) || (isVarArgs && argsNumber >= paramsNumber - 1);
+  }
+
+  public static boolean argumentsMatch(Method method, Object[] arguments) {
+    return argumentsMatch(method, arguments, method.isVarArgs());
+  }
+
+  public static boolean argumentsMatch(Method method, Object[] arguments, boolean varargs) {
+    Object[] args = Modifier.isStatic(method.getModifiers())
+      ? arguments
+      : copyOfRange(arguments, 1, arguments.length);
+    return
+      isMethodDecorated(method)
+      || (argumentsNumberMatches(method.getParameterTypes().length, args.length, varargs)
+          && canAssign(method.getParameterTypes(), args, varargs));
+  }
+
+  public static boolean argumentsMatch(Constructor<?> constructor, Object[] arguments) {
+    return
+      argumentsNumberMatches(constructor.getParameterTypes().length, arguments.length, constructor.isVarArgs())
+      && canAssign(constructor.getParameterTypes(), arguments, constructor.isVarArgs());
   }
 }

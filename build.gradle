@@ -19,6 +19,7 @@ plugins {
   id 'maven-publish'
   id 'findbugs'
   id 'com.github.ben-manes.versions' version '0.11.3'
+  id 'com.jfrog.bintray' version '1.4'
 }
 
 // .................................................................................................................. //
@@ -130,6 +131,8 @@ tasks.withType(FindBugs) {
   }
 }
 
+jacocoTestReport.dependsOn test
+
 // .................................................................................................................. //
 
 asciidoctorj {
@@ -155,6 +158,11 @@ task golodoc(type: JavaExec, dependsOn: goloc) {
   inputs.files goloSources
   outputs.dir goloDocs
   description = 'Generates documentation of the standard Golo modules.'
+  group = 'Documentation'
+}
+
+task doc(dependsOn: [asciidoctor, golodoc, javadoc]) {
+  description = 'Generates all the documentations.'
   group = 'Documentation'
 }
 
@@ -291,6 +299,49 @@ publishing {
 
 // .................................................................................................................. //
 
+bintray {
+  user = project.hasProperty('bintrayRepoUsername') ? bintrayRepoUsername : System.getenv('BINTRAY_USER')
+  key  = project.hasProperty('bintrayRepoPassword') ? bintrayRepoPassword : System.getenv('BINTRAY_KEY')
+  filesSpec {
+    from distZip.archivePath
+    into '.'
+  }
+  publish = true
+  pkg {
+    name = 'distributions'
+    repo = 'downloads'
+    userOrg = 'golo-lang'
+    websiteUrl = 'http://golo-lang.org/'
+    licenses = ['EPL-1.0']
+    labels = ['golo', 'java', 'jvm', 'language', 'eclipse']
+    vcsUrl = 'https://github.com/eclipse/golo-lang.git'
+    issueTrackerUrl = 'https://github.com/eclipse/golo-lang/issues'
+    publicDownloadNumbers = false
+    version {
+      name = project.version
+      vcsTag = tagFor(project.version)
+    }
+  }
+}
+
+def tagFor(version) {
+  if (version.contains('-M')) {
+    return "milestone/${version}"
+  } else {
+    return "release/${version}"
+  }
+}
+
+bintrayUpload {
+  doFirst {
+    if (version.endsWith('-SNAPSHOT')) {
+      throw new GradleException('Snapshot versions must not be uploaded to Bintray')
+    }
+  }
+}
+
+// .................................................................................................................. //
+
 task sourceJar(type: Jar) {
   from sourceSets.main.allJava
 }
@@ -327,7 +378,7 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
 // .................................................................................................................. //
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '2.9'
+  gradleVersion = '2.10'
   description 'Generates the Gradle wrapper scripts.'
 }
 

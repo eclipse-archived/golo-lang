@@ -9,173 +9,116 @@
 
 package org.eclipse.golo.runtime;
 
-import java.lang.invoke.*;
+import gololang.GoloStruct;
+
+import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.*;
-import gololang.GoloStruct;
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
-import static java.util.Arrays.copyOfRange;
-import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
-import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 
-class RegularMethodFinder implements MethodFinder {
+class RegularMethodFinder extends MethodFinder {
 
-  private final Object[] args;
-  private final MethodType type;
-  private final Class<?> receiverClass;
-  private final String methodName;
-  private final Lookup lookup;
   private final boolean makeAccessible;
-  private final int arity;
-  private final String[] argumentNames;
 
-  public RegularMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    this.args = args;
-    this.type = inlineCache.type();
-    this.receiverClass = receiverClass;
-    this.methodName = inlineCache.name;
-    this.lookup = inlineCache.callerLookup;
-    this.makeAccessible = !isPublic(receiverClass.getModifiers());
-    this.arity = type.parameterArray().length;
-    this.argumentNames = new String[inlineCache.argumentNames.length + 1];
-    this.argumentNames[0] = "this";
-    System.arraycopy(inlineCache.argumentNames, 0, argumentNames, 1, inlineCache.argumentNames.length);
+  RegularMethodFinder(MethodInvocation invocation, Lookup lookup) {
+    super(invocation, lookup);
+    this.makeAccessible = !isPublic(invocation.receiverClass().getModifiers());
   }
 
   @Override
   public MethodHandle find() {
-    try {
-      MethodHandle target = findInMethods();
-      if (target != null) { return target; }
-
-      return findInFields();
-    } catch (IllegalAccessException ignored) {
-    /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
-     * Example: augmenting HashSet with a map function.
-     *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
-     */
-      return null;
-    }
+    return Stream.concat(
+        findInMethods().map(this::toMethodHandle),
+        findInFields().map(this::toMethodHandle))
+        .filter(Optional::isPresent)
+        .map(Optional::get)
+        .findFirst()
+        .orElse(null);
   }
 
-  private MethodHandle toMethodHandle(Field field) throws IllegalAccessException {
-    MethodHandle target = null;
+  public boolean isOverloaded() {
+    return Extractors.getMethods(invocation.receiverClass())
+        .filter(this::overloadMatch)
+        .count() > 1;
+  }
+
+  private boolean overloadMatch(Method m) {
+    return Extractors.isPublic(m) &&
+        Extractors.isConcrete(m) &&
+        m.getName().equals(invocation.name()) &&
+        (m.getParameterCount() + 1 == invocation.arity()) || (m.isVarArgs() && (m.getParameterCount() <= invocation.arity()));
+  }
+
+  private Optional<MethodHandle> toMethodHandle(Field field) {
     if (makeAccessible) {
       field.setAccessible(true);
     }
-    if (args.length == 1) {
-      target = lookup.unreflectGetter(field).asType(type);
-    } else {
-      target = lookup.unreflectSetter(field);
-      target = filterReturnValue(target, constant(receiverClass, args[0])).asType(type);
+    try {
+      if (invocation.arity() == 1) {
+        return Optional.of(lookup.unreflectGetter(field).asType(invocation.type()));
+      } else {
+        return Optional.of(
+            filterReturnValue(
+                lookup.unreflectSetter(field),
+                constant(invocation.receiverClass(), invocation.arguments()[0]))
+                .asType(invocation.type()));
+      }
+    } catch (IllegalAccessException e) {
+      /* We need to give augmentations a chance, as IllegalAccessException can be noise in our resolution.
+       * Example: augmenting HashSet with a map function.
+       *  java.lang.IllegalAccessException: member is private: java.util.HashSet.map/java.util.HashMap/putField
+       */
+      return Optional.empty();
     }
-    return target;
   }
 
-  private MethodHandle toMethodHandle(Method method) throws IllegalAccessException {
-    MethodHandle target = null;
+  @Override
+  protected Optional<MethodHandle> toMethodHandle(Method method) {
     if (makeAccessible || isValidPrivateStructAccess(method)) {
       method.setAccessible(true);
     }
-    if (isMethodDecorated(method)) {
-      target = getDecoratedMethodHandle(method, arity);
-    } else {
-      if ((method.isVarArgs() && TypeMatching.isLastArgumentAnArray(type.parameterCount(), args))) {
-        target = lookup.unreflect(method).asFixedArity().asType(type);
-      } else {
-        target = lookup.unreflect(method).asType(type);
-      }
-    }
-    if (argumentNames.length > 1) {
-      target = FunctionCallSupport.reorderArguments(method, target, argumentNames);
-    }
-    return FunctionCallSupport.insertSAMFilter(target, lookup, method.getParameterTypes(), 1);
+    return super.toMethodHandle(method).map(
+        handle -> FunctionCallSupport.insertSAMFilter(handle, lookup, method.getParameterTypes(), 1));
   }
 
   private boolean isValidPrivateStructAccess(Method method) {
-    Object receiver = args[0];
+    Object receiver = invocation.arguments()[0];
     if (!(receiver instanceof GoloStruct)) {
       return false;
     }
     String receiverClassName = receiver.getClass().getName();
-    String callerClassName = lookup.lookupClass().getName();
-    return method.getName().equals(methodName)
-      && isPrivate(methodModifiers())
-      && (receiverClassName.startsWith(callerClassName)
-          || callerClassName.equals(reverseStructAugmentation(receiverClassName)));
+    String callerClassName = callerClass.getName();
+    return method.getName().equals(invocation.name())
+        && isPrivate(method.getModifiers())
+        && (receiverClassName.startsWith(callerClassName)
+        || callerClassName.equals(reverseStructAugmentation(receiverClassName)))
+        && TypeMatching.argumentsMatch(method, invocation.arguments());
   }
 
   private static String reverseStructAugmentation(String receiverClassName) {
     return receiverClassName.substring(0, receiverClassName.indexOf(".types"))
-      + "$" + receiverClassName.replace('.', '$');
+        + "$" + receiverClassName.replace('.', '$');
   }
 
-  private List<Method> getCandidates() {
-    List<Method> candidates = new LinkedList<>();
-    Set<Method> methods = new HashSet<>();
-    Collections.addAll(methods, receiverClass.getMethods());
-    Collections.addAll(methods, receiverClass.getDeclaredMethods());
-    for (Method method : methods) {
-      if (isCandidateMethod(method) && !method.isVarArgs()) {
-        candidates.add(method);
-      } else if (isValidPrivateStructAccess(method) && !method.isVarArgs()) {
-        candidates.add(method);
-      }
-    }
-    for (Method method : methods) {
-      if (isCandidateMethod(method) && method.isVarArgs()) {
-        candidates.add(method);
-      } else if (isValidPrivateStructAccess(method) && method.isVarArgs()) {
-        candidates.add(method);
-      }
-    }
-    return candidates;
+
+  private Stream<Method> findInMethods() {
+    return Extractors.getMethods(invocation.receiverClass())
+        .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m));
   }
 
-  private MethodHandle findInMethods() throws IllegalAccessException {
-    List<Method> candidates = getCandidates();
-    if (candidates.isEmpty()) { return null; }
-    if (candidates.size() == 1) { return toMethodHandle(candidates.get(0)); }
-
-    for (Method method : candidates) {
-      if (isMethodDecorated(method)) {
-        return toMethodHandle(method);
-      }
-      Class<?>[] parameterTypes = method.getParameterTypes();
-      Object[] argsWithoutReceiver = copyOfRange(args, 1, args.length);
-      if (TypeMatching.argumentsNumberMatch(argsWithoutReceiver, method, parameterTypes)) {
-        if (TypeMatching.canAssign(parameterTypes, argsWithoutReceiver, method.isVarArgs())) {
-          return toMethodHandle(method);
-        }
-      }
+  private Stream<Field> findInFields() {
+    if (invocation.arity() > 3) {
+      return Stream.empty();
     }
-    return null;
-  }
-
-  private MethodHandle findInFields() throws IllegalAccessException {
-    if (arity > 3) { return null; }
-
-    for (Field field : receiverClass.getDeclaredFields()) {
-      if (isMatchingField(field)) {
-        return toMethodHandle(field);
-      }
-    }
-    for (Field field : receiverClass.getFields()) {
-      if (isMatchingField(field)) {
-        return toMethodHandle(field);
-      }
-    }
-    return null;
+    return Extractors.getFields(invocation.receiverClass())
+        .filter(this::isMatchingField);
   }
 
   private boolean isMatchingField(Field field) {
-    return field.getName().equals(methodName) && !isStatic(field.getModifiers());
-  }
-
-  private boolean isCandidateMethod(Method method) {
-    return method.getName().equals(methodName) && isPublic(method.getModifiers()) && !isAbstract(method.getModifiers());
+    return field.getName().equals(invocation.name()) && !isStatic(field.getModifiers());
   }
 }

@@ -78,6 +78,19 @@ function null_guarded = {
   return map: get("bogus") orIfNull "n/a"
 }
 
+local function sideeffect = |l, v| {
+  l: add(v)
+  return v
+}
+
+function lazy_ifnull = {
+  let l = list[]
+  var a = "plop" orIfNull sideeffect(l, 42)
+  a = "foo" orIfNull sideeffect(l, "foo")
+  a = null orIfNull sideeffect(l, 42)
+  return [a, l] == [42, list[42]]
+}
+
 function polymorphic_number_comparison = {
   let left = list[1, 1_L, 1.0, 1.0_F]
   let right = list[2, 2_L, 1.1, 1.1_F]
@@ -88,7 +101,7 @@ function polymorphic_number_comparison = {
       require((not (b == a)), "equals failed")
       require((b != a), "not equals failed")
       require((a != b), "not equals failed")
-      
+
       require((a <= b), "less or equals failed")
       require((not (a >= b)), "more or equals failed")
       require((b >= a), "more or equals failed")
@@ -107,7 +120,7 @@ function polymorphic_number_comparison = {
       require((b == a), "equals failed")
       require((not (a != b)), "not equals failed")
       require((not (b != a)), "not equals failed")
-      
+
       require((a <= b), "less or equals failed")
       require((a >= b), "more or equals failed")
       require((b >= a), "more or equals failed")

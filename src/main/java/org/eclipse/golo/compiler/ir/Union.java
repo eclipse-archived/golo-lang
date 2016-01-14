@@ -29,6 +29,10 @@ public final class Union extends GoloElement {
     this.name = name;
   }
 
+  public String getName() {
+    return name;
+  }
+
   public PackageAndClass getPackageAndClass() {
     return new PackageAndClass(moduleName.toString() + ".types", name);
   }
@@ -37,16 +41,22 @@ public final class Union extends GoloElement {
     this.moduleName = module;
   }
 
-  public void addValue(String name, Collection<String> members) {
+  public boolean addValue(String name, Collection<String> members) {
+    for (UnionValue v : values) {
+      if (v.getName().equals(name)) {
+        return false;
+      }
+    }
     UnionValue value = new UnionValue(this, name);
     value.addMembers(members);
     values.add(value);
     makeParentOf(value);
+    return true;
   }
 
-  public void addValue(UnionValue value) {
-    values.add(value);
+  public boolean addValue(UnionValue value) {
     makeParentOf(value);
+    return values.add(value);
   }
 
   public Collection<UnionValue> getValues() {

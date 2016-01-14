@@ -7,13 +7,13 @@ union Option = {
 
 union Color = { RED GREEN BLUE }
 union Tree = {
-  
+
 Empty
 
 
   Node = {
-    
-    left, 
+
+    left,
 
 right
   }

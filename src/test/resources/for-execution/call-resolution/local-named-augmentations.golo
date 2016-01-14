@@ -23,34 +23,35 @@ augment MyStruct with FooBar
 #== tests ===
 
 function test_plop_on_list = {
-  return list[]: plop() # should be plop
+  require(list[]: plop() == "plop", "err plop on list")
 }
 
 function test_foo_on_list = {
-  return list[]: foo() # should be foo
+  require(list[]: foo() == "foo", "err foo on list")
 }
 
 function test_bar_on_list = {
-  return list[]: bar() # should be bar
+  require(list[]: bar() == "bar", "err bar on list")
 }
 
 function test_baz_on_list = {
-  return list[]: baz() # should be baz
+  require(list[]: baz() == "baz", "err baz on list")
 }
 
 function test_foo_on_struct = {
-  return MyStruct(1, 2): foo() # should be foo
+  require(MyStruct(1, 2): foo() == "foo", "err foo on struct")
 }
 
 function test_bar_on_struct = {
-  return MyStruct(1, 2): bar() # should be bar
+  require(MyStruct(1, 2): bar() == "bar", "err bar on struct")
 }
 
 function main = |args| {
-  require(test_plop_on_list() == "plop", "err")
-  require(test_foo_on_list() == "foo" , "err")
-  require(test_bar_on_list() == "bar" , "err")
-  require(test_baz_on_list() == "baz" , "err")
-  require(test_foo_on_struct() == "foo" , "err")
-  require(test_bar_on_struct() == "bar" , "err")
+  test_plop_on_list()
+  test_foo_on_list()
+  test_bar_on_list()
+  test_baz_on_list()
+  test_foo_on_struct()
+  test_bar_on_struct()
+  println("ok")
 }

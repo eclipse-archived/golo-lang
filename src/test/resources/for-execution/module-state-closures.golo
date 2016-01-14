@@ -77,7 +77,7 @@ function test = {
   require(CONSTANT_REF_CURRY(21)(21) == 42, "err")
   require(CALL_FUNREF(1) == 43, "err")
   require(CLOSED_FUNREF(1) == 43, "err")
-  
+
   # A module state containing a lambda can be called
   require(CONSTANT_CONSTANT_LAMBDA() == 42, "err")
   require(CALL_CONSTANT_LAMBDA() == 42, "err")
@@ -87,7 +87,7 @@ function test = {
   # A module state containing a curryfied function can be called
   require(CONSTANT_CURRY(21)(21) == 42, "err")
   require(CALL_CURRY(21)(21) == 42, "err")
-  
+
   # A module state containing a closure can be called
   require(CONSTANT_CONSTANT_CLOSURE() == 42, "err")
   require(CALL_CONSTANT_CLOSURE() == 42, "err")

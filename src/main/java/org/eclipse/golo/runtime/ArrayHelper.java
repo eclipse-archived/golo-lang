@@ -11,7 +11,11 @@ package org.eclipse.golo.runtime;
 
 import static java.util.Arrays.copyOfRange;
 
-public class ArrayHelper {
+public final class ArrayHelper {
+
+  private ArrayHelper() {
+    throw new UnsupportedOperationException("Don't instantiate utility classes");
+  }
 
   public static Object head(Object[] array) {
     if (array.length == 0) {

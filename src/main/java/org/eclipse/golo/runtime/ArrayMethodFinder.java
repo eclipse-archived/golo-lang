@@ -15,25 +15,15 @@ import java.util.*;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
-class ArrayMethodFinder implements MethodFinder {
+class ArrayMethodFinder extends MethodFinder {
 
-  private final Class<?> receiverClass;
-  private final MethodType type;
-  private final int arity;
-  private final String name;
-  private final Lookup lookup;
-
-  public ArrayMethodFinder(MethodInvocationSupport.InlineCache inlineCache, Class<?> receiverClass, Object[] args) {
-    this.receiverClass = receiverClass;
-    this.type = inlineCache.type();
-    this.arity = args.length - 1;
-    this.name = inlineCache.name;
-    this.lookup = inlineCache.callerLookup;
+  ArrayMethodFinder(MethodInvocation invocation, Lookup lookup) {
+    super(invocation, lookup);
   }
 
   private void checkArity(int value) {
-    if (arity != value) {
-      throw new UnsupportedOperationException(name + " on arrays takes "
+    if (invocation.arity() != value + 1) {
+      throw new UnsupportedOperationException(invocation.name() + " on arrays takes "
           + (value == 0 ? "no" : value)
           + " parameter" + (value > 1 ? "s" : "")
           );
@@ -43,58 +33,63 @@ class ArrayMethodFinder implements MethodFinder {
   @Override
   public MethodHandle find() {
     try {
-      return resolve().asType(type);
+      return resolve().asType(invocation.type());
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new RuntimeException(e);
     }
   }
 
   private MethodHandle resolve() throws NoSuchMethodException, IllegalAccessException {
-    switch (name) {
+    switch (invocation.name()) {
       case "get":
         checkArity(1);
-        return MethodHandles.arrayElementGetter(receiverClass);
+        return MethodHandles.arrayElementGetter(invocation.receiverClass());
       case "set":
         checkArity(2);
-        return MethodHandles.arrayElementSetter(receiverClass);
+        return MethodHandles.arrayElementSetter(invocation.receiverClass());
       case "size":
       case "length":
         checkArity(0);
-        return lookup.findStatic(Array.class, "getLength", methodType(int.class, Object.class));
+        return lookup.findStatic(Array.class, "getLength",
+                                 methodType(int.class, Object.class));
       case "iterator":
         checkArity(0);
-        return lookup.findConstructor(PrimitiveArrayIterator.class, methodType(void.class, Object[].class));
+        return lookup.findConstructor(PrimitiveArrayIterator.class,
+                                      methodType(void.class, Object[].class));
       case "toString":
         checkArity(0);
-        return lookup.findStatic(Arrays.class, "toString", methodType(String.class, Object[].class));
+        return lookup.findStatic(Arrays.class, "toString",
+                                 methodType(String.class, Object[].class));
       case "asList":
         checkArity(0);
-        return lookup.findStatic(
-            Arrays.class, "asList", methodType(List.class, Object[].class))
-          .asFixedArity();
+        return lookup.findStatic(Arrays.class, "asList",
+                                 methodType(List.class, Object[].class)).asFixedArity();
       case "equals":
         checkArity(1);
-        return lookup.findStatic(Arrays.class, "equals", methodType(boolean.class, Object[].class, Object[].class));
+        return lookup.findStatic(Arrays.class, "equals",
+                                 methodType(boolean.class, Object[].class, Object[].class));
       case "getClass":
         checkArity(0);
-        return MethodHandles.dropArguments(MethodHandles.constant(Class.class, receiverClass), 0, receiverClass);
+        return MethodHandles.dropArguments(
+            MethodHandles.constant(Class.class, invocation.receiverClass()),
+            0, invocation.receiverClass());
       case "head":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "head", methodType(Object.class, Object[].class))
-          .asType(type);
+          .asType(invocation.type());
       case "tail":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "tail", methodType(Object[].class, Object[].class))
-          .asType(type);
+          .asType(invocation.type());
       case "isEmpty":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "isEmpty", methodType(boolean.class, Object[].class))
-          .asType(type);
+          .asType(invocation.type());
       default:
-        throw new UnsupportedOperationException(name + " is not supported on arrays");
+        throw new UnsupportedOperationException(invocation.name() + " is not supported on arrays");
     }
   }
 }

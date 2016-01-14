@@ -10,26 +10,37 @@
 package org.eclipse.golo.runtime;
 
 import org.testng.annotations.Test;
-import org.testng.annotations.BeforeMethod;
-import org.eclipse.golo.compiler.GoloClassLoader;
+import org.eclipse.golo.internal.testing.GoloTest;
 
-import static org.eclipse.golo.internal.testing.TestUtils.runTests;
-import static org.eclipse.golo.internal.testing.TestUtils.classLoader;
-import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
-
-public class AugmentationResolutionTest {
-  private static final String SRC = "src/test/resources/for-execution/call-resolution/";
-  private GoloClassLoader loader;
-
-  @BeforeMethod
-  public void setUp() {
-    loader = classLoader(this);
+public class AugmentationResolutionTest extends GoloTest {
+  @Override
+  protected String srcDir() {
+    return "for-execution/call-resolution/";
   }
 
   @Test
   public void callStackLookup() throws Throwable {
-    compileAndLoadGoloModule(SRC, "data.golo", loader);
-    compileAndLoadGoloModule(SRC, "lib.golo", loader);
-    runTests(SRC, "call-stack-lookup.golo", loader);
+    load("data");
+    load("lib");
+    run("call-stack-lookup");
+  }
+
+  @Test
+  public void localNamedAugmentations() throws Throwable {
+    run("local-named-augmentations");
+  }
+
+  @Test
+  public void externalNamedAugmentations() throws Throwable {
+    load("named-augmentations-external-source");
+    run("external-named-augmentations");
+  }
+
+  @Test
+  public void mixinComplexDispatch() throws Throwable {
+    load("mixin-augmentation");
+    load("mixin-data");
+    load("mixin-lib");
+    run("mixin-test");
   }
 }

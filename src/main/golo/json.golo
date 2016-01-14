@@ -13,7 +13,7 @@
 A set of useful APIs for dealing with JSON documents from Golo.
 
 The implementation is backed by [json-simple](https://code.google.com/p/json-simple/). While
-`json-simple` only supports encoding from lists and maps, this API brings support for sets, arrays, 
+`json-simple` only supports encoding from lists and maps, this API brings support for sets, arrays,
 Golo tuples, dynamic objects and structs.
 ----
 module gololang.JSON
@@ -144,7 +144,7 @@ augment gololang.GoloStruct {
 
   ----
   Populates the elements of a struct based on the values found in a JSON string.
-  
+
       let str = JSON.stringify(map[
         ["name", "Foo"],
         ["email", "foo@gmail.com"],

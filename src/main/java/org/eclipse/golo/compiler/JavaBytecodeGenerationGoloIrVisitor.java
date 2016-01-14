@@ -264,6 +264,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void generateAugmentationBytecode(PackageAndClass target, Set<GoloFunction> functions) {
+    if (functions.isEmpty()) {
+      return;
+    }
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.mangledName();
     PackageAndClass packageAndClass = this.currentModule.getPackageAndClass().createInnerClass(mangledClass);
@@ -709,14 +712,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitBinaryOperation(BinaryOperation binaryOperation) {
-    OperatorType operatorType = binaryOperation.getType();
-    if (AND.equals(operatorType)) {
-      andOperator(binaryOperation);
-    } else if (OR.equals(operatorType)) {
-      orOperator(binaryOperation);
-    } else {
-      binaryOperation.walk(this);
-      genericBinaryOperator(binaryOperation);
+    switch (binaryOperation.getType()) {
+      case AND:
+        andOperator(binaryOperation);
+        break;
+      case OR:
+        orOperator(binaryOperation);
+        break;
+      case ORIFNULL:
+        orIfNullOperator(binaryOperation);
+        break;
+      default:
+        binaryOperation.walk(this);
+        genericBinaryOperator(binaryOperation);
     }
   }
 
@@ -725,6 +733,22 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       String name = binaryOperation.getType().name().toLowerCase();
       methodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, (Integer) 2);
     }
+  }
+
+  private void orIfNullOperator(BinaryOperation binaryOperation) {
+    int idx = context.referenceTableStack.peek().size();
+    Label nullLabel = new Label();
+    Label exitLabel = new Label();
+    binaryOperation.getLeftExpression().accept(this);
+    methodVisitor.visitVarInsn(ASTORE, idx);
+    methodVisitor.visitVarInsn(ALOAD, idx);
+    methodVisitor.visitJumpInsn(IFNULL, nullLabel);
+    methodVisitor.visitJumpInsn(GOTO, exitLabel);
+    methodVisitor.visitLabel(nullLabel);
+    binaryOperation.getRightExpression().accept(this);
+    methodVisitor.visitVarInsn(ASTORE, idx);
+    methodVisitor.visitLabel(exitLabel);
+    methodVisitor.visitVarInsn(ALOAD, idx);
   }
 
   private void orOperator(BinaryOperation binaryOperation) {

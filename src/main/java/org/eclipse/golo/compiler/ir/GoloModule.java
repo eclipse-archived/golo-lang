@@ -135,6 +135,20 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     struct.setModuleName(getPackageAndClass());
   }
 
+  public GoloElement getSubtypeByName(String name) {
+    for (Struct s : structs) {
+      if (s.getName().equals(name)) {
+        return s;
+      }
+    }
+    for (Union u : unions) {
+      if (u.getName().equals(name)) {
+        return u;
+      }
+    }
+    return null;
+  }
+
   public void addUnion(Union union) {
     unions.add(union);
     makeParentOf(union);
