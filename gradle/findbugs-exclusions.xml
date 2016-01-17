@@ -40,6 +40,12 @@
   </Match>
 
   <Match>
+    <!-- Same case as above. -->
+    <Class name="org.eclipse.golo.runtime.MethodInvocation" />
+    <Bug pattern="EI_EXPOSE_REP" />
+  </Match>
+
+  <Match>
     <Bug pattern="DP_CREATE_CLASSLOADER_INSIDE_DO_PRIVILEGED" />
   </Match>
 
