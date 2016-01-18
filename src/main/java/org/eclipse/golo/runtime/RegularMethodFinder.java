@@ -105,7 +105,7 @@ class RegularMethodFinder extends MethodFinder {
   }
 
 
-  private Stream<Method> findInMethods() {
+  protected Stream<Method> findInMethods() {
     return Extractors.getMethods(invocation.receiverClass())
         .filter(m -> invocation.match(m) || isValidPrivateStructAccess(m));
   }

@@ -271,6 +271,73 @@ println(foo: bar())
 ----
 ====
 
+=== Properties support
+
+Golo support property-style method calls.
+
+Given a property `name()`, Golo will translate the method call to a `{get|is or set}Name` method call. Obviously, if a field
+is not accessible (ie. `private`) and doesn't have a getter or setter, the resolution will fail.
+Finally, _write-only_ properties can be chained (ie: return the current `this` instance), unless a return value is defined in the according setter method.
+
+NOTE: The property resolution does not check if an according field exists. Basically all the `get|set|is|` methods are candidates to
+a property-style method invocation.
+
+[source,java]
+----
+public class Person {
+
+  private String name;
+  private boolean goloComitter;
+  private String email;
+  private int score;
+
+  public String getName() {
+  ...
+  }
+
+  public boolean isGoloComitter() {
+  ...
+  }
+
+  public void setName(String name) {
+    ...
+  }
+
+  public void setGoloCommitter(boolean goloCommitter) {
+  ...
+  }
+
+  public int setScore(int score) {
+    this.score = score;
+    return score;
+  }
+
+  public boolean isRockStar() {
+    return goloCommitter;
+  }
+}
+----
+====
+
+
+[source,golo]
+----
+let duke = Person()
+
+try {
+  duke: email("duke@golo-lang.org")
+} catch (e) {
+  require(e oftype java.lang.NoSuchMethodError.class, "the email field is private and no setter is defined")
+}
+
+require(duke: name("Duke"): goloCommiter(true) oftype Person.class, "the set mutators should be chained with fluent calls")
+require(duke: name() is "Duke", "should find the getName() accessor.")
+require(duke: goloCommitter() is true, "should invoke the isGoloCommitter accessor since the field it's a boolean")
+require(print(duke: rockStar() is true, "even if the field rockstar doesn't exists, it should invoke the isRockStar accessor")
+require(ducke: score(100) is 100, "setScore returns a value, the method isn't fluent")
+----
+====
+
 === Inner classes and enumerations
 
 We will illustrate both how to deal with public static inner classes and enumerations at once.
