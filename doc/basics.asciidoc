@@ -74,7 +74,7 @@ environment variable to provide custom JVM tuning to `vanilla-golo`.
 Provided that `golo` is available from your current `$PATH`, you may run the program above as
 follows:
 
-[source,console]
+[source]
 ----
 $ golo golo --files samples/helloworld.golo
 Hello world!
@@ -105,7 +105,7 @@ function main = |args| {
 
 We may invoke it as follows:
 
-[source,console]
+[source]
 ----
 $ golo golo --files samples/echo-args.golo --args plop da plop
 -> plop
@@ -126,7 +126,7 @@ in the chapter on interoperability with Java.
 
 Compiling Golo files is straightforward:
 
-[source,console]
+[source]
 ----
 $ golo compile --output classes samples/helloworld.golo
 $
@@ -136,7 +136,7 @@ This compiles the code found in `samples/helloworld.golo` and outputs
 the generated classes to a `classes` folder (it will be created if
 needed):
 
-[source,console]
+[source]
 ----
 $ tree classes/
 classes/
@@ -151,7 +151,7 @@ $
 
 Golo provides a `golo` command for running compiled Golo code:
 
-[source,console]
+[source]
 ----
 $ cd classes
 $ golo run --module hello.World
@@ -168,7 +168,7 @@ variable.
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
 
-[source,console]
+[source]
 ----
 # Exporting an environment variable
 $ export JAVA_OPTS=-XX:+PrintCompilation

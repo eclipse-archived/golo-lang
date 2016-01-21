@@ -161,7 +161,7 @@ println(dynob: casperGetter())
 println(dynob: casperMethod("foo", "bar"))
 ----
 
-[source,console]
+[source]
 ----
 Dispatch failed for method: casperGetter, with args:
 Dispatch failed for method: casperMethod, with args: foo bar

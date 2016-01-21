@@ -21,7 +21,7 @@ function main = |args| {
 
 Once compiled, we may invoke it as follows:
 
-[source,console]
+[source]
 ----
 $ golo compile mainEntryPoint.golo
 $ java -cp ".:golo.jar" mainEntryPoint GoloRocks
@@ -79,7 +79,7 @@ public class Printer {
 }
 ----
 
-[source,console]
+[source]
 ----
 $ javac -parameters Printer.java
 ----
@@ -372,7 +372,7 @@ function main = |args| {
 
 Running it yields the following console output:
 
-[source,console]
+[source]
 ----
 $ golo golo --files samples/enums-thread-state.golo
 name=NEW, ordinal=0
