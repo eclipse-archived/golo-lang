@@ -6,6 +6,7 @@
 :numbered:
 :stylesheet: readthedocs.css
 :source-highlighter: highlightjs
+:highlightjsdir: .
 
 This is the documentation for the Golo programming language.
 
@@ -70,4 +71,3 @@ include::documenting.asciidoc[]
 include::misc.asciidoc[]
 
 include::pitfalls.asciidoc[]
-

@@ -137,7 +137,7 @@ jacocoTestReport.dependsOn test
 // .................................................................................................................. //
 
 asciidoctorj {
-  version = '1.5.2'
+  version = '1.5.4'
 }
 
 asciidoctor {
@@ -148,7 +148,14 @@ asciidoctor {
   backends 'html5'
 }
 
-assemble.dependsOn asciidoctor
+task assembleAsciidoc(type: Copy, dependsOn: asciidoctor) {
+  from('doc/highlightjs') {
+    include '**/*'
+  }
+  into "${asciidoctor.outputDir}/html5"
+}
+
+assemble.dependsOn assembleAsciidoc
 
 // .................................................................................................................. //
 

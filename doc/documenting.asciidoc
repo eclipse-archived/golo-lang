@@ -40,7 +40,7 @@ function adder = |x, y| -> x + y
 
 The `golo doc` command can render documentation in `html` (the default) or `markdown` format:
 
-[source,console]
+[source]
 ----
 $ golo doc --output target/documentation src/**/*.golo
 ----
