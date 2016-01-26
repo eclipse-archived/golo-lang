@@ -39,7 +39,7 @@ ext {
 // .................................................................................................................. //
 
 group = 'org.eclipse.golo'
-version = '3.1.0-incubation-SNAPSHOT'
+version = '3.1.0-SNAPSHOT'
 
 // .................................................................................................................. //
 
@@ -194,6 +194,7 @@ startScripts.dependsOn vanillaScripts
 
 distributions {
   main {
+    baseName = 'golo-incubation'
     contents {
       from(projectDir) {
         include 'README*'
