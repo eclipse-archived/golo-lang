@@ -7,7 +7,6 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 RUN apt-get update &&\
-  apt-get -y upgrade &&\
   apt-get install -y git &&\
   apt-get autoclean
 
@@ -17,6 +16,6 @@ RUN cd /src && ./gradlew -v
 RUN cd /src && ./gradlew installDist
 
 RUN mkdir -p /opt/golo &&\
-  cp -R /src/build/install/golo /opt &&\
+  cp -R /src/build/install/golo-incubation /opt/golo &&\
   ln -s /opt/golo/bin/golo /usr/bin/golo &&\
   cd /src && ./gradlew clean
