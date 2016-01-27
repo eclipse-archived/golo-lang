@@ -473,7 +473,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
     if (isError()) {
       return recover.invoke(error);
     }
-    return recover.invoke(value);
+    return mapping.invoke(value);
   }
 
     /**
