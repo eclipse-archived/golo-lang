@@ -356,3 +356,52 @@ let err, val = trying({
 The error is the left value, the correct one the right (mnemonic: “right” also means “correct”). This allows to deal with error in the same way as Go does for instance.
 
 The decorators `nullify` and `raising` are the duals of `option` or `result`
+
+=== Assertions (`gololang.Assertions`)
+
+`assert` helpers allow to declare (and test) an expected boolean condition in a program.
+
+==== `assert`
+
+Ensure that a boolean expression is true at runtime:
+
+[source,golo]
+----
+# be careful, if no callback and assertion is false, then the program is aborted
+assert(-> 5: equals(5))
+
+assert(-> "Golo" oftype Integer.class, |error| {
+  println("Huston?")
+})
+
+assert(predicate= -> 5 < 0, onSuccess=|res|{
+  println("You win!")
+}, onError=|err|{
+  println("5 is not less than 0!")
+})
+----
+
+==== `assertEqual`
+
+Ensure that two expressions are equal to each other:
+
+[source,golo]
+----
+# be careful, if no callback and assertion is false, then the program is aborted
+assertEqual(42, 42)
+
+assertEqual(42, 69, |error| {
+  println(error)
+})
+
+let point = Point(5,5)
+assertEqual(point: frozenCopy(), point: frozenCopy(), |res| { # success
+    println(":)")
+  },
+  |error| { # fail
+    println(":(")
+})
+
+# display report of results
+gololang.Assertions.displayTestsReport()
+----
