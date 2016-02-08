@@ -129,7 +129,7 @@ Of course you can combine profiles, like:
 
 ## License
 
-    Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon) and contributors
+    Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon) and contributors
 
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0
