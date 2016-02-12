@@ -147,6 +147,15 @@ classes/
 $
 ----
 
+It is also possible to output to a Jar archive:
+
+[source]
+----
+golo compile --output hello.jar samples/*.golo
+----
+
+This would take all `.golo` files from the `sample` folder, and assemble the resulting JVM class files in `hello.jar`.
+
 === Running compiled Golo code
 
 Golo provides a `golo` command for running compiled Golo code:
