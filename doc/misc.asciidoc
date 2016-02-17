@@ -359,7 +359,7 @@ The decorators `nullify` and `raising` are the duals of `option` or `result`
 
 === Assertions (`gololang.Assertions`)
 
-`assert` helpers allow to declare (and test) an expected boolean condition in a program.
+It allows to declare (and test) an expected boolean condition in a program.
 
 ==== `assert`
 
@@ -367,8 +367,10 @@ Ensure that a boolean expression is true at runtime:
 
 [source,golo]
 ----
-# be careful, if no callback and assertion is false, then the program is aborted
 assert(-> 5: equals(5))
+
+# If you don't provide callback to assert(), a Runtime exception is thrown if the predicate is false
+assert(-> 5: equals(42))
 
 assert(-> "Golo" oftype Integer.class, |error| {
   println("Huston?")

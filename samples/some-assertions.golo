@@ -1,14 +1,20 @@
-module some.assertions
+# Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+#
+# All rights reserved. This Example Content is intended to demonstrate
+# usage of Eclipse technology. It is provided to you under the terms and
+# conditions of the Eclipse Distribution License v1.0 which is available
+# at http://www.eclipse.org/org/documents/edl-v10.php
+
+module golo.samples.Assertions
 
 import gololang.Assertions
 
 struct Point = {
-  x,y
+  x, y
 }
 
 function main = |args| {
 
-  # be careful, if no callback and assertion is false, then the program is aborted
   assert(-> 5: equals(5))
 
   assert(-> "BoB" oftype String.class, |error| {
@@ -26,17 +32,15 @@ function main = |args| {
     }
   )
 
-  assert(predicate= -> 5 < 0, onSuccess=|res|{}, onError=|err|{
+  assert(predicate= -> 5 < 0, onSuccess=|res| {}, onError=|err| {
     println("5 is not less than 0!")
   })
 
-  # be careful, if no callback and assertion is false, then the program is aborted
   assertEqual(42, 42)
 
   assertEqual(42, 69, |error| {
     println(error)
   })
-
 
   assertEqual(Point(5,5), Point(5,5), |error| {
     println("???")
