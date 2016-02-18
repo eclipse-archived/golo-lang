@@ -9,16 +9,12 @@
 
 package gololang.error;
 
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.List;
-import java.util.Iterator;
-import java.util.Collections;
+import gololang.FunctionReference;
+import gololang.Tuple;
+
+import java.util.*;
 import java.util.function.Function;
 import java.util.function.Predicate;
-import gololang.Tuple;
-import gololang.FunctionReference;
 
 /**
  * A container object which represent the result of a maybe failing operation.
@@ -476,7 +472,25 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
     return mapping.invoke(value);
   }
 
-    /**
+  /**
+   * Case analysis for the result.
+   * <p>
+   * If the result is a value, apply the first function to it;
+   * if it is an error, apply the second function to it.
+   * <p>
+   *
+   * @param mapping the function to apply to the contained value
+   * @param recover the function to apply to the contained error
+   * @return the result of applying the corresponding function
+   */
+  public T either(Function<T,T> mapping, Function<E,T> recover) {
+    if (isError()) {
+      return recover.apply(error);
+    }
+    return mapping.apply(value);
+  }
+
+  /**
    * Three way case analysis for the result.
    * <p>
    * If the result is a value, apply the first function to it;
