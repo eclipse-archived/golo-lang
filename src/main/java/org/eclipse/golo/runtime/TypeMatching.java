@@ -99,8 +99,10 @@ public final class TypeMatching {
     return index > 0 && args.length == index && args[index - 1] instanceof Object[];
   }
 
-  private static boolean argumentsNumberMatches(int paramsNumber, int argsNumber, boolean isVarArgs) {
-    return (!isVarArgs && paramsNumber == argsNumber) || (isVarArgs && argsNumber >= paramsNumber - 1);
+  public static boolean argumentsNumberMatches(int paramsNumber, int argsNumber, boolean isVarArgs) {
+    return argsNumber < 0
+           || (!isVarArgs && paramsNumber == argsNumber)
+           || (isVarArgs && argsNumber >= paramsNumber - 1);
   }
 
   public static boolean argumentsMatch(Method method, Object[] arguments) {
@@ -113,13 +115,13 @@ public final class TypeMatching {
       : copyOfRange(arguments, 1, arguments.length);
     return
       isMethodDecorated(method)
-      || (argumentsNumberMatches(method.getParameterTypes().length, args.length, varargs)
+      || (argumentsNumberMatches(method.getParameterCount(), args.length, varargs)
           && canAssign(method.getParameterTypes(), args, varargs));
   }
 
   public static boolean argumentsMatch(Constructor<?> constructor, Object[] arguments) {
     return
-      argumentsNumberMatches(constructor.getParameterTypes().length, arguments.length, constructor.isVarArgs())
+      argumentsNumberMatches(constructor.getParameterCount(), arguments.length, constructor.isVarArgs())
       && canAssign(constructor.getParameterTypes(), arguments, constructor.isVarArgs());
   }
 

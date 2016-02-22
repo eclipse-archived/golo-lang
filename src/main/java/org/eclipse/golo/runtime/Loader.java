@@ -37,7 +37,7 @@ public final class Loader implements Function<String, Class<?>> {
    * @param klass the class whose {@code ClassLoader} to use
    * @return a {@code Loader}
    * */
-  static Loader forClass(Class<?> klass) {
+  public static Loader forClass(Class<?> klass) {
     return new Loader(klass.getClassLoader());
   }
 
