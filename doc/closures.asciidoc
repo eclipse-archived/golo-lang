@@ -283,6 +283,17 @@ function call_foo = {
 }
 ----
 
+In this case, one can even specify if a varargs function is needed or not (since arity alone can be ambiguous) using final `...`:
+
+[source,golo]
+----
+local function foo = |a| -> "unary"
+local function foo = |a...| -> "variable"
+
+^foo\1(null) # unary
+^foo\1...()  # variable
+----
+
 Note that you can in the same way get a reference to a Java static method. For
 instance:
 
