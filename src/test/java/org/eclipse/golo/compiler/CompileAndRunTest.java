@@ -911,6 +911,9 @@ public class CompileAndRunTest {
     Method call_varargs_overloaded_fun = moduleClass.getMethod("call_varargs_overloaded_fun");
     assertThat((Tuple) call_varargs_overloaded_fun.invoke(null), is(equalTo(new Tuple("p", "pv"))));
 
+    Method call_varargs_overloaded_fun_literal = moduleClass.getMethod("call_varargs_overloaded_fun_literal");
+    assertThat((Tuple) call_varargs_overloaded_fun_literal.invoke(null), is(equalTo(new Tuple("p", "pv"))));
+
     Method call_java_method_literal = moduleClass.getMethod("call_java_method_literal");
     assertThat((List) call_java_method_literal.invoke(null), is(equalTo(asList(5, 7, 3, 3))));
 

@@ -180,7 +180,15 @@ public final class Builders {
   }
 
   public static ConstantStatement functionRef(Object moduleName, Object funcName, Object arity) {
-    return constant(new GoloParser.FunctionRef((String) moduleName, (String) funcName, (Integer) arity));
+    return functionRef(moduleName, funcName, -1, false);
+  }
+
+  public static ConstantStatement functionRef(Object moduleName, Object funcName, Object arity, Object varargs) {
+    return constant(new GoloParser.FunctionRef(
+          (String) moduleName,
+          (String) funcName,
+          (Integer) arity,
+          (Boolean) varargs));
   }
 
   public static ReturnStatement returns(Object expr) {
