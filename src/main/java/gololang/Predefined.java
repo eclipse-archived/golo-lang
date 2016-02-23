@@ -23,11 +23,17 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
 import java.util.*;
+import java.util.function.Predicate;
+import java.util.stream.Stream;
+import org.eclipse.golo.runtime.Extractors;
+import org.eclipse.golo.runtime.Loader;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.reflect.Modifier.isStatic;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
+import static java.util.stream.Collectors.toList;
+
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
  * default.
@@ -392,46 +398,41 @@ public final class Predefined {
    * @param name   the function name.
    * @param module the function enclosing module (a Java class).
    * @param arity  the function arity, where a negative value means that any arity will do.
+   * @param varargs if the functions has variable arity.
    * @return a function reference to the matched function.
    * @throws NoSuchMethodException    if the target function could not be found.
    * @throws IllegalArgumentException if the argument types are not of types <code>(String, Class, Integer)</code>.
    * @throws Throwable                if an error occurs.
    */
-  public static Object fun(Object name, Object module, Object arity) throws Throwable {
+  public static FunctionReference fun(Object name, Object module, Object arity, Object varargs) throws Throwable {
     require(name instanceof String, "name must be a String");
     require(module instanceof Class, "module must be a module (e.g., foo.bar.Some.module)");
     require(arity instanceof Integer, "name must be an Integer");
+    require(varargs instanceof Boolean, "varargs must be a Boolean");
     final Class<?> moduleClass = (Class<?>) module;
     final String functionName = (String) name;
     final int functionArity = (Integer) arity;
+    final boolean isVarargs = (Boolean) varargs;
     Method targetMethod = null;
-    final List<Method> candidates = new LinkedList<>(Arrays.asList(moduleClass.getDeclaredMethods()));
-    candidates.addAll(Arrays.asList(moduleClass.getMethods()));
-    LinkedHashSet<Method> validCandidates = new LinkedHashSet<>();
-    for (Method method : candidates) {
-      if (method.getName().equals(functionName)) {
-        if (isMethodDecorated(method) || (functionArity < 0) || (method.getParameterTypes().length == functionArity)) {
-          validCandidates.add(method);
-        }
-      }
-    }
+    Predicate<Method> candidate = Extractors.matchFunctionReference(functionName, functionArity, isVarargs);
+    final List<Method> validCandidates = Extractors.getMethods(moduleClass)
+      .filter(candidate)
+      .collect(toList());
     if (validCandidates.size() == 1) {
-      targetMethod = validCandidates.iterator().next();
+      targetMethod = validCandidates.get(0);
+      // FIXME: only if the defining module is the calling module (see #319)
       targetMethod.setAccessible(true);
-      String[] parameterNames = Arrays.stream(targetMethod.getParameters()).map(Parameter::getName).toArray(String[]::new);
-      if (isMethodDecorated(targetMethod)) {
-        if (functionArity < 0) {
-          return new FunctionReference(getDecoratedMethodHandle(targetMethod), parameterNames);
-        } else {
-          return new FunctionReference(getDecoratedMethodHandle(targetMethod, functionArity), parameterNames);
-        }
-      }
-      return new FunctionReference(MethodHandles.publicLookup().unreflect(targetMethod), parameterNames);
+      return toFunctionReference(targetMethod, functionArity);
     }
     if (validCandidates.size() > 1) {
+      // TODO: return the first method, printing a warning
       throw new AmbiguousFunctionReferenceException(("The reference to " + name + " in " + module
           + ((functionArity < 0) ? "" : (" with arity " + functionArity))
           + " is ambiguous"));
+    }
+    Optional<Method> target = getImportedFunctions(moduleClass).filter(candidate).findFirst();
+    if (target.isPresent()) {
+      return toFunctionReference(target.get(), functionArity);
     }
     throw new NoSuchMethodException((name + " in " + module
         + (functionArity < 0 ? "" : (" with arity " + functionArity))));
@@ -440,12 +441,41 @@ public final class Predefined {
   /**
    * Obtains the first reference to a function.
    * <p>
-   * This is the same as calling <code>fun(name, module, -1)</code>.
+   * This is the same as calling {@code fun(name, module, arity, false)}.
+   *
+   * @see Predefined#fun(Object, Object, Object, Object)
+   */
+  public static FunctionReference fun(Object name, Object module, Object arity) throws Throwable {
+    return fun(name, module, arity, false);
+  }
+
+  /**
+   * Obtains the first reference to a function.
+   * <p>
+   * This is the same as calling {@code fun(name, module, -1)}.
    *
    * @see Predefined#fun(Object, Object, Object)
    */
-  public static Object fun(Object name, Object module) throws Throwable {
+  public static FunctionReference fun(Object name, Object module) throws Throwable {
     return fun(name, module, -1);
+  }
+
+  private static FunctionReference toFunctionReference(Method targetMethod, int functionArity) throws Throwable {
+    String[] parameterNames = Arrays.stream(targetMethod.getParameters())
+      .map(Parameter::getName)
+      .toArray(String[]::new);
+    if (isMethodDecorated(targetMethod)) {
+      return new FunctionReference(getDecoratedMethodHandle(targetMethod, functionArity), parameterNames);
+    }
+    return new FunctionReference(MethodHandles.publicLookup().unreflect(targetMethod), parameterNames);
+  }
+
+  private static Stream<Method> getImportedFunctions(Class<?> source) {
+    return Extractors.getImportedNames(source)
+      .map(Loader.forClass(source))
+      .filter(Objects::nonNull)
+      .flatMap(Extractors::getMethods)
+      .filter(Extractors::isPublic);
   }
 
   // ...................................................................................................................

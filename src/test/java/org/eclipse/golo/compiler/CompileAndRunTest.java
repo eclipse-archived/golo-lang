@@ -896,6 +896,15 @@ public class CompileAndRunTest {
     Method call_java_func_literal = moduleClass.getMethod("call_java_func_literal");
     assertThat((Tuple) call_java_func_literal.invoke(null), is(equalTo(new Tuple(true, false))));
 
+    Method call_imported_java_func_literal = moduleClass.getMethod("call_imported_java_func_literal");
+    assertThat((Tuple) call_imported_java_func_literal.invoke(null), is(equalTo(new Tuple(true, false))));
+
+    Method call_imported_overridden_java_func_literal = moduleClass.getMethod("call_imported_overridden_java_func_literal");
+    assertThat((Tuple) call_imported_overridden_java_func_literal.invoke(null), is(equalTo(new Tuple("n", "o"))));
+
+    Method call_varargs_overloaded_fun = moduleClass.getMethod("call_varargs_overloaded_fun");
+    assertThat((Tuple) call_varargs_overloaded_fun.invoke(null), is(equalTo(new Tuple("p", "pv"))));
+
     Method call_java_method_literal = moduleClass.getMethod("call_java_method_literal");
     assertThat((List) call_java_method_literal.invoke(null), is(equalTo(asList(5, 7, 3, 3))));
 

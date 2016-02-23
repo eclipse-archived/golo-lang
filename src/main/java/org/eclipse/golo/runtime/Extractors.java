@@ -17,6 +17,9 @@ import java.util.stream.Stream;
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
 
+import static org.eclipse.golo.runtime.TypeMatching.argumentsNumberMatches;
+import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
+
 public final class Extractors {
   private Extractors() {
     throw new UnsupportedOperationException("don't instantiate");
@@ -84,8 +87,15 @@ public final class Extractors {
     return !Modifier.isAbstract(m.getModifiers());
   }
 
-  public static Predicate<? extends Member> isNamed(String name) {
+  public static Predicate<Member> isNamed(String name) {
     return m -> m.getName().equals(name);
+  }
+
+  public static Predicate<Method> matchFunctionReference(String name, int arity, boolean varargs) {
+    return m ->
+      m.getName().equals(name)
+      && (isMethodDecorated(m) || argumentsNumberMatches(m.getParameterCount(), arity, varargs))
+      && (arity < 0 || m.isVarArgs() == varargs);
   }
 
 }
