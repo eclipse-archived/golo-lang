@@ -60,6 +60,9 @@ function k = {
 function l = {
   let f1 = ^k
   let f2 = ^foo.bar::baz
+  let f3 = ^plop\3
+  let f4 = ^my.module::plop\2
+  let f5 = ^plop\1...
 }
 
 function m = {

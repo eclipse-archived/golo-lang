@@ -165,7 +165,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
             classRef(ref.module == null
               ? this.module.getPackageAndClass()
               : ref.module),
-            constant(-1));
+            constant(ref.arity),
+            constant(ref.varargs));
       constantStatement.replaceInParentBy(fun);
       fun.accept(this);
       return;

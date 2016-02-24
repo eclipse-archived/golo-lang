@@ -866,6 +866,12 @@ public class CompileAndRunTest {
     Method call_local_overloaded_fun_with_arity2 = moduleClass.getMethod("call_local_overloaded_fun_with_arity2");
     assertThat((Integer) call_local_overloaded_fun_with_arity2.invoke(null), is(3));
 
+    Method call_local_overloaded_fun_literal_with_arity1 = moduleClass.getMethod("call_local_overloaded_fun_literal_with_arity1");
+    assertThat((Integer) call_local_overloaded_fun_literal_with_arity1.invoke(null), is(3));
+
+    Method call_local_overloaded_fun_literal_with_arity2 = moduleClass.getMethod("call_local_overloaded_fun_literal_with_arity2");
+    assertThat((Integer) call_local_overloaded_fun_literal_with_arity2.invoke(null), is(3));
+
     Method call_local_overloaded_fun_without_arity = moduleClass.getMethod("call_local_overloaded_fun_without_arity");
     try {
       call_local_overloaded_fun_without_arity.invoke(null);
@@ -904,6 +910,9 @@ public class CompileAndRunTest {
 
     Method call_varargs_overloaded_fun = moduleClass.getMethod("call_varargs_overloaded_fun");
     assertThat((Tuple) call_varargs_overloaded_fun.invoke(null), is(equalTo(new Tuple("p", "pv"))));
+
+    Method call_varargs_overloaded_fun_literal = moduleClass.getMethod("call_varargs_overloaded_fun_literal");
+    assertThat((Tuple) call_varargs_overloaded_fun_literal.invoke(null), is(equalTo(new Tuple("p", "pv"))));
 
     Method call_java_method_literal = moduleClass.getMethod("call_java_method_literal");
     assertThat((List) call_java_method_literal.invoke(null), is(equalTo(asList(5, 7, 3, 3))));
