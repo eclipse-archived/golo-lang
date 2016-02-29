@@ -300,22 +300,6 @@ public final class Predefined {
     return ((Range<?>) range(from)).reversed();
   }
 
-  /**
-   * @deprecated renamed to {@code reversedRange} for consistency.
-   */
-  @Deprecated
-  public static Object reversed_range(Object from) {
-    return reversedRange(from);
-  }
-
-  /**
-   * @deprecated renamed to {@code reversedRange} for consistency.
-   */
-  @Deprecated
-  public static Object reversed_range(Object from, Object to) {
-    return reversedRange(from, to);
-  }
-
   // ...................................................................................................................
 
   /**
