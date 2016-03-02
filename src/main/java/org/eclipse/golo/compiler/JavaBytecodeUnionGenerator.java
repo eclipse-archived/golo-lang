@@ -32,8 +32,8 @@ class JavaBytecodeUnionGenerator {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_ABSTRACT,
-        union.getPackageAndClass().toJVMType(), null, "java/lang/Object", null);
-    makeDefaultConstructor(classWriter, "java/lang/Object");
+        union.getPackageAndClass().toJVMType(), null, "gololang/Union", null);
+    makeDefaultConstructor(classWriter, "gololang/Union");
     HashMap<String, PackageAndClass> staticFields = new HashMap<>();
     for (UnionValue value : union.getValues()) {
       makeMatchlikeTestMethod(classWriter, value, false);
@@ -186,7 +186,7 @@ class JavaBytecodeUnionGenerator {
       makeValuedConstructor(classWriter, value);
       makeHashCode(classWriter, value);
       makeEquals(classWriter, value);
-      makeDestruct(classWriter, value);
+      makeToArray(classWriter, value);
     } else {
       makeDefaultConstructor(classWriter, unionType);
       parentClassWriter.visitField(ACC_PUBLIC | ACC_FINAL | ACC_STATIC, value.getName(),
@@ -285,6 +285,15 @@ class JavaBytecodeUnionGenerator {
     mv.visitCode();
     loadMembersArray(mv, value);
     mv.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;", false);
+    mv.visitInsn(ARETURN);
+    mv.visitMaxs(0, 0);
+    mv.visitEnd();
+  }
+
+  private void makeToArray(ClassWriter cw, UnionValue value) {
+    MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "toArray", "()[Ljava/lang/Object;", null, null);
+    mv.visitCode();
+    loadMembersArray(mv, value);
     mv.visitInsn(ARETURN);
     mv.visitMaxs(0, 0);
     mv.visitEnd();
