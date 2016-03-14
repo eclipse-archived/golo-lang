@@ -111,8 +111,9 @@ test {
 
 processResources {
   filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-    version: version,
-    timestamp: versioning.info.full
+    'version': version,
+    'golo.version': version,
+    'timestamp': versioning.info.full
   ])
 }
 
