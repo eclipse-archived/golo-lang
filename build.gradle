@@ -195,7 +195,7 @@ startScripts.dependsOn vanillaScripts
 
 distributions {
   main {
-    baseName = 'golo-incubation'
+    baseName = 'golo'
     contents {
       from(projectDir) {
         include 'README*'
