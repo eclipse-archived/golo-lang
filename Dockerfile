@@ -15,6 +15,6 @@ RUN cd /src && ./gradlew -v
 
 RUN cd /src && ./gradlew installDist
 
-RUN cp -R /src/build/install/golo-incubation /opt/golo &&\
+RUN cp -R /src/build/install/golo /opt/golo &&\
   ln -s /opt/golo/bin/golo /usr/bin/golo &&\
   cd /src && ./gradlew clean
