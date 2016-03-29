@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.LinkedHashSet;
 import java.util.Collections;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import org.eclipse.golo.compiler.utils.StringUnescaping;
 import org.eclipse.golo.compiler.utils.StringBlockIndenter;
@@ -225,9 +227,13 @@ TOKEN :
   |
   < LONG_NUMBER: <NUMBER> "_L" >
   |
-  < FLOATING_NUMBER: ("-")? (["0"-"9"])+ ("." (["0"-"9"])+)? ("e" (["0"-"9"])+)? >
+  < BIGINTEGER: <NUMBER> "_B" >
+  |
+  < FLOATING_NUMBER: <NUMBER> ("." ["0"-"9"] (("_")? ["0"-"9"])*)? ("e" ("-")? (["0"-"9"])+)? >
   |
   < FLOAT: <FLOATING_NUMBER> "_F" >
+  |
+  < BIGDECIMAL: <FLOATING_NUMBER> "_B" >
   |
   < STRING: "\"" (
     (~["\"", "\\", "\n", "\r"])
@@ -574,6 +580,19 @@ Long LongLiteral() #void:
   }
 }
 
+BigInteger BigIntegerLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<BIGINTEGER>
+  {
+    String image = literal.image.substring(0, literal.image.length() - 2);
+    return new BigInteger(image.replace("_",""));
+  }
+}
+
+
 Integer IntegerLiteral() #void:
 {
   Token literal;
@@ -606,7 +625,7 @@ Double DoubleLiteral() #void:
 {
   literal=<FLOATING_NUMBER>
   {
-    return Double.valueOf(literal.image);
+    return Double.valueOf(literal.image.replace("_", ""));
   }
 }
 
@@ -617,7 +636,22 @@ Float FloatLiteral() #void:
 {
   literal=<FLOAT>
   {
-    return Float.valueOf(literal.image.substring(0, literal.image.length() - 2));
+    return Float.valueOf(literal.image
+        .substring(0, literal.image.length() - 2)
+        .replace("_", ""));
+  }
+}
+
+BigDecimal BigDecimalLiteral() #void:
+{
+  Token literal;
+}
+{
+  literal=<BIGDECIMAL>
+  {
+    return new BigDecimal(literal.image
+        .substring(0, literal.image.length() - 2)
+        .replace("_", ""));
   }
 }
 
@@ -1288,6 +1322,16 @@ void Literal():
     }
     |
     value=CharLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=BigDecimalLiteral()
+    {
+      jjtThis.setLiteralValue(value);
+    }
+    |
+    value=BigIntegerLiteral()
     {
       jjtThis.setLiteralValue(value);
     }

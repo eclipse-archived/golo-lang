@@ -13,6 +13,8 @@ import java.lang.invoke.*;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
@@ -1259,6 +1261,885 @@ public final class OperatorSupport {
     return ((double) a) >= ((double) b);
   }
 
+  public static Object equals(BigDecimal a, Integer b) {
+    return (a).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigDecimal a, Integer b) {
+    return (a).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) != 0;
+  }
+
+  public static Object less(BigDecimal a, Integer b) {
+    return (a).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigDecimal a, Integer b) {
+    return (a).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigDecimal a, Integer b) {
+    return (a).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigDecimal a, Integer b) {
+    return (a).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigDecimal a, Integer b) {
+    return (a).add(new BigDecimal(b));
+  }
+
+  public static Object plus(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).add(b);
+  }
+
+  public static Object minus(BigDecimal a, Integer b) {
+    return (a).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).subtract(b);
+  }
+
+  public static Object times(BigDecimal a, Integer b) {
+    return (a).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).multiply(b);
+  }
+
+  public static Object divide(BigDecimal a, Integer b) {
+    return (a).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).divide(b);
+  }
+
+  public static Object modulo(BigDecimal a, Integer b) {
+    return (a).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(Integer a, BigDecimal b) {
+    return (new BigDecimal(a)).remainder(b);
+  }
+
+  public static Object equals(BigDecimal a, Long b) {
+    return (a).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigDecimal a, Long b) {
+    return (a).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) != 0;
+  }
+
+  public static Object less(BigDecimal a, Long b) {
+    return (a).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigDecimal a, Long b) {
+    return (a).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigDecimal a, Long b) {
+    return (a).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigDecimal a, Long b) {
+    return (a).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigDecimal a, Long b) {
+    return (a).add(new BigDecimal(b));
+  }
+
+  public static Object plus(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).add(b);
+  }
+
+  public static Object minus(BigDecimal a, Long b) {
+    return (a).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).subtract(b);
+  }
+
+  public static Object times(BigDecimal a, Long b) {
+    return (a).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).multiply(b);
+  }
+
+  public static Object divide(BigDecimal a, Long b) {
+    return (a).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).divide(b);
+  }
+
+  public static Object modulo(BigDecimal a, Long b) {
+    return (a).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(Long a, BigDecimal b) {
+    return (new BigDecimal(a)).remainder(b);
+  }
+
+  public static Object equals(BigDecimal a, BigInteger b) {
+    return (a).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigDecimal a, BigInteger b) {
+    return (a).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) != 0;
+  }
+
+  public static Object less(BigDecimal a, BigInteger b) {
+    return (a).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigDecimal a, BigInteger b) {
+    return (a).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigDecimal a, BigInteger b) {
+    return (a).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigDecimal a, BigInteger b) {
+    return (a).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigDecimal a, BigInteger b) {
+    return (a).add(new BigDecimal(b));
+  }
+
+  public static Object plus(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).add(b);
+  }
+
+  public static Object minus(BigDecimal a, BigInteger b) {
+    return (a).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).subtract(b);
+  }
+
+  public static Object times(BigDecimal a, BigInteger b) {
+    return (a).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).multiply(b);
+  }
+
+  public static Object divide(BigDecimal a, BigInteger b) {
+    return (a).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).divide(b);
+  }
+
+  public static Object modulo(BigDecimal a, BigInteger b) {
+    return (a).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(BigInteger a, BigDecimal b) {
+    return (new BigDecimal(a)).remainder(b);
+  }
+
+  public static Object equals(BigDecimal a, Float b) {
+    return (a).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigDecimal a, Float b) {
+    return (a).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) != 0;
+  }
+
+  public static Object less(BigDecimal a, Float b) {
+    return (a).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigDecimal a, Float b) {
+    return (a).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigDecimal a, Float b) {
+    return (a).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigDecimal a, Float b) {
+    return (a).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigDecimal a, Float b) {
+    return (a).add(new BigDecimal(b));
+  }
+
+  public static Object plus(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).add(b);
+  }
+
+  public static Object minus(BigDecimal a, Float b) {
+    return (a).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).subtract(b);
+  }
+
+  public static Object times(BigDecimal a, Float b) {
+    return (a).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).multiply(b);
+  }
+
+  public static Object divide(BigDecimal a, Float b) {
+    return (a).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).divide(b);
+  }
+
+  public static Object modulo(BigDecimal a, Float b) {
+    return (a).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(Float a, BigDecimal b) {
+    return (new BigDecimal(a)).remainder(b);
+  }
+
+  public static Object equals(BigDecimal a, Double b) {
+    return (a).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigDecimal a, Double b) {
+    return (a).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) != 0;
+  }
+
+  public static Object less(BigDecimal a, Double b) {
+    return (a).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigDecimal a, Double b) {
+    return (a).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigDecimal a, Double b) {
+    return (a).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigDecimal a, Double b) {
+    return (a).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigDecimal a, Double b) {
+    return (a).add(new BigDecimal(b));
+  }
+
+  public static Object plus(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).add(b);
+  }
+
+  public static Object minus(BigDecimal a, Double b) {
+    return (a).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).subtract(b);
+  }
+
+  public static Object times(BigDecimal a, Double b) {
+    return (a).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).multiply(b);
+  }
+
+  public static Object divide(BigDecimal a, Double b) {
+    return (a).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).divide(b);
+  }
+
+  public static Object modulo(BigDecimal a, Double b) {
+    return (a).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(Double a, BigDecimal b) {
+    return (new BigDecimal(a)).remainder(b);
+  }
+
+  public static Object equals(BigDecimal a, BigDecimal b) {
+    return (a).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigDecimal a, BigDecimal b) {
+    return (a).compareTo(b) != 0;
+  }
+
+  public static Object less(BigDecimal a, BigDecimal b) {
+    return (a).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigDecimal a, BigDecimal b) {
+    return (a).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigDecimal a, BigDecimal b) {
+    return (a).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigDecimal a, BigDecimal b) {
+    return (a).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigDecimal a, BigDecimal b) {
+    return (a).add(b);
+  }
+
+  public static Object minus(BigDecimal a, BigDecimal b) {
+    return (a).subtract(b);
+  }
+
+  public static Object times(BigDecimal a, BigDecimal b) {
+    return (a).multiply(b);
+  }
+
+  public static Object divide(BigDecimal a, BigDecimal b) {
+    return (a).divide(b);
+  }
+
+  public static Object modulo(BigDecimal a, BigDecimal b) {
+    return (a).remainder(b);
+  }
+
+  public static Object equals(BigInteger a, Integer b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) == 0;
+  }
+
+  public static Object equals(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigInteger a, Integer b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) != 0;
+  }
+
+  public static Object notequals(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) != 0;
+  }
+
+  public static Object less(BigInteger a, Integer b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) < 0;
+  }
+
+  public static Object less(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigInteger a, Integer b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) <= 0;
+  }
+
+  public static Object lessorequals(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigInteger a, Integer b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) > 0;
+  }
+
+  public static Object more(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigInteger a, Integer b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) >= 0;
+  }
+
+  public static Object moreorequals(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigInteger a, Integer b) {
+    return (a).add(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object plus(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).add(b);
+  }
+
+  public static Object minus(BigInteger a, Integer b) {
+    return (a).subtract(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object minus(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).subtract(b);
+  }
+
+  public static Object times(BigInteger a, Integer b) {
+    return (a).multiply(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object times(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).multiply(b);
+  }
+
+  public static Object divide(BigInteger a, Integer b) {
+    return (a).divide(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object divide(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).divide(b);
+  }
+
+  public static Object modulo(BigInteger a, Integer b) {
+    return (a).remainder(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object modulo(Integer a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).remainder(b);
+  }
+
+  public static Object equals(BigInteger a, Long b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) == 0;
+  }
+
+  public static Object equals(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigInteger a, Long b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) != 0;
+  }
+
+  public static Object notequals(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) != 0;
+  }
+
+  public static Object less(BigInteger a, Long b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) < 0;
+  }
+
+  public static Object less(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigInteger a, Long b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) <= 0;
+  }
+
+  public static Object lessorequals(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigInteger a, Long b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) > 0;
+  }
+
+  public static Object more(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigInteger a, Long b) {
+    return (a).compareTo(BigInteger.valueOf(b.longValue())) >= 0;
+  }
+
+  public static Object moreorequals(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigInteger a, Long b) {
+    return (a).add(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object plus(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).add(b);
+  }
+
+  public static Object minus(BigInteger a, Long b) {
+    return (a).subtract(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object minus(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).subtract(b);
+  }
+
+  public static Object times(BigInteger a, Long b) {
+    return (a).multiply(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object times(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).multiply(b);
+  }
+
+  public static Object divide(BigInteger a, Long b) {
+    return (a).divide(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object divide(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).divide(b);
+  }
+
+  public static Object modulo(BigInteger a, Long b) {
+    return (a).remainder(BigInteger.valueOf(b.longValue()));
+  }
+
+  public static Object modulo(Long a, BigInteger b) {
+    return (BigInteger.valueOf(a.longValue())).remainder(b);
+  }
+
+  public static Object equals(BigInteger a, BigInteger b) {
+    return (a).compareTo(b) == 0;
+  }
+
+  public static Object notequals(BigInteger a, BigInteger b) {
+    return (a).compareTo(b) != 0;
+  }
+
+  public static Object less(BigInteger a, BigInteger b) {
+    return (a).compareTo(b) < 0;
+  }
+
+  public static Object lessorequals(BigInteger a, BigInteger b) {
+    return (a).compareTo(b) <= 0;
+  }
+
+  public static Object more(BigInteger a, BigInteger b) {
+    return (a).compareTo(b) > 0;
+  }
+
+  public static Object moreorequals(BigInteger a, BigInteger b) {
+    return (a).compareTo(b) >= 0;
+  }
+
+  public static Object plus(BigInteger a, BigInteger b) {
+    return (a).add(b);
+  }
+
+  public static Object minus(BigInteger a, BigInteger b) {
+    return (a).subtract(b);
+  }
+
+  public static Object times(BigInteger a, BigInteger b) {
+    return (a).multiply(b);
+  }
+
+  public static Object divide(BigInteger a, BigInteger b) {
+    return (a).divide(b);
+  }
+
+  public static Object modulo(BigInteger a, BigInteger b) {
+    return (a).remainder(b);
+  }
+
+  public static Object equals(BigInteger a, Float b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(Float a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object notequals(BigInteger a, Float b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(Float a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object less(BigInteger a, Float b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(Float a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object lessorequals(BigInteger a, Float b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(Float a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object more(BigInteger a, Float b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(Float a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object moreorequals(BigInteger a, Float b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(Float a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object plus(BigInteger a, Float b) {
+    return (new BigDecimal(a)).add(new BigDecimal(b));
+  }
+
+  public static Object plus(Float a, BigInteger b) {
+    return (new BigDecimal(a)).add(new BigDecimal(b));
+  }
+
+  public static Object minus(BigInteger a, Float b) {
+    return (new BigDecimal(a)).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(Float a, BigInteger b) {
+    return (new BigDecimal(a)).subtract(new BigDecimal(b));
+  }
+
+  public static Object times(BigInteger a, Float b) {
+    return (new BigDecimal(a)).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(Float a, BigInteger b) {
+    return (new BigDecimal(a)).multiply(new BigDecimal(b));
+  }
+
+  public static Object divide(BigInteger a, Float b) {
+    return (new BigDecimal(a)).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(Float a, BigInteger b) {
+    return (new BigDecimal(a)).divide(new BigDecimal(b));
+  }
+
+  public static Object modulo(BigInteger a, Float b) {
+    return (new BigDecimal(a)).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(Float a, BigInteger b) {
+    return (new BigDecimal(a)).remainder(new BigDecimal(b));
+  }
+
+  public static Object equals(BigInteger a, Double b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object equals(Double a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) == 0;
+  }
+
+  public static Object notequals(BigInteger a, Double b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object notequals(Double a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) != 0;
+  }
+
+  public static Object less(BigInteger a, Double b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object less(Double a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) < 0;
+  }
+
+  public static Object lessorequals(BigInteger a, Double b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object lessorequals(Double a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) <= 0;
+  }
+
+  public static Object more(BigInteger a, Double b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object more(Double a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) > 0;
+  }
+
+  public static Object moreorequals(BigInteger a, Double b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object moreorequals(Double a, BigInteger b) {
+    return (new BigDecimal(a)).compareTo(new BigDecimal(b)) >= 0;
+  }
+
+  public static Object plus(BigInteger a, Double b) {
+    return (new BigDecimal(a)).add(new BigDecimal(b));
+  }
+
+  public static Object plus(Double a, BigInteger b) {
+    return (new BigDecimal(a)).add(new BigDecimal(b));
+  }
+
+  public static Object minus(BigInteger a, Double b) {
+    return (new BigDecimal(a)).subtract(new BigDecimal(b));
+  }
+
+  public static Object minus(Double a, BigInteger b) {
+    return (new BigDecimal(a)).subtract(new BigDecimal(b));
+  }
+
+  public static Object times(BigInteger a, Double b) {
+    return (new BigDecimal(a)).multiply(new BigDecimal(b));
+  }
+
+  public static Object times(Double a, BigInteger b) {
+    return (new BigDecimal(a)).multiply(new BigDecimal(b));
+  }
+
+  public static Object divide(BigInteger a, Double b) {
+    return (new BigDecimal(a)).divide(new BigDecimal(b));
+  }
+
+  public static Object divide(Double a, BigInteger b) {
+    return (new BigDecimal(a)).divide(new BigDecimal(b));
+  }
+
+  public static Object modulo(BigInteger a, Double b) {
+    return (new BigDecimal(a)).remainder(new BigDecimal(b));
+  }
+
+  public static Object modulo(Double a, BigInteger b) {
+    return (new BigDecimal(a)).remainder(new BigDecimal(b));
+  }
 
   // END GENERATED
 

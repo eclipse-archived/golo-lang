@@ -27,6 +27,8 @@ import java.lang.reflect.Method;
 import java.net.URL;
 import java.util.*;
 import java.util.concurrent.Callable;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 import static org.eclipse.golo.internal.testing.TestUtils.getTestMethods;
@@ -323,13 +325,65 @@ public class CompileAndRunTest {
   }
 
   @Test
+  public void test_BigDecimal_operators() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo");
+    Method plus = moduleClass.getMethod("plus", Object.class, Object.class);
+    Method minus = moduleClass.getMethod("minus", Object.class, Object.class);
+    Method divide = moduleClass.getMethod("divide", Object.class, Object.class);
+    Method multiply = moduleClass.getMethod("multiply", Object.class, Object.class);
+    Method modulo = moduleClass.getMethod("modulo", Object.class, Object.class);
+    for (Object other : asList(2.0, 2.0f, 2L, 2, BigInteger.valueOf(2), BigDecimal.valueOf(2.0))) {
+      checkDecimalOp(plus, BigDecimal.valueOf(2.2), other, 4.2, 4.2);
+      checkDecimalOp(minus, BigDecimal.valueOf(2.2), other, 0.2, -0.2);
+      checkDecimalOp(divide, BigDecimal.valueOf(0.5), other, 0.25, 4.0);
+      checkDecimalOp(multiply, BigDecimal.valueOf(2.1), other, 4.2, 4.2);
+      checkDecimalOp(modulo, BigDecimal.valueOf(2.5), other, 0.5, 2.0);
+    }
+  }
+
+  private void checkDecimalOp(Method op, Object ref, Object other, double result1, double result2) throws Throwable {
+    assertThat(((Number) op.invoke(null, ref, other)).doubleValue(), is(result1));
+    assertThat(((Number) op.invoke(null, other, ref)).doubleValue(), is(result2));
+  }
+
+  @Test
+  public void test_BigInteger_operators() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo");
+    Method plus = moduleClass.getMethod("plus", Object.class, Object.class);
+    Method minus = moduleClass.getMethod("minus", Object.class, Object.class);
+    Method divide = moduleClass.getMethod("divide", Object.class, Object.class);
+    Method multiply = moduleClass.getMethod("multiply", Object.class, Object.class);
+    Method modulo = moduleClass.getMethod("modulo", Object.class, Object.class);
+    for (Object other : asList(2L, 2, BigInteger.valueOf(2))) {
+      checkIntegerOp(plus, BigInteger.valueOf(4L), other, 6, 6);
+      checkIntegerOp(minus, BigInteger.valueOf(4L), other, 2, -2);
+      checkIntegerOp(divide, BigInteger.valueOf(4L), other, 2, 0);
+      checkIntegerOp(multiply, BigInteger.valueOf(4L), other, 8, 8);
+      checkIntegerOp(modulo, BigInteger.valueOf(4L), other, 0, 2);
+      checkIntegerOp(modulo, BigInteger.valueOf(3L), other, 1, 2);
+    }
+    for (Object other : asList(2.5, 2.5f, BigDecimal.valueOf(2.5))) {
+      checkDecimalOp(plus, BigInteger.valueOf(4L), other, 6.5, 6.5);
+      checkDecimalOp(minus, BigInteger.valueOf(4L), other, 1.5, -1.5);
+      checkDecimalOp(divide, BigInteger.valueOf(4L), other, 1.6, 0.625);
+      checkDecimalOp(multiply, BigInteger.valueOf(4L), other, 10.0, 10.0);
+      checkDecimalOp(modulo, BigInteger.valueOf(4L), other, 1.5, 2.5);
+    }
+  }
+
+  private void checkIntegerOp(Method op, Object ref, Object other, int result1, int result2) throws Throwable {
+    assertThat(((Number) op.invoke(null, ref, other)).intValue(), is(result1));
+    assertThat(((Number) op.invoke(null, other, ref)).intValue(), is(result2));
+  }
+
+  @Test
   public void test_operators() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "operators.golo");
 
     Method plus_one = moduleClass.getMethod("plus_one", Object.class);
     assertThat((Integer) plus_one.invoke(null, 1), is(2));
     assertThat((String) plus_one.invoke(null, "x = "), is("x = 1"));
-    assertThat((Long) plus_one.invoke(null, 10l), is(11l));
+    assertThat((Long) plus_one.invoke(null, 10L), is(11L));
 
     Method minus_one = moduleClass.getMethod("minus_one", Object.class);
     assertThat((Integer) minus_one.invoke(null, 5), is(4));
@@ -489,23 +543,48 @@ public class CompileAndRunTest {
     result = array_of_doubles.invoke(null);
     assertThat(result, instanceOf(Object[].class));
     array = (Object[]) result;
-    assertThat(array.length, is(4));
+    assertThat(array.length, is(5));
     assertThat(array[0], instanceOf(Double.class));
     assertThat(array[0], is((Object) Double.valueOf("123.0")));
     assertThat(array[1], is((Object) Double.valueOf("-123.0")));
     assertThat(array[2], is((Object) Double.valueOf("123.456")));
     assertThat(array[3], is((Object) Double.valueOf("123.0e3")));
+    assertThat(array[4], is((Object) Double.valueOf("1234.01e-3")));
 
     Method array_of_floats = moduleClass.getMethod("array_of_floats");
     result = array_of_floats.invoke(null);
     assertThat(result, instanceOf(Object[].class));
     array = (Object[]) result;
-    assertThat(array.length, is(4));
+    assertThat(array.length, is(5));
     assertThat(array[0], instanceOf(Float.class));
     assertThat(array[0], is((Object) Float.valueOf("123.0")));
     assertThat(array[1], is((Object) Float.valueOf("-123.0")));
     assertThat(array[2], is((Object) Float.valueOf("123.456")));
     assertThat(array[3], is((Object) Float.valueOf("123.0e3")));
+    assertThat(array[4], is((Object) Float.valueOf("1234.01e-3")));
+
+    Method array_of_big_decimals = moduleClass.getMethod("array_of_big_decimals");
+    result = array_of_big_decimals.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    array = (Object[]) result;
+    assertThat(array.length, is(5));
+    assertThat(array[0], instanceOf(BigDecimal.class));
+    assertThat(array[0], is((Object) BigDecimal.valueOf(123.0)));
+    assertThat(array[1], is((Object) BigDecimal.valueOf(-123.0)));
+    assertThat(array[2], is((Object) BigDecimal.valueOf(123.456)));
+    assertThat(array[3], is((Object) new BigDecimal("1.230E+5")));
+    assertThat(array[4], is((Object) new BigDecimal("1.234010")));
+
+    Method array_of_big_integers = moduleClass.getMethod("array_of_big_integers");
+    result = array_of_big_integers.invoke(null);
+    assertThat(result, instanceOf(Object[].class));
+    array = (Object[]) result;
+    assertThat(array.length, is(4));
+    assertThat(array[0], instanceOf(BigInteger.class));
+    assertThat(array[0], is((Object) BigInteger.valueOf(123L)));
+    assertThat(array[1], is((Object) BigInteger.valueOf(-123L)));
+    assertThat(array[2], is((Object) BigInteger.valueOf(1234L)));
+    assertThat(array[3], is((Object) BigInteger.valueOf(-1234L)));
 
     Method as_list = moduleClass.getMethod("as_list");
     result = as_list.invoke(null);
