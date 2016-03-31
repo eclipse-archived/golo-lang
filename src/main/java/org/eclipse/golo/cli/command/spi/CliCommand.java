@@ -41,6 +41,10 @@ public interface CliCommand {
   }
 
   default void handleCompilationException(GoloCompilationException e) {
+    handleCompilationException(e, true);
+  }
+
+  default void handleCompilationException(GoloCompilationException e, boolean exit) {
     if (e.getMessage() != null) {
       System.out.println("[error] " + e.getMessage());
     }
@@ -50,6 +54,8 @@ public interface CliCommand {
     for (GoloCompilationException.Problem problem : e.getProblems()) {
       System.out.println("[error] " + problem.getDescription());
     }
-    System.exit(1);
+    if (exit) {
+      System.exit(1);
+    }
   }
 }
