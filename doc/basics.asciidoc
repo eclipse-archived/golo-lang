@@ -272,6 +272,10 @@ API. We give them along with examples in <<data-literals,the data literals table
 
 |`java.lang.Float` | `1.234_F`, `-1.234_F`, `1.234e9_F`, ...
 
+|`java.math.BigInteger` | `1_B`, `-42_B`, `1_234_B`, ...
+
+|`java.math.BigDecimal` | `1.0_B`, `-1_234.56_B`, `1.234e-4_B`, ...
+
 |`java.lang.Class` | `String.class`, `java.lang.String.class`, `gololang.Predef.module`, ...
 
 | `gololang.FunctionReference` | `^foo`, `^some.module::foo`, ...
@@ -542,8 +546,7 @@ aList: filter(^pred): map(^f)
 Thus, should you use collection comprehension or higher-order functions? Despite some
 implementation differences, it's above all a matter of taste. Some people
 consider comprehension more readable, since it is more similar to the
-mathematical
-[set-builder notation](https://en.wikipedia.org/wiki/Set-builder_notation).
+mathematical https://en.wikipedia.org/wiki/Set-builder_notation[set-builder notation].
 As an example, compare the two functionally equivalent expressions:
 [source,golo]
 ----
@@ -660,7 +663,7 @@ Golo supports the following <<operators,set of operators>>.
 
 |`+`|
 Addition on numbers and strings.|
-`1 + 2` gives 3.
+`1 + 2` gives `3`.
 
 `"foo" + "bar"` gives `"foobar"`.
 
@@ -709,6 +712,9 @@ Evaluates an expression and returns the value of another one if `null`.|
 `foo()` returns `null`.
 
 |===
+
+NOTE: The algebraic operators can be used with any numeric type having a literal notation
+(see <<data-literals,the data literals table>> ), including `java.math.BigInteger` and `java.math.BigDecimal`.
 
 The operator precedence rules are as follows:
 

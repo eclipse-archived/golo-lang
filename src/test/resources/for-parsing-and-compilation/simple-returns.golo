@@ -26,12 +26,21 @@ function doubles = {
   let a = 123.45
   let b = -123.45
   let c = 123.4e5
+  let d = 1_234.000_123e-5
 }
 
 function floats = {
   let a = 123.45_F
   let b = -123.45_F
   let c = 123.4e5_F
+  let d = 1_234.000_123e-5_F
+}
+
+function big_decimals = {
+  let a = 123.45_B
+  let b = -123.45_B
+  let c = 123.4e5_B
+  let d = 1_234.000_123e-5_B
 }
 
 function escaped = {

@@ -4,17 +4,29 @@ function plus_one = |a| {
   return a + 1
 }
 
+function plus = |a, b| {
+  return a + b
+}
+
 function minus_one = |a| {
   return a - 1
 }
+
+function minus = |a, b| -> a - b
 
 function half = |a| {
   return a / 2
 }
 
+function divide = |a, b| -> a / b
+
 function twice = |a| {
   return a * 2
 }
+
+function multiply = |a, b| -> a * b
+
+function modulo = |a, b| -> a % b
 
 function compute_92 = {
   return ((1 + 2 + 3) * (5) * 6 + (10 / 2) - 1) / 2
@@ -92,8 +104,8 @@ function lazy_ifnull = {
 }
 
 function polymorphic_number_comparison = {
-  let left = list[1, 1_L, 1.0, 1.0_F]
-  let right = list[2, 2_L, 1.1, 1.1_F]
+  let left = list[1, 1_L, 1.0, 1.0_F, 1.0_B, 1_B]
+  let right = list[2, 2_L, 1.1, 1.1_F, 1.1_B, 2_B]
 
   foreach a in left {
     foreach b in right {
