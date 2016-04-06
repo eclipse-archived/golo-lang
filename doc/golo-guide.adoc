@@ -30,44 +30,44 @@ conditions of the Eclipse Distribution License v1.0 which is available
 at http://www.eclipse.org/org/documents/edl-v10.php
 ----
 
-include::basics.asciidoc[]
+include::basics.adoc[]
 
-include::new-project.asciidoc[]
+include::new-project.adoc[]
 
-include::functions.asciidoc[]
+include::functions.adoc[]
 
-include::java-interop.asciidoc[]
+include::java-interop.adoc[]
 
-include::control-flow.asciidoc[]
+include::control-flow.adoc[]
 
-include::exceptions.asciidoc[]
+include::exceptions.adoc[]
 
-include::closures.asciidoc[]
+include::closures.adoc[]
 
-include::predefined-functions.asciidoc[]
+include::predefined-functions.adoc[]
 
-include::augmentations.asciidoc[]
+include::augmentations.adoc[]
 
-include::structs.asciidoc[]
+include::structs.adoc[]
 
-include::unions.asciidoc[]
+include::unions.adoc[]
 
-include::dynamic-objects.asciidoc[]
+include::dynamic-objects.adoc[]
 
-include::adapters.asciidoc[]
+include::adapters.adoc[]
 
-include::decorators.asciidoc[]
+include::decorators.adoc[]
 
-include::banged-function-call.asciidoc[]
+include::banged-function-call.adoc[]
 
-include::dynamic-evaluation.asciidoc[]
+include::dynamic-evaluation.adoc[]
 
-include::workers.asciidoc[]
+include::workers.adoc[]
 
-include::templates.asciidoc[]
+include::templates.adoc[]
 
-include::documenting.asciidoc[]
+include::documenting.adoc[]
 
-include::misc.asciidoc[]
+include::misc.adoc[]
 
-include::pitfalls.asciidoc[]
+include::pitfalls.adoc[]

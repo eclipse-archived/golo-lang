@@ -144,7 +144,7 @@ asciidoctorj {
 asciidoctor {
   sourceDir 'doc'
   sources {
-    include 'golo-guide.asciidoc'
+    include 'golo-guide.adoc'
   }
   backends 'html5'
 }
