@@ -55,7 +55,7 @@ public class GoloCompiler {
     return exceptionBuilder;
   }
 
-  private void resetExceptionBuilder() {
+  public void resetExceptionBuilder() {
     exceptionBuilder = null;
   }
   /**
@@ -213,13 +213,15 @@ public class GoloCompiler {
   }
 
   public final GoloModule transform(ASTCompilationUnit compilationUnit) {
-    return new ParseTreeToGoloIrVisitor().transform(compilationUnit,exceptionBuilder);
+    return new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
   }
 
   public final void refine(GoloModule goloModule) {
-    goloModule.accept(new SugarExpansionVisitor());
-    goloModule.accept(new ClosureCaptureGoloIrVisitor());
-    goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+    if (goloModule != null) {
+      goloModule.accept(new SugarExpansionVisitor());
+      goloModule.accept(new ClosureCaptureGoloIrVisitor());
+      goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+    }
     throwIfErrorEncountered();
   }
 
