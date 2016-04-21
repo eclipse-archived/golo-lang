@@ -27,6 +27,9 @@ public class CheckCommand implements CliCommand {
   @Parameter(names = {"--exit"}, description = "Exit on the first encountered error, or continue with the next file")
   boolean exit = false;
 
+  @Parameter(names = {"--verbose"}, description = "Be more verbose")
+  boolean verbose = false;
+
   @Parameter(description = "Golo source files (*.golo and directories))")
   List<String> files = new LinkedList<>();
 
@@ -48,6 +51,10 @@ public class CheckCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       try {
+        if (verbose) {
+          System.out.println(">>> Checking file `" + file.getAbsolutePath() + "`");
+        }
+        compiler.resetExceptionBuilder();
         compiler.check(compiler.parse(file.getAbsolutePath()));
       } catch (IOException e) {
         System.out.println("[error] " + file + " does not exist or could not be opened.");
