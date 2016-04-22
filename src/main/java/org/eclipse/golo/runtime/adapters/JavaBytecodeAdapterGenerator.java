@@ -37,7 +37,7 @@ public class JavaBytecodeAdapterGenerator {
     String bootstrapOwner = "org/eclipse/golo/runtime/adapters/AdapterSupport";
     String bootstrapMethod = "bootstrap";
     String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
-    ADAPTER_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+    ADAPTER_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description, false);
   }
 
   private String jvmType(String klass) {
