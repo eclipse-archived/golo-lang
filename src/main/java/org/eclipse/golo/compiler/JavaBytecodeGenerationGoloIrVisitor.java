@@ -69,7 +69,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       "org/eclipse/golo/runtime/" + methodName,
       "bootstrap",
       "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
-      + description + ")Ljava/lang/invoke/CallSite;");
+      + description + ")Ljava/lang/invoke/CallSite;", false);
   }
 
   private static RuntimeException invalidElement(GoloElement element) {
