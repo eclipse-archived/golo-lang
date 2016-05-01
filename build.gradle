@@ -261,8 +261,8 @@ publishing {
       pom.withXml {
         asNode().children().last() + {
           resolveStrategy = Closure.DELEGATE_FIRST
-          name 'Golo Programming Language (Incubation)'
-          description 'Golo: a lightweight dynamic language for the JVM.'
+          name 'Eclipse Golo Programming Language'
+          description 'Eclipse Golo: a lightweight dynamic language for the JVM.'
           url 'http://golo-lang.org/'
           developers {
             developer {
