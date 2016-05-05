@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +16,9 @@ import java.lang.reflect.Constructor;
 import java.util.stream.Stream;
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
+
+import static org.eclipse.golo.runtime.TypeMatching.argumentsNumberMatches;
+import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 
 public final class Extractors {
   private Extractors() {
@@ -84,8 +87,15 @@ public final class Extractors {
     return !Modifier.isAbstract(m.getModifiers());
   }
 
-  public static Predicate<? extends Member> isNamed(String name) {
+  public static Predicate<Member> isNamed(String name) {
     return m -> m.getName().equals(name);
+  }
+
+  public static Predicate<Method> matchFunctionReference(String name, int arity, boolean varargs) {
+    return m ->
+      m.getName().equals(name)
+      && (isMethodDecorated(m) || argumentsNumberMatches(m.getParameterCount(), arity, varargs))
+      && (arity < 0 || m.isVarArgs() == varargs);
   }
 
 }

@@ -126,11 +126,11 @@ function test_andThen = {
 
 function test_either = {
   let twice = |x| -> 2 * x
-  let recover = |err| -> 42
-  let answer = -> 42
+  let recover = |err| -> "err"
+  let answer = -> "default"
   assertEquals(Ok(21): either(twice, recover), 42)
-  assertEquals(Error("err"): either(twice, recover), 42)
-  assertEquals(Ok(null): either(twice, recover, answer), 42)
+  assertEquals(Error("err"): either(twice, recover), "err")
+  assertEquals(Ok(null): either(twice, recover, answer), "default")
 }
 
 function test_orElseGet = {

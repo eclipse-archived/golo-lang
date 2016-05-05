@@ -13,11 +13,19 @@ function array_of = |value| {
 }
 
 function array_of_doubles = {
-  return array[123.0, -123.0, 123.456, 123.0e3]
+  return array[123.0, -123.0, 123.456, 123.0e3, 1_234.0_10e-3]
 }
 
 function array_of_floats = {
-  return array[123.0_F, -123.0_F, 123.456_F, 123.0e3_F]
+  return array[123.0_F, -123.0_F, 123.456_F, 123.0e3_F, 1_234.0_10e-3_F]
+}
+
+function array_of_big_decimals = {
+  return array[123.0_B, -123.0_B, 123.456_B, 123.0e3_B, 1_234.0_10e-3_B]
+}
+
+function array_of_big_integers = {
+  return array[123_B, -123_B, 1_234_B, -1_234_B]
 }
 
 function as_list = {

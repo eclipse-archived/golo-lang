@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -222,7 +222,9 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
   }
 
   /**
-   * Returns a array of this tuple data.
+   * Returns an array containing all of the elements in this tuple.
+   *
+   * @return an array of values
    */
   public Object[] toArray() {
     return Arrays.copyOf(data, data.length);

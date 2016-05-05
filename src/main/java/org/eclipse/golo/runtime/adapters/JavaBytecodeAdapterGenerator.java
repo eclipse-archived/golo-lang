@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,7 +37,7 @@ public class JavaBytecodeAdapterGenerator {
     String bootstrapOwner = "org/eclipse/golo/runtime/adapters/AdapterSupport";
     String bootstrapMethod = "bootstrap";
     String description = "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;)Ljava/lang/invoke/CallSite;";
-    ADAPTER_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description);
+    ADAPTER_HANDLE = new Handle(H_INVOKESTATIC, bootstrapOwner, bootstrapMethod, description, false);
   }
 
   private String jvmType(String klass) {

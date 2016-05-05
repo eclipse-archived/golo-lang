@@ -1,6 +1,6 @@
 # ............................................................................................... #
 #
-# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+# Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -629,7 +629,7 @@ augment java.util.Map {
   }
 
   ----
-  Adds a tuple [key, value] or a map entry and returns the map.
+  Adds a tuple `[key, value]` or a map entry and returns the map.
   ----
   function add = |this, kv| {
     case {
@@ -758,7 +758,7 @@ augment java.util.Map {
   Maps entries of the map using a function.
 
   `func` takes 2 arguments: a key and a value. The returned value must have `getKey()` and
-  getValue()` to represent a map entry. We suggest using the predefined `mapEntry(key, value)`
+  `getValue()` to represent a map entry. We suggest using the predefined `mapEntry(key, value)`
   function as it returns such object.
   ----
   function map = |this, func| {
@@ -822,6 +822,11 @@ augment java.util.Map$Entry {
   Destructurate a map entry in key and value
   ----
   function destruct = |this| -> [ this: getKey(), this: getValue() ]
+
+  ----
+  Convert then entry into an array containing the key and the value.
+  ----
+  function toArray = |this| -> array[this: getKey(), this: getValue()]
 }
 # ............................................................................................... #
 

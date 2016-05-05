@@ -4,6 +4,7 @@ import java.awt.event
 import java.util.HashMap
 import java.util.concurrent.Callable
 import java.util.concurrent.Executors
+import java.util.Objects
 
 function raw_handle = {
   return |obj| {
@@ -112,6 +113,21 @@ function call_java_func_literal = {
   return [ f(null), f("42") ]
 }
 
+function call_imported_java_func_literal = {
+  let f = ^isNull
+  return [ f(null), f("42") ]
+}
+
+function nonNull = |o| -> match {
+  when o is null then "n"
+  otherwise "o"
+}
+
+function call_imported_overridden_java_func_literal = {
+  let f = ^nonNull
+  return [ f(null), f("42") ]
+}
+
 function call_java_method_literal_arity2 = {
   let f = ^String::endsWith: bindAt(1, "o")
   return list[f("Hello"), f("Goodbye"), f("Foo"), f("Bar")]
@@ -120,6 +136,32 @@ function call_java_method_literal_arity2 = {
 function call_java_method_literal = {
   let f = ^String::length
   return list[f("Hello"), f("Goodbye"), f("Foo"), f("Bar")]
+}
+
+function plop = |a| -> "p"
+function plop = |a...| -> "pv"
+
+function call_varargs_overloaded_fun = {
+  let f = fun("plop", golotest.execution.Closures.module, 1, false)
+  let fv = fun("plop", golotest.execution.Closures.module, 1, true)
+  return [f(1), fv(1)]
+}
+
+function call_varargs_overloaded_fun_literal = {
+  let f = ^plop\1
+  let fv = ^plop\1...
+  return [f(1), fv(1)]
+}
+
+
+function call_local_overloaded_fun_literal_with_arity1 = {
+  let f = ^golotest.execution.Closures::local_overloaded_fun\1
+  return f(2)
+}
+
+function call_local_overloaded_fun_literal_with_arity2 = {
+  let f = ^golotest.execution.Closures::local_overloaded_fun\2
+  return f(1, 2)
 }
 
 function nested_closures = {

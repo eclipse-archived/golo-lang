@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -20,6 +20,8 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.List;
+import java.util.jar.JarOutputStream;
+import java.util.zip.ZipEntry;
 
 /**
  * The Golo compiler.
@@ -53,7 +55,7 @@ public class GoloCompiler {
     return exceptionBuilder;
   }
 
-  private void resetExceptionBuilder() {
+  public void resetExceptionBuilder() {
     exceptionBuilder = null;
   }
   /**
@@ -121,14 +123,14 @@ public class GoloCompiler {
   }
 
   /**
-   * Compiles a Golo source file and writes the resulting JVM bytecode <code>.class</code> files in a target
+   * Compiles a Golo source file and writes the resulting JVM bytecode {@code .class} files to a target
    * folder. The class files are written in a directory structure that respects package names.
    *
    * @param goloSourceFilename    the source file name.
    * @param sourceCodeInputStream the source code input stream.
    * @param targetFolder          the output target folder.
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
-   * @throws IOException              if writing the <code>.class</code> files fails for some reason.
+   * @throws IOException              if writing the {@code .class} files fails for some reason.
    */
   public final void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
     if (targetFolder.isFile()) {
@@ -144,6 +146,29 @@ public class GoloCompiler {
       try (FileOutputStream out = new FileOutputStream(outputFile)) {
         out.write(result.getBytecode());
       }
+    }
+  }
+
+  /**
+   * Compiles a Golo source fila and writes the resulting JVM bytecode {@code .class} files to a Jar file stream.
+   * The class files are written in a directory structure that respects package names.
+   *
+   * @param goloSourceFilename the source file name.
+   * @param sourceCodeInputStream the source code input stream.
+   * @param jarOutputStream the output Jar stream
+   * @throws IOException if writing the {@code .class} files fails for some reason.
+   */
+  public final void compileToJar(String goloSourceFilename, InputStream sourceCodeInputStream, JarOutputStream jarOutputStream) throws IOException {
+    List<CodeGenerationResult> results = compile(goloSourceFilename, sourceCodeInputStream);
+    for (CodeGenerationResult result : results) {
+      String entryName = result.getPackageAndClass().packageName().replaceAll("\\.", "/");
+      if (!entryName.isEmpty()) {
+        entryName = entryName + "/";
+      }
+      entryName = entryName + result.getPackageAndClass().className() + ".class";
+      jarOutputStream.putNextEntry(new ZipEntry(entryName));
+      jarOutputStream.write(result.getBytecode());
+      jarOutputStream.closeEntry();
     }
   }
 
@@ -188,13 +213,15 @@ public class GoloCompiler {
   }
 
   public final GoloModule transform(ASTCompilationUnit compilationUnit) {
-    return new ParseTreeToGoloIrVisitor().transform(compilationUnit,exceptionBuilder);
+    return new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
   }
 
   public final void refine(GoloModule goloModule) {
-    goloModule.accept(new SugarExpansionVisitor());
-    goloModule.accept(new ClosureCaptureGoloIrVisitor());
-    goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+    if (goloModule != null) {
+      goloModule.accept(new SugarExpansionVisitor());
+      goloModule.accept(new ClosureCaptureGoloIrVisitor());
+      goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+    }
     throwIfErrorEncountered();
   }
 
