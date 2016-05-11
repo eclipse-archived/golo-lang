@@ -67,4 +67,34 @@ public abstract class AbstractProcessor {
   protected String moduleName(ASTCompilationUnit unit) {
     return ((ASTModuleDeclaration) unit.jjtGetChild(0)).getName();
   }
+
+  /**
+   * Change the section level of the given markdown line.
+   * <p>
+   * For instance, {@code subsection("# Title", 1)} gives {@code "## Title"}
+   * <p>
+   * Used when displaying a markdown Golo documentation inside the golodoc, to avoid the user to
+   * remember at which level to start subsections for each documentation element.
+   */
+  private static String subsection(String line, int level) {
+    if (!line.trim().startsWith("#") || line.startsWith("    ")) {
+      return line;
+    }
+    StringBuilder output = new StringBuilder();
+    for (int i = 0; i < level; i++) {
+      output.append('#');
+    }
+    output.append(line.trim());
+    return output.toString();
+  }
+
+  public static String adaptSections(String documentation, int rootLevel) {
+    StringBuilder output = new StringBuilder();
+    for (String line: documentation.split("\n")) {
+      output.append(subsection(line, rootLevel));
+      output.append("\n");
+    }
+    return output.toString();
+  }
+
 }

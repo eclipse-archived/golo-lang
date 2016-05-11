@@ -111,7 +111,8 @@ augment gololang.concurrent.async.Future {
   }
 
   ----
-  Similar to `map`, except that `fun` returns a future, not a value.
+  Similar to [`map`](#gololang.concurrent.async.Future.map_2),
+  except that `fun` returns a future, not a value.
   ----
   function flatMap = |this, fun| {
     let p = promise()
@@ -247,8 +248,9 @@ function reduce = |futures, init, reducer| {
 ----
 Bridge structure to hold a reference to a Golo future and a Java future.
 
-Instances of this struct are being returned by the `enqueue` augmentation on `ExecutorService`
-instances. This essentially adds the ability to:
+Instances of this struct are being returned by the
+[`enqueue`](#java.util.concurrent.ExecutorService.enqueue_2) augmentation
+on `ExecutorService` instances. This essentially adds the ability to:
 
 * use the Golo future for its composability, and
 * use tha Java future to cancel a job.
@@ -259,9 +261,11 @@ struct FutureBridge = {
 }
 
 ----
-A set of forwarding augmentations for `FutureBridge` instances.
+A set of forwarding augmentations for [`FutureBridge`](#FutureBridge) instances.
 
-The provided functions all forward to Golo futures, while `cancel` forwards to a Java future.
+The provided functions all forward to Golo futures, while
+[`cancel`](#gololang.Async.types.FutureBridge.cancel_2)
+forwards to a Java future.
 ----
 augment gololang.Async.types.FutureBridge {
 
@@ -293,12 +297,13 @@ Augmentations for `ExecutorService`.
 augment java.util.concurrent.ExecutorService {
 
   ----
-  Submits a function `fun` to be executed by this scheduler, and returns a `FutureBridge`.
+  Submits a function `fun` to be executed by this scheduler, and returns a
+  [`FutureBridge`](#FutureBridge).
 
   `fun` takes no parameters, and its return value is used as a future value.
 
-  The returned `FutureBridge` behaves both as a composable Golo future and as a Java future that can be
-  cancelled.
+  The returned [`FutureBridge`](#FutureBridge)` behaves both as a composable
+  Golo future and as a Java future that can be cancelled.
 
   Here is a sample usage:
 

@@ -70,7 +70,7 @@ function cons = |head, tail| -> match {
 }
 
 ----
-Unary version of [`cons(head, tail)`](#cons_head_tail).
+Unary version of [`cons(head, tail)`](#cons_2).
 
 Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
 of the form `[head, tail]`.

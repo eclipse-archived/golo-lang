@@ -20,24 +20,24 @@ Most of the times, these functions needs to be unary ones, i.e.
 have only one parameter. This module contains, among others, functions helping in the arity
 conversion of such functions:
 
-* [`curry`](#curry_f) that makes a function automatically partializable,
-* [`uncurry`](#uncurry_f) that is the reverse of `curry`,
-* [`unary`](#unary_f) and [`spreader`](#spreader_f) that convert a polyadic function into a unary
+* [`curry`](#curry_1) that makes a function automatically partializable,
+* [`uncurry`](#uncurry_1) that is the reverse of `curry`,
+* [`unary`](#unary_1) and [`spreader`](#spreader_1) that convert a polyadic function into a unary
   function taking an array or a tuple of values instead of several
   values,
-* [`varargs`](#varargs_f) which is the reverse of `unary`
+* [`varargs`](#varargs_1) which is the reverse of `unary`
 
 Most of the binary operator functions defined here are curried. To ease
 partialization, the non commutative operators have a reversed version, with
 arguments swapped.
-For example, using the reverse division operator [`rdiv`](#rdiv_x_y) with
-[`map`](StandardAugmentations.html#java.util.List.map_this_func)
+For example, using the reverse division operator [`rdiv`](#rdiv_2) with
+[`map`](StandardAugmentations.html#java.util.List.map_2)
 
     [2, 4, 8]: map(rdiv(2)) == [1, 2, 4]
 
-The identity function [`id`](#id_x), the constant function
-[`const`](#const_val), together with composition (`FunctionReference::andThen`,
-[`pipe`](#pipe_funcs), [`compose`](#compose_funcs)) and [`io`](#io_block) can be
+The identity function [`id`](#id_1), the constant function
+[`const`](#const_1), together with composition (`FunctionReference::andThen`,
+[`pipe`](#pipe_1), [`compose`](#compose_1)) and [`io`](#io_1) can be
 used to create monad-like processing chains.
 ----
 module gololang.Functions
@@ -76,7 +76,7 @@ This function is *swapped* and curried. For instance:
 - *param* `value`: the value to add
 - *param* `element`: the element to add the value to
 
-See also [`addTo`](#addTo_element_value)
+See also [`addTo`](#addTo_2)
 ----
 @!curry
 function add = |value, element| {
@@ -111,7 +111,7 @@ local function _addWithAppend = |elt| -> elt oftype java.lang.Appendable.class
                                       or elt oftype java.lang.StringBuilder.class
 
 ----
-Not swapped version of [`add`](#add_value_element)
+Not swapped version of [`add`](#add_2)
 ----
 @!curry
 function addTo = |element, value| -> add(value, element)
@@ -123,7 +123,7 @@ Number successor (side-effect free increment).
 
 Equivalent to `add(1)`
 
-See also [`pred`](#pred_x)
+See also [`pred`](#pred_1)
 ----
 function succ = |x| -> x + 1
 
@@ -132,7 +132,7 @@ Number predecessor (side-effect free decrement).
 
     pred(x) == x - 1
 
-See also [`succ`](#succ_x)
+See also [`succ`](#succ_1)
 ----
 function pred = |x| -> x - 1
 
@@ -141,7 +141,7 @@ Curried multiplication.
 
     mul(x, y) == x * y
 
-See also [`div`](#div_x_y)
+See also [`div`](#div_2)
 ----
 @!curry
 function mul = |x, y| -> x * y
@@ -161,7 +161,7 @@ Curried subtract.
 
     sub(x, y) == x - y
 
-See also [`add`](#add_value_element), [`rsub`](#rsub_x_y)
+See also [`add`](#add_2), [`rsub`](#rsub_2)
 ----
 @!curry
 function sub = |x, y| -> x - y
@@ -171,7 +171,7 @@ Reversed curried subtract.
 
     rsub(x, y) == y - x
 
-See also [`sub`](#sub_x_y)
+See also [`sub`](#sub_2)
 ----
 @!curry
 function rsub = |x, y| -> y - x
@@ -181,7 +181,7 @@ Curried division.
 
     div(x, y) == x / y
 
-See also [`mul`](#mul_x_y), [`rdiv`](#rdiv_x_y)
+See also [`mul`](#mul_2), [`rdiv`](#rdiv_2)
 ----
 @!curry
 function div = |x, y| -> x / y
@@ -191,7 +191,7 @@ Reverse curried division.
 
     rdiv(y, x) == x / y
 
-See also  [`mul`](#mul_x_y),  [`div`](#div_x_y)
+See also  [`mul`](#mul_2),  [`div`](#div_2)
 ----
 @!curry
 function rdiv = |x, y| -> y / x
@@ -201,7 +201,7 @@ Curried modulo.
 
     mod(a, b) == a % b
 
-See also [`rmod`](#rmod_a_b)
+See also [`rmod`](#rmod_2)
 ----
 @!curry
 function mod = |a, b| -> (a % b)
@@ -211,7 +211,7 @@ Reverse curried modulo.
 
     rmod(a, b) == b % a
 
-See also [`mod`](#mod_a_b)
+See also [`mod`](#mod_2)
 ----
 @!curry
 function rmod = |a, b| -> (b % a)
@@ -223,7 +223,7 @@ Curried power.
 
 Does an implicit conversion to double.
 
-See also [`rpow`](#rpow_a_b)
+See also [`rpow`](#rpow_2)
 ----
 @!curry
 function pow = |a, b| -> Math.pow(doubleValue(a), doubleValue(b))
@@ -235,7 +235,7 @@ Reversed curried power.
 
 Does an implicit conversion to double.
 
-See also [`pow`](#pow_a_b)
+See also [`pow`](#pow_2)
 ----
 @!curry
 function rpow = |a, b| -> Math.pow(doubleValue(b), doubleValue(a))
@@ -259,7 +259,7 @@ Curried swapped *less than*.
 Note: this function is swapped to make curried version more readable: `lt(42)`
 is a predicate testing if its argument is "less than 42".
 
-See also [`le`](#le_a), [`gt`](#gt_a), [`ge`](#ge_a)
+See also [`le`](#le_2), [`gt`](#gt_2), [`ge`](#ge_2)
 ----
 @!curry
 function lt = |a, b| -> b < a
@@ -271,7 +271,7 @@ Curried swapped *greater than*.
 
 Note: this function is swapped to make curried version more readable.
 
-See also [`lt`](#lt_a), [`le`](#le_a), [`ge`](#ge_a)
+See also [`lt`](#lt_2), [`le`](#le_2), [`ge`](#ge_2)
 ----
 @!curry
 function gt = |a, b| -> b > a
@@ -281,7 +281,7 @@ Curried *equal*.
 
     eq(a, b) == (a == b)
 
-See also [`ne`](#ne_a_b)
+See also [`ne`](#ne_2)
 ----
 @!curry
 function eq = |a, b| -> a == b
@@ -291,7 +291,7 @@ Curried *not equal*.
 
     ne(a, b) == (a != b)
 
-See also [`eq`](#eq_a_b)
+See also [`eq`](#eq_2)
 ----
 @!curry
 function ne = |a, b| -> a != b
@@ -303,7 +303,7 @@ Curried swapped *greater than or equal*.
 
 Note: this function is swapped to make curried version more readable.
 
-See also [`lt`](#lt_a), [`le`](#le_a), [`gt`](#gt_a)
+See also [`lt`](#lt_2), [`le`](#le_2), [`gt`](#gt_2)
 ----
 @!curry
 function ge = |a, b| -> b >= a
@@ -315,7 +315,7 @@ Curried swapped *less than or equal*.
 
 Note: this function is swapped to make curried version more readable.
 
-See also [`lt`](#lt_a), [`ge`](#ge_a), [`gt`](#gt_a)
+See also [`lt`](#lt_2), [`ge`](#ge_2), [`gt`](#gt_2)
 ----
 @!curry
 function le = |a, b| -> b <= a
@@ -331,7 +331,7 @@ predicate functions, returns a new predicate function.
     `and(a, b) == (a and b)
     `and(gt(10), ^even) == |x| -> a > 10 and x % 2 == 0
 
-See also [`or`](#or_a), [`not`](#not_a), [`xor`](#xor_a_b)
+See also [`or`](#or_1), [`not`](#not_1), [`xor`](#xor_2)
 ----
 @!uncurry
 function `and = |a| -> match {
@@ -350,7 +350,7 @@ This implementation is lazy.
 The arguments can be boolean expressions or predicate functions. If called with
 predicate functions, returns a new predicate function.
 
-See also [`and`](#and_a), [`not`](#not_a), [`xor`](#xor_a_b)
+See also [`and`](#and_1), [`not`](#not_1), [`xor`](#xor_2)
 ----
 @!uncurry
 function `or = |a| -> match {
@@ -373,7 +373,7 @@ E.g.
     let even = |a| -> (a % 2) == 0
     let odd = `not(even)
 
-See also [`and`](#and_a), [`or`](#or_a)
+See also [`and`](#and_1), [`or`](#or_1)
 ----
 function `not = |a| -> match {
   when isClosure(a) then a: andThen(|v| -> not v)
@@ -388,7 +388,7 @@ Curried boolean *xor*.
 The arguments can be boolean expressions or predicate functions. If called with
 predicate functions, returns a new predicate function.
 
-See also [`and`](#and_a), [`or`](#or_a)
+See also [`and`](#and_1), [`or`](#or_1)
 ----
 @!curry
 function xor = |a, b| -> match {
@@ -401,14 +401,14 @@ local function _xor = |a, b| -> (a or b) and not (a and b)
 ----
 Checks if the value is even.
 
-See also [`odd`](#odd_a)
+See also [`odd`](#odd_1)
 ----
 function even = |a| -> (a % 2) == 0
 
 ----
 Checks if the value is odd.
 
-See also [`even`](#even_a)
+See also [`even`](#even_1)
 ----
 function odd = |a| -> (a % 2) == 1
 
@@ -523,7 +523,7 @@ Throws an `IndexOutOfBoundsException` (for a collection-like object) or returns
 - *param* `obj`: any object having a `get` method
 - *param* `i`: the index to get
 
-See also [`setitem`](#setitem_obj_i), [`getter`](#getter_i)
+See also [`setitem`](#setitem_3), [`getter`](#getter_1)
 ----
 @!curry
 function getitem = |obj, i| -> obj: get(i)
@@ -537,7 +537,7 @@ Curried indexed assignment
 - *param* `i`: the index to set
 - *param* `v`: the value to set
 
-See also [`getitem`](#getitem_obj_i), [`getter`](#getter_i)
+See also [`getitem`](#getitem_2), [`getter`](#getter_1)
 ----
 @!curry
 function setitem = |obj, i, v| {
@@ -551,7 +551,7 @@ Indexer factory (curried indexing).
     let third = getter(2)
     third([1, 2, 3, 4]) -> 3
 
-See also [`getitem`](#getitem_obj_i)
+See also [`getitem`](#getitem_2)
 ----
 function getter = |i| -> |col| -> col: get(i)
 
@@ -661,7 +661,7 @@ This function can also be used as a decorator.
 - *param* `f` the function to curry
 - *return* a variadic function dispatching on `f` that can be partialized
 
-See also [`uncurry`](#uncurry_f)
+See also [`uncurry`](#uncurry_1)
 ----
 function curry = |f| -> match {
   when f: arity() < 2 then f
@@ -675,7 +675,7 @@ function curry = |f| -> match {
 }
 
 ----
-Reverse of [`curry`](#curry_f).
+Reverse of [`curry`](#curry_1).
 
 Take a curried function (e.g. `|a| -> |b| -> a + b`) and return a polyadic
 function (e.g. `|a, b| -> a + b`).
@@ -693,7 +693,7 @@ This function can also be used as a decorator.
 - *param* `f` the function to uncurry
 - *return* a variadic function dispatching on `f`
 
-See also [`curry`](#curry_f)
+See also [`curry`](#curry_1)
 ----
 function uncurry = |f| -> match {
   when f: isVarargsCollector() then f
@@ -740,25 +740,25 @@ Thus, `unary(func)(arg)` is equivalent to `func: invoke(arg: toArray())`
 
 This function can also be used as a decorator.
 
-See also [`spreader`](#spreader_f) and [`varargs`](#varargs_f)
+See also [`spreader`](#spreader_1) and [`varargs`](#varargs_1)
 ----
 function unary = |f| -> |args| -> f: invoke(args: toArray())
 
 ----
 Convers a polyadic function into an unary function.
 
-Similar to [`unary`](#unary_f) but using `spread` instead of `invoke`.
+Similar to [`unary`](#unary_1) but using `spread` instead of `invoke`.
 
 This function can also be used as a decorator.
 
-See also [`varargs`](#varargs_f)
+See also [`varargs`](#varargs_1)
 ----
 function spreader = |f| -> |args| -> f: spread(args: toArray())
 
 ----
 Convert an unary function taking an array into a variadic function.
 
-This is the contrary of [`unary`](#unary_f).
+This is the contrary of [`unary`](#unary_1).
 E.g.
 
     let f = |t| -> t:get(0) + t:get(1) + t:get(2)
@@ -768,7 +768,7 @@ E.g.
 
 This function can also be used as a decorator.
 
-See also [`spreader`](#spreader_f) and [`unary`](#unary_f)
+See also [`spreader`](#spreader_1) and [`unary`](#unary_1)
 ----
 function varargs = |f| -> f: asVarargsCollector(objectArrayType())
 
@@ -781,7 +781,7 @@ such that:
     swapArgs(f)(b, a) == f(a, b)
 
 *Warning*: when using this function with one previously wrapped in
-[`curry`](#curry_f) or [`uncurry`](#uncurry_f), the resulting function can't be
+[`curry`](#curry_1) or [`uncurry`](#uncurry_1), the resulting function can't be
 automatically partialized any more.
 ----
 function swapArgs = |func| {
@@ -838,8 +838,8 @@ function swapCouple = |couple| {
 ----
 Polymorphic swapping.
 
-This function dispatches on [`swapArgs`](#swapArgs_func),
-[`swapCurry`](#swapCurry_func) or [`swapCouple`](#swapCouple_couple) according
+This function dispatches on [`swapArgs`](#swapArgs_1),
+[`swapCurry`](#swapCurry_1) or [`swapCouple`](#swapCouple_1) according
 to its parameter.
 
 Note that we have the property that given a binary function `f` and a
@@ -887,7 +887,7 @@ This is similar to Unix pipe:
 i.e. apply `f1` to `x`, then pass it to `f2`, and then `f3`.
 This is the same as `f1: andThen(f2): andThen(f3)(x)`
 
-You can insert a side-effect only function in the chain using [`io`](#io_block):
+You can insert a side-effect only function in the chain using [`io`](#io_1):
 
     pipe(f1, io({println("hello")}), f2)(42)
 
@@ -897,7 +897,7 @@ is equivalent to:
     println("hello")
     f2(tmp)
 
-This is similar to [`compose`](#compose_funcs), but with functions order
+This is similar to [`compose`](#compose_1), but with functions order
 reversed.
 
 Example:
@@ -907,7 +907,7 @@ Example:
     let other = pipe(^intValue, add(4), mul(2))
     other("17") == 42
 
-If no function is given, returns [`id`](#id_x)
+If no function is given, returns [`id`](#id_1)
 
 For a similar construct that deal with errors, see for instance the
 [`gololang.Errors`](Errors.html#java.util.Optional.andThen_this_f) module
@@ -925,7 +925,7 @@ Function composition.
 
     compose(f1, f2, f3)(x) == f1(f2(f3(x)))
 
-This is similar to [`pipe`](#pipe_funcs), but with functions order
+This is similar to [`pipe`](#pipe_1), but with functions order
 reversed (*B* combinator).
 ----
 function compose = |funcs...| {
@@ -949,7 +949,7 @@ This can be used to insert such a function into a composition chain:
 
 - *param* `block` a function with side effects
 
-See also [`pipe`](#pipe_funcs) and [`compose`](#compose_funcs)
+See also [`pipe`](#pipe_1) and [`compose`](#compose_1)
 ----
 function io = |block| -> |x| {
   if block: arity() == 1 {

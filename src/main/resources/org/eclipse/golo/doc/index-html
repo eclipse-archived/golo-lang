@@ -10,34 +10,10 @@
       background-color: #fff;
       border-color: #999999;
       border-width: 2px;
-      line-height: 1.5;
-      margin: 2em 3em;
+      margin: 2em auto;
+      max-width: 50em;
       text-align: left;
-      padding: 0 100px 0 100px;
-    }
-    pre {
-      background-color: #eee;
-      padding: 10px;
-      -webkit-border-radius: 5px;
-      -moz-border-radius: 5px;
-      border-radius: 5px;
-      overflow: auto;
-    }
-    code {
-      font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size: 80%;
-      background-color: #eee;
-      padding: 1px 3px;
-      -webkit-border-radius: 2px;
-      -moz-border-radius: 2px;
-      border-radius: 2px;
-    }
-    pre code {
-      padding-left: 0px;
-      padding-right: 0px;
-    }
-    li p {
-      margin: 0.3em;
+      padding: 0;
     }
     ul > li {
       list-style-type: disc;
@@ -53,23 +29,15 @@
     h1 {
       color: #999;
       font-weight: 400;
-      font-size: 36px;
+      font-size: 250%;
     }
     h2 {
       border-bottom: 1px dotted #aaa;
       margin-bottom: 1em;
       color: #333;
-      font-size: 30px;
-    }
-    h3 {
-      color: #666;
-      font-size: 24px;
-    }
-    h4 {
-      font-size: 21px;
-    }
-    h5 {
-      font-size: 18px;
+      font-size: 200%;
+      font-style: normal;
+      font-weight: bold;
     }
   </style>
 </head>

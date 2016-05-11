@@ -5,6 +5,7 @@ target/
 .idea/
 dependency-reduced-pom.xml
 *.swp
+*.vim
 .benchmarks.h2.db
 benchmarks/*.json
 benchmarks/*.html
