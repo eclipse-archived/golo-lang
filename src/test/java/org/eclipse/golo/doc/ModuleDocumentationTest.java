@@ -40,7 +40,7 @@ public class ModuleDocumentationTest {
 
     assertThat(doc.augmentations().size(), is(1));
     assertThat(doc.augmentations().iterator().next().target(), is("java.lang.String"));
-    assertThat(doc.augmentations().iterator().next().line(), is(43));
+    assertThat(doc.augmentations().iterator().next().line(), is(47));
 
     assertThat(doc.functions().size(), is(2));
     assertThat(doc.functions(true).size(), is(3));
@@ -50,7 +50,7 @@ public class ModuleDocumentationTest {
 
     FunctionDocumentation first = doc.functions().first();
     assertThat(first.name(), is("with_doc"));
-    assertThat(first.line(), is(31));
+    assertThat(first.line(), is(35));
     assertThat(first.arguments(), contains("a", "b"));
     assertThat(first.documentation(), containsString("the sum of `a` and `b`"));
 
@@ -59,14 +59,14 @@ public class ModuleDocumentationTest {
     assertThat(onStrings.size(), is(3));
     first = onStrings.first();
     assertThat(first.name(), is("plop"));
-    assertThat(first.line(), is(45));
+    assertThat(first.line(), is(49));
     assertThat(first.local(), is(false));
     assertThat(first.arguments().size(), is(1));
     assertThat(first.arguments().get(0), is("this"));
     assertThat(first.documentation(), is(""));
     FunctionDocumentation last = onStrings.last();
     assertThat(last.name(), is("zig"));
-    assertThat(last.line(), is(54));
+    assertThat(last.line(), is(58));
     assertThat(last.local(), is(false));
     assertThat(last.arguments().size(), is(2));
     assertThat(last.arguments().get(0), is("this"));
@@ -74,11 +74,11 @@ public class ModuleDocumentationTest {
 
     assertThat(doc.structs().size(), is(1));
     assertThat(doc.structs().first().name(), is("Point"));
-    assertThat(doc.structs().first().line(), is(63));
+    assertThat(doc.structs().first().line(), is(67));
     assertThat(doc.structs().first().documentation(), containsString("`x` and `y` coordinates"));
 
     assertThat(doc.moduleStates().size(), is(2));
     assertThat(doc.moduleStates(), hasKey("letState"));
-    assertThat(doc.moduleStates().get("letState"), is(65));
+    assertThat(doc.moduleStates().get("letState"), is(69));
   }
 }
