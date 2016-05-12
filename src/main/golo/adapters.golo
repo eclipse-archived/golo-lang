@@ -99,7 +99,8 @@ augment gololang.Adapters.types.adapter {
   }
 
   ----
-  Returns an instance based on a configuration (also see `adapter: definition()`).
+  Returns an instance based on a configuration
+  (see also [`adapter: definition()`](#adapter)).
   ----
   function maker = |this| {
     return AdapterFabric(): maker(this: definition())

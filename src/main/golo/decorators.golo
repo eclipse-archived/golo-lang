@@ -19,20 +19,19 @@ module gololang.Decorators
 # ............................................................................................... #
 # == Contexts == #
 ----
-Returns a void context to be used with the ``withContext`` decorator after
-redefinition of some methods.
+Returns a void context to be used with the [`withContext`](#withContext_1)
+decorator after redefinition of some methods.
 
 A context is an object with 4 defined methods:
 
-* ``entry``: takes and returns the function arguments. Can be used to check
-             arguments or apply transformation to them
-* ``exit``: takes and returns the result of the function. Can be used to check
-            conditions or transform the result
-* ``catcher``: deals with exceptions that occurs during function execution.
- Takes
-               the exception as parameter
-* ``finallizer``: is called in a ``finally`` clause after function execution.
-                  No parameter
+* `entry`: takes and returns the function arguments. Can be used to check
+  arguments or apply transformation to them
+* `exit`: takes and returns the result of the function. Can be used to check
+  conditions or transform the result
+* `catcher`: deals with exceptions that occurs during function execution.
+  Takes the exception as parameter
+* `finallizer`: is called in a `finally` clause after function execution.
+  No parameter
 
 In this default version, `entry` and `exit` return their parameters unchanged,
 `catcher` rethrow the exception and `finallizer` does nothing.
@@ -45,7 +44,7 @@ function defaultContext = { return DynamicObject():
 }
 
 ----
-``withContext`` decorator:
+`withContext` decorator:
 
     @withContext(myContext)
     function foo = |a| -> 2*a
@@ -231,7 +230,7 @@ function memoizer = {
 ----
 Factory function returning a decorator that log messages on entry and exit of
 the function.
-The factory take the logging function (e.g. println).
+The factory take the logging function (e.g. `println`).
 The returned decorator takes two strings: the message to log before the call,
 and the message to log after the call. If one of these message is `null` or
 empty string, nothing is logged.
@@ -251,8 +250,8 @@ function loggerDecorator = |logger| {
 }
 
 ----
-A convenient factory to create a `loggerDecorator` that `println` with a prefix
-and a suffix.
+A convenient factory to create a [`loggerDecorator`](#loggerDecorator_1)
+that `println` with a prefix and a suffix.
 
     @printLoggerDecorator("# ", " #")("in", "out")
     function bar = { println("bar") }
