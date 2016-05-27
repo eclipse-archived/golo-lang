@@ -25,11 +25,13 @@ import com.github.rjeschke.txtmark.Processor;
 
 public class HtmlProcessor extends AbstractProcessor {
 
+  private Path srcFile;
+
   @Override
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     FunctionReference template = template("template", "html");
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    return (String) template.handle().invokeWithArguments(documentation);
+    return (String) template.handle().invokeWithArguments(documentation, srcFile);
   }
 
   @Override
@@ -39,6 +41,7 @@ public class HtmlProcessor extends AbstractProcessor {
     for (ASTCompilationUnit unit : units.values()) {
       String moduleName = moduleName(unit);
       Path docFile = outputFile(targetFolder, moduleName, ".html");
+      srcFile = outputFile(targetFolder, moduleName, ".src.html");
       ensureFolderExists(docFile.getParent());
       Predefined.textToFile(render(unit), docFile);
       moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
