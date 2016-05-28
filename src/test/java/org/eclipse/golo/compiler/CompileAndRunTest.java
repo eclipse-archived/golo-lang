@@ -2067,4 +2067,18 @@ public class CompileAndRunTest {
     assertThat(bazMixed.invoke(null, receiver), is("a ~ b ~ c ~ d ~ e ~ f ~ 1 ~ 2"));
     assertThat(bazMixed.invoke(null, receiver), is("a ~ b ~ c ~ d ~ e ~ f ~ 1 ~ 2"));
   }
+
+  @Test
+  public void test_chars_literals() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "chars-literals.golo");
+
+    assertThat((char) moduleClass.getMethod("unicode_char").invoke(null), is('\u0000'));
+    assertThat((String) moduleClass.getMethod("unicode_string").invoke(null), is("\u0000"));
+    assertThat((char) moduleClass.getMethod("escaped_quote_char").invoke(null), is('\''));
+    assertThat((char) moduleClass.getMethod("double_quote_char").invoke(null), is('"'));
+    assertThat((char) moduleClass.getMethod("escaped_double_quote_char").invoke(null), is('\"'));
+    assertThat((String) moduleClass.getMethod("quote_string").invoke(null), is("'"));
+    assertThat((String) moduleClass.getMethod("escaped_quote_string").invoke(null), is("\'"));
+  }
+
 }
