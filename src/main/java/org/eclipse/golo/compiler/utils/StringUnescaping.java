@@ -22,6 +22,10 @@ public final class StringUnescaping {
       if (ch == '\\') {
         char nextChar = (i == str.length() - 1) ? '\\' : str.charAt(i + 1);
         switch (nextChar) {
+          case 'u':
+            ch = (char) Integer.parseInt(str.substring(i + 2, i + 6), 16);
+            i = i + 4;
+            break;
           case '\\':
             ch = '\\';
             break;
