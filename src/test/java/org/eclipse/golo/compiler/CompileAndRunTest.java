@@ -1874,6 +1874,16 @@ public class CompileAndRunTest {
     result = decorated.invoke(null);
     assertThat(result, instanceOf(Integer.class));
     assertThat(result, is((Object) 42));
+
+    decorated = moduleClass.getMethod("test_expr_decorator_simple");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "simpleplop"));
+
+    decorated = moduleClass.getMethod("test_expr_decorator");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "preplopdaplop"));
   }
 
   @Test

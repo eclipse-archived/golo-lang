@@ -125,8 +125,11 @@ public final class Builders {
     return new FunctionInvocation(name);
   }
 
-  public static BinaryOperation anonCall(Object receiver, FunctionInvocation invocation) {
-    return binaryOperation(OperatorType.ANON_CALL, (ExpressionStatement) receiver, invocation);
+  public static BinaryOperation anonCall(Object receiver, Object invocation) {
+    return binaryOperation(
+        OperatorType.ANON_CALL,
+        (ExpressionStatement) receiver,
+        (FunctionInvocation) invocation);
   }
 
   public static Block block() {
