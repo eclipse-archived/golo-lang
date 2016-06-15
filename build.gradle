@@ -11,15 +11,16 @@
 
 plugins {
   id 'java'
+  id 'osgi'
+  id 'jacoco'
+  id 'findbugs'
+  id 'application'
+  id 'maven-publish'
+  id 'com.jfrog.bintray' version '1.6'
   id 'ca.coglinc.javacc' version '2.3.1'
   id 'org.asciidoctor.convert' version '1.5.3'
   id 'net.nemerosa.versioning' version '2.1.0'
-  id 'jacoco'
-  id 'application'
-  id 'maven-publish'
-  id 'findbugs'
   id 'com.github.ben-manes.versions' version '0.12.0'
-  id 'com.jfrog.bintray' version '1.6'
 }
 
 // .................................................................................................................. //
@@ -79,6 +80,18 @@ dependencies {
   testCompile 'org.skyscreamer:jsonassert:1.3.0'
   testCompile 'org.testng:testng:6.9.11'
   testCompile 'com.google.inject:guice:4.0:no_aop' // for TestNG
+}
+
+// .................................................................................................................. //
+
+jar {
+  manifest {
+    name 'Eclipse Golo'
+    symbolicName 'org.eclipse.golo'
+    vendor 'INSA-Lyon and contributors'
+    license 'http://www.eclipse.org/legal/epl-v10.html'
+    description 'A dynamic language for the JVM'
+  }
 }
 
 // .................................................................................................................. //
