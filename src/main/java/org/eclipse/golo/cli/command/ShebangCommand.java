@@ -37,7 +37,7 @@ public class ShebangCommand implements CliCommand {
     while (Files.isSymbolicLink(script)) {
       script = Files.readSymbolicLink(script);
     }
-    Path basedir = script.getParent();
+    Path basedir = dirName(script);
     URLClassLoader primaryClassLoader = primaryClassLoader(classpath(basedir));
     GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
     Thread.currentThread().setContextClassLoader(loader);
@@ -47,6 +47,17 @@ public class ShebangCommand implements CliCommand {
     } catch (GoloCompilationException e) {
       handleCompilationException(e);
     }
+  }
+
+  private static Path dirName(Path file){
+    if(!file.isAbsolute()) {
+      return file.toAbsolutePath().getParent();
+    }
+    return file.getParent();
+  }
+
+  private static boolean sameFile(Path path1, Path path2){
+    return path1.toAbsolutePath().compareTo(path2.toAbsolutePath()) == 0;
   }
 
   private List<String> classpath(Path basedir) throws IOException {
@@ -60,7 +71,7 @@ public class ShebangCommand implements CliCommand {
   private void loadOtherGoloFiles(GoloClassLoader loader, Path basedir, Path script) throws IOException {
     PathMatcher goloFiles = FileSystems.getDefault().getPathMatcher("glob:**/*.golo");
     Files.walk(basedir)
-        .filter(path -> goloFiles.matches(path) && path.compareTo(script) != 0)
+        .filter(path -> goloFiles.matches(path) && !sameFile(path, script))
         .forEach(path -> loadGoloFile(loader, path));
   }
 
