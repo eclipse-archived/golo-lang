@@ -36,10 +36,11 @@ public class GoloGoloCommand implements CliCommand {
   @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
   List<String> classpath = new LinkedList<>();
 
+  @Override
   public void execute() throws Throwable {
     URLClassLoader primaryClassLoader = primaryClassLoader(this.classpath);
     GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
-     Thread.currentThread().setContextClassLoader(loader);
+    Thread.currentThread().setContextClassLoader(loader);
     Class<?> lastClass = null;
     for (String goloFile : this.files) {
       lastClass = loadGoloFile(goloFile, this.module, loader);

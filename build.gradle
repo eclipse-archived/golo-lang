@@ -206,6 +206,17 @@ startScripts.dependsOn vanillaScripts
 
 // .................................................................................................................. //
 
+task goloshScripts(type: CreateStartScripts) {
+  outputDir = file('build/golosh')
+  mainClassName = goloCliMain + ' shebang'
+  applicationName = 'golosh'
+  classpath = startScripts.classpath
+}
+
+startScripts.dependsOn goloshScripts
+
+// .................................................................................................................. //
+
 distributions {
   main {
     baseName = 'golo'
@@ -233,6 +244,9 @@ distributions {
         exclude 'html5'
       }
       from(vanillaScripts) {
+        into 'bin'
+      }
+      from(goloshScripts) {
         into 'bin'
       }
     }
