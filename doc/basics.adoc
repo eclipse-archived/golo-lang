@@ -198,7 +198,7 @@ Naturally the main goal is to use this command to make the script self-executabl
 
 [source,golo]
 ----
-#! /path/to/golo shebang
+#!/path/to/golo shebang
 module hello
 
 function main = |args| {
@@ -221,7 +221,7 @@ a golo script can be hasbanged with `env`:
 
 [source,golo]
 ----
-#! /usr/bin/env golosh
+#!/usr/bin/env golosh
 module hello
 
 function main = |args| {
