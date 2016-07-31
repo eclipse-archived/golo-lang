@@ -1,6 +1,6 @@
 # ............................................................................................... #
 #
-# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+# Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -70,7 +70,7 @@ function cons = |head, tail| -> match {
 }
 
 ----
-Unary version of [`cons(head, tail)`](#cons_head_tail).
+Unary version of [`cons(head, tail)`](#cons_2).
 
 Its parameter is assumed to be a tuple (or any object having a `get(idx)` method)
 of the form `[head, tail]`.

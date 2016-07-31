@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -16,6 +16,12 @@ import gololang.Predefined;
 import java.nio.file.Path;
 import java.util.TreeMap;
 import java.util.Map;
+import java.util.List;
+
+import com.github.rjeschke.txtmark.BlockEmitter;
+import com.github.rjeschke.txtmark.Configuration;
+import com.github.rjeschke.txtmark.Processor;
+
 
 public class HtmlProcessor extends AbstractProcessor {
 
@@ -41,4 +47,35 @@ public class HtmlProcessor extends AbstractProcessor {
     String index = (String) indexTemplate.handle().invokeWithArguments(moduleDocFile);
     Predefined.textToFile(index, targetFolder.resolve("index.html"));
   }
+
+  public static BlockEmitter blockHighlighter() {
+    return new BlockEmitter() {
+      @Override
+      public void emitBlock(StringBuilder out, List<String> lines, String meta) {
+        String language;
+        if ("".equals(meta)) {
+          language = "golo";
+        } else {
+          language = meta;
+        }
+        out.append("<pre class=\"listing highlight highlightjs\">");
+        out.append(String.format("<code class=\"language-%s\" data-lang=\"%s\">", language, language));
+        for (String rawLine : lines) {
+          String line = rawLine
+            .replace("&", "&amp;")
+            .replace(">", "&gt;")
+            .replace("<", "&lt;");
+          out.append(line);
+          out.append('\n');
+        }
+        out.append("</code></pre>");
+        out.append('\n');
+      }
+    };
+  }
+
+  public static String process(String documentation, int rootLevel, Configuration configuration) {
+    return Processor.process(AbstractProcessor.adaptSections(documentation, rootLevel), configuration);
+  }
+
 }

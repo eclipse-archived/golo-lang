@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -17,6 +17,8 @@ import org.objectweb.asm.*;
 
 import java.lang.invoke.MethodType;
 import java.util.*;
+import java.math.BigDecimal;
+import java.math.BigInteger;
 
 import static org.eclipse.golo.compiler.JavaBytecodeUtils.loadInteger;
 import static org.eclipse.golo.compiler.JavaBytecodeUtils.loadLong;
@@ -67,7 +69,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       "org/eclipse/golo/runtime/" + methodName,
       "bootstrap",
       "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
-      + description + ")Ljava/lang/invoke/CallSite;");
+      + description + ")Ljava/lang/invoke/CallSite;", false);
   }
 
   private static RuntimeException invalidElement(GoloElement element) {
@@ -408,6 +410,20 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       boolean b = (Boolean) value;
       loadInteger(methodVisitor, b ? 1 : 0);
       methodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+      return;
+    }
+    if (value instanceof BigDecimal) {
+      methodVisitor.visitTypeInsn(NEW, "java/math/BigDecimal");
+      methodVisitor.visitInsn(DUP);
+      methodVisitor.visitLdcInsn(value.toString());
+      methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(Ljava/lang/String;)V", false);
+      return;
+    }
+    if (value instanceof BigInteger) {
+      methodVisitor.visitTypeInsn(NEW, "java/math/BigInteger");
+      methodVisitor.visitInsn(DUP);
+      methodVisitor.visitLdcInsn(value.toString());
+      methodVisitor.visitMethodInsn(INVOKESPECIAL, "java/math/BigInteger", "<init>", "(Ljava/lang/String;)V", false);
       return;
     }
     if (value instanceof String) {

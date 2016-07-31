@@ -1,6 +1,12 @@
 <%@params doc %>
+<%@import org.eclipse.golo.doc.AbstractProcessor %>
+<%
+let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
+  : forceExtentedProfile()
+  : build()
+%>
 # Documentation for `<%= doc: moduleName() %>`
-<%= doc: moduleDocumentation() %>
+<%= adaptSections(doc: moduleDocumentation(), 1) %>
 <% if not doc: structs(): isEmpty() { %>
 ## Structs
 <% foreach structDoc in doc: structs() { %>
@@ -10,19 +16,19 @@
 <% foreach member in structDoc: members() { %>
 - <%= member %>
 <%}%>
-<%= structDoc: documentation() %>
+<%= adaptSections(structDoc: documentation(), 3) %>
 <%}}%>
 <% if not doc: unions(): isEmpty() { %>
 ## Unions
 <% foreach unionDoc in doc: unions() { %>
 ### `<%= unionDoc: name() %>`
-<%= unionDoc: documentation() %>
+<%= adaptSections(unionDoc: documentation(), 3) %>
 <% foreach unionValueDoc in unionDoc: values() { %>
 #### `<%= unionValueDoc: name() %>`
 <% foreach member in unionValueDoc: members() { %>
 - <%= member %>
 <%}%>
-<%= unionValueDoc: documentation() %>
+<%= adaptSections(unionValueDoc: documentation(), 3) %>
 <%}%>
 <%}%>
 <%}%>
@@ -30,20 +36,20 @@
 ## Named Augmentations
 <%foreach namedAugmentationDoc in doc: namedAugmentations() {%>
 ### <%= namedAugmentationDoc: name()%>
-<%=namedAugmentationDoc: documentation()%>
+<%= adaptSections(namedAugmentationDoc: documentation(), 3) %>
 <%foreach funcDoc in namedAugmentationDoc {%>
 <%if funcDoc: varargs() {%>
 #### <%=funcDoc: name() %>(<%= funcDoc: arguments(): join(", ")%>...)
 <%} else {%>
 #### <%=funcDoc: name() %>(<%= funcDoc: arguments(): join(", ")%>)
 <%}%>
-<%= funcDoc: documentation() %>
+<%= adaptSections(funcDoc: documentation(), 4) %>
 <%}}}%>
 <% if not doc: augmentations(): isEmpty() { %>
 ## Augmentations
 <% foreach augmentDoc in doc: augmentations() { %>
 ### `<%= augmentDoc: target() %>`
-<%= augmentDoc: documentation() %>
+<%= adaptSections(augmentDoc: documentation(), 3) %>
 <%if not augmentDoc: augmentationNames(): isEmpty() {%>
 ##### Named augmentations applied
 <%foreach name in augmentDoc: augmentationNames() {%>
@@ -55,7 +61,7 @@
 <%} else {%>
 #### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
 <%}%>
-<%= funcDoc: documentation() %>
+<%= adaptSections(funcDoc: documentation(), 4) %>
 <% }}} %>
 <% if not doc: functions(): isEmpty() { %>
 ## Functions
@@ -65,5 +71,5 @@
 <%} else {%>
 #### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
 <%}%>
-<%= funcDoc: documentation() %>
+<%= adaptSections(funcDoc: documentation(), 3) %>
 <%}}%>

@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -15,8 +15,6 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 
 import java.io.*;
 import java.util.*;
-
-import static java.lang.invoke.MethodType.methodType;
 
 public class Main {
 

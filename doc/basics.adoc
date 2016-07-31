@@ -61,6 +61,7 @@ commands, notably:
 - `run` to execute some already compiled Golo code, and
 - `golo` to directly execute Golo code from source files, and
 - `diagnose` to print compiler internal diagnosis information, and
+- `check` to check code for compilation errors (e.g. as an editor hook), and
 - `doc` to generate module(s) documentation, and
 - `new` to generate new project(s).
 
@@ -147,6 +148,15 @@ classes/
 $
 ----
 
+It is also possible to output to a Jar archive:
+
+[source]
+----
+golo compile --output hello.jar samples/*.golo
+----
+
+This would take all `.golo` files from the `sample` folder, and assemble the resulting JVM class files in `hello.jar`.
+
 === Running compiled Golo code
 
 Golo provides a `golo` command for running compiled Golo code:
@@ -160,6 +170,85 @@ $
 ----
 
 Simple, isn't it?
+
+=== Running Golo script
+
+Golo provides a `shebang` command for running a Golo file as a simple script.
+
+[source,golo]
+----
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+the script above can be executed with:
+
+[source]
+----
+$ golo shebang hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+Naturally the main goal is to use this command to make the script self-executable:
+
+[source,golo]
+----
+#!/path/to/golo shebang
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+Now, we can run the script directly:
+
+----
+$ chmod +x hello.golo
+$ ./hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+NOTE: Golo also provides `golosh` script that is a shortcut for the `golo shebang` command, thus
+a golo script can be hasbanged with `env`:
+
+[source,golo]
+----
+#!/usr/bin/env golosh
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+NOTE: Each `golo` and `jar` files present in the script file's directory or the sub directories
+will be scaned.
+
+[source]
+----
+$ tree ./
+./
+└── libs
+    └── libA.jar
+    └── libB.jar
+└── commons
+    └── utils.golo
+    └── others.golo
+    └── vendors
+        └── otherlib.jar
+└── hello.golo
+└── library.golo
+$
+----
 
 === Passing JVM-specific flags
 
@@ -262,6 +351,10 @@ API. We give them along with examples in <<data-literals,the data literals table
 |`java.lang.Double` | `1.234`, `-1.234`, `1.234e9`, ...
 
 |`java.lang.Float` | `1.234_F`, `-1.234_F`, `1.234e9_F`, ...
+
+|`java.math.BigInteger` | `1_B`, `-42_B`, `1_234_B`, ...
+
+|`java.math.BigDecimal` | `1.0_B`, `-1_234.56_B`, `1.234e-4_B`, ...
 
 |`java.lang.Class` | `String.class`, `java.lang.String.class`, `gololang.Predef.module`, ...
 
@@ -533,8 +626,7 @@ aList: filter(^pred): map(^f)
 Thus, should you use collection comprehension or higher-order functions? Despite some
 implementation differences, it's above all a matter of taste. Some people
 consider comprehension more readable, since it is more similar to the
-mathematical
-[set-builder notation](https://en.wikipedia.org/wiki/Set-builder_notation).
+mathematical https://en.wikipedia.org/wiki/Set-builder_notation[set-builder notation].
 As an example, compare the two functionally equivalent expressions:
 [source,golo]
 ----
@@ -605,7 +697,7 @@ let a, b, c... = [1, 2, 3, 4, 5]   # a = 1, b = 2, c = [3, 4, 5]
 
 Any object having a `destruct()` method returning a tuple can be used in
 destructuring assignments. Golo specific data structures and some Java native
-ones can be destructured. Augmentations can be used to make an existing class
+ones (arrays, maps, collections) can be destructured. Augmentations can be used to make an existing class
 destructurable.
 
 For instance, xref:_structs[golo structures] are destructurable:
@@ -651,7 +743,7 @@ Golo supports the following <<operators,set of operators>>.
 
 |`+`|
 Addition on numbers and strings.|
-`1 + 2` gives 3.
+`1 + 2` gives `3`.
 
 `"foo" + "bar"` gives `"foobar"`.
 
@@ -700,6 +792,9 @@ Evaluates an expression and returns the value of another one if `null`.|
 `foo()` returns `null`.
 
 |===
+
+NOTE: The algebraic operators can be used with any numeric type having a literal notation
+(see <<data-literals,the data literals table>> ), including `java.math.BigInteger` and `java.math.BigDecimal`.
 
 The operator precedence rules are as follows:
 

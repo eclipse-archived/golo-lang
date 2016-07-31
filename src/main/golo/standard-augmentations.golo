@@ -1,6 +1,6 @@
 # ............................................................................................... #
 #
-# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+# Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -98,7 +98,8 @@ augment java.lang.Number {
   * `high`: the end value (inclusive).
   * `func`: the function to execute.
 
-  As in the case of `times`, `func` may take an optional index parameter.
+  As in the case of [`times`](#times_2), `func` may take an optional index parameter.
+  See also [`downTo`](#downTo_3).
   ----
   function upTo = |low, high, func| {
     let target = _closureWithIndexArgument(func)
@@ -108,7 +109,7 @@ augment java.lang.Number {
   }
 
   ----
-  Similar to `upTo`, except that the interval iteration is made from `high` down to `low`.
+  Similar to [`upTo`](#upTo_3), except that the interval iteration is made from `high` down to `low`.
   ----
   function downTo = |high, low, func| {
     let target = _closureWithIndexArgument(func)
@@ -255,7 +256,7 @@ augment java.lang.Iterable {
   }
 
   ----
-  Checks wether any element satisfied a predicate:
+  Checks whether any element satisfied a predicate:
 
       println([1, 2, 3, 4]: exists(|n| -> n > 3))
 
@@ -445,6 +446,8 @@ augment java.util.List {
 
   ----
   Reverse the elements of the list and returns the list.
+
+  See also [`reversed`](#java.util.List.reversed_1).
   ----
   function reverse = |this| {
     java.util.Collections.reverse(this)
@@ -452,7 +455,7 @@ augment java.util.List {
   }
 
   ----
-  Same as `reverse`, but the returned list is a new one, leaving the original list order intact.
+  Same as [`reverse`](#java.util.List.reverse_1), but the returned list is a new one, leaving the original list order intact.
   ----
   function reversed = |this| {
     let reversedList = this: newWithSameType()
@@ -629,7 +632,7 @@ augment java.util.Map {
   }
 
   ----
-  Adds a tuple [key, value] or a map entry and returns the map.
+  Adds a tuple `[key, value]` or a map entry and returns the map.
   ----
   function add = |this, kv| {
     case {
@@ -665,11 +668,11 @@ augment java.util.Map {
   The fact that `value` can be a function allows for delayed evaluation which can be useful for
   performance reasons. So instead of:
 
-      map: putIfAbsent(key, expensiveOperation())
+      map: addIfAbsent(key, expensiveOperation())
 
   one may delay the evaluation as follows:
 
-      map: putIfAbsent(key, -> expensiveOperation())
+      map: addIfAbsent(key, -> expensiveOperation())
 
   `addIfAbsent` returns the map.
   ----
@@ -691,7 +694,8 @@ augment java.util.Map {
   * `key`: the key to look for.
   * `replacement`: the default value, or a function giving the default value.
 
-  As it is the case for `addIfAbsent`, one can take advantage of delayed evaluation:
+  As it is the case for [`addIfAbsent`](#java.util.Map.addifAbsent_3),
+  one can take advantage of delayed evaluation:
 
       println(map: getOrElse(key, "n/a"))
       println(map: getOrElse(key, -> expensiveOperation())
@@ -758,7 +762,7 @@ augment java.util.Map {
   Maps entries of the map using a function.
 
   `func` takes 2 arguments: a key and a value. The returned value must have `getKey()` and
-  getValue()` to represent a map entry. We suggest using the predefined `mapEntry(key, value)`
+  `getValue()` to represent a map entry. We suggest using the predefined `mapEntry(key, value)`
   function as it returns such object.
   ----
   function map = |this, func| {
@@ -822,6 +826,11 @@ augment java.util.Map$Entry {
   Destructurate a map entry in key and value
   ----
   function destruct = |this| -> [ this: getKey(), this: getValue() ]
+
+  ----
+  Convert then entry into an array containing the key and the value.
+  ----
+  function toArray = |this| -> array[this: getKey(), this: getValue()]
 }
 # ............................................................................................... #
 

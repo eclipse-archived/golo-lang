@@ -13,24 +13,24 @@ Golo is a simple dynamic, weakly-typed language for the JVM.
 Built from day 1 with `invokedynamic`, Golo takes advantage of the latest advances of
 the JVM. It is also a showcase on how to build a language runtime with `invokedynamic`.
 
-Golo was originally being developed as part of the research activities of the
+Eclipse Golo was originally being developed as part of the research activities of the
 [DynaMid](http://dynamid.citi-lab.fr/) group of the
 [CITI Laboratory](http://www.citi-lab.fr/) at
 [INSA-Lyon](http://www.insa-lyon.fr/).
 
-Golo joined the Eclipse Foundation as an incubating technology project in June 2015.
+Golo is a _mature_ Eclipse Technology Project.
 
 ## Links
 
 * Website: [http://golo-lang.org/](http://golo-lang.org/)
 * Twitter: [@golo_lang](https://twitter.com/golo_lang)
 * Eclipse PMI: [https://projects.eclipse.org/projects/technology.golo](https://projects.eclipse.org/projects/technology.golo)
-* GitHub: [https://github.com/golo-lang/golo-lang](https://github.com/golo-lang/golo-lang)
+* GitHub: [https://github.com/eclipse/golo-lang](https://github.com/eclipse/golo-lang)
 * Issues: [https://github.com/eclipse/golo-lang/issues](https://github.com/eclipse/golo-lang/issues)
 * Mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-dev](https://dev.eclipse.org/mailman/listinfo/golo-dev)
 * Commits + new issues mailing-list: [https://dev.eclipse.org/mailman/listinfo/golo-commit](https://dev.eclipse.org/mailman/listinfo/golo-commit)
 * Wiki: [https://github.com/eclipse/golo-lang/wiki](https://github.com/eclipse/golo-lang/wiki)
-* Gitter.im chats: [https://gitter.im/golo-lang/golo-lang](https://gitter.im/golo-lang/golo-lang)
+* Gitter.im chats: [https://gitter.im/eclipse/golo-lang](https://gitter.im/eclipse/golo-lang)
 * StackOverflow: [questions with the `golo-lang` tag](http://stackoverflow.com/questions/tagged/golo-lang)
 
 ## Getting Golo
@@ -79,7 +79,7 @@ and `build/generated/jjtree`.
 #### Netbeans
 
 Netbeans has
-[a recommended community-suppprted Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
+[a recommended community-supported Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
 
 It works with no required manual adjustment on the Golo code base in our tests.
 
@@ -129,7 +129,7 @@ Of course you can combine profiles, like:
 
 ## License
 
-    Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon) and contributors
+    Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon) and contributors
 
     All rights reserved. This program and the accompanying materials
     are made available under the terms of the Eclipse Public License v1.0

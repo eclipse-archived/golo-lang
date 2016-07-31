@@ -1,10 +1,17 @@
 <!DOCTYPE html>
 <%@params doc %>
-<%@import com.github.rjeschke.txtmark.Processor %>
+<%@import org.eclipse.golo.doc.HtmlProcessor %>
+<%
+let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
+  : forceExtentedProfile()
+  : setCodeBlockEmitter(blockHighlighter())
+  : build()
+%>
 <html>
 <head>
   <title>Documentation for <%= doc: moduleName() %></title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <style>
     body {
       font-family: Helvetica, Arial, sans-serif;
@@ -12,14 +19,14 @@
       background-color: #fff;
       border-color: #999999;
       border-width: 2px;
-      line-height: 1.5;
-      margin: 2em 3em 2em 20%;
+      margin: 1em auto;
+      margin-left: 20em;
+      max-width: 50em;
       text-align: left;
-      padding: 0 100px 0 100px;
+      padding: 0.5em;
     }
     pre {
       background-color: #eee;
-      padding: 10px;
       -webkit-border-radius: 5px;
       -moz-border-radius: 5px;
       border-radius: 5px;
@@ -35,9 +42,31 @@
       border-radius: 2px;
     }
     pre code {
+      font-size: 120%;
       padding-left: 0px;
       padding-right: 0px;
     }
+
+    .listing:hover code[data-lang]:before {
+      display: block;
+    }
+
+    .listing code {
+      position: relative;
+    }
+
+    .listing code[data-lang]:before {
+      display: none;
+      content: attr(data-lang);
+      position: absolute;
+      font-size: 0.75em;
+      top: .5rem;
+      right: 0.5rem;
+      line-height: 1;
+      text-transform: uppercase;
+      color: #000;
+    }
+
     li p {
       margin: 0.3em;
     }
@@ -55,50 +84,86 @@
     h1 {
       color: #999;
       font-weight: 400;
-      font-size: 36px;
+      font-size: 250%;
     }
     h2 {
       border-bottom: 1px dotted #aaa;
       margin-bottom: 1em;
       color: #333;
-      font-size: 30px;
+      font-size: 200%;
+      font-style: normal;
+      font-weight: bold;
     }
     h3 {
       color: #666;
-      font-size: 24px;
+      font-size: 180%;
+      font-style: normal;
+      font-weight: bold;
     }
     h4 {
-      font-size: 21px;
+      font-size: 130%;
+      font-style: normal;
+      font-weight: bold;
     }
     h5 {
-      font-size: 18px;
+      font-size: 100%;
+      font-style: normal;
+      font-weight: bold;
+    }
+    h6 {
+      font-size: 100%;
+      font-style: italic;
+      font-weight: normal;
     }
 
     #toc {
       margin: 0;
-      padding: 1em;
-      border-right: 1px solid #aaa;
-      font-size: 80%;
+      padding: 0;
       position: fixed;
       top: 0px;
       bottom: 0px;
       left: 0px;
-      width: 20%;
+      width: 20em;
       overflow: auto;
       white-space: nowrap;
+    }
+
+    #toc h1 {
+      margin: .5em;
+      padding: 1ex;
+      font-size: 90%;
+      font-weight: bold;
+      font-style: normal;
+      color: #333;
+      background-color: #eee;
+      text-align: center;
     }
 
     #toc ul {
       padding-left: 1em;
     }
 
-    #toc > li {
-      list-style: none;
-      margin-bottom: 1ex;
+    #toc > ul {
+      font-size: 80%;
+      margin: 0.5em;
     }
 
-    #toc > li > a {
+    #toc > ul > li {
+      list-style: none;
+      margin-bottom: 2ex;
+    }
+
+    #toc > ul > li > a {
       font-weight: bold;
+      color: #333;
+      display: block;
+      padding: 1ex;
+      margin: 0 1em 1ex 0;
+      border-bottom: 1px solid #999;
+    }
+
+    #toc li {
+      list-style-type: none;
     }
 
     :target {
@@ -115,16 +180,35 @@
       visibility: visible;
     }
 
+    .golodoc {
+      margin: 0;
+      padding: 0;
+      padding-left: 1.5em;
+    }
+
+    @media (max-width: 50em) {
+      #toc {
+        display: none;
+      }
+
+      body {
+        margin: 0;
+        padding: 0.5em;
+      }
+
+      h1 {
+        font-size: 200%;
+      }
+    }
+
   </style>
 </head>
 <body>
 <h1>Documentation for <%= doc: moduleName() %></h1>
-<div>
-  <%= process(doc: moduleDocumentation()) %>
-</div>
-
 <!-- begin table of content -->
-<ul id="toc">
+<nav id="toc">
+<h1><%= doc: moduleName() %></h1>
+<ul>
 
   <% if not doc: structs(): isEmpty() { %>
   <li><a href="#structs">Structs</a><ul>
@@ -150,7 +234,7 @@
     <li><a href="#<%= namedAugmentationDoc: name() %>"><%= namedAugmentationDoc: name()%></a><ul>
       <% foreach funcDoc in namedAugmentationDoc { %>
       <li><a href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%=
-              funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+              funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
       <% } %>
       </ul></li>
     <% } %>
@@ -163,7 +247,7 @@
     <li><a href="#augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %></a><ul>
       <% foreach funcDoc in augmentDoc { %>
       <li><a href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%=
-              funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+              funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
       <% } %>
     </ul></li>
     <% } %>
@@ -173,13 +257,18 @@
   <% if not doc: functions(): isEmpty() { %>
   <li><a href="#functions">Functions</a><ul>
     <% foreach funcDoc in doc: functions() { %>
-    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_")
+    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): size()
             %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
     <% } %>
   </ul></li>
   <% } %>
 </ul>
+</nav>
 <!-- end table of content -->
+
+<div class="golodoc">
+  <%= process(doc: moduleDocumentation(), 1, CONFIG) %>
+</div>
 
 <% if not doc: structs(): isEmpty() { %>
   <h2 id="structs">Structs</h2>
@@ -193,20 +282,20 @@
       <li><code><%= member %></code></li>
   <% } %>
     </ul>
-    <div>
-      <%= process(structDoc: documentation()) %>
+    <div class="golodoc">
+      <%= process(structDoc: documentation(), 3, CONFIG) %>
     </div>
   <% } %>
 <% } %>
 
 <% if not doc: unions(): isEmpty() { %>
   <h2 id="unions">Unions</h2>
-  <% foreach unionDoc in doc: unions() { %> 
+  <% foreach unionDoc in doc: unions() { %>
     <h3 id="<%= unionDoc: name() %>"><%= unionDoc: name() %>
     <a class="permalink" href="#<%= unionDoc: name() %>" title="link to this section">&#182;</a></h3>
-    
-    <div>
-    <%= process(unionDoc: documentation()) %>
+
+    <div class="golodoc">
+    <%= process(unionDoc: documentation(), 3, CONFIG) %>
     </div>
 
     <% foreach unionValueDoc in unionDoc: values() { %>
@@ -215,7 +304,7 @@
         <a class="permalink" href="#<%= unionDoc: name() %>.<%= unionValueDoc: name() %>"
             title="link to this section">&#182;</a>
     </h4>
-    
+
     <% if not unionValueDoc: members(): isEmpty() { %>
       <ul>
       <% foreach member in unionValueDoc: members() { %>
@@ -224,7 +313,7 @@
       </ul>
     <% } %>
 
-    <div><%= process(unionValueDoc: documentation()) %></div>
+    <div class="golodoc"><%= process(unionValueDoc: documentation(), 4, CONFIG) %></div>
 
     <% } %>
   <% } %>
@@ -236,18 +325,18 @@
     <h3 id="<%= namedAugmentationDoc: name()%>"><%= namedAugmentationDoc: name()%>
     <a class="permalink" href="#<%= namedAugmentationDoc: name()%>" title="link
     to this section">&#182;</a></h3>
-    <div>
-      <%= process(namedAugmentationDoc: documentation()) %>
+    <div class="golodoc">
+      <%= process(namedAugmentationDoc: documentation(), 3, CONFIG) %>
     </div>
     <% foreach funcDoc in namedAugmentationDoc { %>
       <% if funcDoc: varargs() { %>
-        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
+        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
       <% } else { %>
-        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
       <% } %>
-      <a class="permalink" href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
-      <div>
-        <%= process(funcDoc: documentation()) %>
+      <a class="permalink" href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h4>
+      <div class="golodoc">
+        <%= process(funcDoc: documentation(), 4, CONFIG) %>
       </div>
     <% } %>
   <% } %>
@@ -259,8 +348,8 @@
   <% foreach augmentDoc in doc: augmentations() { %>
     <h3 id="augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %>
     <a class="permalink" href="#augment.<%= augmentDoc: target() %>" title="link to this section">&#182;</a></h3>
-    <div>
-      <%= process(augmentDoc: documentation()) %>
+    <div class="golodoc">
+      <%= process(augmentDoc: documentation(), 3, CONFIG) %>
     </div>
     <% if not augmentDoc: augmentationNames(): isEmpty() { %>
       <h5>Named augmentations applied</h5>
@@ -278,13 +367,13 @@
     <% } %>
     <% foreach funcDoc in augmentDoc { %>
       <% if funcDoc: varargs() { %>
-        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
+        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
       <% } else { %>
-        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
       <% } %>
-      <a class="permalink" href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h4>
-      <div>
-        <%= process(funcDoc: documentation()) %>
+      <a class="permalink" href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h4>
+      <div class="golodoc">
+        <%= process(funcDoc: documentation(), 4, CONFIG) %>
       </div>
     <% } %>
   <% } %>
@@ -293,13 +382,18 @@
 <% if not doc: functions(): isEmpty() { %>
   <h2 id="functions">Functions</h2>
   <% foreach funcDoc in doc: functions() { %>
-    <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-    <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): join("_") %>" title="link to this section">&#182;</a></h3>
-    <div>
-      <%= process(funcDoc: documentation()) %>
+    <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
+    <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h3>
+    <div class="golodoc">
+      <%= process(funcDoc: documentation(), 3, CONFIG) %>
     </div>
   <% } %>
 <% } %>
+
+<link rel="stylesheet" href="http://golo-lang.org/documentation/next/styles/github.min.css"/>
+<script src="http://golo-lang.org/documentation/next/highlight.min.js"></script>
+<script>hljs.initHighlighting()</script>
+</body>
 
 </body>
 </html>

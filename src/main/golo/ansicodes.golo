@@ -1,6 +1,6 @@
 # ............................................................................................... #
 #
-# Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+# Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
 #
 # All rights reserved. This program and the accompanying materials
 # are made available under the terms of the Eclipse Public License v1.0
@@ -12,7 +12,9 @@
 ----
 This module provides helper functions to deal with ANSI escape codes for console outputs.
 
-All function names are self-explanatory. Note that `likelySupported` tests if the current
+All function names are self-explanatory. They _print_ the corresponding ANSI code.
+
+Note that [`likelySupported`](#likelySupported_0) tests if the current
 operating system is _likely_ to support ANSI codes. It merely checks that the host operating
 system is not MS Windows, which does not support ANSI codes without a 3rd-party driver.
 

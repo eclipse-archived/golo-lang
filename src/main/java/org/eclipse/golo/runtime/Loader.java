@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2015 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -37,7 +37,7 @@ public final class Loader implements Function<String, Class<?>> {
    * @param klass the class whose {@code ClassLoader} to use
    * @return a {@code Loader}
    * */
-  static Loader forClass(Class<?> klass) {
+  public static Loader forClass(Class<?> klass) {
     return new Loader(klass.getClassLoader());
   }
 
