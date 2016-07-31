@@ -16,8 +16,6 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import java.io.*;
 import java.util.*;
 
-import static java.lang.invoke.MethodType.methodType;
-
 public class Main {
 
   static class GlobalArguments {

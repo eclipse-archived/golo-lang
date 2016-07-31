@@ -21,6 +21,10 @@ local function should_be_hidden = |foo| -> foo
 ----
 Incredible: this makes a sum.
 
+# Example:
+
+    require(with_doc(18, 24) == 42, "err")
+
 Parameters:
 
 - `a`: first operand,

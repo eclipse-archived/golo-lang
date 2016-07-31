@@ -171,6 +171,85 @@ $
 
 Simple, isn't it?
 
+=== Running Golo script
+
+Golo provides a `shebang` command for running a Golo file as a simple script.
+
+[source,golo]
+----
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+the script above can be executed with:
+
+[source]
+----
+$ golo shebang hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+Naturally the main goal is to use this command to make the script self-executable:
+
+[source,golo]
+----
+#!/path/to/golo shebang
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+Now, we can run the script directly:
+
+----
+$ chmod +x hello.golo
+$ ./hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+NOTE: Golo also provides `golosh` script that is a shortcut for the `golo shebang` command, thus
+a golo script can be hasbanged with `env`:
+
+[source,golo]
+----
+#!/usr/bin/env golosh
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+NOTE: Each `golo` and `jar` files present in the script file's directory or the sub directories
+will be scaned.
+
+[source]
+----
+$ tree ./
+./
+└── libs
+    └── libA.jar
+    └── libB.jar
+└── commons
+    └── utils.golo
+    └── others.golo
+    └── vendors
+        └── otherlib.jar
+└── hello.golo
+└── library.golo
+$
+----
+
 === Passing JVM-specific flags
 
 Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment

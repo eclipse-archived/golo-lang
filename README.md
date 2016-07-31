@@ -79,7 +79,7 @@ and `build/generated/jjtree`.
 #### Netbeans
 
 Netbeans has
-[a recommended community-suppprted Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
+[a recommended community-supported Gradle plugin](https://github.com/kelemen/netbeans-gradle-project).
 
 It works with no required manual adjustment on the Golo code base in our tests.
 
