@@ -11,6 +11,8 @@ Editor and IDE support for Golo is available for:
 - https://github.com/k33g/golo-storm[IntelliJ IDEA (syntax highthing)]
 - https://github.com/golo-lang/gldt[Eclipse] (contributed by Jeff Maury)
 - https://github.com/golo-lang/golo-netbeans[Netbeans] (contributed by http://www.serli.com/[Serli])
+- https://atom.io/packages/golo-ide[Atom]
+- https://github.com/zyedidia/micro[Micro] (Gololang support for Micro is native)
 
 === Hello world
 
