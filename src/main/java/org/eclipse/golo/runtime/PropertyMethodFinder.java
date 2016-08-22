@@ -9,6 +9,7 @@
 
 package org.eclipse.golo.runtime;
 
+import gololang.Union;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Objects;
@@ -53,6 +54,9 @@ public class PropertyMethodFinder extends MethodFinder {
   }
 
   private MethodHandle findMethodForGetter() {
+    if(Union.class.isAssignableFrom(invocation.receiverClass())) {
+      return null;
+    }
     MethodHandle target = new RegularMethodFinder(
         propertyInvocation("get" + propertyName, invocation),
         lookup
@@ -85,6 +89,7 @@ public class PropertyMethodFinder extends MethodFinder {
         propertyInvocation("set" + propertyName, invocation),
         lookup)
         .findInMethods()
+        .filter(method -> !Union.class.isAssignableFrom(method.getDeclaringClass()))
         .map(this::fluentMethodHandle)
         .findFirst()
         .orElse(null);

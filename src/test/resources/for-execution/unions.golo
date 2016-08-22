@@ -208,6 +208,17 @@ function test_match_methods = {
   require(n: isNode(_,0), "err")
   require(n: isNode(_,_), "err")
 }
+# ............................................................................................... #
+
+union U = {
+  Abc = { abc }
+}
+
+function test_same_attribute_name = {
+  let abc = U.Abc("abc")
+  require(abc: abc() == "abc", "err")
+  require(abc: isAbc(), "err")
+}
 
 # ............................................................................................... #
 function main = |args| {
@@ -219,6 +230,7 @@ function main = |args| {
   test_singleton()
   test_not_instantiable()
   test_match_methods()
+  test_same_attribute_name()
 
   println("OK")
 }
