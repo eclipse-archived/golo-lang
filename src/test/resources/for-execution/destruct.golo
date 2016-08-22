@@ -130,6 +130,15 @@ function test_swap = {
   require(c == 1, "err")
 }
 
+# issue #391
+function test_destruct_affectation_inside_closure = {
+  let closure = {
+    let a, b = [1,2]
+    return a
+  }
+  require(closure() == 1, "err")
+}
+
 function main = |args| {
   test_tuple_samesize()
   test_tuple_rest()
