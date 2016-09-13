@@ -93,7 +93,7 @@ public class GoloParser {
     public String toString() {
       return "FunctionRef{module=" + module
                           + ",name=" + name
-                          + ",arity=" + arity 
+                          + ",arity=" + arity
                           + (varargs ? ",varargs" : "")
                           + "}";
     }
@@ -201,7 +201,7 @@ TOKEN :
   |
   < UNARY_OPERATOR: "not" >
   |
-  < INVOCATION: (":" | "?:") >
+  < INVOCATION_OPERATOR: (":" | "?:") >
   |
   < CONSTANT_INVOCATION: "!" >
 }
@@ -983,7 +983,7 @@ ASTDecoratorDeclaration DecoratorDeclaration():
   <DECORATOR>
   (constant=<CONSTANT_INVOCATION>)?
   (
-    LOOKAHEAD(2) FunctionInvocation()
+    LOOKAHEAD(2) InvocationExpression()
     |
     LOOKAHEAD(2) Reference()
   )
@@ -1152,7 +1152,7 @@ void InvocationExpression() #void:
 {
   Atom()
   (
-    LOOKAHEAD(2) (BlankLine())? token=<INVOCATION> (BlankLine())? MethodInvocation()
+    LOOKAHEAD(2) (BlankLine())? token=<INVOCATION_OPERATOR> (BlankLine())? MethodInvocation()
     {
       jjtThis.addOperator(token.image);
     }
@@ -1271,7 +1271,7 @@ void MethodInvocation():
   Token token;
 }
 {
-  token=<IDENTIFIER> "("  (BlankLine())? (Arguments())? ")"
+  token=<IDENTIFIER> Arguments()
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(token.image);
@@ -1532,11 +1532,6 @@ void Return(): {}
   <RETURN> (LOOKAHEAD(2) (BlankLine())? ExpressionStatement())?
 }
 
-void Expressions() #void: {}
-{
-  ExpressionStatement() ("," (BlankLine())? ExpressionStatement())*
-}
-
 void Argument():
 {
   Token parameterId = null;
@@ -1554,7 +1549,7 @@ void Argument():
 
 void Arguments() #void: {}
 {
-  Argument() ("," (BlankLine())? Argument())*
+  "(" (BlankLine())? (Argument() ("," (BlankLine())? Argument())*)? ")"
 }
 
 ASTAnonymousFunctionInvocation AnonymousFunctionInvocation():
@@ -1562,7 +1557,7 @@ ASTAnonymousFunctionInvocation AnonymousFunctionInvocation():
   Token constant = null;
 }
 {
-  (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Arguments())? ")"
+  (constant=<CONSTANT_INVOCATION>)? Arguments()
   {
     if (constant != null) {
       jjtThis.setConstant(true);
@@ -1577,7 +1572,7 @@ void FunctionInvocation():
   Token constant = null;
 }
 {
-  name=QualifiedName() (constant=<CONSTANT_INVOCATION>)? "(" (BlankLine())? (Arguments())? ")"
+  name=QualifiedName() (constant=<CONSTANT_INVOCATION>)? Arguments()
   (LOOKAHEAD(2) AnonymousFunctionInvocation())*
   {
     jjtThis.setName(name);

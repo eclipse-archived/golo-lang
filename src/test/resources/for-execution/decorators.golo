@@ -120,3 +120,14 @@ function test_struct_decorated_named_augmentation = {
 }
 
 function test_curryfied_function = -> curryfied(12)(30)
+
+@(|f| -> -> "simple" + f())
+local function plop_simple = -> "plop"
+
+function test_expr_decorator_simple = -> plop_simple()
+
+@(|msg| -> |f| -> |args| -> msg + f: invoke(args))("pre")
+local function plop = |m| -> "plop" + m
+
+function test_expr_decorator = -> plop("daplop")
+

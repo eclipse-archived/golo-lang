@@ -509,9 +509,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     List<String> argumentNames = visitInvocationArguments(functionInvocation);
     bootstrapArgs.addAll(argumentNames);
     methodVisitor.visitInvokeDynamicInsn(name, typeDef, handle, bootstrapArgs.toArray());
-    for (FunctionInvocation invocation : functionInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
   }
 
   @Override
@@ -525,9 +522,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         goloFunctionSignature(methodInvocation.getArity() + 1),
         METHOD_INVOCATION_HANDLE,
         bootstrapArgs.toArray());
-    for (FunctionInvocation invocation : methodInvocation.getAnonymousFunctionInvocations()) {
-      invocation.accept(this);
-    }
   }
 
   @Override
