@@ -70,6 +70,30 @@ public abstract class GoloElement {
     }
   }
 
+  protected GoloElement previousSiblingOf(GoloElement current) {
+    return null;
+  }
+
+  protected GoloElement nextSiblingOf(GoloElement current) {
+    return null;
+  }
+
+  public GoloElement getPreviousSibling() {
+    if (this.parent.isPresent()) {
+      return this.parent.get().previousSiblingOf(this);
+    } else {
+      return null;
+    }
+  }
+
+  public GoloElement getNextSibling() {
+    if (this.parent.isPresent()) {
+      return this.parent.get().nextSiblingOf(this);
+    } else {
+      return null;
+    }
+  }
+
   protected RuntimeException cantReplace() {
     return new UnsupportedOperationException(getClass().getName() + " can't replace elements");
   }

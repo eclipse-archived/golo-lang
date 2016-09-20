@@ -153,6 +153,12 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     construct.accept(this);
   }
 
+  /**
+   * Function reference expansion.
+   * <p>
+   * Replace a literal function reference {@code ^myfun} by a call to
+   * {@code gololang.Predefined.fun("myfun")}
+   */
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     constantStatement.walk(this);
