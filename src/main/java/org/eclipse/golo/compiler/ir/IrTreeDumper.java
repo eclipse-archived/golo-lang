@@ -457,4 +457,12 @@ public class IrTreeDumper implements GoloIrVisitor {
     namedArgument.getExpression().accept(this);
     decr();
   }
+
+  @Override
+  public void visitNoop(Noop noop) {
+    incr();
+    space();
+    System.out.println("Noop: " + noop.comment());
+    decr();
+  }
 }
