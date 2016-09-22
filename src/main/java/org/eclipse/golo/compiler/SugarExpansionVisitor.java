@@ -57,13 +57,15 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
   @Override
   public void visitFunctionInvocation(FunctionInvocation invocation) {
-    closureAsLastArgument(invocation);
+    specialLastArgument(invocation);
     invocation.walk(this);
   }
 
-  private void closureAsLastArgument(FunctionInvocation invocation) {
+  private void specialLastArgument(FunctionInvocation invocation) {
     GoloElement next = invocation.getNextSibling();
-    if (next != null && next instanceof ClosureReference) {
+    if (next != null
+        && (next instanceof ClosureReference
+          || next instanceof ConstantStatement)) {
       next.replaceInParentBy(null);
       invocation.withArgs(next);
     }
