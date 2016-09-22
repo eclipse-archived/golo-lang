@@ -111,11 +111,15 @@ public abstract class GoloElement {
   }
 
   public void replaceInParentBy(GoloElement newElement) {
+    GoloElement replacement = newElement;
+    if (newElement == null) {
+      replacement = new Noop(this.getClass().getSimpleName() + " was removed");
+    }
     if (this.parent.isPresent()) {
-      this.parent.get().replaceElement(this, newElement);
-      this.parent.get().makeParentOf(newElement);
+      this.parent.get().replaceElement(this, replacement);
+      this.parent.get().makeParentOf(replacement);
       if (hasASTNode()) {
-        getASTNode().setIrElement(newElement);
+        getASTNode().setIrElement(replacement);
       }
       this.setParentNode(null);
     }
