@@ -17,6 +17,8 @@ authors:
     affiliation: Univ Lyon, INSA Lyon, CITI, F-69621 Villeurbanne, France
   - name: Nicolas Stouls
     affiliation: Univ Lyon, INSA Lyon, CITI, F-69621 Villeurbanne, France
+  - name: Philippe Charrière
+    affiliation: GitHub, Inc.
 date: 23 September 2016
 bibliography: paper.bib
 ---
