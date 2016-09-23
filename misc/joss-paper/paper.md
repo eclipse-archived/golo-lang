@@ -21,6 +21,8 @@ authors:
     affiliation: GitHub, Inc.
   - name: Daniel Petisme
     affiliation: Manufacture Française des Pneumatiques Michelin
+  - name: Sylvain Desgrais
+    affiliation: Almerys
 date: 23 September 2016
 bibliography: paper.bib
 ---
