@@ -83,7 +83,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * have no way to decide if it should be the last argument of the current call (aside from the
    * line number, which is pretty fragile).
    */
-  private void specialLastArgument(FunctionInvocation invocation) {
+  private void specialLastArgument(AbstractInvocation invocation) {
     GoloElement next = invocation.getNextSibling();
     if (next != null
         && (next instanceof ClosureReference
