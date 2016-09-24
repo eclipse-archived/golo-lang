@@ -61,6 +61,13 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     invocation.walk(this);
   }
 
+  @Override
+  public void visitMethodInvocation(MethodInvocation invocation) {
+    specialLastArgument(invocation);
+    invocation.walk(this);
+  }
+
+
   /**
    * Adds the following node as the last argument of the invocation.
    * <p>
