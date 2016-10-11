@@ -1006,7 +1006,7 @@ void Statement() #void:{}
   |
   LOOKAHEAD(3) DestructuringAssignment()
   |
-  LOOKAHEAD(3) LetOrVar()
+  LOOKAHEAD(2) LetOrVar()
   |
   ExpressionStatement()
   |
