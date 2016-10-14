@@ -18,7 +18,7 @@ authors:
   - name: Nicolas Stouls
     affiliation: 1
   - name: Philippe Charrière
-    affiliation: 1
+    affiliation: 6
   - name: Daniel Petisme
     affiliation: 3
   - name: Sylvain Desgrais
@@ -36,6 +36,8 @@ affiliations:
     index: 4
   - name: Omada Health, Inc.
     index: 5
+  - name: GitHub, Inc.
+    index: 6
 date: 23 September 2016
 bibliography: paper.bib
 ---
