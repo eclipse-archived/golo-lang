@@ -10,21 +10,32 @@ tags:
 authors:
   - name: Julien Ponge
     orcid: 0000-0003-3452-9183
-    affiliation: Univ Lyon, INSA Lyon, CITI, F-69621 Villeurbanne, France
+    affiliation: 1
   - name: Yannick Loiseau
-    affiliation: Blaise Pascal University, LIMOS, F-63170 Aubière, France
+    affiliation: 2
   - name: Frédéric Le Mouël
-    affiliation: Univ Lyon, INSA Lyon, CITI, F-69621 Villeurbanne, France
+    affiliation: 1
   - name: Nicolas Stouls
-    affiliation: Univ Lyon, INSA Lyon, CITI, F-69621 Villeurbanne, France
+    affiliation: 1
   - name: Philippe Charrière
-    affiliation: GitHub, Inc.
+    affiliation: 1
   - name: Daniel Petisme
-    affiliation: Manufacture Française des Pneumatiques Michelin
+    affiliation: 3
   - name: Sylvain Desgrais
-    affiliation: Almerys
+    affiliation: 4
   - name: Franck Verrot
-    affiliation: Omada Health, Inc.
+    affiliation: 5
+affiliations:
+  - name: Univ Lyon, INSA Lyon, CITI, F-69621 Villeurbanne, France
+    index: 1
+  - name: Blaise Pascal University, LIMOS, F-63170 Aubière, France
+    index: 2
+  - name: Manufacture Française des Pneumatiques Michelin
+    index: 3
+  - name: Almerys
+    index: 4
+  - name: Omada Health, Inc.
+    index: 5
 date: 23 September 2016
 bibliography: paper.bib
 ---
