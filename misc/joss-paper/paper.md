@@ -46,9 +46,9 @@ bibliography: paper.bib
 
 Golo is a simple dynamically-typed programming language for the Java Virtual Machine (JVM) that has
 been designed to leverage the capabilities of the Java 7 invokedynamic bytecode instruction and
-java.lang.invoke API (JSR 292). Coupled with a minimal runtime that directly uses the Java SE API,
+java.lang.invoke API (JSR 292) [@Ponge:2013:GDL:2500828.2500844] [@Thalinger:2010:OI:1852761.1852763]. Coupled with a minimal runtime that directly uses the Java SE API,
 Golo is an interesting language for rapid prototyping, polyglot application embedding, research
 (e.g., runtime extensions, language prototyping) and teaching (e.g., programming, dynamic language
-runtime implementation).
+runtime implementation) [@Maingret:2015:TDC:2786545.2786552] [@DBLP:journals/corr/PongeMSL15].
 
 # References
