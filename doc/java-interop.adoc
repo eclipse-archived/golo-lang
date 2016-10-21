@@ -453,3 +453,19 @@ attempt to redefine an already defined class.
 
 CAUTION: Later in the glorious and glamorous future, Golo will have objects and not just functions.
 Be patient, it's coming in!
+
+=== Primitive Data Types
+
+`java.lang.Class` instances of primitive data types can be obtained as in Java way: `byte.class`, `short.class`, `int.class`, `long.class`, `float.class`, `double.class`, `boolean.class` and `char.class`.
+
+[TIP]
+====
+This could be useful for example to deal with primitive arrays:
+[source,golo]
+----
+# ...
+let buffer = newTypedArray(byte.class, 1024)
+let read = inputstream: read(buffer)
+# ...
+----
+====
