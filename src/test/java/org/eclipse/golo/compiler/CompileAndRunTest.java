@@ -37,6 +37,7 @@ import static org.eclipse.golo.internal.testing.TestUtils.runTests;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
@@ -2089,6 +2090,33 @@ public class CompileAndRunTest {
     assertThat((char) moduleClass.getMethod("escaped_double_quote_char").invoke(null), is('\"'));
     assertThat((String) moduleClass.getMethod("quote_string").invoke(null), is("'"));
     assertThat((String) moduleClass.getMethod("escaped_quote_string").invoke(null), is("\'"));
+  }
+
+  @Test
+  public void test_classes() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "classes.golo");
+
+    assertThat((Class) moduleClass.getMethod("char_class").invoke(null), equalTo(char.class));
+    assertThat((Class) moduleClass.getMethod("int_class").invoke(null), equalTo(int.class));
+    assertThat((Class) moduleClass.getMethod("long_class").invoke(null), equalTo(long.class));
+    assertThat((Class) moduleClass.getMethod("double_class").invoke(null), equalTo(double.class));
+    assertThat((Class) moduleClass.getMethod("byte_class").invoke(null), equalTo(byte.class));
+    assertThat((Class) moduleClass.getMethod("short_class").invoke(null), equalTo(short.class));
+    assertThat((Class) moduleClass.getMethod("float_class").invoke(null), equalTo(float.class));
+    assertThat((Class) moduleClass.getMethod("boolean_class").invoke(null), equalTo(boolean.class));
+
+    assertThat((Class) moduleClass.getMethod("arraylist_class").invoke(null), equalTo(ArrayList.class));
+    assertThat((Class) moduleClass.getMethod("concurrentlist_class").invoke(null), equalTo(CopyOnWriteArrayList.class));
+
+    try {
+      moduleClass.getMethod("unknown_class").invoke(null);
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getCause().getClass(), equalTo(BootstrapMethodError.class));
+      assertThat(e.getClass(), equalTo(InvocationTargetException.class));
+      assertThat(e.getCause().getCause().getClass(), equalTo(ClassNotFoundException.class));
+    }
+
   }
 
 }
