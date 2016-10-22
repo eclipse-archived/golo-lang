@@ -125,6 +125,32 @@ function toDynamicObject = |str| {
   return obj
 }
 
+----
+Returns a new dynamic object from a JSON string where each level entry is mapped into the
+dynamic object or array of dynamic objects:
+
+    let obj = JSON.toDynamicObject("""
+      {
+        "id":"bob",
+        "friends":[
+          {"name":"sam"}, {"name":"jane"}, {"name":"john"}
+        ],
+        "address": {
+          "street":"88 Colin P Kelly Jr St",
+          "city":"San Francisco",
+          "zip":"CA 94107",
+          "country":"United States"
+        }
+      }
+    """)
+
+    obj: friends(): get(2): name(): equals("john") # true
+    obj: address(): city(): equals("San Francisco") # true
+----
+function toDynamicObjectTree = |str| {
+  # > WIP
+}
+
 # ............................................................................................... #
 
 ----
