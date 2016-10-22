@@ -126,8 +126,8 @@ function toDynamicObject = |str| {
 }
 
 ----
-Returns a new dynamic object from a JSON string where each level entry is mapped into the
-dynamic object or array of dynamic objects:
+Returns a new dynamic object (or an array of dynamic objects) from a JSON string where each level entry is mapped into the
+dynamic object or an array of dynamic objects:
 
     let obj = JSON.toDynamicObject("""
       {
