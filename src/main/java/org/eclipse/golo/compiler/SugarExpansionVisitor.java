@@ -36,6 +36,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     for (GoloFunction f : functionsToAdd) {
       module.addFunction(f);
     }
+    // a module imports its own local types
+    module.addImport(moduleImport(module.getPackageAndClass() + ".types" ));
   }
 
   @Override
