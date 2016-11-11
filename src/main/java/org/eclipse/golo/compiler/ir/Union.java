@@ -34,7 +34,7 @@ public final class Union extends GoloElement {
   }
 
   public PackageAndClass getPackageAndClass() {
-    return new PackageAndClass(moduleName.toString() + ".types", name);
+    return moduleName.createSubPackage("types").createSubPackage(name);
   }
 
   public void setModuleName(PackageAndClass module) {
