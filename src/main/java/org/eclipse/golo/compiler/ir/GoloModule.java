@@ -62,7 +62,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
 
   public Set<ModuleImport> getImports() {
     Set<ModuleImport> imp = new LinkedHashSet<>();
-    imp.add(new ModuleImport(PackageAndClass.fromString(this.getPackageAndClass() + ".types"), true));
+    imp.add(new ModuleImport(this.getPackageAndClass().createSubPackage("types"), true));
     imp.addAll(imports);
     imp.addAll(DEFAULT_IMPORTS);
     return imp;

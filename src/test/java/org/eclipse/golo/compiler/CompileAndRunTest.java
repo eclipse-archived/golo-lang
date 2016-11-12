@@ -64,6 +64,7 @@ public class CompileAndRunTest {
     assertThat(imports, hasItem("java.lang.System"));
     assertThat(imports, hasItem("java.lang"));
     assertThat(imports, hasItem("golotest.execution.ImportsMetaData.types"));
+    assertThat(imports.get(0), is ("golotest.execution.ImportsMetaData.types"));
   }
 
   @Test
