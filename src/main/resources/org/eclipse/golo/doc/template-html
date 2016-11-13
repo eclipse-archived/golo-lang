@@ -9,7 +9,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 %>
 <html>
 <head>
-  <title>Documentation for <%= doc: moduleName() %></title>
+  <title><%= doc: moduleName() %> (Golo <%= doc: goloVersion() %>)</title>
   <meta charset="utf-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <style>
