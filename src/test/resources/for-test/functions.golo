@@ -123,7 +123,7 @@ function test_booleans = {
   assertEquals(`or(^gololang.Functions::id, ^gololang.Functions::id, true), true)
 
   assertEquals(`or(^gololang.Functions::id, ^gololang.Functions::id)(false), false)
-  assertEquals(`or(^gololang.Functions::id, ^gololang.Functions::not)(true), true) 
+  assertEquals(`or(^gololang.Functions::id, ^gololang.Functions::not)(true), true)
   assertEquals(`or(^gololang.Functions::id, ^gololang.Functions::not)(false), true)
 
   assertEquals(xor(true, true), false)
@@ -374,16 +374,21 @@ function test_io = {
 
   let i1 = io({l: add(1)})
   let i2 = io(|x| {l: add(x)})
+  let i3 = io(|x| {
+    l: add(x)
+    return x * 2
+  })
 
   let p = ^gololang.Functions::id
           : andThen(^gololang.Functions::succ)
           : andThen(i1)
           : andThen(i2)
+          : andThen(i3)
           : andThen(^gololang.Functions::succ)
 
   let r = p(1)
-  assertEquals(r, 3)
-  assertEquals(l, list[1, 2])
+  assertEquals(r, 5)
+  assertEquals(l, list[1, 2, 2])
 }
 
 function test_pipe = {
