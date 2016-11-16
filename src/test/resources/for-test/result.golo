@@ -247,6 +247,29 @@ function test_monadic = {
                Result(NumberFormatException("For input string: \"m\"")))
 }
 
+function test_catcher = {
+  let recover = catcher(|ex| -> match {
+    when ex oftype IllegalArgumentException.class then "default"
+    otherwise ex: toString()
+  })
+
+  assertEquals(recover({ return "answer" }), "answer")
+  assertEquals(recover({ throw IllegalArgumentException() }), "default")
+  assertEquals(recover({ raise("err") }), "java.lang.RuntimeException: err")
+}
+
+@!catcher
+function recoverIAE = |ex| -> match {
+  when ex oftype IllegalArgumentException.class then "default"
+  otherwise ex: toString()
+}
+
+function test_catcher_decorator = {
+  assertEquals(recoverIAE({ return "answer" }), "answer")
+  assertEquals(recoverIAE({ throw IllegalArgumentException() }), "default")
+  assertEquals(recoverIAE({ raise("err") }), "java.lang.RuntimeException: err")
+}
+
 # ........................................................................... #
 function main = |args| {
   test_and()
@@ -263,5 +286,7 @@ function main = |args| {
   test_applicative()
   test_imperative()
   test_monadic()
+  test_catcher()
+  test_catcher_decorator()
   println("ok")
 }
