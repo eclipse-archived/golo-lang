@@ -289,8 +289,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <a class="permalink" href="#<%= structDoc: name() %>" title="link to this section">&#182;</a></h3>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= structDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
 
     <h5>Members</h5>
@@ -312,8 +311,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <a class="permalink" href="#<%= unionDoc: name() %>" title="link to this section">&#182;</a></h3>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= unionDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
 
     <div class="golodoc">
@@ -349,8 +347,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     to this section">&#182;</a></h3>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= namedAugmentationDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
     <div class="golodoc">
       <%= process(namedAugmentationDoc: documentation(), 3, CONFIG) %>
@@ -364,8 +361,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       <a class="permalink" href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h4>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= funcDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
       <div class="golodoc">
         <%= process(funcDoc: documentation(), 4, CONFIG) %>
@@ -382,8 +378,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <a class="permalink" href="#augment.<%= augmentDoc: target() %>" title="link to this section">&#182;</a></h3>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= augmentDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
     <div class="golodoc">
       <%= process(augmentDoc: documentation(), 3, CONFIG) %>
@@ -411,8 +406,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       <a class="permalink" href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h4>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= funcDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
       <div class="golodoc">
         <%= process(funcDoc: documentation(), 4, CONFIG) %>
@@ -428,8 +422,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h3>
     <% if src isnt null { %>
     <nav class="srclink"><a href="<%= src %>#l-<%= funcDoc: line() %>"
-                            rel="source" title="link to the corresponding
-                            source">Source</a></nav>
+                            rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
     <div class="golodoc">
       <%= process(funcDoc: documentation(), 3, CONFIG) %>
