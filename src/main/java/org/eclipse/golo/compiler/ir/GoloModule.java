@@ -61,7 +61,9 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   public Set<ModuleImport> getImports() {
-    Set<ModuleImport> imp = new LinkedHashSet<>(imports);
+    Set<ModuleImport> imp = new LinkedHashSet<>();
+    imp.add(new ModuleImport(this.getPackageAndClass().createSubPackage("types"), true));
+    imp.addAll(imports);
     imp.addAll(DEFAULT_IMPORTS);
     return imp;
   }
@@ -179,7 +181,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (ModuleImport moduleImport : imports) {
+    for (ModuleImport moduleImport : getImports()) {
       moduleImport.accept(visitor);
     }
     for (Union union : unions) {
