@@ -100,11 +100,11 @@ public class CtagsProcessor extends AbstractProcessor {
                     valueDoc.hasMembers() ? "[:blank:]*=[:blank:]+{" : ""),
         String.format("e\tline:%s\tunion:%s", valueDoc.line(), unionName));
 
-    for (String member : valueDoc.members()) {
-      ctagsLine(member,
+    for (MemberDocumentation member : valueDoc.members()) {
+      ctagsLine(member.name(),
         String.format("/[:blank:]+%s[:blank:]+=/", valueDoc.name()),
         String.format("m\tline:%s\taccess:public\tvalue:%s",
-          valueDoc.line(),
+          member.line(),
           valueDoc.name()));
     }
   }
@@ -148,8 +148,8 @@ public class CtagsProcessor extends AbstractProcessor {
     }
     for (StructDocumentation struct : documentation.structs()) {
       ctagsStruct(struct.name(), struct.line());
-      for (String member : struct.members()) {
-        ctagsStructMember(struct.name(), member, struct.line());
+      for (MemberDocumentation member : struct.members()) {
+        ctagsStructMember(struct.name(), member.name(), member.line());
       }
     }
     for (UnionDocumentation unionDoc : documentation.unions()) {

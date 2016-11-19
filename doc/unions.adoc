@@ -157,7 +157,7 @@ testing its exact type, named `is<TypeName>`. In the tree example, three
 methods are defined: `isEmpty()`, `isLeaf()` and `isNode()`.
 In addition to these methods, a method with parameters is defined for every
 alternative with members, here `isLeaf(x)` and `isNode(x, y)`. The arguments
-are compared (in order) for equality to the members of the union value. 
+are compared (in order) for equality to the members of the union value.
 For instance:
 [source,golo]
 ----
@@ -168,7 +168,7 @@ allowing readable test and match clauses.
 
 A special singleton value is available to make these clauses even more
 readable: the `Unknown` value. This special singleton is considered equal to
-any other object (except `null`), and thus can be used is the parametrized test 
+any other object (except `null`), and thus can be used is the parametrized test
 methods to ignore some members. For instance, to match a `Node` with only one
 child, one can use:
 [source,golo]
@@ -181,6 +181,27 @@ function dealWithTree = |elt| -> match {
   otherwise ...
 }
 ----
+
+=== Default values
+
+Union values members can have default values, in the same way as <<struct-default-values,`struct`>>.
+For instance:
+
+[source,golo]
+----
+union List = {
+  Empty,
+  Cons = {head, tail=Empty()}
+}
+
+let l1 = Cons(42)
+let l2 = Cons(1337, l1)
+----
+
+Here, the `tail` of `l1` is `Empty`.
+
+As with `struct`, _dependant default values_ can be specified, with the same limitations.
+
 
 === Augmenting unions
 

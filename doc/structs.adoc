@@ -101,6 +101,7 @@ function main = |args| {
 }
 ----
 
+[[struct-curstom-factories]]
 === Custom factories
 
 Golo generates two factories for structures. One for the initial values of each member and
@@ -307,6 +308,60 @@ Private struct members also have the following impact:
 - they are being used like other members in `equals()` and `hashCode()`, and
 - they do not appear in `toString()` representations.
 
+
+[[struct-default-values]]
+=== Default values
+
+When declaring a `struct`, default values can be given for members. These values will be used to initialize instances when no explicit values are given. For instance:
+
+[source,golo]
+----
+module Test
+struct Foo = {a, b=42}
+
+# (...)
+
+println(Foo(0))
+println(Foo())
+----
+
+will print
+
+[source,golo]
+----
+struct Foo{a=0, b=42}
+struct Foo{a=null, b=42}
+----
+
+This is a shorthand equivalent to define <<struct-custom-factories,custom factories>> like:
+
+[source,golo]
+----
+function Foo = |a| -> Test.types.Foo(a, 42)
+function Foo = -> Test.types.Foo(null, 42)
+----
+
+Indeed, this is exactly what the compiler generates.
+
+One can also define _dependant default values_, where the value of a member is a function of one or more other member. For instance:
+
+[source,golo]
+----
+struct FooDepend = {a, b, c=a+b}
+# (...)
+println(FooDepend(15, 27))
+----
+
+will print `struct FooDepend{a=15, b=27, c=42}`. Any valid golo expression using other non-default members can be used.
+
+NOTE: This is not an checked invariant, but only a default initialization. If `c` must always be `a + b`, just create an <<struct-augmentation,augmentation>> to compute the value.
+
+WARNING: When using _dependant default values_, the default constructor, which usually initialize non default members to `null` will raise an exception, even if the default expression could deal with `null` values. It is always possible to define a custom factory to implement the required behavior.
+
+WARNING: A _dependant default value_ can't depend on a member having a default value itself. To create complex default logic, you are encouraged to create your own <<struct-custom-factory,custom factory>>.
+
+
+[[strct-augmentation]]
 === Augmenting structs
 
 Structs provide a simple data model, especially with private members for encapsulation.
