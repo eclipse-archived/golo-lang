@@ -13,7 +13,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Properties;
 
-final class Metadata {
+public final class Metadata {
 
   private Metadata() {
     // purely static class

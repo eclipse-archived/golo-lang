@@ -46,6 +46,10 @@ class ModuleDocumentation implements DocumentationElement {
     new ModuleVisitor().visit(compilationUnit, null);
   }
 
+  public String goloVersion() {
+    return org.eclipse.golo.cli.command.Metadata.VERSION;
+  }
+
   public SortedSet<StructDocumentation> structs() {
     return structs;
   }
