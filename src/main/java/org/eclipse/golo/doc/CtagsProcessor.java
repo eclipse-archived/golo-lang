@@ -182,7 +182,6 @@ public class CtagsProcessor extends AbstractProcessor {
     if (targetFolder.toString().equals("-")) {
       targetFile = targetFolder;
     } else {
-      ensureFolderExists(targetFolder);
       targetFile = targetFolder.resolve("tags");
     }
     ctags.clear();

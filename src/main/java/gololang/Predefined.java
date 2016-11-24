@@ -495,7 +495,9 @@ public final class Predefined {
   }
 
   /**
-   * Writes some text to a file. The file is created if it does not exist, and overwritten if it already exists.
+   * Writes some text to a file.
+   *
+   * The file and parents directories are created if they does not exist. The file is overwritten if it already exists. If the file is {@code "-"}, the content is written to standard output.
    *
    * @param text the text to write.
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
@@ -506,7 +508,8 @@ public final class Predefined {
 
   /**
    * Writes some text to a file using the given {@link Charset}.
-   * The file is created if it does not exist, and overwritten if it already exists.
+   *
+   * The file and parents directories are created if they does not exist. The file is overwritten if it already exists. If the file is {@code "-"}, the content is written to standard output.
    *
    * @param text the text to write.
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
@@ -522,10 +525,13 @@ public final class Predefined {
       encoding = (Charset) charset;
     }
     String str = (String) text;
-    Path path = pathFrom(file);
-    if ("-".equals(path.toString())) {
+    if ("-".equals(file.toString())) {
       System.out.write(str.getBytes(encoding));
     } else {
+      Path path = pathFrom(file);
+      if (path.getParent() != null) {
+        Files.createDirectories(path.getParent());
+      }
       Files.write(
           path,
           str.getBytes(encoding),

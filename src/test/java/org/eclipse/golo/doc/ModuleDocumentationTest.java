@@ -36,7 +36,7 @@ public class ModuleDocumentationTest {
 
   @Test
   public void checkModule() throws Throwable {
-    assertThat(doc.moduleName(), is("Documented"));
+    assertThat(doc.moduleName(), is("my.package.Documented"));
     assertThat(doc.moduleDocumentation(), containsString("    let foo = \"bar\""));
     assertThat(doc.moduleDefLine(), is(1)); //Module doc is part of the module node
   }

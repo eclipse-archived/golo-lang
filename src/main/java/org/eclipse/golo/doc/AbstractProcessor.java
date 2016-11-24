@@ -13,15 +13,17 @@ import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
 import org.eclipse.golo.compiler.parser.ASTModuleDeclaration;
 import gololang.FunctionReference;
 import gololang.TemplateEngine;
+import gololang.Predefined;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeSet;
 
 public abstract class AbstractProcessor {
 
@@ -31,6 +33,29 @@ public abstract class AbstractProcessor {
 
   private TemplateEngine templateEngine = new TemplateEngine();
   private HashMap<String, FunctionReference> templateCache = new HashMap<>();
+
+  private Path targetFolder;
+  private Set<ModuleDocumentation> modules = new TreeSet<>();
+
+  public void setTargetFolder(Path target) {
+    this.targetFolder = target.toAbsolutePath();
+  }
+
+  public Path getTargetFolder() {
+    return this.targetFolder;
+  }
+
+  public Set<ModuleDocumentation> modules() {
+    return modules;
+  }
+
+  protected void addModule(ModuleDocumentation module) {
+    modules.add(module);
+  }
+
+  protected String fileExtension() {
+    return "";
+  }
 
   protected FunctionReference template(String name, String format) throws IOException {
     String key = name + "-" + format;
@@ -54,18 +79,55 @@ public abstract class AbstractProcessor {
     }
   }
 
-  protected void ensureFolderExists(Path path) throws IOException {
-    if (path != null) {
-      Files.createDirectories(path);
+  public Path outputFile(String name) {
+    if (targetFolder == null) {
+      throw new IllegalStateException("no target folder defined");
     }
+    return targetFolder.resolve(name.replace('.', '/')
+        + (fileExtension().isEmpty() ? "" : ("." + fileExtension())));
   }
 
-  protected Path outputFile(Path targetFolder, String moduleName, String extension) {
-    return targetFolder.resolve(moduleName.replace('.', '/') + extension);
+  /**
+   * Return the absolute path of the file containing the given element.
+   */
+  public Path docFile(DocumentationElement doc) {
+    DocumentationElement parent = doc;
+    while (parent.parent() != parent) {
+      parent = parent.parent();
+    }
+    return outputFile(parent.name());
+  }
+
+  /**
+   * Returns the link to the given filename from the given document.
+   */
+  public String linkToFile(DocumentationElement src, String dst) {
+    Path doc = docFile(src);
+    if (doc.getParent() != null) {
+      doc = doc.getParent();
+    }
+    return doc.relativize(outputFile(dst)).toString();
+  }
+
+  /**
+   * Returns the link to the given filename from the given filename.
+   */
+  public String linkToFile(String src, String dst) {
+    Path out = outputFile(src);
+    if (out.getParent() != null) {
+      out = out.getParent();
+    }
+    return out.relativize(outputFile(dst)).toString();
   }
 
   protected String moduleName(ASTCompilationUnit unit) {
     return ((ASTModuleDeclaration) unit.jjtGetChild(0)).getName();
+  }
+
+  protected void renderIndex(String templateName) throws Throwable {
+    FunctionReference indexTemplate = template(templateName, fileExtension());
+    String index = (String) indexTemplate.invoke(this);
+    Predefined.textToFile(index, outputFile(templateName));
   }
 
   /**
@@ -96,5 +158,4 @@ public abstract class AbstractProcessor {
     }
     return output.toString();
   }
-
 }

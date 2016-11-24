@@ -45,14 +45,28 @@ public interface CliCommand {
   }
 
   default void handleCompilationException(GoloCompilationException e, boolean exit) {
+    handleThrowable(e, false);
+    for (GoloCompilationException.Problem problem : e.getProblems()) {
+      System.out.println("[error] " + problem.getDescription());
+    }
+    if (exit) {
+      System.exit(1);
+    }
+  }
+
+  default void handleThrowable(Throwable e) {
+    handleThrowable(e, true);
+  }
+
+  default void handleThrowable(Throwable e, boolean exit) {
     if (e.getMessage() != null) {
       System.out.println("[error] " + e.getMessage());
     }
     if (e.getCause() != null) {
       System.out.println("[error] " + e.getCause().getMessage());
     }
-    for (GoloCompilationException.Problem problem : e.getProblems()) {
-      System.out.println("[error] " + problem.getDescription());
+    if ("yes".equals(System.getenv("GOLO_DEBUG"))) {
+      e.printStackTrace();
     }
     if (exit) {
       System.exit(1);
