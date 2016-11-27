@@ -25,22 +25,46 @@ import com.github.rjeschke.txtmark.Processor;
 
 public class HtmlProcessor extends AbstractProcessor {
 
+  private String moduleName;
+  private Path targetFolder;
+  private Path srcFile;
+
+
   @Override
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     FunctionReference template = template("template", "html");
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    return (String) template.handle().invokeWithArguments(documentation);
+    return (String) template.handle().invokeWithArguments(documentation, srcFile);
+  }
+
+  private String renderSource(String filename) throws Throwable {
+    FunctionReference template = template("src", "html");
+    String content = (String) Predefined.fileToText(filename, "UTF-8");
+    int nbLines = 0;
+    for (int i = 0; i < content.length(); i++) {
+      if (content.charAt(i) == '\n') {
+        nbLines++;
+      }
+    }
+    return (String) template.handle().invokeWithArguments(moduleName, content, nbLines);
+  }
+
+  private Path createFile(String ext, String content) throws Throwable {
+    Path outFile = outputFile(this.targetFolder, this.moduleName, "." + ext);
+    ensureFolderExists(outFile.getParent());
+    Predefined.textToFile(content, outFile);
+    return outFile;
   }
 
   @Override
   public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
+    this.targetFolder = targetFolder;
     TreeMap<String, String> moduleDocFile = new TreeMap<>();
     ensureFolderExists(targetFolder);
-    for (ASTCompilationUnit unit : units.values()) {
-      String moduleName = moduleName(unit);
-      Path docFile = outputFile(targetFolder, moduleName, ".html");
-      ensureFolderExists(docFile.getParent());
-      Predefined.textToFile(render(unit), docFile);
+    for (Map.Entry<String, ASTCompilationUnit> unit : units.entrySet()) {
+      this.moduleName = moduleName(unit.getValue());
+      srcFile = createFile("src.html", renderSource(unit.getKey()));
+      Path docFile = createFile("html", render(unit.getValue()));
       moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
     }
     FunctionReference indexTemplate = template("index", "html");

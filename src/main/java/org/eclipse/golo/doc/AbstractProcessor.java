@@ -37,7 +37,7 @@ public abstract class AbstractProcessor {
     if (templateCache.containsKey(key)) {
       return templateCache.get(key);
     }
-    InputStream in = AbstractProcessor.class.getResourceAsStream("/org/eclipse/golo/doc/" + name + "-" + format);
+    InputStream in = AbstractProcessor.class.getResourceAsStream("/org/eclipse/golo/doc/" + key);
     if (in == null) {
       throw new IllegalArgumentException("There is no template " + name + " for format: " + format);
     }
