@@ -53,6 +53,14 @@ tasks.withType(JavaCompile) {
 
 // .................................................................................................................. //
 
+compileJjtree {
+  outputDirectory = file("$rootProject.projectDir/src/main/generated")
+}
+
+compileJavacc {
+  outputDirectory = file("$rootProject.projectDir/src/main/generated")
+}
+
 sourceSets {
   main {
     java {

@@ -14,3 +14,4 @@ tags
 build/
 .gradle/
 /.nb-gradle/
+src/main/generated
