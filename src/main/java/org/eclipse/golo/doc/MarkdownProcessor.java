@@ -23,7 +23,7 @@ public class MarkdownProcessor extends AbstractProcessor {
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     FunctionReference template = template("template", "markdown");
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    return (String) template.handle().invokeWithArguments(documentation);
+    return (String) template.invoke(documentation);
   }
 
   @Override
@@ -38,7 +38,7 @@ public class MarkdownProcessor extends AbstractProcessor {
       moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
     }
     FunctionReference indexTemplate = template("index", "markdown");
-    String index = (String) indexTemplate.handle().invokeWithArguments(moduleDocFile);
+    String index = (String) indexTemplate.invoke(moduleDocFile);
     Predefined.textToFile(index, targetFolder.resolve("index.markdown"));
   }
 }

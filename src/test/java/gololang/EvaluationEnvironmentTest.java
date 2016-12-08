@@ -54,7 +54,7 @@ public class EvaluationEnvironmentTest {
     assertThat(result, instanceOf(FunctionReference.class));
 
     FunctionReference func = (FunctionReference) result;
-    assertThat((Integer) func.handle().invoke(), is(3));
+    assertThat((Integer) func.invoke(), is(3));
   }
 
   @Test
@@ -65,8 +65,8 @@ public class EvaluationEnvironmentTest {
     assertThat(result, instanceOf(FunctionReference.class));
     FunctionReference func = (FunctionReference) result;
 
-    assertThat(func.type().parameterCount(), is(2));
-    assertThat((Integer) func.handle().invoke(10, 5), is(15));
+    assertThat(func.arity(), is(2));
+    assertThat((Integer) func.invoke(10, 5), is(15));
   }
 
   @Test
@@ -123,8 +123,8 @@ public class EvaluationEnvironmentTest {
     Object result = env.def(code);
     assertThat(result, instanceOf(FunctionReference.class));
     FunctionReference func = (FunctionReference) result;
-    assertThat(func.type().parameterCount(), is(2));
-    assertThat((Integer) func.handle().invoke(10, 5), is(15));
+    assertThat(func.arity(), is(2));
+    assertThat((Integer) func.invoke(10, 5), is(15));
   }
 
   @Test
