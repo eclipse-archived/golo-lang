@@ -213,7 +213,7 @@ augment java.util.Optional {
         require(isClosure(f), "The optional must contain a function to be applied")
         return match {
           when arg: isNone() then arg
-          when f: type(): parameterCount() > 1 then Some(f: bindTo(arg: get()))
+          when f: arity() > 1 then Some(f: bindTo(arg: get()))
           otherwise Some(f: invoke(arg: get()))
         }
       }

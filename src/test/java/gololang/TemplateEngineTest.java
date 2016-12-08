@@ -12,7 +12,6 @@ package gololang;
 import org.testng.SkipException;
 import org.testng.annotations.Test;
 
-import java.lang.invoke.MethodHandle;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
@@ -37,8 +36,8 @@ public class TemplateEngineTest {
     }
     TemplateEngine engine = new TemplateEngine();
     FunctionReference tpl = engine.compile("<%= params: getOrElse(\"a\", \"n/a\")%>!");
-    assertThat((String) tpl.handle().invoke(Collections.emptyMap()), is("n/a!"));
-    assertThat((String) tpl.handle().invoke(new TreeMap<String, String>() {
+    assertThat((String) tpl.invoke(Collections.emptyMap()), is("n/a!"));
+    assertThat((String) tpl.invoke(new TreeMap<String, String>() {
       {
         put("a", "Plop!");
       }
@@ -65,7 +64,7 @@ public class TemplateEngineTest {
         "<% } %>\n";
     TemplateEngine engine = new TemplateEngine();
     FunctionReference tpl = engine.compile(template);
-    assertThat((String) tpl.handle().invoke(params), is(
+    assertThat((String) tpl.invoke(params), is(
         "People:\n" +
         "- Julien\n" +
         "- Mr Bean\n" +
@@ -77,8 +76,8 @@ public class TemplateEngineTest {
     TemplateEngine engine = new TemplateEngine();
     String template = "<%@params foo, bar %>=<%= foo + bar %>";
     FunctionReference tpl = engine.compile(template);
-    assertThat(tpl.type().parameterCount(), is(2));
-    assertThat((String) tpl.handle().invoke(1, 2), is("=3"));
+    assertThat(tpl.arity(), is(2));
+    assertThat((String) tpl.invoke(1, 2), is("=3"));
   }
 
   @Test
@@ -94,6 +93,6 @@ public class TemplateEngineTest {
     TemplateEngine engine = new TemplateEngine();
     String template = "<%@params url %><a href=\"<%= url %>\">Link</a>";
     FunctionReference tpl = engine.compile(template);
-    assertThat((String) tpl.handle().invoke("http://foo.bar/"), is("<a href=\"http://foo.bar/\">Link</a>"));
+    assertThat((String) tpl.invoke("http://foo.bar/"), is("<a href=\"http://foo.bar/\">Link</a>"));
   }
 }

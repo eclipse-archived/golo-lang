@@ -34,7 +34,7 @@ public class HtmlProcessor extends AbstractProcessor {
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
     FunctionReference template = template("template", "html");
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
-    return (String) template.handle().invokeWithArguments(documentation, srcFile);
+    return (String) template.invoke(documentation, srcFile);
   }
 
   private String renderSource(String filename) throws Throwable {
@@ -46,7 +46,7 @@ public class HtmlProcessor extends AbstractProcessor {
         nbLines++;
       }
     }
-    return (String) template.handle().invokeWithArguments(moduleName, content, nbLines);
+    return (String) template.invoke(moduleName, content, nbLines);
   }
 
   private Path createFile(String ext, String content) throws Throwable {
@@ -68,7 +68,7 @@ public class HtmlProcessor extends AbstractProcessor {
       moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
     }
     FunctionReference indexTemplate = template("index", "html");
-    String index = (String) indexTemplate.handle().invokeWithArguments(moduleDocFile);
+    String index = (String) indexTemplate.invoke(moduleDocFile);
     Predefined.textToFile(index, targetFolder.resolve("index.html"));
   }
 

@@ -13,7 +13,6 @@ import org.testng.annotations.Test;
 
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
-import java.lang.invoke.MethodType;
 import java.util.Arrays;
 import java.util.stream.Collectors;
 
@@ -44,11 +43,20 @@ public class FunctionReferenceTest {
       }
       return head + Arrays.stream(tail).collect(Collectors.joining());
     }
+
+    public static Object collectAny(Object... a) {
+      String[] r = new String[a.length];
+      for (int i = 0; i < a.length; i++) {
+        r[i] = (String) a[i];
+      }
+      return Arrays.stream(r).collect(Collectors.joining());
+    }
   }
 
   private static final MethodHandle ping;
   private static final MethodHandle collect;
   private static final MethodHandle collectN;
+  private static final MethodHandle collectAny;
 
   static {
     try {
@@ -56,6 +64,7 @@ public class FunctionReferenceTest {
       ping = lookup.findStatic(Foo.class, "ping", genericMethodType(1));
       collect = lookup.findStatic(Foo.class, "collect", genericMethodType(3));
       collectN = lookup.findStatic(Foo.class, "collectN", genericMethodType(1, true));
+      collectAny = lookup.findStatic(Foo.class, "collectAny", genericMethodType(0, true));
     } catch (NoSuchMethodException | IllegalAccessException e) {
       throw new IllegalStateException(e);
     }
@@ -91,10 +100,16 @@ public class FunctionReferenceTest {
   public void andThen() throws Throwable {
     FunctionReference fun = new FunctionReference(ping).andThen(new FunctionReference(ping));
     assertThat(fun.invoke("Plop"), is("Plop"));
+
+    fun = new FunctionReference(ping).andThen(new FunctionReference(collectN));
+    assertThat(fun.invoke("Plop"), is("Plop"));
+
+    fun = new FunctionReference(ping).andThen(new FunctionReference(collectAny));
+    assertThat(fun.invoke("Plop"), is("Plop"));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class, expectedExceptionsMessageRegExp = ".*1 parameter.*")
   public void andThen_bad_arity() throws Throwable {
-    new FunctionReference(ping).andThen(new FunctionReference(collectN));
+    new FunctionReference(ping).andThen(new FunctionReference(collect));
   }
 }
