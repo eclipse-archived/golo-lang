@@ -139,6 +139,7 @@ processResources {
   filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
     'version': version,
     'golo.version': version,
+    'gradle-plugin.version': '0.6',
     'timestamp': versioning.info.full
   ])
 }
