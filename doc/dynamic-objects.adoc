@@ -12,6 +12,13 @@ Creating a dynamic object is as simple as calling the `DynamicObject` function:
 let foo = DynamicObject()
 ----
 
+A dynamic object can also be tagged using an arbitrary value as its kind. To create a tagged dynamic object, simply use a value in the constructor:
+
+[source,golo]
+----
+let bar = DynamicObject("Bar")
+----
+
 Dynamic objects have the following *reserved* methods, that is, methods that you cannot override:
 
 - `define(name, value)` allows to define an object property, which can be either a value or a
@@ -25,7 +32,34 @@ Dynamic objects have the following *reserved* methods, that is, methods that you
 - `properties()` gives the set of entries in the dynamic object, and
 - `hasMethod(name)` checks if a method is defined or not in the dynamic object, and
 - `invoker(name, type)` which is mostly used by the Golo runtime internals, and
+- `hasKind(value)` tests if the dynamic object is tagged with this value, and
+- `sameKind(other)` tests if two dynamic objects have the same kind, and
+- `toString()` returns a string representation of this dynamic object, showing its kind and defined fields that are not methods, and
 - `fallback(handler)` defines a fallback behavior for property invocation.
+
+=== Kind of dynamic objects
+
+The kind of a dynamic object can be any value. The more typical values are strings and unions (enumerations). This value is used by the `toString()`  method to display a more specific representation of the object, and defaults to the string `"DynamicObject"`. By using the two predefined methods `hasKind(value)` and `sameKind(other)`, it is possible to test for the kind of a dynamic object. Note that the kind of a created object can't be changed.
+
+[source,golo]
+----
+function Person = |name, age| -> DynamicObject("Person")
+    : name(name)
+    : age(age)
+    : define("marry", |this, other| {
+      require(this: sameKind(other), "Can only marry a person")
+      this: spouse(other)
+      other: spouse(this)
+    })
+
+function printAge = |obj| {
+  if (obj: hasKind("Person")) {
+    println(obj: age())
+  } else {
+    println("I have no age")
+  }
+}
+----
 
 === Defining values
 
@@ -73,15 +107,15 @@ Here is an example where we define a `toString`-style of method:
 local function mrbean = -> DynamicObject():
   name("Mr Bean"):
   email("mrbean@gmail.com"):
-  define("toString", |this| -> this: name() + " <" + this: email() + ">")
+  define("display", |this| -> this: name() + " <" + this: email() + ">")
 
 function main = |args| {
 
   let bean = mrbean()
-  println(bean: toString())
+  println(bean: display())
 
   bean: email("mrbean@outlook.com")
-  println(bean: toString())
+  println(bean: display())
 }
 ----
 
