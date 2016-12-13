@@ -178,6 +178,20 @@ Dispatch failed for method: casperGetter, with args:
 Dispatch failed for method: casperMethod, with args: foo bar
 ----
 
+A `delegate` function is available to ease defining a fallback function that delegates on another dynamic object. For instance:
+
+[source,golo]
+----
+let t = DynamicObject("deleguee")
+  : name("Zaphod")
+  : define("sayHello", |this| -> "Hello, I'm " + this: name())
+
+let s = DynamicObject("withFallback")
+  : fallback(DynamicObject.delegate(t))
+
+require(s: sayHello() == "Hello, I'm Zaphod", "error")
+----
+
 === Kind of dynamic objects
 
 The kind of a dynamic object can be any value. The more typical values are strings and unions (enumerations). This value is used by the `toString()`  method to display a more specific representation of the object, and defaults to the string `"DynamicObject"`. By using the two predefined methods `hasKind(value)` and `sameKind(other)`, it is possible to test for the kind of a dynamic object. Note that the kind of a created object can't be changed.

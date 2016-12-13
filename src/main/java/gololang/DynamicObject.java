@@ -230,7 +230,43 @@ public final class DynamicObject {
         }
       }
     }
+    // XXX: should we try the fallback method here ?
     return object.define(property, arg);
+  }
+
+  /**
+   * Dispatches on another dynamic object (fallback helper).
+   *
+   * @param deleguee the object to delegate to.
+   * @param receiver the receiver object.
+   * @param property the method property in the dynamic object.
+   * @param args     the arguments.
+   * @return the return value.
+   * @throws Throwable in case everything is wrong.
+   */
+  public static Object dispatchDelegate(DynamicObject deleguee, DynamicObject receiver, String property, Object... args) throws Throwable {
+    return deleguee
+      .invoker(property, genericMethodType(args.length + 1))
+      .bindTo(deleguee)
+      .invokeWithArguments(args);
+  }
+
+  /**
+   * Creates a function suitable for the {@fallback} property delegating to the given dynamic object.
+   *
+   * Example:
+   * <code><pre>
+   * let d = DynamicObject(): name("Zaphod")
+   * let o = DynamicObject(): fallback(delegate(d))
+   * </pre></code>
+   *
+   * @param deleguee the object to delegate to.
+   * @return a function delegating to {@code deleguee}
+   */
+  public static FunctionReference delegate(DynamicObject deleguee) {
+    return new FunctionReference(
+        DISPATCH_DELEGATE.bindTo(deleguee).asVarargsCollector(Object[].class), //.asType(genericMethodType(2, true)),
+        new String[]{"this", "name", "args"});
   }
 
   /**
@@ -300,10 +336,13 @@ public final class DynamicObject {
   public static final MethodHandle DISPATCH_CALL;
   public static final MethodHandle DISPATCH_GET;
   public static final MethodHandle DISPATCH_SET;
+  public static final MethodHandle DISPATCH_DELEGATE;
 
   static {
     MethodHandles.Lookup lookup = MethodHandles.lookup();
     try {
+      DISPATCH_DELEGATE = lookup.findStatic(DynamicObject.class, "dispatchDelegate",
+          methodType(Object.class, DynamicObject.class, DynamicObject.class, String.class, Object[].class));
       DISPATCH_CALL = lookup.findStatic(DynamicObject.class, "dispatchCall", methodType(Object.class, String.class, Object[].class));
       DISPATCH_GET = lookup.findStatic(DynamicObject.class, "dispatchGetterStyle", methodType(Object.class, String.class, DynamicObject.class));
       DISPATCH_SET = lookup.findStatic(DynamicObject.class, "dispatchSetterStyle", methodType(Object.class, String.class, DynamicObject.class, Object.class));

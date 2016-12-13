@@ -1161,6 +1161,9 @@ public class CompileAndRunTest {
 
     Method checkToString = moduleClass.getMethod("checkToString");
     assertThat((Boolean) checkToString.invoke(null), is(true));
+
+    Method checkDelegate = moduleClass.getMethod("checkDelegate");
+    assertThat((Boolean) checkDelegate.invoke(null), is(true));
   }
 
   @Test
