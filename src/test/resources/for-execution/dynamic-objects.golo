@@ -113,3 +113,22 @@ function with_varargs = {
 
   return result: toString()
 }
+
+function kinds = {
+  let t = DynamicObject("Foo")
+
+  require(t: hasKind("Foo"), "err with good hasKind")
+  require(not t: hasKind("Plop"), "err with bad hasKind")
+  require(t: sameKind(DynamicObject("Foo")), "err with good sameKind")
+  require(not t: sameKind(DynamicObject("Plop")), "err with bad sameKind")
+  return true
+}
+
+function checkToString = {
+  let t = DynamicObject("Foo"): name("bar")
+  require(t: toString() == "Foo{name=bar}", "err in default toString")
+
+  t: define("toString", |this| -> "I'm a Foo named "+ this: name())
+  require(t: toString() == "I'm a Foo named bar", "err in redefined toString")
+  return true
+}

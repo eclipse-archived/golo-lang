@@ -1155,6 +1155,12 @@ public class CompileAndRunTest {
 
     Method with_varargs = moduleClass.getMethod("with_varargs");
     assertThat((String) with_varargs.invoke(null), is("||@1|@2@3|@4@5|[foo]@1[foo]@2@3[foo]@4@5[foo][fallback:jhon_doe][fallback:jhon_doe]@2@3"));
+
+    Method kinds = moduleClass.getMethod("kinds");
+    assertThat((Boolean) kinds.invoke(null), is(true));
+
+    Method checkToString = moduleClass.getMethod("checkToString");
+    assertThat((Boolean) checkToString.invoke(null), is(true));
   }
 
   @Test
