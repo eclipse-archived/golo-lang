@@ -1,13 +1,13 @@
 == Misc. modules
 
-Not everything fits into the main documentation. We encourage you to also look at the _javadocs_
-and _golodocs_.
+Not everything fits into the main documentation. We encourage you to also look at the
+link:{javadoc}/[_javadocs_] and link:{golodoc}/[_golodocs_].
 
 The next subsections provide summaries of misc. modules found as part of Golo.
 
 === Standard augmentations (`gololang.StandardAugmentations`)
 
-This Golo module provides standard augmentations for various classes of the Java standard classes
+This link:{golodoc}/gololang/StandardAugmentations[Golo module] provides standard augmentations for various classes of the Java standard classes
 and Golo types. It does not have to be imported explicitely.
 
 Here are a few examples.
@@ -41,7 +41,7 @@ Repeat an operation many times:
 Golo includes the https://code.google.com/p/json-simple/[JSON Simple] library to provide JSON
 support.
 
-While `json-simple` only supports encoding from lists and maps, this API brings support for sets,
+While `json-simple` only supports encoding from lists and maps, this link:{golodoc}/gololang.JSON[API] brings support for sets,
 arrays, Golo tuples, dynamic objects and structs.
 
 Given a simple data structure, we can obtain a JSON representation:
@@ -71,7 +71,7 @@ with both dynamic objects and structs.
 
 === Scala-like dynamic variable (`gololang.DynamicVariable`)
 
-Golo has a `DynamicVariable` type that mimics the eponymous class from the Scala standard library.
+Golo has a link:{golodoc}/gololang/DynamicVariable[`DynamicVariable`] type that mimics the eponymous class from the Scala standard library.
 
 A dynamic variable has inheritable thread-local semantics: updates to its value are confined to the
 current thread and its future child threads.
@@ -80,26 +80,7 @@ Given the following code:
 
 [source,golo]
 ----
-let dyn = DynamicVariable("Foo")
-println(dyn: value())
-
-let t1 = Thread({
-  dyn: withValue(666, {
-    println(dyn: value())
-  })
-})
-
-let t2 = Thread({
-  dyn: withValue(69, {
-    println(dyn: value())
-  })
-})
-
-t1: start()
-t2: start()
-t1: join()
-t2: join()
-println(dyn: value())
+include::{samples-dir}/util-containers.golo[tag=dynamicvariable,indent=0]
 ----
 
 one gets an output similar to:
@@ -115,18 +96,12 @@ with the `69` and `666` swapping order over runs.
 
 === Observable references (`gololang.Observable`)
 
-An observable value notifies observers of updates in a thread-safe manner. An observable can also be
+An link:{golodoc}/gololang/Observable[observable] value notifies observers of updates in a thread-safe manner. An observable can also be
 constructed from another observable using the `map` and `filter` combinators:
 
 [source,golo]
 ----
-let foo = Observable("Foo")
-foo: onChange(|v| -> println("foo = " + v))
-
-let mapped = foo: map(|v| -> v + "!")
-mapped: onChange(|v| -> println("mapped = " + v))
-
-foo: set("69")
+include::{samples-dir}/util-containers.golo[tag=observable,indent=0]
 ----
 
 This yields the following output:
@@ -138,7 +113,7 @@ mapped = 69!
 
 === Asynchronous programming helpers (`gololang.Async`)
 
-This module offers asynchronous programming helpers, especially execution context agnostic promises
+This link:{golodoc}/gololang.Async[module] offers asynchronous programming helpers, especially execution context agnostic promises
 and futures. The provided APIs are orthogonal to the execution strategy: it is up to you to execute
 code from the same thread, from a separate thread, or by pushing new tasks to a service executor.
 
@@ -176,9 +151,9 @@ This example takes advantages of an executor augmentation and composable promise
 compute Fibonacci numbers.
 
 
-=== Lazy lists (`gololang.lazylist`)
+=== Lazy lists (`gololang.LazyLists`)
 
-This module defines a lazy list structure, as well as some utilities to work
+This link:{golodoc}/gololang/LazyLists[module] defines a lazy list structure, as well as some utilities to work
 with it.
 
 A lazy list behaves like an _immutable_ linked list whose elements are evaluated
@@ -219,7 +194,7 @@ let l = count(): map(|x| -> 3 * x): filter(|x| -> (x % 2) == 0)
 The `cons` function returns a new lazy list whose head is its first argument,
 and the tail its second.
 
-A lazy list implement the `Collection`, interface, while remaining lazy. It is
+A lazy list implement the `Collection` interface, while remaining lazy. It is
 thus possible to use it in imperative style with a `foreach` construct, or
 recursively using `head` and `tail`.
 On the other hand, functions or methods like `equals`, `size` or `contains` are
@@ -229,7 +204,7 @@ lists interface, but you should avoid such methods.
 
 === Console ANSI codes (`gololang.AnsiCodes`)
 
-The `gololang.AnsiCodes` modules offers a set of functions to work with
+The link:{golodoc}/gololang/AnsiCodes[`gololang.AnsiCodes`] modules offers a set of functions to work with
 https://en.wikipedia.org/wiki/ANSI_escape_code[ANSI codes].
 
 The following would print `Hello world!` in blinking yellow text:
@@ -249,12 +224,12 @@ function hello = {
 ----
 
 NOTE: ANSI codes support varies from terminal and operating system capacities. Microsoft Windows
-does not support these codes without a 3rd-party driver. You may use the `likelySupported()` function
+does not support these codes without a 3rd-party driver. You may use the link:{golodoc}/gololang/AnsiCodes#likelySupported_0[`likelySupported()`] function
 to test if the host operating system is _likely_ to support ANSI codes.
 
 === Functional errors (`gololang.Errors`)
 
-The `gololang.Errors` module offers types, augmentations and decorators to deal with errors in a more functional way. This is similar for instance to Haskell
+The link:{golodoc}/gololang/gololang/Errors[`gololang.Errors`] module offers types, augmentations and decorators to deal with errors in a more functional way. This is similar for instance to Haskell
 https://hackage.haskell.org/package/base/docs/Data-Maybe.html[`Maybe`] and
 https://hackage.haskell.org/package/base/docs/Data-Either.html[`Either`] or Rust
 https://doc.rust-lang.org/std/option/[`Option`] and
@@ -262,7 +237,7 @@ https://doc.rust-lang.org/std/result/[`Result`].
 
 ==== Option
 
-This is just an augmentation of the java `java.util.Optional` class together with factory functions and decorators. The added methods allows to better chain optional results and improve matching.
+This is just an augmentation of the java link:{jdk}/java/util/Optional.html[`java.util.Optional`] class together with factory functions and decorators. The added methods allows to better chain optional results and improve matching.
 
 This is particularly useful to chain and compose functions that can return no result. Instead of returning `null`, a `None()` value can be returned. Such functions can then be chained using the `andThen` method. The `option` decorator can be used to transform a regular function into a function returning an `Option`.
 
@@ -335,7 +310,7 @@ The `result` decorator is the equivalent to `option`. The `trying` higher order 
 
 See the link:{golodoc}/gololang/Errors.html[`gololang.Errors`] module documentation and the javadoc for the link:{javadoc}/gololang/error/Result.html[`gololang.error.Result`] class for more details.
 
-As a bonus, `Result` objects can be destructured into the error and the value. For instance:
+As a bonus, `Result` objects can be destructured(((destructuring))) into the error and the value. For instance:
 
 [source,golo]
 ----

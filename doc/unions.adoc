@@ -126,7 +126,7 @@ members.
 Unions feature special methods to test for the exact type of a value, as well
 as members values if applicable. This allows to write readable tests, more
 specially using the `match` clause, to look like destructuring match in
-langages like OCaml, Haskell or Scala.
+languages like OCaml, Haskell or Scala.
 
 For instance, given a union defining a binary tree:
 [source,golo]

@@ -245,7 +245,7 @@ Golo modules have a set of implicit imports:
 * `gololang`,
 * `java.lang`.
 
-These modules are imported *after* the module explicitly imported in the module, so that elements defined in these modules (e.g. predefined functions or xref:_augmentations_resolution_order[augmentations]) can be redefined.
+These modules are imported *after* the module explicitly imported in the module, so that elements defined in these modules (e.g. predefined functions or <<augment_order,augmentations>>) can be redefined.
 
 [[warning-unavailable-class]]
 [WARNING]

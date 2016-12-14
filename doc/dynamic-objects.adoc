@@ -81,19 +81,7 @@ Here is an example where we define a `toString`-style of method:
 
 [source,golo]
 ----
-local function mrbean = -> DynamicObject():
-  name("Mr Bean"):
-  email("mrbean@gmail.com"):
-  define("toString", |this| -> this: name() + " <" + this: email() + ">")
-
-function main = |args| {
-
-  let bean = mrbean()
-  println(bean: toString())
-
-  bean: email("mrbean@outlook.com")
-  println(bean: toString())
-}
+include::{samples-dir}/dynamic-object-person.golo[tag=sample]
 ----
 
 WARNING: You cannot overload methods, that is, providing methods with the same name but different
@@ -172,7 +160,7 @@ println(dynob: casperGetter())
 println(dynob: casperMethod("foo", "bar"))
 ----
 
-[source]
+[source,sh]
 ----
 Dispatch failed for method: casperGetter, with args:
 Dispatch failed for method: casperMethod, with args: foo bar

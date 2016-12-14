@@ -31,19 +31,7 @@ multiple nested `if` / `else` statements, as in:
 
 [source,golo]
 ----
-function what = |obj| {
-  case {
-    when obj oftype String.class {
-      return "String"
-    }
-    when obj oftype Integer.class {
-      return "Integer"
-    }
-    otherwise {
-      return "alien"
-    }
-  }
-}
+include::{tests-dir}/for-execution/conditionals.golo[tag=what]
 ----
 
 A `case` statement requires at least 1 `when` clause and a mandatory `otherwise` clause. Each clause
@@ -77,17 +65,7 @@ other languages it is not fully equivalent, as Golo does not support full destru
 
 [source,golo]
 ----
-let item = "foo@bar.com"
-
-let what_it_could_be = -> match {
-  when item: contains("@") then "an email?"
-  when item: startsWith("+33") then "a French phone number?"
-  when item: startsWith("http://") then "a website URL?"
-  otherwise "I have no clue, mate!"
-}
-
-# prints "an email?"
-println(what_it_could_be(item))
+include::{tests-dir}/for-execution/conditionals.golo[tag=match_email,indent=0]
 ----
 
 The values to be returned are specified after a `then` keyword that follows a boolean expression to
@@ -102,11 +80,7 @@ While loops in Golo are straightforward:
 
 [source,golo]
 ----
-function times = |n| {
-  var times = 0
-  while (times < n) { times = times + 1 }
-  return times
-}
+include::{tests-dir}/for-execution/loopings.golo[tag=times,indent=0]
 ----
 
 The parenthesis in the `while` condition may be omitted like it is the case for `if` statements.
@@ -123,13 +97,7 @@ The following function shows a `for` loop:
 
 [source,golo]
 ----
-function fact = |value, n| {
-  var result = 1
-  for (var i = 0, i < n, i = i + 1) {
-    result = result * value
-  }
-  return result
-}
+include::{tests-dir}/for-execution/loopings.golo[tag=fact,indent=0]
 ----
 
 As you can see, it is very much like a `for` loop in Java, except that:
@@ -140,6 +108,7 @@ As you can see, it is very much like a `for` loop in Java, except that:
 
 Again, this choice is dictated by the pursue of simplicity.
 
+[[foreach_loops]]
 === `foreach` loops
 
 Golo provides a "for each" style of iteration over iterable elements. Any object that is an instance
@@ -147,13 +116,7 @@ of `java.lang.Iterable` can be used in `foreach` loops, as in:
 
 [source,golo]
 ----
-function concat_to_string = |iterable| {
-  var result = ""
-  foreach item in iterable {
-    result = result + item
-  }
-  return result
-}
+include::{tests-dir}/for-execution/loopings.golo[tag=concat,indent=0]
 ----
 
 In this example, `item` is a variable within the `foreach` loop scope, and `iterable` is an object
@@ -173,9 +136,10 @@ The following code:
 
 [source,golo]
 ----
-foreach item in collection {
+var result = ""
+foreach item in iterable {
   if item < 10 {
-    println(item)
+    result = result + item
   }
 }
 ----
@@ -184,9 +148,7 @@ can be simplified as:
 
 [source,golo]
 ----
-foreach item in collection when item < 10 {
-  println(item)
-}
+include::{tests-dir}/for-execution/loopings.golo[tag=guarded,indent=0]
 ----
 
 The `when` guard can be any expression that evaluates to a boolean.
@@ -205,29 +167,7 @@ Consider the following contrived example:
 
 [source,golo]
 ----
-module test
-
-function main = |args| {
-  var i = 0
-  while true {
-    i = i + 1
-    if i < 40 {
-      continue
-    } else {
-      print(i + " ")
-    }
-    if i == 50 {
-      break
-    }
-  }
-  println("bye")
-}
-----
-
-It prints the following output:
-
-----
-40 41 42 43 44 45 46 47 48 49 50 bye
+include::{tests-dir}/for-execution/loopings.golo[tag=break_continue,indent=0]
 ----
 
 Golo does not support `break` statements to labels like Java does. In fact, this is a `goto`

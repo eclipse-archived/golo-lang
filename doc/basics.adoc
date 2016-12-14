@@ -36,11 +36,7 @@ that takes an argument for the JVM program arguments:
 
 [source,golo]
 ----
-module hello.World
-
-function main = |args| {
-  println("Hello world!")
-}
+include::{samples-dir}/helloworld.golo[lines=8..-1]
 ----
 
 `println` is a predefined function that outputs a value to the standard
@@ -77,7 +73,7 @@ environment variable to provide custom JVM tuning to `vanilla-golo`.
 Provided that `golo` is available from your current `$PATH`, you may run the program above as
 follows:
 
-[source]
+[source,sh]
 ----
 $ golo golo --files samples/helloworld.golo
 Hello world!
@@ -97,18 +93,12 @@ as follows:
 
 [source,golo]
 ----
-module EchoArgs
-
-function main = |args| {
-  foreach arg in args {
-    println("->  " + arg)
-  }
-}
+include::{samples-dir}/echo-args.golo[lines=8..-1]
 ----
 
 We may invoke it as follows:
 
-[source]
+[source,sh]
 ----
 $ golo golo --files samples/echo-args.golo --args plop da plop
 -> plop
@@ -130,7 +120,7 @@ in the chapter on interoperability with Java.
 
 Compiling Golo files is straightforward:
 
-[source]
+[source,sh]
 ----
 $ golo compile --output classes samples/helloworld.golo
 $
@@ -140,7 +130,7 @@ This compiles the code found in `samples/helloworld.golo` and outputs
 the generated classes to a `classes` folder (it will be created if
 needed):
 
-[source]
+[source,sh]
 ----
 $ tree classes/
 classes/
@@ -153,9 +143,9 @@ $
 
 It is also possible to output to a Jar archive:
 
-[source]
+[source,sh]
 ----
-golo compile --output hello.jar samples/*.golo
+$ golo compile --output hello.jar samples/*.golo
 ----
 
 This would take all `.golo` files from the `sample` folder, and assemble the resulting JVM class files in `hello.jar`.
@@ -164,7 +154,7 @@ This would take all `.golo` files from the `sample` folder, and assemble the res
 
 Golo provides a link:{man}/golo-run.html[`run`] command for running compiled Golo code:
 
-[source]
+[source,sh]
 ----
 $ cd classes
 $ golo run --module hello.World
@@ -180,17 +170,12 @@ Golo provides a link:{man}/golo-shebang.html[`shebang`] command for running a Go
 
 [source,golo]
 ----
-module hello
-
-function main = |args| {
-  require(args: length() > 1, "You should set at least one argument!")
-  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
-}
+include::{samples-dir}/hello.golo[lines=9..-1]
 ----
 
 the script above can be executed with:
 
-[source]
+[source,sh]
 ----
 $ golo shebang hello.golo World
 Hello World from 'hello.golo'!
@@ -202,12 +187,7 @@ Naturally the main goal is to use this command to make the script self-executabl
 [source,golo]
 ----
 #!/path/to/golo shebang
-module hello
-
-function main = |args| {
-  require(args: length() > 1, "You should set at least one argument!")
-  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
-}
+include::{samples-dir}/hello.golo[lines=9..-1]
 ----
 
 Now, we can run the script directly:
@@ -225,18 +205,13 @@ a golo script can be hasbanged with `env`:
 [source,golo]
 ----
 #!/usr/bin/env golosh
-module hello
-
-function main = |args| {
-  require(args: length() > 1, "You should set at least one argument!")
-  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
-}
+include::{samples-dir}/hello.golo[lines=9..-1]
 ----
 
 NOTE: Each `golo` and `jar` files present in the script file's directory or the sub directories will be scanned.
 This makes it easy to run scripts and have an automatic classpath for libraries, and automatically compile and load other Golo files.
 
-[source]
+[source,sh]
 ----
 $ tree ./
 ./
@@ -260,7 +235,7 @@ variable.
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
 
-[source]
+[source,sh]
 ----
 # Exporting an environment variable
 $ export JAVA_OPTS=-XX:+PrintCompilation
@@ -479,7 +454,7 @@ position, use the `removeAt` method.
 
 ==== A note on tuples
 
-Tuples essentially behave as comparable and immutable arrays.
+Tuples essentially behave as comparable and immutable heterogeneous arrays.
 
 The `gololang.Tuple` class provides the following methods:
 
@@ -499,16 +474,9 @@ The `gololang.Tuple` class provides the following methods:
 The map collection literal expects entries to be specified as tuples where the first entry is the
 key, and the second entry is the value. This allows nested structures to be specified as in:
 
-[source,golo]
+[source,golo,indent=0]
 ----
-map[
-  ["foo", "bar"],
-  ["plop", set[1, 2, 3, 4, 5]],
-  ["mrbean", map[
-    ["name", "Mr Bean"],
-    ["email", "bean@outlook.com"]
-  ]]
-]
+include::{tests-dir}/for-parsing-and-compilation/collection-literals.golo[tag=ex1]
 ----
 
 There are a few rules to observe:
@@ -531,11 +499,9 @@ let m2 = map[
 The rationale for map literals to be loose is that we let you put any valid Golo expression, like
 functions returning valid tuples:
 
-[source,golo]
+[source,golo,indent=0]
 ----
-let a = -> [1, 'a']
-let b = -> [2, 'b']
-let m = map[a(), b()]
+include::{tests-dir}/for-execution/collection-literals.golo[tag=with_expressions]
 ----
 
 === Collection comprehension
@@ -544,18 +510,16 @@ In addition to literals, collections can be created using collection
 comprehension. This is a simple way to create a new collection based on another
 one (actually on any iterable object), by filtering and transforming its
 content. For instance:
-[source,golo]
+[source,golo,indent=0]
 ----
-let l1 = list[1, 2, 3, 4, 5, 6]
-let l2 = list[x * 2 foreach x in l1 when (x % 2) == 0]
-# l2 == list[4, 8, 12]
+include::{tests-dir}/for-execution/comprehension.golo[tag=present]
 ----
 
-This is a more readable and more powerful version of `filter`+`map`. The
-previous example could be rewritten as
-[source,golo]
+This is a more readable and more powerful version of `filter`+`map`.
+Indeed, the previous example could be rewritten as:
+[source,golo,indent=0]
 ----
-let l2 = l2: filter(|x| -> (x % 2) == 0): map(|x| -> x * 2)
+include::{tests-dir}/for-execution/comprehension.golo[tag=mapfilter]
 ----
 
 The general syntax is a collection literal containing an expression followed
@@ -563,24 +527,19 @@ by one or more loop-like expression. If more than one loop is given, it is
 equivalent to nested loops. Thus
 [source,golo]
 ----
-let l = list[ [x, y] foreach x in [1..4] foreach y in ["a", "b", "c"] ]
+include::{tests-dir}/for-execution/comprehension.golo[indent=0,tag=two_loops]
 ----
 
 is equivalent to:
 [source,golo]
 ----
-let l = list[]
-foreach x in [1..4] {
-  foreach y in ["a", "b", "c"] {
-    l: add([x, y])
-  }
-}
+include::{tests-dir}/for-execution/comprehension.golo[indent=0,tag=nested_loops]
 ----
 
 `for` loop can be used, as in
 [source,golo]
 ----
-let l = list[ 3 * i + 1 for (var i=0, i < 10, i = i + 2) ]
+include::{tests-dir}/for-execution/comprehension.golo[indent=0,tag=for_loop]
 ----
 
 Contrary to the `filter`+`map` approach, where the kind on collection is kept,
@@ -588,19 +547,17 @@ comprehension can transform the source collection type, which can be any
 iterable. For instance:
 [source,golo]
 ----
-let dices = set[ x + y foreach x in [1..7] foreach y in [1..7]]
-# dices == set[2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]
+include::{tests-dir}/for-execution/comprehension.golo[indent=0,tag=set_two]
 ----
 
 However, the result collection can only be of the type of one of the predefined
 collection literal types.
 
-xref:_destructuring[Destructuring] can also be used in collection
+<<destructuring,((Destructuring))>> can also be used in collection
 comprehension, as in
 [source,golo]
 ----
-let couples = [ [1, 2], [2, 3], [3, 4] ]
-let sums = [ a + b foreach a, b in couples ]
+include::{tests-dir}/for-execution/comprehension.golo[indent=0,tag=destruct]
 ----
 
 Maps can also be created, provided the given expression is either a pair tuple or
@@ -608,8 +565,7 @@ a instance of `Map.Entry` (you can use the predefined `mapEntry(key, value)`
 function to create such objects). For instance:
 [source,golo]
 ----
-let myMap = map[ ["key" + i, 2 * i] foreach i in [0..4] ]
-# myMap is {key0=0, key1=2, key2=4, key3=6}
+include::{tests-dir}/for-execution/comprehension.golo[indent=0,tag=map_comprehension]
 ----
 
 A collection comprehension is a expression, and can thus be used as such. E.g.
@@ -624,24 +580,12 @@ The analogy can be made between comprehension and SQL queries. As an
 illustration, compare:
 [source,sql]
 ----
-select distinct
-    p.name, p.age, c.product
-from
-    persons as p,
-    commands as c
-where p.id == c.customer
-      and p.age > 18
+include::{samples-dir}/collectionComprehension.golo[tag=sql,indent=0]
 ----
 with
 [source,golo]
 ----
-let result = set[
-  [p: name(), p: age(), c: product()]
-  foreach p in persons
-  foreach c in commands
-  when p: id() == c: customer()
-       and p: age() > 18
-]
+include::{samples-dir}/collectionComprehension.golo[tag=sqlLike,indent=0]
 ----
 
 
@@ -667,16 +611,14 @@ As an example, compare the two functionally equivalent expressions:
 [source,golo]
 ----
 list[ 2 * x for x in aList when (x % 2) == 0 ]
-aList: filter(x -> (x % 2) == 0): map(x -> 2 * x)
+aList: filter(|x| -> (x % 2) == 0): map(|x| -> 2 * x)
 ----
 
 The more powerful expressiveness of comprehension shines when using nested
-iterators or xref:_destructuring[destructuring]. For instance, an expression such as
+iterators or <<destructuring,destructuring>>(((destructuring))). For instance, an expression such as
 [source,golo]
 ----
-list[ k + ": " + (x * v)
-    foreach x in [1..10] when (x % 2) == 1
-    foreach k, v in aMap:entrySet() when k: startsWith("f") or v >= 42]
+include::{tests-dir}/for-execution/comprehension.golo[tag=nested_destruct,indent=0]
 ----
 
 would be cumbersome to write using only `map` and `filter`.
@@ -708,9 +650,10 @@ result collection is of the same type as the initial one. This approach is more
 polymorphic, but can be less readable if you need to change the collection type.
 
 
+[[destructuring]]
 === Destructuring
 
-Golo supports simple destructuring, that is automatic extraction of values
+Golo supports simple ((destructuring)), that is automatic extraction of values
 from an object and assignment to multiple variables in one instruction.
 
 For instance, using destructuring on a tuple:
@@ -730,21 +673,20 @@ let a, b = list[1, 2, 3]               # raises an exception
 let a, b, c... = list[1, 2, 3, 4, 5]   # a = 1, b = 2, c = list[3, 4, 5]
 ----
 
-The reminder has the same type than the destructured object. Note that some mainly container-like object can be destructured using this syntax.
+The reminder has the same type than the destructured object. Note that only container-like object can be destructured using this syntax.
 For instance, golo structures can't use the rest syntax and raise an exception.
 
 Any object having a `__$$_destruct(number, rest, toSkip)` method returning an array can be used in
-destructuring assignments. Golo specific data structures and some Java native
+  ((destructuring)) assignments. Golo specific data structures and some Java native
 ones (arrays, maps, collections) can be destructured. Augmentations can be used to make an existing class
 destructurable.
 
-For instance, xref:_structs[golo structures] are destructurable:
+For instance, <<structs,golo structures>> are destructurable:
 [source,golo]
 ----
-struct Point = {x, y}
+include::{tests-dir}/for-execution/destruct.golo[indent=0,tag=Point]
 #...
-let p = Point(42, 1337)
-let x, y = p   # x = 42, y = 1337
+include::{tests-dir}/for-execution/destruct.golo[indent=0,tag=testPoint]
 ----
 
 as well as java lists:
@@ -754,7 +696,7 @@ let lst = list[1, 2, 3, 4, 5]
 let head, tail... = lst        # head = 1, tail = list[2, 3, 4, 5]
 ----
 
-Already defined variables can also be assigned with destructuring. For
+Already defined variables can also be assigned with ((destructuring)). For
 instance, one can easily swap two variables:
 [source,golo]
 ----
@@ -762,8 +704,7 @@ var a, b = [1, 2]  # a = 1, b = 2
 a, b = [b, a]      # a = 2, b = 1
 ----
 
-Destucturing can also be used in
-xref:_span_class_monospaced_foreach_span_loops[`foreach` loops]:
+Destucturing can also be used in <<foreach_loops,`foreach` loops>>:
 [source,golo]
 ----
 foreach key, value in myMap: entrySet() {
@@ -778,7 +719,7 @@ let a, _, _, _, b = list[1, 2, 3, 4, 5]
 # a = 1 and b = 5
 ----
 
-This name can be used with the remainer syntax, to avoid the creation of a new structure to hold the other values.
+This name can be used with the remainder syntax, to avoid the creation of a new structure to hold the other values.
 For instance:
 [source,golo]
 ----
@@ -792,10 +733,12 @@ Here, `a` is `2` and `b` is `4`. No new range is created for the remaining value
 To be destructurable, an object must have a `__$$_destruct(number, rest, skip)` method, whose parameters are:
 
 - the number of values to be assigned to,
-- whether the assignement has a rest (i.e. if remainer syntax `...` is used)
+- whether the assignment has a rest (i.e. if remainder syntax `...` is used)
 - a list describing the positions to skip (`_` special name)
 
-and must return an array containg the values to assign (`null` if skipped).
+and must return an array containing the values to assign (`null` if skipped).
+If the `number` does not match the contained values, a
+`org.eclipse.golo.runtime.InvalidDestructuringException` is thrown.
 
 For instance, the code:
 [source,golo]
@@ -824,7 +767,7 @@ where `tmp1` will be `array[8, null, [10..20]]` and `tmp2` will be `array[null, 
 
 [WARNING]
 ====
-As of version 3.4, the destructuring behavior has changed, particularly when the remainer aspect and when not enough variables are provided.
+As of version 3.4, the ((destructuring)) behavior has changed, particularly the remainder aspect and when not enough variables are provided.
 To use the old-syle behavior, one can use the `&useOldstyleDestruct()` macro to switch locally, or set the `golo.destruct.newstyle` property or
 `GOLO_DESTRUCT_NEWSTYLE` environment variable to `true` to switch globally.
 ====

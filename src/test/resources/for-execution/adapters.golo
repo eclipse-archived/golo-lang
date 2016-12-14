@@ -1,5 +1,10 @@
 module golotest.execution.JavaAdapters
 
+import org.hamcrest.MatcherAssert
+import org.hamcrest.Matchers
+import org.hamcrest
+
+
 function serializable = {
   let conf = map[
     ["interfaces", ["java.io.Serializable"]]
@@ -8,6 +13,7 @@ function serializable = {
 }
 
 function runnable = {
+#tag::runnable[]
   let result = array[1, 2, 3]
   let conf = map[
     ["interfaces", ["java.io.Serializable", "java.lang.Runnable"]],
@@ -20,17 +26,21 @@ function runnable = {
     ]]
   ]
   let runner = AdapterFabric(): maker(conf): newInstance()
-  runner: run()
+  runner: run() # <1>
+#end::runnable[]
   return result
 }
 
 function override_toString = {
+#tag::overrideToString[]
   let conf = map[
     ["overrides", map[
       ["toString", |super, this| -> ">>> " + super(this)]
     ]]
   ]
-  return AdapterFabric(): maker(conf): newInstance()
+  let val = AdapterFabric(): maker(conf): newInstance()
+#end::overrideToString[]
+  return val
 }
 
 function construct_arraylist = {
@@ -40,26 +50,28 @@ function construct_arraylist = {
   return AdapterFabric(): maker(conf): newInstance(list["foo", "bar", "baz"])
 }
 
-function add_arraylist = {
-  let carbonCopy = list[]
+function test_add_arraylist = {
+#tag::add_arraylist[]
+  let carbonCopy = list[]                               # <1>
   let conf = map[
     ["extends", "java.util.ArrayList"],
     ["overrides", map[
-      ["*", |super, name, args| {
+      ["*", |super, name, args| {                       # <2>
         if name == "add" {
           if args: length() == 2 {
-            carbonCopy: add(args: get(1))
+            carbonCopy: add(args: get(1))               # <3>
           } else {
-            carbonCopy: add(args: get(1), args: get(2))
+            carbonCopy: add(args: get(1), args: get(2)) # <4>
           }
         }
-        return super: invoke(args)
+        return super: spread(args)                      # <5>
       }
     ]]
   ]]
   let list = AdapterFabric(): maker(conf): newInstance()
   list: add("bar")
   list: add(0, "foo")
-  list: add("baz")
-  return carbonCopy
+  list: add("baz")                                      # <6>
+#end::add_arraylist[]
+  assertThat(carbonCopy, contains("foo", "bar", "baz"))
 }

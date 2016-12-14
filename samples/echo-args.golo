@@ -8,24 +8,7 @@
 module EchoArgs
 
 function main = |args| {
-
-  println("With a for loop and an index:")
-  for (var i = 0, i < args: length(), i = i + 1) {
-    println("  #" + i + " -> " + args: get(i))
-  }
-
-  println("With a foreach loop:")
   foreach arg in args {
-    println("  " + arg)
-  }
-
-  println("With a foreach over a range:")
-  foreach i in range(0, args: length()) {
-    println("  #" + i + " -> " + args: get(i))
-  }
-
-  println("With a foreach and a guard to keep arguments with at least 3 characters:")
-  foreach arg in args when arg: length() > 2 {
-    println("  " + arg)
+    println("->  " + arg)
   }
 }

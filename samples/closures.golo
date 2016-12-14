@@ -25,6 +25,8 @@ function main = |args| {
 
   println(sayHello("Julien"))
 
+
+#tag::pump_it[]
   let list = java.util.LinkedList()
   let pump_it = {
     list: add("I heard you say")
@@ -33,4 +35,5 @@ function main = |args| {
   }
   pump_it()
   println(list)
+#end::pump_it[]
 }

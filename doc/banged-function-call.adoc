@@ -152,7 +152,7 @@ The `singleton` function return a new java Object but the `java.lang.Object` is 
 
 === Banged decorators 
 
-As explained in the xref:_decorators[decorators part] the following `identity` function:
+As explained in the <<decorators,decorators part>> the following `identity` function:
 
 [source,golo]
 ----

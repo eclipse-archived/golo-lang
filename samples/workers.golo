@@ -5,17 +5,17 @@
 # conditions of the Eclipse Distribution License v1.0 which is available
 # at http://www.eclipse.org/org/documents/edl-v10.php
 
-module Workers
+module SampleWithWorkers
 
 import java.lang.Thread
 import java.util.concurrent
 import gololang.concurrent.workers.WorkerEnvironment
 
-local function pusher = |queue, message| -> queue: offer(message)
+local function pusher = |queue, message| -> queue: offer(message) # <3>
 
-local function generator = |port, message| {
+local function generator = |port, message| { # <1>
   foreach i in range(0, 100) {
-    port: send(message)
+    port: send(message)                      # <2>
   }
 }
 
@@ -27,13 +27,13 @@ function main = |args| {
   let pusherPort = env: spawn(^pusher: bindTo(queue))
   let generatorPort = env: spawn(^generator: bindTo(pusherPort))
 
-  let finishPort = env: spawn(|any| -> env: shutdown())
+  let finishPort = env: spawn(|any| -> env: shutdown()) # <5>
 
   foreach i in range(0, 10) {
     generatorPort: send("[" + i + "]")
   }
   Thread.sleep(2000_L)
-  finishPort: send("Die!")
+  finishPort: send("Die!") # <4>
 
   env: awaitTermination(2000)
   println(queue: reduce("", |acc, next| -> acc + " " + next))

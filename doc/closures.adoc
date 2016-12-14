@@ -119,14 +119,7 @@ mutable object is a sensible way to pass data back from a closure as a side-effe
 
 [source,golo]
 ----
-let list = java.util.LinkedList()
-let pump_it = {
-  list: add("I heard you say")
-  list: add("Hey!")
-  list: add("Hey!")
-}
-pump_it()
-println(list)
+include::{samples-dir}/closures.golo[tag=pump_it,indent=0]
 ----
 
 which prints `[I heard you say, Hey!, Hey!]`.
@@ -269,7 +262,7 @@ function call_local_fun = {
 }
 ----
 
-If the function is overridden, that is several functions exist with the same name but different arities, 
+If the function is overridden, that is several functions exist with the same name but different arities,
 you *must* specify the arity with the notation `^moduleName::functionName\arity`. For instance:
 
 [source,golo]

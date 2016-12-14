@@ -41,6 +41,23 @@ function main = |args| {
   println(list[ a + b foreach a, b in couples ])
 
 
+  sqllike()
+
+}
+
+----
+tag::sql[]
+  select distinct
+    p.name, p.age, c.product
+  from
+    persons as p,
+    commands as c
+  where
+    p.id == c.customer
+    and p.age > 18
+end::sql[]
+----
+local function sqllike = {
   # SQL like
   let persons = list[
     Person(1, "Foo", 14),
@@ -59,14 +76,7 @@ function main = |args| {
     Command(2, "prod4")
   ]
 
-  #select distinct
-  #  p.name, p.age, c.product
-  #from
-  #  persons as p,
-  #  commands as c
-  #where
-  #  p.id == c.customer
-  #  and p.age > 18
+#tag::sqlLike[]
   println(set[
     [p: name(), p: age(), c: product()]
     foreach p in persons
@@ -74,6 +84,5 @@ function main = |args| {
     when p: id() == c: customer()
          and p: age() > 18
   ])
-
-
+#end::sqlLike[]
 }

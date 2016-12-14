@@ -17,3 +17,12 @@ function empty_tuple = -> []
 function int_range = -> [0..10]
 
 function char_range = -> ['a'..'f']
+
+function with_expressions = {
+#tag::with_expressions[]
+  let a = -> [1, 'a']
+  let b = -> [2, 'b']
+  let m = map[a(), b()]
+#end::with_expressions[]
+  return m
+}

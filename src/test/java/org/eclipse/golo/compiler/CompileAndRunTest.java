@@ -18,6 +18,8 @@ import org.eclipse.golo.compiler.testing.support.ClassWithOverloadedMethods;
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.*;
 import org.testng.annotations.Test;
+import org.eclipse.golo.internal.testing.GoloTest;
+
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -29,10 +31,7 @@ import java.util.concurrent.Callable;
 import java.math.BigDecimal;
 import java.math.BigInteger;
 
-import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
-import static org.eclipse.golo.internal.testing.TestUtils.getTestMethods;
-import static org.eclipse.golo.internal.testing.TestUtils.classLoader;
-import static org.eclipse.golo.internal.testing.TestUtils.runTests;
+import static org.eclipse.golo.internal.testing.TestUtils.*;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
@@ -43,9 +42,15 @@ import static org.testng.Assert.fail;
 
 import static gololang.Messages.message;
 
-public class CompileAndRunTest {
+public final class CompileAndRunTest extends GoloTest {
 
   private static final String SRC = "src/test/resources/for-execution/";
+
+  @Override
+  public String srcDir() {
+    return "for-execution/";
+  }
+
 
   @Test
   public void check_generation_of_$imports_method() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
@@ -297,7 +302,7 @@ public class CompileAndRunTest {
   }
 
   @Test
-  public void test_conditionals() throws ClassNotFoundException, IOException, ParseException, NoSuchMethodException, InvocationTargetException, IllegalAccessException {
+  public void test_conditionals() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "conditionals.golo");
 
     Method simple_if = moduleClass.getMethod("simple_if");
@@ -325,6 +330,8 @@ public class CompileAndRunTest {
     assertThat((String) what_match.invoke(null, "foo"), is("String"));
     assertThat((String) what_match.invoke(null, 666), is("Integer"));
     assertThat((String) what_match.invoke(null, true), is("alien"));
+
+    this.run("conditionals", "match_email");
   }
 
   @Test
@@ -514,6 +521,9 @@ public class CompileAndRunTest {
 
     Method foreach_guarded = moduleClass.getMethod("foreach_guarded", Object.class);
     assertThat(foreach_guarded.invoke(null, asList(666, 2, 3, 4, 5, 10, 999)), is("66610999"));
+
+    runTestMethod(moduleClass, "break_continue", filenameFor("loopings"));
+
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)
@@ -1307,6 +1317,14 @@ public class CompileAndRunTest {
     assertThat(char_range_res.from(), is('a'));
     assertThat(char_range_res.to(), is('f'));
     assertThat(char_range_res.increment(), is(1));
+
+    Method with_expressions = moduleClass.getMethod("with_expressions");
+    result = with_expressions.invoke(null);
+    assertThat(result, instanceOf(Map.class));
+    map = (Map) result;
+    assertThat(map.size(), is(2));
+    assertThat((Character) map.get(1), is('a'));
+    assertThat((Character) map.get(2), is('b'));
   }
 
   @Test
@@ -1342,16 +1360,15 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(ArrayList.class));
     ArrayList<String> arrayList = (ArrayList<String>) result;
-    assertThat(arrayList.size(), is(3));
     assertThat(arrayList, contains("foo", "bar", "baz"));
 
+
+  }
+
+  @Test
+  public void adapters_tests() throws Throwable {
     if (!bootstraping()) {
-      Method add_arraylist = moduleClass.getMethod("add_arraylist");
-      result = add_arraylist.invoke(null);
-      assertThat(result, instanceOf(List.class));
-      List<String> strList = (List<String>) result;
-      assertThat(strList.size(), is(3));
-      assertThat(strList, contains("foo", "bar", "baz"));
+      run("adapters");
     }
   }
 
@@ -1776,18 +1793,8 @@ public class CompileAndRunTest {
 
   @Test
   public void comprehension() throws Throwable {
-    if (bootstraping()) {
-      return;
-    }
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "comprehension.golo");
-    for (Method testMethod : getTestMethods(moduleClass)) {
-      try {
-        testMethod.invoke(null);
-      } catch (InvocationTargetException e) {
-        fail("method " + testMethod.getName() + " in " + SRC + "comprehension.golo failed: " +
-              e.getCause());
-      }
-    }
+    if (bootstraping()) { return; }
+    runTests(SRC, "comprehension.golo", classLoader(this));
   }
 
   @Test(expectedExceptions = GoloCompilationException.class)

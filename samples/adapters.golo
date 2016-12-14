@@ -47,7 +47,7 @@ local function runnable_sample = |fabric| {
     ]]
   ]
   let runner = fabric: maker(conf): newInstance()
-  runner: run()
+  runner: run() # <1>
   println("      result: " + result: toString())
   println("serializable? " + (runner oftype java.io.Serializable.class))
   println("    runnable? " + (runner oftype java.lang.Runnable.class))

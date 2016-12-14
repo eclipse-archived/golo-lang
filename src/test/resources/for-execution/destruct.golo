@@ -6,7 +6,9 @@ import org.hamcrest.Matchers
 
 import org.eclipse.golo.runtime
 
+#tag::Point[]
 struct Point = { x, y }
+#end::Point[]
 
 struct Triplet = {a, b, c}
 
@@ -110,10 +112,12 @@ function test_tuple_skip_3 = {
 
 
 function test_struct = {
+#tag::testPoint[]
   let p = Point(3, 4)
   let x, y = p
   require(x == 3, "err")
   require(y == 4, "err")
+#end::testPoint[]
 
   let a, b, c = Triplet(5, 6, 7)
   require(a == 5, "err")

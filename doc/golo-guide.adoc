@@ -13,6 +13,7 @@
 :golodoc: ./golodoc
 :javadoc: ./javadoc
 :man: ./man/man1
+:jdk: https://docs.oracle.com/javase/8/docs/api
 
 This is the documentation for the Golo programming language.
 
@@ -80,3 +81,6 @@ include::documenting.adoc[]
 include::misc.adoc[]
 
 include::pitfalls.adoc[]
+
+== Index
+
