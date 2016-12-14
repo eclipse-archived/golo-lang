@@ -166,7 +166,7 @@ public class FunctionReference {
   @Override
   public String toString() {
     return "FunctionReference{" +
-        "handle=" + handle +
+        "handle=" + (handle.isVarargsCollector() ? "(varargs)" : "") + handle +
         ", parameterNames=" + Arrays.toString(parameterNames) +
         '}';
   }
