@@ -118,6 +118,7 @@ then:
 println(elementAt(1, 1, 2, 3))
 ----
 
+[[named_parameters]]
 === Named parameters
 
 When you invoke Golo functions, you can use the name of the parameters explicitly in the call like so:

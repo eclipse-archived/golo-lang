@@ -101,7 +101,7 @@ function main = |args| {
 }
 ----
 
-[[struct-curstom-factories]]
+[[struct-custom-factories]]
 === Custom factories
 
 Golo generates two factories for structures. One for the initial values of each member and
@@ -321,7 +321,10 @@ struct Foo = {a, b=42}
 
 # (...)
 
+println(Foo(1, 2)
+println(Foo(b=2, a=1)
 println(Foo(0))
+println(Foo(a=0))
 println(Foo())
 ----
 
@@ -329,6 +332,9 @@ will print
 
 [source,golo]
 ----
+struct Foo{a=1, b=2}
+struct Foo{a=1, b=2}
+struct Foo{a=0, b=42}
 struct Foo{a=0, b=42}
 struct Foo{a=null, b=42}
 ----
@@ -337,11 +343,34 @@ This is a shorthand equivalent to define <<struct-custom-factories,custom factor
 
 [source,golo]
 ----
+function Foo = |a, b| -> Test.types.Foo(a, b)
 function Foo = |a| -> Test.types.Foo(a, 42)
 function Foo = -> Test.types.Foo(null, 42)
 ----
 
-Indeed, this is exactly what the compiler generates.
+Indeed, this is exactly what the compiler generates. Everything that applies to functions hold here, so these constructors can be called with <<named_parameters,named parameters>> for instance, or they can be referenced using `^Test::Foo\1`.
+
+Several members can have default values:
+[source,golo]
+----
+struct Bar = {a, b="answer", c=42}
+
+# (...)
+
+println(Bar("Zaphod"))
+----
+
+will print `struct Bar{a="Zaphod", b="answer", c=42}`.
+
+[CAUTION]
+=================================================
+When several members of a structure have default values, only the three previous constructors are generated, so for instance `Bar(a="Trillian", b="question")` will raise an exception, since no binary constructor exists as we can't create both:
+[source,golo]
+----
+function Bar = |a, b| -> Test.types.Bar(a, b, 42)
+function Bar = |a, c| -> Test.types.Bar(a, "answer", c)
+----
+=================================================
 
 One can also define _dependant default values_, where the value of a member is a function of one or more other member. For instance:
 
@@ -361,7 +390,7 @@ WARNING: When using _dependant default values_, the default constructor, which u
 WARNING: A _dependant default value_ can't depend on a member having a default value itself. To create complex default logic, you are encouraged to create your own <<struct-custom-factory,custom factory>>.
 
 
-[[strct-augmentation]]
+[[struct-augmentation]]
 === Augmenting structs
 
 Structs provide a simple data model, especially with private members for encapsulation.

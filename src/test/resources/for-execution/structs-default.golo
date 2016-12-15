@@ -25,6 +25,26 @@ function test_constant_default_struct = {
   assertThat(empty: c(), `is("plop"))
 }
 
+function test_namedargs_default_struct = {
+  let full = MyStruct(c="zoo", a="me", b=21)
+  assertThat(full: a(), `is("me"))
+  assertThat(full: b(), `is(21))
+  assertThat(full: c(), `is("zoo"))
+
+  let def = MyStruct(a="me")
+  assertThat(def: a(), `is("me"))
+  assertThat(def: b(), `is(42))
+  assertThat(def: c(), `is("plop"))
+}
+
+function test_reference = {
+  let c = ^golotest.execution.StructsDefault::MyStruct\1
+  let def = c("me")
+  assertThat(def: a(), `is("me"))
+  assertThat(def: b(), `is(42))
+  assertThat(def: c(), `is("plop"))
+}
+
 # ...................................................................... #
 
 let state = list[]
