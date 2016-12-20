@@ -31,7 +31,7 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
 
   public String target() { return target; }
 
-  public AugmentationDocumentation target(String target){
+  public AugmentationDocumentation target(String target) {
     this.target = target;
     return this;
   }
@@ -42,7 +42,7 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
     return (documentation != null) ? documentation : "\n";
   }
 
-  public AugmentationDocumentation documentation(String documentation){
+  public AugmentationDocumentation documentation(String documentation) {
     if (documentation != null) {
       this.documentation = documentation;
     }
@@ -51,7 +51,7 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
 
   public int line() { return line; }
 
-  public AugmentationDocumentation line(int line){
+  public AugmentationDocumentation line(int line) {
     this.line = line;
     return this;
   }

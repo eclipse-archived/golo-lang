@@ -9,8 +9,6 @@
 
 package org.eclipse.golo.compiler.parser;
 
-import java.util.LinkedHashSet;
-
 public class ASTUnionValue extends GoloASTNode implements NamedNode {
 
   private String name;

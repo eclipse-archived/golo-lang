@@ -26,7 +26,7 @@ class NamedAugmentationDocumentation extends AbstractSet<FunctionDocumentation> 
 
   public String name() { return name; }
 
-  public NamedAugmentationDocumentation name(String name){
+  public NamedAugmentationDocumentation name(String name) {
     this.name = name;
     return this;
   }
@@ -35,14 +35,14 @@ class NamedAugmentationDocumentation extends AbstractSet<FunctionDocumentation> 
     return (documentation != null ? documentation : "");
   }
 
-  public NamedAugmentationDocumentation documentation(String documentation){
+  public NamedAugmentationDocumentation documentation(String documentation) {
     this.documentation = documentation;
     return this;
   }
 
   public int line() { return line; }
 
-  public NamedAugmentationDocumentation line(int line){
+  public NamedAugmentationDocumentation line(int line) {
     this.line = line;
     return this;
   }

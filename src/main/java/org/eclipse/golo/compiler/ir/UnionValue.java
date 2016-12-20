@@ -41,7 +41,7 @@ public final class UnionValue extends TypeWithMembers {
 
   @Override
   protected void setParentNode(GoloElement parent) {
-    if (!(parent instanceof Union) || parent == null) {
+    if (!(parent instanceof Union)) {
       throw new IllegalArgumentException("UnionValue can only be defined in a Union");
     }
     super.setParentNode(parent);

@@ -69,6 +69,9 @@ class JavaBytecodeUnionGenerator {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, value.getName(),
         argsSignature(value.getMembers().size()) + value.getUnion().getPackageAndClass().toJVMRef(),
         null, null);
+    for (Member member : value.getMembers()) {
+      mv.visitParameter(member.getName(), ACC_FINAL);
+    }
     mv.visitCode();
     mv.visitTypeInsn(NEW, value.getPackageAndClass().toJVMType());
     mv.visitInsn(DUP);
@@ -103,6 +106,9 @@ class JavaBytecodeUnionGenerator {
 
     if (value.hasMembers()) {
       mv = classWriter.visitMethod(ACC_PUBLIC, methName, argsSignature(value.getMembers().size()) + "Z", null, null);
+      for (Member member : value.getMembers()) {
+        mv.visitParameter(member.getName(), ACC_FINAL);
+      }
       mv.visitCode();
       if (!result) {
         mv.visitInsn(ICONST_0);
@@ -279,16 +285,6 @@ class JavaBytecodeUnionGenerator {
       mv.visitInsn(AASTORE);
       i++;
     }
-  }
-
-  private void makeDestruct(ClassWriter cw, UnionValue value) {
-    MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "destruct", "()Lgololang/Tuple;", null, null);
-    mv.visitCode();
-    loadMembersArray(mv, value);
-    mv.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;", false);
-    mv.visitInsn(ARETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
   }
 
   private void makeToArray(ClassWriter cw, UnionValue value) {

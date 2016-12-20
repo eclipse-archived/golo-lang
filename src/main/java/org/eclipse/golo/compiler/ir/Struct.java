@@ -11,7 +11,6 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
 
-import java.util.LinkedHashSet;
 import java.util.Set;
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 import org.eclipse.golo.compiler.ClosureCaptureGoloIrVisitor;

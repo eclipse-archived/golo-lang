@@ -31,7 +31,7 @@ public final class Decorator extends  GoloElement {
           || expr instanceof FunctionInvocation
           || expr instanceof ClosureReference
           || (expr instanceof BinaryOperation
-            && OperatorType.ANON_CALL.equals(((BinaryOperation) expr).getType())) ;
+            && OperatorType.ANON_CALL.equals(((BinaryOperation) expr).getType()));
   }
 
   public void setExpressionStatement(ExpressionStatement expr) {

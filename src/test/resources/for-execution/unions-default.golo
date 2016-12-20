@@ -73,3 +73,13 @@ function test_multiple_dependant_union = {
   assertThat(def: b(), `is(17))
   assertThat(def: c(), `is(42))
 }
+
+union Foo = {
+  Bar = { value }
+  Baz = {a, b=Bar(a)}
+}
+
+function test_self_dependant_value = {
+  assertThat(Baz(42): toString(),
+    `is("union Foo.Baz{a=42, b=union Foo.Bar{value=42}}"))
+}
