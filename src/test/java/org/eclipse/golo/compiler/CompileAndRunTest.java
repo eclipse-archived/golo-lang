@@ -2123,8 +2123,8 @@ public class CompileAndRunTest {
       moduleClass.getMethod("unknown_class").invoke(null);
       fail();
     } catch (Exception e) {
-      assertThat(e.getCause().getClass(), equalTo(BootstrapMethodError.class));
       assertThat(e.getClass(), equalTo(InvocationTargetException.class));
+      assertThat(e.getCause().getClass(), equalTo(BootstrapMethodError.class));
       assertThat(e.getCause().getCause().getClass(), equalTo(ClassNotFoundException.class));
     }
 

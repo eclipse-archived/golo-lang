@@ -14,4 +14,4 @@ function boolean_class = -> boolean.class
 function arraylist_class = -> ArrayList.class
 function concurrentlist_class = -> concurrent.CopyOnWriteArrayList.class
 
-function unknown_class = -> unknown.class
+function unknown_class = -> johndoe.class
