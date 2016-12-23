@@ -15,8 +15,8 @@ import java.lang.invoke.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.lang.reflect.Parameter;
 import java.util.Arrays;
+import java.util.List;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.permuteArguments;
@@ -25,6 +25,7 @@ import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isStatic;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.*;
 
 public final class FunctionCallSupport {
 
@@ -164,9 +165,7 @@ public final class FunctionCallSupport {
           handle = caller.unreflect(method).asType(type);
         }
       }
-      if (argumentNames.length > 0) {
-        handle = reorderArguments(method, handle, argumentNames);
-      }
+      handle = reorderArguments(method, handle, argumentNames);
     } else if (result instanceof Constructor) {
       Constructor<?> constructor = (Constructor<?>) result;
       types = constructor.getParameterTypes();
@@ -205,29 +204,22 @@ public final class FunctionCallSupport {
           || argumentNames.length > 0);
   }
 
-  public static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
-    if (Arrays.stream(method.getParameters()).allMatch(Parameter::isNamePresent)) {
-      String[] parameterNames = Arrays.stream(method.getParameters())
-        .map(Parameter::getName)
-        .toArray(String[]::new);
-      int[] argumentsOrder = new int[parameterNames.length];
-      for (int i = 0; i < argumentNames.length; i++) {
-        int actualPosition = -1;
-        for (int j = 0; j < parameterNames.length; j++) {
-          if (parameterNames[j].equals(argumentNames[i])) {
-            actualPosition = j;
-          }
-        }
-        if (actualPosition == -1) {
-          throw new IllegalArgumentException(
-              "Argument name " + argumentNames[i]
-              + " not in parameter names used in declaration: "
-              + method.getName() + Arrays.toString(parameterNames));
-        }
-        argumentsOrder[actualPosition] = i;
-      }
-      return permuteArguments(handle, handle.type(), argumentsOrder);
+  private static int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
+    int[] argumentsOrder = new int[parameterNames.size()];
+    for (int i = 0; i < argumentNames.length; i++) {
+      int actualPosition = parameterNames.indexOf(argumentNames[i]);
+      checkArgumentPosition(actualPosition, method.getName(), parameterNames, argumentNames[i]);
+      argumentsOrder[actualPosition] = i;
     }
+    return argumentsOrder;
+  }
+
+  public static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
+    if (argumentNames.length == 0) { return handle; }
+    if (hasNamedParameters(method)) {
+      return permuteArguments(handle, handle.type(), getArgumentsOrder(method, getParameterNames(method), argumentNames));
+    }
+    Warnings.noParameterNames(method.getName(), argumentNames);
     return handle;
   }
 
