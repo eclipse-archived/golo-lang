@@ -42,7 +42,7 @@ abstract class MethodFinder {
     argumentsOrder[0] = 0;
     for (int i = 0; i < argumentNames.length; i++) {
       int actualPosition = parameterNames.indexOf(argumentNames[i]);
-      checkArgumentPosition(actualPosition, method.getName(), parameterNames, argumentNames[i]);
+      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
       argumentsOrder[actualPosition + 1] = i + 1;
     }
     return argumentsOrder;

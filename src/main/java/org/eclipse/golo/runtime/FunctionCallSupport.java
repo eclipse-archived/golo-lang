@@ -208,7 +208,7 @@ public final class FunctionCallSupport {
     int[] argumentsOrder = new int[parameterNames.size()];
     for (int i = 0; i < argumentNames.length; i++) {
       int actualPosition = parameterNames.indexOf(argumentNames[i]);
-      checkArgumentPosition(actualPosition, method.getName(), parameterNames, argumentNames[i]);
+      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
       argumentsOrder[actualPosition] = i;
     }
     return argumentsOrder;

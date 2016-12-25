@@ -32,12 +32,11 @@ public final class NamedArgumentsHelper {
         .collect(toList());
   }
 
-  public static void checkArgumentPosition(int position, String methodName, List<String> parameterNames, String argument) {
+  public static void checkArgumentPosition(int position, String argument, String declaration) {
     if (position == -1) {
       throw new IllegalArgumentException(
           "Argument name " + argument
-          + " not in parameter names used in declaration: "
-          + methodName + parameterNames);
+          + " not in parameter names used in declaration: " + declaration);
     }
   }
 }
