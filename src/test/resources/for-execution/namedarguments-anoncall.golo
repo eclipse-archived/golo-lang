@@ -16,7 +16,7 @@ function test_indirect = {
 
   let y = yo("sam")
   assertEquals(y(before="Hello", after="!"), expected)
-  
+
   let s = ^say: bindAt("message", "sam")
   assertEquals(s(before="Hello", after="!"), expected)
 
@@ -26,13 +26,6 @@ function test_indirect = {
   let l = |left, right| -> left + right
   assertEquals(l(left="a", right="b"), "ab")
 
-  assertEquals(yo("sam"): invoke(before="Hello", after="!"), expected)
-  assertEquals(
-    ^say: bindAt("message", "sam"): invoke(before="Hello", after="!"),
-    expected)
-
-  assertEquals(^add: invoke(left="a", right="b"), "ab")
-  assertEquals((|left, right| -> left + right): invoke(left="a", right="b"), "ab")
 }
 
 
