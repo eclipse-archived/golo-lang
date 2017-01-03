@@ -70,6 +70,30 @@ public abstract class GoloElement {
     }
   }
 
+  protected GoloElement previousSiblingOf(GoloElement current) {
+    return null;
+  }
+
+  protected GoloElement nextSiblingOf(GoloElement current) {
+    return null;
+  }
+
+  public GoloElement getPreviousSibling() {
+    if (this.parent.isPresent()) {
+      return this.parent.get().previousSiblingOf(this);
+    } else {
+      return null;
+    }
+  }
+
+  public GoloElement getNextSibling() {
+    if (this.parent.isPresent()) {
+      return this.parent.get().nextSiblingOf(this);
+    } else {
+      return null;
+    }
+  }
+
   protected RuntimeException cantReplace() {
     return new UnsupportedOperationException(getClass().getName() + " can't replace elements");
   }
@@ -87,11 +111,15 @@ public abstract class GoloElement {
   }
 
   public void replaceInParentBy(GoloElement newElement) {
+    GoloElement replacement = newElement;
+    if (newElement == null) {
+      replacement = new Noop(this.getClass().getSimpleName() + " was removed");
+    }
     if (this.parent.isPresent()) {
-      this.parent.get().replaceElement(this, newElement);
-      this.parent.get().makeParentOf(newElement);
+      this.parent.get().replaceElement(this, replacement);
+      this.parent.get().makeParentOf(replacement);
       if (hasASTNode()) {
-        getASTNode().setIrElement(newElement);
+        getASTNode().setIrElement(replacement);
       }
       this.setParentNode(null);
     }

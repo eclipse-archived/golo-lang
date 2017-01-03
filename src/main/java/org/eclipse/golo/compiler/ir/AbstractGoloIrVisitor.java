@@ -183,4 +183,8 @@ public abstract class AbstractGoloIrVisitor implements GoloIrVisitor {
     localRef.walk(this);
   }
 
+  @Override
+  public void visitNoop(Noop noop) {
+    noop.walk(this);
+  }
 }

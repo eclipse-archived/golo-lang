@@ -55,6 +55,52 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     }
   }
 
+  @Override
+  public void visitFunctionInvocation(FunctionInvocation invocation) {
+    specialLastArgument(invocation);
+    invocation.walk(this);
+  }
+
+  @Override
+  public void visitMethodInvocation(MethodInvocation invocation) {
+    specialLastArgument(invocation);
+    invocation.walk(this);
+  }
+
+
+  /**
+   * Adds the following node as the last argument of the invocation.
+   * <p>
+   * The rational is to allow code like
+   * <pre><code>
+   * let plop = bar("foo") 42
+   * let r = foo(42) {
+   *    println("bar")
+   * }
+   * </code></pre>
+   * instead of
+   * <pre><code>
+   * let plop = bar("foo", 42)
+   * let r = foo(42, { println("bar") })
+   * </code></pre>
+   * <p>
+   * To be compliant with the current syntax, not every kind of node can be added.
+   * For instance, anything with parenthesis can't be valid since identified as an anonymous call.
+   * In the same way, a function invocation can just be the next statement of the block, and we
+   * have no way to decide if it should be the last argument of the current call (aside from the
+   * line number, which is pretty fragile).
+   */
+  private void specialLastArgument(AbstractInvocation invocation) {
+    GoloElement next = invocation.getNextSibling();
+    if (next != null
+        && (next instanceof ClosureReference
+          || next instanceof CollectionLiteral
+          || next instanceof ConstantStatement)) {
+      next.replaceInParentBy(null);
+      invocation.withArgs(next);
+    }
+  }
+
   /**
    * Case expansion.
    * <p>
@@ -153,6 +199,12 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     construct.accept(this);
   }
 
+  /**
+   * Function reference expansion.
+   * <p>
+   * Replace a literal function reference {@code ^myfun} by a call to
+   * {@code gololang.Predefined.fun("myfun")}
+   */
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     constantStatement.walk(this);

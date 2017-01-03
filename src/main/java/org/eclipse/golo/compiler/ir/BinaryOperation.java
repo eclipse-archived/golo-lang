@@ -91,4 +91,16 @@ public final class BinaryOperation extends ExpressionStatement {
     }
   }
 
+  @Override
+  protected GoloElement nextSiblingOf(GoloElement current) {
+    // TODO: makes a lot of tests fail. Why?
+    // if (leftExpression == current) {
+    //   return rightExpression;
+    // }
+    if (rightExpression == current) {
+      return this.getNextSibling();
+    }
+    return null;
+  }
+
 }

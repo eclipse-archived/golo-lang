@@ -79,4 +79,13 @@ public final class AssignmentStatement extends GoloStatement {
       throw cantReplace(original, newElement);
     }
   }
+
+  @Override
+  protected GoloElement nextSiblingOf(GoloElement current) {
+    if (expressionStatement == current) {
+      return this.getNextSibling();
+    }
+    return null;
+  }
+
 }

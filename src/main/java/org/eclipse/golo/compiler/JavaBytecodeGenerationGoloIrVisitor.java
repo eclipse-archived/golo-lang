@@ -66,10 +66,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private static Handle makeHandle(String methodName, String description) {
     return new Handle(H_INVOKESTATIC,
-      "org/eclipse/golo/runtime/" + methodName,
-      "bootstrap",
-      "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
-      + description + ")Ljava/lang/invoke/CallSite;", false);
+        "org/eclipse/golo/runtime/" + methodName,
+        "bootstrap",
+        "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
+        + description + ")Ljava/lang/invoke/CallSite;", false);
   }
 
   private static RuntimeException invalidElement(GoloElement element) {
@@ -115,6 +115,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitDestructuringAssignment(DestructuringAssignment statement) {
     throw invalidElement(statement);
+  }
+
+  @Override
+  public void visitNoop(Noop noop) {
+    // do nothing...
   }
 
   @Override

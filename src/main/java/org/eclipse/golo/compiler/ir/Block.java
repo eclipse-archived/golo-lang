@@ -174,4 +174,23 @@ public final class Block extends ExpressionStatement implements Scope {
       throw cantReplace(original, newElement);
     }
   }
+
+  @Override
+  protected GoloElement previousSiblingOf(GoloElement current) {
+    int idx = statements.indexOf(current);
+    if (idx < 1) {
+      return null;
+    }
+    return statements.get(idx - 1);
+  }
+
+  @Override
+  protected GoloElement nextSiblingOf(GoloElement current) {
+    int idx = statements.indexOf(current);
+    if (idx == -1 || idx == statements.size() - 1) {
+      return null;
+    }
+    return statements.get(idx + 1);
+  }
+
 }
