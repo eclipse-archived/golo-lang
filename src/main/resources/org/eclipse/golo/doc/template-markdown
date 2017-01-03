@@ -12,11 +12,13 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <% foreach structDoc in doc: structs() { %>
 ### `<%= structDoc: name() %>`
 
+<%= adaptSections(structDoc: documentation(), 3) %>
+
 ##### Members
 <% foreach member in structDoc: members() { %>
-- <%= member %>
+* `<%= member: name() %>`
+  <%= adaptSections(member: documentation(), 5) %>
 <%}%>
-<%= adaptSections(structDoc: documentation(), 3) %>
 <%}}%>
 <% if not doc: unions(): isEmpty() { %>
 ## Unions
@@ -25,10 +27,14 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <%= adaptSections(unionDoc: documentation(), 3) %>
 <% foreach unionValueDoc in unionDoc: values() { %>
 #### `<%= unionValueDoc: name() %>`
-<% foreach member in unionValueDoc: members() { %>
-- <%= member %>
-<%}%>
+
 <%= adaptSections(unionValueDoc: documentation(), 3) %>
+
+##### Members
+<% foreach member in unionValueDoc: members() { %>
+* `<%= member: name() %>`
+  <%= adaptSections(member: documentation(), 5) %>
+<%}%>
 <%}%>
 <%}%>
 <%}%>

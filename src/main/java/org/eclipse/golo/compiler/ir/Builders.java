@@ -352,4 +352,7 @@ public final class Builders {
       .elseBranch(elseBranch);
   }
 
+  public static Member member(String name) {
+    return new Member(name);
+  }
 }

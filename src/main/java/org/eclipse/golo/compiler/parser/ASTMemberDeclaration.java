@@ -9,33 +9,36 @@
 
 package org.eclipse.golo.compiler.parser;
 
-public class ASTUnionValue extends GoloASTNode implements NamedNode {
+public class ASTMemberDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
 
-  public ASTUnionValue(int id) {
+  public ASTMemberDeclaration(int id) {
     super(id);
   }
 
-  public ASTUnionValue(GoloParser p, int id) {
+  public ASTMemberDeclaration(GoloParser p, int id) {
     super(p, id);
   }
 
+  @Override
   public String getName() {
     return name;
   }
 
+  @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  @Override
+  public String toString() {
+    return String.format("ASTMemberDeclaration{name='%s'}", name);
   }
 
   @Override
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
-
-  @Override
-  public String toString() {
-    return String.format("ASTUnionValue{name='%s'}", name);
-  }
 }
+

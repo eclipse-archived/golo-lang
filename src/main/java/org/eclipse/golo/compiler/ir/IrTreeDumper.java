@@ -77,9 +77,11 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println("Struct " + struct.getPackageAndClass().className());
     space();
     System.out.println(" - target class = " + struct.getPackageAndClass());
+    incr();
     space();
-    System.out.println(" - members = " + struct.getMembers());
+    System.out.println("Members: ");
     struct.walk(this);
+    decr();
     decr();
   }
 
@@ -456,5 +458,13 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println("Named argument: " + namedArgument.getName());
     namedArgument.getExpression().accept(this);
     decr();
+  }
+
+  @Override
+  public void visitMember(Member member) {
+    space();
+    System.out.print(" - ");
+    System.out.print(member.getName());
+    System.out.println();
   }
 }

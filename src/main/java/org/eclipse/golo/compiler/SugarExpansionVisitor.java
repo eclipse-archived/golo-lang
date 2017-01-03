@@ -46,6 +46,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
+    function.insertMissingReturnStatement();
     function.walk(this);
     if (function.hasDecorators() && function.getParentNode().isPresent()) {
       FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
@@ -318,7 +319,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   }
 
   /**
-   * Add struct factories if they don't already exists
+   * Add struct factories if they don't already exist.
    *
    */
   @Override

@@ -294,15 +294,17 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
                             rel="source" title="Link to the corresponding source">Source</a></nav>
     <% } %>
 
-    <h5>Members</h5>
-    <ul>
-    <% foreach member in structDoc: members() { %>
-      <li><code><%= member %></code></li>
-  <% } %>
-    </ul>
     <div class="golodoc">
       <%= process(structDoc: documentation(), 3, CONFIG) %>
     </div>
+
+    <h5>Members</h5>
+    <ul>
+    <% foreach member in structDoc: members() { %>
+      <li><code><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
+      </li>
+  <% } %>
+    </ul>
   <% } %>
 <% } %>
 
@@ -321,22 +323,21 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     </div>
 
     <% foreach unionValueDoc in unionDoc: values() { %>
-    <h4 id="<%= unionDoc: name() %>.<%= unionValueDoc: name() %>">
-        <%= unionValueDoc: name() %>
-        <a class="permalink" href="#<%= unionDoc: name() %>.<%= unionValueDoc: name() %>"
-            title="link to this section">&#182;</a>
-    </h4>
+      <h4 id="<%= unionDoc: name() %>.<%= unionValueDoc: name() %>"><%= unionValueDoc: name() %>
+          <a class="permalink" href="#<%= unionDoc: name() %>.<%= unionValueDoc: name() %>" title="link to this section">&#182;</a>
+      </h4>
 
-    <% if not unionValueDoc: members(): isEmpty() { %>
-      <ul>
-      <% foreach member in unionValueDoc: members() { %>
-        <li><code><%= member %></code></li>
+      <div class="golodoc"><%= process(unionValueDoc: documentation(), 4, CONFIG) %></div>
+
+      <% if not unionValueDoc: members(): isEmpty() { %>
+        <h5>Members</h5>
+        <ul>
+        <% foreach member in unionValueDoc: members() { %>
+          <li><code><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
+          </li>
+        <% } %>
+        </ul>
       <% } %>
-      </ul>
-    <% } %>
-
-    <div class="golodoc"><%= process(unionValueDoc: documentation(), 4, CONFIG) %></div>
-
     <% } %>
   <% } %>
 <% } %>

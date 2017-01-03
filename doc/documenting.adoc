@@ -4,7 +4,7 @@ Of course you can document your code using comments (`#`), but who reads source 
 
 === Documentation blocks
 
-Golo provides a support for documentation blocks on modules, functions, augmentations and structs.
+Golo provides a support for documentation blocks on modules, functions, augmentations, structs and unions, as well as fields.
 Blocks are delimited by `----` and contain free-form Markdown
 footnote:[ http://daringfireball.net/projects/markdown/syntax[Markdown text] ]
 text.
@@ -34,6 +34,44 @@ The following snipped prints `3`:
 Impressive!
 ----
 function adder = |x, y| -> x + y
+--
+
+Sections can be added in the documentation using the normal markdown syntax. The level of the titles is adapted to the generated documentation.
+For instance:
+
+[source,golo]
+--
+----
+Encode a linked list as cons cells.
+
+# Examples
+
+A list is constructed from cons
+
+    let myList = Cons(1, Cons(2, Cons(3, Empty())))
+
+----
+union List = {
+  ----
+  The empty list
+  ----
+  Empty
+
+  ----
+  A cell in the list
+  ----
+  Cons = {
+    ----
+    The head of the list
+    ----
+    head,
+
+    ----
+    The tail of the list
+    ----
+    tail
+  }
+}
 --
 
 === Rendering documentation

@@ -60,7 +60,7 @@ union Option = {
 ----
 
 As illustrated here, and contrary to Java `enum`, each alternative value can
-have different fields. A `union` alternative type is in this respect similar to `struct`
+have different fields. A `union` alternative type is in this respect similar to immutable `struct`.
 
 ==== Recursive data structures
 
@@ -114,7 +114,7 @@ values, and you can't instantiate values directly, since values without fields
 are actually singletons.
 
 Note that proper definitions of `toString()`, `hashCode()` and `equals()` are
-being provided. These definitions are similar to the ones defined for frozen `struct`.
+provided. These definitions are similar to the ones defined for frozen `struct`.
 
 IMPORTANT: `union` values with fields are similar to frozen `struct`, that is
 are immutable, have getters for fields and are compared by values. However,
@@ -146,7 +146,7 @@ match {
   when elt: isLeaf(0) then // we have a leaf containing 0
   when elt: isLeaf()  then // we have a leaf (whatever the value)
   when elt: isNode(Empty(), Empty()) then // we have a node with empty children
-  when elt: isNode(Leaf(42), Leaf(42)) then // we have a node whose  both children contain 42
+  when elt: isNode(Leaf(42), Leaf(42)) then // we have a node whose both children contain 42
   when elt: isNode() then // we have a node, whatever the values
   otherwise // default case...
 }
@@ -156,8 +156,8 @@ More precisely, each possible union value provides parameterless methods
 testing its exact type, named `is<TypeName>`. In the tree example, three
 methods are defined: `isEmpty()`, `isLeaf()` and `isNode()`.
 In addition to these methods, a method with parameters is defined for every
-alternative with members, here `isLeaf(x)` and `isNode(x, y)`. The arguments
-are compared (in order) for equality to the members of the union value. 
+alternative with members, here `isLeaf(value)` and `isNode(left, right)`. The arguments
+are compared for equality to the members of the union value.
 For instance:
 [source,golo]
 ----
@@ -168,7 +168,7 @@ allowing readable test and match clauses.
 
 A special singleton value is available to make these clauses even more
 readable: the `Unknown` value. This special singleton is considered equal to
-any other object (except `null`), and thus can be used is the parametrized test 
+any other object (except `null`), and thus can be used in the parametrized test
 methods to ignore some members. For instance, to match a `Node` with only one
 child, one can use:
 [source,golo]

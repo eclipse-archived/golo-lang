@@ -64,12 +64,10 @@ public class TestUtils {
   }
 
   public static boolean isTestMethod(Method m) {
-    return (
-      isPublic(m.getModifiers()) &&
-      isStatic(m.getModifiers()) &&
-      m.getName().startsWith("test_") &&
-      m.getParameterCount() == 0
-    );
+    return (isPublic(m.getModifiers())
+        && isStatic(m.getModifiers())
+        && (m.getName().startsWith("test_") || m.getName().startsWith("check_"))
+        && m.getParameterCount() == 0);
   }
 
   public static Iterable<Method> getTestMethods(Class<?> module) {

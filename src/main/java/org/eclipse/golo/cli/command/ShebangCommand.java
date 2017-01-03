@@ -49,14 +49,14 @@ public class ShebangCommand implements CliCommand {
     }
   }
 
-  private static Path dirName(Path file){
-    if(!file.isAbsolute()) {
+  private static Path dirName(Path file) {
+    if (!file.isAbsolute()) {
       return file.toAbsolutePath().getParent();
     }
     return file.getParent();
   }
 
-  private static boolean sameFile(Path path1, Path path2){
+  private static boolean sameFile(Path path1, Path path2) {
     return path1.toAbsolutePath().compareTo(path2.toAbsolutePath()) == 0;
   }
 
