@@ -7,6 +7,10 @@ matrix:
   fast_finish: true
 
 sudo: false
+addons:
+  apt:
+    packages:
+      - oracle-java8-installer
 
 notifications:
   webhooks:
