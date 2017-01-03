@@ -48,8 +48,8 @@ sourceCompatibility = 1.8
 targetCompatibility = 1.8
 
 tasks.withType(JavaCompile) {
-  options.compilerArgs += ["-Xlint:unchecked", "-Xlint:deprecation"]
   options.encoding = "UTF-8"
+  options.compilerArgs += ["-Xlint:unchecked", "-Xlint:deprecation", "-parameters"]
 }
 
 // .................................................................................................................. //
