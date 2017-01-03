@@ -9,8 +9,6 @@
 
 package org.eclipse.golo.runtime;
 
-import gololang.FunctionReference;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
