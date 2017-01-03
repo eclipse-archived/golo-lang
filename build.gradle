@@ -16,10 +16,10 @@ plugins {
   id 'findbugs'
   id 'application'
   id 'maven-publish'
-  id 'com.jfrog.bintray' version '1.7.1'
-  id 'ca.coglinc.javacc' version '2.3.1'
+  id 'com.jfrog.bintray' version '1.7.3'
+  id 'ca.coglinc.javacc' version '2.4.0'
   id 'org.asciidoctor.convert' version '1.5.3'
-  id 'net.nemerosa.versioning' version '2.5.0'
+  id 'net.nemerosa.versioning' version '2.5.1'
   id 'com.github.ben-manes.versions' version '0.13.0'
 }
 
@@ -84,15 +84,15 @@ configurations.all {
 
 dependencies {
   compile 'org.ow2.asm:asm:5.1'
-  compile 'com.beust:jcommander:1.56'
+  compile 'com.beust:jcommander:1.60'
   compile 'com.github.rjeschke:txtmark:0.13'
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
   testCompile 'org.ow2.asm:asm-util:5.1'
   testCompile 'org.ow2.asm:asm-analysis:5.1'
   testCompile 'org.hamcrest:hamcrest-all:1.3'
-  testCompile 'org.skyscreamer:jsonassert:1.3.0'
-  testCompile 'org.testng:testng:6.9.12'
+  testCompile 'org.skyscreamer:jsonassert:1.4.0'
+  testCompile 'org.testng:testng:6.10'
   testCompile 'com.google.inject:guice:4.1.0:no_aop' // for TestNG
 }
 
@@ -430,7 +430,7 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
 // .................................................................................................................. //
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '3.1'
+  gradleVersion = '3.3'
   description 'Generates the Gradle wrapper scripts.'
 }
 
