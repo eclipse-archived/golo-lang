@@ -10,17 +10,17 @@
 package org.eclipse.golo.doc;
 
 import java.util.Objects;
-import java.util.Set;
-import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.LinkedList;
 import java.util.Collection;
-import static java.util.Collections.unmodifiableSet;
+import static java.util.Collections.unmodifiableList;
 
-class StructDocumentation implements Comparable<StructDocumentation>, DocumentationElement {
+class StructDocumentation implements Comparable<StructDocumentation>, DocumentationElement, MemberHolder {
 
   private String name;
   private String documentation;
   private int line;
-  private Set<String> members = new LinkedHashSet<>();
+  private List<MemberDocumentation> members = new LinkedList<>();
 
   public String name() {
     return name;
@@ -45,17 +45,23 @@ class StructDocumentation implements Comparable<StructDocumentation>, Documentat
   }
 
   public StructDocumentation line(int l) {
-    line= l;
+    line = l;
     return this;
   }
 
-  public Set<String> members() {
-    return unmodifiableSet(members);
+  public List<MemberDocumentation> members() {
+    return unmodifiableList(members);
   }
 
-  public StructDocumentation members(Collection<String> m) {
+  public StructDocumentation members(Collection<MemberDocumentation> m) {
     members.addAll(m);
     return this;
+  }
+
+  public MemberDocumentation addMember(String name) {
+    MemberDocumentation doc = new MemberDocumentation().name(name);
+    members.add(doc);
+    return doc;
   }
 
   @Override

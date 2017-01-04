@@ -83,7 +83,7 @@ public abstract class GoloElement {
   }
 
   protected static RuntimeException cantConvert(String expected, Object value) {
-    return new IllegalArgumentException("expecting a " + expected + "but got a " + value.getClass());
+    return new ClassCastException("expecting a " + expected + "but got a " + value.getClass());
   }
 
   public void replaceInParentBy(GoloElement newElement) {
@@ -115,10 +115,36 @@ public abstract class GoloElement {
     return Optional.empty();
   }
 
+  /**
+   * Accept the visitor.
+   * <p>
+   * This method should only call the visitor {@code visitXXXX} method.
+   * The children of this node will be visited by the
+   * {@link #walk(GoloIrVisitor)} method.
+   */
   public abstract void accept(GoloIrVisitor visitor);
 
+  /**
+   * Walk the visitor through this node children.
+   */
   public abstract void walk(GoloIrVisitor visitor);
 
+  /**
+   * Replace a child.
+   * <p>
+   * Replace {@code original} with {@code newElement} if {@code original} is a child of this node
+   * and type matches.
+   *
+   * @param original the original value to replace. Must be a child of this node
+   * @param newElement the element to replace with. Type must match.
+   * @throws UnsupportedOperationException if this node does not support replacement
+   * @throws NoSuchElementException if {@code original} is not a child of this node
+   * @throws ClassCastException if the type of {@code newElement} does not match
+   * @see #cantReplace()
+   * @see #cantReplace(GoloElement, GoloElement)
+   * @see #doesNotContain(GoloElement)
+   * @see #cantConvert(String, Object)
+   */
   protected abstract void replaceElement(GoloElement original, GoloElement newElement);
 
 }

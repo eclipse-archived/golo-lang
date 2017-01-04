@@ -11,6 +11,7 @@ package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.ir.Union;
 import org.eclipse.golo.compiler.ir.UnionValue;
+import org.eclipse.golo.compiler.ir.Member;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
@@ -68,6 +69,9 @@ class JavaBytecodeUnionGenerator {
     MethodVisitor mv = cw.visitMethod(ACC_PUBLIC + ACC_STATIC, value.getName(),
         argsSignature(value.getMembers().size()) + value.getUnion().getPackageAndClass().toJVMRef(),
         null, null);
+    for (Member member : value.getMembers()) {
+      mv.visitParameter(member.getName(), ACC_FINAL);
+    }
     mv.visitCode();
     mv.visitTypeInsn(NEW, value.getPackageAndClass().toJVMType());
     mv.visitInsn(DUP);
@@ -102,6 +106,9 @@ class JavaBytecodeUnionGenerator {
 
     if (value.hasMembers()) {
       mv = classWriter.visitMethod(ACC_PUBLIC, methName, argsSignature(value.getMembers().size()) + "Z", null, null);
+      for (Member member : value.getMembers()) {
+        mv.visitParameter(member.getName(), ACC_FINAL);
+      }
       mv.visitCode();
       if (!result) {
         mv.visitInsn(ICONST_0);
@@ -110,10 +117,10 @@ class JavaBytecodeUnionGenerator {
         Label allEquals = new Label();
         Label notEqual = new Label();
         String target = value.getPackageAndClass().toJVMType();
-        for (String member : value.getMembers()) {
+        for (Member member : value.getMembers()) {
           mv.visitVarInsn(ALOAD, i);
           mv.visitVarInsn(ALOAD, 0);
-          mv.visitFieldInsn(GETFIELD, target, member, "Ljava/lang/Object;");
+          mv.visitFieldInsn(GETFIELD, target, member.getName(), "Ljava/lang/Object;");
           mv.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z", false);
           mv.visitJumpInsn(IFEQ, notEqual);
           i++;
@@ -142,16 +149,16 @@ class JavaBytecodeUnionGenerator {
       visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
       visitor.visitVarInsn(ASTORE, 1);
       boolean first = true;
-      for (String member : value.getMembers()) {
+      for (Member member : value.getMembers()) {
         visitor.visitVarInsn(ALOAD, 1);
-        visitor.visitLdcInsn((first ? "" : ", ") + member + "=");
+        visitor.visitLdcInsn((first ? "" : ", ") + member.getName() + "=");
         visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
             "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
         visitor.visitInsn(POP);
 
         visitor.visitVarInsn(ALOAD, 1);
         visitor.visitVarInsn(ALOAD, 0);
-        visitor.visitFieldInsn(GETFIELD, value.getPackageAndClass().toJVMType(), member, "Ljava/lang/Object;");
+        visitor.visitFieldInsn(GETFIELD, value.getPackageAndClass().toJVMType(), member.getName(), "Ljava/lang/Object;");
         visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append",
             "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
         visitor.visitInsn(POP);
@@ -179,8 +186,8 @@ class JavaBytecodeUnionGenerator {
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL, valueType, null, unionType, null);
     classWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
     parentClassWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
-    for (String member : value.getMembers()) {
-      classWriter.visitField(ACC_PUBLIC | ACC_FINAL, member, "Ljava/lang/Object;", null, null).visitEnd();
+    for (Member member : value.getMembers()) {
+      classWriter.visitField(ACC_PUBLIC | ACC_FINAL, member.getName(), "Ljava/lang/Object;", null, null).visitEnd();
     }
     if (value.hasMembers()) {
       makeValuedConstructor(classWriter, value);
@@ -237,11 +244,11 @@ class JavaBytecodeUnionGenerator {
     mv.visitVarInsn(ASTORE, 2);
 
     // java.util.Objects.equals(<member>, other.<member>)
-    for (String member : value.getMembers()) {
+    for (Member member : value.getMembers()) {
       mv.visitVarInsn(ALOAD, 0);
-      mv.visitFieldInsn(GETFIELD, target, member, "Ljava/lang/Object;");
+      mv.visitFieldInsn(GETFIELD, target, member.getName(), "Ljava/lang/Object;");
       mv.visitVarInsn(ALOAD, 2);
-      mv.visitFieldInsn(GETFIELD, target, member, "Ljava/lang/Object;");
+      mv.visitFieldInsn(GETFIELD, target, member.getName(), "Ljava/lang/Object;");
       mv.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals",
           "(Ljava/lang/Object;Ljava/lang/Object;)Z", false);
       mv.visitJumpInsn(IFEQ, attrNotEqual);
@@ -270,24 +277,14 @@ class JavaBytecodeUnionGenerator {
     loadInteger(mv, value.getMembers().size());
     mv.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;
-    for (String member : value.getMembers()) {
+    for (Member member : value.getMembers()) {
       mv.visitInsn(DUP);
       loadInteger(mv, i);
       mv.visitVarInsn(ALOAD, 0);
-      mv.visitFieldInsn(GETFIELD, value.getPackageAndClass().toJVMType(), member, "Ljava/lang/Object;");
+      mv.visitFieldInsn(GETFIELD, value.getPackageAndClass().toJVMType(), member.getName(), "Ljava/lang/Object;");
       mv.visitInsn(AASTORE);
       i++;
     }
-  }
-
-  private void makeDestruct(ClassWriter cw, UnionValue value) {
-    MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "destruct", "()Lgololang/Tuple;", null, null);
-    mv.visitCode();
-    loadMembersArray(mv, value);
-    mv.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;", false);
-    mv.visitInsn(ARETURN);
-    mv.visitMaxs(0, 0);
-    mv.visitEnd();
   }
 
   private void makeToArray(ClassWriter cw, UnionValue value) {
@@ -315,10 +312,10 @@ class JavaBytecodeUnionGenerator {
     mv.visitVarInsn(ALOAD, 0);
     mv.visitMethodInsn(INVOKESPECIAL, value.getUnion().getPackageAndClass().toJVMType(), "<init>", "()V", false);
     int idx = 1;
-    for (String member : value.getMembers()) {
+    for (Member member : value.getMembers()) {
       mv.visitVarInsn(ALOAD, 0);
       mv.visitVarInsn(ALOAD, idx++);
-      mv.visitFieldInsn(PUTFIELD, value.getPackageAndClass().toJVMType(), member, "Ljava/lang/Object;");
+      mv.visitFieldInsn(PUTFIELD, value.getPackageAndClass().toJVMType(), member.getName(), "Ljava/lang/Object;");
     }
     mv.visitInsn(RETURN);
     mv.visitMaxs(0, 0);

@@ -64,8 +64,44 @@ A point, with `x` and `y` coordinates.
 Do not hesitate to provide an augmentation for `Documented.types.Point` if you
 would like to add *methods* to it.
 ----
-struct Point = { x, y }
+struct Point = {
+
+  ----
+  The *horizontal* position of the point
+  ----
+  x,
+
+  ----
+  The *vertical* position of the point
+  ----
+  y=42
+}
 
 let letState = 1
 
 var varState = []
+
+----
+A *linked list* (cons)
+----
+union List = {
+  ----
+  The empty list
+  ----
+  Empty
+
+  ----
+  A *cell* in the list
+  ----
+  Cons = {
+    ----
+    The *head* of the list
+    ----
+    head,
+
+    ----
+    The tail of the list
+    ----
+    tail=List.Empty()
+  }
+}

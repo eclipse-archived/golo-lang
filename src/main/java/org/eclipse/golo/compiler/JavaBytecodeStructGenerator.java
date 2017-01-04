@@ -10,6 +10,7 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.ir.Struct;
+import org.eclipse.golo.compiler.ir.Member;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -53,14 +54,14 @@ class JavaBytecodeStructGenerator {
     visitor.visitCode();
     insertPrivateElementCheck(struct, visitor);
     Label nextCase = new Label();
-    for (String member : struct.getMembers()) {
-      visitor.visitLdcInsn(member);
+    for (Member member : struct.getMembers()) {
+      visitor.visitLdcInsn(member.getName());
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
       visitor.visitJumpInsn(IFEQ, nextCase);
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitVarInsn(ALOAD, 2);
-      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "(Ljava/lang/Object;)Lgololang/GoloStruct;", false);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member.getName(), "(Ljava/lang/Object;)Lgololang/GoloStruct;", false);
       visitor.visitInsn(ARETURN);
       visitor.visitLabel(nextCase);
       nextCase = new Label();
@@ -76,13 +77,13 @@ class JavaBytecodeStructGenerator {
     visitor.visitCode();
     insertPrivateElementCheck(struct, visitor);
     Label nextCase = new Label();
-    for (String member : struct.getMembers()) {
-      visitor.visitLdcInsn(member);
+    for (Member member : struct.getMembers()) {
+      visitor.visitLdcInsn(member.getName());
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "equals", "(Ljava/lang/Object;)Z", false);
       visitor.visitJumpInsn(IFEQ, nextCase);
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member, "()Ljava/lang/Object;", false);
+      visitor.visitMethodInsn(INVOKEVIRTUAL, owner, member.getName(), "()Ljava/lang/Object;", false);
       visitor.visitInsn(ARETURN);
       visitor.visitLabel(nextCase);
       nextCase = new Label();
@@ -121,11 +122,11 @@ class JavaBytecodeStructGenerator {
     loadInteger(visitor, struct.getPublicMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int index = 0;
-    for (String member : struct.getPublicMembers()) {
+    for (Member member : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
       loadInteger(visitor, index);
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitInsn(AASTORE);
       index = index + 1;
     }
@@ -163,12 +164,12 @@ class JavaBytecodeStructGenerator {
     visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
     visitor.visitJumpInsn(IFEQ, falseLabel);
     // The argument is not frozen
-    for (String member : struct.getMembers()) {
+    for (Member member : struct.getMembers()) {
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitVarInsn(ALOAD, 1);
       visitor.visitTypeInsn(CHECKCAST, owner);
-      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "equals", "(Ljava/lang/Object;Ljava/lang/Object;)Z", false);
       visitor.visitJumpInsn(IFEQ, falseLabel);
     }
@@ -199,11 +200,11 @@ class JavaBytecodeStructGenerator {
     loadInteger(visitor, struct.getMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
     int i = 0;
-    for (String member : struct.getMembers()) {
+    for (Member member : struct.getMembers()) {
       visitor.visitInsn(DUP);
       loadInteger(visitor, i);
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitInsn(AASTORE);
       i = i + 1;
     }
@@ -220,9 +221,9 @@ class JavaBytecodeStructGenerator {
     visitor.visitCode();
     visitor.visitTypeInsn(NEW, owner);
     visitor.visitInsn(DUP);
-    for (String member : struct.getMembers()) {
+    for (Member member : struct.getMembers()) {
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
     }
     visitor.visitMethodInsn(INVOKESPECIAL, owner, "<init>", allArgsConstructorSignature(struct), false);
     visitor.visitInsn(DUP);
@@ -242,14 +243,14 @@ class JavaBytecodeStructGenerator {
     visitor.visitLdcInsn("struct " + struct.getPackageAndClass().className() + "{");
     visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/StringBuilder", "<init>", "(Ljava/lang/String;)V", false);
     boolean first = true;
-    for (String member : struct.getPublicMembers()) {
+    for (Member member : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
-      visitor.visitLdcInsn((!first ? ", " : "") + member + "=");
+      visitor.visitLdcInsn((!first ? ", " : "") + member.getName() + "=");
       first = false;
       visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/String;)Ljava/lang/StringBuilder;", false);
       visitor.visitInsn(DUP);
       visitor.visitVarInsn(ALOAD, 0);
-      visitor.visitFieldInsn(GETFIELD, owner, member, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/StringBuilder", "append", "(Ljava/lang/Object;)Ljava/lang/StringBuilder;", false);
     }
     visitor.visitLdcInsn("}");
@@ -272,10 +273,10 @@ class JavaBytecodeStructGenerator {
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitMethodInsn(INVOKESPECIAL, "gololang/GoloStruct", "<init>", "()V", false);
     int arg = 1;
-    for (String name : struct.getMembers()) {
+    for (Member member : struct.getMembers()) {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitVarInsn(ALOAD, arg);
-      visitor.visitFieldInsn(PUTFIELD, owner, name, "Ljava/lang/Object;");
+      visitor.visitFieldInsn(PUTFIELD, owner, member.getName(), "Ljava/lang/Object;");
       arg = arg + 1;
     }
     initMembersField(struct, owner, visitor);
@@ -314,10 +315,10 @@ class JavaBytecodeStructGenerator {
     loadInteger(visitor, struct.getPublicMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/String");
     arg = 0;
-    for (String name : struct.getPublicMembers()) {
+    for (Member member : struct.getPublicMembers()) {
       visitor.visitInsn(DUP);
       loadInteger(visitor, arg);
-      visitor.visitLdcInsn(name);
+      visitor.visitLdcInsn(member.getName());
       visitor.visitInsn(AASTORE);
       arg = arg + 1;
     }
@@ -350,17 +351,17 @@ class JavaBytecodeStructGenerator {
 
   private void makeFields(ClassWriter classWriter, Struct struct) {
     classWriter.visitField(ACC_PRIVATE | ACC_FINAL, $_frozen, "Z", null, null).visitEnd();
-    for (String name : struct.getMembers()) {
-      FieldVisitor fieldVisitor = classWriter.visitField(ACC_PRIVATE, name, "Ljava/lang/Object;", null, null);
+    for (Member member : struct.getMembers()) {
+      FieldVisitor fieldVisitor = classWriter.visitField(ACC_PRIVATE, member.getName(), "Ljava/lang/Object;", null, null);
       fieldVisitor.visitEnd();
     }
   }
 
   private void makeAccessors(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
-    for (String name : struct.getMembers()) {
-      makeGetter(classWriter, owner, name);
-      makeSetter(classWriter, owner, name);
+    for (Member member : struct.getMembers()) {
+      makeGetter(classWriter, owner, member.getName());
+      makeSetter(classWriter, owner, member.getName());
     }
     makeFrozenGetter(classWriter, owner);
   }

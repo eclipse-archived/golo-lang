@@ -11,12 +11,12 @@ union Option = {
 
 augment Option {
   function bind = |this, func| -> match {
-    when this is Option.None() then this
+    when this is None() then this
     otherwise func(this: value())
   }
 
   function fmap = |this, func| -> match {
-    when this is Option.None() then this
+    when this is None() then this
     otherwise Option.Some(func(this: value()))
   }
 }
@@ -24,7 +24,7 @@ augment Option {
 function monadicAdd = |mx, my| ->
   mx: bind(|x| ->
     my: bind(|y| ->
-      Option.Some(x + y)))
+      Some(x + y)))
 
 # ............................................................................................... #
 union Tree = {
@@ -47,8 +47,8 @@ augment Tree$Leaf {
 
 augment Tree {
   function whoAreYou = |this| -> match {
-    when this oftype golotest.execution.Unions.types.Tree$Node.class then "I'm a node"
-    when this oftype golotest.execution.Unions.types.Tree$Leaf.class then "I'm a leaf"
+    when this oftype Tree$Node.class then "I'm a node"
+    when this oftype Tree$Leaf.class then "I'm a leaf"
     otherwise "I'm empty"
   }
 }
@@ -56,13 +56,13 @@ augment Tree {
 
 # ............................................................................................... #
 function test_toString = {
-  let n = Option.None()
-  let s = Option.Some(5)
+  let n = None()
+  let s = Some(5)
 
   require(n: toString() == "union Option.None", "empty value toString")
   require(s: toString() == "union Option.Some{value=5}", "single valued toString")
 
-  let t = Tree.Node(Tree.Node(Tree.Leaf(1), Tree.Empty()), Tree.Leaf(0))
+  let t = Node(Node(Leaf(1), Empty()), Leaf(0))
   require(t: toString() ==
     "union Tree.Node{left=union Tree.Node{left=union Tree.Leaf{value=1}, right=union Tree.Empty}, right=union Tree.Leaf{value=0}}",
     "recursive tree structure toString")
@@ -70,87 +70,87 @@ function test_toString = {
 
 # ............................................................................................... #
 function test_hashcode = {
-  require(Option.None(): hashCode() == Option.None(): hashCode(),
+  require(None(): hashCode() == None(): hashCode(),
     "singleton hashcode")
-  require(Option.Some("bar"): hashCode() == Option.Some("bar"): hashCode(),
+  require(Some("bar"): hashCode() == Some("bar"): hashCode(),
     "hashcode")
-  require(Option.Some(5): hashCode() == Option.Some(5): hashCode(), "hashcode")
-  require(Option.Some(5): hashCode() != Option.Some("5"): hashCode(), "hashcode")
+  require(Some(5): hashCode() == Some(5): hashCode(), "hashcode")
+  require(Some(5): hashCode() != Some("5"): hashCode(), "hashcode")
 
-  let t1 = Tree.Node(Tree.Node(Tree.Leaf(1), Tree.Empty()), Tree.Leaf(0))
-  let t2 = Tree.Node(Tree.Node(Tree.Leaf(1), Tree.Empty()), Tree.Leaf(0))
+  let t1 = Node(Node(Leaf(1), Empty()), Leaf(0))
+  let t2 = Node(Node(Leaf(1), Empty()), Leaf(0))
   require(t1: hashCode() == t2: hashCode(), "hashcode")
 
-  let t3 = Tree.Node(Tree.Node(Tree.Leaf(3), Tree.Empty()), Tree.Leaf(0))
-  let t4 = Tree.Node(Tree.Node(Tree.Leaf(4), Tree.Empty()), Tree.Leaf(0))
+  let t3 = Node(Node(Leaf(3), Empty()), Leaf(0))
+  let t4 = Node(Node(Leaf(4), Empty()), Leaf(0))
   require(t3: hashCode() != t4: hashCode(), "hashcode")
 }
 
 # ............................................................................................... #
 function test_equality = {
-  let n = Option.None()
-  let s = Option.Some(5)
+  let n = None()
+  let s = Some(5)
 
-  require(n == Option.None(), "singleton equality")
-  require(n is Option.None(), "singleton identity")
+  require(n == None(), "singleton equality")
+  require(n is None(), "singleton identity")
 
-  require(s == Option.Some(5), "value equality")
-  require(s isnt Option.Some(5), "value identity")
+  require(s == Some(5), "value equality")
+  require(s isnt Some(5), "value identity")
 
-  let t1 = Tree.Node(
-    Tree.Node(
-      Tree.Empty(),
-      Tree.Leaf("foo")
+  let t1 = Node(
+    Node(
+      Empty(),
+      Leaf("foo")
     ),
-    Tree.Leaf(1)
+    Leaf(1)
   )
 
-  let t2 = Tree.Node(
-    Tree.Node(
-      Tree.Empty(),
-      Tree.Leaf("foo")
+  let t2 = Node(
+    Node(
+      Empty(),
+      Leaf("foo")
     ),
-    Tree.Leaf(1)
+    Leaf(1)
   )
 
   require(t1 == t2, "recurive structure equality")
 
-  require(Color.RED() == Color.RED(), "classical union equality")
-  require(Color.RED() is Color.RED(), "classical union identity")
-  require(Color.RED() != Color.BLUE(), "classical union difference")
-  require(Color.RED() isnt Color.BLUE(), "classical union distinct")
+  require(RED() == RED(), "classical union equality")
+  require(RED() is RED(), "classical union identity")
+  require(RED() != BLUE(), "classical union difference")
+  require(RED() isnt BLUE(), "classical union distinct")
 
 }
 
 # ............................................................................................... #
 function test_augmentations = {
-  let n = Option.None()
-  let s = Option.Some(5)
+  let n = None()
+  let s = Some(5)
 
   require(monadicAdd(n, n) == n, "err")
   require(monadicAdd(s, n) == n, "err")
   require(monadicAdd(n, s) == n, "err")
-  require(monadicAdd(s, s) == Option.Some(10), "err")
+  require(monadicAdd(s, s) == Some(10), "err")
 
   let double = |x| -> 2 * x
   require(n: fmap(double) == n, "err")
-  require(s: fmap(double) == Option.Some(10), "err")
+  require(s: fmap(double) == Some(10), "err")
 
-  require(not Tree.Leaf(0): isEmptyNode(), "err on Tree.Leaf:isEmpty")
-  require(not Tree.Node(0, 0): isEmptyNode(), "err on Tree.Node:isEmpty")
-  require(Tree.Empty(): isEmptyNode(), "err on Tree.Empty:isEmpty")
+  require(not Leaf(0): isEmptyNode(), "err on Tree.Leaf:isEmpty")
+  require(not Node(0, 0): isEmptyNode(), "err on Tree.Node:isEmpty")
+  require(Empty(): isEmptyNode(), "err on Tree.Empty:isEmpty")
 
-  require(Tree.Leaf(0): whoAreYou() == "I'm a leaf",
+  require(Leaf(0): whoAreYou() == "I'm a leaf",
     "err on Tree.Leaf:whoAreYou")
-  require(Tree.Node(0, 0): whoAreYou() == "I'm a node",
+  require(Node(0, 0): whoAreYou() == "I'm a node",
     "err on Tree.Node:whoAreYou")
-  require(Tree.Empty(): whoAreYou() == "I'm empty",
+  require(Empty(): whoAreYou() == "I'm empty",
     "err on Tree.Empty:whoAreYou")
 
 }
 
 function test_immutable = {
-  let s = Option.Some(2)
+  let s = Some(2)
   require(s: value() == 2, "err")
   try {
     s: value(3)
@@ -179,9 +179,9 @@ function test_singleton = {
 }
 
 function test_match_methods = {
-  let n = Tree.Node(0, 0)
-  let l = Tree.Leaf(0)
-  let e = Tree.Empty()
+  let n = Node(0, 0)
+  let l = Leaf(0)
+  let e = Empty()
 
   require(not n: isEmpty(), "err")
   require(not l: isEmpty(), "err")
@@ -208,6 +208,14 @@ function test_match_methods = {
   require(n: isNode(_,0), "err")
   require(n: isNode(_,_), "err")
 }
+
+function test_match_named = {
+  let ft = Node(Empty(), Leaf(42))
+  require(ft: isNode(Empty(), Leaf(42)), "err")
+  # Not Yet: see #351 #352
+  # require(ft: isNode(left=Empty(), right=Leaf(42)), "err")
+  # require(ft: isNode(right=Leaf(42), left=Empty()), "err")
+}
 # ............................................................................................... #
 
 union U = {
@@ -215,7 +223,7 @@ union U = {
 }
 
 function test_same_attribute_name = {
-  let abc = U.Abc("abc")
+  let abc = Abc("abc")
   require(abc: abc() == "abc", "err")
   require(abc: isAbc(), "err")
 }
@@ -230,6 +238,7 @@ function main = |args| {
   test_singleton()
   test_not_instantiable()
   test_match_methods()
+  test_match_named()
   test_same_attribute_name()
 
   println("OK")

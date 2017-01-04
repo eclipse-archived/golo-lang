@@ -14,20 +14,20 @@ union Option = {
 
 augment Option {
   function flatMap = |this, func| -> match {
-    when this is Option.None() then this
+    when this is None() then this
     otherwise func(this: value())
   }
 
   function map = |this, func| -> match {
-    when this is Option.None() then this
-    otherwise Option.Some(func(this: value()))
+    when this is None() then this
+    otherwise Some(func(this: value()))
   }
 }
 
-function monadicAdd = |mx, my| -> 
+function monadicAdd = |mx, my| ->
   mx: flatMap(|x| ->
     my: flatMap(|y| ->
-      Option.Some(x + y)))
+      Some(x + y)))
 
 union Tree = {
   Node = {left, right}
@@ -37,8 +37,8 @@ union Tree = {
 
 augment Tree {
   function whoAreYou = |this| -> match {
-    when this oftype samples.Unions.types.Tree$Node.class then "I'm a node"
-    when this oftype samples.Unions.types.Tree$Leaf.class then "I'm a leaf"
+    when this oftype Tree$Node.class then "I'm a node"
+    when this oftype Tree$Leaf.class then "I'm a leaf"
     otherwise "I'm empty"
   }
 }
@@ -49,56 +49,56 @@ function in_a_match = |tree| -> match {
   when tree: isEmpty() then "empty tree"
   when tree: isLeaf(0) then "a leaf with 0"
   when tree: isLeaf() then "a leaf"
-  when tree: isNode(Tree.Empty(), _) or tree: isNode(_, Tree.Empty()) then "node with 1 child"
+  when tree: isNode(Empty(), _) or tree: isNode(_, Empty()) then "node with 1 child"
   when tree: isNode() then "a node"
   otherwise "wtf"
 }
 
 function test_match = {
-  require(in_a_match(Tree.Empty()) == "empty tree", "err")
-  require(in_a_match(Tree.Leaf(0)) == "a leaf with 0", "err")
-  require(in_a_match(Tree.Leaf(42)) == "a leaf", "err")
-  require(in_a_match(Tree.Node(0, 0)) == "a node", "err")
-  require(in_a_match(Tree.Node(Tree.Empty(), 0)) == "node with 1 child", "err")
-  require(in_a_match(Tree.Node(0, Tree.Empty())) == "node with 1 child", "err")
+  require(in_a_match(Empty()) == "empty tree", "err")
+  require(in_a_match(Leaf(0)) == "a leaf with 0", "err")
+  require(in_a_match(Leaf(42)) == "a leaf", "err")
+  require(in_a_match(Node(0, 0)) == "a node", "err")
+  require(in_a_match(Node(Tree.Empty(), 0)) == "node with 1 child", "err")
+  require(in_a_match(Node(0, Tree.Empty())) == "node with 1 child", "err")
 }
 
 function test_option = {
-  let n = Option.None()
-  let s = Option.Some(5)
+  let n = None()
+  let s = Some(5)
 
   println(n)
   println(s)
-  
-  require(n == Option.None(), "err")
-  require(n is Option.None(), "err")
-  
-  require(s == Option.Some(5), "err")
-  require(s isnt Option.Some(5), "err")
+
+  require(n == None(), "err")
+  require(n is None(), "err")
+
+  require(s == Some(5), "err")
+  require(s isnt Some(5), "err")
 
   require(monadicAdd(n, n) == n, "err")
   require(monadicAdd(s, n) == n, "err")
   require(monadicAdd(n, s) == n, "err")
-  require(monadicAdd(s, s) == Option.Some(10), "err")
+  require(monadicAdd(s, s) == Some(10), "err")
 
   let double = |x| -> 2 * x
   require(n: map(double) == n, "err")
-  require(s: map(double) == Option.Some(10), "err")
+  require(s: map(double) == Some(10), "err")
 
 }
 
 function test_tree = {
-  println(Tree.Node(Tree.Empty(), Tree.Leaf(0)))
+  println(Node(Empty(), Leaf(0)))
 
-  require(not Tree.Leaf(0): isEmpty(), "err on Tree.Leaf:isEmpty")
-  require(not Tree.Node(0, 0): isEmpty(), "err on Tree.Node:isEmpty")
-  require(Tree.Empty(): isEmpty(), "err on Tree.Empty:isEmpty")
+  require(not Leaf(0): isEmpty(), "err on Tree.Leaf:isEmpty")
+  require(not Node(0, 0): isEmpty(), "err on Tree.Node:isEmpty")
+  require(Empty(): isEmpty(), "err on Tree.Empty:isEmpty")
 
-  require(Tree.Leaf(0): whoAreYou() == "I'm a leaf", 
+  require(Leaf(0): whoAreYou() == "I'm a leaf",
     "err on Tree.Leaf:whoAreYou")
-  require(Tree.Node(0, 0): whoAreYou() == "I'm a node",
+  require(Node(0, 0): whoAreYou() == "I'm a node",
     "err on Tree.Node:whoAreYou")
-  require(Tree.Empty(): whoAreYou() == "I'm empty", 
+  require(Empty(): whoAreYou() == "I'm empty",
     "err on Tree.Empty:whoAreYou")
 }
 

@@ -11,23 +11,18 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
 
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedHashSet;
 import java.util.Set;
 import org.eclipse.golo.compiler.parser.GoloASTNode;
+import org.eclipse.golo.compiler.ClosureCaptureGoloIrVisitor;
 
-import static java.util.Arrays.asList;
+
 import static org.eclipse.golo.compiler.ir.Builders.*;
 
-public final class Struct extends GoloElement {
+public final class Struct extends TypeWithMembers {
 
   public static final String IMMUTABLE_FACTORY_METHOD = "$_immutable";
 
   private PackageAndClass moduleName;
-  private final String name;
-  private final Set<String> members = new LinkedHashSet<>();
-  private final Set<String> publicMembers = new LinkedHashSet<>();
 
   @Override
   public Struct ofAST(GoloASTNode node) {
@@ -36,78 +31,61 @@ public final class Struct extends GoloElement {
   }
 
   Struct(String name) {
-    super();
-    this.name = name;
+    super(name);
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public Struct members(String... members) {
-    return this.members(asList(members));
-  }
-
-  public Struct members(Collection<String> members) {
-    for (String member : members) {
-      this.addMember(member);
-    }
-    return this;
-  }
-
-  public void addMember(String name) {
-    this.members.add(name);
-    if (!name.startsWith("_")) {
-      publicMembers.add(name);
-    }
-  }
-
+  @Override
   public PackageAndClass getPackageAndClass() {
-    return moduleName.createSubPackage("types").createSubPackage(name);
+    return moduleName.createSubPackage("types").createSubPackage(getName());
   }
 
+  // TODO: refactor to use the parent node
   public void setModuleName(PackageAndClass module) {
     this.moduleName = module;
   }
 
-  public Set<String> getMembers() {
-    return Collections.unmodifiableSet(members);
+  private GoloFunction createDefaultConstructor() {
+    GoloFunction defaultFactory = functionDeclaration(getName()).synthetic()
+      .returns(call(getFactoryDelegateName())
+        .withArgs(getFullDefaultArgs()));
+    defaultFactory.accept(new ClosureCaptureGoloIrVisitor());
+    if (defaultFactory.getSyntheticParameterCount() > 0) {
+      // we use a dependant default value. The default factory must raise an exception
+      defaultFactory = functionDeclaration(getName()).synthetic()
+        .block(call("raise").withArgs(constant(
+                "Can't call the default constructor of a structure with dependant default value.")));
+    }
+    return defaultFactory;
   }
 
-  public Set<String> getPublicMembers() {
-    return Collections.unmodifiableSet(publicMembers);
+  private String getImmutableName() {
+    return "Immutable" + getName();
+  }
+
+  private GoloFunction createFullArgsImmutableConstructor() {
+    return functionDeclaration(getImmutableName()).synthetic()
+      .withParameters(getMemberNames())
+      .returns(call(getFactoryDelegateName() + "." + IMMUTABLE_FACTORY_METHOD).withArgs(getFullArgs()));
+  }
+
+  private GoloFunction createDefaultArgsImmutableConstructor() {
+    return functionDeclaration(getImmutableName()).synthetic()
+      .withParameters(getNonDefaultMemberNames())
+      .returns(call(getFactoryDelegateName() + "." + IMMUTABLE_FACTORY_METHOD).withArgs(getDefaultArgs()));
   }
 
   public Set<GoloFunction> createFactories() {
-    String fullName = getPackageAndClass().toString();
-    return new LinkedHashSet<GoloFunction>(asList(
-        functionDeclaration(name).synthetic().block(returns(call(fullName))),
-
-        functionDeclaration(name).synthetic()
-        .withParameters(members)
-        .block(
-          returns(call(fullName)
-            .withArgs(members.stream().map(ReferenceLookup::new).toArray()))),
-
-        functionDeclaration("Immutable" + name).synthetic()
-        .withParameters(members)
-        .block(
-          returns(call(fullName + "." + IMMUTABLE_FACTORY_METHOD)
-            .withArgs(members.stream().map(ReferenceLookup::new).toArray())))));
+    Set<GoloFunction> factories = super.createFactories();
+    factories.add(createDefaultConstructor());
+    factories.add(createFullArgsImmutableConstructor());
+    if (hasDefaults()) {
+      factories.add(createDefaultArgsImmutableConstructor());
+    }
+    return factories;
   }
 
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitStruct(this);
-  }
-
-  @Override
-  public void walk(GoloIrVisitor visitor) {
-    // nothing to do, not a composite
-  }
-
-  @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
-    throw cantReplace();
   }
 }

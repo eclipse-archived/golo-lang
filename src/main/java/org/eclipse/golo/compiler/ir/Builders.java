@@ -352,4 +352,12 @@ public final class Builders {
       .elseBranch(elseBranch);
   }
 
+  public static Member member(String name) {
+    return new Member(name);
+  }
+
+  public static Member member(String name, Object defaultExpression) {
+    return new Member(name, ExpressionStatement.of(defaultExpression));
+  }
+
 }

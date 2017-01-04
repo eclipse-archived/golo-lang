@@ -155,7 +155,6 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     unions.add(union);
     makeParentOf(union);
     union.setModuleName(this.getPackageAndClass());
-    this.addImport(new ModuleImport(union.getPackageAndClass(), true));
   }
 
   public void addModuleStateInitializer(AssignmentStatement assignment) {
