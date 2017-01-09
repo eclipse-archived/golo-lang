@@ -76,4 +76,6 @@ public interface GoloIrVisitor {
   void visitNamedArgument(NamedArgument namedArgument);
 
   void visitLocalReference(LocalReference localRef);
+
+  void visitMember(Member member);
 }

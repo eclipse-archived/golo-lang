@@ -43,9 +43,9 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     }
   }
 
-  public LocalReferenceAssignmentAndVerificationVisitor() { }
+  LocalReferenceAssignmentAndVerificationVisitor() { }
 
-  public LocalReferenceAssignmentAndVerificationVisitor(GoloCompilationException.Builder builder) {
+  LocalReferenceAssignmentAndVerificationVisitor(GoloCompilationException.Builder builder) {
     this();
     setExceptionBuilder(builder);
   }
@@ -198,7 +198,9 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     if (!table.hasReferenceFor(referenceLookup.getName())) {
       getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
           "Undeclared reference `" + referenceLookup.getName() + "`"
-          + (!functionStack.isEmpty() ? " in function " + functionStack.peek().getName() : "")
+          + (!functionStack.isEmpty() ? " in "
+            + (functionStack.peek().isSynthetic() ? "synthetic " : "")
+            + "function `" + functionStack.peek().getName() + "`" : "")
           + (!referenceLookup.getPositionInSourceCode().isNull()
               ? " at " + referenceLookup.getPositionInSourceCode()
               : " (generated code)"));
@@ -235,5 +237,11 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     } else {
       loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }
+  }
+
+  @Override
+  public void visitMember(Member member) {
+    // We don't want to check references in member default values.
+    // The check will be done in the generated factory that effectively uses the default value.
   }
 }

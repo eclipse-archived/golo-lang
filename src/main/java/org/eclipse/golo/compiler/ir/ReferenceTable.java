@@ -83,8 +83,8 @@ public final class ReferenceTable implements Scope {
 
   @Override
   public void relink(ReferenceTable parent) {
-    for(LocalReference reference : parent.references()) {
-      if(this.hasReferenceFor(reference.getName())){
+    for (LocalReference reference : parent.references()) {
+      if (this.hasReferenceFor(reference.getName())) {
         this.remove(reference.getName());
       }
     }

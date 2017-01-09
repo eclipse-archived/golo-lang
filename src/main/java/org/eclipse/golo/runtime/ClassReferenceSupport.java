@@ -69,7 +69,7 @@ public final class ClassReferenceSupport {
   }
 
   private static Class<?> tryLoadingFromPrimitiveType(String name) {
-    switch(name) {
+    switch (name) {
       case "byte"    : return byte.class;
       case "char"    : return char.class;
       case "int"     : return int.class;

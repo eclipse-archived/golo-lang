@@ -2,8 +2,8 @@
 module golotest.augmentations.TestComplexDispatch
 
 import golotest.augmentations.MyLib
+import golotest.augmentations.MyData.types
 import golotest.augmentations.MyData
-import golotest.augmentations.MyData.types.MyUnion
 import golotest.augmentations.MixinAugmentation
 
 augment java.lang.String with golotest.augmentations.MixinAugmentation.Plopable

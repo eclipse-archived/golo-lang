@@ -18,6 +18,10 @@ public final class AssignmentStatement extends GoloStatement {
 
   AssignmentStatement() { super(); }
 
+  /**
+   * @inheritDoc
+   */
+  @Override
   public AssignmentStatement ofAST(GoloASTNode node) {
     super.ofAST(node);
     return this;
@@ -40,6 +44,9 @@ public final class AssignmentStatement extends GoloStatement {
     return localReference;
   }
 
+  /**
+   * Defines the reference to assign to.
+   */
   public AssignmentStatement to(Object ref) {
     localReference = (LocalReference) ref;
     makeParentOf(localReference);
@@ -50,6 +57,9 @@ public final class AssignmentStatement extends GoloStatement {
     return expressionStatement;
   }
 
+  /**
+   * Defines the value to be assigned.
+   */
   public AssignmentStatement as(Object expr) {
     expressionStatement = (ExpressionStatement) expr;
     makeParentOf(expressionStatement);
@@ -61,16 +71,25 @@ public final class AssignmentStatement extends GoloStatement {
     return String.format("%s = %s", localReference, expressionStatement);
   }
 
+  /**
+   * @inheritDoc
+   */
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitAssignmentStatement(this);
   }
 
+  /**
+   * @inheritDoc
+   */
   @Override
   public void walk(GoloIrVisitor visitor) {
     expressionStatement.accept(visitor);
   }
 
+  /**
+   * @inheritDoc
+   */
   @Override
   protected void replaceElement(GoloElement original, GoloElement newElement) {
     if (original.equals(expressionStatement) && newElement instanceof ExpressionStatement) {
