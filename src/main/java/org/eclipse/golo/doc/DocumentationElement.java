@@ -23,6 +23,21 @@ public interface DocumentationElement extends Comparable<DocumentationElement> {
   String documentation();
 
   /**
+   * Chech if this element has a documentation.
+   * <p>
+   * An element has a documentation if its {@link #documentation()} method returns a non null non empty (when trimmed)
+   * string.
+   */
+  default boolean hasDocumentation() {
+    String doc = documentation();
+    if (doc == null) {
+      return false;
+    }
+    doc = doc.trim();
+    return !doc.isEmpty();
+  }
+
+  /**
    * The line where the element is defined.
    */
   int line();

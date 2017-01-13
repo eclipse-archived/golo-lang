@@ -17,9 +17,7 @@ import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
-import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
-import static org.eclipse.golo.runtime.NamedArgumentsHelper.checkArgumentPosition;
 
 public final class ClosureCallSupport {
 

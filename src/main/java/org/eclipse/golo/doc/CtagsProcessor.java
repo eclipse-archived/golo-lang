@@ -13,8 +13,7 @@ package org.eclipse.golo.doc;
 import gololang.IO;
 
 import java.nio.file.Path;
-import java.util.LinkedList;
-import java.util.Map;
+import java.util.*;
 
 public class CtagsProcessor extends AbstractProcessor {
 
@@ -180,7 +179,7 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable {
+  public void process(Collection<ModuleDocumentation> modules, Path targetFolder) throws Throwable {
     Path targetFile = null;
     if ("-".equals(targetFolder.toString())) {
       targetFile = targetFolder;
@@ -188,9 +187,9 @@ public class CtagsProcessor extends AbstractProcessor {
       targetFile = targetFolder.resolve("tags");
     }
     ctags.clear();
-    for (Map.Entry<String, ModuleDocumentation> src : modules.entrySet()) {
-      file = src.getKey();
-      render(src.getValue());
+    for (ModuleDocumentation doc : modules) {
+      file = doc.sourceFile();
+      render(doc);
     }
     IO.textToFile(ctagsAsString(), targetFile);
   }

@@ -12,21 +12,27 @@ package org.eclipse.golo.doc;
 
 import gololang.FunctionReference;
 import gololang.IO;
+import org.eclipse.golo.compiler.PackageAndClass;
 
-import java.nio.file.Path;
-import java.util.Map;
-import java.util.List;
-
+import java.nio.file.*;
+import java.io.*;
+import java.util.*;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import com.github.rjeschke.txtmark.BlockEmitter;
 import com.github.rjeschke.txtmark.Configuration;
 import com.github.rjeschke.txtmark.Processor;
 
-
 public class HtmlProcessor extends AbstractProcessor {
 
   private Path srcFile;
   private final DocIndex globalIndex = new DocIndex();
+
+  public static final Configuration CONFIG = Configuration.builder()
+    .forceExtentedProfile()
+    .setCodeBlockEmitter(blockHighlighter())
+    .build();
 
   @Override
   protected String fileExtension() {
@@ -41,44 +47,125 @@ public class HtmlProcessor extends AbstractProcessor {
    * Returns the direct link to the given documentation element from a given filename.
    */
   public String linkToDoc(String src, DocumentationElement dst) {
-    Path out = outputFile(src);
-    if (out.getParent() != null) {
-      out = out.getParent();
+    return linkToDoc(outputFile(src), dst);
+  }
+
+  /**
+   * Returns the direct link to the given documentation element from a given element.
+   */
+  public String link(DocumentationElement src, DocumentationElement dst) {
+    return linkToDoc(docFile(src), dst);
+  }
+
+  private String linkToDoc(Path src, DocumentationElement dst) {
+    Path from = src;
+    if (from.getParent() != null) {
+      from = from.getParent();
     }
     // The replace is to have a valid relative uri on Windows...
     // I'd rather use URI::relativize, but it only works when one URI is the strict prefix of the other
     // i.e. can't generate relative URIs containing '..' (what a shame!)
-    return out.relativize(docFile(dst)).toString().replace('\\', '/')
+    return from.relativize(docFile(dst)).toString().replace(FileSystems.getDefault().getSeparator(), "/")
       + (dst.id().isEmpty() ? "" : ("#" + dst.id()));
+
   }
 
   @Override
   public String render(ModuleDocumentation documentation) throws Throwable {
     FunctionReference template = template("template", fileExtension());
     globalIndex.update(documentation);
-    addModule(documentation);
     Path doc = docFile(documentation);
     if (doc.getParent() != null) {
       doc = doc.getParent();
     }
-    return (String) template.invoke(this, documentation, doc.relativize(srcFile));
+    return (String) template.invoke(this, documentation, doc.relativize(srcFile), getSubmodulesOf(documentation));
   }
 
   @Override
-  public void process(Map<String, ModuleDocumentation> docs, Path targetFolder) throws Throwable {
+  public void process(Collection<ModuleDocumentation> docs, Path targetFolder) throws Throwable {
     setTargetFolder(targetFolder);
-    for (Map.Entry<String, ModuleDocumentation> doc : docs.entrySet()) {
-      renderModule(doc.getKey(), doc.getValue());
+    for (ModuleDocumentation doc : docs) {
+      addModule(doc);
     }
+    Set<String> donePackages = new HashSet<>();
+    for (ModuleDocumentation doc : docs) {
+      if (doc.isEmpty()) {
+        renderPackage(doc);
+      } else {
+        renderModule(doc);
+      }
+      donePackages.add(doc.moduleName());
+    }
+    renderRemainingPackages(donePackages);
     renderIndex("index");
     renderIndex("index-all");
   }
 
-  private void renderModule(String sourceFile, ModuleDocumentation doc) throws Throwable {
-    String moduleName = doc.moduleName();
-    srcFile = outputFile(moduleName + "-src");
-    IO.textToFile(renderSource(moduleName, sourceFile), srcFile);
-    IO.textToFile(render(doc), outputFile(moduleName));
+  private void renderRemainingPackages(Set<String> done) throws Throwable {
+    for (Map.Entry<String, Set<ModuleDocumentation>> e : getPackages()) {
+      if (done.contains(e.getKey())) {
+        continue;
+      }
+      if (e.getValue().size() < 1) {
+        continue;
+      }
+      ModuleDocumentation doc = createPackageDoc(e.getKey(), e.getValue());
+      addModule(doc);
+      renderPackage(doc);
+    }
+  }
+
+  private ModuleDocumentation createPackageDoc(String name, Set<ModuleDocumentation> modules) throws Throwable {
+    ModuleDocumentation doc = ModuleDocumentation.empty(name);
+    List<Path> docs = modules.stream()
+      .map(ModuleDocumentation::sourceFile)
+      .map(Paths::get)
+      .flatMap(p -> packageDocumentation(p, name))
+      .distinct()
+      .filter(Files::exists)
+      .collect(Collectors.toList());
+    if (docs.size() > 1) {
+      org.eclipse.golo.runtime.Warnings.multiplePackageDescription(name);
+    }
+    for (Path f : docs) {
+      try {
+        doc.moduleDocumentation(IO.fileToText(f, null));
+        break;
+      } catch (IOException e) {
+        continue;
+      }
+    }
+    return doc;
+  }
+
+  private static Stream<Path> packageDocumentation(Path mod, String name) {
+    String basename = PackageAndClass.of(name).className();
+    Stream.Builder<Path> docs = Stream.builder();
+    Path parent = mod.getParent();
+    if (parent != null) {
+      if (parent.getFileName().toString().equals(name)) {
+        docs.add(mod.resolveSibling("README.md"));
+        docs.add(mod.resolveSibling("package.md"));
+      } else {
+        docs.add(parent.resolve(String.format("%s.md", basename)));
+      }
+    }
+    return docs.build();
+  }
+
+  private void renderPackage(ModuleDocumentation documentation) throws Throwable {
+    if (documentation != null) {
+      FunctionReference template = template("package", fileExtension());
+      IO.textToFile((String) template.invoke(this, documentation, getSubmodulesOf(documentation)),
+          outputFile(documentation.moduleName()));
+    }
+  }
+
+  private void renderModule(ModuleDocumentation documentation) throws Throwable {
+    String moduleName = documentation.moduleName();
+    this.srcFile = outputFile(moduleName + "-src");
+    IO.textToFile(renderSource(moduleName, documentation.sourceFile()), srcFile);
+    IO.textToFile(render(documentation), outputFile(moduleName));
   }
 
   private String renderSource(String moduleName, String filename) throws Throwable {
@@ -132,7 +219,31 @@ public class HtmlProcessor extends AbstractProcessor {
     return String.format("<a href=\"#%s\">%s</a>", doc.id(), doc.label());
   }
 
+  public static String moduleListItem(ModuleDocumentation doc, String target) {
+    StringBuilder item = new StringBuilder("<dt><a");
+    if (doc.isEmpty()) {
+      item.append(" class=\"package\"");
+    }
+    item.append(" href=\"").append(target).append("\">").append(doc.moduleName()).append("</a></dt><dd>");
+    if (doc.hasDocumentation()) {
+      String first = doc.documentation().trim().split("[.!?]")[0].trim();
+      if (!first.isEmpty()) {
+        item.append(process(first));
+      }
+    }
+    item.append("</dd>");
+    return item.toString();
+  }
+
   public static String process(String documentation, int rootLevel, Configuration configuration) {
     return Processor.process(AbstractProcessor.adaptSections(documentation, rootLevel), configuration);
+  }
+
+  public static String process(String documentation, int rootLevel) {
+    return process(documentation, rootLevel, CONFIG);
+  }
+
+  public static String process(String documentation) {
+    return process(documentation, 0, CONFIG);
   }
 }

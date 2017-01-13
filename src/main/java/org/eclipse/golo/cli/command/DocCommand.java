@@ -60,7 +60,7 @@ public class DocCommand implements CliCommand {
   public void execute() throws Throwable {
     compiler = classpath.initGoloClassLoader().getCompiler();
     AbstractProcessor processor = FORMATS.get(this.format).get();
-    HashMap<String, ModuleDocumentation> modules = new HashMap<>();
+    HashSet<ModuleDocumentation> modules = new HashSet<>();
     for (String source : this.sources) {
       loadGoloFile(source, modules);
     }
@@ -71,7 +71,7 @@ public class DocCommand implements CliCommand {
     }
   }
 
-  private void loadGoloFile(String goloFile, HashMap<String, ModuleDocumentation> modules) {
+  private void loadGoloFile(String goloFile, HashSet<ModuleDocumentation> modules) {
     File file = new File(goloFile);
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
@@ -82,7 +82,7 @@ public class DocCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       try {
-        modules.put(goloFile, ModuleDocumentation.load(goloFile, compiler));
+        modules.add(ModuleDocumentation.load(goloFile, compiler));
       } catch (IOException e) {
         error(message("file_not_found", goloFile));
         return;

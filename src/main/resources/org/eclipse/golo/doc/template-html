@@ -1,13 +1,6 @@
 <!DOCTYPE html>
-<%@params processor, doc, src %>
+<%@params processor, doc, src, submodules %>
 <%@import org.eclipse.golo.doc.HtmlProcessor %>
-<%
-let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
-  : forceExtentedProfile()
-  : setCodeBlockEmitter(blockHighlighter())
-  : build()
-
-%>
 <html>
 <head>
   <title><%= doc: moduleName() %> (Golo <%= doc: goloVersion() %>)</title>
@@ -71,6 +64,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     li p {
       margin: 0.3em;
     }
+
     ul > li {
       list-style-type: disc;
     }
@@ -95,6 +89,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       font-style: normal;
       font-weight: bold;
     }
+
     h3 {
       color: #666;
       font-size: 180%;
@@ -120,6 +115,11 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     #global-nav {
       display: block;
       font-size: 80%;
+    }
+
+    #global-nav > a {
+      margin: 0em;
+      padding: 0 0.5em;
     }
 
     #toc {
@@ -204,6 +204,11 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       color: inherit;
     }
 
+    .modules-list li p {
+      display: inline-block;
+      margin: 0 0.5em;
+    }
+
     @media (max-width: 50em) {
       #toc {
         margin: auto;
@@ -272,16 +277,21 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <body>
 <h1>Documentation for <%= doc: moduleName() %></h1>
 
+<% if doc: hasDocumentation() {%>
 <div class="golodoc">
-  <%= process(doc: moduleDocumentation(), 1, CONFIG) %>
+  <%= process(doc: moduleDocumentation(), 1) %>
 </div>
+<%}%>
 
 <!-- begin table of content -->
 <nav id="toc">
 <h1><%= doc: moduleName() %></h1>
   <section id="global-nav">
-  <a href="<%= processor: linkToFile(doc, "index") %>" rel="home">Module Index</a>
-<a href="<%= processor: linkToFile(doc, "index-all") %>" rel="index">Global Index</a>
+    <a href="<%= processor: linkToFile(doc, "index") %>" rel="home">Module Index</a>
+    <a href="<%= processor: linkToFile(doc, "index-all") %>" rel="index">Global Index</a>
+    <% if not doc: packageName(): isEmpty() {%>
+    <a href="<%= processor: linkToFile(doc, doc: packageName()) %>" rel="up">Package Index</a>
+    <%}%>
   </section>
 <ul>
   <% if not doc: structs(): isEmpty() { %>
@@ -335,19 +345,33 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 </nav>
 <!-- end table of content -->
 
+<% if not submodules: isEmpty() {%>
+<h2 id="modules">Submodules</h2>
+<ul class="modules-list">
+  <% foreach sub in submodules { %>
+    <li>
+      <a href="<%= processor: link(doc, sub) %>"><%= sub: moduleName() %></a>
+      <% if sub: hasDocumentation() {%>
+      : <%= process(sub: documentation(): split("\\."): get(0): trim())%>
+      <%}%>
+    </li>
+  <% } %>
+</ul>
+<%}%>
+
 <% if not doc: structs(): isEmpty() { %>
   <h2 id="structs">Structs</h2>
   <% foreach structDoc in doc: structs() { %>
     <%= sectionTitle(3, structDoc, src) %>
 
     <div class="golodoc">
-      <%= process(structDoc: documentation(), 3, CONFIG) %>
+      <%= process(structDoc: documentation(), 3) %>
     </div>
 
     <h5>Members</h5>
     <ul>
     <% foreach member in structDoc: members() { %>
-    <li><code id="<%= member: id()%>"><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
+    <li><code id="<%= member: id()%>"><%= member: name() %></code> <%= process(member: documentation(): trim(), 5) %>
       </li>
   <% } %>
     </ul>
@@ -360,19 +384,19 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <%= sectionTitle(3, unionDoc, src) %>
 
     <div class="golodoc">
-    <%= process(unionDoc: documentation(), 3, CONFIG) %>
+    <%= process(unionDoc: documentation(), 3) %>
     </div>
 
     <% foreach unionValueDoc in unionDoc: values() { %>
     <%= sectionTitle(4, unionValueDoc, src) %>
 
-    <div class="golodoc"><%= process(unionValueDoc: documentation(), 4, CONFIG) %></div>
+    <div class="golodoc"><%= process(unionValueDoc: documentation(), 4) %></div>
 
     <% if not unionValueDoc: members(): isEmpty() { %>
         <h5>Members</h5>
         <ul>
         <% foreach member in unionValueDoc: members() { %>
-          <li><code id="<%= member: id()%>"><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
+          <li><code id="<%= member: id()%>"><%= member: name() %></code> <%= process(member: documentation(): trim(), 5) %>
           </li>
         <% } %>
         </ul>
@@ -386,12 +410,12 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
     <%= sectionTitle(3, namedAugmentationDoc, src) %>
     <div class="golodoc">
-      <%= process(namedAugmentationDoc: documentation(), 3, CONFIG) %>
+      <%= process(namedAugmentationDoc: documentation(), 3) %>
     </div>
     <% foreach funcDoc in namedAugmentationDoc { %>
       <%= sectionTitle(4, funcDoc, src) %>
       <div class="golodoc">
-        <%= process(funcDoc: documentation(), 4, CONFIG) %>
+        <%= process(funcDoc: documentation(), 4) %>
       </div>
     <% } %>
   <% } %>
@@ -403,7 +427,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   <% foreach augmentDoc in doc: augmentations() { %>
     <%= sectionTitle(3, augmentDoc, src) %>
     <div class="golodoc">
-      <%= process(augmentDoc: documentation(), 3, CONFIG) %>
+      <%= process(augmentDoc: documentation(), 3) %>
     </div>
     <% if not augmentDoc: augmentationNames(): isEmpty() { %>
       <h5>Named augmentations applied</h5>
@@ -422,7 +446,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <% foreach funcDoc in augmentDoc { %>
       <%= sectionTitle(4, funcDoc, src) %>
       <div class="golodoc">
-        <%= process(funcDoc: documentation(), 4, CONFIG) %>
+        <%= process(funcDoc: documentation(), 4) %>
       </div>
     <% } %>
   <% } %>
@@ -433,7 +457,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   <% foreach funcDoc in doc: functions() { %>
     <%= sectionTitle(3, funcDoc, src) %>
     <div class="golodoc">
-      <%= process(funcDoc: documentation(), 3, CONFIG) %>
+      <%= process(funcDoc: documentation(), 3) %>
     </div>
   <% } %>
 <% } %>

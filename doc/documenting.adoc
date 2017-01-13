@@ -12,7 +12,7 @@ text.
 Here is a quick example:
 
 [source,golo]
---
+....
 ----
 This is a *nice* module that does a bunch of useless things.
 
@@ -34,13 +34,13 @@ The following snipped prints `3`:
 Impressive!
 ----
 function adder = |x, y| -> x + y
---
+....
 
 Sections can be added in the documentation using the normal markdown syntax. The level of the titles is adapted to the generated documentation.
 For instance:
 
 [source,golo]
---
+....
 ----
 Encode a linked list as cons cells.
 
@@ -72,7 +72,28 @@ union List = {
     tail
   }
 }
---
+....
+
+The first sentence of a module documentation is displayed in module indexes.
+
+=== Package documentation
+
+Packages does not exists per se in Golo, but are represented in the form of module qualified names. However, it is common practice to group the modules of the same namespace into a common directory. There exists several ways to document such packages. The first is to create an empty golo module named after the package, containing the documentation. This file can have any name and be in any directory. For instance, given several modules `pkg.MyModule` and `pkg.OtherModule`, one can document the `pkg` package by creating a module containing:
+
+[source,golo]
+....
+----
+Here goes the package documentation
+----
+module pkg
+....
+
+No class will be compiled from this module, only a documentation page.
+
+The other way to document the `pkg` package, assuming that both modules are in `src/pkg/MyModule.golo` and `src/pkg/OtherModule.golo` respectively, is to create pure markdown file, containing the documentation for the package. This file *must* be named either `src/pkg/README.md`, `src/pkg/package.md` or `src/pkg.md`. If a golo file corresponding to the package exists, these files are ignored.
+
+[[warning-multiple-package-desc]]
+If several candidates are found, only the *first one* is used, and a warning is printed. It can be disabled by setting the `golo.warnings.doc.multiple-package-desc` system property to `false`.
 
 === Rendering documentation
 
@@ -88,7 +109,7 @@ editors such as Vim or emacs. In this mode, the special output target `-` can
 be used to print the tags on standard output, which is needed by some editors
 or extensions.
 
-Please consult `golo help` for more details.
+Please consult `golo --usage doc` for more details.
 
 === Alignment
 
@@ -96,7 +117,7 @@ It is sometimes necessary to indent documentation blocks to match the surroundin
 Documentation blocks erase indentation based on the indentation level of the opening block:
 
 [source,golo]
---
+....
 ----
 The most useful augmentation *ever*.
 ----
@@ -107,7 +128,7 @@ augment java.lang.String {
   ----
   function toURL = |this| -> java.net.URL(this)
 }
---
+....
 
 When generating documentation from the code above, the documentation block of the `toURL` function
 is unindented of 2 spaces.
