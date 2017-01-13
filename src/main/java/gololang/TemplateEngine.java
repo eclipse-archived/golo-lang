@@ -25,13 +25,13 @@ import java.util.regex.Pattern;
  *
  * <p>
  * Here is a template example:
- * <pre>
+ * <pre class="listing"><code>
  * <%@params persons %>
  * <% foreach (person in persons) { %>
  * Name: <%= person: name() %>
  * Email: <%= person: email() orIfNull "n/a" %>
  * <% } %>
- * </pre>
+ * </code></pre>
  *
  * The resulting function would take a single parameter {@code persons}. When no {@code @params} clause is being
  * specified, template functions are assumed to take a single {@code params} parameter.

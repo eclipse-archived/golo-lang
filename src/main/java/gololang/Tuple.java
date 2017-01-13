@@ -17,13 +17,13 @@ import java.util.NoSuchElementException;
  * Represents an tuple object.
  * <p>
  * A tuple essentially behaves like an immutable array. In Golo, tuples can be created as follows:
- * <pre>
+ * <pre class="listing"><code class="lang-golo" data-lang="golo">
  * # Short syntax
  * let t1 = [1, 2, 3]
  *
  * # Complete collection literal syntax
  * let t2 = tuple[1, 2, 3]
- * </pre>
+ * </code></pre>
  */
 public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
 

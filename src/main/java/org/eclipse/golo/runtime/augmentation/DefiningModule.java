@@ -55,9 +55,9 @@ public final class DefiningModule {
    * Returns a stream of augmentations definitions defined directly on a type in the corresponding
    * module.
    * e.g.
-   * <pre><code>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * augment module.Type {
-   *    ...
+   *    # ...
    * }
    * </code></pre>
    */

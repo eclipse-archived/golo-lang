@@ -1,0 +1,249 @@
+/* Javadoc style sheet */
+/*
+Overall document style
+*/
+
+body {
+  font-family: Helvetica, Arial, sans-serif;
+  color: #333;
+  background-color: #fff;
+  margin: 0;
+  text-align: left;
+  padding: 0.5em;
+}
+a:link, a:visited {
+  color: #33e;
+  text-decoration: none;
+}
+a:hover {
+  color: #00f;
+  text-decoration:underline;
+}
+
+pre code {
+  background-color: #eee;
+  -webkit-border-radius: 5px;
+  -moz-border-radius: 5px;
+  border-radius: 5px;
+  overflow: auto;
+}
+
+h1 {
+  color: #999;
+  font-weight: 400;
+  font-size: 250%;
+}
+
+h1.bar:empty {
+  display: none;
+}
+
+h2, .details h3 {
+  border-bottom: 1px dotted #aaa;
+  margin: 1em auto;
+  color: #333;
+  font-size: 200%;
+  font-style: normal;
+  font-weight: bold;
+}
+
+h3, .details li.blockList > pre {
+  margin: .2em auto;
+  color: #666;
+  font-family: inherit;
+  font-size: 180%;
+  font-style: normal;
+  font-weight: bold;
+}
+.details h4 { display: none }
+h4 {
+  font-size: 130%;
+  font-style: normal;
+  font-weight: bold;
+}
+h5 {
+  font-size: 100%;
+  font-style: normal;
+  font-weight: bold;
+}
+h6 {
+  font-size: 100%;
+  font-style: italic;
+  font-weight: normal;
+}
+
+code, tt {
+  font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
+  background-color: #eee;
+  padding: 1px 3px;
+}
+
+/*
+Indexes and Toc
+*/
+.indexHeader, .indexContainer {
+  font-size: 80%;
+}
+
+.indexContainer h2 {
+  font-size: 100%;
+  font-weight: bold;
+  color: #333;
+  display: block;
+  padding: 1ex;
+  margin: 0 1em 1ex 0;
+  border-bottom: 1px solid #999;
+}
+
+.indexContainer ul {
+  padding-left: 1em;
+}
+
+.indexContainer li {
+  list-style: none;
+}
+
+/*
+Document title and Copyright styles
+*/
+
+.clear {
+    clear:both;
+    height:0px;
+    overflow:hidden;
+}
+
+li.blockList {
+  display: block;
+  margin: 0.5em 0 0 0;
+  padding: 0.5em;
+}
+
+li.blockList > dl, li.blockList > div {
+  margin-left: 1.5em;
+}
+
+ul.blockList, ul.blockListLast {
+  display: block;
+  margin: 0;
+  padding: 0;
+}
+
+.header {
+  margin: 2em 0 1em 1em;
+  font-weight: 400;
+  font-size: 100%;
+}
+
+.subTitle {
+  color: #999;
+  font-size: 150%;
+  margin: 0;
+}
+
+.title {
+  color: #999;
+  font-size: 250%;
+  margin: 0;
+  border: none;
+  font-weight: 400;
+}
+
+.docSummary {
+  margin-top: 3ex;
+}
+
+/*
+Navigation bar styles
+*/
+.bar {
+  padding: 1ex;
+  margin: 0;
+  font-size: 90%;
+  font-weight: bold;
+  font-style: normal;
+  color: #333;
+  background-color: #eee;
+  text-align: center;
+}
+.topNav, .bottomNav {
+  color: #333;
+  background-color: #eee;
+  margin: 0;
+  width:100%;
+  font-size: 80%;
+}
+
+.bottomNav {
+  margin-top: 1em;
+}
+
+.subNav {
+  width:100%;
+  font-size:80%;
+}
+
+.legalCopy {
+  display: none;
+}
+
+ul.navList, ul.subNavList {
+  display: inline-block;
+  margin:0 0.5em;
+  padding:0.5ex;
+}
+ul.navList li, ul.subNavList li{
+  list-style:none;
+  padding: 0;
+  margin: 0 0.5em;
+  display: inline;
+}
+
+ul.subNavList { display: none; }
+
+.skipNav {
+    display: none;
+}
+/*
+List styles
+*/
+ul.horizontal li {
+    display:inline;
+    font-size:0.9em;
+}
+ul.inheritance {
+    margin:0;
+    padding:0;
+}
+ul.inheritance li {
+    display:inline;
+    list-style:none;
+}
+ul.inheritance li ul.inheritance {
+    margin-left:15px;
+    padding-left:15px;
+    padding-top:1px;
+}
+/*
+Formatting effect styles
+*/
+.sourceLineNo {
+    padding:0 30px 0 0;
+}
+h1.hidden {
+    visibility:hidden;
+    overflow:hidden;
+    font-size:10px;
+}
+.deprecatedLabel, .descfrmTypeLabel, .memberNameLabel, .memberNameLink,
+.overrideSpecifyLabel, .packageHierarchyLabel, .paramLabel, .returnLabel,
+.seeLabel, .simpleTagLabel, .throwsLabel, .typeNameLabel, .typeNameLink {
+    font-weight:bold;
+}
+.deprecationComment, .emphasizedPhrase, .interfaceName {
+    font-style:italic;
+}
+
+a:target + ul > li > pre {
+  background-color: yellow;
+}

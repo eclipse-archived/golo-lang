@@ -79,13 +79,13 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * limitations of {@link gololang.Tuple#compareTo} also apply.
    * <p>Moreover, two structures are only comparable if they have the same type. For instance,
    * given
-   * <code><pre>
+   * <pre class="lisgin"><code class="lang-golo" data-lang="golo">
    * struct StructA = {x, y}
    * struct StructB = {a, b}
    *
    * let aStructA = StructA(1, 2)
    * let aStructB = StructB(1, 3)
-   * </pre></code>
+   * </code></pre>
    * while {@code aStructA: values() < aStructB: values()} is valid and true since we compare two
    * 2-tuples, comparing directly the structures {@code aStructA < aStructB} throws a
    * {@link java.lang.ClassCastException}.

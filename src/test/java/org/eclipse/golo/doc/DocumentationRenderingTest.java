@@ -84,7 +84,7 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("<h3 id=\"with_doc_2\">with_doc(a, b)"));
     assertThat(result, containsString("<h4>Example:</h4>"));
     assertThat(result, containsString("<li><a href=\"#with_doc_2\">with_doc(a, b)"));
-    assertThat(result, containsString("<pre class=\"listing highlight highlightjs\"><code class=\"language-golo\" data-lang=\"golo\">println(\"foo\": yop())"));
+    assertThat(result, containsString("<pre class=\"listing\"><code class=\"lang-golo\" data-lang=\"golo\">println(\"foo\": yop())"));
     assertThat(result, containsString("<h3 id=\"Point\">Point"));
     assertThat(result, containsString("<a class=\"permalink\" href=\"#Point\" title=\"link to this section\">&#182;"));
     assertThat(result, containsString("<li><a href=\"#Point\">Point</a>"));

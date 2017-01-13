@@ -62,19 +62,19 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * Convert a {@link CaseStatement} node into a imbrication of {@link ConditionalBranching}, and
    * replace it in the parent node.
    * For instance:
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * case {
    *   when cond1 { block1 }
    *   when cond2 { block2 }
    *   otherwise { block3 }
    * }
-   * </pre>
+   * </code></pre>
    * is converted into the equivalent of
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * if cond1 { block1 }
    * else if cond2 { block2 }
    * else { block3 }
-   * </pre>
+   * </code></pre>
    */
   @Override
   public void visitCaseStatement(CaseStatement caseStatement) {
@@ -101,15 +101,15 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * Convert a {@link MatchExpression} node into a block containing a {@link CaseStatement},
    * replace it in the parent and visit it to expand it.
    * For instance
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * match {
    *   when cond1 then val1
    *   when cond2 then val2
    *   otherwise val3
    * }
-   * </pre>
+   * </code></pre>
    * is converted into the equivalent of
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * tmp = null
    * case {
    *   when cond1 { tmp = val1 }
@@ -117,7 +117,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    *   otherwise { tmp = val3 }
    * }
    * tmp
-   * </pre>
+   * </code></pre>
    */
   @Override
   public void visitMatchExpression(MatchExpression matchExpression) {
@@ -180,18 +180,18 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * Convert a list comprehension expression into a block initialising a collection from nested
    * loops defined in the comprehension.
    * For instance
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * list[ f(x, y) foreach x in col1 foreach y in col2 ]
-   * </pre>
+   * </code></pre>
    * is converted to the equivalent of
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let collection = list[]
    * foreach x in col1 {
    *   foreach y in col2 {
    *     collection: add(f(x, y))
    *   }
    * }
-   * </pre>
+   * </code></pre>
    */
   @Override
   public void visitCollectionComprehension(CollectionComprehension collection) {
@@ -230,18 +230,18 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * <p>
    * Convert a {@code ForEachLoopStatement} into a loop using the associated iterator.
    * For instance:
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * foreach x in expr {
    *   block
    * }
-   * </pre>
+   * </code></pre>
    * is converted to:
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * for (__$$_iterator_0 = expr: iterator(), __$$_iterator_0: hasNext(),) {
    *   let x = __$$_iterator_0: next()
    *   block
    * }
-   * </pre>
+   * </code></pre>
    */
   @Override
   public void visitForEachLoopStatement(ForEachLoopStatement foreachStatement) {
@@ -288,16 +288,16 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * Destructuring assignment expansion.
    * <p>
    * convert code like
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let a, b, c... = expr
-   * </pre>
+   * </code></pre>
    * into something equivalent to
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let tmp = expr: destruct()
    * let a = tmp: get(0)
    * let b = tmp: get(1)
    * let c = tmp: subTuple(2)
-   * </pre>
+   * </code></pre>
    */
   @Override
   public void visitDestructuringAssignment(DestructuringAssignment assignment) {

@@ -20,7 +20,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * The default name is {@code symbol}.
  * <p>
  * The generator maintains a stack of scope names, to generate hierarchical names.
- * <pre>
+ * <pre class="listing"><code class="lang-java" data-lang="java">
  * SymbolGenerator sym = new SymbolGenerator("closure");
  * sym.next(); // __$$_closure_0
  * sym.next(); // __$$_closure_1
@@ -30,7 +30,7 @@ import java.util.concurrent.atomic.AtomicLong;
  * sym.next(); // __$$_closure_scope_subscope_3
  * sym.exit().exit();
  * sym.next(); // __$$_closure_4
- * </pre>
+ * </code></pre>
  * <p>
  * Since the counter maintains uniqueness, the name and scopes only purpose is to give
  * somewhat readable names to help debugging.

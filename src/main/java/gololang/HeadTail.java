@@ -19,19 +19,19 @@ import java.util.Iterator;
  * thus can be seen as an alternative to the {@code Iterable} interface.
  * <p>
  * For example, one can compute the size of such an object with:
- * <pre>
+ * <pre class="listing"><code class="lang-java" data-lang="java">
  * static int size(HeadTail<?> o) {
  *   if (o.isEmpty()) { return 0; }
  *   return 1 + size(o.tail());
  * }
- * </pre>
+ * </code></pre>
  * or in Golo:
- * <pre>
+ * <pre class="listing"><code class="lang-golo" data-lang="golo">
  * function size = |ht| -> match {
  *   when ht: isEmpty() then 0
  *   otherwhise 1 + size(ht: tail())
  * }
- * </pre>
+ * </code></pre>
  * <p>
  * Note that the {@code size} method is not provided since this interface
  * can be implemented by infinite generators.

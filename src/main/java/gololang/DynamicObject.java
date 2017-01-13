@@ -255,10 +255,10 @@ public final class DynamicObject {
    * Creates a function suitable for the {@code fallback} property delegating to the given dynamic object.
    *
    * Example:
-   * <code><pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let d = DynamicObject(): name("Zaphod")
    * let o = DynamicObject(): fallback(delegate(d))
-   * </pre></code>
+   * </code></pre>
    *
    * @param deleguee the object to delegate to.
    * @return a function delegating to {@code deleguee}
@@ -274,14 +274,14 @@ public final class DynamicObject {
    * <p>
    * While this method may be useful in itself, it is mostly relevant for the Golo runtime internals so as
    * to allow calling "methods" on dynamic objects, as in:
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * # obj is some dynamic object...
    * obj: foo("bar")
    * println(foo: bar())
    *
    * obj: define("plop", |this| -> "Plop!")
    * println(obj: plop())
-   * </pre>
+   * </code></pre>
    *
    * @param property the name of a property.
    * @param type     the expected invoker type with at least one parameter (the dynamic object as a receiver).

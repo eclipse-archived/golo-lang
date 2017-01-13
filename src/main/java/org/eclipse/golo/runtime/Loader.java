@@ -16,7 +16,7 @@ import java.util.function.Function;
  * {@code java.util.function.Function<String, Class<?>>} so that a loader can be directly mapped to a stream of the
  * names of the classes to load. Moreover, the {@code ClassNotFoundException} is catched to return
  * {@code null}, allowing a more "flowing" use. For instance:
- * <pre><code>
+ * <pre class="listing"><code class="lang-java" data-lang="java">
  * Loader loader = new Loader(this.getClass().getClassLoader());
  * Stream.of("java.lang.String", "gololang.Tuple", "foo.bar.Baz", "java.util.LinkedList")
  *     .map(loader)
