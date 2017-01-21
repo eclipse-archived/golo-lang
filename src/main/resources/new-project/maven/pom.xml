@@ -9,6 +9,10 @@
   <version>0.0.1-SNAPSHOT</version>
   <packaging>jar</packaging>
 
+  <!--
+    WARNING: When using a -SNAPSHOT version of Golo you may have issues resolving artifacts from public repositories.
+  -->
+
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     <golo.version>@golo.version@</golo.version>
@@ -84,4 +88,21 @@
       </plugin>
     </plugins>
   </build>
+
+  <repositories>
+    <repository>
+      <id>bintray</id>
+      <name>Bintray</name>
+      <url>https://jcenter.bintray.com</url>
+    </repository>
+  </repositories>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>bintray</id>
+      <name>Bintray</name>
+      <url>https://jcenter.bintray.com</url>
+    </pluginRepository>
+  </pluginRepositories>
+
 </project>
