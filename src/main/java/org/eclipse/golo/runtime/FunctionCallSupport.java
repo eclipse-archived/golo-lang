@@ -220,23 +220,12 @@ public final class FunctionCallSupport {
           || argumentNames.length > 0);
   }
 
-  private static int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
-    int[] argumentsOrder = new int[parameterNames.size()];
-    for (int i = 0; i < argumentNames.length; i++) {
-      int actualPosition = parameterNames.indexOf(argumentNames[i]);
-      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
-      argumentsOrder[actualPosition] = i;
-    }
-    return argumentsOrder;
-  }
-
   public static MethodHandle reorderArguments(Method method, MethodHandle handle, String[] argumentNames) {
-    if (argumentNames.length == 0) { return handle; }
-    if (hasNamedParameters(method)) {
-      return permuteArguments(handle, handle.type(), getArgumentsOrder(method, getParameterNames(method), argumentNames));
-    }
-    Warnings.noParameterNames(method.getName(), argumentNames);
-    return handle;
+    return NamedArgumentsHelper.reorderArguments(
+        method.getName(),
+        getParameterNames(method),
+        handle,
+        argumentNames, 0, 0);
   }
 
   public static MethodHandle insertSAMFilter(MethodHandle handle, Lookup caller, Class<?>[] types, int startIndex) {

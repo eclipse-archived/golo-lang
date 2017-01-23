@@ -37,26 +37,13 @@ abstract class MethodFinder {
 
   abstract MethodHandle find();
 
-  protected int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
-    // deal with the first parameter (implicit receiver).
-    int[] argumentsOrder = new int[parameterNames.size() + 1];
-    argumentsOrder[0] = 0;
-    for (int i = 0; i < argumentNames.length; i++) {
-      int actualPosition = parameterNames.indexOf(argumentNames[i]);
-      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
-      argumentsOrder[actualPosition + 1] = i + 1;
-    }
-    return argumentsOrder;
-  }
-
-  MethodHandle reorderArguments(Method method, MethodHandle handle) {
-    String[] argumentNames = invocation.argumentNames();
-    if (argumentNames.length == 0) { return handle; }
-    if (hasNamedParameters(method)) {
-      return permuteArguments(handle, handle.type(), getArgumentsOrder(method, getParameterNames(method), argumentNames));
-    }
-    Warnings.noParameterNames(method.getName(), argumentNames);
-    return handle;
+  public MethodHandle reorderArguments(Method method, MethodHandle handle) {
+    return NamedArgumentsHelper.reorderArguments(
+        method.getName(),
+        getParameterNames(method),
+        handle,
+        invocation.argumentNames(),
+        1, 1);
   }
 
   protected Optional<MethodHandle> toMethodHandle(Method method) {

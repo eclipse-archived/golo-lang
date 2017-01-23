@@ -33,7 +33,6 @@ function sum = |lst| -> sum(0, lst) with {
   }
 }
 
-
 function h = |x| -> match {
   when a < 0 then 1337
   when a > 10 then 2 * a

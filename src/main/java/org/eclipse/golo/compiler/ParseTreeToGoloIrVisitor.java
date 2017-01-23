@@ -587,7 +587,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       if (!invocation.namedArgumentsComplete()) {
         context.errorMessage(INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
             message("incomplete_named_arguments_usage",
-            invocation.getClass(), invocation.getName()));
+            invocation.getClass().getName(), invocation.getName()));
       }
       invocation.withNamedArguments();
     }

@@ -288,6 +288,183 @@ function i_will_crash = {
 }
 ----
 
+
+=== Recursive Tail Call Optimization
+
+Golo feature recursive https://en.wikipedia.org/wiki/Tail_call[tail call] optimization. If a function last action is to return the result of a recursive call, it is optimized to not stack a new call and is compiled in code equivalent to a loop. For instance, a function like:
+
+[source,golo]
+----
+function fact = |acc, v| -> match {
+  when v == 0 then acc
+  otherwise fact(acc * v, v - 1)
+}
+----
+
+is compiled into something roughly equivalent to :
+
+[source,golo]
+----
+function fact = |acc, v| {
+  var acc_ = acc
+  var v_ = v
+  while v_ != 0 {
+    acc_ = acc_ * v_
+    v_ = v_ - 1
+  }
+  return acc_
+}
+----
+
+This allows to create recursive functions that will not throw a `StackOverflowError` even in the presence of a large number or recursive call.
+The optimization can be disabled by setting the `golo.optimize.tce` system property to `false` (e.g. `export GOLO_OPTS='-Dgolo.optimize.tce=false`).
+
+A call is tail recursive when the function returns the result of calling itself directly. Indeed, since no evaluation nor flow analysis is done, many effectively tail recursive calls can't be identified as such, and thus are not optimized. It is recommended to rewrite the code to make the tail call more direct. For instance, the following two functions are not optimized:
+
+[source,golo]
+----
+function foo = |a, v| {
+  let r = ^foo
+  if v == 0 {
+    return a
+  }
+  return r(a + v, v - 1)
+}
+
+function bar = |a, v| {
+  var r = null
+  if v == 0 {
+    r = a
+  } else {
+    r = bar(a + v, v - 1)
+  }
+  return r
+}
+----
+
+while the following one is:
+[source,golo]
+----
+function ref = |a, v| {
+  if v == 0 {
+    return a
+  }
+  return ref(a + v, v - 1)
+}
+----
+
+Note that returning a `match` expression that may evaluate to a tail call will be optimized, such that the function
+[source,golo]
+----
+function baz = |a, v| -> match {
+  when v == 0 then a
+  otherwise ref(a + v, v - 1)
+}
+----
+will be strictly equivalent to the previous one. A consequence of this behavior is that mutual recursions are not optimized.
+
+==== On augmentations
+
+Functions defined in augmentations can be optimized if written in a tail call style. For instance, in the following sample, the `reduce` function is not optimized since it is viewed as a method call:
+[source,golo]
+----
+struct Cons = {head, tail}
+
+augment Cons {
+  function reduce = |this, f, z| -> match {
+    when this: isEmpty() then z
+    otherwise this: tail(): reduce(f, f(this: head(), z))
+  }
+}
+----
+
+On the other hand, the following one is optimized and works as expected:
+[source,golo]
+----
+augment Cons {
+  function reduce = |this, f, z| -> match {
+    when this: isEmpty() then z
+    otherwise reduce(this: tail(), f, f(this: head(), z))
+  }
+}
+----
+
+==== Limitations on decorators
+
+Since the optimization is done at compile time, most of dynamic features are not available. For instance, <<decorators,decorated functions>>
+can't be optimized. Indeed, in that case, the decorator would not be applied on each call but only on the first one, which could lead to unexpected results.
+
+For instance, the code:
+
+[source,golo]
+----
+function log = |f| -> |a, v| {
+  println("function called with " + a + ", " + v)
+  return f(a, v)
+}
+
+@log
+function fact = |acc, v| -> match {
+  when v == 0 then acc
+  otherwise fact(acc * v, v - 1)
+}
+----
+
+when optimised would print the message only for the first call. The tail call optimization is thus disabled for decorated functions. If the desired behavior is to optimize the function and apply the decorator only for the first call, one can create an undecorated version, and decorate explicitly direct calls or create a decorated wrapper, as in:
+
+[source,golo]
+----
+function log = |f| -> |a, v| {
+  println("function called with " + a + ", " + v)
+  return f(a, v)
+}
+
+function fact = |acc, v| -> match {
+  when v == 0 then acc
+  otherwise fact(acc * v, v - 1)
+}
+
+@log
+function decoratedFact = |acc, v| -> fact(acc, v)
+
+#(...)
+
+let direclyDecorated = log(^fact)
+directlyDecorated(1, 5)
+log(^fact)(1, 5)
+----
+
+Note that this approach is not as cumbersome, since most of the time, tail recursive functions introduce an “artificial” accumulator that is hidden by a function calling the recursive one with the default accumulator value.
+For instance, in the factorial case, one would write:
+[source,golo]
+----
+local function fact = |acc, v| -> match {
+  when v == 0 then acc
+  otherwise fact(acc * v, v - 1)
+}
+
+function fact = |v| -> fact(1, v)
+----
+
+or equivalently:
+[source,golo]
+----
+function fact = |n| {
+  let _fact = |acc, v| -> match {
+    when v == 0 then acc
+    otherwise _fact(acc * v, v - 1)
+  }
+  return _fact(1, n)
+}
+----
+
+In this case, the both the local `fact` and the `_fact` closure are optimized, while the public one can be decorated.
+
+
+Similarly, variadic functions are not optimized, since we can't know at compile-time if the last argument is already an array or a simple value that must be collected. The same kind of approach is recommended, by defining a (local) fixed arguments recursive version that is optimized and a variadic one that delegates on it.
+
+
+
 === Module-level state
 
 You can declare `let` and `var` references at the module level, as in:

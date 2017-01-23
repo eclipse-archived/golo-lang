@@ -176,7 +176,7 @@ public final class FunctionInvocation extends AbstractInvocation<FunctionInvocat
    */
   @Override
   public String toString() {
-    return String.format("FunctionInvocation{name=%s}", getName());
+    return String.format("FunctionInvocation{name=%s, arity=%s}", getName(), getArity());
   }
 
   /**

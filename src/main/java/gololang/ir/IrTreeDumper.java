@@ -141,7 +141,11 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void visitFunction(GoloFunction function) {
     incr();
     space();
-    this.out.print("Function ");
+    if (function.isLocal()) {
+      this.out.print("Local function ");
+    } else {
+      this.out.print("Function ");
+    }
     this.out.append(function.getName()).append(" = ");
     visitFunctionDefinition(function);
     decr();

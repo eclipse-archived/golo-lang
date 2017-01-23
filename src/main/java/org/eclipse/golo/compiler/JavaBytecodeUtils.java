@@ -54,11 +54,12 @@ final class JavaBytecodeUtils {
     }
   }
 
-  static void visitLine(GoloElement<?> element, MethodVisitor visitor) {
+  static Label visitLine(GoloElement<?> element, MethodVisitor visitor) {
+    Label label = new Label();
+    visitor.visitLabel(label);
     if (element.hasPosition()) {
-      Label label = new Label();
-      visitor.visitLabel(label);
       visitor.visitLineNumber(element.positionInSourceCode().getStartLine(), label);
     }
+    return label;
   }
 }
