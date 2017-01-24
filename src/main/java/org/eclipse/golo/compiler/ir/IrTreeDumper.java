@@ -206,7 +206,8 @@ public class IrTreeDumper implements GoloIrVisitor {
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
     incr();
     space();
-    System.out.println("Assignment: " + assignmentStatement.getLocalReference());
+    System.out.print("Assignment: " + assignmentStatement.getLocalReference());
+    System.out.println(assignmentStatement.isDeclaring() ? " (declaring)" : "");
     assignmentStatement.walk(this);
     decr();
   }
