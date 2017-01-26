@@ -13,17 +13,17 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
-@Parameters(commandNames = {"version"}, commandDescription = "Queries the Golo version")
+@Parameters(commandNames = {"version"}, resourceBundle = "commands", commandDescriptionKey = "version")
 public class VersionCommand implements CliCommand {
 
-  @Parameter(names = "--full", description = "Prints the full information details")
+  @Parameter(names = "--full", description = "version.full")
   boolean full = false;
 
   @Override
   public void execute() throws Throwable {
     if (this.full) {
-      System.out.println("Golo version: " + Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
-      System.out.println("JVM version: " + System.getProperty("java.version"));
+      System.out.println("Golo: " + Metadata.VERSION + " (build " + Metadata.TIMESTAMP + ")");
+      System.out.println("JVM: " + System.getProperty("java.version"));
     } else {
       System.out.println(Metadata.VERSION);
     }

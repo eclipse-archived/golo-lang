@@ -94,6 +94,7 @@ class JavaBytecodeStructGenerator {
   }
 
   private void insertPrivateElementCheck(Struct struct, MethodVisitor visitor) {
+    // TODO: l10n of exception message at runtime
     Label afterPrivateCheck = new Label();
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitLdcInsn("_");
@@ -108,6 +109,7 @@ class JavaBytecodeStructGenerator {
   }
 
   private void insertUnknowElementCode(Struct struct, MethodVisitor visitor) {
+    // TODO: l10n of exception message at runtime
     visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
     visitor.visitInsn(DUP);
     visitor.visitLdcInsn("Unknown member in " + struct.getPackageAndClass().toString());
@@ -386,6 +388,7 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeSetter(ClassWriter classWriter, String owner, String name) {
+    // TODO: l10n of exception message at runtime
     int accessFlag = name.startsWith("_") ? ACC_PRIVATE : ACC_PUBLIC;
     MethodVisitor visitor = classWriter.visitMethod(accessFlag, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
     visitor.visitCode();

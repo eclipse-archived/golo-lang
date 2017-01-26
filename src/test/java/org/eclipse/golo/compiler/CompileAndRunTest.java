@@ -42,6 +42,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 
+import static gololang.Messages.message;
+
 public class CompileAndRunTest {
 
   private static final String SRC = "src/test/resources/for-execution/";
@@ -1754,7 +1756,7 @@ public class CompileAndRunTest {
     } catch (InvocationTargetException e) {
       assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
       IllegalArgumentException iae = (IllegalArgumentException) e.getCause();
-      assertThat(iae.getMessage(), is("Argument name foo not in parameter names used in declaration: create_post[author, title, content]"));
+      assertThat(iae.getMessage(), is(message("invalid_argument_name", "foo", "create_post[author, title, content]")));
     }
 
     Method csvBuilder = moduleClass.getMethod("csv_builder");

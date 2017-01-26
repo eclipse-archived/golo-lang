@@ -15,6 +15,8 @@ import java.util.*;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
+import static gololang.Messages.message;
+
 class ArrayMethodFinder extends MethodFinder {
 
   ArrayMethodFinder(MethodInvocation invocation, Lookup lookup) {
@@ -23,10 +25,8 @@ class ArrayMethodFinder extends MethodFinder {
 
   private void checkArity(int value) {
     if (invocation.arity() != value + 1) {
-      throw new UnsupportedOperationException(invocation.name() + " on arrays takes "
-          + (value == 0 ? "no" : value)
-          + " parameter" + (value > 1 ? "s" : "")
-          );
+      throw new UnsupportedOperationException(
+          message("array_method_bad_arity", invocation.name(), value));
     }
   }
 
@@ -89,7 +89,7 @@ class ArrayMethodFinder extends MethodFinder {
         return lookup.findStatic(
             ArrayHelper.class, "isEmpty", methodType(boolean.class, Object[].class));
       default:
-        throw new UnsupportedOperationException(invocation.name() + " is not supported on arrays");
+        throw new UnsupportedOperationException(message("array_method_not_supported", invocation.name()));
     }
   }
 }

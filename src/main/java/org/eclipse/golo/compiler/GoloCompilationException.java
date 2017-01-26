@@ -18,6 +18,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import static java.util.Collections.unmodifiableList;
+import static gololang.Messages.message;
 
 /**
  * A Golo compilation exception that may also report a cause and several identified problems.
@@ -162,7 +163,7 @@ public class GoloCompilationException extends RuntimeException {
      * @param goloSourceFilename the source file name.
      */
     public Builder(String goloSourceFilename) {
-      exception = new GoloCompilationException("In Golo module: " + goloSourceFilename);
+      exception = new GoloCompilationException(message("in_module", goloSourceFilename));
       exception.setSourceCode(goloSourceFilename);
     }
 
