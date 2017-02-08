@@ -17,6 +17,8 @@ import java.lang.invoke.MethodHandleProxies;
 import java.lang.invoke.MethodHandles;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -210,25 +212,27 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
+  private static void checkRangeTypes(Object value, String name) {
+    require((value instanceof Integer)
+        || (value instanceof Long)
+        || (value instanceof Character)
+        || (value instanceof BigInteger),
+        name + " must either be an Integer, Long, Character or BigInteger");
+  }
 
   /**
    * Makes an range object between two bounds. Range objects implement
    * <code>java.lang.Collection</code> (immutable), so they can be used in Golo <code>foreach</code>
    * loops.
    *
-   * @param from the lower-bound (inclusive) as an <code>Integer</code>, <code>Long</code>, or
-   *             <code>Character</code>.
-   * @param to   the upper-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
-   *             <code>Character</code>
+   * @param from the lower-bound (inclusive) as an {@code Integer}, {@code Long}, {@code Character} or {@code BigInteger}.
+   * @param to   the upper-bound (exclusive) as an {@code Integer}, {@code Long}, {@code Character} or {@code BigInteger}.
    * @return a range object.
    * @see java.util.Collection
    */
   public static Object range(Object from, Object to) {
-    require((from instanceof Integer) || (from instanceof Long) || (from instanceof Character),
-        "from must either be an Integer, Long or Character");
-    require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
-        "to must either be an Integer, Long or Character");
-
+    checkRangeTypes(from, "from");
+    checkRangeTypes(to, "to");
     if ((from instanceof Character && !(to instanceof Character))
         || (to instanceof Character && !(from instanceof Character))) {
       throw new IllegalArgumentException("both bounds must be char for a char range");
@@ -242,6 +246,9 @@ public final class Predefined {
     if (to instanceof Long && from instanceof Long) {
       return new LongRange((Long) from, (Long) to);
     }
+    if (from instanceof BigInteger || to instanceof BigInteger) {
+      return new BigIntegerRange(bigIntegerValue(from), bigIntegerValue(to));
+    }
     if (from instanceof Long) {
       return new LongRange((Long) from, (Integer) to);
     }
@@ -253,31 +260,30 @@ public final class Predefined {
    * <p>
    * The default value is 0 for numbers and 'A' for chars.
    *
-   * @param to the upper-bound (exclusive) as an <code>Integer</code> or <code>Long</code>.
+   * @param to the upper-bound (exclusive) as an {@code Integer}, {@code Long}, {@code Character} or {@code BigInteger}.
    * @return a range object.
    * @see gololang.Predefined#range
    */
   public static Object range(Object to) {
-    require((to instanceof Integer) || (to instanceof Long) || (to instanceof Character),
-        "to must either be an Integer, Long or Character");
+    checkRangeTypes(to, "to");
     if (to instanceof Integer) {
       return new IntRange((Integer) to);
     }
     if (to instanceof Long) {
       return new LongRange((Long) to);
-    } else {
-      return new CharRange((Character) to);
     }
+    if (to instanceof BigInteger) {
+      return new BigIntegerRange((BigInteger) to);
+    }
+    return new CharRange((Character) to);
   }
 
   /**
    * Makes an decreasing range object between two bounds. Range objects implement <code>java.lang.Collection</code>, so
    * they can be used in Golo <code>foreach</code> loops.
    *
-   * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
-   *             <code>Character</code>.
-   * @param to   the lower-bound (exclusive) as an <code>Integer</code>, <code>Long</code> or
-   *             <code>Character</code>.
+   * @param from the upper-bound (inclusive) as an {@code Integer}, {@code Long}, {@code Character} or {@code BigInteger}.
+   * @param to   the lower-bound (exclusive) as an {@code Integer}, {@code Long}, {@code Character} or {@code BigInteger}.
    * @return a range object.
    * @see gololang.Predefined#range
    */
@@ -290,8 +296,7 @@ public final class Predefined {
    * <p>
    * The default value is 0 for numbers and 'A' for chars.
    *
-   * @param from the upper-bound (inclusive) as an <code>Integer</code>, <code>Long</code> or
-   *             <code>Character</code>.
+   * @param from the upper-bound (inclusive) as an {@code Integer}, {@code Long}, {@code Character} or {@code BigInteger}.
    * @return a range object.
    * @see gololang.Predefined#reversedRange
    * @see gololang.Predefined#range
@@ -615,7 +620,6 @@ public final class Predefined {
 
   // ...................................................................................................................
   // These are generated methods, see src/main/ruby/generate_type_conversions.rb
-
   /**
    * Gives the Character value of some number or String object.
    *
@@ -642,6 +646,9 @@ public final class Predefined {
     if (obj instanceof Float) {
       float value = (Float) obj;
       return (char) value;
+    }
+    if (obj instanceof Number) {
+      return (char) ((Number) obj).doubleValue();
     }
     if (obj instanceof String) {
       return ((String) obj).charAt(0);
@@ -676,6 +683,9 @@ public final class Predefined {
       float value = (Float) obj;
       return (int) value;
     }
+    if (obj instanceof Number) {
+      return ((Number) obj).intValue();
+    }
     if (obj instanceof String) {
       return Integer.valueOf((String) obj);
     }
@@ -708,6 +718,9 @@ public final class Predefined {
     if (obj instanceof Float) {
       float value = (Float) obj;
       return (long) value;
+    }
+    if (obj instanceof Number) {
+      return ((Number) obj).longValue();
     }
     if (obj instanceof String) {
       return Long.valueOf((String) obj);
@@ -742,6 +755,9 @@ public final class Predefined {
       float value = (Float) obj;
       return (double) value;
     }
+    if (obj instanceof Number) {
+      return ((Number) obj).doubleValue();
+    }
     if (obj instanceof String) {
       return Double.valueOf((String) obj);
     }
@@ -775,8 +791,66 @@ public final class Predefined {
       double value = (Double) obj;
       return (float) value;
     }
+    if (obj instanceof Number) {
+      return ((Number) obj).floatValue();
+    }
     if (obj instanceof String) {
       return Float.valueOf((String) obj);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+  // END GENERATED .....................................................................................................
+
+  /**
+   * Gives the BigDecimal value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Float value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static BigDecimal bigDecimalValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof BigDecimal) {
+      return (BigDecimal) obj;
+    }
+    if (obj instanceof BigInteger) {
+      return new BigDecimal((BigInteger) obj);
+    }
+    if (obj instanceof Number) {
+      return BigDecimal.valueOf(((Number) obj).doubleValue());
+    }
+    if (obj instanceof Character) {
+      char value = (Character) obj;
+      return BigDecimal.valueOf((long) value);
+    }
+    if (obj instanceof String) {
+      return new BigDecimal((String) obj);
+    }
+    throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
+  }
+
+  /**
+   * Gives the BigInteger value of some number or String object.
+   *
+   * @param obj a boxed number or String value.
+   * @return the Float value.
+   * @throws IllegalArgumentException if {@code obj} is not a number or a String.
+   */
+  public static BigInteger bigIntegerValue(Object obj) throws IllegalArgumentException {
+    if (obj instanceof BigInteger) {
+      return (BigInteger) obj;
+    }
+    if (obj instanceof BigDecimal) {
+      return ((BigDecimal) obj).toBigInteger();
+    }
+    if (obj instanceof Number) {
+      return BigInteger.valueOf(((Number) obj).longValue());
+    }
+    if (obj instanceof Character) {
+      char value = (Character) obj;
+      return BigInteger.valueOf((long) value);
+    }
+    if (obj instanceof String) {
+      return new BigInteger((String) obj);
     }
     throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
   }

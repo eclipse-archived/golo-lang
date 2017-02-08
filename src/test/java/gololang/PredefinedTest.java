@@ -17,12 +17,15 @@ import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
 import java.lang.invoke.WrongMethodTypeException;
+import java.math.BigInteger;
+import java.math.BigDecimal;
 import java.util.concurrent.Callable;
 import java.util.function.Function;
 import java.util.List;
 import java.util.ArrayList;
 import static java.util.Arrays.asList;
 
+import static java.math.BigInteger.*;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -90,6 +93,14 @@ public class PredefinedTest {
     assertThat(Predefined.range('a', 'd'), instanceOf(CharRange.class));
     assertThat(Predefined.range('D'), instanceOf(CharRange.class));
     assertThat(Predefined.range('D'), is(Predefined.range('A', 'D')));
+
+    assertThat(Predefined.range(ONE, TEN), instanceOf(BigIntegerRange.class));
+    assertThat(Predefined.range(1, TEN), instanceOf(BigIntegerRange.class));
+    assertThat(Predefined.range(1L, TEN), instanceOf(BigIntegerRange.class));
+    assertThat(Predefined.range(ONE, 10L), instanceOf(BigIntegerRange.class));
+    assertThat(Predefined.range(ONE, 10), instanceOf(BigIntegerRange.class));
+    assertThat(Predefined.range(TEN), instanceOf(BigIntegerRange.class));
+    assertThat(Predefined.range(TEN), is(Predefined.range(ZERO, TEN)));
   }
 
   @Test
@@ -228,6 +239,19 @@ public class PredefinedTest {
     assertThat(Predefined.intValue(1L), is((Object) 1));
     assertThat(Predefined.intValue(1.0d), is((Object) 1));
     assertThat(Predefined.intValue("1"), is((Object) 1));
+    assertThat(Predefined.intValue(BigInteger.ONE), is((Object) 1));
+    assertThat(Predefined.intValue(BigDecimal.ONE), is((Object) 1));
+
+    assertThat(Predefined.bigIntegerValue(1), is(BigInteger.ONE));
+    assertThat(Predefined.bigIntegerValue(1L), is(BigInteger.ONE));
+    assertThat(Predefined.bigIntegerValue(1.0d), is(BigInteger.ONE));
+    assertThat(Predefined.bigIntegerValue("1"), is(BigInteger.ONE));
+
+    BigDecimal one = BigDecimal.valueOf(1.0);
+    assertThat(Predefined.bigDecimalValue(1), is(one));
+    assertThat(Predefined.bigDecimalValue(1L), is(one));
+    assertThat(Predefined.bigDecimalValue(1.0d), is(one));
+    assertThat(Predefined.bigDecimalValue("1.0"), is(one));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)
