@@ -9,7 +9,7 @@ Editor and IDE support for Golo is available for:
 - https://github.com/jponge/vim-golo[Vim]
 - https://github.com/k33g/sublime-golo[Sublime Text 2 & 3]
 - https://github.com/k33g/golo-storm[IntelliJ IDEA (syntax highthing)]
-- https://github.com/golo-lang/gldt[Eclipse] (contributed by Jeff Maury)
+- https://github.com/golo-lang/gldt[Eclipse] (initially contributed by Jeff Maury, currently outdated and seeking for new contributors)
 - https://github.com/golo-lang/golo-netbeans[Netbeans] (contributed by http://www.serli.com/[Serli])
 - https://atom.io/packages/golo-ide[Atom] (package golo-ide)
 - https://github.com/zyedidia/micro[Micro] (Gololang support for Micro is native)
@@ -232,8 +232,8 @@ function main = |args| {
 }
 ----
 
-NOTE: Each `golo` and `jar` files present in the script file's directory or the sub directories
-will be scaned.
+NOTE: Each `golo` and `jar` files present in the script file's directory or the sub directories will be scanned.
+This makes it easy to run scripts and have an automatic classpath for libraries, and automatically compile and load other Golo files.
 
 [source]
 ----
@@ -358,7 +358,7 @@ API. We give them along with examples in <<data-literals,the data literals table
 
 |`java.math.BigDecimal` | `1.0_B`, `-1_234.56_B`, `1.234e-4_B`, ...
 
-|`java.lang.Class` | `String.class`, `java.lang.String.class`, `gololang.Predef.module`, ...
+|`java.lang.Class` | `String.class`, `java.lang.String.class`, `gololang.Predef.module`, `byte.class`, ...
 
 | `gololang.FunctionReference` | `^foo`, `^some.module::foo`, ...
 

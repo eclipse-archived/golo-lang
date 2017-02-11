@@ -37,7 +37,7 @@ local function _newWithSameType = |this| {
 }
 
 local function _closureWithIndexArgument = |target| -> match {
-  when target: type(): parameterCount() == 0
+  when target: arity() == 0
     then FunctionReference(java.lang.invoke.MethodHandles.dropArguments(target: handle(), 0, java.lang.Object.class))
   otherwise
     target
@@ -882,4 +882,30 @@ augment gololang.Tuple {
 }
 
 # ............................................................................................... #
+
+----
+Augment functions to make them behave more like objects from java.util.function
+----
+augment gololang.FunctionReference {
+  ----
+  Call this function with no arguments.
+  ----
+  function get = |this| {
+    if not this: acceptArity(0) {
+      throw UnsupportedOperationException(
+        "`get` must be called on function accepting 0 parameter")
+    }
+    return this()
+  }
+
+  ----
+  Alias for `FunctionReference::invoke`
+  ----
+  function apply = |this, args...| -> this: invoke(args)
+
+  ----
+  Alias for `FunctionReference::invoke`
+  ----
+  function accept = |this, args...| -> this: invoke(args)
+}
 

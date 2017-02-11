@@ -12,10 +12,15 @@ package org.eclipse.golo.runtime;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Optional;
+import java.util.List;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 
+import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodHandles.Lookup;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.hasNamedParameters;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.getParameterNames;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.checkArgumentPosition;
 
 abstract class MethodFinder {
 
@@ -30,6 +35,28 @@ abstract class MethodFinder {
   }
 
   public abstract MethodHandle find();
+
+  protected int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
+    // deal with the first parameter (implicit receiver).
+    int[] argumentsOrder = new int[parameterNames.size() + 1];
+    argumentsOrder[0] = 0;
+    for (int i = 0; i < argumentNames.length; i++) {
+      int actualPosition = parameterNames.indexOf(argumentNames[i]);
+      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
+      argumentsOrder[actualPosition + 1] = i + 1;
+    }
+    return argumentsOrder;
+  }
+
+  public MethodHandle reorderArguments(Method method, MethodHandle handle) {
+    String[] argumentNames = invocation.argumentNames();
+    if (argumentNames.length == 0) { return handle; }
+    if (hasNamedParameters(method)) {
+      return permuteArguments(handle, handle.type(), getArgumentsOrder(method, getParameterNames(method), argumentNames));
+    }
+    Warnings.noParameterNames(method.getName(), argumentNames);
+    return handle;
+  }
 
   protected Optional<MethodHandle> toMethodHandle(Method method) {
     MethodHandle target = null;
@@ -46,10 +73,7 @@ abstract class MethodFinder {
         return Optional.empty();
       }
     }
-    if (invocation.argumentNames().length > 1) {
-      target = FunctionCallSupport.reorderArguments(method, target, invocation.argumentNames());
-    }
-    return Optional.of(invocation.coerce(target));
+    return Optional.of(invocation.coerce(reorderArguments(method, target)));
   }
 
 }

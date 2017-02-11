@@ -370,7 +370,7 @@ public final class Predefined {
    * @param object the object.
    * @return {@code true} if {@code object} is an instance of {@link gololang.FunctionReference} {@code false} otherwise.
    */
-  public static Object isClosure(Object object) {
+  public static boolean isClosure(Object object) {
     return object instanceof FunctionReference;
   }
 

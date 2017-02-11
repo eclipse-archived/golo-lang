@@ -13,7 +13,7 @@ import org.eclipse.golo.compiler.ir.*;
 
 import java.util.*;
 
-class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
+public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
 
   private static final class Context {
     final Set<String> parameterReferences = new HashSet<>();
@@ -162,7 +162,7 @@ class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
       locallyDeclared(referenceName);
     }
     locallyAssigned(referenceName);
-    assignmentStatement.getExpressionStatement().accept(this);
+    assignmentStatement.walk(this);
     if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
       ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();
       closure.getTarget().setSyntheticSelfName(referenceName);

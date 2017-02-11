@@ -87,6 +87,10 @@ public class FunctionReference {
     return new FunctionReference(handle.asCollector(arrayType, arrayLength), this.parameterNames);
   }
 
+  public FunctionReference asCollector(int arrayLength) {
+    return asCollector(Object[].class, arrayLength);
+  }
+
   public FunctionReference asFixedArity() {
     return new FunctionReference(handle.asFixedArity(), this.parameterNames);
   }
@@ -120,7 +124,7 @@ public class FunctionReference {
   }
 
   public FunctionReference asSpreader() {
-    return asSpreader(Object[].class, handle.type().parameterCount());
+    return asSpreader(Object[].class, arity());
   }
 
   /**
@@ -132,6 +136,13 @@ public class FunctionReference {
    */
   public int arity() {
     return handle.type().parameterCount();
+  }
+
+  /**
+   * Check if this function can be invoked with the given number of arguments.
+   */
+  public boolean acceptArity(int nb) {
+    return arity() == nb || (arity() == nb + 1 && isVarargsCollector());
   }
 
   public Object invoke(Object... args) throws Throwable {
@@ -155,7 +166,7 @@ public class FunctionReference {
   @Override
   public String toString() {
     return "FunctionReference{" +
-        "handle=" + handle +
+        "handle=" + (handle.isVarargsCollector() ? "(varargs)" : "") + handle +
         ", parameterNames=" + Arrays.toString(parameterNames) +
         '}';
   }
@@ -194,10 +205,32 @@ public class FunctionReference {
    * @return a composed function.
    */
   public FunctionReference andThen(FunctionReference fun) {
-    if (fun.type().parameterCount() != 1) {
-      throw new IllegalArgumentException("andThen requires a function with exactly 1 parameter");
+    MethodHandle other = null;
+    if (fun.isVarargsCollector() && fun.arity() == 1) {
+      other = fun.handle.asCollector(Object[].class, 1);
+    } else if (fun.isVarargsCollector() && fun.arity() == 2) {
+      other = MethodHandles.insertArguments(fun.handle, 1, new Object[]{new Object[0]});
+    } else if (fun.arity() == 1) {
+      other = fun.handle;
+    } else {
+      throw new IllegalArgumentException("`andThen` requires a function that can be applied to 1 parameter");
     }
-    return new FunctionReference(filterReturnValue(this.handle, fun.handle), this.parameterNames);
+    return new FunctionReference(filterReturnValue(this.handle, other), this.parameterNames);
+  }
+
+  /*
+   * Compose a function with another function.
+   *
+   * <p>This is equivalent to {@code fun.andThen(this)}.
+   *
+   * @param fun the function to apply before {@code this} function.
+   * @return a composed function.
+   */
+  public FunctionReference compose(FunctionReference fun) {
+    if (!acceptArity(1)) {
+      throw new UnsupportedOperationException("`compose` must be called on function accepting 1 parameter");
+    }
+    return fun.andThen(this);
   }
 
   /**
@@ -244,6 +277,9 @@ public class FunctionReference {
    * @see java.lang.invoke.MethodHandles#insertArguments(MethodHandle, int, Object...)
    */
   public FunctionReference insertArguments(int position, Object... values) {
+    if (values.length == 0) {
+      return this;
+    }
     MethodHandle bounded = MethodHandles.insertArguments(handle, position, values);
     if (handle.isVarargsCollector()) {
       bounded = bounded.asVarargsCollector(Object[].class);

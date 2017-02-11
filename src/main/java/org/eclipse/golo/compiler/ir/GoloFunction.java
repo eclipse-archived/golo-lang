@@ -252,7 +252,7 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
       LocalReference self = block.getReferenceTable().get(syntheticSelfName);
       ClosureReference closureReference = asClosureReference();
       closureReference.updateCapturedReferenceNames();
-      block.prependStatement(Builders.assign(closureReference).to(self));
+      block.prependStatement(Builders.define(self).as(closureReference));
     }
   }
 

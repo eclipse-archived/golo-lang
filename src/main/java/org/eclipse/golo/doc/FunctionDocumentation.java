@@ -33,7 +33,7 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation>, Docume
   }
 
   public String documentation() {
-    return (documentation != null ? documentation : "") ;
+    return (documentation != null ? documentation : "");
   }
 
   public FunctionDocumentation documentation(String v) {

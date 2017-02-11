@@ -558,7 +558,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
       throw new RuntimeException("The result must contain a function to be applied");
     }
     FunctionReference f = (FunctionReference) value;
-    if (f.type().parameterCount() > 1) {
+    if (f.arity() > 1) {
       return ok(f.bindTo(other.get()));
     }
     return other.map((FunctionReference) value);

@@ -219,14 +219,24 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTMemberDeclaration node, Object data) {
+    Context context = (Context) data;
+    context.push(member(node.getName()).ofAST(node));
+    return context;
+  }
+
+  @Override
   public Object visit(ASTStructDeclaration node, Object data) {
     Context context = (Context) data;
     if (!context.checkExistingSubtype(node, node.getName())) {
-      context.module.addStruct(structure(node.getName())
-        .ofAST(node)
-        .members(node.getMembers()));
+      Struct theStruct = structure(node.getName()).ofAST(node);
+      for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+        node.jjtGetChild(i).jjtAccept(this, context);
+        theStruct.withMember(context.pop());
+      }
+      context.module.addStruct(theStruct);
     }
-    return node.childrenAccept(this, data);
+    return context;
   }
 
   @Override
@@ -243,11 +253,18 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTUnionValue node, Object data) {
     Context context = (Context) data;
-    if (!((Union) context.peek()).addValue(node.getName(), node.getMembers())) {
+    Union currentUnion = (Union) context.peek();
+    UnionValue value = currentUnion.createValue(node.getName()).ofAST(node);
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      node.jjtGetChild(i).jjtAccept(this, context);
+      value.withMember(context.pop());
+    }
+
+    if (!currentUnion.addValue(value)) {
       context.errorMessage(AMBIGUOUS_DECLARATION, node,
           String.format("Declaring the union value `%s` twice", node.getName()));
     }
-    return node.childrenAccept(this, data);
+    return data;
   }
 
   @Override
@@ -340,7 +357,6 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     } else {
       node.childrenAccept(this, data);
     }
-    function.insertMissingReturnStatement();
     if (function.isSynthetic()) {
       context.pop();
       context.push(function.asClosureReference());

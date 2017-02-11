@@ -14,6 +14,7 @@ import org.eclipse.golo.compiler.PackageAndClass;
 import java.util.Collection;
 import java.util.Set;
 import java.util.LinkedHashSet;
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
@@ -29,29 +30,26 @@ public final class Union extends GoloElement {
     this.name = name;
   }
 
+  @Override
+  public Union ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
+  }
+
   public String getName() {
     return name;
   }
 
   public PackageAndClass getPackageAndClass() {
-    return new PackageAndClass(moduleName.toString() + ".types", name);
+    return moduleName.createSubPackage("types").createSubPackage(name);
   }
 
   public void setModuleName(PackageAndClass module) {
     this.moduleName = module;
   }
 
-  public boolean addValue(String name, Collection<String> members) {
-    for (UnionValue v : values) {
-      if (v.getName().equals(name)) {
-        return false;
-      }
-    }
-    UnionValue value = new UnionValue(this, name);
-    value.addMembers(members);
-    values.add(value);
-    makeParentOf(value);
-    return true;
+  public UnionValue createValue(String name) {
+    return new UnionValue(this, name);
   }
 
   public boolean addValue(UnionValue value) {
@@ -63,8 +61,10 @@ public final class Union extends GoloElement {
     return unmodifiableSet(values);
   }
 
-  public Union value(String name, String... members) {
-    addValue(name, asList(members));
+  public Union value(String name, Member... members) {
+    UnionValue value = new UnionValue(this, name);
+    value.addMembers(asList(members));
+    values.add(value);
     return this;
   }
 

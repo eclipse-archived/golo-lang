@@ -47,10 +47,11 @@ class RegularMethodFinder extends MethodFinder {
   }
 
   private boolean overloadMatch(Method m) {
-    return Extractors.isPublic(m) &&
-        Extractors.isConcrete(m) &&
-        m.getName().equals(invocation.name()) &&
-        (m.getParameterCount() + 1 == invocation.arity()) || (m.isVarArgs() && (m.getParameterCount() <= invocation.arity()));
+    return Extractors.isPublic(m)
+      && Extractors.isConcrete(m)
+      && m.getName().equals(invocation.name())
+      && (m.getParameterCount() + 1 == invocation.arity())
+      || (m.isVarArgs() && (m.getParameterCount() <= invocation.arity()));
   }
 
   private Optional<MethodHandle> toMethodHandle(Field field) {
@@ -82,7 +83,7 @@ class RegularMethodFinder extends MethodFinder {
       method.setAccessible(true);
     }
     return super.toMethodHandle(method).map(
-        handle -> FunctionCallSupport.insertSAMFilter(handle, lookup, method.getParameterTypes(), 1));
+      handle -> FunctionCallSupport.insertSAMFilter(handle, lookup, method.getParameterTypes(), 1));
   }
 
   private boolean isValidPrivateStructAccess(Method method) {
@@ -103,7 +104,6 @@ class RegularMethodFinder extends MethodFinder {
     return receiverClassName.substring(0, receiverClassName.indexOf(".types"))
         + "$" + receiverClassName.replace('.', '$');
   }
-
 
   protected Stream<Method> findInMethods() {
     return Extractors.getMethods(invocation.receiverClass())

@@ -10,43 +10,33 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
-import java.util.Set;
-import java.util.LinkedHashSet;
-import java.util.Collection;
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-import static java.util.Collections.unmodifiableSet;
 
-public final class UnionValue extends GoloElement {
-  private final String name;
-  private final Set<String> members = new LinkedHashSet<>();
+public final class UnionValue extends TypeWithMembers {
 
   UnionValue(Union union, String name) {
-    this.name = name;
+    super(name);
     setParentNode(union);
   }
 
+  @Override
+  public UnionValue ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
+  }
+
+  @Override
   public PackageAndClass getPackageAndClass() {
-    return getUnion().getPackageAndClass().createInnerClass(name);
+    return getUnion().getPackageAndClass().createInnerClass(getName());
   }
 
   public Union getUnion() {
     return (Union) getParentNode().get();
   }
 
-  public String getName() {
-    return name;
-  }
-
-  public void addMembers(Collection<String> memberNames) {
-    this.members.addAll(memberNames);
-  }
-
-  public boolean hasMembers() {
-    return !this.members.isEmpty();
-  }
-
-  public Set<String> getMembers() {
-    return unmodifiableSet(members);
+  protected String getFactoryDelegateName() {
+    return getUnion().getPackageAndClass().toString() + "." + getName();
   }
 
   @Override
@@ -58,18 +48,8 @@ public final class UnionValue extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
-    throw cantReplace();
-  }
-
-  @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitUnionValue(this);
-  }
-
-  @Override
-  public void walk(GoloIrVisitor visitor) {
-    // do nothing, not a composite.
   }
 }
 

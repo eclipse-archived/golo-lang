@@ -98,6 +98,15 @@ function main = |args...| {
 
 Further documentation about https://docs.oracle.com/javase/tutorial/reflect/member/methodparameterreflection.html[Names Method Parameters with Java 8.]
 
+[[warning-no-parameter-names]]
+[WARNING]
+====================
+If the java code was not compiled with named parameters, the named arguments syntax is still valid, but the names are simply ignored and  _no reordering_ will be done. You can therefore use the argument names to improve readability and with the hope that the java library you use will later be compiled with the options, but keep them in the expected order, or you could have unexpected results.
+
+A warning is displayed when named arguments are used with functions without named parameters. It can be disabled by setting the `golo.warnings.no-parameter-names` system property to `false`.
+====================
+
+
 === `null`-safe instance method invocations
 
 Golo supports *`null`-safe* methods invocations using the *"Elvis"* symbol: `?:`.
@@ -453,3 +462,19 @@ attempt to redefine an already defined class.
 
 CAUTION: Later in the glorious and glamorous future, Golo will have objects and not just functions.
 Be patient, it's coming in!
+
+=== Primitive Data Types
+
+`java.lang.Class` instances of primitive data types can be obtained as in Java way: `byte.class`, `short.class`, `int.class`, `long.class`, `float.class`, `double.class`, `boolean.class` and `char.class`.
+
+[TIP]
+====
+This could be useful for example to deal with primitive arrays:
+[source,golo]
+----
+# ...
+let buffer = newTypedArray(byte.class, 1024)
+let read = inputstream: read(buffer)
+# ...
+----
+====

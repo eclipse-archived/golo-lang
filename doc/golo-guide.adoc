@@ -1,5 +1,6 @@
 = The Golo Programming Language
 :doctype: book
+:docinfo1:
 :icons: font
 :data-uri:
 :toc: left

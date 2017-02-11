@@ -938,27 +938,59 @@ function compose = |funcs...| {
 
 ----
 Transform a function with side effects (generally IO operations, thus the name)
-into a function applying the side effect and returning its argument.
+into a function applying the side effect. If the wrapped function returns
+`null`, its argument is return instead.
 
 The given function can have no parameters, or accept an argument.
 
 This can be used to insert such a function into a composition chain:
 
     f1: andThen(io({println("hello")})): andThen(f2)
+
+is an anonymous function equivalent to:
+
+    |x| {
+      var result = f1(x)
+      println("hello")
+      return f2(result)
+    }
+
+and
+
     f1: andThen(io(|x|{println("got " + x)})): andThen(f2)
+
+is an anonymous function equivalent to:
+
+    |x| {
+      var result = f1(x)
+      println("got " + result)
+      return f2(result)
+    }
+
+One last example with reading IO effect:
+
+    f1: andThen(io(|x| {
+      println("Got " + x)
+      return x + intValue(readln("Value to add? "))})
+    : andThen(f2)
+
+is an anonymous function equivalent to:
+
+    |x| {
+      var result = f1(x)
+      println("Got " + x)
+      result = result + intValue(readln("Value to add? "))
+      return f2(result)
+    }
 
 - *param* `block` a function with side effects
 
 See also [`pipe`](#pipe_1) and [`compose`](#compose_1)
 ----
-function io = |block| -> |x| {
-  if block: arity() == 1 {
-    block(x)
-  } else {
-    block()
-  }
-  return x
-}
+function io = |block| -> |x| -> match {
+    when block: arity() == 1 then block(x)
+    otherwise block()
+  } orIfNull x
 
 ----
 Apply the given function until the predicate holds.

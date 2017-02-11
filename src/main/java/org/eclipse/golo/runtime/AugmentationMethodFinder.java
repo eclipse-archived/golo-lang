@@ -10,13 +10,16 @@
 package org.eclipse.golo.runtime;
 
 import java.lang.invoke.*;
+import java.lang.reflect.Method;
 import java.util.stream.Stream;
 import java.util.Comparator;
 import java.util.Objects;
+import java.util.List;
 import org.eclipse.golo.runtime.augmentation.DefiningModule;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.checkArgumentPosition;
 
 class AugmentationMethodFinder extends MethodFinder {
 
@@ -67,6 +70,19 @@ class AugmentationMethodFinder extends MethodFinder {
         getCallStack(),
         getCallStack().flatMap(defining -> getImportedModules(defining.module())))
       .reduce(Stream.empty(), Stream::concat);
+  }
+
+  @Override
+  protected int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
+    // redefined to ignore the first parameter (explicit receiver)
+    int[] argumentsOrder = new int[parameterNames.size()];
+    argumentsOrder[0] = 0;
+    for (int i = 0; i < argumentNames.length; i++) {
+      int actualPosition = parameterNames.indexOf(argumentNames[i]);
+      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
+      argumentsOrder[actualPosition] = i + 1;
+    }
+    return argumentsOrder;
   }
 
   @Override

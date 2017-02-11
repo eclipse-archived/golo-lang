@@ -21,7 +21,7 @@ function joiner = |delimiter, values...| {
 function csv_builder = -> joiner(values = array["a", "b", "c"], delimiter = ",")
 
 augment java.lang.String {
- function decorate = |this, prefix, suffix| -> prefix + this + suffix
+ function decorate = |self, prefix, suffix| -> prefix + self + suffix
  function append = |this, values...| -> joiner("", values)
 }
 

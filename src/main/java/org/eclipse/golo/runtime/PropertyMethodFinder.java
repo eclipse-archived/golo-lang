@@ -13,11 +13,9 @@ import gololang.Union;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Objects;
-import java.util.Optional;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
-import static java.util.Arrays.copyOfRange;
 
 public class PropertyMethodFinder extends MethodFinder {
 
@@ -45,20 +43,12 @@ public class PropertyMethodFinder extends MethodFinder {
     this.propertyName = capitalize(invocation.name());
   }
 
-  private static MethodInvocation propertyInvocation(String propertyInvocationName, MethodInvocation parentInvocation) {
-    return new MethodInvocation(
-        propertyInvocationName,
-        parentInvocation.type(),
-        parentInvocation.arguments(),
-        copyOfRange(parentInvocation.argumentNames(), 0, parentInvocation.argumentNames().length - 1));
-  }
-
   private MethodHandle findMethodForGetter() {
-    if(Union.class.isAssignableFrom(invocation.receiverClass())) {
+    if (Union.class.isAssignableFrom(invocation.receiverClass())) {
       return null;
     }
     MethodHandle target = new RegularMethodFinder(
-        propertyInvocation("get" + propertyName, invocation),
+        invocation.withName("get" + propertyName),
         lookup
     ).find();
 
@@ -66,7 +56,7 @@ public class PropertyMethodFinder extends MethodFinder {
       return target;
     }
     return new RegularMethodFinder(
-        propertyInvocation("is" + propertyName, invocation),
+        invocation.withName("is" + propertyName),
         lookup
     ).find();
   }
@@ -86,7 +76,7 @@ public class PropertyMethodFinder extends MethodFinder {
 
   private MethodHandle findMethodForSetter() {
     return new RegularMethodFinder(
-        propertyInvocation("set" + propertyName, invocation),
+        invocation.withName("set" + propertyName),
         lookup)
         .findInMethods()
         .filter(method -> !Union.class.isAssignableFrom(method.getDeclaringClass()))

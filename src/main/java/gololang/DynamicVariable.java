@@ -65,7 +65,7 @@ public final class DynamicVariable {
    * @throws Throwable in case an exception occurs.
    */
   public Object withValue(Object value, FunctionReference func) throws Throwable {
-    if (func.type().parameterCount() != 0) {
+    if (!func.acceptArity(0)) {
       throw new IllegalArgumentException("withValue requires a function with no parameters");
     }
     Object oldValue = value();

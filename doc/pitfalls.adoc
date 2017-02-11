@@ -80,3 +80,13 @@ println(foo)
 # Bad! foo is an integer!
 println(foo("abc"))
 ----
+
+=== Shebang scans sub-folders
+
+When running _shebang_ scripts, the sub-folders are being scanned for `.jar` and `.golo` files.
+This is useful for automatically:
+
+1. putting all third-party libraries into the classpath, and
+2. dynamically compiling and loading other Golo source files.
+
+Be aware that this may lead to surprising errors if you run code from, say, a clone of the Golo source code repository since it contains duplicated type and module definitions, as well as files from the test suite that have errors on purpose.

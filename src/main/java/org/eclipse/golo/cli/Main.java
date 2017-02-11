@@ -18,6 +18,10 @@ import java.util.*;
 
 public class Main {
 
+  private Main() {
+    // utility class
+  }
+
   static class GlobalArguments {
     @Parameter(names = {"--help"}, description = "Prints this message", help = true)
     boolean help;
@@ -58,7 +62,7 @@ public class Main {
         String parsedCommand = cmd.getParsedCommand();
         JCommander parsedJCommander = cmd.getCommands().get(parsedCommand);
         Object commandObject = parsedJCommander.getObjects().get(0);
-        if(commandObject instanceof CliCommand) {
+        if (commandObject instanceof CliCommand) {
           ((CliCommand) commandObject).execute();
         } else {
           throw new AssertionError("WTF?");

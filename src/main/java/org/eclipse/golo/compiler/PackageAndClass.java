@@ -9,7 +9,7 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.utils.NamingUtils;
+import static java.util.Objects.requireNonNull;
 
 /**
  * Represents a package and class.
@@ -26,8 +26,11 @@ public final class PackageAndClass {
    * @param className   the class name.
    */
   public PackageAndClass(String packageName, String className) {
-    this.packageName = packageName;
-    this.className = className;
+    this.packageName = requireNonNull(packageName);
+    this.className = requireNonNull(className);
+    if (className.isEmpty()) {
+      throw new IllegalArgumentException("The class name can't be empty");
+    }
   }
 
   /**
@@ -37,10 +40,44 @@ public final class PackageAndClass {
    * @return a package and class definition.
    */
   public static PackageAndClass fromString(String qualifiedName) {
-    return new PackageAndClass(NamingUtils.extractTargetJavaPackage(qualifiedName), NamingUtils.extractTargetJavaClass(qualifiedName));
+    return new PackageAndClass(
+        extractTargetJavaPackage(qualifiedName),
+        extractTargetJavaClass(qualifiedName));
   }
 
+  private static int packageClassSeparatorIndex(String moduleName) {
+    if (moduleName != null) {
+      return moduleName.lastIndexOf('.');
+    }
+    return -1;
+  }
+
+  private static String extractTargetJavaPackage(String moduleName) {
+    int packageClassSeparatorIndex = packageClassSeparatorIndex(moduleName);
+    if (packageClassSeparatorIndex > 0) {
+      return moduleName.substring(0, packageClassSeparatorIndex);
+    }
+    return "";
+  }
+
+  private static String extractTargetJavaClass(String moduleName) {
+    int packageClassSeparatorIndex = packageClassSeparatorIndex(moduleName);
+    if (packageClassSeparatorIndex > 0) {
+      return moduleName.substring(packageClassSeparatorIndex + 1);
+    }
+    return moduleName;
+  }
+
+
   /**
+   * Create an inner class.
+   * <p>
+   * For instance:
+   * <code><pre>
+   * PackageAndClass cls = new PackageAndClass("foo.bar", "Spam");
+   * PackageAndClass inner = cls.createInnerClass("Egg"); // foo.bar.Spam$Egg
+   * </pre></code>
+   *
    * @return a new {@code PackageAndClass} identifying an inner class of this class.
    */
   public PackageAndClass createInnerClass(String name) {
@@ -50,6 +87,45 @@ public final class PackageAndClass {
   }
 
   /**
+   * Create a sibling class.
+   * <p>
+   * For instance:
+   * <code><pre>
+   *  PackageAndClass list = new PackageAndClass("java.util", "List");
+   *  PackageAndClass set = list.createSiblingClass("Set"); // java.util.Set
+   * </pre></code>
+   *
+   * @return a new {@code PackageAndClass} identifying an alternate class in the same package.
+   */
+  public PackageAndClass createSiblingClass(String name) {
+    return new PackageAndClass(this.packageName, name);
+  }
+
+  /**
+   * Create a sub-package.
+   * <p>
+   * For instance:
+   * <code><pre>
+   *  PackageAndClass pc = new PackageAndClass("foo.bar", "Module");
+   *  PackageAndClass sub = pc.createSubPackage("types"); // foo.bar.Modules.types
+   * </pre></code>
+   *
+   * @return a new {@code PackageAndClass} identifying a sub-package of this package.
+   */
+  public PackageAndClass createSubPackage(String name) {
+    return new PackageAndClass(
+        this.packageName.isEmpty() ? this.className : this.packageName + "." + this.className, name);
+  }
+
+  /**
+   * Create a class in another package.
+   * <p>
+   * For instance:
+   * <code><pre>
+   * PackageAndClass pc = PackageAndClass.fromString("foo.bar.Baz");
+   * PackageAndClass other = pc.inPackage("plic.ploc"); // plic.ploc.Baz
+   * </pre></code>
+   *
    * @return a new {@code PackageAndClass} representing the same class in another package.
    * @param qualifiedName the qualified name of the new package.
    */
@@ -58,6 +134,15 @@ public final class PackageAndClass {
   }
 
   /**
+   * Create a class in another the same package as another one.
+   * <p>
+   * For instance:
+   * <code><pre>
+   * PackageAndClass pc = PackageAndClass.fromString("foo.bar.Baz");
+   * PackageAndClass other = PackageAndClass.fromString("plic.ploc.Foo");
+   * PackageAndClass newOne = pc.inPackage(other); // plic.ploc.Baz
+   * </pre></code>
+   *
    * @return a new {@code PackageAndClass} representing the same class in another package.
    * @param parent the {@code PackageAndClass} representing the new package.
    */
