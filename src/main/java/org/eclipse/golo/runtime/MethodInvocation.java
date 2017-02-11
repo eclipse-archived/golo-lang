@@ -33,9 +33,7 @@ public class MethodInvocation {
     this.arguments = args;
     this.arity = args.length;
     this.type = type;
-    this.argumentNames = new String[argNames.length + 1];
-    this.argumentNames[0] = "this";
-    System.arraycopy(argNames, 0, argumentNames, 1, argNames.length);
+    this.argumentNames = argNames;
   }
 
   public String name() {
@@ -80,6 +78,13 @@ public class MethodInvocation {
       && isPublic(method.getModifiers())
       && !isAbstract(method.getModifiers())
       && TypeMatching.argumentsMatch(method, arguments);
+  }
+
+  /**
+   * returns a new invocation having the given name.
+   */
+  MethodInvocation withName(String newName) {
+    return new MethodInvocation(newName, type, arguments, argumentNames);
   }
 
   @Override

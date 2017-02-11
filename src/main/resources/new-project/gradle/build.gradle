@@ -1,17 +1,10 @@
-apply plugin: 'golo'
-
-buildscript {
-    repositories {
-        mavenCentral()
-    }
-
-    dependencies {
-        classpath 'org.golo-lang:gradle-golo-plugin:0.4'
-    }
+plugins {
+    id 'org.golo-lang.golo' version '@gradle-plugin.version@'
 }
 
 repositories {
-    mavenCentral()
+    jcenter()
+    mavenLocal()
 }
 
 dependencies {

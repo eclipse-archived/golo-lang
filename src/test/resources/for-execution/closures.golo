@@ -283,3 +283,11 @@ function closure_with_named_args = {
   let create_post = |title, body| -> title + " " + body
   return create_post(body = "Rocks", title = "It")
 }
+
+function closure_self_reference2 = {
+  let fun = |x| -> match {
+    when x is null then fun
+    otherwise x
+  }
+  return fun(null)
+}

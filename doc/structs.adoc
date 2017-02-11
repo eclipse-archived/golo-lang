@@ -101,6 +101,7 @@ function main = |args| {
 }
 ----
 
+[[struct-custom-factories]]
 === Custom factories
 
 Golo generates two factories for structures. One for the initial values of each member and
@@ -307,6 +308,8 @@ Private struct members also have the following impact:
 - they are being used like other members in `equals()` and `hashCode()`, and
 - they do not appear in `toString()` representations.
 
+
+[[struct-augmentation]]
 === Augmenting structs
 
 Structs provide a simple data model, especially with private members for encapsulation.

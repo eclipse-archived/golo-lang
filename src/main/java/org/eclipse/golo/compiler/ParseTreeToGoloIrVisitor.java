@@ -90,7 +90,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     public void addFunction(GoloFunction function) {
       FunctionContainer container = this.functionContainersStack.peek();
-      if(container.getFunctions().contains(function)) {
+      if (container.getFunctions().contains(function)) {
         GoloFunction firstDeclaration = null;
         for (GoloFunction f : container.getFunctions()) {
           if (function.equals(f)) {
@@ -219,14 +219,24 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
+  public Object visit(ASTMemberDeclaration node, Object data) {
+    Context context = (Context) data;
+    context.push(member(node.getName()).ofAST(node));
+    return context;
+  }
+
+  @Override
   public Object visit(ASTStructDeclaration node, Object data) {
     Context context = (Context) data;
     if (!context.checkExistingSubtype(node, node.getName())) {
-      context.module.addStruct(structure(node.getName())
-        .ofAST(node)
-        .members(node.getMembers()));
+      Struct theStruct = structure(node.getName()).ofAST(node);
+      for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+        node.jjtGetChild(i).jjtAccept(this, context);
+        theStruct.withMember(context.pop());
+      }
+      context.module.addStruct(theStruct);
     }
-    return node.childrenAccept(this, data);
+    return context;
   }
 
   @Override
@@ -243,11 +253,18 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTUnionValue node, Object data) {
     Context context = (Context) data;
-    if (!((Union) context.peek()).addValue(node.getName(), node.getMembers())) {
+    Union currentUnion = (Union) context.peek();
+    UnionValue value = currentUnion.createValue(node.getName()).ofAST(node);
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      node.jjtGetChild(i).jjtAccept(this, context);
+      value.withMember(context.pop());
+    }
+
+    if (!currentUnion.addValue(value)) {
       context.errorMessage(AMBIGUOUS_DECLARATION, node,
           String.format("Declaring the union value `%s` twice", node.getName()));
     }
-    return node.childrenAccept(this, data);
+    return data;
   }
 
   @Override
@@ -340,7 +357,6 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     } else {
       node.childrenAccept(this, data);
     }
-    function.insertMissingReturnStatement();
     if (function.isSynthetic()) {
       context.pop();
       context.push(function.asClosureReference());
@@ -511,28 +527,26 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
   @Override
   public Object visit(ASTFunctionInvocation node, Object data) {
-    return visitAbstractInvocation(data, node, call(node.getName()).constant(node.isConstant()));
+    Context context = (Context) data;
+    context.push(visitAbstractInvocation(data, node, call(node.getName()).constant(node.isConstant())));
+    return data;
   }
 
   @Override
   public Object visit(ASTMethodInvocation node, Object data) {
-    return visitAbstractInvocation(data, node, invoke(node.getName()));
+    Context context = (Context) data;
+    context.push(visitAbstractInvocation(data, node, invoke(node.getName())));
+    return data;
   }
 
   @Override
   public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
     Context context = (Context) data;
-    FunctionInvocation invocation = functionInvocation().constant(node.isConstant()).ofAST(node);
-    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
-      node.jjtGetChild(i).jjtAccept(this, data);
-      ExpressionStatement statement = (ExpressionStatement) context.pop();
-      checkNamedArgument(context, node, invocation, statement);
-      invocation.withArgs(statement);
-    }
+    ExpressionStatement result = visitAbstractInvocation(data, node, functionInvocation().constant(node.isConstant()));
     if (node.isOnExpression()) {
-      context.push(anonCall(context.pop(), invocation));
+      context.push(anonCall(context.pop(), result));
     } else {
-      context.push(invocation);
+      context.push(result);
     }
     return data;
   }
@@ -548,7 +562,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
   }
 
-  private Object visitAbstractInvocation(Object data, GoloASTNode node, AbstractInvocation invocation) {
+  private ExpressionStatement visitAbstractInvocation(Object data, GoloASTNode node, AbstractInvocation invocation) {
     Context context = (Context) data;
     invocation.ofAST(node);
     int i = 0;
@@ -563,15 +577,14 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       checkNamedArgument(context, node, invocation, statement);
       invocation.withArgs(statement);
     }
-    context.push(invocation);
-    node.setIrElement(invocation);
+    ExpressionStatement result = invocation;
     if (i < numChildren) {
       for (; i < numChildren; i++) {
         node.jjtGetChild(i).jjtAccept(this, context);
-        invocation.followedBy(context.pop());
+        result = anonCall(result, context.pop());
       }
     }
-    return context;
+    return result;
   }
 
   @Override
@@ -686,7 +699,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       } else if (child instanceof ExpressionStatement) {
         foreach.when(child);
       } else {
-        context.errorMessage( GoloCompilationException.Problem.Type.PARSING, node, "Malformed `foreach` loop");
+        context.errorMessage(GoloCompilationException.Problem.Type.PARSING, node, "Malformed `foreach` loop");
       }
     }
     context.push(block.add(foreach));

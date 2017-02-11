@@ -85,6 +85,8 @@ public final class MethodInvocationSupport {
       add("invoker");
       add("hasMethod");
       add("fallback");
+      add("hasKind");
+      add("sameKind");
     }
   };
 
@@ -310,7 +312,9 @@ public final class MethodInvocationSupport {
   }
 
   private static boolean isCallOnDynamicObject(InlineCache inlineCache, Object arg) {
-    return (arg instanceof DynamicObject) && !(DYNAMIC_OBJECT_RESERVED_METHOD_NAMES.contains(inlineCache.name));
+    return (arg instanceof DynamicObject)
+      && !DYNAMIC_OBJECT_RESERVED_METHOD_NAMES.contains(inlineCache.name)
+      && (!"toString".equals(inlineCache.name) || ((DynamicObject) arg).hasMethod("toString"));
   }
 
   private static MethodHandle findTarget(MethodInvocation invocation, Lookup lookup, InlineCache inlineCache) {

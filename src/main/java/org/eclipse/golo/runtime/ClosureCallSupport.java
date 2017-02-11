@@ -17,6 +17,7 @@ import java.util.Arrays;
 import static java.lang.invoke.MethodHandles.guardWithTest;
 import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.checkArgumentPosition;
 
 public final class ClosureCallSupport {
 
@@ -132,15 +133,12 @@ public final class ClosureCallSupport {
             actualPosition = j;
           }
         }
-        if (actualPosition == -1) {
-          throw new IllegalArgumentException(
-              "Argument name " + argumentNames[i]
-              + " not in parameter names used in declaration: " + Arrays.toString(parameterNames));
-        }
+        checkArgumentPosition(actualPosition, argumentNames[i], "closure " + Arrays.toString(parameterNames));
         argumentsOrder[actualPosition + 1] = i + 1;
       }
       return permuteArguments(handle, handle.type(), argumentsOrder);
     }
+    Warnings.noParameterNames("closure " + Arrays.toString(parameterNames), argumentNames);
     return handle;
   }
 }

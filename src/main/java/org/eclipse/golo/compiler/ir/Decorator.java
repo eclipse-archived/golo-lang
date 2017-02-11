@@ -9,6 +9,8 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import org.eclipse.golo.runtime.OperatorType;
+
 public final class Decorator extends  GoloElement {
 
   private ExpressionStatement expressionStatement;
@@ -24,9 +26,18 @@ public final class Decorator extends  GoloElement {
     return expressionStatement;
   }
 
+  private boolean isValidDecoratorExpressoin(ExpressionStatement expr) {
+    return expr instanceof ReferenceLookup
+          || expr instanceof FunctionInvocation
+          || expr instanceof ClosureReference
+          || (expr instanceof BinaryOperation
+            && OperatorType.ANON_CALL.equals(((BinaryOperation) expr).getType()));
+  }
+
   public void setExpressionStatement(ExpressionStatement expr) {
-    if (!(expr instanceof ReferenceLookup || expr instanceof FunctionInvocation)) {
-      throw new IllegalArgumentException("Decorator expression must be a reference of a invocation");
+    if (!isValidDecoratorExpressoin(expr)) {
+      throw new IllegalArgumentException("Decorator expression must be a reference or an invocation, got a "
+          + expr.getClass().getSimpleName());
     }
     this.expressionStatement = expr;
     makeParentOf(expr);
@@ -56,17 +67,22 @@ public final class Decorator extends  GoloElement {
   }
 
   private ExpressionStatement wrapInvocation(FunctionInvocation invocation, ExpressionStatement expression) {
-    return invocation.followedBy(
-        Builders.functionInvocation()
+    return Builders.anonCall(invocation, Builders.functionInvocation()
         .constant(this.isConstant())
         .withArgs(expression));
+  }
+  private ExpressionStatement wrapAnonymousCall(ExpressionStatement call, ExpressionStatement expression) {
+    return Builders.anonCall(call, Builders.functionInvocation().constant(this.isConstant()).withArgs(expression));
   }
 
   public ExpressionStatement wrapExpression(ExpressionStatement expression) {
     if (expressionStatement instanceof ReferenceLookup) {
       return wrapLookup((ReferenceLookup) expressionStatement, expression);
     }
-    return wrapInvocation((FunctionInvocation) expressionStatement, expression);
+    if (expressionStatement instanceof FunctionInvocation) {
+      return wrapInvocation((FunctionInvocation) expressionStatement, expression);
+    }
+    return wrapAnonymousCall((ExpressionStatement) expressionStatement, expression);
   }
 
   @Override

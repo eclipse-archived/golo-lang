@@ -37,6 +37,7 @@ import static org.eclipse.golo.internal.testing.TestUtils.runTests;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.reflect.Modifier.*;
 import static java.util.Arrays.asList;
+import java.util.concurrent.CopyOnWriteArrayList;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
@@ -54,7 +55,7 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(7));
+    assertThat(imports.size(), is(8));
     assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("gololang.StandardAugmentations"));
     assertThat(imports, hasItem("gololang"));
@@ -62,6 +63,8 @@ public class CompileAndRunTest {
     assertThat(imports, hasItem("java.util.LinkedList"));
     assertThat(imports, hasItem("java.lang.System"));
     assertThat(imports, hasItem("java.lang"));
+    assertThat(imports, hasItem("golotest.execution.ImportsMetaData.types"));
+    assertThat(imports.get(0), is ("golotest.execution.ImportsMetaData.types"));
   }
 
   @Test
@@ -1024,6 +1027,9 @@ public class CompileAndRunTest {
     Method closure_self_reference = moduleClass.getMethod("closure_self_reference");
     assertThat((Integer) closure_self_reference.invoke(null), is(1));
 
+    closure_self_reference = moduleClass.getMethod("closure_self_reference2");
+    assertThat(closure_self_reference.invoke(null), instanceOf(FunctionReference.class));
+
     Method closure_with_trailing_varargs_and_capture = moduleClass.getMethod("closure_with_trailing_varargs_and_capture");
     assertThat((String) closure_with_trailing_varargs_and_capture.invoke(null), is("|1|12|123"));
 
@@ -1152,6 +1158,15 @@ public class CompileAndRunTest {
 
     Method with_varargs = moduleClass.getMethod("with_varargs");
     assertThat((String) with_varargs.invoke(null), is("||@1|@2@3|@4@5|[foo]@1[foo]@2@3[foo]@4@5[foo][fallback:jhon_doe][fallback:jhon_doe]@2@3"));
+
+    Method kinds = moduleClass.getMethod("kinds");
+    assertThat((Boolean) kinds.invoke(null), is(true));
+
+    Method checkToString = moduleClass.getMethod("checkToString");
+    assertThat((Boolean) checkToString.invoke(null), is(true));
+
+    Method checkDelegate = moduleClass.getMethod("checkDelegate");
+    assertThat((Boolean) checkDelegate.invoke(null), is(true));
   }
 
   @Test
@@ -1314,230 +1329,6 @@ public class CompileAndRunTest {
   @Test
   public void unions() throws Throwable {
     runTests(SRC, "unions.golo", classLoader(this));
-  }
-
-  @Test
-  public void structs() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
-
-    Method mrbean = moduleClass.getMethod("mrbean");
-    Object result = mrbean.invoke(null);
-    assertThat(result, instanceOf(String.class));
-    assertThat((String) result, is("Mr Bean <mrbean@outlook.com>"));
-
-    Method mrbean_struct = moduleClass.getMethod("mrbean_struct");
-    result = mrbean_struct.invoke(null);
-    assertThat(result, instanceOf(GoloStruct.class));
-    GoloStruct struct = (GoloStruct) result;
-
-    Tuple tuple = struct.members();
-    assertThat(tuple.size(), is(2));
-    assertThat(tuple.get(0), is((Object) "name"));
-    assertThat(tuple.get(1), is((Object) "email"));
-
-    tuple = struct.values();
-    assertThat(tuple.size(), is(2));
-    assertThat(tuple.get(0), is((Object) "Mr Bean"));
-    assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
-
-    Iterator<Tuple> structIterator = struct.iterator();
-    assertThat(structIterator.hasNext(), is(true));
-    tuple = structIterator.next();
-    assertThat(tuple.size(), is(2));
-    assertThat(tuple.get(0), is((Object) "name"));
-    assertThat(tuple.get(1), is((Object) "Mr Bean"));
-    assertThat(structIterator.hasNext(), is(true));
-    tuple = structIterator.next();
-    assertThat(tuple.size(), is(2));
-    assertThat(tuple.get(0), is((Object) "email"));
-    assertThat(tuple.get(1), is((Object) "mrbean@outlook.com"));
-    assertThat(structIterator.hasNext(), is(false));
-
-    assertThat(struct.get("name"), is((Object) "Mr Bean"));
-    assertThat(struct.get("email"), is((Object) "mrbean@outlook.com"));
-    try {
-      struct.get("foo");
-      fail("An IllegalArgumentException was expected");
-    } catch (IllegalArgumentException ignored) {
-    }
-
-    struct = struct.copy();
-    struct.set("name", "John");
-    assertThat(struct.get("name"), is((Object) "John"));
-    try {
-      struct.set("foo", "bar");
-      fail("An IllegalArgumentException was expected");
-    } catch (IllegalArgumentException ignored) {
-    }
-
-    assertThat(struct.isFrozen(), is(false));
-    struct = struct.frozenCopy();
-    assertThat(struct.isFrozen(), is(true));
-    assertThat(struct.copy().isFrozen(), is(false));
-    try {
-      struct.set("name", "John");
-      fail("An IllegalStateException was expected");
-    } catch (IllegalStateException ignored) {
-    }
-
-    Method mrbean_toString = moduleClass.getMethod("mrbean_toString");
-    result = mrbean_toString.invoke(null);
-    assertThat(result, instanceOf(String.class));
-    assertThat((String) result, is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-
-    Method mrbean_copy = moduleClass.getMethod("mrbean_copy");
-    result = mrbean_copy.invoke(null);
-    assertThat(result, instanceOf(Tuple.class));
-    tuple = (Tuple) result;
-    assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-    assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-    assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
-
-    Method mrbean_frozenCopy = moduleClass.getMethod("mrbean_frozenCopy");
-    result = mrbean_frozenCopy.invoke(null);
-    assertThat(result, instanceOf(Tuple.class));
-    tuple = (Tuple) result;
-    assertThat(tuple.get(0).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-    assertThat(tuple.get(1).toString(), is("struct Contact{name=Mr Bean, email=mrbean@outlook.com}"));
-    assertThat(tuple.get(0), not(sameInstance(tuple.get(1))));
-    try {
-      Object instance = tuple.get(1);
-      Method name = instance.getClass().getMethod("name", Object.class);
-      name.invoke(instance, "Foo");
-      fail("A frozen struct shall not allow field mutation");
-      name.invoke(tuple.get(0), "Foo");
-    } catch (InvocationTargetException e) {
-      if (!(e.getCause() instanceof IllegalStateException)) {
-        throw e;
-      }
-    }
-
-    Method mrbean_hashCode = moduleClass.getMethod("mrbean_hashCode");
-    result = mrbean_hashCode.invoke(null);
-    assertThat(result, instanceOf(Tuple.class));
-    tuple = (Tuple) result;
-    assertThat(tuple.get(0).hashCode(), not(tuple.get(1).hashCode()));
-    assertThat(tuple.get(2).hashCode(), is(tuple.get(3).hashCode()));
-
-    Method mrbean_equals = moduleClass.getMethod("mrbean_equals");
-    result = mrbean_equals.invoke(null);
-    assertThat(result, instanceOf(Tuple.class));
-    tuple = (Tuple) result;
-    assertThat(tuple.get(0), not(tuple.get(1)));
-    assertThat(tuple.get(0), not(new Object()));
-    assertThat(tuple.get(0), not(tuple.get(2)));
-    assertThat(tuple.get(2), is(tuple.get(3)));
-    assertThat(tuple.get(2), not(tuple.get(4)));
-    assertThat(tuple.get(2), not(tuple.get(5)));
-    assertThat(tuple.get(2), not(tuple.get(0)));
-
-    Method immutable_factory = moduleClass.getMethod("immutable_factory");
-    result = immutable_factory.invoke(null);
-    assertThat(result, instanceOf(Tuple.class));
-    tuple = (Tuple) result;
-    assertThat(tuple.get(0), is(tuple.get(1)));
-
-    Method fun_foo_bar_baz = moduleClass.getMethod("fun_foo_bar_baz");
-    result = fun_foo_bar_baz.invoke(null);
-    assertThat(result, instanceOf(GoloStruct.class));
-    struct = (GoloStruct) result;
-    assertThat(struct.members().size(), is(2));
-    assertThat(struct.values().size(), is(2));
-    structIterator = struct.iterator();
-    assertThat(structIterator.hasNext(), is(true));
-    assertThat(structIterator.next(), is(new Tuple("foo", 1)));
-    assertThat(structIterator.hasNext(), is(true));
-    assertThat(structIterator.next(), is(new Tuple("baz", 3)));
-    assertThat(structIterator.hasNext(), is(false));
-    assertThat(struct.get("foo"), is((Object) 1));
-    try {
-      struct.get("_bar");
-      fail("An IllegalArgumentException was expected");
-    } catch (IllegalArgumentException expected) {
-    }
-    assertThat(struct.copy().members().size(), is(2));
-
-    Method augmented_foo_bar_baz = moduleClass.getMethod("augmented_foo_bar_baz");
-    result = augmented_foo_bar_baz.invoke(null);
-    assertThat(result, is((Object) 2));
-
-    Method overloaded = moduleClass.getMethod("check_overload_factory");
-    result = overloaded.invoke(null);
-    assertThat(result, instanceOf(Integer.class));
-    assertThat(result, is(0));
-
-  }
-
-  @Test
-  public void structs_outside_encapsulation() throws Throwable {
-    GoloClassLoader goloClassLoader = new GoloClassLoader(CompileAndRunTest.class.getClassLoader());
-    compileAndLoadGoloModule(SRC, "structs.golo", goloClassLoader);
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs-outside.golo", goloClassLoader);
-
-    Method smoke_test = moduleClass.getMethod("smoke_test");
-    Object result = smoke_test.invoke(null);
-    assertThat(result, instanceOf(GoloStruct.class));
-    GoloStruct struct = (GoloStruct) result;
-    assertThat(struct.get("name"), is((Object) "foo"));
-    assertThat(struct.get("email"), is((Object) "bar"));
-
-    Method bam = moduleClass.getMethod("bam");
-    try {
-      bam.invoke(null);
-      fail("An InvocationTargetException was expected");
-    } catch (InvocationTargetException e) {
-      assertThat(e.getCause(), instanceOf(NoSuchMethodError.class));
-      assertThat(e.getCause().getMessage(), containsString("FooBarBaz::_bar"));
-    }
-
-    Method augmented = moduleClass.getMethod("augmented");
-    try {
-      augmented.invoke(null);
-      fail("An InvocationTargetException was expected");
-    } catch (InvocationTargetException e) {
-      assertThat(e.getCause(), instanceOf(NoSuchMethodError.class));
-      assertThat(e.getCause().getMessage(), containsString("FooBarBaz::_bar"));
-    }
-  }
-
-  @Test
-  public void structs_concise_augmentation() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
-
-    Method check_concision = moduleClass.getMethod("check_concision");
-    Object result = check_concision.invoke(null);
-    assertThat(result, notNullValue());
-    assertThat(result, is((Object) "{x=1,y=2}"));
-  }
-
-  @Test
-  public void structs_comparison() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
-    Method test_method;
-    Object result;
-
-    test_method = moduleClass.getMethod("check_compare");
-    result = test_method.invoke(null);
-    assertThat(result, notNullValue());
-    assertThat((Boolean) result, is(true));
-
-    test_method = moduleClass.getMethod("check_equals");
-    result = test_method.invoke(null);
-    assertThat(result, notNullValue());
-    assertThat((Boolean) result, is(true));
-  }
-
-  @Test
-  public void structs_not_comparable() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "structs.golo");
-    Method test_method = moduleClass.getMethod("check_not_comparable");
-    try {
-      Object result = test_method.invoke(null);
-    } catch (InvocationTargetException e) {
-      assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
-      assertThat(e.getCause().getMessage(),
-          containsString("struct Couple{x=1, y=2} and struct Point{x=1, y=3} can't be compared"));
-    }
   }
 
   @Test
@@ -1874,6 +1665,16 @@ public class CompileAndRunTest {
     result = decorated.invoke(null);
     assertThat(result, instanceOf(Integer.class));
     assertThat(result, is((Object) 42));
+
+    decorated = moduleClass.getMethod("test_expr_decorator_simple");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "simpleplop"));
+
+    decorated = moduleClass.getMethod("test_expr_decorator");
+    result = decorated.invoke(null);
+    assertThat(result, instanceOf(String.class));
+    assertThat(result, is((Object) "preplopdaplop"));
   }
 
   @Test
@@ -2079,6 +1880,33 @@ public class CompileAndRunTest {
     assertThat((char) moduleClass.getMethod("escaped_double_quote_char").invoke(null), is('\"'));
     assertThat((String) moduleClass.getMethod("quote_string").invoke(null), is("'"));
     assertThat((String) moduleClass.getMethod("escaped_quote_string").invoke(null), is("\'"));
+  }
+
+  @Test
+  public void test_classes() throws Throwable {
+    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "classes.golo");
+
+    assertThat((Class) moduleClass.getMethod("char_class").invoke(null), equalTo(char.class));
+    assertThat((Class) moduleClass.getMethod("int_class").invoke(null), equalTo(int.class));
+    assertThat((Class) moduleClass.getMethod("long_class").invoke(null), equalTo(long.class));
+    assertThat((Class) moduleClass.getMethod("double_class").invoke(null), equalTo(double.class));
+    assertThat((Class) moduleClass.getMethod("byte_class").invoke(null), equalTo(byte.class));
+    assertThat((Class) moduleClass.getMethod("short_class").invoke(null), equalTo(short.class));
+    assertThat((Class) moduleClass.getMethod("float_class").invoke(null), equalTo(float.class));
+    assertThat((Class) moduleClass.getMethod("boolean_class").invoke(null), equalTo(boolean.class));
+
+    assertThat((Class) moduleClass.getMethod("arraylist_class").invoke(null), equalTo(ArrayList.class));
+    assertThat((Class) moduleClass.getMethod("concurrentlist_class").invoke(null), equalTo(CopyOnWriteArrayList.class));
+
+    try {
+      moduleClass.getMethod("unknown_class").invoke(null);
+      fail();
+    } catch (Exception e) {
+      assertThat(e.getClass(), equalTo(InvocationTargetException.class));
+      assertThat(e.getCause().getClass(), equalTo(BootstrapMethodError.class));
+      assertThat(e.getCause().getCause().getClass(), equalTo(ClassNotFoundException.class));
+    }
+
   }
 
 }

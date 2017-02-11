@@ -17,7 +17,6 @@ public abstract class AbstractInvocation extends ExpressionStatement {
 
   private final String name;
   private final List<ExpressionStatement> arguments = new LinkedList<>();
-  private final List<FunctionInvocation> anonymousFunctionInvocations = new LinkedList<>();
   protected boolean usesNamedArguments = false;
 
   AbstractInvocation(String name) {
@@ -49,17 +48,6 @@ public abstract class AbstractInvocation extends ExpressionStatement {
     return arguments.size();
   }
 
-  public AbstractInvocation followedBy(Object invocation) {
-    FunctionInvocation inv = (FunctionInvocation) invocation;
-    anonymousFunctionInvocations.add(inv);
-    makeParentOf(inv);
-    return this;
-  }
-
-  public List<FunctionInvocation> getAnonymousFunctionInvocations() {
-    return Collections.unmodifiableList(anonymousFunctionInvocations);
-  }
-
   public boolean usesNamedArguments() {
     return usesNamedArguments;
   }
@@ -81,9 +69,6 @@ public abstract class AbstractInvocation extends ExpressionStatement {
   public void walk(GoloIrVisitor visitor) {
     for (ExpressionStatement arg : arguments) {
       arg.accept(visitor);
-    }
-    for (FunctionInvocation inv : anonymousFunctionInvocations) {
-      inv.accept(visitor);
     }
   }
 

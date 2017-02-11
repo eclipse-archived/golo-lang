@@ -46,6 +46,10 @@ class ModuleDocumentation implements DocumentationElement {
     new ModuleVisitor().visit(compilationUnit, null);
   }
 
+  public String goloVersion() {
+    return org.eclipse.golo.cli.command.Metadata.VERSION;
+  }
+
   public SortedSet<StructDocumentation> structs() {
     return structs;
   }
@@ -116,6 +120,7 @@ class ModuleDocumentation implements DocumentationElement {
     private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
     private FunctionDocumentation currentFunction = null;
     private UnionDocumentation currentUnion;
+    private MemberHolder currentMemberHolder;
 
     @Override
     public Object visit(ASTCompilationUnit node, Object data) {
@@ -145,14 +150,24 @@ class ModuleDocumentation implements DocumentationElement {
     }
 
     @Override
+    public Object visit(ASTMemberDeclaration node, Object data) {
+      currentMemberHolder.addMember(node.getName())
+        .documentation(node.getDocumentation())
+        .line(node.getLineInSourceCode());
+      return data;
+    }
+
+    @Override
     public Object visit(ASTStructDeclaration node, Object data) {
-      structs.add(new StructDocumentation()
+      StructDocumentation doc = new StructDocumentation()
               .name(node.getName())
               .documentation(node.getDocumentation())
-              .line(node.getLineInSourceCode())
-              .members(node.getMembers())
-      );
-      return data;
+              .line(node.getLineInSourceCode());
+      structs.add(doc);
+      currentMemberHolder = doc;
+      Object result = node.childrenAccept(this, data);
+      currentMemberHolder = null;
+      return result;
     }
 
     @Override
@@ -167,11 +182,13 @@ class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public Object visit(ASTUnionValue node, Object data) {
-      this.currentUnion.addValue(node.getName())
+      MemberHolder doc = this.currentUnion.addValue(node.getName())
           .documentation(node.getDocumentation())
-          .line(node.getLineInSourceCode())
-          .members(node.getMembers());
-      return data;
+          .line(node.getLineInSourceCode());
+      currentMemberHolder = doc;
+      Object result = node.childrenAccept(this, data);
+      currentMemberHolder = null;
+      return result;
     }
 
     @Override
@@ -289,10 +306,14 @@ class ModuleDocumentation implements DocumentationElement {
     }
 
     @Override
-    public Object visit(ASTExpressionStatement node, Object data) { return data; }
+    public Object visit(ASTExpressionStatement node, Object data) {
+      return data;
+    }
 
     @Override
-    public Object visit(ASTInvocationExpression node, Object data) { return data; }
+    public Object visit(ASTInvocationExpression node, Object data) {
+      return data;
+    }
 
     @Override
     public Object visit(ASTMultiplicativeExpression node, Object data) {

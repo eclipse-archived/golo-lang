@@ -77,6 +77,12 @@ public class FunctionInvocation extends AbstractInvocation {
   }
 
   @Override
+  public FunctionInvocation withArgs(Object... arguments) {
+    super.withArgs(arguments);
+    return this;
+  }
+
+  @Override
   public String toString() {
     return String.format("FunctionInvocation{name=%s}", getName());
   }

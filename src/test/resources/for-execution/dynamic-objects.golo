@@ -113,3 +113,63 @@ function with_varargs = {
 
   return result: toString()
 }
+
+function kinds = {
+  let t = DynamicObject("Foo")
+
+  require(t: hasKind("Foo"), "err with good hasKind")
+  require(not t: hasKind("Plop"), "err with bad hasKind")
+  require(t: sameKind(DynamicObject("Foo")), "err with good sameKind")
+  require(not t: sameKind(DynamicObject("Plop")), "err with bad sameKind")
+  return true
+}
+
+function checkToString = {
+  let t = DynamicObject("Foo"): name("bar")
+  require(t: toString() == "Foo{name=bar}", "err in default toString")
+
+  t: define("toString", |this| -> "I'm a Foo named "+ this: name())
+  require(t: toString() == "I'm a Foo named bar", "err in redefined toString")
+  return true
+}
+
+function checkDelegate = {
+  let t = DynamicObject("deleguee")
+    : name("Zaphod")
+    : define("sayHello", |this| -> "Hello, I'm " + this: name())
+    : define("varargs", |this, a, b...| -> "Z" + a + b: asList())
+    : define("multi", |this, a, b...| -> "Z" + a + b: asList())
+
+  let s = DynamicObject("withFallback")
+    : foo("bar")
+    : define("varargs", |this, a, b...| -> "B" + a + b: asList())
+    : fallback(DynamicObject.delegate(t))
+
+  require(s: sayHello() == "Hello, I'm Zaphod", "err sayHello")
+  require(s: name() == "Zaphod", "err name")
+  require(s: foo() == "bar", "err foo")
+
+  s: define("answer", 42)
+  require(s: answer() == 42, "err answer")
+  require(t: get("answer") is null, "err answer")
+
+  s: prop1("a")
+  require(s: prop1() == "a", "err prop1")
+  require(t: get("prop1") is null, "err prop1")
+
+  s: name("Trillian")
+  require(s: name() == "Trillian", "err name 2")
+  require(t: name() == "Zaphod", "err name 2")
+
+  require(s: varargs(1, 2, 3) == "B1[2, 3]", "err varargs")
+  require(s: multi(1, 2, 3) == "Z1[2, 3]", "err multi")
+
+  require(s: plic() is null, "err not defined get")
+  try {
+    s: plop("a", "b")
+    raise("err not defined call")
+  } catch(e) {
+    require(e oftype UnsupportedOperationException.class, "err not defined call")
+  }
+  return true
+}

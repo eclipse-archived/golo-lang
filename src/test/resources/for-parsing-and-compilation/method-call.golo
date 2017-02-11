@@ -41,3 +41,7 @@ function escaped = {
 function elvis = -> null ?: foo() ?: bar() : baz()
 
 function functional = |foo| -> foo: f(1, 2)(3)(): g()
+
+function functional_mixed = {
+  bar("a")("1"): foo("b")(2): plop("c")(3)
+}

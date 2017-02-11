@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<%@params moduleName, src, nbOfLines %>
+<html>
+<head>
+  <title><%= moduleName %> source</title>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <style>
+    pre {
+        font-family: monospace;
+        font-size: 90%;
+        background-color: #eee;
+        padding: 0;
+        margin: 0;
+    }
+
+    pre code {
+        font-family: monospace;
+        font-size: inherit;
+        padding: 0.5em ;
+        margin: 0;
+    }
+
+    :target {
+        background-color: yellow;
+    }
+
+    #line-numbers {
+        float: left;
+        position: relative;
+        padding: 0.5em;
+    }
+
+    #src {
+        float: left;
+        position: relative;
+    }
+  </style>
+</head>
+<body>
+<pre id="line-numbers">
+<% for (var i = 1, i <= nbOfLines, i = i + 1) {%><span class="line-number" id="l-<%= i %>"><%=i%></span>
+<%}%></pre>
+<pre id="src" class="highlight highlightjs">
+<code class="language-golo" data-lang="golo"><%= src %></code>
+</pre>
+<link rel="stylesheet" href="http://golo-lang.org/documentation/next/styles/github.min.css"/>
+<script src="http://golo-lang.org/documentation/next/highlight.min.js"></script>
+<script>
+hljs.initHighlighting();
+</script>
+</body>
+</html>

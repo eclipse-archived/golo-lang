@@ -9,8 +9,6 @@
 
 package org.eclipse.golo.runtime;
 
-import gololang.FunctionReference;
-
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -19,6 +17,7 @@ import java.util.Map;
 
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static java.util.Arrays.copyOfRange;
+import static gololang.Predefined.isClosure;
 
 public final class TypeMatching {
 
@@ -72,12 +71,12 @@ public final class TypeMatching {
           || functionalInterfaceAssignment(type, value));
   }
 
-  private static boolean functionalInterfaceAssignment(Class<?> type, Object value) {
-    return (value instanceof FunctionReference) && isFunctionalInterface(type);
+  public static boolean functionalInterfaceAssignment(Class<?> type, Object value) {
+    return isClosure(value) && isFunctionalInterface(type);
   }
 
   public static boolean samAssignment(Class<?> type, Object value) {
-    return (value instanceof FunctionReference) && isSAM(type);
+    return isClosure(value) && isSAM(type);
   }
 
   public static boolean isSAM(Class<?> type) {
