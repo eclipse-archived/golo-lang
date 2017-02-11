@@ -80,8 +80,7 @@ function dyobj_from_json_string = {
     }
   }
   """
-  let bob = JSON.toDynamicObjectFromJSONString(bob_json_string)
-  return bob
+  return JSON.toDynamicObjectFromJSONString(bob_json_string)
 }
 
 function dyobjs_list_from_json_string = {
@@ -91,8 +90,7 @@ function dyobjs_list_from_json_string = {
     {"firstName": "Bob", "lastName": "Morane"},
   ]
   """
-  let some_objects = JSON.toDynamicObjectsListFromJSONString(some_objects_string)
-  return some_objects
+  return JSON.toDynamicObjectsListFromJSONString(some_objects_string)
 }
 
 function dyobjs_list_from_maps_collection = {
@@ -103,7 +101,6 @@ function dyobjs_list_from_maps_collection = {
       ["lastName", "Morane"]
     ]
   ]
-  let some_objects = JSON.toDynamicObjectsListFromMapsCollection(some_objects_collection)
-  return some_objects
+  return JSON.toDynamicObjectsListFromMapsCollection(some_objects_collection)
 }
 # ............................................................................................... #
