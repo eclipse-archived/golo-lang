@@ -106,5 +106,4 @@ function dyobjs_list_from_maps_collection = {
   let some_objects = JSON.toDynamicObjectsListFromMapsCollection(some_objects_collection)
   return some_objects
 }
-
 # ............................................................................................... #
