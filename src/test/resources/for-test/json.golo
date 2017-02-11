@@ -63,4 +63,30 @@ function stringify_mix_struct_and_dynobj = {
   return obj: mixin(JSON.dynamicObjectMixin()): toJSON()
 }
 
+function dyobj_from_json_string = {
+  println("🦄 passing dyobj_from_json_string test...")
+  let bob_json_string = """
+  {
+    "firstName": "Bob",
+    "lastName": "Morane",
+    "friends": [
+      {"firstName": "Bill", "lastName": "Ballantine"},
+      {"firstName": "Aristide,", "lastName": "Clairembart"},
+      {"firstName": "Sophia,", "lastName": "Paramount"},
+      {"firstName": "Frank", "lastName": "Reeves"},
+      {"firstName": "Herbert", "lastName": "Gains"}
+    ],
+    "creator": {
+      "firstName": "Henri", "lastName": "Vernes"
+    }
+  }
+  """
+  let bob = JSON.toDynamicObjectFromJSONString(bob_json_string)
+  return bob
+
+  # println(obj1: friends(): get(2): name(): equals("john")) # true
+  # println(obj1: address(): city(): equals("San Francisco")) # true
+
+}
+
 # ............................................................................................... #

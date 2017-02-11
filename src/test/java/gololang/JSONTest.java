@@ -104,4 +104,20 @@ public class JSONTest {
     String json = (String) stringify_mix_struct_and_dynobj.invoke(null);
     JSONAssert.assertEquals("{\"a\":\"1\",\"b\":{\"name\":\"Mr Bean\",\"email\":\"mrbean@outlook.com\",\"age\":64}}", json, true);
   }
+
+  @Test
+  public void dyobj_from_json_string() throws Throwable {
+    Method dyobj_parse = moduleClass.getMethod("dyobj_from_json_string");
+    DynamicObject obj = (DynamicObject) dyobj_parse.invoke(null);
+    assertThat(obj.get("firstName"), is((Object) "Bob"));
+    assertThat(obj.get("lastName"), is((Object) "Morane"));
+
+    System.out.println(obj.get("friends"));
+
+    DynamicObject creator = (DynamicObject) obj.get("creator");
+    assertThat(creator.get("firstName"), is((Object) "Henri"));
+    assertThat(creator.get("lastName"), is((Object) "Vernes"));
+
+
+  }
 }

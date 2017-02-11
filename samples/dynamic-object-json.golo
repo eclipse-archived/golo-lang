@@ -90,6 +90,4 @@ function main = |args| {
 
   println(objects2: get(1): friends(): get(2): name(): equals("john")) # true
   println(objects2: get(1): address(): city(): equals("San Francisco")) # true
-
-
 }
