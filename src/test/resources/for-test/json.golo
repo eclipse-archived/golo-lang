@@ -64,15 +64,14 @@ function stringify_mix_struct_and_dynobj = {
 }
 
 function dyobj_from_json_string = {
-  println("🦄 passing dyobj_from_json_string test...")
   let bob_json_string = """
   {
     "firstName": "Bob",
     "lastName": "Morane",
     "friends": [
       {"firstName": "Bill", "lastName": "Ballantine"},
-      {"firstName": "Aristide,", "lastName": "Clairembart"},
-      {"firstName": "Sophia,", "lastName": "Paramount"},
+      {"firstName": "Aristide", "lastName": "Clairembart"},
+      {"firstName": "Sophia", "lastName": "Paramount"},
       {"firstName": "Frank", "lastName": "Reeves"},
       {"firstName": "Herbert", "lastName": "Gains"}
     ],
@@ -83,10 +82,29 @@ function dyobj_from_json_string = {
   """
   let bob = JSON.toDynamicObjectFromJSONString(bob_json_string)
   return bob
+}
 
-  # println(obj1: friends(): get(2): name(): equals("john")) # true
-  # println(obj1: address(): city(): equals("San Francisco")) # true
+function dyobjs_list_from_json_string = {
+  let some_objects_string = """
+  [
+    {"message": "Hello World!"},
+    {"firstName": "Bob", "lastName": "Morane"},
+  ]
+  """
+  let some_objects = JSON.toDynamicObjectsListFromJSONString(some_objects_string)
+  return some_objects
+}
 
+function dyobjs_list_from_maps_collection = {
+  let some_objects_collection = [
+    map[["message", "Hello World!"]],
+    map[
+      ["firstName", "Bob"],
+      ["lastName", "Morane"]
+    ]
+  ]
+  let some_objects = JSON.toDynamicObjectsListFromMapsCollection(some_objects_collection)
+  return some_objects
 }
 
 # ............................................................................................... #

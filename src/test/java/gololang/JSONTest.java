@@ -108,16 +108,50 @@ public class JSONTest {
   @Test
   public void dyobj_from_json_string() throws Throwable {
     Method dyobj_parse = moduleClass.getMethod("dyobj_from_json_string");
+
     DynamicObject obj = (DynamicObject) dyobj_parse.invoke(null);
     assertThat(obj.get("firstName"), is((Object) "Bob"));
     assertThat(obj.get("lastName"), is((Object) "Morane"));
 
-    System.out.println(obj.get("friends"));
+    List<?> friends = (List<?>) obj.get("friends");
+    DynamicObject bill = (DynamicObject) friends.get(0);
+    assertThat(bill.get("firstName"), is((Object) "Bill"));
+    assertThat(bill.get("lastName"), is((Object) "Ballantine"));
+
+    DynamicObject aristide = (DynamicObject) friends.get(1);
+    assertThat(aristide.get("firstName"), is((Object) "Aristide"));
+    assertThat(aristide.get("lastName"), is((Object) "Clairembart"));
+
+    DynamicObject sophia = (DynamicObject) friends.get(2);
+    assertThat(sophia.get("firstName"), is((Object) "Sophia"));
+    assertThat(sophia.get("lastName"), is((Object) "Paramount"));
 
     DynamicObject creator = (DynamicObject) obj.get("creator");
     assertThat(creator.get("firstName"), is((Object) "Henri"));
     assertThat(creator.get("lastName"), is((Object) "Vernes"));
+  }
 
+  @Test
+  public void dyobjs_list_from_json_string() throws Throwable {
+    Method dyobjs_parse = moduleClass.getMethod("dyobjs_list_from_json_string");
 
+    List<?> objectsList = (List<?>) dyobjs_parse.invoke(null);
+    DynamicObject message = (DynamicObject) objectsList.get(0);
+    assertThat(message.get("message"), is((Object) "Hello World!"));
+    DynamicObject bob = (DynamicObject) objectsList.get(1);
+    assertThat(bob.get("firstName"), is((Object) "Bob"));
+    assertThat(bob.get("lastName"), is((Object) "Morane"));
+  }
+
+  @Test
+  public void dyobjs_list_from_maps_collection() throws Throwable {
+    Method dyobjs_parse = moduleClass.getMethod("dyobjs_list_from_maps_collection");
+
+    List<?> objectsList = (List<?>) dyobjs_parse.invoke(null);
+    DynamicObject message = (DynamicObject) objectsList.get(0);
+    assertThat(message.get("message"), is((Object) "Hello World!"));
+    DynamicObject bob = (DynamicObject) objectsList.get(1);
+    assertThat(bob.get("firstName"), is((Object) "Bob"));
+    assertThat(bob.get("lastName"), is((Object) "Morane"));
   }
 }
