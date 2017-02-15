@@ -15,7 +15,12 @@ class MemberDocumentation implements DocumentationElement {
   private String name;
   private String documentation;
   private int line;
+  private DocumentationElement parent;
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String name() {
     return name;
   }
@@ -25,6 +30,10 @@ class MemberDocumentation implements DocumentationElement {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String documentation() {
     return (documentation != null ? documentation : "\n");
   }
@@ -34,12 +43,37 @@ class MemberDocumentation implements DocumentationElement {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public int line() {
     return line;
   }
 
   public MemberDocumentation line(int l) {
     line = l;
+    return this;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String type() {
+    return "member";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DocumentationElement parent() {
+    return parent;
+  }
+
+  public MemberDocumentation parent(DocumentationElement p) {
+    parent = p;
     return this;
   }
 

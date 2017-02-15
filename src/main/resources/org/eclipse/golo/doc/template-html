@@ -1,11 +1,12 @@
 <!DOCTYPE html>
-<%@params doc, src %>
+<%@params processor, doc, src %>
 <%@import org.eclipse.golo.doc.HtmlProcessor %>
 <%
 let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   : forceExtentedProfile()
   : setCodeBlockEmitter(blockHighlighter())
   : build()
+
 %>
 <html>
 <head>
@@ -118,6 +119,11 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       font-weight: normal;
     }
 
+    #global-nav {
+      display: block;
+      font-size: 80%;
+    }
+
     #toc {
       margin: 0;
       padding: 0;
@@ -222,12 +228,15 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <!-- begin table of content -->
 <nav id="toc">
 <h1><%= doc: moduleName() %></h1>
+  <section id="global-nav">
+  <a href="<%= processor: linkToFile(doc, "index") %>" rel="home">Module Index</a>
+<a href="<%= processor: linkToFile(doc, "index-all") %>" rel="index">Global Index</a>
+  </section>
 <ul>
-
   <% if not doc: structs(): isEmpty() { %>
   <li><a href="#structs">Structs</a><ul>
     <% foreach structDoc in doc: structs() { %>
-    <li><a href="#<%= structDoc: name() %>"><%= structDoc: name() %></a></li>
+    <li><%= tocItem(structDoc) %></li>
     <% } %>
   </ul></li>
   <% } %>
@@ -235,20 +244,17 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   <% if not doc: unions(): isEmpty() { %>
   <li><a href="#unions">Unions</a><ul>
     <% foreach unionDoc in doc: unions() { %>
-    <li><a href="#<%= unionDoc: name() %>"><%= unionDoc: name() %></a></li>
+    <li><%= tocItem(unionDoc) %></li>
     <% } %>
   </ul></li>
   <% } %>
 
-
-
   <% if not doc: namedAugmentations(): isEmpty() { %>
   <li><a href="#namedAugmentations">Named Augmentations</a><ul>
     <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
-    <li><a href="#<%= namedAugmentationDoc: name() %>"><%= namedAugmentationDoc: name()%></a><ul>
+    <li><%= tocItem(namedAugmentationDoc) %><ul>
       <% foreach funcDoc in namedAugmentationDoc { %>
-      <li><a href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%=
-              funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+      <li><%= tocItem(funcDoc) %></li>
       <% } %>
       </ul></li>
     <% } %>
@@ -258,10 +264,9 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   <% if not doc: augmentations(): isEmpty() { %>
   <li><a href="#augmentations">Augmentations</a><ul>
     <% foreach augmentDoc in doc: augmentations() { %>
-    <li><a href="#augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %></a><ul>
+    <li><%= tocItem(augmentDoc) %><ul>
       <% foreach funcDoc in augmentDoc { %>
-      <li><a href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%=
-              funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+      <li><%= tocItem(funcDoc) %></li>
       <% } %>
     </ul></li>
     <% } %>
@@ -271,8 +276,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   <% if not doc: functions(): isEmpty() { %>
   <li><a href="#functions">Functions</a><ul>
     <% foreach funcDoc in doc: functions() { %>
-    <li><a href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): size()
-            %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)</a></li>
+    <li><%= tocItem(funcDoc) %></li>
     <% } %>
   </ul></li>
   <% } %>
@@ -287,12 +291,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <% if not doc: structs(): isEmpty() { %>
   <h2 id="structs">Structs</h2>
   <% foreach structDoc in doc: structs() { %>
-    <h3 id="<%= structDoc: name() %>"><%= structDoc: name() %>
-    <a class="permalink" href="#<%= structDoc: name() %>" title="link to this section">&#182;</a></h3>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= structDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+    <%= sectionTitle(3, structDoc, src) %>
 
     <div class="golodoc">
       <%= process(structDoc: documentation(), 3, CONFIG) %>
@@ -301,7 +300,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     <h5>Members</h5>
     <ul>
     <% foreach member in structDoc: members() { %>
-      <li><code><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
+    <li><code id="<%= member: id()%>"><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
       </li>
   <% } %>
     </ul>
@@ -311,33 +310,26 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <% if not doc: unions(): isEmpty() { %>
   <h2 id="unions">Unions</h2>
   <% foreach unionDoc in doc: unions() { %>
-    <h3 id="<%= unionDoc: name() %>"><%= unionDoc: name() %>
-    <a class="permalink" href="#<%= unionDoc: name() %>" title="link to this section">&#182;</a></h3>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= unionDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+    <%= sectionTitle(3, unionDoc, src) %>
 
     <div class="golodoc">
     <%= process(unionDoc: documentation(), 3, CONFIG) %>
     </div>
 
     <% foreach unionValueDoc in unionDoc: values() { %>
-      <h4 id="<%= unionDoc: name() %>.<%= unionValueDoc: name() %>"><%= unionValueDoc: name() %>
-          <a class="permalink" href="#<%= unionDoc: name() %>.<%= unionValueDoc: name() %>" title="link to this section">&#182;</a>
-      </h4>
+    <%= sectionTitle(4, unionValueDoc, src) %>
 
-      <div class="golodoc"><%= process(unionValueDoc: documentation(), 4, CONFIG) %></div>
+    <div class="golodoc"><%= process(unionValueDoc: documentation(), 4, CONFIG) %></div>
 
-      <% if not unionValueDoc: members(): isEmpty() { %>
+    <% if not unionValueDoc: members(): isEmpty() { %>
         <h5>Members</h5>
         <ul>
         <% foreach member in unionValueDoc: members() { %>
-          <li><code><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
+          <li><code id="<%= member: id()%>"><%= member: name() %></code> <%= process(member: documentation(): trim(), 5, CONFIG) %>
           </li>
         <% } %>
         </ul>
-      <% } %>
+    <% } %>
     <% } %>
   <% } %>
 <% } %>
@@ -345,27 +337,12 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <% if not doc: namedAugmentations(): isEmpty() { %>
   <h2 id="namedAugmentations">Named Augmentations</h2>
   <% foreach namedAugmentationDoc in doc: namedAugmentations() { %>
-    <h3 id="<%= namedAugmentationDoc: name()%>"><%= namedAugmentationDoc: name()%>
-    <a class="permalink" href="#<%= namedAugmentationDoc: name()%>" title="link
-    to this section">&#182;</a></h3>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= namedAugmentationDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+    <%= sectionTitle(3, namedAugmentationDoc, src) %>
     <div class="golodoc">
       <%= process(namedAugmentationDoc: documentation(), 3, CONFIG) %>
     </div>
     <% foreach funcDoc in namedAugmentationDoc { %>
-      <% if funcDoc: varargs() { %>
-        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
-      <% } else { %>
-        <h4 id="<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-      <% } %>
-      <a class="permalink" href="#<%= namedAugmentationDoc: name() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h4>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= funcDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+      <%= sectionTitle(4, funcDoc, src) %>
       <div class="golodoc">
         <%= process(funcDoc: documentation(), 4, CONFIG) %>
       </div>
@@ -377,12 +354,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <% if not doc: augmentations(): isEmpty() { %>
   <h2 id="augmentations">Augmentations</h2>
   <% foreach augmentDoc in doc: augmentations() { %>
-    <h3 id="augment.<%= augmentDoc: target() %>"><%= augmentDoc: target() %>
-    <a class="permalink" href="#augment.<%= augmentDoc: target() %>" title="link to this section">&#182;</a></h3>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= augmentDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+    <%= sectionTitle(3, augmentDoc, src) %>
     <div class="golodoc">
       <%= process(augmentDoc: documentation(), 3, CONFIG) %>
     </div>
@@ -401,16 +373,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       </ul>
     <% } %>
     <% foreach funcDoc in augmentDoc { %>
-      <% if funcDoc: varargs() { %>
-        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)
-      <% } else { %>
-        <h4 id="<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-      <% } %>
-      <a class="permalink" href="#<%= augmentDoc: target() %>.<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h4>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= funcDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+      <%= sectionTitle(4, funcDoc, src) %>
       <div class="golodoc">
         <%= process(funcDoc: documentation(), 4, CONFIG) %>
       </div>
@@ -421,12 +384,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <% if not doc: functions(): isEmpty() { %>
   <h2 id="functions">Functions</h2>
   <% foreach funcDoc in doc: functions() { %>
-    <h3 id="<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>"><%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)
-    <a class="permalink" href="#<%= funcDoc: name() %>_<%= funcDoc: arguments(): size() %>" title="link to this section">&#182;</a></h3>
-    <% if src isnt null { %>
-    <nav class="srclink"><a href="<%= src %>#l-<%= funcDoc: line() %>"
-                            rel="source" title="Link to the corresponding source">Source</a></nav>
-    <% } %>
+    <%= sectionTitle(3, funcDoc, src) %>
     <div class="golodoc">
       <%= process(funcDoc: documentation(), 3, CONFIG) %>
     </div>
@@ -436,7 +394,6 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <link rel="stylesheet" href="http://golo-lang.org/documentation/next/styles/github.min.css"/>
 <script src="http://golo-lang.org/documentation/next/highlight.min.js"></script>
 <script>hljs.initHighlighting()</script>
-</body>
 
 </body>
 </html>

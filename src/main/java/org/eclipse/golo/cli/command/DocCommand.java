@@ -66,7 +66,7 @@ public class DocCommand implements CliCommand {
     try {
       processor.process(units, Paths.get(this.output));
     } catch (Throwable throwable) {
-      System.out.println("[error] " + throwable.getMessage());
+      handleThrowable(throwable);
     }
   }
 

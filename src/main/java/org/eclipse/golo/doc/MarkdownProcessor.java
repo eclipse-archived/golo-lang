@@ -14,31 +14,29 @@ import gololang.FunctionReference;
 import gololang.Predefined;
 
 import java.nio.file.Path;
-import java.util.TreeMap;
 import java.util.Map;
 
 public class MarkdownProcessor extends AbstractProcessor {
 
   @Override
+  protected String fileExtension() {
+    return "markdown";
+  }
+
+  @Override
   public String render(ASTCompilationUnit compilationUnit) throws Throwable {
-    FunctionReference template = template("template", "markdown");
+    FunctionReference template = template("template", fileExtension());
     ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
+    addModule(documentation);
     return (String) template.invoke(documentation);
   }
 
   @Override
   public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
-    TreeMap<String, String> moduleDocFile = new TreeMap<>();
-    ensureFolderExists(targetFolder);
+    setTargetFolder(targetFolder);
     for (ASTCompilationUnit unit : units.values()) {
-      String moduleName = moduleName(unit);
-      Path docFile = outputFile(targetFolder, moduleName, ".markdown");
-      ensureFolderExists(docFile.getParent());
-      Predefined.textToFile(render(unit), docFile);
-      moduleDocFile.put(moduleName, targetFolder.relativize(docFile).toString());
+      Predefined.textToFile(render(unit), outputFile(moduleName(unit)));
     }
-    FunctionReference indexTemplate = template("index", "markdown");
-    String index = (String) indexTemplate.invoke(moduleDocFile);
-    Predefined.textToFile(index, targetFolder.resolve("index.markdown"));
+    renderIndex("index");
   }
 }

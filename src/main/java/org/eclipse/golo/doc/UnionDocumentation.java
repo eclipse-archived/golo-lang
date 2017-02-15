@@ -14,16 +14,42 @@ import java.util.LinkedList;
 import java.util.Collection;
 import static java.util.Collections.unmodifiableList;
 
-class UnionDocumentation implements Comparable<UnionDocumentation>, DocumentationElement {
+class UnionDocumentation implements DocumentationElement {
 
   public static final class UnionValueDocumentation implements DocumentationElement, MemberHolder {
     private String name;
     private String documentation;
     private int line;
     private List<MemberDocumentation> members = new LinkedList<>();
+    private DocumentationElement parent;
+
+    public String type() {
+      return "union value";
+    }
 
     public String name() {
       return name;
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public String fullName() {
+      return parent.fullName() + '$' + name;
+    }
+
+    public String label() {
+      return name;
+    }
+
+    public DocumentationElement parent() {
+      return parent;
+    }
+
+    public UnionValueDocumentation parent(DocumentationElement p) {
+      parent = p;
+      return this;
     }
 
     public UnionValueDocumentation name(String n) {
@@ -69,6 +95,11 @@ class UnionDocumentation implements Comparable<UnionDocumentation>, Documentatio
   private String documentation;
   private int line;
   private List<UnionValueDocumentation> values = new LinkedList<>();
+  private DocumentationElement parent;
+
+  public String type() {
+    return "union";
+  }
 
   public String name() {
     return name;
@@ -76,6 +107,15 @@ class UnionDocumentation implements Comparable<UnionDocumentation>, Documentatio
 
   public UnionDocumentation name(String name) {
     this.name = name;
+    return this;
+  }
+
+  public DocumentationElement parent() {
+    return parent;
+  }
+
+  public UnionDocumentation parent(DocumentationElement p) {
+    parent = p;
     return this;
   }
 
@@ -112,14 +152,10 @@ class UnionDocumentation implements Comparable<UnionDocumentation>, Documentatio
 
   public UnionValueDocumentation addValue(String name) {
     UnionValueDocumentation v = new UnionValueDocumentation();
+    v.parent(this);
     v.name(name);
     values.add(v);
     return v;
-  }
-
-  @Override
-  public int compareTo(UnionDocumentation o) {
-    return name.compareTo(o.name());
   }
 
   @Override

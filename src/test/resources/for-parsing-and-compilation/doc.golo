@@ -10,7 +10,7 @@
       let bangbang = "------"
 
       ----
-module Documented
+module my.package.Documented
 
 import java.util.Map
 ----
@@ -104,4 +104,11 @@ union List = {
     ----
     tail
   }
+}
+
+----
+A named augmentation
+----
+augmentation MyAugment = {
+  function foobar = |this, a| -> 42
 }

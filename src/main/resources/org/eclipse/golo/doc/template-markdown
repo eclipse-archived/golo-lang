@@ -1,5 +1,5 @@
 <%@params doc %>
-<%@import org.eclipse.golo.doc.AbstractProcessor %>
+<%@import org.eclipse.golo.doc.MarkdownProcessor %>
 <%
 let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
   : forceExtentedProfile()
@@ -44,11 +44,7 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 ### <%= namedAugmentationDoc: name()%>
 <%= adaptSections(namedAugmentationDoc: documentation(), 3) %>
 <%foreach funcDoc in namedAugmentationDoc {%>
-<%if funcDoc: varargs() {%>
-#### <%=funcDoc: name() %>(<%= funcDoc: arguments(): join(", ")%>...)
-<%} else {%>
-#### <%=funcDoc: name() %>(<%= funcDoc: arguments(): join(", ")%>)
-<%}%>
+#### <%= funcDoc: label()%>
 <%= adaptSections(funcDoc: documentation(), 4) %>
 <%}}}%>
 <% if not doc: augmentations(): isEmpty() { %>
@@ -62,20 +58,12 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 - <%= name %>
 <%}}%>
 <% foreach funcDoc in augmentDoc { %>
-<%if funcDoc: varargs() {%>
-#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)`
-<%} else {%>
-#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
-<%}%>
+#### `<%= funcDoc: label() %>`
 <%= adaptSections(funcDoc: documentation(), 4) %>
 <% }}} %>
 <% if not doc: functions(): isEmpty() { %>
 ## Functions
 <% foreach funcDoc in doc: functions() { %>
-<%if funcDoc: varargs() {%>
-#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)`
-<%} else {%>
-#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
-<%}%>
+### `<%= funcDoc: label() %>`
 <%= adaptSections(funcDoc: documentation(), 3) %>
 <%}}%>
