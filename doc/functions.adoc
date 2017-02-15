@@ -217,6 +217,16 @@ Golo modules have a set of implicit imports:
 
 These modules are imported *after* the module explicitly imported in the module, so that elements defined in these modules (e.g. predefined functions or xref:_augmentations_resolution_order[augmentations]) can be redefined.
 
+[[warning-unavailable-class]]
+[WARNING]
+====
+When an imported module can't be loaded, either because it is not in the classpath or because of a typo in its name, a warning is printed. This does not preclude the code to work correctly since the looked up function can be present in another imported module.
+When the function is called prefixed with the module name, and the module can't be loaded, the warning is also printed, but the code will fail with a `NoSuchMethodError`.
+
+The warning can be disabled by setting the `golo.warnings.unavailable-class` system property to `false`.
+====
+
+
 === Local functions
 
 By default, functions are visible outside of their module. You may

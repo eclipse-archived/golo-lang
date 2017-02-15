@@ -289,24 +289,25 @@ public final class FunctionCallSupport {
           functionName.substring(classAndMethodSeparator + 1)
       };
     }
-    for (String importClassName : imports) {
+    for (String importedClassName : imports) {
       try {
-        Class<?> importClass;
+        Class<?> importedClass;
         try {
-          importClass = Class.forName(importClassName, true, callerClass.getClassLoader());
+          importedClass = Class.forName(importedClassName, true, callerClass.getClassLoader());
         } catch (ClassNotFoundException expected) {
           if (classAndMethod == null) {
             throw expected;
           }
-          importClass = Class.forName(importClassName + "." + classAndMethod[0], true, callerClass.getClassLoader());
+          importedClass = Class.forName(importedClassName + "." + classAndMethod[0], true, callerClass.getClassLoader());
         }
         String lookup = (classAndMethod == null) ? functionName : classAndMethod[1];
-        Object result = findStaticMethodOrField(importClass, lookup, args);
+        Object result = findStaticMethodOrField(importedClass, lookup, args);
         if (result != null) {
           return result;
         }
       } catch (ClassNotFoundException ignored) {
         // ignored to try the next strategy
+        Warnings.unavailableClass(importedClassName, callerClass.getName());
       }
     }
     return null;
@@ -322,6 +323,7 @@ public final class FunctionCallSupport {
         return findStaticMethodOrField(targetClass, methodName, args);
       } catch (ClassNotFoundException ignored) {
         // ignored to try the next strategy
+        Warnings.unavailableClass(className, callerClass.getName());
       }
     }
     return null;
