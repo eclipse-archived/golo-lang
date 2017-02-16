@@ -15,31 +15,67 @@ Useful augmentations, decorators and function to deal with errors in Golo.
 module gololang.Errors
 
 import java.util.`function
+import java.util.Collections
 
 # ............................................................................ #
 ## Constructors
 
-function Ok = |v| -> gololang.error.Result.ok(v)
+----
+Constructor for `gololang.error.Result` values.
 
-function Error = |msg| -> gololang.error.Result.fail(msg)
+- *param* `value`: the value to encapsulate in the `Result`
+----
+function Ok = |value| -> gololang.error.Result.ok(value)
 
+----
+Constructor for `gololang.error.Result` errors.
+
+- *param* `message`: the message for the error in the `Result`
+----
+function Error = |message| -> gololang.error.Result.fail(message)
+
+----
+Constructor for an empty `gololang.error.Result`.
+----
 function Empty = -> gololang.error.Result.empty()
 
+----
+Constructor for an empty `java.util.Optional`.
+----
 function None = -> java.util.Optional.empty()
 
-function Some = |v| -> java.util.Optional.of(v)
+----
+Constructor `java.util.Optional` values.
 
+- *param* `value`: the value to encapsulate in the `Optional`
+----
+function Some = |value| -> java.util.Optional.of(value)
+
+----
+“Smart” constructor for `java.util.Optional`.
+
+If the given value is already an `Optional`, returns it unchanged; if it's a
+`Result`, converts it into an `Optional`, and create an `Optional` otherwise
+(using `ofNullable`)
+----
 function Option = |v| -> match {
   when v oftype java.util.Optional.class then v
   when v oftype gololang.error.Result.class then v: toOptional()
   otherwise java.util.Optional.ofNullable(v)
 }
 
+----
+“Smart” constructor for `gololang.error.Result`.
+
+If the given value is already a `Result`, returns it unchanged
+and create an `Optional` otherwise.
+----
 function Result = |v| -> match {
   when v oftype gololang.error.Result.class then v
   otherwise gololang.error.Result.of(v)
 }
 
+# ............................................................................ #
 augment java.util.Optional {
   ----
   Test if this optional is empty.
@@ -63,8 +99,8 @@ augment java.util.Optional {
       this: isPresent() and this: get(): equals(value)
 
   function iterator = |this| -> match {
-    when this: isPresent() then list[this: get()]: iterator()
-    otherwise java.util.Collections.emptyIterator()
+    when this: isPresent() then singleton(this: get()): iterator()
+    otherwise emptyIterator()
   }
 
   ----
@@ -105,8 +141,8 @@ augment java.util.Optional {
     empty list
   ----
   function toList = |this| -> match {
-    when this: isPresent() then list[this: get()]
-    otherwise list[]
+    when this: isPresent() then singletonList(this: get())
+    otherwise emptyList()
   }
 
   ----
@@ -145,7 +181,7 @@ augment java.util.Optional {
 
       Some(1): `and(None()) == None()
       None(): `and(Some(1)) == None()
-      Some(1): `and(Some("2") == Some("2")
+      Some(1): `and(Some("2")) == Some("2")
 
   Note that this method is eager. If you want laziness, use the `flatMap`
   equivalent.
@@ -260,7 +296,7 @@ function result = |f| -> |args...| {
   try {
     return Result(f: invoke(args))
   } catch (e) {
-    return gololang.error.Result.error(e)
+    return Result(e)
   }
 }
 
@@ -270,6 +306,8 @@ The resulting function returns `Option(f(x))` if `f(x)` succeeds and `None` if
 `f(x)` raises an exception.
 
 Can be used as a decorator.
+
+See also [`raising`](#raising_1)
 ----
 function option = |f| -> |args...| {
   try {
@@ -282,7 +320,7 @@ function option = |f| -> |args...| {
 ----
 Execute the given block and return a `Result`.
 
-This is similar to `result`, except that the block take no parameter and is
+This is similar to [`result`](#result_1), except that the block take no parameter and is
 immediately executed. This is *not* a decorator, but rather a replacement for a
 `try catch` block.
 
@@ -298,6 +336,8 @@ For instance:
 If any of the operation in the block raises an exception, `res` will be a
 `Result.error` containing the exception, otherwise it will be a `Result.ok`
 containing the returned value.
+
+See also [`result`](#result_1), [`catching`](#catching_1)
 ----
 function trying = |f| {
   # TODO: later... make it a macro?
@@ -312,7 +352,11 @@ function trying = |f| {
 Transforms a function returning a result or an option into a function returning
 the associated value or raising an exception.
 
+This is the inverse behavior of [`result`](#result_1) and [`option`](#option_1)
+
 Can be used as a decorator.
+
+See also [`result`](#result_1), [`option`](#option_1)
 ----
 function raising = |f| -> |args...| -> f: invoke(args): get()
 
@@ -354,6 +398,11 @@ For instance:
     catching(^gololang.error.Result::error)(foo)(null) # Result.error(NullPointerException())
 
 Can be used as a decorator.
+
+- *param* `default`: the value to return if a exception occurred, or the function
+  to apply to the exception.
+
+See also [`trying`](#trying_1), [`result`](#result_1), [`option`](#option_1)
 ----
 function catching = |default| -> |func| -> |val| {
   try {
@@ -362,6 +411,66 @@ function catching = |default| -> |func| -> |val| {
     return match {
       when isClosure(default) then default: invoke(e)
       otherwise default
+    }
+  }
+}
+
+----
+Create a catcher that execute the given block dealing with exceptions.
+
+This is similar to [`trying`](#trying_1), but encapsulate the `catch` function
+instead of returning a `Result`. It is also similar to [`catching`](#catching),
+but the block is the block take no parameter and is immediately executed.
+
+    let recover = catcher(|ex| -> match {
+      when ex oftype IllegalArgumentException.class then "default"
+      otherwise ""
+    })
+
+    let result = recover({
+      let a = bar()
+      let r = foo(42)
+      return "foo: " + r
+    )}
+
+This function can be used as a decorator:
+
+    @!catcher
+    function recoverIAE = |ex| -> match {
+      when ex oftype IllegalArgumentException.class then "default"
+      otherwise ""
+    }
+
+    let result = recoverIAE({
+      let a = bar()
+      let r = foo(42)
+      return "foo: " + r
+    })
+
+It is somewhat equivalent to a `trying` followed by `either` as in:
+
+    let recover = |ex| -> match { ... }
+
+    result = catcher(recover)({
+      // some code that can fail
+    })
+
+    result = trying({
+      // some code that can fail
+    }): either(^gololang.Functions::id, recover)
+
+- *param* `recover`: the value to return if a exception occurred, or the function
+  to apply to the exception.
+
+See also [`trying`](#trying_1), [`catching`](#catching)
+----
+function catcher = |recover| -> |block| {
+  try {
+    return block()
+  } catch(e) {
+    return match {
+      when isClosure(recover) then recover(e)
+      otherwise recover
     }
   }
 }
