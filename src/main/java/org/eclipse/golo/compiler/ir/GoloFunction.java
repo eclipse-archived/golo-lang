@@ -23,7 +23,7 @@ import java.util.Objects;
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Objects.requireNonNull;
 
-public final class GoloFunction extends ExpressionStatement implements Scope {
+public final class GoloFunction extends ExpressionStatement {
 
   private static final SymbolGenerator SYMBOLS = new SymbolGenerator("function");
 
@@ -311,21 +311,13 @@ public final class GoloFunction extends ExpressionStatement implements Scope {
   }
 
   @Override
-  public void relink(ReferenceTable table) {
-    block.relink(table);
-  }
-
-  @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    block.relinkTopLevel(table);
-  }
-
-  @Override
   public String toString() {
-    return String.format("Function<name=%s, arity=%d, vararg=%s>",
+    return String.format("Function<name=%s, arity=%d, vararg=%s, synthetic=%s, self=%s>",
         getName(),
         getArity(),
-        isVarargs());
+        isVarargs(),
+        synthetic,
+        syntheticSelfName);
   }
 
   @Override

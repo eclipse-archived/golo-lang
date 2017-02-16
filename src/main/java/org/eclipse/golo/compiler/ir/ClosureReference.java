@@ -72,4 +72,9 @@ public class ClosureReference extends ExpressionStatement {
       throw cantReplace(original, newElement);
     }
   }
+
+  @Override
+  public String toString() {
+    return String.format("ClosureReference{target=%s, captured=%s}", target, capturedReferenceNames);
+  }
 }

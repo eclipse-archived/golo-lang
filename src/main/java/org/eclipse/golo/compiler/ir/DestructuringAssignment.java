@@ -16,11 +16,10 @@ import java.util.LinkedList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-public final class DestructuringAssignment extends GoloStatement {
+public final class DestructuringAssignment extends GoloAssignment {
+
   private final List<LocalReference> references = new LinkedList<>();
   private boolean isVarargs = false;
-  private boolean isDeclaring = false;
-  private ExpressionStatement expression;
 
   DestructuringAssignment() {
     super();
@@ -45,46 +44,57 @@ public final class DestructuringAssignment extends GoloStatement {
     return varargs(true);
   }
 
+  @Override
   public DestructuringAssignment declaring() {
-    return declaring(true);
+    return this.declaring(true);
   }
 
+  @Override
   public DestructuringAssignment declaring(boolean d) {
-    this.isDeclaring = d;
+    super.declaring(d);
     return this;
   }
 
-  public boolean isDeclaring() {
-    return this.isDeclaring;
-  }
-
-  public ExpressionStatement getExpression() {
-    return this.expression;
-  }
-
-  public DestructuringAssignment expression(Object expr) {
-    this.expression = ExpressionStatement.of(expr);
-    makeParentOf(expression);
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public DestructuringAssignment as(Object expr) {
+    super.as(expr);
     return this;
   }
 
-  public List<LocalReference> getReferences() {
-    return unmodifiableList(this.references);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public LocalReference[] getReferences() {
+    return this.references.toArray(new LocalReference[references.size()]);
   }
 
-  public DestructuringAssignment to(Object var) {
-    requireNonNull(var);
-    if (var instanceof Iterable) {
-      for (Object o : (Iterable) var) {
-        this.to(o);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getReferencesCount() {
+    return this.references.size();
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public DestructuringAssignment to(Object... refs) {
+    for (Object o : refs) {
+      if (o instanceof LocalReference) {
+        references.add((LocalReference) o);
+      } else {
+        throw new IllegalArgumentException("LocalReference expected, got a " + o.getClass().getName());
       }
-    } else if (var instanceof LocalReference) {
-      references.add((LocalReference) var);
-    } else {
-      throw new IllegalArgumentException("LocalReference expected, got a " + var.getClass());
     }
     return this;
   }
+
 
   @Override
   public String toString() {
@@ -92,7 +102,7 @@ public final class DestructuringAssignment extends GoloStatement {
     for (LocalReference r : getReferences()) {
       names.add(r.toString());
     }
-    return String.join(", ", names) + " = " + getExpression().toString();
+    return String.join(", ", names) + " = " + getExpressionStatement().toString();
   }
 
   @Override
@@ -105,15 +115,6 @@ public final class DestructuringAssignment extends GoloStatement {
     for (LocalReference ref : references) {
       ref.accept(visitor);
     }
-    expression.accept(visitor);
-  }
-
-  @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
-    if (expression == original && newElement instanceof ExpressionStatement) {
-      expression(newElement);
-    } else {
-      throw cantReplace(original, newElement);
-    }
+    super.walk(visitor);
   }
 }

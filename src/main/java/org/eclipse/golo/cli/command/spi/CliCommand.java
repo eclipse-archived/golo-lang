@@ -44,7 +44,7 @@ public interface CliCommand {
   }
 
   default void handleCompilationException(GoloCompilationException e, boolean exit) {
-    handleThrowable(e, false);
+    Messages.error(e.getMessage());
     for (GoloCompilationException.Problem problem : e.getProblems()) {
       Messages.error(problem.getDescription());
     }

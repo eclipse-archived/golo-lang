@@ -11,7 +11,7 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.Objects;
 
-public final class ReturnStatement extends GoloStatement implements Scope {
+public final class ReturnStatement extends GoloStatement {
 
   private GoloStatement expressionStatement;
   private boolean returningVoid;
@@ -56,20 +56,6 @@ public final class ReturnStatement extends GoloStatement implements Scope {
         returningVoid || expressionStatement == null
         ? ""
         : expressionStatement.toString());
-  }
-
-  @Override
-  public void relink(ReferenceTable table) {
-    if (expressionStatement instanceof Scope) {
-      ((Scope) expressionStatement).relink(table);
-    }
-  }
-
-  @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    if (expressionStatement instanceof Scope) {
-      ((Scope) expressionStatement).relinkTopLevel(table);
-    }
   }
 
   @Override

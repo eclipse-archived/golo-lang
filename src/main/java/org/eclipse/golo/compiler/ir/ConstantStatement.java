@@ -9,6 +9,8 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import static gololang.Messages.message;
+
 public class ConstantStatement extends ExpressionStatement {
 
   private Object value;
@@ -24,6 +26,16 @@ public class ConstantStatement extends ExpressionStatement {
 
   public void setValue(Object v) {
     value = v;
+  }
+
+  @Override
+  public ExpressionStatement where(Object a) {
+    throw new UnsupportedOperationException(message("invalid_local_definition", this.getClass().getName()));
+  }
+
+  @Override
+  public boolean hasLocalDeclarations() {
+    return false;
   }
 
   @Override

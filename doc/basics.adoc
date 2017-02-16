@@ -330,6 +330,36 @@ let _$_f_o_$$666 = 666
 let 666_club = 666
 ----
 
+=== Local definitions
+
+It is possible to define a constant reference locally to the evaluation of an expression using the `where` keyword.
+
+For instance:
+
+[source,golo]
+----
+let r = [a + 1, a - 1] where { a = 42 }
+----
+
+is functionally equivalent to
+
+[source,golo]
+----
+let a = 42
+let r = [a + 1, a - 1]
+----
+
+However, the `a` variable exists only in the scope of the expression evaluation. Indeed, code like:
+[source,golo]
+----
+let r = [a + 1, a - 1] where { a = 42 }
+println(a)
+----
+
+will not compile since `a` is unknown in the outer scope.
+
+Besides the locality, this construct is really interesting when constructing other expressions (e.g. <<match_expressions,`match` constructs>>), and can help to keep a functional style form of writing functions.
+
 === Data literals
 
 Golo supports a set of data literals. They directly map to their counterparts from the Java Standard

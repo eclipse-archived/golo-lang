@@ -15,7 +15,7 @@ import static java.util.Collections.unmodifiableCollection;
 import static java.util.Collections.unmodifiableSet;
 import static org.eclipse.golo.compiler.ir.Builders.localRef;
 
-public final class ReferenceTable implements Scope {
+public final class ReferenceTable {
 
   private ReferenceTable parent;
   private final Map<String, LocalReference> table = new LinkedHashMap<>();
@@ -42,21 +42,8 @@ public final class ReferenceTable implements Scope {
   }
 
   public void updateFrom(GoloStatement statement) {
-    if (statement instanceof AssignmentStatement) {
-      AssignmentStatement assign = (AssignmentStatement) statement;
-      if (assign.isDeclaring()) {
-        this.add(assign.getLocalReference());
-      }
-    }
-    if (statement instanceof LoopStatement) {
-      LoopStatement loop = (LoopStatement) statement;
-      if (loop.hasInitStatement()) {
-        this.add(loop.getInitStatement().getLocalReference());
-      }
-    }
-    if (statement instanceof ForEachLoopStatement) {
-      ForEachLoopStatement foreach = (ForEachLoopStatement) statement;
-      for (LocalReference r : foreach.getReferences()) {
+    if (statement instanceof ReferencesHolder) {
+      for (LocalReference r : ((ReferencesHolder) statement).getDeclaringReferences()) {
         this.add(r);
       }
     }
@@ -67,7 +54,7 @@ public final class ReferenceTable implements Scope {
     if (reference != null) {
       return reference;
     }
-    if (parent != null) {
+    if (parent != null && parent != this) {
       return parent.get(name);
     }
     return null;
@@ -81,14 +68,20 @@ public final class ReferenceTable implements Scope {
     return unmodifiableCollection(table.values());
   }
 
-  @Override
-  public void relink(ReferenceTable parent) {
-    for (LocalReference reference : parent.references()) {
-      if (this.hasReferenceFor(reference.getName())) {
-        this.remove(reference.getName());
+  public void relink(ReferenceTable parent, boolean prune) {
+    if (parent == this) { return; }
+    if (prune) {
+      for (LocalReference reference : parent.references()) {
+        if (this.hasReferenceFor(reference.getName())) {
+          this.remove(reference.getName());
+        }
       }
     }
     this.parent = parent;
+  }
+
+  public void relink(ReferenceTable parent) {
+    relink(parent, true);
   }
 
   private boolean isLinkedTo(ReferenceTable other) {
@@ -98,7 +91,6 @@ public final class ReferenceTable implements Scope {
     return this == other || this.parent == other || this.parent.isLinkedTo(other);
   }
 
-  @Override
   public void relinkTopLevel(ReferenceTable topLevel) {
     if (this == topLevel) { return; }
     if (this.parent == null) {
@@ -163,7 +155,7 @@ public final class ReferenceTable implements Scope {
       representation.append(elt.getKey()).append(": ").append(elt.getValue()).append('\n');
     }
     representation.append('}');
-    if (parent != null) {
+    if (parent != null && parent != this) {
       representation.append(" => ").append(parent.toString());
     }
     return representation.toString();

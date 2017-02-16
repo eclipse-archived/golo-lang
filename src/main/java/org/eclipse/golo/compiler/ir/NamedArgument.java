@@ -9,6 +9,8 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import static gololang.Messages.message;
+
 public final class NamedArgument extends ExpressionStatement {
 
   private String name;
@@ -32,6 +34,17 @@ public final class NamedArgument extends ExpressionStatement {
     makeParentOf(expression);
     return this;
   }
+
+  @Override
+  public ExpressionStatement where(Object a) {
+    throw new UnsupportedOperationException(message("invalid_local_definition", this.getClass().getName()));
+  }
+
+  @Override
+  public boolean hasLocalDeclarations() {
+    return false;
+  }
+
 
   @Override
   public void accept(GoloIrVisitor visitor) {

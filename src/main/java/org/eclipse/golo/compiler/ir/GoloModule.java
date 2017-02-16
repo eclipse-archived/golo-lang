@@ -109,7 +109,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
 
   @Override
   public void addFunction(GoloFunction function) {
-    function.relinkTopLevel(globalReferences);
+    function.getBlock().getReferenceTable().relinkTopLevel(globalReferences);
     functions.add(function);
     if (function.isMain()) {
       hasMain = true;

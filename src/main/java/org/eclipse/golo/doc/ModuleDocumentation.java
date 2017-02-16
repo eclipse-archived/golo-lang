@@ -381,5 +381,4 @@ public class ModuleDocumentation implements DocumentationElement {
     public void visitNamedArgument(NamedArgument namedArgument) {
     }
   }
-
 }

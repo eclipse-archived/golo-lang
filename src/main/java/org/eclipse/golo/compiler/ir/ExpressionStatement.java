@@ -9,7 +9,35 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import java.util.LinkedList;
+import java.util.List;
+import static java.util.Collections.unmodifiableList;
+
 public abstract class ExpressionStatement extends GoloStatement {
+
+  private final LinkedList<GoloAssignment> declarations = new LinkedList<>();
+
+  public ExpressionStatement where(Object a) {
+    if (!(a instanceof GoloAssignment)) {
+      throw new IllegalArgumentException(("Must be an assignment, got " + a));
+    }
+    GoloAssignment declaration = (GoloAssignment) a;
+    declarations.add(declaration.declaring());
+    makeParentOf(declaration);
+    return this;
+  }
+
+  public GoloAssignment[] declarations() {
+    return declarations.toArray(new GoloAssignment[declarations.size()]);
+  }
+
+  public boolean hasLocalDeclarations() {
+    return !declarations.isEmpty();
+  }
+
+  public void clearDeclarations() {
+    declarations.clear();
+  }
 
   public static ExpressionStatement of(Object expr) {
     if (expr instanceof ExpressionStatement) {

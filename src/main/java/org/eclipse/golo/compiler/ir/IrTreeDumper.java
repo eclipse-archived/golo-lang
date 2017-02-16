@@ -149,7 +149,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("@Decorator");
-    decorator.getExpressionStatement().accept(this);
+    decorator.walk(this);
     decr();
   }
 
@@ -199,6 +199,7 @@ public class IrTreeDumper implements GoloIrVisitor {
         + ", named arguments? -> " + functionInvocation.usesNamedArguments());
 
     functionInvocation.walk(this);
+    printLocalDeclarations(functionInvocation);
     decr();
   }
 
@@ -220,13 +221,7 @@ public class IrTreeDumper implements GoloIrVisitor {
         "Destructuring assignement: {declaring=%s, varargs=%s}%n",
         assignment.isDeclaring(),
         assignment.isVarargs());
-    incr();
-    for (LocalReference ref : assignment.getReferences()) {
-      space();
-      System.out.println("- " + ref);
-    }
-    decr();
-    assignment.getExpression().accept(this);
+    assignment.walk(this);
     decr();
   }
 
@@ -235,6 +230,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("Reference lookup: " + referenceLookup.getName());
+    printLocalDeclarations(referenceLookup);
     decr();
   }
 
@@ -243,13 +239,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("Conditional");
-    conditionalBranching.getCondition().accept(this);
-    conditionalBranching.getTrueBlock().accept(this);
-    if (conditionalBranching.hasFalseBlock()) {
-      conditionalBranching.getFalseBlock().accept(this);
-    } else if (conditionalBranching.hasElseConditionalBranching()) {
-      conditionalBranching.getElseConditionalBranching().accept(this);
-    }
+    conditionalBranching.walk(this);
     decr();
   }
 
@@ -260,12 +250,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println("Case");
     incr();
     for (WhenClause<Block> c : caseStatement.getClauses()) {
-      space();
-      System.out.println("When");
-      incr();
-      c.condition().accept(this);
-      c.action().accept(this);
-      decr();
+      c.accept(this);
     }
     space();
     System.out.println("Otherwise");
@@ -285,6 +270,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     space();
     System.out.println("Otherwise");
     matchExpression.getOtherwise().accept(this);
+    printLocalDeclarations(matchExpression);
     decr();
   }
 
@@ -303,6 +289,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     space();
     System.out.println("Binary operator: " + binaryOperation.getType());
     binaryOperation.walk(this);
+    printLocalDeclarations(binaryOperation);
     decr();
   }
 
@@ -312,6 +299,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     space();
     System.out.println("Unary operator: " + unaryOperation.getType());
     unaryOperation.getExpressionStatement().accept(this);
+    printLocalDeclarations(unaryOperation);
     decr();
   }
 
@@ -320,14 +308,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("Loop");
-    if (loopStatement.hasInitStatement()) {
-      loopStatement.getInitStatement().accept(this);
-    }
-    loopStatement.getConditionStatement().accept(this);
-    loopStatement.getBlock().accept(this);
-    if (loopStatement.hasPostStatement()) {
-      loopStatement.getPostStatement().accept(this);
-    }
+    loopStatement.walk(this);
     decr();
   }
 
@@ -359,6 +340,7 @@ public class IrTreeDumper implements GoloIrVisitor {
         methodInvocation.getName(),
         methodInvocation.isNullSafeGuarded());
     methodInvocation.walk(this);
+    printLocalDeclarations(methodInvocation);
     decr();
   }
 
@@ -367,7 +349,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("Throw");
-    throwStatement.getExpressionStatement().accept(this);
+    throwStatement.walk(this);
     decr();
   }
 
@@ -428,9 +410,8 @@ public class IrTreeDumper implements GoloIrVisitor {
     incr();
     space();
     System.out.println("Collection literal of type: " + collectionLiteral.getType());
-    for (ExpressionStatement statement : collectionLiteral.getExpressions()) {
-      statement.accept(this);
-    }
+    collectionLiteral.walk(this);
+    printLocalDeclarations(collectionLiteral);
     decr();
   }
 
@@ -448,6 +429,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     for (Block b : collectionComprehension.getLoopBlocks()) {
       b.accept(this);
     }
+    printLocalDeclarations(collectionComprehension);
     decr();
     decr();
   }
@@ -467,5 +449,17 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.print(" - ");
     System.out.print(member.getName());
     System.out.println();
+  }
+
+  private void printLocalDeclarations(ExpressionStatement expr) {
+    if (expr.hasLocalDeclarations()) {
+      incr();
+      space();
+      System.out.println("Where:");
+      for (GoloAssignment a : expr.declarations()) {
+        a.accept(this);
+      }
+      decr();
+    }
   }
 }
