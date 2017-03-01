@@ -18,7 +18,7 @@ import java.util.*;
 
 import static gololang.Messages.message;
 
-public class Main {
+public final class Main {
 
   private Main() {
     // utility class

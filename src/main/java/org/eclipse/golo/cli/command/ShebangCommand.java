@@ -12,7 +12,6 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.URLClassLoader;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -40,9 +39,7 @@ public class ShebangCommand implements CliCommand {
       script = Files.readSymbolicLink(script);
     }
     Path basedir = dirName(script);
-    URLClassLoader primaryClassLoader = primaryClassLoader(classpath(basedir));
-    GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
-    Thread.currentThread().setContextClassLoader(loader);
+    GoloClassLoader loader = ClasspathOption.initGoloClassLoader(classpath(basedir));
     try {
       loadOtherGoloFiles(loader, basedir, script);
       callRun(loadGoloFile(loader, script), this.arguments.toArray(new String[this.arguments.size()]));

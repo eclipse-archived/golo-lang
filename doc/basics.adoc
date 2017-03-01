@@ -120,7 +120,8 @@ $
 Note that `args` is expected to be an array.
 
 Finally, the `--classpath` flag allows to specify a list of classpath elements, which can be either
-directories or `.jar` files. See the `golo help` command for details on the various Golo commands.
+directories or `.jar` files. The system property `golo.class.path` or the environment variable `GOLOPATH` can also be used to specify these elements.
+See the `golo help` command for details on the various Golo commands.
 
 === Compiling Golo source code
 

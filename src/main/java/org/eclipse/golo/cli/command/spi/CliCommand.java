@@ -12,12 +12,7 @@ package org.eclipse.golo.cli.command.spi;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import gololang.Messages;
 
-import java.io.File;
 import java.lang.invoke.MethodHandle;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
-import java.util.List;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
@@ -32,16 +27,6 @@ public interface CliCommand {
   boolean SHOW_TRACE = Boolean.valueOf(System.getProperty("golo.debug.trace", "true"));
 
   void execute() throws Throwable;
-
-  default URLClassLoader primaryClassLoader(List<String> classpath) throws MalformedURLException {
-    URL[] urls = new URL[classpath.size()];
-    int index = 0;
-    for (String element : classpath) {
-      urls[index] = new File(element).toURI().toURL();
-      index = index + 1;
-    }
-    return new URLClassLoader(urls);
-  }
 
   default void callRun(Class<?> klass, String[] arguments) throws Throwable {
     MethodHandle main;
