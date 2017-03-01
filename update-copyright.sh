@@ -8,7 +8,7 @@
 
 set -e
 
-PROJECT_ROOT="$(realpath "$(dirname "$(realpath "$0")")/../")"
+PROJECT_ROOT="$(dirname "$(realpath "$0")")"
 COPYRIGHT_START='Copyright (c) 2012'
 
 function change {
