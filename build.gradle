@@ -231,6 +231,22 @@ task goloshScripts(type: CreateStartScripts) {
 
 startScripts.dependsOn goloshScripts
 
+
+task golodebugScripts(type: CreateStartScripts) {
+  outputDir = file('build/golo-debug')
+  mainClassName = goloCliMain
+  applicationName = 'golo-debug'
+  defaultJvmOpts = [
+    "-agentlib:jdwp=transport=dt_socket,server=y,address=6666,suspend=y",
+    "-server",
+    "-Dgolo.debug=true",
+    "-Xdiag"
+  ]
+  classpath = startScripts.classpath
+}
+startScripts.dependsOn golodebugScripts
+
+
 // .................................................................................................................. //
 
 distributions {
@@ -263,6 +279,9 @@ distributions {
         into 'bin'
       }
       from(goloshScripts) {
+        into 'bin'
+      }
+      from(golodebugScripts) {
         into 'bin'
       }
     }
