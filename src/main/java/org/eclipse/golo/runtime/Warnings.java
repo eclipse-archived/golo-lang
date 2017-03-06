@@ -24,7 +24,7 @@ public final class Warnings {
 
   private static final String GUIDE_BASE = "http://golo-lang.org/documentation/next/";
   private static final boolean NO_PARAMETER_NAMES = Boolean.valueOf(System.getProperty("golo.warnings.no-parameter-names", "true"));
-  private static final boolean UNAVAILABLE_CLASS = Boolean.valueOf(System.getProperty("golo.warnings.unavailable-class", "true"));
+  private static final boolean UNAVAILABLE_CLASS = Boolean.valueOf(System.getProperty("golo.warnings.unavailable-class", "false"));
   private static PrintStream out = System.err;
 
   public static void noParameterNames(String methodName, String[] argumentNames) {
