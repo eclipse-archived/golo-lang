@@ -66,6 +66,9 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
       imp.add(new ModuleImport(this.getPackageAndClass().createSubPackage("types"), true));
     }
     imp.addAll(imports);
+    if (this.packageAndClass.hasPackage()) {
+      imp.add(new ModuleImport(this.packageAndClass.parentPackage(), true));
+    }
     imp.addAll(DEFAULT_IMPORTS);
     return imp;
   }
