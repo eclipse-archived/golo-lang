@@ -13,6 +13,7 @@ import java.util.Arrays;
 
 import static gololang.Messages.warning;
 import static gololang.Messages.message;
+import static org.eclipse.golo.cli.command.Metadata.GUIDE_BASE;
 
 /**
  * A static class to deal with several kinds of warnings.
@@ -23,7 +24,6 @@ public final class Warnings {
     // utility class
   }
 
-  private static final String GUIDE_BASE = "http://golo-lang.org/documentation/next/";
   private static final boolean NO_PARAMETER_NAMES = load("golo.warnings.no-parameter-names", "true");
   private static final boolean UNAVAILABLE_CLASS = load("golo.warnings.unavailable-class", "false");
 

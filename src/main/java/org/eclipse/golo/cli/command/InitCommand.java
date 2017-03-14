@@ -16,12 +16,16 @@ import com.beust.jcommander.ParameterException;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
 import java.io.*;
-import java.nio.charset.StandardCharsets;
-import java.util.LinkedList;
-import java.util.List;
+import java.nio.file.*;
+import java.util.*;
 
 import static gololang.Messages.message;
 import static gololang.Messages.info;
+
+// TODO: add project files:
+//    - CHANGELOG.md ?
+//    - LICENCE.md (epl) ?
+// TODO: when we have a usable default test framework, add some test files in the lib template.
 
 @Parameters(commandNames = {"new"}, resourceBundle = "commands", commandDescriptionKey = "new")
 public class InitCommand implements CliCommand {
@@ -30,21 +34,100 @@ public class InitCommand implements CliCommand {
   String path = ".";
 
   @Parameter(names = "--type", descriptionKey = "new.type", validateWith = ProjectTypeValidator.class)
-  String type = "simple";
+  String type = System.getProperty("golo.new.type", ProjectTypeValidator.DEFAULT);
+
+  @Parameter(names = "--vcs", descriptionKey = "new.vcs", validateWith = VcsValidator.class)
+  String vcs = System.getProperty("golo.new.vcs", VcsValidator.DEFAULT);
+
+  @Parameter(names = "--profile", descriptionKey = "new.profile", validateWith = ProfileValidator.class)
+  String profile = System.getProperty("golo.new.profile", ProfileValidator.DEFAULT);
 
   @Parameter(descriptionKey = "new.names")
   List<String> names = new LinkedList<>();
 
+  private static final Map<String, Profile> PROFILES = new LinkedHashMap<>();
+  static {
+    PROFILES.put("app", new Profile()
+        .defaultFileName("main.golo")
+        .label("application")
+        .runnable());
+    PROFILES.put("lib", new Profile()
+        .defaultFileName("lib.golo")
+        .label("library")
+        .directories(
+          Paths.get("samples")));
+  }
+
+  private static final Map<String, VCS> VERSION_SYSTEMS = new LinkedHashMap<>();
+  static {
+    VERSION_SYSTEMS.put("none", null);
+    VERSION_SYSTEMS.put("git", new VCS()
+        .command("git", "init")
+        .ignoreFilename(".gitignore")
+        .ignore("*.class"));
+    VERSION_SYSTEMS.put("hg", new VCS()
+        .command("hg", "init")
+        .ignoreFilename(".hgignore")
+        .ignore("syntax: glob", "*.class"));
+  }
+
+  private static final Map<String, ProjectInitializer> TYPES = new LinkedHashMap<>();
+  static {
+    TYPES.put("simple", new ProjectInitializer()
+        .directories(
+          Paths.get("imports"),
+          Paths.get("jars"))
+        .runCommand("golo golo --files *.golo"));
+
+    TYPES.put("gradle", new ProjectInitializer()
+        .manager("gradle")
+        .projectFileName("build.gradle")
+        .sourcesDir(Paths.get("src", "main", "golo"))
+        .directories(
+          Paths.get("src", "main", "resources"),
+          Paths.get("src", "test", "golo"))
+        .withFile(Paths.get("README.md"), "README.md")
+        .ignore("build/", ".gradle/")
+        .runCommand("gradle -q run"));
+
+    TYPES.put("maven", new ProjectInitializer()
+        .manager("maven")
+        .projectFileName("pom.xml")
+        .sourcesDir(Paths.get("src", "main", "golo"))
+        .directories(
+          Paths.get("src", "main", "resources"),
+          Paths.get("src", "test", "golo"))
+        .withFile(Paths.get("README.md"), "README.md")
+        .ignore("target/")
+        .runCommand("mvn -q package && mvn -q exec:java"));
+  }
+
   public static class ProjectTypeValidator implements IParameterValidator {
+    public static final String DEFAULT = "simple";
     @Override
     public void validate(String name, String value) {
-      switch (value) {
-        case "maven":
-        case "gradle":
-        case "simple":
-          return;
-        default:
-          throw new ParameterException(message("project_type_error", "{maven, gradle, simple}"));
+      if (!TYPES.containsKey(value)) {
+        throw new ParameterException(message("project_type_error", TYPES.keySet().toString()));
+      }
+    }
+  }
+
+  public static class VcsValidator implements IParameterValidator {
+    public static final String DEFAULT = "none";
+    @Override
+    public void validate(String name, String value) {
+      if (!VERSION_SYSTEMS.containsKey(value)) {
+        throw new ParameterException(message("vcs_type_error", VERSION_SYSTEMS.keySet().toString()));
+      }
+    }
+  }
+
+  public static class ProfileValidator implements IParameterValidator {
+    public static final String DEFAULT = "app";
+    @Override
+    public void validate(String name, String value) {
+      if (!PROFILES.containsKey(value)) {
+        throw new ParameterException(message("profile_type_error", PROFILES.keySet().toString()));
       }
     }
   }
@@ -54,107 +137,17 @@ public class InitCommand implements CliCommand {
     if (this.names.isEmpty()) {
       this.names.add("Golo");
     }
+    ProjectInitializer init = TYPES.get(this.type);
+    init.setRootPath(this.path);
+    init.setVCS(VERSION_SYSTEMS.get(this.vcs));
+    init.setProfile(PROFILES.get(this.profile));
     for (String name : this.names) {
       try {
-        initProject(this.path, name, this.type);
-      } catch (IOException e) {
-        handleThrowable(e, false);
+        info(message("project_generation", this.type, name));
+        init.init(name);
+      } catch (Exception e) {
+        handleThrowable(e, false, false);
       }
-    }
-  }
-
-  private void initProject(String projectPath, String projectName, String type) throws IOException {
-    switch (type) {
-      case "simple":
-        initSimpleProject(projectPath, projectName);
-        break;
-      case "maven":
-        initMavenProject(projectPath, projectName);
-        break;
-      case "gradle":
-        initGradleProject(projectPath, projectName);
-        break;
-      default:
-        throw new IllegalArgumentException("Huston...");
-    }
-  }
-
-  private void initSimpleProject(String projectPath, String projectName) throws IOException {
-    info(message("project_generation", "simple", projectName));
-    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
-    mkdir(new File(projectDir, "imports"));
-    mkdir(new File(projectDir, "jars"));
-    createMainGoloFile(projectDir, projectName);
-  }
-
-  private void initMavenProject(String projectPath, String projectName) throws IOException {
-    info(message("project_generation", "maven", projectName));
-    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
-    writeProjectFile(projectDir, projectName, "new-project/maven/pom.xml", "pom.xml");
-    File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
-    mkdirs(sourcesDir);
-    File sourcesGolo = new File(sourcesDir, "golo");
-    mkdir(sourcesGolo);
-    createMainGoloFile(sourcesGolo, projectName);
-  }
-
-  private void initGradleProject(String projectPath, String projectName) throws IOException {
-    info(message("project_generation", "gradle", projectName));
-    File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
-    writeProjectFile(projectDir, projectName, "new-project/gradle/build.gradle", "build.gradle");
-    File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
-    mkdirs(sourcesDir);
-    File sourcesGolo = new File(sourcesDir, "golo");
-    mkdir(sourcesGolo);
-    createMainGoloFile(sourcesGolo, projectName);
-  }
-
-  private File createProjectDir(String projectName) throws IOException {
-    File projectDir = new File(projectName);
-    if (projectDir.exists()) {
-      throw new IOException(message("directory_exists", projectName));
-    }
-    mkdir(projectDir);
-    return projectDir;
-  }
-
-  private void createMainGoloFile(File intoDir, String projectName) throws FileNotFoundException, UnsupportedEncodingException {
-    File mainGoloFile = new File(intoDir, "main.golo");
-    PrintWriter writer = new PrintWriter(mainGoloFile, "UTF-8");
-    writer.println("module " + escapeModuleName(projectName));
-    writer.println("");
-    writer.println("function main = |args| {");
-    writer.println("  println(\"Hello " + projectName + "!\")");
-    writer.println("}");
-    writer.close();
-  }
-
-  private String escapeModuleName(String projectName) {
-    return projectName.replaceAll("\\W", ".");
-  }
-
-  private void writeProjectFile(File intoDir, String projectName, String sourcePath, String fileName) throws IOException {
-    InputStream sourceInputStream = InitCommand.class.getClassLoader().getResourceAsStream(sourcePath);
-    File projectFile = new File(intoDir, fileName);
-    String line;
-    try (
-      BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(sourceInputStream, StandardCharsets.UTF_8));
-      PrintWriter writer = new PrintWriter(projectFile, "UTF-8")) {
-      while ((line = bufferedReader.readLine()) != null) {
-        writer.println(line.replace("{{projectName}}", projectName));
-      }
-    }
-  }
-
-  private void mkdir(File directory) throws IOException {
-    if (!directory.mkdirs()) {
-      throw new IOException(message("directory_not_created", directory));
-    }
-  }
-
-  private void mkdirs(File directory) throws IOException {
-    if (!directory.mkdirs()) {
-      throw new IOException(message("directory_not_created", directory));
     }
   }
 }

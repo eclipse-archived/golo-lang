@@ -17,6 +17,8 @@ By default we create a new free-form project but you can specify the type of pro
  * Maven-driven project,
  * Gradle-driven project.
 
+NOTE: The default value of the `--type` parameter can be changed by setting the `golo.new.type` property.
+
 As an example if you want to create a Maven-driven project, just add `--type maven`:
 
 [source]
@@ -53,13 +55,17 @@ The structure of a Maven-driven project is as follows:
 
 [source]
 ----
-$ tree Foo
-Foo
+$ tree Foo/
+Foo/
 ├── pom.xml
+├── README.md
 └── src
-    └── main
+    ├── main
+    │   ├── golo
+    │   │   └── main.golo
+    │   └── resources
+    └── test
         └── golo
-            └── main.golo
 ----
 
 The project can be built and packaged with Maven using the following command:
@@ -98,13 +104,17 @@ The structure of a Gradle-driven project is as follows:
 
 [source]
 ----
-$ tree Foo
-Foo
+$ tree Foo/
+Foo/
 ├── build.gradle
+├── README.md
 └── src
-    └── main
+    ├── main
+    │   ├── golo
+    │   │   └── main.golo
+    │   └── resources
+    └── test
         └── golo
-            └── main.golo
 ----
 
 The project can be built and packaged with Gradle using the following command:
@@ -129,3 +139,55 @@ $ gradle run
 $ cd build/classes/main
 $ golo run --module Foo
 ----
+
+=== Version control
+
+With the `--vcs` option, the command will create a _ignore_ file and try to initialize the repository. Mercurial (`hg`) and Git (`git`) are currently supported. For instance,
+
+[source]
+----
+$ golo new --vcs git --type gradle Foo
+$ tree -a -L 1 Foo/
+Foo/
+├── build.gradle
+├── .git
+├── .gitignore
+├── README.md
+└── src
+$ cat Foo/.gitignore
+*.class
+build/
+.gradle/
+----
+
+or
+
+[source]
+----
+$ golo new --vcs hg --type maven Foo
+$ tree -a -L 1 Foo/
+Foo/
+├── .hg
+├── .hgignore
+├── pom.xml
+├── README.md
+└── src
+$ cat Foo/.hgignore
+syntax: glob
+*.class
+target/
+----
+
+If the option is not given, or if the value is `none`, no repository is initialized.
+
+NOTE: The default value of the `--vcs` parameter can be changed by setting the `golo.new.vcs` property.
+
+
+=== Profile
+
+The `--profile` option defines the kind of project you want to create, and will influence the files and hierarchy generated. Two profiles are currently supported:
+
+- `app` will create a application project;
+- `lib` will create a library project.
+
+
