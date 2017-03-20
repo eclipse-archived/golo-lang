@@ -140,16 +140,16 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
     LocalReference reference = assignmentStatement.getLocalReference();
     Set<LocalReference> assignedReferences = assignmentStack.peek();
-    if (assigningConstant(reference, assignedReferences)) {
-      getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
-          "Assigning `" + reference.getName() +
-              "` at " + assignmentStatement.getPositionInSourceCode() +
-              " but it is a constant reference"
-      );
-    } else if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
+    if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
       getExceptionBuilder().report(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
-          "Declaring a duplicate reference `" + reference.getName() +
-              "` at " + assignmentStatement.getPositionInSourceCode()
+          "Declaring a duplicate reference `" + reference.getName()
+          + "` at " + assignmentStatement.getPositionInSourceCode()
+      );
+    } else if (assigningConstant(reference, assignedReferences)) {
+      getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
+          "Assigning `" + reference.getName()
+          + "` at " + assignmentStatement.getPositionInSourceCode()
+          + " but it is a constant reference"
       );
     }
     bindReference(reference);
@@ -178,8 +178,8 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
 
   private boolean assigningConstant(LocalReference reference, Set<LocalReference> assignedReferences) {
     return reference.isConstant() && (
-        assignedReferences.contains(reference) ||
-        (reference.isModuleState() && !functionStack.peek().isModuleInit()));
+        assignedReferences.contains(reference)
+        || (reference.isModuleState() && !functionStack.peek().isModuleInit()));
   }
 
   private boolean referenceNameExists(LocalReference reference, Set<LocalReference> referencesInBlock) {
