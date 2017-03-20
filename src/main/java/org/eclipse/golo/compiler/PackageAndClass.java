@@ -134,7 +134,7 @@ public final class PackageAndClass {
   }
 
   /**
-   * Create a class in another the same package as another one.
+   * Create a class in the same package as another one.
    * <p>
    * For instance:
    * <code><pre>
@@ -155,6 +155,20 @@ public final class PackageAndClass {
    */
   public String packageName() {
     return packageName;
+  }
+
+  /**
+   * Check if this {@code PackageAndClass} has a package component.
+   */
+  public boolean hasPackage() {
+    return !packageName.isEmpty();
+  }
+
+  /**
+   * @return the package as a {@code PackageAndClass}
+   */
+  public PackageAndClass parentPackage() {
+    return fromString(packageName);
   }
 
   /**
