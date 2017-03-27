@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -11,9 +11,8 @@ package org.eclipse.golo.doc;
 
 import java.util.List;
 import java.util.LinkedList;
-import java.util.Objects;
 
-class FunctionDocumentation implements Comparable<FunctionDocumentation>, DocumentationElement {
+class FunctionDocumentation implements DocumentationElement {
 
   private String name;
   private int line;
@@ -22,7 +21,20 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation>, Docume
   private boolean augmentation = false;
   private boolean varargs = false;
   private boolean local = false;
+  private DocumentationElement parent;
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String type() {
+    return local ? "local function" : "function";
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String name() {
     return name;
   }
@@ -32,6 +44,32 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation>, Docume
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String label() {
+    StringBuilder sig = new StringBuilder(this.name());
+    sig.append("(");
+    boolean first = true;
+    for (String arg : this.arguments()) {
+      if (!first) {
+        sig.append(", ");
+      }
+      sig.append(arg);
+      first = false;
+    }
+    if (this.varargs()) {
+      sig.append("...");
+    }
+    sig.append(")");
+    return sig.toString();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String documentation() {
     return (documentation != null ? documentation : "");
   }
@@ -85,6 +123,10 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation>, Docume
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public int line() {
     return line;
   }
@@ -94,31 +136,59 @@ class FunctionDocumentation implements Comparable<FunctionDocumentation>, Docume
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public int compareTo(FunctionDocumentation o) {
-    if (this.equals(o)) { return 0; }
-    int c = name.compareTo(o.name);
-    if (c == 0) {
-      return arity() < o.arity() ? -1 : 1;
+  public String id() {
+    StringBuilder id = new StringBuilder();
+    if (augmentation) {
+      id.append(parent.id());
+      id.append(".");
     }
-    return c;
+    id.append(name());
+    id.append("_");
+    id.append(arguments().size());
+    if (varargs()) {
+      id.append("v");
+    }
+    return id.toString();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public DocumentationElement parent() {
+    return parent;
+  }
+
+  public FunctionDocumentation parent(DocumentationElement p) {
+    parent = p;
+    return this;
   }
 
   @Override
-  public boolean equals(Object other) {
-    if (other == null) { return false; }
-    if (other == this) { return true; }
-    if (!(other instanceof FunctionDocumentation)) { return false; }
-    FunctionDocumentation that = (FunctionDocumentation) other;
-    return this.name.equals(that.name)
-        && this.local == that.local
-        && this.varargs == that.varargs
-        && this.augmentation == that.augmentation
-        && this.arity() == that.arity();
+  public int compareTo(DocumentationElement other) {
+    if (this == other) { return 0; }
+    if (null == other) { return 1; }
+    if (other instanceof FunctionDocumentation) {
+      FunctionDocumentation o = (FunctionDocumentation) other;
+      int c = name.compareToIgnoreCase(o.name);
+      if (c == 0) {
+        c = arity() < o.arity() ? -1 : 1;
+        if (c == 0) {
+          c = varargs && !o.varargs() ? 1
+              : varargs && o.varargs() ? 0
+              : -1;
+          if (c == 0) {
+            c = parent.compareTo(o.parent);
+          }
+        }
+      }
+      return c;
+    }
+    return -1 * other.compareTo(this);
   }
 
-  @Override
-  public int hashCode() {
-    return Objects.hash(this.name, this.local, this.varargs, this.augmentation, this.arity());
-  }
 }

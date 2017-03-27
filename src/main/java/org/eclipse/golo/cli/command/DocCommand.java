@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -66,7 +66,7 @@ public class DocCommand implements CliCommand {
     try {
       processor.process(units, Paths.get(this.output));
     } catch (Throwable throwable) {
-      System.out.println("[error] " + throwable.getMessage());
+      handleThrowable(throwable);
     }
   }
 

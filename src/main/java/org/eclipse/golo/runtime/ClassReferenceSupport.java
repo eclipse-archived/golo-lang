@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -32,7 +32,7 @@ public final class ClassReferenceSupport {
     if (classRef != null) {
       return createCallSite(classRef);
     }
-    classRef = tryLoadingFromName(className, classLoader);
+    classRef = tryLoadingFromName(className, classLoader, callerClass.getName());
     if (classRef != null) {
       return createCallSite(classRef);
     }
@@ -40,25 +40,26 @@ public final class ClassReferenceSupport {
     if (classRef != null) {
       return createCallSite(classRef);
     }
-    throw new ClassNotFoundException("Dynamic resolution failed for name: " + name);
+    throw new ClassNotFoundException("Dynamic resolution failed for name: " + className);
   }
 
-  private static Class<?> tryLoadingFromName(String name, ClassLoader classLoader) {
+  private static Class<?> tryLoadingFromName(String name, ClassLoader classLoader, String callerName) {
     try {
       return Class.forName(name, true, classLoader);
     } catch (ClassNotFoundException e) {
+      Warnings.unavailableClass(name, callerName);
       return null;
     }
   }
 
   private static Class<?> tryLoadingFromImports(String className, Class<?> callerClass, ClassLoader classLoader) {
-    for (String importClassName : imports(callerClass)) {
-      Class<?> classRef = tryLoadingFromName(importClassName + "." + className, classLoader);
+    for (String importedClassName : imports(callerClass)) {
+      Class<?> classRef = tryLoadingFromName(importedClassName + "." + className, classLoader, callerClass.getName());
       if (classRef != null) {
         return classRef;
       } else {
-        if (importClassName.endsWith(className)) {
-          classRef = tryLoadingFromName(importClassName, classLoader);
+        if (importedClassName.endsWith(className)) {
+          classRef = tryLoadingFromName(importedClassName, classLoader, callerClass.getName());
           if (classRef != null) {
             return classRef;
           }

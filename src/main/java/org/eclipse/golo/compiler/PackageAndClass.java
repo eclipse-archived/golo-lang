@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -134,7 +134,7 @@ public final class PackageAndClass {
   }
 
   /**
-   * Create a class in another the same package as another one.
+   * Create a class in the same package as another one.
    * <p>
    * For instance:
    * <code><pre>
@@ -155,6 +155,20 @@ public final class PackageAndClass {
    */
   public String packageName() {
     return packageName;
+  }
+
+  /**
+   * Check if this {@code PackageAndClass} has a package component.
+   */
+  public boolean hasPackage() {
+    return !packageName.isEmpty();
+  }
+
+  /**
+   * @return the package as a {@code PackageAndClass}
+   */
+  public PackageAndClass parentPackage() {
+    return fromString(packageName);
   }
 
   /**

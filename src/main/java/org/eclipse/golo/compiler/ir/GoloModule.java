@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -62,8 +62,13 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
 
   public Set<ModuleImport> getImports() {
     Set<ModuleImport> imp = new LinkedHashSet<>();
-    imp.add(new ModuleImport(this.getPackageAndClass().createSubPackage("types"), true));
+    if (!structs.isEmpty() || !unions.isEmpty()) {
+      imp.add(new ModuleImport(this.getPackageAndClass().createSubPackage("types"), true));
+    }
     imp.addAll(imports);
+    if (this.packageAndClass.hasPackage()) {
+      imp.add(new ModuleImport(this.packageAndClass.parentPackage(), true));
+    }
     imp.addAll(DEFAULT_IMPORTS);
     return imp;
   }

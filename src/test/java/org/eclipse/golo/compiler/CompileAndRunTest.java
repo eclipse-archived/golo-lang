@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2016 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+ * Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
  *
  * All rights reserved. This program and the accompanying materials
  * are made available under the terms of the Eclipse Public License v1.0
@@ -55,7 +55,7 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(8));
+    assertThat(imports.size(), is(9));
     assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("gololang.StandardAugmentations"));
     assertThat(imports, hasItem("gololang"));
@@ -64,6 +64,7 @@ public class CompileAndRunTest {
     assertThat(imports, hasItem("java.lang.System"));
     assertThat(imports, hasItem("java.lang"));
     assertThat(imports, hasItem("golotest.execution.ImportsMetaData.types"));
+    assertThat(imports, hasItem("golotest.execution"));
     assertThat(imports.get(0), is ("golotest.execution.ImportsMetaData.types"));
   }
 
