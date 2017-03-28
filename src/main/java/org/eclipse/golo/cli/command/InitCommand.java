@@ -9,8 +9,10 @@
 
 package org.eclipse.golo.cli.command;
 
+import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.ParameterException;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
 import java.io.*;
@@ -18,17 +20,34 @@ import java.nio.charset.StandardCharsets;
 import java.util.LinkedList;
 import java.util.List;
 
-@Parameters(commandNames = {"new"}, commandDescription = "Generate new Golo projects")
+import static gololang.Messages.message;
+import static gololang.Messages.info;
+
+@Parameters(commandNames = {"new"}, resourceBundle = "commands", commandDescriptionKey = "new")
 public class InitCommand implements CliCommand {
 
-  @Parameter(names = "--path", description = "Path for the new projects")
+  @Parameter(names = "--path", descriptionKey = "new.path")
   String path = ".";
 
-  @Parameter(names = "--type", description = "Type of project: {maven, gradle, simple}")
+  @Parameter(names = "--type", descriptionKey = "new.type", validateWith = ProjectTypeValidator.class)
   String type = "simple";
 
-  @Parameter(description = "Names of the new Golo projects")
+  @Parameter(descriptionKey = "new.names")
   List<String> names = new LinkedList<>();
+
+  public static class ProjectTypeValidator implements IParameterValidator {
+    @Override
+    public void validate(String name, String value) {
+      switch (value) {
+        case "maven":
+        case "gradle":
+        case "simple":
+          return;
+        default:
+          throw new ParameterException(message("project_type_error", "{maven, gradle, simple}"));
+      }
+    }
+  }
 
   @Override
   public void execute() throws Throwable {
@@ -36,7 +55,11 @@ public class InitCommand implements CliCommand {
       this.names.add("Golo");
     }
     for (String name : this.names) {
-      initProject(this.path, name, this.type);
+      try {
+        initProject(this.path, name, this.type);
+      } catch (IOException e) {
+        handleThrowable(e, false);
+      }
     }
   }
 
@@ -52,12 +75,12 @@ public class InitCommand implements CliCommand {
         initGradleProject(projectPath, projectName);
         break;
       default:
-        throw new AssertionError("The type of project must be one of {maven, gradle, simple}");
+        throw new IllegalArgumentException("Huston...");
     }
   }
 
   private void initSimpleProject(String projectPath, String projectName) throws IOException {
-    System.out.println("Generating a new simple project named " + projectName + "...");
+    info(message("project_generation", "simple", projectName));
     File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
     mkdir(new File(projectDir, "imports"));
     mkdir(new File(projectDir, "jars"));
@@ -65,7 +88,7 @@ public class InitCommand implements CliCommand {
   }
 
   private void initMavenProject(String projectPath, String projectName) throws IOException {
-    System.out.println("Generating a new maven project named " + projectName + "...");
+    info(message("project_generation", "maven", projectName));
     File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
     writeProjectFile(projectDir, projectName, "new-project/maven/pom.xml", "pom.xml");
     File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
@@ -76,7 +99,7 @@ public class InitCommand implements CliCommand {
   }
 
   private void initGradleProject(String projectPath, String projectName) throws IOException {
-    System.out.println("Generating a new gradle project named " + projectName + "...");
+    info(message("project_generation", "gradle", projectName));
     File projectDir = createProjectDir(projectPath + File.separatorChar + projectName);
     writeProjectFile(projectDir, projectName, "new-project/gradle/build.gradle", "build.gradle");
     File sourcesDir = new File(projectDir, "src" + File.separatorChar + "main");
@@ -89,7 +112,7 @@ public class InitCommand implements CliCommand {
   private File createProjectDir(String projectName) throws IOException {
     File projectDir = new File(projectName);
     if (projectDir.exists()) {
-      throw new IOException("[error] The directory " + projectName + " already exists.");
+      throw new IOException(message("directory_exists", projectName));
     }
     mkdir(projectDir);
     return projectDir;
@@ -125,13 +148,13 @@ public class InitCommand implements CliCommand {
 
   private void mkdir(File directory) throws IOException {
     if (!directory.mkdirs()) {
-      throw new IOException("[error] Unable to create directory " + directory + ".");
+      throw new IOException(message("directory_not_created", directory));
     }
   }
 
   private void mkdirs(File directory) throws IOException {
     if (!directory.mkdirs()) {
-      throw new IOException("[error] Unable to create directory " + directory + ".");
+      throw new IOException(message("directory_not_created", directory));
     }
   }
 }

@@ -16,17 +16,20 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import java.io.*;
 import java.util.*;
 
+import static gololang.Messages.message;
+
 public class Main {
 
   private Main() {
     // utility class
   }
 
+  @Parameters(resourceBundle = "commands")
   static class GlobalArguments {
-    @Parameter(names = {"--help"}, description = "Prints this message", help = true)
+    @Parameter(names = {"--help"}, descriptionKey = "help", help = true)
     boolean help;
 
-    @Parameter(names = {"--usage"}, description = "Command name to print his usage", validateWith = UsageFormatValidator.class)
+    @Parameter(names = {"--usage"}, descriptionKey = "usage", validateWith = UsageFormatValidator.class)
     String usageCommand;
   }
 
@@ -36,7 +39,7 @@ public class Main {
     @Override
     public void validate(String name, String value) throws ParameterException {
       if (!commandNames.contains(value)) {
-        throw new ParameterException("Command name must be in: " + Arrays.toString(commandNames.toArray()));
+        throw new ParameterException(message("command_error", commandNames));
       }
     }
   }
@@ -74,9 +77,6 @@ public class Main {
       if (cmd.getParsedCommand() != null) {
         cmd.usage(cmd.getParsedCommand());
       }
-    } catch (IOException exception) {
-      System.err.println(exception.getMessage());
-      System.exit(1);
     }
   }
 }

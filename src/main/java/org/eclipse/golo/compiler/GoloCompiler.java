@@ -23,6 +23,8 @@ import java.util.List;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
+import static gololang.Messages.message;
+
 /**
  * The Golo compiler.
  * <p>
@@ -134,13 +136,13 @@ public class GoloCompiler {
    */
   public final void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
     if (targetFolder.isFile()) {
-      throw new IllegalArgumentException(targetFolder + " already exists and is a file.");
+      throw new IllegalArgumentException(message("file_exists", targetFolder));
     }
     List<CodeGenerationResult> results = compile(goloSourceFilename, sourceCodeInputStream);
     for (CodeGenerationResult result : results) {
       File outputFolder = new File(targetFolder, result.getPackageAndClass().packageName().replaceAll("\\.", "/"));
       if (!outputFolder.exists() && !outputFolder.mkdirs()) {
-        throw new IOException("mkdir() failed on " + outputFolder);
+        throw new IOException(message("directory_not_created", outputFolder));
       }
       File outputFile = new File(outputFolder, result.getPackageAndClass().className() + ".class");
       try (FileOutputStream out = new FileOutputStream(outputFile)) {

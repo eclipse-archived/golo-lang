@@ -17,23 +17,26 @@ import org.eclipse.golo.compiler.GoloCompilationException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.IOException;
 import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.List;
 
-@Parameters(commandNames = {"golo"}, commandDescription = "Dynamically loads and runs from Golo source files")
+import static gololang.Messages.*;
+
+@Parameters(commandNames = {"golo"}, resourceBundle = "commands", commandDescriptionKey = "golo")
 public class GoloGoloCommand implements CliCommand {
 
-  @Parameter(names = "--files", variableArity = true, description = "Golo source files (*.golo and directories). The last one has a main function or use --module", required = true)
+  @Parameter(names = "--files", variableArity = true, descriptionKey = "golo.files", required = true)
   List<String> files = new LinkedList<>();
 
-  @Parameter(names = "--module", description = "The Golo module with a main function")
+  @Parameter(names = "--module", descriptionKey = "main_module")
   String module;
 
-  @Parameter(names = "--args", variableArity = true, description = "Program arguments")
+  @Parameter(names = "--args", variableArity = true, descriptionKey = "arguments")
   List<String> arguments = new LinkedList<>();
 
-  @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
+  @Parameter(names = "--classpath", variableArity = true, descriptionKey = "classpath")
   List<String> classpath = new LinkedList<>();
 
   @Override
@@ -46,19 +49,23 @@ public class GoloGoloCommand implements CliCommand {
       lastClass = loadGoloFile(goloFile, this.module, loader);
     }
     if (lastClass == null && this.module != null) {
-      System.out.println("The module " + this.module + " does not exist in the classpath.");
+      error(message("module_not_found", this.module));
       return;
     }
     if (lastClass == null) {
       return;
     }
-    callRun(lastClass, this.arguments.toArray(new String[this.arguments.size()]));
+    try {
+      callRun(lastClass, this.arguments.toArray(new String[this.arguments.size()]));
+    } catch (CliCommand.NoMainMethodException e) {
+      error(message("module_no_main", lastClass.getName()));
+    }
   }
 
   private Class<?> loadGoloFile(String goloFile, String module, GoloClassLoader loader) throws Throwable {
     File file = new File(goloFile);
     if (!file.exists()) {
-      System.out.println("Error: " + file.getAbsolutePath() + " does not exist.");
+      error(message("file_not_found", file));
     } else if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
@@ -77,6 +84,8 @@ public class GoloGoloCommand implements CliCommand {
         if (module == null || loadedClass.getCanonicalName().equals(module)) {
           return loadedClass;
         }
+      } catch (IOException e) {
+        error(message("file_not_found", file.getAbsolutePath()));
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
       }

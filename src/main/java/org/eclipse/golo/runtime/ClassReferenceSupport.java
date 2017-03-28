@@ -17,6 +17,8 @@ import java.lang.invoke.MethodType;
 import static org.eclipse.golo.runtime.Module.imports;
 import static java.lang.invoke.MethodHandles.constant;
 
+import static gololang.Messages.message;
+
 public final class ClassReferenceSupport {
 
   private ClassReferenceSupport() {
@@ -40,7 +42,7 @@ public final class ClassReferenceSupport {
     if (classRef != null) {
       return createCallSite(classRef);
     }
-    throw new ClassNotFoundException("Dynamic resolution failed for name: " + className);
+    throw new ClassNotFoundException(message("class_not_resolved", className));
   }
 
   private static Class<?> tryLoadingFromName(String name, ClassLoader classLoader, String callerName) {

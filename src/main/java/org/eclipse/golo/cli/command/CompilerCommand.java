@@ -25,17 +25,20 @@ import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 
-@Parameters(commandNames = {"compile"}, commandDescription = "Compiles Golo source files")
+import static gololang.Messages.*;
+
+@Parameters(commandNames = {"compile"}, resourceBundle = "commands", commandDescriptionKey = "compile")
 public class CompilerCommand implements CliCommand {
 
-  @Parameter(names = "--output", description = "The compiled classes output directory or Jar archive")
+  @Parameter(names = "--output", descriptionKey = "compile.output")
   String output = ".";
 
-  @Parameter(description = "Golo source files (*.golo)")
+  @Parameter(descriptionKey = "source_files")
   List<String> sources = new LinkedList<>();
 
   @Override
   public void execute() throws Throwable {
+    // TODO: recurse into directories
     GoloCompiler compiler = new GoloCompiler();
     final boolean compilingToJar = this.output.endsWith(".jar");
     File outputDir = compilingToJar ? null : new File(this.output);
@@ -49,7 +52,7 @@ public class CompilerCommand implements CliCommand {
           compiler.compileTo(file.getName(), in, outputDir);
         }
       } catch (IOException e) {
-        System.out.println("[error] " + source + " does not exist or could not be opened.");
+        error(message("file_not_found", source));
         return;
       } catch (GoloCompilationException e) {
         handleCompilationException(e);

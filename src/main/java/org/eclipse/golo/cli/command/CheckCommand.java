@@ -21,16 +21,18 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
 
-@Parameters(commandNames = {"check"}, commandDescription = "Check Golo source files for correctness")
+import static gololang.Messages.*;
+
+@Parameters(commandNames = {"check"}, resourceBundle = "commands", commandDescriptionKey = "check")
 public class CheckCommand implements CliCommand {
 
-  @Parameter(names = {"--exit"}, description = "Exit on the first encountered error, or continue with the next file")
+  @Parameter(names = {"--exit"}, descriptionKey = "check.exit")
   boolean exit = false;
 
-  @Parameter(names = {"--verbose"}, description = "Be more verbose")
+  @Parameter(names = {"--verbose"}, descriptionKey = "check.verbose")
   boolean verbose = false;
 
-  @Parameter(description = "Golo source files (*.golo and directories))")
+  @Parameter(descriptionKey = "source_files")
   List<String> files = new LinkedList<>();
 
   @Override
@@ -52,12 +54,12 @@ public class CheckCommand implements CliCommand {
     } else if (file.getName().endsWith(".golo")) {
       try {
         if (verbose) {
-          System.out.println(">>> Checking file `" + file.getAbsolutePath() + "`");
+          System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
         }
         compiler.resetExceptionBuilder();
         compiler.check(compiler.parse(file.getAbsolutePath()));
       } catch (IOException e) {
-        System.out.println("[error] " + file + " does not exist or could not be opened.");
+        error(message("file_not_found", file));
       } catch (GoloCompilationException e) {
         handleCompilationException(e, exit);
       }

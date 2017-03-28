@@ -25,10 +25,12 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
 
-@Parameters(commandNames = {"shebang"}, commandDescription = "Dynamically loads and runs from Golo script file")
+import static gololang.Messages.message;
+
+@Parameters(commandNames = {"shebang"}, resourceBundle = "commands", commandDescriptionKey = "golo")
 public class ShebangCommand implements CliCommand {
 
-  @Parameter(description = "Shebang arguments", required = true)
+  @Parameter(descriptionKey = "arguments", required = true)
   List<String> arguments = new LinkedList<>();
 
   @Override
@@ -81,7 +83,7 @@ public class ShebangCommand implements CliCommand {
       if (filename != null) {
         return loader.load(filename.toString(), is);
       } else {
-        throw new RuntimeException("Path " + path + " is not a regular file.");
+        throw new RuntimeException(message("not_regular_file", path));
       }
     } catch (IOException e) {
       throw new RuntimeException(e);
