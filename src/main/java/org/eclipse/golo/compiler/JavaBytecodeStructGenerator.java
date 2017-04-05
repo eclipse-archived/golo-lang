@@ -41,7 +41,7 @@ class JavaBytecodeStructGenerator {
     makeCopy(classWriter, struct, true);
     makeHashCode(classWriter, struct);
     makeEquals(classWriter, struct);
-    makeValuesMethod(classWriter, struct);
+    makeToArrayMethod(classWriter, struct);
     makeGetMethod(classWriter, struct);
     makeSetMethod(classWriter, struct);
     classWriter.visitEnd();
@@ -117,9 +117,9 @@ class JavaBytecodeStructGenerator {
     visitor.visitInsn(ATHROW);
   }
 
-  private void makeValuesMethod(ClassWriter classWriter, Struct struct) {
+  private void makeToArrayMethod(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "values", "()Lgololang/Tuple;", null, null);
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "toArray", "()[Ljava/lang/Object;", null, null);
     visitor.visitCode();
     loadInteger(visitor, struct.getPublicMembers().size());
     visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
@@ -132,7 +132,6 @@ class JavaBytecodeStructGenerator {
       visitor.visitInsn(AASTORE);
       index = index + 1;
     }
-    visitor.visitMethodInsn(INVOKESTATIC, "gololang/Tuple", "fromArray", "([Ljava/lang/Object;)Lgololang/Tuple;", false);
     visitor.visitInsn(ARETURN);
     visitor.visitMaxs(0, 0);
     visitor.visitEnd();

@@ -51,7 +51,9 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    *
    * @return a tuple with the current values.
    */
-  public abstract Tuple values();
+  public Tuple values() {
+    return Tuple.fromArray(toArray());
+  }
 
   /**
    * Destructuration helper.
@@ -59,7 +61,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * @return a tuple with the current values.
    */
   public Tuple destruct() {
-    return values();
+    return Tuple.fromArray(toArray());
   }
 
   /**
@@ -67,9 +69,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    *
    * @return an array containing the values (in member orders)
    */
-  public Object[] toArray() {
-    return values().toArray();
-  }
+  public abstract Object[] toArray();
 
   /**
    * Compares this structure with the specified structure for order.
