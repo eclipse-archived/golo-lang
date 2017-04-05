@@ -93,28 +93,33 @@ class JavaBytecodeStructGenerator {
     visitor.visitEnd();
   }
 
+  private void throwLocalized(MethodVisitor visitor, String exceptionType, String message, String structName) {
+    visitor.visitTypeInsn(NEW, exceptionType);
+    visitor.visitInsn(DUP);
+    visitor.visitLdcInsn(message);
+    visitor.visitInsn(ICONST_1);
+    visitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+    visitor.visitInsn(DUP);
+    visitor.visitInsn(ICONST_0);
+    visitor.visitLdcInsn(structName);
+    visitor.visitInsn(AASTORE);
+    visitor.visitMethodInsn(INVOKESTATIC, "gololang/Messages", "message", "(Ljava/lang/String;[Ljava/lang/Object;)Ljava/lang/String;", false);
+    visitor.visitMethodInsn(INVOKESPECIAL, exceptionType, "<init>", "(Ljava/lang/String;)V", false);
+    visitor.visitInsn(ATHROW);
+  }
+
   private void insertPrivateElementCheck(Struct struct, MethodVisitor visitor) {
-    // TODO: l10n of exception message at runtime
     Label afterPrivateCheck = new Label();
     visitor.visitVarInsn(ALOAD, 1);
     visitor.visitLdcInsn("_");
     visitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/String", "startsWith", "(Ljava/lang/String;)Z", false);
     visitor.visitJumpInsn(IFEQ, afterPrivateCheck);
-    visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
-    visitor.visitInsn(DUP);
-    visitor.visitLdcInsn("Private member of " + struct.getPackageAndClass().toString());
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
-    visitor.visitInsn(ATHROW);
+    throwLocalized(visitor, "java/lang/IllegalArgumentException", "struct_private_member", struct.getPackageAndClass().toString());
     visitor.visitLabel(afterPrivateCheck);
   }
 
   private void insertUnknowElementCode(Struct struct, MethodVisitor visitor) {
-    // TODO: l10n of exception message at runtime
-    visitor.visitTypeInsn(NEW, "java/lang/IllegalArgumentException");
-    visitor.visitInsn(DUP);
-    visitor.visitLdcInsn("Unknown member in " + struct.getPackageAndClass().toString());
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalArgumentException", "<init>", "(Ljava/lang/String;)V", false);
-    visitor.visitInsn(ATHROW);
+    throwLocalized(visitor, "java/lang/IllegalArgumentException", "unknown_struct_member", struct.getPackageAndClass().toString());
   }
 
   private void makeToArrayMethod(ClassWriter classWriter, Struct struct) {
@@ -369,9 +374,10 @@ class JavaBytecodeStructGenerator {
 
   private void makeAccessors(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
+    String structName = struct.getPackageAndClass().toString();
     for (Member member : struct.getMembers()) {
       makeGetter(classWriter, owner, member.getName());
-      makeSetter(classWriter, owner, member.getName());
+      makeSetter(classWriter, owner, member.getName(), structName);
     }
     makeFrozenGetter(classWriter, owner);
   }
@@ -386,8 +392,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitEnd();
   }
 
-  private void makeSetter(ClassWriter classWriter, String owner, String name) {
-    // TODO: l10n of exception message at runtime
+  private void makeSetter(ClassWriter classWriter, String owner, String name, String structName) {
     int accessFlag = name.startsWith("_") ? ACC_PRIVATE : ACC_PUBLIC;
     MethodVisitor visitor = classWriter.visitMethod(accessFlag, name, "(Ljava/lang/Object;)Lgololang/GoloStruct;", null, null);
     visitor.visitCode();
@@ -395,11 +400,7 @@ class JavaBytecodeStructGenerator {
     visitor.visitFieldInsn(GETFIELD, owner, $_frozen, "Z");
     Label setLabel = new Label();
     visitor.visitJumpInsn(IFEQ, setLabel);
-    visitor.visitTypeInsn(NEW, "java/lang/IllegalStateException");
-    visitor.visitInsn(DUP);
-    visitor.visitLdcInsn("The struct instance is frozen");
-    visitor.visitMethodInsn(INVOKESPECIAL, "java/lang/IllegalStateException", "<init>", "(Ljava/lang/String;)V", false);
-    visitor.visitInsn(ATHROW);
+    throwLocalized(visitor, "java/lang/IllegalStateException", "frozen_struct", structName);
     visitor.visitLabel(setLabel);
     visitor.visitVarInsn(ALOAD, 0);
     visitor.visitVarInsn(ALOAD, 1);
