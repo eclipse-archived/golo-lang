@@ -31,7 +31,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   private GoloFunction moduleStateInitializer = null;
   private boolean hasMain = false;
 
-  public static final Set<ModuleImport> DEFAULT_IMPORTS = unmodifiableSet(new HashSet<>(Arrays.asList(
+  public static final Set<ModuleImport> DEFAULT_IMPORTS = unmodifiableSet(new LinkedHashSet<>(Arrays.asList(
     new ModuleImport(PackageAndClass.fromString("gololang.Predefined"), true),
     new ModuleImport(PackageAndClass.fromString("gololang.StandardAugmentations"), true),
     new ModuleImport(PackageAndClass.fromString("gololang"), true),

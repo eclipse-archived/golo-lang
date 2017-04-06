@@ -9,10 +9,14 @@
 
 package org.eclipse.golo.compiler.parser;
 
+import java.util.List;
+import java.util.Collections;
+
 public class ASTImportDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
   private boolean relative;
+  private List<String> multi = Collections.emptyList();
 
   public ASTImportDeclaration(int i) {
     super(i);
@@ -38,6 +42,14 @@ public class ASTImportDeclaration extends GoloASTNode implements NamedNode {
 
   public boolean isRelative() {
     return this.relative;
+  }
+
+  public List<String> getMultiple() {
+    return multi;
+  }
+
+  public void setMultiple(List<String> names) {
+    multi = names;
   }
 
   @Override
