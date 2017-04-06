@@ -57,7 +57,7 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(9));
+    assertThat(imports.size(), is(11));
     assertThat(imports, hasItem("gololang.Predefined"));
     assertThat(imports, hasItem("gololang.StandardAugmentations"));
     assertThat(imports, hasItem("gololang"));
@@ -67,6 +67,8 @@ public class CompileAndRunTest {
     assertThat(imports, hasItem("java.lang"));
     assertThat(imports, hasItem("golotest.execution.ImportsMetaData.types"));
     assertThat(imports, hasItem("golotest.execution"));
+    assertThat(imports, hasItem("golotest.execution.Bar"));
+    assertThat(imports, hasItem("golotest.execution.plop.Daplop"));
     assertThat(imports.get(0), is ("golotest.execution.ImportsMetaData.types"));
   }
 

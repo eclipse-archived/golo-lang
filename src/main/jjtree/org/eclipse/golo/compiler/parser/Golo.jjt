@@ -768,12 +768,16 @@ void ModuleDeclaration():
 void ImportDeclaration():
 {
   String name;
+  Token relative = null;
 }
 {
   try {
-    <IMPORT> name=QualifiedName()
+    <IMPORT> (relative=".")? name=QualifiedName()
     {
       jjtThis.setName(name);
+      if (relative != null) {
+        jjtThis.setRelative(true);
+      }
     }
   }
   catch (ParseException e) {

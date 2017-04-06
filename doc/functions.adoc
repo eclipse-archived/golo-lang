@@ -190,7 +190,7 @@ subsequently tries to resolve `f` from each `import` statement. Also, note that 
 `import` statements is important, as the resolution stops at the first module having the `f`
 function.
 
-Last but not least, you may prepend the last piece of the module name. The following invocations are
+You may prepend the *last* piece of the module name. The following invocations are
 equivalent:
 
 [source,golo]
@@ -206,6 +206,28 @@ function plop = {
   return result
 }
 ----
+
+[[relative_import]]
+To help maintaining packages of several modules, and to avoid repeating the fully qualified name of the package when importing “local” modules,
+`import` can also be made relative to the package of the importing module. For instance, the following code:
+
+[source,golo]
+----
+module foo.bar.Spam
+
+import .baz.Egg
+----
+
+is equivalent to
+
+[source,golo]
+----
+module foo.bar.Spam
+
+import foo.bar.baz.Egg
+----
+
+Note that only modules in the same package or in a sub-package can be imported using relative name. In the previous example, to import the module `foo.Plop`, its full name must be specified.
 
 [[implicit_imports]]
 Golo modules have a set of implicit imports:
