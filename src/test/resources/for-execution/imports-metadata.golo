@@ -4,4 +4,7 @@ import java.util.List
 import java.util.LinkedList
 import java.lang.System
 
+import .Bar
+import .plop.Daplop
+
 struct Foo = {x}

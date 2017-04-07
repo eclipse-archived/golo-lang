@@ -12,6 +12,7 @@ package org.eclipse.golo.compiler.parser;
 public class ASTImportDeclaration extends GoloASTNode implements NamedNode {
 
   private String name;
+  private boolean relative;
 
   public ASTImportDeclaration(int i) {
     super(i);
@@ -29,6 +30,14 @@ public class ASTImportDeclaration extends GoloASTNode implements NamedNode {
   @Override
   public void setName(String name) {
     this.name = name;
+  }
+
+  public void setRelative(boolean b) {
+    this.relative = b;
+  }
+
+  public boolean isRelative() {
+    return this.relative;
   }
 
   @Override
