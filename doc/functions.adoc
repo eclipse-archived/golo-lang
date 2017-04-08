@@ -229,6 +229,14 @@ import foo.bar.baz.Egg
 
 Note that only modules in the same package or in a sub-package can be imported using relative name. In the previous example, to import the module `foo.Plop`, its full name must be specified.
 
+[[multi_import]]
+Moreover, it is possible to import several modules from the same package with a single `import` statement, as in;
+
+[source,golo]
+----
+import java.util.{Collections, Objects, stream.Collectors}
+----
+
 [[implicit_imports]]
 Golo modules have a set of implicit imports:
 

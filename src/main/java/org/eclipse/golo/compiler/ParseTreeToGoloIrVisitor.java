@@ -210,12 +210,18 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTImportDeclaration node, Object data) {
     Context context = (Context) data;
+    PackageAndClass name;
     if (node.isRelative()) {
-      context.module.addImport(moduleImport(
-            context.module.getPackageAndClass().createSiblingClass(node.getName()))
-          .ofAST(node));
+      name = context.module.getPackageAndClass().createSiblingClass(node.getName());
     } else {
-      context.module.addImport(moduleImport(node.getName()).ofAST(node));
+      name = PackageAndClass.fromString(node.getName());
+    }
+    if (node.getMultiple().isEmpty()) {
+      context.module.addImport(moduleImport(name).ofAST(node));
+    } else {
+      for (String sub : node.getMultiple()) {
+        context.module.addImport(moduleImport(name.createSubPackage(sub)).ofAST(node));
+      }
     }
     return node.childrenAccept(this, data);
   }
