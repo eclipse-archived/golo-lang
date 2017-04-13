@@ -29,7 +29,7 @@ public interface CliCommand {
   }
 
   boolean DEBUG = Boolean.valueOf(System.getProperty("golo.debug", "false"));
-  boolean SHOW_TRACE = Boolean.valueOf(System.getProperty("golo.debug.trace", "false"));
+  boolean SHOW_TRACE = Boolean.valueOf(System.getProperty("golo.debug.trace", "true"));
 
   void execute() throws Throwable;
 
@@ -72,9 +72,7 @@ public interface CliCommand {
   }
 
   default void handleThrowable(Throwable e, boolean exit) {
-    if (e.getMessage() != null) {
-      Messages.error(e.getMessage());
-    }
+    Messages.error(e);
     if (e.getCause() != null) {
       Messages.error(e.getCause().getMessage());
     }
