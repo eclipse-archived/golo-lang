@@ -63,4 +63,44 @@ function stringify_mix_struct_and_dynobj = {
   return obj: mixin(JSON.dynamicObjectMixin()): toJSON()
 }
 
+function dyobj_from_json_string = {
+  let bob_json_string = """
+  {
+    "firstName": "Bob",
+    "lastName": "Morane",
+    "friends": [
+      {"firstName": "Bill", "lastName": "Ballantine"},
+      {"firstName": "Aristide", "lastName": "Clairembart"},
+      {"firstName": "Sophia", "lastName": "Paramount"},
+      {"firstName": "Frank", "lastName": "Reeves"},
+      {"firstName": "Herbert", "lastName": "Gains"}
+    ],
+    "creator": {
+      "firstName": "Henri", "lastName": "Vernes"
+    }
+  }
+  """
+  return JSON.toDynamicObjectFromJSONString(bob_json_string)
+}
+
+function dyobjs_list_from_json_string = {
+  let some_objects_string = """
+  [
+    {"message": "Hello World!"},
+    {"firstName": "Bob", "lastName": "Morane"},
+  ]
+  """
+  return JSON.toDynamicObjectsListFromJSONString(some_objects_string)
+}
+
+function dyobjs_list_from_maps_collection = {
+  let some_objects_collection = [
+    map[["message", "Hello World!"]],
+    map[
+      ["firstName", "Bob"],
+      ["lastName", "Morane"]
+    ]
+  ]
+  return JSON.toDynamicObjectsListFromMapsCollection(some_objects_collection)
+}
 # ............................................................................................... #
