@@ -175,23 +175,23 @@ local function toDynamicObjectsListFromJSONArray = |arr| -> arr: map(|obj| -> to
 Returns a new dynamic object from a JSON string where each level entry is mapped into the
 dynamic object or an array of dynamic objects:
 
-    let obj = JSON.toDynamicObjectTree("""
+    let obj = JSON.toDynamicObjectFromJSONString("""
       {
         "id":"bob",
         "friends":[
           {"name":"sam"}, {"name":"jane"}, {"name":"john"}
         ],
         "address": {
-          "street":"88 Colin P Kelly Jr St",
-          "city":"San Francisco",
-          "zip":"CA 94107",
-          "country":"United States"
+          "street":"20 Avenue Albert Einstein",
+          "city":"Villeurbanne",
+          "zip":"69100",
+          "country":"France"
         }
       }
     """)
 
     obj: friends(): get(2): name(): equals("john") # true
-    obj: address(): city(): equals("San Francisco") # true
+    obj: address(): city(): equals("Villeurbanne") # true
 ----
 function toDynamicObjectFromJSONString = |str| -> toDynamicObjectFromJSONObject(parse(str))
 
@@ -207,16 +207,16 @@ dynamic object or an array of dynamic objects:
           {"name":"sam"}, {"name":"jane"}, {"name":"john"}
         ],
         "address": {
-          "street":"88 Colin P Kelly Jr St",
-          "city":"San Francisco",
-          "zip":"CA 94107",
-          "country":"United States"
+          "street":"20 Avenue Albert Einstein",
+          "city":"Villeurbanne",
+          "zip":"69100",
+          "country":"France"
         }
       }
     ]""")
 
     println(objects: get(1): friends(): get(2): name(): equals("john")) # true
-    println(objects: get(1): address(): city(): equals("San Francisco")) # true
+    println(objects: get(1): address(): city(): equals("Villeurbanne")) # true
 ----
 function toDynamicObjectsListFromJSONString = |str| -> toDynamicObjectsListFromJSONArray(parse(str))
 
@@ -232,15 +232,15 @@ dynamic object or an array of dynamic objects:
         map[["name", "john"]]
       ]],
       ["address", map[
-        ["street", "88 Colin P Kelly Jr St"],
-        ["city", "San Francisco"],
-        ["zip", "CA 94107"],
-        ["country", "United States"]
+        ["street", "20 Avenue Albert Einstein"],
+        ["city", "Villeurbanne"],
+        ["zip", "69100"],
+        ["country", "France"]
       ]]
     ])
 
     println(obj: friends(): get(2): name(): equals("john")) # true
-    println(obj: address(): city(): equals("San Francisco")) # true
+    println(obj: address(): city(): equals("Villeurbanne")) # true
 ----
 function toDynamicObjectFromMap = |mapInstance| -> toDynamicObjectFromJSONObject(parse(stringify(mapInstance)))
 
@@ -258,16 +258,16 @@ dynamic object or an array of dynamic objects:
           map[["name", "john"]]
         ]],
         ["address", map[
-          ["street", "88 Colin P Kelly Jr St"],
-          ["city", "San Francisco"],
-          ["zip", "CA 94107"],
-          ["country", "United States"]
+          ["street", "20 Avenue Albert Einstein"],
+          ["city", "Villeurbanne"],
+          ["zip", "69100"],
+          ["country", "France"]
         ]]
       ]
     ])
 
     println(objects: get(1): friends(): get(2): name(): equals("john")) # true
-    println(objects: get(1): address(): city(): equals("San Francisco")) # true
+    println(objects: get(1): address(): city(): equals("Villeurbanne")) # true
 ----
 function toDynamicObjectsListFromMapsCollection = |mapInstance| -> toDynamicObjectsListFromJSONArray(parse(stringify(mapInstance)))
 
