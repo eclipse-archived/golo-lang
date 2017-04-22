@@ -10,6 +10,7 @@
 package org.eclipse.golo.cli.command.spi;
 
 import org.eclipse.golo.compiler.GoloCompilationException;
+import gololang.Messages;
 
 import java.io.File;
 import java.lang.invoke.MethodHandle;
@@ -21,7 +22,14 @@ import java.util.List;
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
 
+
 public interface CliCommand {
+
+  class NoMainMethodException extends NoSuchMethodException {
+  }
+
+  boolean DEBUG = Boolean.valueOf(System.getProperty("golo.debug", "false"));
+  boolean SHOW_TRACE = Boolean.valueOf(System.getProperty("golo.debug.trace", "true"));
 
   void execute() throws Throwable;
 
@@ -36,7 +44,12 @@ public interface CliCommand {
   }
 
   default void callRun(Class<?> klass, String[] arguments) throws Throwable {
-    MethodHandle main = publicLookup().findStatic(klass, "main", methodType(void.class, String[].class));
+    MethodHandle main;
+    try {
+      main = publicLookup().findStatic(klass, "main", methodType(void.class, String[].class));
+    } catch (NoSuchMethodException e) {
+      throw new NoMainMethodException().initCause(e);
+    }
     main.invoke(arguments);
   }
 
@@ -47,7 +60,7 @@ public interface CliCommand {
   default void handleCompilationException(GoloCompilationException e, boolean exit) {
     handleThrowable(e, false);
     for (GoloCompilationException.Problem problem : e.getProblems()) {
-      System.out.println("[error] " + problem.getDescription());
+      Messages.error(problem.getDescription());
     }
     if (exit) {
       System.exit(1);
@@ -59,14 +72,13 @@ public interface CliCommand {
   }
 
   default void handleThrowable(Throwable e, boolean exit) {
-    if (e.getMessage() != null) {
-      System.out.println("[error] " + e.getMessage());
-    }
+    Messages.error(e);
     if (e.getCause() != null) {
-      System.out.println("[error] " + e.getCause().getMessage());
+      Messages.error(e.getCause().getMessage());
     }
-    if ("yes".equals(System.getenv("GOLO_DEBUG"))) {
-      e.printStackTrace();
+    // NOT DOCUMENTED
+    if (DEBUG || SHOW_TRACE) {
+      Messages.printStackTrace(e);
     }
     if (exit) {
       System.exit(1);

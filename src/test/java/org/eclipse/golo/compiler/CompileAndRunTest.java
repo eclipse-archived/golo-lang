@@ -42,6 +42,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 
+import static gololang.Messages.message;
+
 public class CompileAndRunTest {
 
   private static final String SRC = "src/test/resources/for-execution/";
@@ -55,17 +57,23 @@ public class CompileAndRunTest {
     assertThat(isStatic($imports.getModifiers()), is(true));
 
     List<String> imports = asList((String[]) $imports.invoke(null));
-    assertThat(imports.size(), is(9));
-    assertThat(imports, hasItem("gololang.Predefined"));
-    assertThat(imports, hasItem("gololang.StandardAugmentations"));
-    assertThat(imports, hasItem("gololang"));
-    assertThat(imports, hasItem("java.util.List"));
-    assertThat(imports, hasItem("java.util.LinkedList"));
-    assertThat(imports, hasItem("java.lang.System"));
-    assertThat(imports, hasItem("java.lang"));
-    assertThat(imports, hasItem("golotest.execution.ImportsMetaData.types"));
-    assertThat(imports, hasItem("golotest.execution"));
-    assertThat(imports.get(0), is ("golotest.execution.ImportsMetaData.types"));
+    assertThat(imports, contains(
+      "golotest.execution.ImportsMetaData.types",
+      "java.util.List",
+      "java.util.LinkedList",
+      "java.lang.System",
+      "golotest.execution.Bar",
+      "golotest.execution.plop.Daplop",
+      "java.util.Set",
+      "java.util.stream",
+      "java.util.regex.Pattern",
+      "golotest.execution.foo.Baz",
+      "golotest.execution.foo.spam.Egg",
+      "golotest.execution",
+      "gololang.Predefined",
+      "gololang.StandardAugmentations",
+      "gololang",
+      "java.lang"));
   }
 
   @Test
@@ -1754,7 +1762,7 @@ public class CompileAndRunTest {
     } catch (InvocationTargetException e) {
       assertThat(e.getCause(), instanceOf(IllegalArgumentException.class));
       IllegalArgumentException iae = (IllegalArgumentException) e.getCause();
-      assertThat(iae.getMessage(), is("Argument name foo not in parameter names used in declaration: create_post[author, title, content]"));
+      assertThat(iae.getMessage(), is(message("invalid_argument_name", "foo", "create_post[author, title, content]")));
     }
 
     Method csvBuilder = moduleClass.getMethod("csv_builder");

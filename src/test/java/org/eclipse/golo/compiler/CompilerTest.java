@@ -21,6 +21,8 @@ import static java.util.Arrays.asList;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.MatcherAssert.assertThat;
 
+import static gololang.Messages.message;
+
 public class CompilerTest {
 
   private static File temporaryFolder() throws IOException {
@@ -58,7 +60,7 @@ public class CompilerTest {
     try {
       compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
-      assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
       assertThat(e.getProblems().size(), is(2));
 
@@ -78,7 +80,7 @@ public class CompilerTest {
     try {
       compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
-      assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
       assertThat(e.getProblems().size(), is(1));
 
@@ -98,7 +100,7 @@ public class CompilerTest {
     try {
       compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
-      assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
       assertThat(e.getProblems().size(), is(2));
 
@@ -135,7 +137,7 @@ public class CompilerTest {
       try {
         compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
       } catch (GoloCompilationException e) {
-        assertThat(e.getMessage(), is("In Golo module: " + errSourceFile));
+      assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
         assertThat(e.getSourceCode(), is(errSourceFile));
         assertThat(e.getProblems().size(), is(1));
 

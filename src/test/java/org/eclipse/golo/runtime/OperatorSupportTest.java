@@ -107,6 +107,12 @@ public class OperatorSupportTest {
 
     str = (String) handle.invokeWithArguments("a", 4);
     assertThat(str, is("aaaa"));
+
+    str = (String) handle.invokeWithArguments("a", 0);
+    assertThat(str, is(""));
+
+    str = (String) handle.invokeWithArguments(0, "a");
+    assertThat(str, is(""));
   }
 
   @Test(expectedExceptions = IllegalArgumentException.class)

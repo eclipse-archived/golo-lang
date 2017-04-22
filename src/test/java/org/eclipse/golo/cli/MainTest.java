@@ -109,16 +109,6 @@ public class MainTest {
   }
 
   @Test
-  public void golo_new_with_invalid_type() throws Throwable {
-    try {
-      Main.main("new", "--type", "invalid");
-      fail("A AssertionError was expected");
-    } catch (AssertionError e) {
-      assertThat(e.getMessage(), is("The type of project must be one of {maven, gradle, simple}"));
-    }
-  }
-
-  @Test
   public void golo_new_with_multiple_projects() throws Throwable {
     delete(new File("Foo"));
     delete(new File("Bar"));

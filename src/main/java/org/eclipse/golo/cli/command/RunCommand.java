@@ -17,17 +17,18 @@ import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.List;
 
+import static gololang.Messages.*;
 
-@Parameters(commandNames = {"run"}, commandDescription = "Runs compiled Golo code")
+@Parameters(commandNames = {"run"}, resourceBundle = "commands", commandDescriptionKey = "run")
 public class RunCommand implements CliCommand {
 
-  @Parameter(names = "--module", description = "The Golo module with a main function", required = true)
+  @Parameter(names = "--module", descriptionKey = "main_module", required = true)
   String module;
 
-  @Parameter(description = "Program arguments")
+  @Parameter(descriptionKey = "arguments")
   List<String> arguments = new LinkedList<>();
 
-  @Parameter(names = "--classpath", variableArity = true, description = "Classpath elements (.jar and directories)")
+  @Parameter(names = "--classpath", variableArity = true, descriptionKey = "classpath")
   List<String> classpath = new LinkedList<>();
 
 
@@ -41,9 +42,9 @@ public class RunCommand implements CliCommand {
       Class<?> module = Class.forName(this.module, true, primaryClassLoader);
       callRun(module, this.arguments.toArray(new String[this.arguments.size()]));
     } catch (ClassNotFoundException e) {
-      System.out.println("The module " + this.module + " could not be loaded.");
-    } catch (NoSuchMethodException e) {
-      System.out.println("The module " + this.module + " does not have a main method with an argument.");
+      error(message("module_not_found", this.module));
+    } catch (CliCommand.NoMainMethodException e) {
+      error(message("module_no_main", this.module));
     }
   }
 }

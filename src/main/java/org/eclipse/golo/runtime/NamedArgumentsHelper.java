@@ -15,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
+import static gololang.Messages.message;
 
 public final class NamedArgumentsHelper {
 
@@ -34,9 +35,7 @@ public final class NamedArgumentsHelper {
 
   public static void checkArgumentPosition(int position, String argument, String declaration) {
     if (position == -1) {
-      throw new IllegalArgumentException(
-          "Argument name " + argument
-          + " not in parameter names used in declaration: " + declaration);
+      throw new IllegalArgumentException(message("invalid_argument_name", argument, declaration));
     }
   }
 }

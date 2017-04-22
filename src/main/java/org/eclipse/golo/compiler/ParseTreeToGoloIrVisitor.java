@@ -21,7 +21,8 @@ import java.util.stream.Collectors;
 
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Collections.nCopies;
-import static org.eclipse.golo.compiler.GoloCompilationException.Problem.Type.AMBIGUOUS_DECLARATION;
+import static org.eclipse.golo.compiler.GoloCompilationException.Problem.Type.*;
+import static gololang.Messages.message;
 
 public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
@@ -98,7 +99,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
           }
         }
         errorMessage(AMBIGUOUS_DECLARATION, function.getASTNode(),
-            String.format("Declaring a function `%s` twice (declared first here: %s)",
+            message("ambiguous_function_declaration",
                 function.getName(),
                 firstDeclaration == null ? "unknown" : firstDeclaration.getASTNode().getPositionInSourceCode()));
       }
@@ -109,7 +110,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       GoloElement existing = module.getSubtypeByName(name);
       if (existing != null) {
         errorMessage(AMBIGUOUS_DECLARATION, node,
-            String.format("Declaring a type `%s` twice (declared first here: %s)",
+            message("ambiguous_type_declaration",
                 name, existing.getASTNode().getPositionInSourceCode()));
         return true;
       }
@@ -174,9 +175,9 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     public void errorMessage(GoloCompilationException.Problem.Type type,
                               GoloASTNode node,
                               String message) {
-      String errorMessage = String.format(
-          "%s at %s",
-          message, node.getPositionInSourceCode());
+      String errorMessage = message + ' ' + message("source_position",
+          node.getPositionInSourceCode().getLine(),
+          node.getPositionInSourceCode().getColumn());
       getOrCreateExceptionBuilder().report(type, node, errorMessage);
     }
 
@@ -209,7 +210,19 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTImportDeclaration node, Object data) {
     Context context = (Context) data;
-    context.module.addImport(moduleImport(node.getName()).ofAST(node));
+    PackageAndClass name;
+    if (node.isRelative()) {
+      name = context.module.getPackageAndClass().createSiblingClass(node.getName());
+    } else {
+      name = PackageAndClass.fromString(node.getName());
+    }
+    if (node.getMultiple().isEmpty()) {
+      context.module.addImport(moduleImport(name).ofAST(node));
+    } else {
+      for (String sub : node.getMultiple()) {
+        context.module.addImport(moduleImport(name.createSubPackage(sub)).ofAST(node));
+      }
+    }
     return node.childrenAccept(this, data);
   }
 
@@ -262,7 +275,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     if (!currentUnion.addValue(value)) {
       context.errorMessage(AMBIGUOUS_DECLARATION, node,
-          String.format("Declaring the union value `%s` twice", node.getName()));
+          message("ambiguous_unionvalue_declaration", node.getName()));
     }
     return data;
   }
@@ -442,8 +455,8 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     LocalReference reference = context.getReference(node.getName(), node);
     node.childrenAccept(this, data);
     if (reference == null) {
-      context.errorMessage(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE, node,
-          "Assigning to either a parameter or an undeclared reference `" + node.getName() + "`");
+      context.errorMessage(UNDECLARED_REFERENCE, node,
+          message("undeclared_reference", node.getName()));
     } else {
       AssignmentStatement assignmentStatement = assign(context.pop()).to(reference).ofAST(node);
       context.push(assignmentStatement);
@@ -554,9 +567,9 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private void checkNamedArgument(Context context, GoloASTNode node, AbstractInvocation invocation, ExpressionStatement statement) {
     if (statement instanceof NamedArgument) {
       if (!invocation.namedArgumentsComplete()) {
-        context.errorMessage(GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
-            invocation.getClass() + " `" + invocation.getName()
-            + "` invocation should name either all or none of its arguments");
+        context.errorMessage(INCOMPLETE_NAMED_ARGUMENTS_USAGE, node,
+            message("incomplete_named_arguments_usage",
+            invocation.getClass(), invocation.getName()));
       }
       invocation.withNamedArguments();
     }
@@ -699,7 +712,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       } else if (child instanceof ExpressionStatement) {
         foreach.when(child);
       } else {
-        context.errorMessage(GoloCompilationException.Problem.Type.PARSING, node, "Malformed `foreach` loop");
+        context.errorMessage(PARSING, node, message("syntax_foreach"));
       }
     }
     context.push(block.add(foreach));

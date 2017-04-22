@@ -26,39 +26,34 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
+import java.util.*;
 
-@Parameters(commandNames = {"doc"}, commandDescription = "Generate documentation from Golo source files")
+import static gololang.Messages.*;
+
+@Parameters(commandNames = {"doc"}, commandDescriptionKey = "doc", resourceBundle = "commands")
 public class DocCommand implements CliCommand {
 
-  @Parameter(names = "--format", description = "Documentation output format (html, markdown, ctags)", validateWith = DocFormatValidator.class)
+  @Parameter(names = "--format", descriptionKey = "doc.format", validateWith = DocFormatValidator.class)
   String format = "html";
 
-  @Parameter(names = "--output", description = "The documentation output directory. With ctags format, '-' can be used for standard output (e.g. when executed in an editor)")
+  @Parameter(names = "--output", descriptionKey = "doc.output")
   String output = ".";
 
-  @Parameter(description = "Golo source files (*.golo or directories)")
+  @Parameter(descriptionKey = "source_files")
   List<String> sources = new LinkedList<>();
+
+  private static final Map<String, AbstractProcessor> FORMATS = new HashMap<>();
+  static {
+    // TODO: use a service provider ?
+    FORMATS.put("markdown", new MarkdownProcessor());
+    FORMATS.put("html", new HtmlProcessor());
+    FORMATS.put("ctags", new CtagsProcessor());
+  }
 
   @Override
   public void execute() throws Throwable {
 
-    AbstractProcessor processor;
-    switch (this.format) {
-      case "markdown":
-        processor = new MarkdownProcessor();
-        break;
-      case "html":
-        processor = new HtmlProcessor();
-        break;
-      case "ctags":
-        processor = new CtagsProcessor();
-        break;
-      default:
-        throw new AssertionError("WTF?");
-    }
+    AbstractProcessor processor = FORMATS.get(this.format);
     HashMap<String, ASTCompilationUnit> units = new HashMap<>();
     for (String source : this.sources) {
       loadGoloFileCompilationUnit(source, units);
@@ -83,9 +78,9 @@ public class DocCommand implements CliCommand {
       try (FileInputStream in = new FileInputStream(goloFile)) {
         units.put(goloFile, new GoloOffsetParser(in).CompilationUnit());
       } catch (IOException e) {
-        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+        error(message("file_not_found", goloFile));
       } catch (ParseException e) {
-        System.out.println("[error] " + goloFile + " has syntax errors: " + e.getMessage());
+        error(message("syntax_errors", goloFile, e.getMessage()));
       }
     }
   }
@@ -94,13 +89,8 @@ public class DocCommand implements CliCommand {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
-      switch (value) {
-        case "html":
-        case "markdown":
-        case "ctags":
-          return;
-        default:
-          throw new ParameterException("Output format must be in: {html, markdown, ctags}");
+      if (!FORMATS.keySet().contains(value)) {
+        throw new ParameterException(message("format_error", FORMATS.keySet()));
       }
     }
   }

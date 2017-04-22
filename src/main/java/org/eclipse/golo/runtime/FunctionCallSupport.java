@@ -15,7 +15,6 @@ import java.lang.invoke.*;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
-import java.util.Arrays;
 import java.util.List;
 
 import static java.lang.invoke.MethodHandles.Lookup;
@@ -26,6 +25,7 @@ import static java.lang.reflect.Modifier.isStatic;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static org.eclipse.golo.runtime.NamedArgumentsHelper.*;
+import static gololang.Messages.message;
 
 public final class FunctionCallSupport {
 
@@ -101,8 +101,7 @@ public final class FunctionCallSupport {
         return callSite.dynamicInvoker().invoke();
       }
     }
-    throw new RuntimeException(
-        "Could not convert " + handle + " to a functional interface of type " + type);
+    throw new RuntimeException(message("handle_conversion_failed", handle, type));
   }
 
   public static CallSite bootstrap(Lookup caller, String name, MethodType type, Object... bsmArgs) throws IllegalAccessException, ClassNotFoundException {

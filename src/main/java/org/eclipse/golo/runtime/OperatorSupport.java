@@ -18,6 +18,7 @@ import java.math.BigInteger;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
+import static gololang.Messages.message;
 
 public final class OperatorSupport {
 
@@ -2153,7 +2154,7 @@ public final class OperatorSupport {
     if (isNotNullAndString(a) || isNotNullAndString(b)) {
       return String.valueOf(a) + b;
     }
-    return reject(a, b, "plus");
+    return reject(a, b, "+");
   }
 
   public static Object times_fallback(Object a, Object b) {
@@ -2163,12 +2164,12 @@ public final class OperatorSupport {
     if (isString(a) && isInteger(b)) {
       return repeat((String) a, (Integer) b);
     }
-    return reject(a, b, "times");
+    return reject(a, b, "*");
   }
 
   private static String repeat(String string, int n) {
-    StringBuilder builder = new StringBuilder(string);
-    for (int i = 1; i < n; i++) {
+    StringBuilder builder = new StringBuilder();
+    for (int i = 0; i < n; i++) {
       builder.append(string);
     }
     return builder.toString();
@@ -2189,7 +2190,7 @@ public final class OperatorSupport {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) < 0;
     }
-    return reject(a, b, "less");
+    return reject(a, b, "<");
   }
 
   @SuppressWarnings("unchecked")
@@ -2197,7 +2198,7 @@ public final class OperatorSupport {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) <= 0;
     }
-    return reject(a, b, "lessorequals");
+    return reject(a, b, "<=");
   }
 
   @SuppressWarnings("unchecked")
@@ -2205,7 +2206,7 @@ public final class OperatorSupport {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) > 0;
     }
-    return reject(a, b, "more");
+    return reject(a, b, ">");
   }
 
   @SuppressWarnings("unchecked")
@@ -2213,7 +2214,7 @@ public final class OperatorSupport {
     if (bothNotNull(a, b) && isComparable(a) && isComparable(b)) {
       return ((Comparable) a).compareTo(b) >= 0;
     }
-    return reject(a, b, "moreorequals");
+    return reject(a, b, ">=");
   }
 
   // logic ............................................................................................................
@@ -2264,12 +2265,12 @@ public final class OperatorSupport {
   }
 
   private static Object reject(Object a, String symbol) throws IllegalArgumentException {
-    throw new IllegalArgumentException(String.format(
-          "Operator %s is not supported for type %s", symbol, a.getClass()));
+    throw new IllegalArgumentException(
+        message("invalid_unary_operator", symbol, a.getClass().getName()));
   }
 
   private static Object reject(Object a, Object b, String symbol) throws IllegalArgumentException {
-    throw new IllegalArgumentException(String.format(
-          "Operator %s is not supported for types %s and %s", symbol, a.getClass(), b.getClass()));
+    throw new IllegalArgumentException(
+        message("invalid_binary_operator", symbol, a.getClass().getName(), b.getClass().getName()));
   }
 }

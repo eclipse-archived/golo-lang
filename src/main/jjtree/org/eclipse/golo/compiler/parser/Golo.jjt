@@ -765,15 +765,47 @@ void ModuleDeclaration():
   }
 }
 
+List<String> MultiImport() #void: {
+  List<String> modules = new LinkedList<String>();
+  String rootName;
+  String nextName;
+}
+{
+  ".{" (BlankLine())?
+    rootName=QualifiedName()
+    {
+      modules.add(rootName);
+    }
+    (
+      "," (BlankLine())? nextName=QualifiedName()
+      {
+        modules.add(nextName);
+      }
+    )+
+    (BlankLine())?
+  "}"
+  {
+    return modules;
+  }
+}
+
 void ImportDeclaration():
 {
   String name;
+  Token relative = null;
+  List<String> multiples = null;
 }
 {
   try {
-    <IMPORT> name=QualifiedName()
+    <IMPORT> (relative=".")? name=QualifiedName() (multiples=MultiImport())?
     {
       jjtThis.setName(name);
+      if (relative != null) {
+        jjtThis.setRelative(true);
+      }
+      if (multiples != null) {
+        jjtThis.setMultiple(multiples);
+      }
     }
   }
   catch (ParseException e) {

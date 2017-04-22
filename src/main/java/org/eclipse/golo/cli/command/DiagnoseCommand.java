@@ -25,16 +25,18 @@ import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
-@Parameters(commandNames = {"diagnose"}, commandDescription = "Diagnosis for the Golo compiler internals")
+import static gololang.Messages.*;
+
+@Parameters(commandNames = {"diagnose"}, resourceBundle = "commands", commandDescriptionKey = "diagnose")
 public class DiagnoseCommand implements CliCommand {
 
-  @Parameter(names = "--tool", description = "The diagnosis tool to use: {ast, ir}", validateWith = DiagnoseModeValidator.class)
+  @Parameter(names = "--tool", hidden = true, descriptionKey = "diagnose.tool", validateWith = DiagnoseModeValidator.class)
   String mode = "ir";
 
-  @Parameter(names = "--stage", description = "The compilation stage to diagnose: {ast, raw, refined}", validateWith = DiagnoseStageValidator.class)
+  @Parameter(names = "--stage", descriptionKey = "diagnose.stage", validateWith = DiagnoseStageValidator.class)
   String stage = "refined";
 
-  @Parameter(description = "Golo source files (*.golo and directories)")
+  @Parameter(description = "source_files")
   List<String> files = new LinkedList<>();
 
   @Override
@@ -81,13 +83,13 @@ public class DiagnoseCommand implements CliCommand {
         }
       }
     } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> AST for: " + goloFile);
+      System.out.println(">>> AST: " + goloFile);
       try {
         ASTCompilationUnit ast = compiler.parse(goloFile);
         ast.dump("% ");
         System.out.println();
       } catch (IOException e) {
-        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+        error(message("file_not_found", goloFile));
       }
     }
   }
@@ -110,7 +112,7 @@ public class DiagnoseCommand implements CliCommand {
         }
       }
     } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> IR for: " + file);
+      System.out.println(">>> IR: " + file);
       try {
         GoloModule module = compiler.transform(compiler.parse(goloFile));
         if ("refined".equals(this.stage)) {
@@ -118,7 +120,7 @@ public class DiagnoseCommand implements CliCommand {
         }
         module.accept(dumper);
       } catch (IOException e) {
-        System.out.println("[error] " + goloFile + " does not exist or could not be opened.");
+        error(message("file_not_found", goloFile));
       }
       System.out.println();
     }
@@ -128,12 +130,13 @@ public class DiagnoseCommand implements CliCommand {
 
     @Override
     public void validate(String name, String value) throws ParameterException {
+      warning(message("diagnose_tool_warning"));
       switch (value) {
         case "ast":
         case "ir":
           return;
         default:
-          throw new ParameterException("Diagnosis tool must be in: {ast, ir}");
+          throw new ParameterException(message("diagnose_tool_error", "{ast, ir}"));
       }
     }
   }
@@ -148,7 +151,7 @@ public class DiagnoseCommand implements CliCommand {
         case "refined":
           return;
         default:
-          throw new ParameterException("Diagnosis stage must be in: {ast, raw, refined}");
+          throw new ParameterException(message("diagnose_stage_error", "{ast, raw, refined}"));
       }
     }
   }

@@ -10,6 +10,7 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.ir.*;
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import java.util.Deque;
 import java.util.HashSet;
@@ -17,6 +18,8 @@ import java.util.LinkedList;
 import java.util.Set;
 
 import static org.eclipse.golo.compiler.GoloCompilationException.Problem.Type.*;
+import static gololang.Messages.message;
+import static gololang.Messages.prefixed;
 
 class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisitor {
 
@@ -61,6 +64,17 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     return exceptionBuilder;
   }
 
+  private void errorMessage(GoloCompilationException.Problem.Type type, GoloASTNode node,
+      String message) {
+    PositionInSourceCode position = node.getPositionInSourceCode();
+    String errorMessage = message + ' ' + (
+        position != null
+        ? message("source_position", position.getLine(), position.getColumn())
+        : message("generated_code")) + ".";
+
+    getExceptionBuilder().report(type, node, errorMessage);
+  }
+
   @Override
   public void visitModule(GoloModule module) {
     this.module = module;
@@ -77,9 +91,8 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
       uninitializedReferences.remove(reference);
       if (reference == null) {
         if (!function.isSynthetic()) {
-          throw new IllegalStateException("[please report this bug] "
-              + parameterName + " is not declared in the references of function "
-              + function.getName());
+          throw new IllegalStateException(
+              prefixed("bug", message("parameter_not_declared", parameterName, function.getName())));
         }
       } else {
         reference.setIndex(assignmentCounter.next());
@@ -141,16 +154,11 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     LocalReference reference = assignmentStatement.getLocalReference();
     Set<LocalReference> assignedReferences = assignmentStack.peek();
     if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
-      getExceptionBuilder().report(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
-          "Declaring a duplicate reference `" + reference.getName()
-          + "` at " + assignmentStatement.getPositionInSourceCode()
-      );
+      errorMessage(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
+          message("reference_already_declared", reference.getName()));
     } else if (assigningConstant(reference, assignedReferences)) {
-      getExceptionBuilder().report(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
-          "Assigning `" + reference.getName()
-          + "` at " + assignmentStatement.getPositionInSourceCode()
-          + " but it is a constant reference"
-      );
+      errorMessage(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
+          message("assign_constant", reference.getName()));
     }
     bindReference(reference);
     assignedReferences.add(reference);
@@ -196,19 +204,16 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     ReferenceTable table = tableStack.peek();
     if (table == null) { return; }
     if (!table.hasReferenceFor(referenceLookup.getName())) {
-      getExceptionBuilder().report(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
-          "Undeclared reference `" + referenceLookup.getName() + "`"
-          + (!functionStack.isEmpty() ? " in "
-            + (functionStack.peek().isSynthetic() ? "synthetic " : "")
-            + "function `" + functionStack.peek().getName() + "`" : "")
-          + (!referenceLookup.getPositionInSourceCode().isNull()
-              ? " at " + referenceLookup.getPositionInSourceCode()
-              : " (generated code)"));
+      errorMessage(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
+          message("undeclared_reference", referenceLookup.getName(),
+          !functionStack.isEmpty()
+            ? message("in_function", functionStack.peek().getName())
+            : ""));
     }
     LocalReference ref = referenceLookup.resolveIn(table);
     if (isUninitialized(ref)) {
-      getExceptionBuilder().report(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup.getASTNode(),
-          "Uninitialized reference `" + ref.getName() + "` at " + referenceLookup.getPositionInSourceCode());
+      errorMessage(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup.getASTNode(),
+          message("uninitialized_reference_access", ref.getName()));
     }
   }
 
@@ -231,9 +236,8 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   @Override
   public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     if (loopStack.isEmpty()) {
-      getExceptionBuilder().report(BREAK_OR_CONTINUE_OUTSIDE_LOOP,
-          loopBreakFlowStatement.getASTNode(),
-          "continue or break statement outside a loop at " + loopBreakFlowStatement.getPositionInSourceCode());
+      errorMessage(BREAK_OR_CONTINUE_OUTSIDE_LOOP, loopBreakFlowStatement.getASTNode(),
+          message("break_or_continue_outside_loop"));
     } else {
       loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }

@@ -29,6 +29,8 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
+import static gololang.Messages.*;
+
 class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private static final String JOBJECT = "java/lang/Object";
@@ -72,7 +74,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private static RuntimeException invalidElement(GoloElement element) {
-    return new IllegalStateException("No " + element.getClass() + " must remains at this stage");
+    return new IllegalStateException(prefixed("bug", message("no_element_remains", element.getClass())));
   }
 
   public MethodVisitor getMethodVisitor() {
