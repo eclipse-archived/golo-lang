@@ -125,6 +125,152 @@ function toDynamicObject = |str| {
   return obj
 }
 
+----
+Returns a new dynamic object from a JSONObject where each level entry is mapped into the
+dynamic object or an array of dynamic objects.
+----
+local function toDynamicObjectFromJSONObject = |obj| {
+  let isJSONObject = |obj| -> obj oftype org.json.simple.JSONObject.class
+  let isJSONArray = |obj| -> obj oftype org.json.simple.JSONArray.class
+
+  let parse_object = |level, obj, dyno| {
+    let parseMembers = |obj, dyno| {
+      obj: each(|key, value| {
+        dyno: define(key, value)
+        parse_object(key, value, dyno)
+      })
+    }
+
+    if isJSONObject(obj) {
+      if level is null { # root
+        parseMembers(obj, dyno)
+      } else {
+        dyno: define(level, DynamicObject())
+        parseMembers(obj, dyno: get(level))
+      }
+    } else if isJSONArray(obj) {
+        dyno: define(level, list[])
+        obj: each(|item| {
+          if isJSONObject(item) is false and isJSONArray(item) is false {
+            dyno: get(level): append(item)
+          } else if isJSONObject(item) {
+              let subDyno = DynamicObject()
+              parseMembers(item, subDyno)
+              dyno: get(level): append(subDyno)
+          }
+        })
+    }
+    return dyno
+  }
+  return parse_object(null, obj, DynamicObject())
+}
+
+----
+Returns a list of dynamic objects from a JSONArray where each level entry is mapped into the
+dynamic object or an array of dynamic objects.
+----
+local function toDynamicObjectsListFromJSONArray = |arr| -> arr: map(|obj| -> toDynamicObjectFromJSONObject(obj))
+
+----
+Returns a new dynamic object from a JSON string where each level entry is mapped into the
+dynamic object or an array of dynamic objects:
+
+    let obj = JSON.toDynamicObjectFromJSONString("""
+      {
+        "id":"bob",
+        "friends":[
+          {"name":"sam"}, {"name":"jane"}, {"name":"john"}
+        ],
+        "address": {
+          "street":"20 Avenue Albert Einstein",
+          "city":"Villeurbanne",
+          "zip":"69100",
+          "country":"France"
+        }
+      }
+    """)
+
+    obj: friends(): get(2): name(): equals("john") # true
+    obj: address(): city(): equals("Villeurbanne") # true
+----
+function toDynamicObjectFromJSONString = |str| -> toDynamicObjectFromJSONObject(parse(str))
+
+----
+Returns a list of dynamic objects from a JSON string where each level entry is mapped into the
+dynamic object or an array of dynamic objects:
+
+    let objects = JSON.toDynamicObjectsListFromJSONString("""[
+      {"message":"hello"},
+      {
+        "id":"bob",
+        "friends":[
+          {"name":"sam"}, {"name":"jane"}, {"name":"john"}
+        ],
+        "address": {
+          "street":"20 Avenue Albert Einstein",
+          "city":"Villeurbanne",
+          "zip":"69100",
+          "country":"France"
+        }
+      }
+    ]""")
+
+    println(objects: get(1): friends(): get(2): name(): equals("john")) # true
+    println(objects: get(1): address(): city(): equals("Villeurbanne")) # true
+----
+function toDynamicObjectsListFromJSONString = |str| -> toDynamicObjectsListFromJSONArray(parse(str))
+
+----
+Returns a new dynamic object from a map where each level entry is mapped into the
+dynamic object or an array of dynamic objects:
+
+    let obj = JSON.toDynamicObjectFromMap(map[
+      ["id", "bob"],
+      ["friends", [
+        map[["name", "sam"]],
+        map[["name", "jane"]],
+        map[["name", "john"]]
+      ]],
+      ["address", map[
+        ["street", "20 Avenue Albert Einstein"],
+        ["city", "Villeurbanne"],
+        ["zip", "69100"],
+        ["country", "France"]
+      ]]
+    ])
+
+    println(obj: friends(): get(2): name(): equals("john")) # true
+    println(obj: address(): city(): equals("Villeurbanne")) # true
+----
+function toDynamicObjectFromMap = |mapInstance| -> toDynamicObjectFromJSONObject(parse(stringify(mapInstance)))
+
+----
+Returns a list of dynamic objects from a collection of maps where each level entry is mapped into the
+dynamic object or an array of dynamic objects:
+
+    let objects = JSON.toDynamicObjectsListFromMapsCollection([
+      map[["message", "hello"]],
+      map[
+        ["id", "bob"],
+        ["friends", list[
+          map[["name", "sam"]],
+          map[["name", "jane"]],
+          map[["name", "john"]]
+        ]],
+        ["address", map[
+          ["street", "20 Avenue Albert Einstein"],
+          ["city", "Villeurbanne"],
+          ["zip", "69100"],
+          ["country", "France"]
+        ]]
+      ]
+    ])
+
+    println(objects: get(1): friends(): get(2): name(): equals("john")) # true
+    println(objects: get(1): address(): city(): equals("Villeurbanne")) # true
+----
+function toDynamicObjectsListFromMapsCollection = |mapInstance| -> toDynamicObjectsListFromJSONArray(parse(stringify(mapInstance)))
+
 # ............................................................................................... #
 
 ----
