@@ -13,6 +13,8 @@ import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Arrays;
 
+import static java.util.Objects.requireNonNull;
+
 abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection<T> implements Range<T> {
   private final T from;
   private final T to;
@@ -21,7 +23,7 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
 
   abstract static class RangeIterator<T extends Comparable<T>> implements Iterator<T> {
 
-    public RangeIterator() {
+    RangeIterator() {
     }
 
     @Override
@@ -31,13 +33,13 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
 
   }
 
-  public AbstractRange(T from, T to) {
-    this.from = from;
-    this.to = to;
+  AbstractRange(T from, T to) {
+    this.from = requireNonNull(from);
+    this.to = requireNonNull(to);
   }
 
-  public AbstractRange(T to) {
-    this.to = to;
+  AbstractRange(T to) {
+    this.to = requireNonNull(to);
     this.from = defaultValue();
   }
 
