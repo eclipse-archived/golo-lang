@@ -208,7 +208,55 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 
     @media (max-width: 50em) {
       #toc {
+        margin: auto;
+        position: static;
+        width: 100%;
+        overflow: visible;
+        white-space: normal;
+      }
+
+      #toc ul {
+        padding-left: 1em;
+        margin: 0;
+      }
+
+      #toc > ul {
+        font-size: 100%;
+        margin: 0em;
+        padding: 0;
+      }
+
+      #toc > ul > li {
+        list-style: none;
+        margin-bottom: 1ex;
+      }
+
+      #toc > ul > li > a {
+        font-weight: bold;
+        color: #333;
+        display: block;
+        padding: 0ex;
+        margin: 0;
+        border-bottom: none;
+      }
+
+      #toc h1 {
         display: none;
+      }
+
+      #global-nav {
+        display: block;
+        font-size: 100%;
+        z-index: 1000;
+        background-color: #fff;
+        position: fixed;
+        top: 0;
+        width: 100%;
+        height: 1.5rem;
+      }
+
+      :target {
+        padding-top: 1.5rem;
       }
 
       body {
@@ -225,6 +273,11 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 </head>
 <body>
 <h1>Documentation for <%= doc: moduleName() %></h1>
+
+<div class="golodoc">
+  <%= process(doc: moduleDocumentation(), 1, CONFIG) %>
+</div>
+
 <!-- begin table of content -->
 <nav id="toc">
 <h1><%= doc: moduleName() %></h1>
@@ -283,10 +336,6 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 </ul>
 </nav>
 <!-- end table of content -->
-
-<div class="golodoc">
-  <%= process(doc: moduleDocumentation(), 1, CONFIG) %>
-</div>
 
 <% if not doc: structs(): isEmpty() { %>
   <h2 id="structs">Structs</h2>
