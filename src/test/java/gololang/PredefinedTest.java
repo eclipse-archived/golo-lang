@@ -300,4 +300,15 @@ public class PredefinedTest {
     Predefined.removeByIndex(new ArrayList<Integer>(asList(3)), 3);
   }
 
+  @Test
+  public void check_str() {
+    assertThat(Predefined.str(), is(""));
+    assertThat(Predefined.str(42), is("42"));
+    assertThat(Predefined.str((Object) null), is("null"));
+    assertThat(Predefined.str((Object[]) null), is(""));
+    assertThat(Predefined.str(Predefined.tuple("a", 42)), is("tuple[a, 42]"));
+    assertThat(Predefined.str("a", 42, "b"), is("a42b"));
+    assertThat(Predefined.str("a", null, "b"), is("anullb"));
+    assertThat(Predefined.str(Predefined.array("a", 42, "b")), is("a42b"));
+  }
 }

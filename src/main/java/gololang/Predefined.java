@@ -855,6 +855,35 @@ public final class Predefined {
     throw new IllegalArgumentException("Expected a number or a string, but got: " + obj);
   }
 
+  // ...................................................................................................................
+
+  /**
+   * Create a {@code String} by concatenating all arguments.
+   * <p>
+   * For instance:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let s = str("The answer", " is ", 2 * 21)
+   * </code></pre>
+   * This is functionally equivalent to:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let s = ["The answer", " is ", 2 * 21]: join("")
+   * </code></pre>
+   */
+  public static String str(Object... args) {
+    if (args == null || args.length == 0) {
+      return "";
+    }
+    if (args.length == 1) {
+      return String.valueOf(args[0]);
+    }
+    StringBuilder sb = new StringBuilder();
+    for (Object o : args) {
+      sb.append(o);
+    }
+    return sb.toString();
+  }
+
+
   /**
    * Removes an element of a List by index.
    *
