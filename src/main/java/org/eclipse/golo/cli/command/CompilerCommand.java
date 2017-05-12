@@ -11,6 +11,7 @@ package org.eclipse.golo.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.ParametersDelegate;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
@@ -36,9 +37,13 @@ public class CompilerCommand implements CliCommand {
   @Parameter(descriptionKey = "source_files")
   List<String> sources = new LinkedList<>();
 
+  @ParametersDelegate
+  ClasspathOption classpath = new ClasspathOption();
+
   @Override
   public void execute() throws Throwable {
     // TODO: recurse into directories
+    classpath.initGoloClassLoader();
     GoloCompiler compiler = new GoloCompiler();
     final boolean compilingToJar = this.output.endsWith(".jar");
     File outputDir = compilingToJar ? null : new File(this.output);

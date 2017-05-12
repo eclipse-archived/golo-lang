@@ -13,6 +13,7 @@ import com.beust.jcommander.IParameterValidator;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.ParametersDelegate;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
@@ -39,6 +40,11 @@ public class DiagnoseCommand implements CliCommand {
   @Parameter(description = "source_files")
   List<String> files = new LinkedList<>();
 
+  @ParametersDelegate
+  ClasspathOption classpath = new ClasspathOption();
+
+  GoloCompiler compiler = new GoloCompiler();
+
   @Override
   public void execute() throws Throwable {
     if ("ast".equals(this.stage) && !"ast".equals(this.mode)) {
@@ -48,7 +54,7 @@ public class DiagnoseCommand implements CliCommand {
       this.stage = "ast";
     }
 
-
+    classpath.initGoloClassLoader();
     try {
       switch (this.mode) {
         case "ast":
@@ -67,19 +73,18 @@ public class DiagnoseCommand implements CliCommand {
 
 
   private void dumpASTs(List<String> files) {
-    GoloCompiler compiler = new GoloCompiler();
     for (String file : files) {
-      dumpAST(file, compiler);
+      dumpAST(file);
     }
   }
 
-  private void dumpAST(String goloFile, GoloCompiler compiler) {
+  private void dumpAST(String goloFile) {
     File file = new File(goloFile);
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
         for (File directoryFile : directoryFiles) {
-          dumpAST(directoryFile.getAbsolutePath(), compiler);
+          dumpAST(directoryFile.getAbsolutePath());
         }
       }
     } else if (file.getName().endsWith(".golo")) {
@@ -95,20 +100,19 @@ public class DiagnoseCommand implements CliCommand {
   }
 
   private void dumpIRs(List<String> files) {
-    GoloCompiler compiler = new GoloCompiler();
     IrTreeDumper dumper = new IrTreeDumper();
     for (String file : files) {
-      dumpIR(file, compiler, dumper);
+      dumpIR(file, dumper);
     }
   }
 
-  private void dumpIR(String goloFile, GoloCompiler compiler, IrTreeDumper dumper) {
+  private void dumpIR(String goloFile, IrTreeDumper dumper) {
     File file = new File(goloFile);
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
         for (File directoryFile : directoryFiles) {
-          dumpIR(directoryFile.getAbsolutePath(), compiler, dumper);
+          dumpIR(directoryFile.getAbsolutePath(), dumper);
         }
       }
     } else if (file.getName().endsWith(".golo")) {

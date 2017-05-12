@@ -11,9 +11,9 @@ package org.eclipse.golo.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.ParametersDelegate;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
-import java.net.URLClassLoader;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -28,18 +28,14 @@ public class RunCommand implements CliCommand {
   @Parameter(descriptionKey = "arguments")
   List<String> arguments = new LinkedList<>();
 
-  @Parameter(names = "--classpath", variableArity = true, descriptionKey = "classpath")
-  List<String> classpath = new LinkedList<>();
-
+  @ParametersDelegate
+  ClasspathOption classpath = new ClasspathOption();
 
   @Override
   public void execute() throws Throwable {
 
     try {
-      this.classpath.add(".");
-      URLClassLoader primaryClassLoader = primaryClassLoader(this.classpath);
-      Thread.currentThread().setContextClassLoader(primaryClassLoader);
-      Class<?> module = Class.forName(this.module, true, primaryClassLoader);
+      Class<?> module = Class.forName(this.module, true, classpath.initGoloClassLoader());
       callRun(module, this.arguments.toArray(new String[this.arguments.size()]));
     } catch (ClassNotFoundException e) {
       error(message("module_not_found", this.module));

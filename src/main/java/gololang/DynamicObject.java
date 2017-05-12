@@ -252,7 +252,7 @@ public final class DynamicObject {
   }
 
   /**
-   * Creates a function suitable for the {@fallback} property delegating to the given dynamic object.
+   * Creates a function suitable for the {@code fallback} property delegating to the given dynamic object.
    *
    * Example:
    * <code><pre>
