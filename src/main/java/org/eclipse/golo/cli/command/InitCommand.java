@@ -22,11 +22,6 @@ import java.util.*;
 import static gololang.Messages.message;
 import static gololang.Messages.info;
 
-// TODO: add project files:
-//    - CHANGELOG.md ?
-//    - LICENCE.md (epl) ?
-// TODO: when we have a usable default test framework, add some test files in the lib template.
-
 @Parameters(commandNames = {"new"}, resourceBundle = "commands", commandDescriptionKey = "new")
 public class InitCommand implements CliCommand {
 
