@@ -21,6 +21,7 @@ public final class Metadata {
 
   public static final String VERSION;
   public static final String TIMESTAMP;
+  public static final String GUIDE_BASE;
 
   static {
     Properties props = new Properties();
@@ -28,6 +29,7 @@ public final class Metadata {
       props.load(inputStream);
       VERSION = props.getProperty("version");
       TIMESTAMP = props.getProperty("timestamp");
+      GUIDE_BASE = props.getProperty("guide-url");
     } catch (IOException e) {
       throw new AssertionError("Could not load metadata.properties from the current classpath.");
     }

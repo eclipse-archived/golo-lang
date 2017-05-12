@@ -28,6 +28,7 @@ public interface CliCommand {
   class NoMainMethodException extends NoSuchMethodException {
   }
 
+  // NOT DOCUMENTED
   boolean DEBUG = Boolean.valueOf(System.getProperty("golo.debug", "false"));
   boolean SHOW_TRACE = Boolean.valueOf(System.getProperty("golo.debug.trace", "true"));
 
@@ -72,12 +73,15 @@ public interface CliCommand {
   }
 
   default void handleThrowable(Throwable e, boolean exit) {
+    handleThrowable(e, exit,  DEBUG || SHOW_TRACE);
+  }
+
+  default void handleThrowable(Throwable e, boolean exit, boolean withStack) {
     Messages.error(e);
     if (e.getCause() != null) {
       Messages.error(e.getCause().getMessage());
     }
-    // NOT DOCUMENTED
-    if (DEBUG || SHOW_TRACE) {
+    if (withStack) {
       Messages.printStackTrace(e);
     }
     if (exit) {

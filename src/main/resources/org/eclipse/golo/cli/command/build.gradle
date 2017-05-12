@@ -1,0 +1,25 @@
+<%@params projectName, version, isApp%>
+plugins {
+    id 'org.golo-lang.golo' version '@gradle-plugin.version@'
+}
+
+group = 'org.company'
+version = '<%= version%>'
+description = "FIXME: description of the project"
+sourceCompatibility = 1.8
+targetCompatibility = 1.8
+
+repositories {
+    jcenter()
+    mavenLocal()
+}
+
+dependencies {
+    golo 'org.eclipse.golo:golo:@golo.version@'
+}
+
+<% if isApp { %>
+golo {
+    mainModule = '<%= projectName %>'
+}
+<% } %>

@@ -49,7 +49,7 @@ _golo ()
 			COMPREPLY=( $( compgen -W 'ast ir' -- "$cur" ) )
 			return 0
 			;;
-        --stage)
+    --stage)
 			COMPREPLY=( $( compgen -W 'ast raw refined' -- "$cur" ) )
 			return 0
 			;;
@@ -57,10 +57,14 @@ _golo ()
 			COMPREPLY=( $( compgen -W 'maven gradle simple' -- "$cur" ) )
 			return 0
 			;;
-		new)
-			_filedir
-			return 0
-			;;
+    --profile)
+      COMPREPLY=( $( compgen -W 'app lib' -- "$cur" ) )
+      return 0
+      ;;
+    --vcs)
+      COMPREPLY=( $( compgen -W 'none git hg' -- "$cur" ) )
+      return 0
+      ;;
 	esac
 
 	# We know a special, but we're looking to learn the flags.
@@ -69,7 +73,7 @@ _golo ()
 			COMPREPLY=( $( compgen -W '--output' -- "$cur" ) )
 			;;
 		check)
-			COMPREPLY=( $( compgen -W '--exit' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W '--exit --verbose' -- "$cur" ) )
 			;;
 		version)
 			COMPREPLY=( $( compgen -W '--full' -- "$cur" ) )
@@ -84,7 +88,7 @@ _golo ()
 			COMPREPLY=( $( compgen -W '--tool --stage' -- "$cur" ) )
 			;;
 		new)
-			COMPREPLY=( $( compgen -W '--type --path' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W '--type --path --profile --vcs' -- "$cur" ) )
 			;;
 		doc)
 			COMPREPLY=( $( compgen -W '--format --output' -- "$cur" ) )
