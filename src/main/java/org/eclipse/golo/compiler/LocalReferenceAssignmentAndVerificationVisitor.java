@@ -46,7 +46,8 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     }
   }
 
-  LocalReferenceAssignmentAndVerificationVisitor() { }
+  LocalReferenceAssignmentAndVerificationVisitor() {
+  }
 
   LocalReferenceAssignmentAndVerificationVisitor(GoloCompilationException.Builder builder) {
     this();
@@ -64,14 +65,9 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     return exceptionBuilder;
   }
 
-  private void errorMessage(GoloCompilationException.Problem.Type type, GoloASTNode node,
-      String message) {
+  private void errorMessage(GoloCompilationException.Problem.Type type, GoloASTNode node, String message) {
     PositionInSourceCode position = node.getPositionInSourceCode();
-    String errorMessage = message + ' ' + (
-        position != null
-        ? message("source_position", position.getLine(), position.getColumn())
-        : message("generated_code")) + ".";
-
+    String errorMessage = message + ' ' + message("source_position", position.getLine(), position.getColumn());
     getExceptionBuilder().report(type, node, errorMessage);
   }
 
@@ -92,7 +88,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
       if (reference == null) {
         if (!function.isSynthetic()) {
           throw new IllegalStateException(
-              prefixed("bug", message("parameter_not_declared", parameterName, function.getName())));
+            prefixed("bug", message("parameter_not_declared", parameterName, function.getName())));
         }
       } else {
         reference.setIndex(assignmentCounter.next());
@@ -155,10 +151,10 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     Set<LocalReference> assignedReferences = assignmentStack.peek();
     if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
       errorMessage(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
-          message("reference_already_declared", reference.getName()));
+        message("reference_already_declared", reference.getName()));
     } else if (assigningConstant(reference, assignedReferences)) {
       errorMessage(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
-          message("assign_constant", reference.getName()));
+        message("assign_constant", reference.getName()));
     }
     bindReference(reference);
     assignedReferences.add(reference);
@@ -186,7 +182,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
 
   private boolean assigningConstant(LocalReference reference, Set<LocalReference> assignedReferences) {
     return reference.isConstant() && (
-        assignedReferences.contains(reference)
+      assignedReferences.contains(reference)
         || (reference.isModuleState() && !functionStack.peek().isModuleInit()));
   }
 
@@ -202,10 +198,12 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     ReferenceTable table = tableStack.peek();
-    if (table == null) { return; }
+    if (table == null) {
+      return;
+    }
     if (!table.hasReferenceFor(referenceLookup.getName())) {
       errorMessage(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
-          message("undeclared_reference", referenceLookup.getName(),
+        message("undeclared_reference", referenceLookup.getName(),
           !functionStack.isEmpty()
             ? message("in_function", functionStack.peek().getName())
             : ""));
@@ -213,7 +211,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     LocalReference ref = referenceLookup.resolveIn(table);
     if (isUninitialized(ref)) {
       errorMessage(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup.getASTNode(),
-          message("uninitialized_reference_access", ref.getName()));
+        message("uninitialized_reference_access", ref.getName()));
     }
   }
 
@@ -237,7 +235,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     if (loopStack.isEmpty()) {
       errorMessage(BREAK_OR_CONTINUE_OUTSIDE_LOOP, loopBreakFlowStatement.getASTNode(),
-          message("break_or_continue_outside_loop"));
+        message("break_or_continue_outside_loop"));
     } else {
       loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }

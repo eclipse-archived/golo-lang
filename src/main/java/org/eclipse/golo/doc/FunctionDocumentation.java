@@ -170,25 +170,50 @@ class FunctionDocumentation implements DocumentationElement {
 
   @Override
   public int compareTo(DocumentationElement other) {
-    if (this == other) { return 0; }
-    if (null == other) { return 1; }
+    if (this == other) {
+      return 0;
+    }
+    if (null == other) {
+      return 1;
+    }
     if (other instanceof FunctionDocumentation) {
       FunctionDocumentation o = (FunctionDocumentation) other;
       int c = name.compareToIgnoreCase(o.name);
       if (c == 0) {
         c = arity() < o.arity() ? -1 : 1;
-        if (c == 0) {
-          c = varargs && !o.varargs() ? 1
-              : varargs && o.varargs() ? 0
-              : -1;
-          if (c == 0) {
-            c = parent.compareTo(o.parent);
-          }
-        }
       }
       return c;
     }
     return -1 * other.compareTo(this);
   }
 
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+
+    FunctionDocumentation that = (FunctionDocumentation) o;
+
+    if (line != that.line) return false;
+    if (augmentation != that.augmentation) return false;
+    if (varargs != that.varargs) return false;
+    if (local != that.local) return false;
+    if (name != null ? !name.equals(that.name) : that.name != null) return false;
+    if (documentation != null ? !documentation.equals(that.documentation) : that.documentation != null) return false;
+    if (arguments != null ? !arguments.equals(that.arguments) : that.arguments != null) return false;
+    return parent != null ? parent.equals(that.parent) : that.parent == null;
+  }
+
+  @Override
+  public int hashCode() {
+    int result = name != null ? name.hashCode() : 0;
+    result = 31 * result + line;
+    result = 31 * result + (documentation != null ? documentation.hashCode() : 0);
+    result = 31 * result + (arguments != null ? arguments.hashCode() : 0);
+    result = 31 * result + (augmentation ? 1 : 0);
+    result = 31 * result + (varargs ? 1 : 0);
+    result = 31 * result + (local ? 1 : 0);
+    result = 31 * result + (parent != null ? parent.hashCode() : 0);
+    return result;
+  }
 }

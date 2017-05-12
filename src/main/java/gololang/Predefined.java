@@ -534,15 +534,18 @@ public final class Predefined {
       System.out.write(str.getBytes(encoding));
     } else {
       Path path = pathFrom(file);
-      if (path.getParent() != null) {
-        Files.createDirectories(path.getParent());
-      }
-      Files.write(
+      if (path != null) {
+        Path parent = path.getParent();
+        if (parent != null) {
+          Files.createDirectories(parent);
+        }
+        Files.write(
           path,
           str.getBytes(encoding),
           StandardOpenOption.WRITE,
           StandardOpenOption.CREATE,
           StandardOpenOption.TRUNCATE_EXISTING);
+      }
     }
   }
 

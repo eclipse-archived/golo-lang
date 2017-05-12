@@ -103,8 +103,9 @@ public abstract class AbstractProcessor {
    */
   public String linkToFile(DocumentationElement src, String dst) {
     Path doc = docFile(src);
-    if (doc.getParent() != null) {
-      doc = doc.getParent();
+    Path parent = doc.getParent();
+    if (parent != null) {
+      doc = parent;
     }
     return doc.relativize(outputFile(dst)).toString();
   }
@@ -114,8 +115,9 @@ public abstract class AbstractProcessor {
    */
   public String linkToFile(String src, String dst) {
     Path out = outputFile(src);
-    if (out.getParent() != null) {
-      out = out.getParent();
+    Path parent = out.getParent();
+    if (parent != null) {
+      out = parent;
     }
     return out.relativize(outputFile(dst)).toString();
   }

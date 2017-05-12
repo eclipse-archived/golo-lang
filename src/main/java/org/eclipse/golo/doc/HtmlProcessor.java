@@ -42,11 +42,11 @@ public class HtmlProcessor extends AbstractProcessor {
    */
   public String linkToDoc(String src, DocumentationElement dst) {
     Path out = outputFile(src);
-    if (out.getParent() != null) {
-      out = out.getParent();
+    Path parent = out.getParent();
+    if (parent != null) {
+      out = parent;
     }
-    return out.relativize(docFile(dst)).toString()
-      + (dst.id().isEmpty() ? "" : ("#" + dst.id()));
+    return out.relativize(docFile(dst)).toString() + (dst.id().isEmpty() ? "" : ("#" + dst.id()));
   }
 
   @Override
@@ -56,8 +56,9 @@ public class HtmlProcessor extends AbstractProcessor {
     globalIndex.update(documentation);
     addModule(documentation);
     Path doc = docFile(documentation);
-    if (doc.getParent() != null) {
-      doc = doc.getParent();
+    Path parent = doc.getParent();
+    if (parent != null) {
+      doc = parent;
     }
     return (String) template.invoke(this, documentation, doc.relativize(srcFile));
   }
@@ -119,10 +120,10 @@ public class HtmlProcessor extends AbstractProcessor {
 
   public static String sectionTitle(int level, DocumentationElement doc, Path src) {
     String permalink = String.format("<a class=\"permalink\" href=\"#%s\" title=\"link to this section\">&#182;</a>",
-        doc.id());
+      doc.id());
     String srclink = src == null ? ""
       : String.format("<nav class=\"srclink\"><a href=\"%s#l-%s\" rel=\"source\" title=\"Link to the corresponding source\">Source</a></nav>",
-          src, doc.line());
+      src, doc.line());
     return String.format("<h%s id=\"%s\">%s%s</h%s>%s", level, doc.id(), doc.label(), permalink, level, srclink);
   }
 
