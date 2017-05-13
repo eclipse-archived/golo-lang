@@ -38,6 +38,7 @@ public class FunctionCallSupportTest {
       if (values.length == 0) {
         return "";
       }
+      
       String result = values[0];
       for (int i = 1; i < values.length; i++) {
         result = result + separator + values[i];
