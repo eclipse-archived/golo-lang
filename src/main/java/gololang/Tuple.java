@@ -229,4 +229,29 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
   public Object[] toArray() {
     return Arrays.copyOf(data, data.length);
   }
+
+  /**
+   * Returns a new Tuple extended with the given values.
+   *
+   * @return an extended {@link Tuple}, or this one if no values are given.
+   */
+  public Tuple extend(Object... values) {
+    if (values.length == 0) {
+      return this;
+    }
+    Object[] newdata = Arrays.copyOf(data, data.length + values.length);
+    for (int i = 0; i < values.length; i++) {
+      newdata[data.length + i] = values[i];
+    }
+    return new Tuple(newdata);
+  }
+
+  /**
+   * Returns a new Tuple extended with the given Tuple.
+   *
+   * @return an extended Tuple, or this one if the given tuple is empty.
+   */
+  public Tuple extend(Tuple tuple) {
+    return this.extend(tuple.data);
+  }
 }
