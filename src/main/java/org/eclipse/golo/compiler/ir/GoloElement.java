@@ -20,35 +20,29 @@ public abstract class GoloElement {
   private WeakReference<GoloASTNode> nodeRef;
   private GoloElement parent;
   private String documentation;
-
-  public void setASTNode(GoloASTNode node) {
-    if (node != null) {
-      nodeRef = new WeakReference<>(node);
-      setDocumentationFrom(node);
-    }
-  }
+  private PositionInSourceCode position = PositionInSourceCode.UNDEFINED;
 
   public GoloASTNode getASTNode() {
     if (nodeRef == null) { return null; }
     return nodeRef.get();
   }
 
-  public boolean hasASTNode() {
+  private boolean hasASTNode() {
     return nodeRef != null && nodeRef.get() != null;
   }
 
   public GoloElement ofAST(GoloASTNode node) {
     if (node != null) {
+      nodeRef = new WeakReference<>(node);
       node.setIrElement(this);
-      setDocumentationFrom(node);
+      setDocumentationAndPositionFrom(node);
     }
     return this;
   }
 
-  private void setDocumentationFrom(GoloASTNode node) {
-    if (node != null && node.getDocumentation() != null) {
-      documentation = node.getDocumentation();
-    }
+  private void setDocumentationAndPositionFrom(GoloASTNode node) {
+    setDocumentation(node.getDocumentation());
+    setPositionInSourceCode(node.getPositionInSourceCode());
   }
 
   protected void setParentNode(GoloElement parentElement) {
@@ -114,11 +108,37 @@ public abstract class GoloElement {
     return documentation;
   }
 
-  public PositionInSourceCode getPositionInSourceCode() {
-    if (hasASTNode()) {
-      return getASTNode().getPositionInSourceCode();
+  public void setDocumentation(String doc) {
+    if (doc != null) {
+      this.documentation = doc;
     }
-    return new PositionInSourceCode(0, 0);
+  }
+
+  public PositionInSourceCode getPositionInSourceCode() {
+    if (position != null) {
+      return position;
+    }
+    return PositionInSourceCode.UNDEFINED;
+  }
+
+  public void setPositionInSourceCode(PositionInSourceCode pos) {
+    if (PositionInSourceCode.UNDEFINED.equals(pos)) {
+      this.position = null;
+    } else {
+      this.position = pos;
+    }
+  }
+
+  public void setPositionInSourceCode(int line, int column) {
+    if (line == 0 && column == 0) {
+      position = null;
+    } else {
+      position = new PositionInSourceCode(line, column);
+    }
+  }
+
+  public boolean hasPosition() {
+    return position != null && !PositionInSourceCode.UNDEFINED.equals(position);
   }
 
   public Optional<ReferenceTable> getLocalReferenceTable() {

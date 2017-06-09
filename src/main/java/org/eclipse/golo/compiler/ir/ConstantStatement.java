@@ -12,6 +12,8 @@ package org.eclipse.golo.compiler.ir;
 
 import static gololang.Messages.message;
 
+import org.eclipse.golo.compiler.parser.GoloASTNode;
+
 public class ConstantStatement extends ExpressionStatement {
 
   private Object value;
@@ -42,6 +44,12 @@ public class ConstantStatement extends ExpressionStatement {
   @Override
   public boolean hasLocalDeclarations() {
     return false;
+  }
+
+  @Override
+  public ConstantStatement ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
   }
 
   @Override

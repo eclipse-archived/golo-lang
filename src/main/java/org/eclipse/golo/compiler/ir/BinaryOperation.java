@@ -11,6 +11,7 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
+import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 public final class BinaryOperation extends ExpressionStatement {
   private final OperatorType type;
@@ -30,6 +31,12 @@ public final class BinaryOperation extends ExpressionStatement {
       return new BinaryOperation(OperatorType.fromString((String) type));
     }
     throw cantConvert("BinaryOperation", type);
+  }
+
+  @Override
+  public BinaryOperation ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
   }
 
   public OperatorType getType() {

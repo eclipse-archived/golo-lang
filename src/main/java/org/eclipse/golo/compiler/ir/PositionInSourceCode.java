@@ -15,6 +15,8 @@ public final class PositionInSourceCode {
   private final int line;
   private final int column;
 
+  public static final PositionInSourceCode UNDEFINED = new PositionInSourceCode(0, 0);
+
   public PositionInSourceCode(int line, int column) {
     this.line = line;
     this.column = column;

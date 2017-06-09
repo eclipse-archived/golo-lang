@@ -54,56 +54,12 @@ public class GoloCompilationException extends RuntimeException {
 
     private final String description;
 
-    /**
-     * Constructs a new problem to report.
-     *
-     * @param type        the problem type.
-     * @param source      the problem source, which may be of any meaningful type.
-     * @param description the problem description in a human-readable form.
-     */
-    public Problem(Type type, GoloASTNode source, String description) {
-      this.type = type;
-      this.description = description;
-      this.source = source;
-      if (source != null) {
-        this.firstToken = source.jjtGetFirstToken();
-        this.lastToken = source.jjtGetLastToken();
-      } else {
-        this.firstToken = null;
-        this.lastToken = null;
-      }
-    }
-
-    /**
-     * Constructs a new problem to report.
-     *
-     * @param type        the problem type.
-     * @param source      the problem source, which may be of any meaningful type.
-     * @param token       the precise source token, where the problem is located.
-     * @param description the problem description in a human-readable form.
-     */
-    public Problem(Type type, GoloASTNode source, Token token, String description) {
+    private Problem(Type type, GoloASTNode source, Token firstToken, Token lastToken, String description) {
       this.type = type;
       this.source = source;
-      this.firstToken = token;
-      this.lastToken = token;
+      this.firstToken = firstToken;
+      this.lastToken = lastToken;
       this.description = description;
-    }
-
-    public Problem(ParseException pe, GoloASTNode source) {
-      this.type = Type.PARSING;
-      this.source = source;
-      this.firstToken = pe.currentToken;
-      this.lastToken = pe.currentToken;
-      this.description = pe.getMessage();
-    }
-
-    public Problem(UnsupportedCharsetException uce) {
-      this.type = Type.INVALID_ENCODING;
-      this.source = null;
-      this.firstToken = null;
-      this.lastToken = null;
-      this.description = uce.getMessage();
     }
 
     /**
@@ -177,7 +133,10 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(Problem.Type type, GoloASTNode source, String description) {
-      exception.report(new Problem(type, source, description));
+      exception.report(new Problem(type, source,
+            source != null ? source.jjtGetFirstToken() : null,
+            source != null ? source.jjtGetLastToken() : null,
+            description));
       return this;
     }
 
@@ -189,7 +148,7 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(ParseException pe, GoloASTNode source) {
-      exception.report(new Problem(pe, source));
+      exception.report(new Problem(Problem.Type.PARSING, source, pe.currentToken, pe.currentToken, pe.getMessage()));
       return this;
     }
 
@@ -200,7 +159,7 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(UnsupportedCharsetException uce) {
-      exception.report(new Problem(uce));
+      exception.report(new Problem(Problem.Type.INVALID_ENCODING, null, null, null, uce.getMessage()));
       return this;
     }
 

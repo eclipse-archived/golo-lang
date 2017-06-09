@@ -10,6 +10,8 @@
 
 package org.eclipse.golo.compiler.ir;
 
+import org.eclipse.golo.compiler.parser.GoloASTNode;
+
 public final class LoopBreakFlowStatement extends GoloStatement {
 
   public static enum Type {
@@ -42,6 +44,12 @@ public final class LoopBreakFlowStatement extends GoloStatement {
 
   public void setEnclosingLoop(LoopStatement enclosingLoop) {
     this.enclosingLoop = enclosingLoop;
+  }
+
+  @Override
+  public LoopBreakFlowStatement ofAST(GoloASTNode node) {
+    super.ofAST(node);
+    return this;
   }
 
   @Override

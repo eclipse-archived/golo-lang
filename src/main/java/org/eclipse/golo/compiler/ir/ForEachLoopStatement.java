@@ -35,7 +35,7 @@ public final class ForEachLoopStatement extends GoloStatement implements BlockCo
 
   @Override
   public ForEachLoopStatement ofAST(GoloASTNode node) {
-    node.setIrElement(this);
+    super.ofAST(node);
     return this;
   }
 

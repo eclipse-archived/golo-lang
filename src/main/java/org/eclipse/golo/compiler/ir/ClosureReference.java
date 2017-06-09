@@ -31,7 +31,7 @@ public class ClosureReference extends ExpressionStatement {
   private void setTarget(GoloFunction target) {
     this.target = target;
     makeParentOf(target);
-    this.setASTNode(target.getASTNode());
+    this.ofAST(target.getASTNode());
     updateCapturedReferenceNames();
   }
 
