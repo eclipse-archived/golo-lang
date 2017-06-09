@@ -14,16 +14,15 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.compiler.parser.GoloOffsetParser;
-import org.eclipse.golo.compiler.parser.ParseException;
+import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.doc.AbstractProcessor;
 import org.eclipse.golo.doc.CtagsProcessor;
 import org.eclipse.golo.doc.HtmlProcessor;
 import org.eclipse.golo.doc.MarkdownProcessor;
+import org.eclipse.golo.doc.ModuleDocumentation;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.*;
@@ -50,37 +49,40 @@ public class DocCommand implements CliCommand {
     FORMATS.put("ctags", new CtagsProcessor());
   }
 
+  private final GoloCompiler compiler = new GoloCompiler();
+
   @Override
   public void execute() throws Throwable {
 
     AbstractProcessor processor = FORMATS.get(this.format);
-    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
+    HashMap<String, ModuleDocumentation> modules = new HashMap<>();
     for (String source : this.sources) {
-      loadGoloFileCompilationUnit(source, units);
+      loadGoloFile(source, modules);
     }
     try {
-      processor.process(units, Paths.get(this.output));
+      processor.process(modules, Paths.get(this.output));
     } catch (Throwable throwable) {
       handleThrowable(throwable);
     }
   }
 
-  private void loadGoloFileCompilationUnit(String goloFile, HashMap<String, ASTCompilationUnit> units) {
+  private void loadGoloFile(String goloFile, HashMap<String, ModuleDocumentation> modules) {
     File file = new File(goloFile);
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
         for (File directoryFile : directoryFiles) {
-          loadGoloFileCompilationUnit(directoryFile.getAbsolutePath(), units);
+          loadGoloFile(directoryFile.getAbsolutePath(), modules);
         }
       }
     } else if (file.getName().endsWith(".golo")) {
-      try (FileInputStream in = new FileInputStream(goloFile)) {
-        units.put(goloFile, new GoloOffsetParser(in).CompilationUnit());
+      try {
+        modules.put(goloFile, ModuleDocumentation.load(goloFile, compiler));
       } catch (IOException e) {
         error(message("file_not_found", goloFile));
-      } catch (ParseException e) {
-        error(message("syntax_errors", goloFile, e.getMessage()));
+        return;
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e);
       }
     }
   }

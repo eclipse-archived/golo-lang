@@ -10,10 +10,12 @@
 package org.eclipse.golo.doc;
 
 import org.eclipse.golo.compiler.parser.*;
+import org.eclipse.golo.compiler.ir.*;
+import org.eclipse.golo.compiler.GoloCompiler;
 
 import java.util.*;
 
-class ModuleDocumentation implements DocumentationElement {
+public class ModuleDocumentation implements DocumentationElement {
 
   private String moduleName;
   private int moduleDefLine;
@@ -35,8 +37,12 @@ class ModuleDocumentation implements DocumentationElement {
     return "module";
   }
 
-  ModuleDocumentation(ASTCompilationUnit compilationUnit) {
-    new ModuleVisitor().visit(compilationUnit, null);
+  ModuleDocumentation(GoloModule module) {
+    module.accept(new ModuleVisitor());
+  }
+
+  public static ModuleDocumentation load(String filename, GoloCompiler compiler) throws java.io.IOException {
+    return new ModuleDocumentation(compiler.transform(compiler.parse(filename)));
   }
 
   public String goloVersion() {
@@ -120,6 +126,10 @@ class ModuleDocumentation implements DocumentationElement {
     return (moduleDocumentation != null) ? moduleDocumentation : "\n";
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public String documentation() {
     return moduleDocumentation();
   }
@@ -140,7 +150,7 @@ class ModuleDocumentation implements DocumentationElement {
     return imports;
   }
 
-  private class ModuleVisitor implements GoloParserVisitor {
+  private class ModuleVisitor implements GoloIrVisitor {
 
     private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
     private FunctionDocumentation currentFunction = null;
@@ -149,331 +159,227 @@ class ModuleDocumentation implements DocumentationElement {
     private Deque<DocumentationElement> parents = new LinkedList<>();
 
     @Override
-    public Object visit(ASTCompilationUnit node, Object data) {
+    public void visitModule(GoloModule module) {
       functionContext.push(functions);
-      node.childrenAccept(this, data);
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTModuleDeclaration node, Object data) {
-      moduleName = node.getName();
-      moduleDefLine = node.getLineInSourceCode();
-      moduleDocumentation = node.getDocumentation();
       parents.push(ModuleDocumentation.this);
-      return data;
+      moduleName = module.getPackageAndClass().toString();
+      moduleDefLine = module.getPositionInSourceCode().getLine();
+      moduleDocumentation = module.getDocumentation();
+      module.walk(this);
     }
 
     @Override
-    public Object visit(ASTImportDeclaration node, Object data) {
-      imports.put(node.getName(), node.getLineInSourceCode());
-      return data;
+    public void visitModuleImport(ModuleImport moduleImport) {
+      if (!moduleImport.isImplicit()) {
+        imports.put(moduleImport.getPackageAndClass().toString(), moduleImport.getPositionInSourceCode().getLine());
+      }
     }
 
     @Override
-    public Object visit(ASTToplevelDeclaration node, Object data) {
-      node.childrenAccept(this, data);
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTMemberDeclaration node, Object data) {
-      currentMemberHolder.addMember(node.getName())
-        .parent(parents.peek())
-        .documentation(node.getDocumentation())
-        .line(node.getLineInSourceCode());
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTStructDeclaration node, Object data) {
+    public void visitStruct(Struct struct) {
       StructDocumentation doc = new StructDocumentation()
               .parent(parents.peek())
-              .name(node.getName())
-              .documentation(node.getDocumentation())
-              .line(node.getLineInSourceCode());
+              .name(struct.getName())
+              .documentation(struct.getDocumentation())
+              .line(struct.getPositionInSourceCode().getLine());
       structs.add(doc);
       currentMemberHolder = doc;
       parents.push(doc);
-      Object result = node.childrenAccept(this, data);
+      struct.walk(this);
       parents.pop();
       currentMemberHolder = null;
-      return result;
     }
 
     @Override
-    public Object visit(ASTUnionDeclaration node, Object data) {
+    public void visitUnion(Union union) {
       this.currentUnion = new UnionDocumentation()
           .parent(parents.peek())
-          .name(node.getName())
-          .documentation(node.getDocumentation())
-          .line(node.getLineInSourceCode());
+          .name(union.getName())
+          .documentation(union.getDocumentation())
+          .line(union.getPositionInSourceCode().getLine());
       unions.add(this.currentUnion);
       parents.push(currentUnion);
-      Object r = node.childrenAccept(this, data);
+      union.walk(this);
       parents.pop();
-      return r;
     }
 
     @Override
-    public Object visit(ASTUnionValue node, Object data) {
-      UnionDocumentation.UnionValueDocumentation doc = this.currentUnion.addValue(node.getName())
+    public void visitUnionValue(UnionValue value) {
+      UnionDocumentation.UnionValueDocumentation doc = this.currentUnion.addValue(value.getName())
           .parent(parents.peek())
-          .documentation(node.getDocumentation())
-          .line(node.getLineInSourceCode());
+          .documentation(value.getDocumentation())
+          .line(value.getPositionInSourceCode().getLine());
       currentMemberHolder = doc;
       parents.push(doc);
-      Object result = node.childrenAccept(this, data);
+      value.walk(this);
       parents.pop();
       currentMemberHolder = null;
-      return result;
     }
 
     @Override
-    public Object visit(ASTAugmentDeclaration node, Object data) {
+    public void visitAugmentation(Augmentation augment) {
       /* NOTE:
        * if multiple augmentations are defined for the same target
-       * only the line and (non empty) documentation of the first one are kept.
-       *
-       * Maybe we should concatenate documentations since the golodoc merges
-       * the functions documentations, but we could then generate not meaningful
-       * content...
+       * only the line of the first one is kept.
        */
-      String target = node.getName();
+      String target = augment.getTarget().toString();
       if (!augmentations.containsKey(target)) {
         augmentations.put(target, new AugmentationDocumentation()
                 .target(target)
                 .parent(parents.peek())
-                .augmentationNames(node.getAugmentationNames())
-                .line(node.getLineInSourceCode())
+                .augmentationNames(augment.getNames())
+                .line(augment.getPositionInSourceCode().getLine())
         );
       }
-      AugmentationDocumentation ad = augmentations.get(target).documentation(node.getDocumentation());
+      AugmentationDocumentation ad = augmentations.get(target);
+      ad.documentation(ad.documentation() + '\n' + augment.getDocumentation());
       functionContext.push(ad);
       parents.push(ad);
-      node.childrenAccept(this, data);
+      augment.walk(this);
       functionContext.pop();
       parents.pop();
-      return data;
     }
 
     @Override
-    public Object visit(ASTNamedAugmentationDeclaration node, Object data) {
-      NamedAugmentationDocumentation augment = new NamedAugmentationDocumentation()
+    public void visitNamedAugmentation(NamedAugmentation augment) {
+      NamedAugmentationDocumentation augmentDoc = new NamedAugmentationDocumentation()
           .parent(parents.peek())
-          .name(node.getName())
-          .documentation(node.getDocumentation())
-          .line(node.getLineInSourceCode());
-      namedAugmentations.add(augment);
-      functionContext.push(augment);
-      parents.push(augment);
-      node.childrenAccept(this, data);
+          .name(augment.getName())
+          .documentation(augment.getDocumentation())
+          .line(augment.getPositionInSourceCode().getLine());
+      namedAugmentations.add(augmentDoc);
+      functionContext.push(augmentDoc);
+      parents.push(augmentDoc);
+      augment.walk(this);
       functionContext.pop();
       parents.pop();
-      return data;
     }
 
     @Override
-    public Object visit(ASTFunctionDeclaration node, Object data) {
-      currentFunction = new FunctionDocumentation()
-          .parent(parents.peek())
-          .name(node.getName())
-          .documentation(node.getDocumentation())
-          .augmentation(node.isAugmentation())
-          .line(node.getLineInSourceCode())
-          .local(node.isLocal());
-      functionContext.peek().add(currentFunction);
-      node.childrenAccept(this, data);
-      currentFunction = null;
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTFunction node, Object data) {
-      if (currentFunction != null) {
-        currentFunction
-          .arguments(node.getParameters())
-          .varargs(node.isVarargs());
+    public void visitFunction(GoloFunction function) {
+      if (!GoloModule.MODULE_INITIALIZER_FUNCTION.equals(function.getName())) {
+        functionContext.peek().add(new FunctionDocumentation()
+            .parent(parents.peek())
+            .name(function.getName())
+            .documentation(function.getDocumentation())
+            .augmentation(function.isInAugment())
+            .line(function.getPositionInSourceCode().getLine())
+            .local(function.isLocal())
+            .arguments(function.getParameterNames())
+            .varargs(function.isVarargs()));
       }
-      return data;
     }
 
     @Override
-    public Object visit(ASTLetOrVar node, Object data) {
-      if (node.isModuleState()) {
-        moduleStates.put(node.getName(), node.getLineInSourceCode());
+    public void visitLocalReference(LocalReference localRef) {
+      if (localRef.isModuleState()) {
+        moduleStates.put(localRef.getName(), localRef.getPositionInSourceCode().getLine());
       }
-      return data;
     }
 
     @Override
-    public Object visit(ASTDestructuringAssignment node, Object data) {
-      return data;
+    public void visitMember(Member member) {
+      currentMemberHolder.addMember(member.getName())
+        .parent(parents.peek())
+        .documentation(member.getDocumentation())
+        .line(member.getPositionInSourceCode().getLine());
     }
 
     @Override
-    public Object visit(ASTContinue node, Object data) {
-      return data;
+    public void visitDecorator(Decorator decorator) {
     }
 
     @Override
-    public Object visit(ASTBreak node, Object data) {
-      return data;
+    public void visitBlock(Block block) {
     }
 
     @Override
-    public Object visit(ASTThrow node, Object data) {
-      return data;
+    public void visitConstantStatement(ConstantStatement constantStatement) {
     }
 
     @Override
-    public Object visit(ASTWhileLoop node, Object data) {
-      return data;
+    public void visitReturnStatement(ReturnStatement returnStatement) {
     }
 
     @Override
-    public Object visit(ASTForLoop node, Object data) {
-      return data;
+    public void visitFunctionInvocation(FunctionInvocation functionInvocation) {
     }
 
     @Override
-    public Object visit(ASTForEachLoop node, Object data) {
-      return data;
+    public void visitMethodInvocation(MethodInvocation methodInvocation) {
     }
 
     @Override
-    public Object visit(ASTTryCatchFinally node, Object data) {
-      return data;
+    public void visitAssignmentStatement(AssignmentStatement assignmentStatement) {
     }
 
     @Override
-    public Object visit(ASTUnaryExpression node, Object data) {
-      return data;
+    public void visitDestructuringAssignment(DestructuringAssignment assignment) {
     }
 
     @Override
-    public Object visit(ASTExpressionStatement node, Object data) {
-      return data;
+    public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     }
 
     @Override
-    public Object visit(ASTInvocationExpression node, Object data) {
-      return data;
+    public void visitConditionalBranching(ConditionalBranching conditionalBranching) {
     }
 
     @Override
-    public Object visit(ASTMultiplicativeExpression node, Object data) {
-      return data;
+    public void visitBinaryOperation(BinaryOperation binaryOperation) {
     }
 
     @Override
-    public Object visit(ASTAdditiveExpression node, Object data) {
-      return data;
+    public void visitUnaryOperation(UnaryOperation unaryOperation) {
     }
 
     @Override
-    public Object visit(ASTRelationalExpression node, Object data) {
-      return data;
+    public void visitLoopStatement(LoopStatement loopStatement) {
     }
 
     @Override
-    public Object visit(ASTEqualityExpression node, Object data) {
-      return data;
+    public void visitForEachLoopStatement(ForEachLoopStatement foreachStatement) {
     }
 
     @Override
-    public Object visit(ASTAndExpression node, Object data) {
-      return data;
+    public void visitCaseStatement(CaseStatement caseStatement) {
     }
 
     @Override
-    public Object visit(ASTOrExpression node, Object data) {
-      return data;
+    public void visitMatchExpression(MatchExpression matchExpression) {
     }
 
     @Override
-    public Object visit(ASTOrIfNullExpression node, Object data) {
-      return data;
+    public void visitWhenClause(WhenClause<?> whenClause) {
     }
 
     @Override
-    public Object visit(ASTMethodInvocation node, Object data) {
-      return data;
+    public void visitThrowStatement(ThrowStatement throwStatement) {
     }
 
     @Override
-    public Object visit(ASTBlock node, Object data) {
-      return data;
+    public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
     }
 
     @Override
-    public Object visit(ASTLiteral node, Object data) {
-      return data;
+    public void visitClosureReference(ClosureReference closureReference) {
     }
 
     @Override
-    public Object visit(ASTCollectionLiteral node, Object data) {
-      return data;
+    public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     }
 
     @Override
-    public Object visit(ASTReference node, Object data) {
-      return data;
+    public void visitCollectionLiteral(CollectionLiteral collectionLiteral) {
     }
 
     @Override
-    public Object visit(ASTAssignment node, Object data) {
-      return data;
+    public void visitCollectionComprehension(CollectionComprehension collectionComprehension) {
     }
 
     @Override
-    public Object visit(ASTReturn node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTArgument node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTAnonymousFunctionInvocation node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTFunctionInvocation node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTConditionalBranching node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTCase node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTMatch node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTDecoratorDeclaration node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(SimpleNode node, Object data) {
-      return data;
-    }
-
-    @Override
-    public Object visit(ASTerror node, Object data) {
-      return data;
+    public void visitNamedArgument(NamedArgument namedArgument) {
     }
   }
+
 }

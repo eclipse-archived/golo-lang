@@ -9,7 +9,6 @@
 
 package org.eclipse.golo.doc;
 
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
 import gololang.FunctionReference;
 import gololang.Predefined;
 
@@ -24,18 +23,17 @@ public class MarkdownProcessor extends AbstractProcessor {
   }
 
   @Override
-  public String render(ASTCompilationUnit compilationUnit) throws Throwable {
+  public String render(ModuleDocumentation documentation) throws Throwable {
     FunctionReference template = template("template", fileExtension());
-    ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
     addModule(documentation);
     return (String) template.invoke(documentation);
   }
 
   @Override
-  public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
+  public void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable {
     setTargetFolder(targetFolder);
-    for (ASTCompilationUnit unit : units.values()) {
-      Predefined.textToFile(render(unit), outputFile(moduleName(unit)));
+    for (ModuleDocumentation doc : modules.values()) {
+      Predefined.textToFile(render(doc), outputFile(doc.moduleName()));
     }
     renderIndex("index");
   }

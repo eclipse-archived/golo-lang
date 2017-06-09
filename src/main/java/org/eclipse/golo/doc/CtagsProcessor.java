@@ -140,8 +140,7 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   @Override
-  public String render(ASTCompilationUnit compilationUnit) throws Throwable {
-    ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
+  public String render(ModuleDocumentation documentation) throws Throwable {
     ctagsModule(documentation);
     for (Map.Entry<String, Integer> imp : documentation.imports().entrySet()) {
       ctagsImport(imp.getKey(), imp.getValue());
@@ -177,7 +176,7 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
+  public void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable {
     Path targetFile = null;
     if (targetFolder.toString().equals("-")) {
       targetFile = targetFolder;
@@ -185,7 +184,7 @@ public class CtagsProcessor extends AbstractProcessor {
       targetFile = targetFolder.resolve("tags");
     }
     ctags.clear();
-    for (Map.Entry<String, ASTCompilationUnit> src : units.entrySet()) {
+    for (Map.Entry<String, ModuleDocumentation> src : modules.entrySet()) {
       file = src.getKey();
       render(src.getValue());
     }

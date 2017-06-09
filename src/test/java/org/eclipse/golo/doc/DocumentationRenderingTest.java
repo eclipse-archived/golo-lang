@@ -9,18 +9,15 @@
 
 package org.eclipse.golo.doc;
 
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.compiler.parser.GoloOffsetParser;
-import org.eclipse.golo.compiler.parser.GoloParser;
+import org.eclipse.golo.compiler.GoloCompiler;
 import gololang.Predefined;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.FileInputStream;
+import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
 
 import static org.hamcrest.MatcherAssert.assertThat;
@@ -38,13 +35,16 @@ public class DocumentationRenderingTest {
     }
   }
 
+  private static ModuleDocumentation loadDoc(String filename) throws IOException {
+    return ModuleDocumentation.load(filename, new GoloCompiler());
+  }
+
   @Test
   public void markdown_processor() throws Throwable {
-    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
-    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
+    ModuleDocumentation doc = loadDoc(SRC + "doc.golo");
 
     MarkdownProcessor processor = new MarkdownProcessor();
-    String result = processor.render(compilationUnit);
+    String result = processor.render(doc);
     assertThat(result, containsString("# Documentation for `my.package.Documented`"));
     assertThat(result, containsString("### `with_doc(a, b)`"));
     assertThat(result, containsString("#### Example:"));
@@ -54,9 +54,9 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("* `tail`"));
 
     Path tempDir = Files.createTempDirectory("foo");
-    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
-    units.put(SRC + "doc.golo", compilationUnit);
-    processor.process(units, tempDir);
+    HashMap<String, ModuleDocumentation> docs = new HashMap<>();
+    docs.put(SRC + "doc.golo", doc);
+    processor.process(docs, tempDir);
     Path expectedDocFile = tempDir.resolve("my/package/Documented.markdown");
     check_file(expectedDocFile);
 
@@ -144,12 +144,12 @@ public class DocumentationRenderingTest {
   @Test
   public void html_processor() throws Throwable {
     Path tempDir = Files.createTempDirectory("foo");
-    HashMap<String, ASTCompilationUnit> units = new HashMap<>();
-    units.put(SRC + "doc.golo", new GoloOffsetParser(new FileInputStream(SRC + "doc.golo")).CompilationUnit());
+    HashMap<String, ModuleDocumentation> docs = new HashMap<>();
+    docs.put(SRC + "doc.golo", loadDoc(SRC + "doc.golo"));
 
     HtmlProcessor processor = new HtmlProcessor();
     processor.setTargetFolder(tempDir);
-    processor.process(units, tempDir);
+    processor.process(docs, tempDir);
 
     check_html_module(tempDir.resolve("my/package/Documented.html"));
     check_html_src(tempDir.resolve("my/package/Documented-src.html"));
@@ -159,11 +159,8 @@ public class DocumentationRenderingTest {
 
   @Test
   public void ctags_processor() throws Throwable {
-    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
-    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
-
     CtagsProcessor processor = new CtagsProcessor();
-    String result = processor.render(compilationUnit);
+    String result = processor.render(loadDoc(SRC + "doc.golo"));
     assertThat(result, containsString("my.package.Documented\tfile\t/^module[:blank:]+my\\.package\\.Documented$/;\"\tp\tline:1\tlanguage:golo"));
     assertThat(result, containsString("Point\tfile\t/^struct[:blank:]+Point[:blank:]+=/;\"\ts\tline:67\tlanguage:golo"));
     assertThat(result, containsString("java.lang.String\tfile\t/^augment[:blank:]+java\\.lang\\.String/;\"\ta\tline:47\tlanguage:golo"));

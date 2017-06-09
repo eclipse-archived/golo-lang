@@ -234,6 +234,10 @@ public abstract class AbstractGoloIrVisitor implements GoloIrVisitor {
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
     tryCatchFinally.walk(this);
   }
+
+  /**
+   * @inheritDoc
+   */
   @Override
   public void visitClosureReference(ClosureReference closureReference) {
     closureReference.walk(this);

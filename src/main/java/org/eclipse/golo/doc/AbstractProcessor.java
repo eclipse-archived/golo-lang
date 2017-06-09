@@ -9,8 +9,6 @@
 
 package org.eclipse.golo.doc;
 
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.compiler.parser.ASTModuleDeclaration;
 import gololang.FunctionReference;
 import gololang.TemplateEngine;
 import gololang.Predefined;
@@ -27,9 +25,9 @@ import java.util.TreeSet;
 
 public abstract class AbstractProcessor {
 
-  public abstract String render(ASTCompilationUnit compilationUnit) throws Throwable;
+  public abstract String render(ModuleDocumentation module) throws Throwable;
 
-  public abstract void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable;
+  public abstract void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable;
 
   private TemplateEngine templateEngine = new TemplateEngine();
   private HashMap<String, FunctionReference> templateCache = new HashMap<>();
@@ -118,10 +116,6 @@ public abstract class AbstractProcessor {
       out = out.getParent();
     }
     return out.relativize(outputFile(dst)).toString();
-  }
-
-  protected String moduleName(ASTCompilationUnit unit) {
-    return ((ASTModuleDeclaration) unit.jjtGetChild(0)).getName();
   }
 
   protected void renderIndex(String templateName) throws Throwable {

@@ -191,4 +191,8 @@ class FunctionDocumentation implements DocumentationElement {
     return -1 * other.compareTo(this);
   }
 
+  @Override
+  public String toString() {
+    return (local ? "-" : "+") + label();
+  }
 }
