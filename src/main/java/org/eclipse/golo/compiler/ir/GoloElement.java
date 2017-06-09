@@ -18,7 +18,7 @@ import java.util.NoSuchElementException;
 
 public abstract class GoloElement {
   private WeakReference<GoloASTNode> nodeRef;
-  private Optional<GoloElement> parent = Optional.empty();
+  private GoloElement parent;
   private String documentation;
 
   public void setASTNode(GoloASTNode node) {
@@ -52,11 +52,11 @@ public abstract class GoloElement {
   }
 
   protected void setParentNode(GoloElement parentElement) {
-    this.parent = Optional.ofNullable(parentElement);
+    this.parent = parentElement;
   }
 
   public Optional<GoloElement> getParentNode() {
-    return this.parent;
+    return Optional.ofNullable(this.parent);
   }
 
   public void makeParentOf(GoloElement childElement) {
@@ -100,9 +100,9 @@ public abstract class GoloElement {
 
   public void replaceInParentBy(GoloElement newElement) {
     if (newElement == this) { return; }
-    if (this.parent.isPresent()) {
-      this.parent.get().replaceElement(this, newElement);
-      this.parent.get().makeParentOf(newElement);
+    if (this.parent != null) {
+      this.parent.replaceElement(this, newElement);
+      this.parent.makeParentOf(newElement);
       if (hasASTNode()) {
         getASTNode().setIrElement(newElement);
       }
@@ -122,8 +122,8 @@ public abstract class GoloElement {
   }
 
   public Optional<ReferenceTable> getLocalReferenceTable() {
-    if (parent.isPresent()) {
-      return parent.get().getLocalReferenceTable();
+    if (this.parent != null) {
+      return parent.getLocalReferenceTable();
     }
     return Optional.empty();
   }
