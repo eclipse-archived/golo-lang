@@ -52,9 +52,9 @@ public interface Range<T> extends Collection<T>, HeadTail<T> {
    * Sets the negative increment of the range.
    *<p>
    * this is equivalent to:
-   * <pre>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    * range.incrementBy(-value)
-   * </pre>
+   * </code></pre>
    *
    * @param value the new increment.
    * @return the range itself.

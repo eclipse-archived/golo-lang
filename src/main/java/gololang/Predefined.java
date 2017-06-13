@@ -901,7 +901,7 @@ public final class Predefined {
    * <p>
    * Useful whenever an explicit reference is needed, for instance to create a closure with internal
    * mutable state:
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    *    function counter = |init| {
    *      let current = box(init)
    *      return -> current: getAndSet(current: get() + 1)
@@ -911,7 +911,7 @@ public final class Predefined {
    *    c() # 3
    *    c() # 4
    *    c() # 5
-   * </pre>
+   * </code></pre>
    *
    * @param obj the object to reference.
    * @return a {@code java.util.concurrent.atomic.AtomicReference} instance wrapping the object

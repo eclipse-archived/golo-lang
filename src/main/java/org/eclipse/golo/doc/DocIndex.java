@@ -50,7 +50,6 @@ class DocIndex implements Iterable<DocumentationElement> {
         elements.add(f);
       }
     }
-    // TODO: struct and unionvalue fields (waiting for the default value refactoring introducing member object)
   }
 
   public Map<String, Set<DocumentationElement>> groupBy(FunctionReference f) throws Throwable {

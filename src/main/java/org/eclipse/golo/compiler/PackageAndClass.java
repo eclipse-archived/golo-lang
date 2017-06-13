@@ -73,10 +73,10 @@ public final class PackageAndClass {
    * Create an inner class.
    * <p>
    * For instance:
-   * <code><pre>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    * PackageAndClass cls = new PackageAndClass("foo.bar", "Spam");
    * PackageAndClass inner = cls.createInnerClass("Egg"); // foo.bar.Spam$Egg
-   * </pre></code>
+   * </code></pre>
    *
    * @return a new {@code PackageAndClass} identifying an inner class of this class.
    */
@@ -90,10 +90,10 @@ public final class PackageAndClass {
    * Create a sibling class.
    * <p>
    * For instance:
-   * <code><pre>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    *  PackageAndClass list = new PackageAndClass("java.util", "List");
    *  PackageAndClass set = list.createSiblingClass("Set"); // java.util.Set
-   * </pre></code>
+   * </code></pre>
    *
    * @return a new {@code PackageAndClass} identifying an alternate class in the same package.
    */
@@ -105,10 +105,10 @@ public final class PackageAndClass {
    * Create a sub-package.
    * <p>
    * For instance:
-   * <code><pre>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    *  PackageAndClass pc = new PackageAndClass("foo.bar", "Module");
    *  PackageAndClass sub = pc.createSubPackage("types"); // foo.bar.Modules.types
-   * </pre></code>
+   * </code></pre>
    *
    * @return a new {@code PackageAndClass} identifying a sub-package of this package.
    */
@@ -121,10 +121,10 @@ public final class PackageAndClass {
    * Create a class in another package.
    * <p>
    * For instance:
-   * <code><pre>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    * PackageAndClass pc = PackageAndClass.fromString("foo.bar.Baz");
    * PackageAndClass other = pc.inPackage("plic.ploc"); // plic.ploc.Baz
-   * </pre></code>
+   * </code></pre>
    *
    * @return a new {@code PackageAndClass} representing the same class in another package.
    * @param qualifiedName the qualified name of the new package.
@@ -137,11 +137,11 @@ public final class PackageAndClass {
    * Create a class in the same package as another one.
    * <p>
    * For instance:
-   * <code><pre>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    * PackageAndClass pc = PackageAndClass.fromString("foo.bar.Baz");
    * PackageAndClass other = PackageAndClass.fromString("plic.ploc.Foo");
    * PackageAndClass newOne = pc.inPackage(other); // plic.ploc.Baz
-   * </pre></code>
+   * </code></pre>
    *
    * @return a new {@code PackageAndClass} representing the same class in another package.
    * @param parent the {@code PackageAndClass} representing the new package.

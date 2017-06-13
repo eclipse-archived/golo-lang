@@ -33,7 +33,7 @@ import java.util.*;
  * not to abuse {@code run()}, as each invocation triggers the generation of a one-shot class.
  * <p>
  * Here is an example usage of this API:
- * <pre>
+ * <pre class="listing"><code class="lang-golo" data-lang="golo">
  * let env = EvaluationEnvironment()
  * let code =
  * """
@@ -45,7 +45,7 @@ import java.util.*;
  * let b = fun("b", mod)
  * println(a())
  * println(b())
- * </pre>
+ * </code></pre>
  * <p>
  * While this class is expected to be used from Golo code, it can also be used as a convenient way to embed Golo into
  * polyglot JVM applications.
@@ -110,8 +110,10 @@ public class EvaluationEnvironment {
   }
 
   /**
-   * Evaluates a complete module, as in:
-   * <pre>
+   * Evaluates a complete module string.
+   *<p>
+   * For instance:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let code =
    * """
    * module foo
@@ -124,7 +126,7 @@ public class EvaluationEnvironment {
    * let b = fun("b", mod)
    * println(a())
    * println(b())
-   * </pre>
+   * </code></pre>
    *
    * @param source the module Golo source code as a string.
    * @return the corresponding module, as a {@link Class}.
@@ -145,7 +147,7 @@ public class EvaluationEnvironment {
    * Loads an anonymous module. This is the same as {@link #asModule(String)}, except that the code does not contain
    * a {@code module} declaration.
    *
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let code =
    * """
    * function a = -> "a!"
@@ -156,7 +158,7 @@ public class EvaluationEnvironment {
    * let b = fun("b", mod)
    * println(a())
    * println(b())
-   * </pre>
+   * </code></pre>
    *
    * @param source the module Golo source code as a string.
    * @return the corresponding module, as a {@link Class}.
@@ -169,11 +171,11 @@ public class EvaluationEnvironment {
   /**
    * Defines a function, and returns it.
    *
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let code = "|a, b| -> (a + b) * 2"
    * let f = env: def(code)
    * println(f(10, 20))
-   * </pre>
+   * </code></pre>
    *
    * @param source the function code.
    * @return the function as a {@link gololang.FunctionReference} instance.
@@ -185,11 +187,11 @@ public class EvaluationEnvironment {
   /**
    * Evaluates some code as the body of a function and returns it.
    *
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let code = "return (a + b) * 2"
    * let f = env: asFunction(code, "a", "b")
    * println(f(10, 20))
-   * </pre>
+   * </code></pre>
    *
    * @param source        the function body source code.
    * @param argumentNames the argument names.
@@ -203,7 +205,7 @@ public class EvaluationEnvironment {
    * Runs some code as the body of a function and returns the value. The code shall use {@code return} statements
    * to provide return values, if any.
    *
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let code = """println(">>> run")
    * foreach (i in range(0, 3)) {
    *   println("w00t")
@@ -211,7 +213,7 @@ public class EvaluationEnvironment {
    * return 666"""
    * env: run(code)
    *
-   * </pre>
+   * </code></pre>
    *
    * @param source the source to run.
    * @return the return value, or {@code null} if no {@code return} statement is used.
@@ -224,14 +226,14 @@ public class EvaluationEnvironment {
    * Runs some code as the body of a function and returns the value. This is the same as {@link #run(String)}, but it
    * takes a set of reference bindings in a map. Each reference is equivalent to a {@code let} statement.
    *
-   * <pre>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let code = """println(">>> run_map")
    * println(a)
    * println(b)
    * """
    * let values = java.util.TreeMap(): add("a", 1): add("b", 2)
    * env: run(code, values)
-   * </pre>
+   * </code></pre>
    *
    * @param source  the source to run.
    * @param context a map of bindings from name to values.

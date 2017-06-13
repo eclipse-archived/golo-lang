@@ -26,15 +26,15 @@ import static java.util.Collections.unmodifiableSet;
  * applied with the {@code with} construct.
  * <p>
  * This represents code such
- * <pre>
+ * <pre class="listing"><code class="lang-golo" data-lang="golo">
  * augment MyType {
- *   function ...
+ *   function foo = |this| -> ...
  * }
- * </pre>
+ * </code></pre>
  * or
- * <pre>
+ * <pre class="listing"><code class="lang-golo" data-lang="golo">
  * augment MyType with MyAugmentation
- * </pre>
+ * </code></pre>
  */
 public final class Augmentation extends GoloElement implements FunctionContainer {
   private PackageAndClass target;

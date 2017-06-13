@@ -100,8 +100,8 @@ public class HtmlProcessor extends AbstractProcessor {
         } else {
           language = meta;
         }
-        out.append("<pre class=\"listing highlight highlightjs\">");
-        out.append(String.format("<code class=\"language-%s\" data-lang=\"%s\">", language, language));
+        out.append("<pre class=\"listing\">");
+        out.append(String.format("<code class=\"lang-%s\" data-lang=\"%s\">", language, language));
         for (String rawLine : lines) {
           String line = rawLine
             .replace("&", "&amp;")

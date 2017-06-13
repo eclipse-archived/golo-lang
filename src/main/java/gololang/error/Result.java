@@ -406,7 +406,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * (or {@code r.flatMap(f)} is equivalent to {@code r.map(f).flattened()})
    * <p>
    * For instance:
-   * <pre><code>
+   * <pre class="listing"><code class="lang-java" data-lang="java">
    * ok(ok(42)).flattened() == ok(42)
    * fail("error").flattened() == fail("error")
    * empty().flattened() == empty()
@@ -433,7 +433,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * otherwise, it's equivalent to {@code map}.
    * <p>
    * This allows code such as:
-   * <pre><code>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * Ok(21): andThen(|x| -> x + 1): andThen(|x| -> Ok(2 * x)) == Ok(42)
    * </code></pre>
    */
@@ -527,7 +527,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * Reduce {@code this} using {@code func} with {@code init} as initial value.
    * <p>
    * For instance:
-   * <pre><code>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * Result.ok("b"): reduce("a", |x, y| -> x + y) == "ab"
    * Result.empty(): reduce(42, |x, y| -> x + y) == 42
    * Result.fail("error"): reduce(42, |x, y| -> x + y) == 42
@@ -647,7 +647,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * <p>Return a 2-tuple containing the error and the value contained by this {@code Result}, so
    * that it can be used in a destructuring golo assignment. The first value is the error, and the
    * second is the correct value (mnemonic: “right” also means “correct”). For instance:
-   * <pre><code>
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let e, v = Result.ok(42)        # e is null and v is 42
    * let e, v = Result.empty()       # e is null and v is null
    * let e, v = Result.fail("error") # e is RuntimeException("error") and v is null
