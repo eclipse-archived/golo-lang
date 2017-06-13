@@ -50,9 +50,8 @@ public class HtmlProcessor extends AbstractProcessor {
   }
 
   @Override
-  public String render(ASTCompilationUnit compilationUnit) throws Throwable {
+  public String render(ModuleDocumentation documentation) throws Throwable {
     FunctionReference template = template("template", fileExtension());
-    ModuleDocumentation documentation = new ModuleDocumentation(compilationUnit);
     globalIndex.update(documentation);
     addModule(documentation);
     Path doc = docFile(documentation);
@@ -63,20 +62,20 @@ public class HtmlProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void process(Map<String, ASTCompilationUnit> units, Path targetFolder) throws Throwable {
+  public void process(Map<String, ModuleDocumentation> docs, Path targetFolder) throws Throwable {
     setTargetFolder(targetFolder);
-    for (Map.Entry<String, ASTCompilationUnit> unit : units.entrySet()) {
-      renderModule(unit.getKey(), unit.getValue());
+    for (Map.Entry<String, ModuleDocumentation> doc : docs.entrySet()) {
+      renderModule(doc.getKey(), doc.getValue());
     }
     renderIndex("index");
     renderIndex("index-all");
   }
 
-  private void renderModule(String sourceFile, ASTCompilationUnit unit) throws Throwable {
-    String moduleName = moduleName(unit);
+  private void renderModule(String sourceFile, ModuleDocumentation doc) throws Throwable {
+    String moduleName = doc.moduleName();
     srcFile = outputFile(moduleName + "-src");
     Predefined.textToFile(renderSource(moduleName, sourceFile), srcFile);
-    Predefined.textToFile(render(unit), outputFile(moduleName));
+    Predefined.textToFile(render(doc), outputFile(moduleName));
   }
 
   private String renderSource(String moduleName, String filename) throws Throwable {

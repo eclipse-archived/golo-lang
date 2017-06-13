@@ -150,7 +150,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     private LocalReference getOrCreateReference(ASTLetOrVar.Type type, String name, boolean module, GoloASTNode node) {
       if (type != null) {
-        LocalReference val = localRef(name).kind(referenceKindOf(type, module));
+        LocalReference val = localRef(name).kind(referenceKindOf(type, module)).ofAST(node);
         referenceTableStack.peek().add(val);
         return val;
       }

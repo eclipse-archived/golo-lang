@@ -9,9 +9,8 @@
 
 package org.eclipse.golo.doc;
 
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.compiler.parser.GoloOffsetParser;
-import org.eclipse.golo.compiler.parser.GoloParser;
+import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.compiler.ir.GoloModule;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
@@ -29,9 +28,7 @@ public class ModuleDocumentationTest {
 
   @BeforeTest
   public void setUp() throws Throwable {
-    GoloParser parser = new GoloOffsetParser(new FileInputStream(SRC + "doc.golo"));
-    ASTCompilationUnit compilationUnit = parser.CompilationUnit();
-    doc = new ModuleDocumentation(compilationUnit);
+    doc = ModuleDocumentation.load(SRC + "doc.golo", new GoloCompiler());
   }
 
   @Test

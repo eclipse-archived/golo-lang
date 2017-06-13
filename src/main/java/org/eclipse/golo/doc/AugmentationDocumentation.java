@@ -85,7 +85,7 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
   }
 
   public AugmentationDocumentation documentation(String documentation) {
-    if (documentation != null) {
+    if (documentation != null && !documentation.isEmpty()) {
       this.documentation = documentation;
     }
     return this;

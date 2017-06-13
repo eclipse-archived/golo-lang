@@ -210,21 +210,21 @@ public class GoloCompiler {
    */
   public final GoloModule check(ASTCompilationUnit compilationUnit) {
     GoloModule goloModule = transform(compilationUnit);
-    refine(goloModule);
-    return goloModule;
+    return refine(goloModule);
   }
 
   public final GoloModule transform(ASTCompilationUnit compilationUnit) {
     return new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
   }
 
-  public final void refine(GoloModule goloModule) {
+  public final GoloModule refine(GoloModule goloModule) {
     if (goloModule != null) {
       goloModule.accept(new SugarExpansionVisitor());
       goloModule.accept(new ClosureCaptureGoloIrVisitor());
       goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
     }
     throwIfErrorEncountered();
+    return goloModule;
   }
 
 
