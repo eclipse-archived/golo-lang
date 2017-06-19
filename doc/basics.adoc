@@ -449,7 +449,7 @@ position, use the `removeAt` method.
 
 ==== A note on tuples
 
-Tuples essentially behave as immutable arrays.
+Tuples essentially behave as comparable and immutable arrays.
 
 The `gololang.Tuple` class provides the following methods:
 
@@ -458,7 +458,10 @@ The `gololang.Tuple` class provides the following methods:
 - a `head()` method to get the first element,
 - a `tail()` method returning a copy without the first element,
 - `size()` and `isEmpty()` methods that do what their names suggest,
-- an `iterator()` method because tuples are iterable, and
+- an `iterator()` method because tuples are iterable,
+- `toArray()` and `Tuple.fromArray()` for converting between tuples and arrays,
+- `subTuple(start, end)` to extract a new tuple,
+- `extend(...)` to create a new tuple with added values, and
 - `equals(other)`, `hashCode()` and `toString()` do just what you would expect.
 
 ==== A note on maps

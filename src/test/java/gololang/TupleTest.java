@@ -133,5 +133,24 @@ public class TupleTest {
   public void not_comparable_comparison() {
     new Tuple(new Object()).compareTo(new Tuple(new Object()));
   }
+
+  @Test
+  public void extends_varargs() {
+    Tuple t = new Tuple(1, 2);
+    Tuple e = t.extend(3, 4);
+    assertThat(t, is(new Tuple(1, 2)));
+    assertThat(e, is(new Tuple(1, 2, 3, 4)));
+    assertThat(t.extend() == t, is(true));
+  }
+
+  @Test
+  public void extends_tuple() {
+    Tuple t = new Tuple(1, 2);
+    Tuple n = new Tuple(3, 4);
+    Tuple e = t.extend(n);
+    assertThat(t, is(new Tuple(1, 2)));
+    assertThat(n, is(new Tuple(3, 4)));
+    assertThat(e, is(new Tuple(1, 2, 3, 4)));
+  }
 }
 
