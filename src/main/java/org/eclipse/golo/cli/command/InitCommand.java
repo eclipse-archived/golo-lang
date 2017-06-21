@@ -18,6 +18,7 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
+import java.util.function.Supplier;
 
 import static gololang.Messages.message;
 import static gololang.Messages.info;
@@ -66,15 +67,15 @@ public class InitCommand implements CliCommand {
         .ignore("syntax: glob", "*.class"));
   }
 
-  private static final Map<String, ProjectInitializer> TYPES = new LinkedHashMap<>();
+  private static final Map<String, Supplier<ProjectInitializer>> TYPES = new LinkedHashMap<>();
   static {
-    TYPES.put("simple", new ProjectInitializer()
+    TYPES.put("simple", () -> new ProjectInitializer()
         .directories(
           Paths.get("imports"),
           Paths.get("jars"))
         .runCommand("golo golo --files *.golo"));
 
-    TYPES.put("gradle", new ProjectInitializer()
+    TYPES.put("gradle", () -> new ProjectInitializer()
         .manager("gradle")
         .projectFileName("build.gradle")
         .sourcesDir(Paths.get("src", "main", "golo"))
@@ -85,7 +86,7 @@ public class InitCommand implements CliCommand {
         .ignore("build/", ".gradle/")
         .runCommand("gradle -q run"));
 
-    TYPES.put("maven", new ProjectInitializer()
+    TYPES.put("maven", () -> new ProjectInitializer()
         .manager("maven")
         .projectFileName("pom.xml")
         .sourcesDir(Paths.get("src", "main", "golo"))
@@ -132,7 +133,7 @@ public class InitCommand implements CliCommand {
     if (this.names.isEmpty()) {
       this.names.add("Golo");
     }
-    ProjectInitializer init = TYPES.get(this.type);
+    ProjectInitializer init = TYPES.get(this.type).get();
     init.setRootPath(this.path);
     init.setVCS(VERSION_SYSTEMS.get(this.vcs));
     init.setProfile(PROFILES.get(this.profile));
