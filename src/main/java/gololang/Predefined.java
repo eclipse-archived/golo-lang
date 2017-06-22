@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package gololang;
 
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
@@ -27,6 +26,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
+import org.objectweb.asm.Type;
 import org.eclipse.golo.runtime.Extractors;
 import org.eclipse.golo.runtime.Loader;
 
@@ -47,7 +47,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Raises a <code>RuntimeException</code> with a message.
    *
@@ -73,7 +72,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Prints to the standard console.
    *
@@ -152,9 +150,7 @@ public final class Predefined {
     return secureReadPassword();
   }
 
-
   // ...................................................................................................................
-
   /**
    * Requires that an object is not the <code>null</code> reference.
    *
@@ -187,17 +183,16 @@ public final class Predefined {
     } else {
       throw new IllegalArgumentException(
           new StringBuilder()
-              .append("Wrong parameters for require: expected (Boolean, String) but got (")
-              .append(condition.getClass().getName())
-              .append(", ")
-              .append(errorMessage.getClass().getName())
-              .append(")")
-              .toString());
+          .append("Wrong parameters for require: expected (Boolean, String) but got (")
+          .append(condition.getClass().getName())
+          .append(", ")
+          .append(errorMessage.getClass().getName())
+          .append(")")
+          .toString());
     }
   }
 
   // ...................................................................................................................
-
   /**
    * Makes a new typed JVM array.
    *
@@ -306,7 +301,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Makes a key / value pair.
    *
@@ -320,7 +314,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Turns a function reference into an instance of a single-method interface.
    *
@@ -358,10 +351,10 @@ public final class Predefined {
         implementations.put(
             method.getName(),
             new FunctionReference(
-              dropArguments(((FunctionReference) func).handle(), 0, Object.class),
-              Arrays.stream(method.getParameters())
-              .map(Parameter::getName)
-              .toArray(String[]::new)));
+                dropArguments(((FunctionReference) func).handle(), 0, Object.class),
+                Arrays.stream(method.getParameters())
+                .map(Parameter::getName)
+                .toArray(String[]::new)));
         configuration.put("implements", implementations);
         return new AdapterFabric().maker(configuration).newInstance();
       }
@@ -380,7 +373,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Obtains a reference to a function.
    *
@@ -405,8 +397,8 @@ public final class Predefined {
     Method targetMethod = null;
     Predicate<Method> candidate = Extractors.matchFunctionReference(functionName, functionArity, isVarargs);
     final List<Method> validCandidates = Extractors.getMethods(moduleClass)
-      .filter(candidate)
-      .collect(toList());
+        .filter(candidate)
+        .collect(toList());
     if (validCandidates.size() == 1) {
       targetMethod = validCandidates.get(0);
       // FIXME: only if the defining module is the calling module (see #319)
@@ -451,8 +443,8 @@ public final class Predefined {
 
   private static FunctionReference toFunctionReference(Method targetMethod, int functionArity) throws Throwable {
     String[] parameterNames = Arrays.stream(targetMethod.getParameters())
-      .map(Parameter::getName)
-      .toArray(String[]::new);
+        .map(Parameter::getName)
+        .toArray(String[]::new);
     if (isMethodDecorated(targetMethod)) {
       return new FunctionReference(getDecoratedMethodHandle(targetMethod, functionArity), parameterNames);
     }
@@ -461,14 +453,13 @@ public final class Predefined {
 
   private static Stream<Method> getImportedFunctions(Class<?> source) {
     return Extractors.getImportedNames(source)
-      .map(Loader.forClass(source))
-      .filter(Objects::nonNull)
-      .flatMap(Extractors::getMethods)
-      .filter(Extractors::isPublic);
+        .map(Loader.forClass(source))
+        .filter(Objects::nonNull)
+        .flatMap(Extractors::getMethods)
+        .filter(Extractors::isPublic);
   }
 
   // ...................................................................................................................
-
   /**
    * Reads the content of a text file.
    *
@@ -585,7 +576,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Checks if an object is a (JVM) array or not.
    *
@@ -615,7 +605,11 @@ public final class Predefined {
   public static Class<?> arrayTypeOf(Object klass) throws ClassNotFoundException {
     require(klass instanceof Class<?>, "klass must be a class");
     Class<?> type = (Class<?>) klass;
-    return Class.forName("[L" + type.getName() + ";", true, type.getClassLoader());
+    return Class.forName("[" + intertnalDescriptorFormClass(type), true, type.getClassLoader());
+  }
+
+  private static String intertnalDescriptorFormClass(Class<?> clazz) {
+    return Type.getDescriptor(clazz).replaceAll("/", ".");
   }
 
   // ...................................................................................................................
@@ -856,7 +850,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Create a {@code String} by concatenating all arguments.
    * <p>
@@ -882,7 +875,6 @@ public final class Predefined {
     }
     return sb.toString();
   }
-
 
   /**
    * Removes an element of a List by index.
@@ -921,7 +913,6 @@ public final class Predefined {
   }
 
   // ...................................................................................................................
-
   /**
    * Varargs version of a list constructor.
    *

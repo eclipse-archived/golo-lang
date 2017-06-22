@@ -6,7 +6,6 @@
  * which accompanies this distribution, and is available at
  * http://www.eclipse.org/legal/epl-v10.html
  */
-
 package gololang;
 
 import org.testng.annotations.Test;
@@ -31,6 +30,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
+import org.testng.Assert;
 
 public class PredefinedTest {
 
@@ -113,12 +113,12 @@ public class PredefinedTest {
     assertThat(Predefined.reversedRange(10L), instanceOf(LongRange.class));
     assertThat(Predefined.reversedRange(10), is(Predefined.reversedRange(10, 0)));
     assertThat(Predefined.reversedRange(10L), is(Predefined.reversedRange(10L, 0L)));
-    assertThat((IntRange)Predefined.reversedRange(5, 1), is(((IntRange)Predefined.range(5, 1)).incrementBy(-1)));
-    assertThat((LongRange)Predefined.reversedRange(5L, 1L), is(((LongRange)Predefined.range(5L, 1L)).incrementBy(-1)));
+    assertThat((IntRange) Predefined.reversedRange(5, 1), is(((IntRange) Predefined.range(5, 1)).incrementBy(-1)));
+    assertThat((LongRange) Predefined.reversedRange(5L, 1L), is(((LongRange) Predefined.range(5L, 1L)).incrementBy(-1)));
     assertThat(Predefined.reversedRange('d', 'a'), instanceOf(CharRange.class));
     assertThat(Predefined.reversedRange('D'), instanceOf(CharRange.class));
     assertThat(Predefined.reversedRange('D'), is(Predefined.reversedRange('D', 'A')));
-    assertThat((CharRange)Predefined.reversedRange('D', 'A'), is(((CharRange)Predefined.range('D', 'A')).incrementBy(-1)));
+    assertThat((CharRange) Predefined.reversedRange('D', 'A'), is(((CharRange) Predefined.range('D', 'A')).incrementBy(-1)));
   }
 
   static class MyCallable {
@@ -230,6 +230,13 @@ public class PredefinedTest {
   @Test
   public void test_arrayOfType() throws ClassNotFoundException {
     assertThat((Class) Predefined.arrayTypeOf(Object.class), sameInstance((Class) Object[].class));
+    assertThat((Class) Predefined.arrayTypeOf(byte.class), sameInstance((Class) byte[].class));
+    try {
+      Predefined.arrayTypeOf(new Object());
+      throw new RuntimeException("set a wrong parameter to arrayTypeOf should raise an AssertionError");
+    } catch (AssertionError ae) {
+      // all right
+    }
     assertThat((Class) Predefined.objectArrayType(), sameInstance((Class) Object[].class));
   }
 
