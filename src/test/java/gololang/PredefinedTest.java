@@ -134,6 +134,10 @@ public class PredefinedTest {
     static Object overloaded(int a) {
       return a + 1;
     }
+
+    private static Object priv(int a) {
+      return a + 1;
+    }
   }
 
   @Test
@@ -156,41 +160,52 @@ public class PredefinedTest {
 
   @Test
   public void test_fun() throws Throwable {
-    FunctionReference hello = Predefined.fun("hello", MyCallable.class, 0);
+    FunctionReference hello = Predefined.fun(null, "hello", MyCallable.class, 0);
     assertThat((String) hello.handle().invoke(), is("Hello!"));
   }
 
   @Test
+  public void test_fun_with_caller() throws Throwable {
+    FunctionReference priv = Predefined.fun(MyCallable.class, "priv", MyCallable.class, 1);
+    assertThat((int) priv.handle().invoke(41), is(42));
+  }
+
+  @Test(expectedExceptions = IllegalAccessException.class)
+  public void test_fun_with_bad_caller() throws Throwable {
+    Predefined.fun(PredefinedTest.class, "priv", MyCallable.class, 1);
+  }
+
+  @Test
   public void test_fun_no_arity() throws Throwable {
-    FunctionReference hello = Predefined.fun("hello", MyCallable.class);
+    FunctionReference hello = Predefined.fun(null, "hello", MyCallable.class);
     assertThat((String) hello.handle().invoke(), is("Hello!"));
   }
 
   @Test(expectedExceptions = NoSuchMethodException.class)
   public void test_fun_fail() throws Throwable {
-    Predefined.fun("helloz", MyCallable.class, 0);
+    Predefined.fun(null, "helloz", MyCallable.class, 0);
   }
 
   @Test(expectedExceptions = AmbiguousFunctionReferenceException.class)
   public void test_fun_ambiguous() throws Throwable {
-    Object overloaded = Predefined.fun("overloaded", MyCallable.class);
+    Object overloaded = Predefined.fun(null, "overloaded", MyCallable.class);
   }
 
   @Test(expectedExceptions = WrongMethodTypeException.class)
   public void test_fun_wrong_arity() throws Throwable {
-    FunctionReference overloaded = Predefined.fun("overloaded", MyCallable.class, 1);
+    FunctionReference overloaded = Predefined.fun(null, "overloaded", MyCallable.class, 1);
     overloaded.handle().invoke(1, 2);
   }
 
   @Test
   public void test_fun_overloaded1() throws Throwable {
-    FunctionReference overloaded = Predefined.fun("overloaded", MyCallable.class, 1);
+    FunctionReference overloaded = Predefined.fun(null, "overloaded", MyCallable.class, 1);
     assertThat((Integer) overloaded.handle().invoke(2), is(3));
   }
 
   @Test
   public void test_fun_overloaded2() throws Throwable {
-    FunctionReference overloaded = Predefined.fun("overloaded", MyCallable.class, 2);
+    FunctionReference overloaded = Predefined.fun(null, "overloaded", MyCallable.class, 2);
     assertThat((Integer) overloaded.handle().invoke(1, 2), is(3));
   }
 

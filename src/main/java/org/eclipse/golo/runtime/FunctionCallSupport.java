@@ -16,6 +16,7 @@ import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
+import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.permuteArguments;
@@ -132,7 +133,7 @@ public final class FunctionCallSupport {
     String[] argumentNames = callSite.argumentNames;
 
     MethodHandle handle = null;
-    Object result = findStaticMethodOrField(callerClass, functionName, args);
+    Object result = findStaticMethodOrField(callerClass, callerClass, functionName, args);
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, args);
     }
@@ -157,11 +158,15 @@ public final class FunctionCallSupport {
         handle = getDecoratedMethodHandle(caller, method, type.parameterCount());
       } else {
         types = method.getParameterTypes();
+        handle = caller.unreflect(method);
+        if (method.isAnnotationPresent(WithCaller.class)) {
+          handle = handle.bindTo(callerClass);
+        }
         //TODO: improve varargs support on named arguments. Matching the last param type + according argument
         if (isVarargsWithNames(method, types, args, argumentNames)) {
-          handle = caller.unreflect(method).asFixedArity().asType(type);
+          handle = handle.asFixedArity().asType(type);
         } else {
-          handle = caller.unreflect(method).asType(type);
+          handle = handle.asType(type);
         }
       }
       handle = reorderArguments(method, handle, argumentNames);
@@ -300,7 +305,7 @@ public final class FunctionCallSupport {
           importedClass = Class.forName(importedClassName + "." + classAndMethod[0], true, callerClass.getClassLoader());
         }
         String lookup = (classAndMethod == null) ? functionName : classAndMethod[1];
-        Object result = findStaticMethodOrField(importedClass, lookup, args);
+        Object result = findStaticMethodOrField(callerClass, importedClass, lookup, args);
         if (result != null) {
           return result;
         }
@@ -319,7 +324,7 @@ public final class FunctionCallSupport {
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
       try {
         Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
-        return findStaticMethodOrField(targetClass, methodName, args);
+        return findStaticMethodOrField(callerClass, targetClass, methodName, args);
       } catch (ClassNotFoundException ignored) {
         // ignored to try the next strategy
         Warnings.unavailableClass(className, callerClass.getName());
@@ -328,24 +333,24 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findStaticMethodOrField(Class<?> klass, String name, Object[] arguments) {
+  private static Object findStaticMethodOrField(Class<?> caller, Class<?> klass, String name, Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
-      if (methodMatches(name, arguments, method, false)) {
+      if (methodMatches(caller, name, arguments, method, false)) {
         return method;
       }
     }
     for (Method method : klass.getMethods()) {
-      if (methodMatches(name, arguments, method, false)) {
+      if (methodMatches(caller, name, arguments, method, false)) {
         return method;
       }
     }
     for (Method method : klass.getDeclaredMethods()) {
-      if (methodMatches(name, arguments, method, true)) {
+      if (methodMatches(caller, name, arguments, method, true)) {
         return method;
       }
     }
     for (Method method : klass.getMethods()) {
-      if (methodMatches(name, arguments, method, true)) {
+      if (methodMatches(caller, name, arguments, method, true)) {
         return method;
       }
     }
@@ -364,15 +369,19 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static boolean methodMatches(String name, Object[] arguments, Method method, boolean varargs) {
-    if (method.getName().equals(name) && isStatic(method.getModifiers())) {
-      if (isMethodDecorated(method)) {
-        return true;
-      } else {
-        if (TypeMatching.argumentsMatch(method, arguments, varargs)) {
-          return true;
-        }
-      }
+  private static boolean methodMatches(Class<?> caller, String name, Object[] arguments, Method method, boolean varargs) {
+    return methodMatches(caller, name, arguments, method, varargs, true);
+  }
+
+  private static boolean methodMatches(Class<?> caller, String name, Object[] arguments, Method method, boolean varargs, boolean tryCaller) {
+    if (!method.getName().equals(name) || !isStatic(method.getModifiers())) { return false; }
+    if (isMethodDecorated(method)) { return true; }
+    if (TypeMatching.argumentsMatch(method, arguments, varargs)) { return true; }
+    if (method.isAnnotationPresent(WithCaller.class) && tryCaller) {
+      Object[] argsWithCaller = new Object[arguments.length + 1];
+      argsWithCaller[0] = caller;
+      System.arraycopy(arguments, 0, argsWithCaller, 1, arguments.length);
+      return methodMatches(caller, name, argsWithCaller, method, varargs, false);
     }
     return false;
   }
