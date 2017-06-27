@@ -29,6 +29,7 @@ import java.util.stream.Stream;
 import org.objectweb.asm.Type;
 import org.eclipse.golo.runtime.Extractors;
 import org.eclipse.golo.runtime.Loader;
+import org.eclipse.golo.runtime.WithCaller;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.reflect.Modifier.isStatic;
@@ -385,7 +386,8 @@ public final class Predefined {
    * @throws IllegalArgumentException if the argument types are not of types <code>(String, Class, Integer)</code>.
    * @throws Throwable                if an error occurs.
    */
-  public static FunctionReference fun(Object name, Object module, Object arity, Object varargs) throws Throwable {
+  @WithCaller
+  public static FunctionReference fun(Class<?> caller, Object name, Object module, Object arity, Object varargs) throws Throwable {
     require(name instanceof String, "name must be a String");
     require(module instanceof Class, "module must be a module (e.g., foo.bar.Some.module)");
     require(arity instanceof Integer, "name must be an Integer");
@@ -401,8 +403,9 @@ public final class Predefined {
         .collect(toList());
     if (validCandidates.size() == 1) {
       targetMethod = validCandidates.get(0);
-      // FIXME: only if the defining module is the calling module (see #319)
-      targetMethod.setAccessible(true);
+      if (module == caller || caller == null) {
+        targetMethod.setAccessible(true);
+      }
       return toFunctionReference(targetMethod, functionArity);
     }
     if (validCandidates.size() > 1) {
@@ -426,8 +429,9 @@ public final class Predefined {
    *
    * @see Predefined#fun(Object, Object, Object, Object)
    */
-  public static FunctionReference fun(Object name, Object module, Object arity) throws Throwable {
-    return fun(name, module, arity, false);
+  @WithCaller
+  public static FunctionReference fun(Class<?> caller, Object name, Object module, Object arity) throws Throwable {
+    return fun(caller, name, module, arity, false);
   }
 
   /**
@@ -437,8 +441,9 @@ public final class Predefined {
    *
    * @see Predefined#fun(Object, Object, Object)
    */
-  public static FunctionReference fun(Object name, Object module) throws Throwable {
-    return fun(name, module, -1);
+  @WithCaller
+  public static FunctionReference fun(Class<?> caller, Object name, Object module) throws Throwable {
+    return fun(caller, name, module, -1);
   }
 
   private static FunctionReference toFunctionReference(Method targetMethod, int functionArity) throws Throwable {
