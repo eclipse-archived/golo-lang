@@ -60,6 +60,14 @@ public class MethodInvocationSupportTest {
       return score / 2;
     }
 
+    public int getScore() {
+      return score;
+    }
+
+    public int score() {
+      return score * 2;
+    }
+
     public boolean isRockStar() {
       return goloCommitter;
     }
@@ -141,6 +149,19 @@ public class MethodInvocationSupportTest {
     Person julien = julien();
     String name = (String) getName.dynamicInvoker().invokeWithArguments(julien);
     assertThat(name, is("Julien"));
+  }
+
+  /**
+   * The property magic should not be used if a regular method exists.
+   */
+  @Test
+  public void check_property_style_priority() throws Throwable {
+    CallSite getScore = MethodInvocationSupport.bootstrap(lookup(), "getScore", methodType(Object.class, Object.class), 0);
+    CallSite score = MethodInvocationSupport.bootstrap(lookup(), "score", methodType(Object.class, Object.class), 0);
+    Person julien = julien();
+    julien.setScore(100);
+    assertThat((Integer) getScore.dynamicInvoker().invokeWithArguments(julien), is(100));
+    assertThat((Integer) score.dynamicInvoker().invokeWithArguments(julien), is(200));
   }
 
   @Test(expectedExceptions = NoSuchMethodError.class, expectedExceptionsMessageRegExp = ".*Person::notAccessible.*")
