@@ -36,6 +36,7 @@ ext {
   goloCliMain = 'org.eclipse.golo.cli.Main'
   goloSources = fileTree('src/main/golo').include('**/*.golo')
   goloDocs = file("$buildDir/docs/golodoc")
+  goloClasses = file("$buildDir/golo-classes")
 }
 
 // .................................................................................................................. //
@@ -107,16 +108,17 @@ jar {
     license 'http://www.eclipse.org/legal/epl-v10.html'
     description 'A dynamic language for the JVM'
   }
+  from(goloClasses)
 }
 
 // .................................................................................................................. //
 
 task goloc(type: JavaExec, dependsOn: [compileJava, processResources]) {
   main = goloCliMain
-  args = ['compile', '--output', sourceSets.main.output.classesDir] + goloSources
+  args = ['compile', '--output', goloClasses] + goloSources
   classpath = sourceSets.main.compileClasspath + files(compileJava.outputs) + files(processResources.outputs)
   inputs.files goloSources
-  outputs.dir sourceSets.main.output.classesDir
+  outputs.dir goloClasses
   description = 'Compiles Golo source files.'
   group = 'Build'
 }
@@ -128,6 +130,7 @@ if (!project.hasProperty('bootstrap')) {
 // .................................................................................................................. //
 
 test {
+  classpath = files(project.sourceSets.test.runtimeClasspath, goloClasses)
   useTestNG()
   testLogging.showStandardStreams = project.hasProperty('consoleTraceTests')
   environment 'golo.bootstrapped', project.hasProperty('bootstrap') ? 'yes' : 'no'
@@ -192,7 +195,7 @@ assemble.dependsOn assembleAsciidoc
 task golodoc(type: JavaExec, dependsOn: goloc) {
   main = goloCliMain
   args = ['doc', '--format', 'html', '--output', goloDocs] + goloSources
-  classpath = sourceSets.main.runtimeClasspath
+  classpath = files(sourceSets.main.runtimeClasspath, goloClasses)
   inputs.files goloSources
   outputs.dir goloDocs
   description = 'Generates documentation of the standard Golo modules.'
@@ -464,7 +467,7 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
 // .................................................................................................................. //
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '3.5'
+  gradleVersion = '4.0'
   description 'Generates the Gradle wrapper scripts.'
 }
 
