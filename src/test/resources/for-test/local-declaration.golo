@@ -1,14 +1,14 @@
 
-module TestWhere
+module TestLocalDeclaration
 
 function f = |x| -> match {
   when x <= 0 then 0
-  otherwise d where {
+  otherwise d with {
     d = 2 * x
   }
 }
 
-function g = -> b + (2 * a + 2) where {
+function g = -> b + (2 * a + 2) with {
 
   # some comment
   a = 20
@@ -19,13 +19,13 @@ function g = -> b + (2 * a + 2) where {
 }
 
 
-function sum = |lst| -> sum(0, lst) where {
+function sum = |lst| -> sum(0, lst) with {
   # private lambda with the accumulator
   sum = |acc, lst| -> match {
     when lst: isEmpty() then acc
 
     # recursive terminal call
-    otherwise sum(acc + head, tail) where {
+    otherwise sum(acc + head, tail) with {
 
       # list destructuring
       head, tail... = lst
@@ -38,21 +38,21 @@ function h = |x| -> match {
   when a < 0 then 1337
   when a > 10 then 2 * a
   otherwise a
-} where {
+} with {
   a = x + 1
 }
 
 function comp = |it| -> list[
-  a + 1 where { a = x / 2 }
+  a + 1 with { a = x / 2 }
   foreach x in it
 ]
 
-function comp2 = |i| -> l: size() where {
+function comp2 = |i| -> l: size() with {
   l = list[a + 1 foreach a in range(i)]
 }
 
 function clos = {
-  return (|x| -> |y| -> x + y + c)(a)(b) where {
+  return (|x| -> |y| -> x + y + c)(a)(b) with {
     a = 1
     b = 2
     c = 3
@@ -60,7 +60,7 @@ function clos = {
 }
 
 function compo = |x| {
-  let c = f: andThen(g) where {
+  let c = f: andThen(g) with {
     f = |x| -> "f" + x
     g = |y| -> "g" + y
   }
@@ -68,7 +68,7 @@ function compo = |x| {
 }
 
 
-function test_where = {
+function test_with = {
   require(f(-1) == 0, "err")
   require(f(21) == 42, "err")
   require(g() == "foo42", "err")
@@ -90,5 +90,5 @@ function test_where = {
 }
 
 function main = |args| {
-  test_where()
+  test_with()
 }

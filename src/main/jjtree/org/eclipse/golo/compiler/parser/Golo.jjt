@@ -180,8 +180,6 @@ TOKEN :
   < STRUCT: "struct" >
   |
   < UNION: "union" >
-  |
-  < WHERE: "where" >
 }
 
 // Operators
@@ -1149,12 +1147,12 @@ void TryCatchFinally():
 
 void ExpressionStatement(): {}
 {
-  OrIfNullExpression() (LOOKAHEAD(2) WhereDeclaration())? (LOOKAHEAD(1) BlankLine())?
+  OrIfNullExpression() (LOOKAHEAD(2) LocalDeclaration())? (LOOKAHEAD(1) BlankLine())?
 }
 
-void WhereDeclaration(): {}
+void LocalDeclaration(): {}
 {
-  <WHERE> "{"
+  <WITH> "{"
   (LOOKAHEAD(3)
     Assignment()
     |

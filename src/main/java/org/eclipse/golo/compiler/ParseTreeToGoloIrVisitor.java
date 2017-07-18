@@ -38,7 +38,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     private Deque<FunctionContainer> functionContainersStack = new LinkedList<>();
     private Deque<Object> objectStack = new LinkedList<>();
     private Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
-    public boolean inWhere = false;
+    public boolean inLocalDeclaration = false;
     private GoloCompilationException.Builder exceptionBuilder;
 
     public void push(Object object) {
@@ -146,7 +146,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
 
     public LocalReference getReference(String name, GoloASTNode node) {
-      if (inWhere) {
+      if (inLocalDeclaration) {
         return getOrCreateReference(ASTLetOrVar.Type.LET, name, false, node);
       }
       return referenceTableStack.peek().get(name);
@@ -155,7 +155,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     private LocalReference getOrCreateReference(ASTLetOrVar.Type type, String name, boolean module, GoloASTNode node) {
       if (type != null) {
         LocalReference val = localRef(name).kind(referenceKindOf(type, module)).ofAST(node);
-        if (!inWhere) {
+        if (!inLocalDeclaration) {
           referenceTableStack.peek().add(val);
         }
         return val;
@@ -897,20 +897,20 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   }
 
   @Override
-  public Object visit(ASTWhereDeclaration node, Object data) {
+  public Object visit(ASTLocalDeclaration node, Object data) {
     Context context = (Context) data;
     ExpressionStatement expr = (ExpressionStatement) context.peek();
-    boolean oldState = context.inWhere;
-    context.inWhere = true;
+    boolean oldState = context.inLocalDeclaration;
+    context.inLocalDeclaration = true;
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {
       node.jjtGetChild(i).jjtAccept(this, data);
       try {
-        expr.where(context.pop());
+        expr.with(context.pop());
       } catch (UnsupportedOperationException ex) {
         context.errorMessage(PARSING, node, ex.getMessage());
       }
     }
-    context.inWhere = oldState;
+    context.inLocalDeclaration = oldState;
     return data;
   }
 }

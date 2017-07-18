@@ -10,14 +10,15 @@
 package org.eclipse.golo.compiler.ir;
 
 import java.util.LinkedList;
-import java.util.List;
-import static java.util.Collections.unmodifiableList;
 
 public abstract class ExpressionStatement extends GoloStatement {
 
   private final LinkedList<GoloAssignment> declarations = new LinkedList<>();
 
-  public ExpressionStatement where(Object a) {
+  /**
+   * Defines a variable declaration (assignment) local to this expression.
+   */
+  public ExpressionStatement with(Object a) {
     if (!(a instanceof GoloAssignment)) {
       throw new IllegalArgumentException(("Must be an assignment, got " + a));
     }
@@ -27,14 +28,23 @@ public abstract class ExpressionStatement extends GoloStatement {
     return this;
   }
 
+  /**
+   * Returns the local declarations of this expression if any.
+   */
   public GoloAssignment[] declarations() {
     return declarations.toArray(new GoloAssignment[declarations.size()]);
   }
 
+  /**
+   * Checks if this expression has local variable declarations.
+   */
   public boolean hasLocalDeclarations() {
     return !declarations.isEmpty();
   }
 
+  /**
+   * Removes all local declarations.
+   */
   public void clearDeclarations() {
     declarations.clear();
   }

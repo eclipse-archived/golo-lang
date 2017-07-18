@@ -332,13 +332,13 @@ let 666_club = 666
 
 === Local definitions
 
-It is possible to define a constant reference locally to the evaluation of an expression using the `where` keyword.
+It is possible to define a constant reference locally to the evaluation of an expression using the `with` keyword.
 
 For instance:
 
 [source,golo]
 ----
-let r = [a + 1, a - 1] where { a = 42 }
+let r = [a + 1, a - 1] with { a = 42 }
 ----
 
 is functionally equivalent to
@@ -352,7 +352,7 @@ let r = [a + 1, a - 1]
 However, the `a` variable exists only in the scope of the expression evaluation. Indeed, code like:
 [source,golo]
 ----
-let r = [a + 1, a - 1] where { a = 42 }
+let r = [a + 1, a - 1] with { a = 42 }
 println(a)
 ----
 

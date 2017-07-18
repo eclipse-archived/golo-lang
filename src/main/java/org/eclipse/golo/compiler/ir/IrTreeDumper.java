@@ -455,7 +455,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     if (expr.hasLocalDeclarations()) {
       incr();
       space();
-      System.out.println("Where:");
+      System.out.println("Local declaration:");
       for (GoloAssignment a : expr.declarations()) {
         a.accept(this);
       }

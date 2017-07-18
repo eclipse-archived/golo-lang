@@ -35,8 +35,13 @@ public final class NamedArgument extends ExpressionStatement {
     return this;
   }
 
+  /**
+   * {@inheritDoc}
+   *
+   * <p>Always throws an exception since {@link NamedArgument} can't have a local declaration.
+   */
   @Override
-  public ExpressionStatement where(Object a) {
+  public ExpressionStatement with(Object a) {
     throw new UnsupportedOperationException(message("invalid_local_definition", this.getClass().getName()));
   }
 

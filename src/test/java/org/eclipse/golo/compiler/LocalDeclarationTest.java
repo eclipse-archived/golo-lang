@@ -23,12 +23,12 @@ import static org.hamcrest.Matchers.*;
 import static org.testng.Assert.fail;
 import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
 
-public class WhereTest extends GoloTest {
+public class LocalDeclarationTest extends GoloTest {
 
   protected String srcDir() { return "for-test/"; }
 
   @Test
-  public void where() throws Throwable {
-    run("where");
+  public void localDeclaration() throws Throwable {
+    run("local-declaration");
   }
 }

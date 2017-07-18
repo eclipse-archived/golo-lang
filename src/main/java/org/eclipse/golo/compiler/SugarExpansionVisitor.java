@@ -385,7 +385,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Block b = Builders.block((Object[]) expr.declarations());
     expr.replaceInParentBy(b);
     expr.clearDeclarations();
-    LocalReference  r = Builders.localRef(symbols.next("where")).synthetic();
+    LocalReference  r = Builders.localRef(symbols.next("localdec")).synthetic();
     b.add(Builders.define(r).as(expr));
     b.add(r.lookup());
     b.accept(this);
