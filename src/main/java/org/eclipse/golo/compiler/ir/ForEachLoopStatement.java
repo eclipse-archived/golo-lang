@@ -16,7 +16,7 @@ import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class ForEachLoopStatement extends GoloStatement implements Scope, BlockContainer {
+public final class ForEachLoopStatement extends GoloStatement implements BlockContainer, ReferencesHolder {
   private Block block = Block.emptyBlock();
   private ExpressionStatement iterable;
   private final List<LocalReference> valueRefs = new LinkedList<>();
@@ -82,12 +82,24 @@ public final class ForEachLoopStatement extends GoloStatement implements Scope, 
     return this.isVarargs;
   }
 
-  public LocalReference getReference() {
+  public LocalReference getLocalReference() {
     return valueRefs.get(0);
   }
 
-  public List<LocalReference> getReferences() {
-    return unmodifiableList(valueRefs);
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public LocalReference[] getReferences() {
+    return valueRefs.toArray(new LocalReference[valueRefs.size()]);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getReferencesCount() {
+    return valueRefs.size();
   }
 
   public boolean hasWhenClause() {
@@ -96,16 +108,6 @@ public final class ForEachLoopStatement extends GoloStatement implements Scope, 
 
   public ExpressionStatement getWhenClause() {
     return whenClause;
-  }
-
-  @Override
-  public void relink(ReferenceTable table) {
-    block.relink(table);
-  }
-
-  @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    block.relinkTopLevel(table);
   }
 
   @Override

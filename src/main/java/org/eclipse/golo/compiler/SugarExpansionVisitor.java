@@ -41,18 +41,20 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   @Override
   public void visitClosureReference(ClosureReference closure) {
     functionsToAdd.add(closure.getTarget().name(symbols.next("closure")));
-    closure.walk(this);
+    visitExpression(closure);
   }
 
   @Override
   public void visitFunction(GoloFunction function) {
     function.insertMissingReturnStatement();
-    function.walk(this);
-    if (function.hasDecorators() && function.getParentNode().isPresent()) {
-      FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
-      GoloFunction decorator = function.createDecorator();
-      parent.addFunction(decorator);
-      decorator.accept(this);
+    if (!expressionToBlock(function)) {
+      function.walk(this);
+      if (function.hasDecorators() && function.getParentNode().isPresent()) {
+        FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
+        GoloFunction decorator = function.createDecorator();
+        parent.addFunction(decorator);
+        decorator.accept(this);
+      }
     }
   }
 
@@ -131,11 +133,14 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       caseStatement.when(c.condition())
         .then(block(assign(c.action()).to(tempVar)));
     }
-    Block block = block(
-      define(tempVar).as(constant(null)),
-      caseStatement,
-      tempVar.lookup()
-    );
+    Block block = block();
+    for (GoloAssignment a : matchExpression.declarations()) {
+      block.add(a);
+    }
+    matchExpression.clearDeclarations();
+    block.add(define(tempVar).as(constant(null)));
+    block.add(caseStatement);
+    block.add(tempVar.lookup());
     matchExpression.replaceInParentBy(block);
     block.accept(this);
   }
@@ -147,11 +152,13 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    */
   @Override
   public void visitCollectionLiteral(CollectionLiteral collection) {
-    collection.walk(this);
-    AbstractInvocation construct = call("gololang.Predefined." + collection.getType().toString())
-      .withArgs(collection.getExpressions().toArray());
-    collection.replaceInParentBy(construct);
-    construct.accept(this);
+    if (!expressionToBlock(collection)) {
+      collection.walk(this);
+      AbstractInvocation construct = call("gololang.Predefined." + collection.getType().toString())
+        .withArgs(collection.getExpressions().toArray());
+      collection.replaceInParentBy(construct);
+      construct.accept(this);
+    }
   }
 
   @Override
@@ -199,7 +206,12 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     LocalReference tempVar = localRef(symbols.next("comprehension"))
       .variable()
       .synthetic();
-    Block mainBlock = block(define(tempVar).as(collection(tempColType)));
+    Block mainBlock = block();
+    for (GoloAssignment a : collection.declarations()) {
+      mainBlock.add(a);
+    }
+    collection.clearDeclarations();
+    mainBlock.add(define(tempVar).as(collection(tempColType)));
     Block innerBlock = mainBlock;
     for (Block loop : collection.getLoopBlocks()) {
       innerBlock.addStatement(loop);
@@ -265,12 +277,11 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       loopInnerBlock.prependStatement(
           destruct().declaring()
           .varargs(foreachStatement.isVarargs())
-          .to(foreachStatement.getReferences())
-          .expression(
-            invoke("next").on(iterVar.lookup())));
+          .to((Object[]) foreachStatement.getReferences())
+          .as(invoke("next").on(iterVar.lookup())));
     } else {
       loopInnerBlock.prependStatement(
-          define(foreachStatement.getReference()).as(invoke("next").on(iterVar.lookup())));
+          define(foreachStatement.getLocalReference()).as(invoke("next").on(iterVar.lookup())));
     }
 
     // build the equivalent loop
@@ -303,8 +314,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   public void visitDestructuringAssignment(DestructuringAssignment assignment) {
     LocalReference tmpRef = localRef(symbols.next("destruct")).synthetic();
     Block block = block()
-      .add(define(tmpRef).as(invoke("destruct").on(assignment.getExpression())));
-    int last = assignment.getReferences().size() - 1;
+      .add(define(tmpRef).as(invoke("destruct").on(assignment.getExpressionStatement())));
+    int last = assignment.getReferencesCount() - 1;
     int idx = 0;
     for (LocalReference ref : assignment.getReferences()) {
       block.add(assignment().declaring(assignment.isDeclaring())
@@ -325,6 +336,60 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   @Override
   public void visitStruct(Struct struct) {
     module.addFunctions(struct.createFactories());
+  }
+
+  @Override
+  public void visitBinaryOperation(BinaryOperation op) {
+    visitExpression(op);
+  }
+
+  @Override
+  public void visitUnaryOperation(UnaryOperation op) {
+    visitExpression(op);
+  }
+
+  @Override
+  public void visitBlock(Block block) {
+    visitExpression(block);
+  }
+
+  @Override
+  public void visitReferenceLookup(ReferenceLookup ref) {
+    visitExpression(ref);
+  }
+
+  @Override
+  public void visitFunctionInvocation(FunctionInvocation fun) {
+    visitExpression(fun);
+  }
+
+  @Override
+  public void visitMethodInvocation(MethodInvocation invoke) {
+    visitExpression(invoke);
+  }
+
+  private void visitExpression(ExpressionStatement expr) {
+    if (!expressionToBlock(expr)) {
+      expr.walk(this);
+    }
+  }
+
+  /**
+   * Convert an expression with local declarations into a block.
+   */
+  private boolean expressionToBlock(ExpressionStatement expr) {
+    // TODO: make TCO aware expansion? (or wait for a more general optimization pass)
+    if (!expr.hasLocalDeclarations()) {
+      return false;
+    }
+    Block b = Builders.block((Object[]) expr.declarations());
+    expr.replaceInParentBy(b);
+    expr.clearDeclarations();
+    LocalReference  r = Builders.localRef(symbols.next("localdec")).synthetic();
+    b.add(Builders.define(r).as(expr));
+    b.add(r.lookup());
+    b.accept(this);
+    return true;
   }
 
 }

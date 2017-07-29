@@ -38,6 +38,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     private Deque<FunctionContainer> functionContainersStack = new LinkedList<>();
     private Deque<Object> objectStack = new LinkedList<>();
     private Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
+    public boolean inLocalDeclaration = false;
     private GoloCompilationException.Builder exceptionBuilder;
 
     public void push(Object object) {
@@ -145,13 +146,18 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     }
 
     public LocalReference getReference(String name, GoloASTNode node) {
+      if (inLocalDeclaration) {
+        return getOrCreateReference(ASTLetOrVar.Type.LET, name, false, node);
+      }
       return referenceTableStack.peek().get(name);
     }
 
     private LocalReference getOrCreateReference(ASTLetOrVar.Type type, String name, boolean module, GoloASTNode node) {
       if (type != null) {
         LocalReference val = localRef(name).kind(referenceKindOf(type, module)).ofAST(node);
-        referenceTableStack.peek().add(val);
+        if (!inLocalDeclaration) {
+          referenceTableStack.peek().add(val);
+        }
         return val;
       }
       return getReference(name, node);
@@ -159,10 +165,6 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     public void setExceptionBuilder(GoloCompilationException.Builder builder) {
       exceptionBuilder = builder;
-    }
-
-    public GoloCompilationException.Builder getExceptionBuilder() {
-      return exceptionBuilder;
     }
 
     private GoloCompilationException.Builder getOrCreateExceptionBuilder() {
@@ -456,7 +458,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.childrenAccept(this, data);
     if (reference == null) {
       context.errorMessage(UNDECLARED_REFERENCE, node,
-          message("undeclared_reference", node.getName()));
+          message("undeclared_reference_assignment", node.getName()));
     } else {
       AssignmentStatement assignmentStatement = assign(context.pop()).to(reference).ofAST(node);
       context.push(assignmentStatement);
@@ -472,7 +474,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     DestructuringAssignment builder = destruct().ofAST(node)
       .declaring(node.getType() != null)
       .varargs(node.isVarargs())
-      .expression(context.pop());
+      .as(context.pop());
 
     for (String name : node.getNames()) {
       LocalReference val = context.getOrCreateReference(node, name);
@@ -891,6 +893,24 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     BinaryOperation operation = assembleBinaryOperation(statements, nCopies(node.count(), OperatorType.ORIFNULL));
     context.push(operation);
     node.setIrElement(operation);
+    return data;
+  }
+
+  @Override
+  public Object visit(ASTLocalDeclaration node, Object data) {
+    Context context = (Context) data;
+    ExpressionStatement expr = (ExpressionStatement) context.peek();
+    boolean oldState = context.inLocalDeclaration;
+    context.inLocalDeclaration = true;
+    for (int i = 0; i < node.jjtGetNumChildren(); i++) {
+      node.jjtGetChild(i).jjtAccept(this, data);
+      try {
+        expr.with(context.pop());
+      } catch (UnsupportedOperationException ex) {
+        context.errorMessage(PARSING, node, ex.getMessage());
+      }
+    }
+    context.inLocalDeclaration = oldState;
     return data;
   }
 }

@@ -1147,7 +1147,20 @@ void TryCatchFinally():
 
 void ExpressionStatement(): {}
 {
-  OrIfNullExpression() (LOOKAHEAD(1) BlankLine())?
+  OrIfNullExpression() (LOOKAHEAD(2) LocalDeclaration())? (LOOKAHEAD(1) BlankLine())?
+}
+
+void LocalDeclaration(): {}
+{
+  <WITH> "{"
+  (LOOKAHEAD(3)
+    Assignment()
+    |
+    DestructuringAssignment()
+    |
+    BlankLine()
+  )+
+  "}"
 }
 
 void Atom() #void: {}

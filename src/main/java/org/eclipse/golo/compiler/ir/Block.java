@@ -19,7 +19,7 @@ import static java.util.Collections.unmodifiableList;
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Objects.requireNonNull;
 
-public final class Block extends ExpressionStatement implements Scope {
+public final class Block extends ExpressionStatement {
   private final List<GoloStatement> statements = new LinkedList<>();
   private ReferenceTable referenceTable;
   private boolean hasReturn = false;
@@ -139,16 +139,6 @@ public final class Block extends ExpressionStatement implements Scope {
 
   public boolean isEmpty() {
     return statements.isEmpty();
-  }
-
-  @Override
-  public void relink(ReferenceTable table) {
-    this.referenceTable.relink(table);
-  }
-
-  @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    this.referenceTable.relinkTopLevel(table);
   }
 
   @Override

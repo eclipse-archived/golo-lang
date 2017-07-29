@@ -14,7 +14,7 @@ import java.util.Objects;
 
 import static org.eclipse.golo.compiler.ir.Builders.*;
 
-public final class LoopStatement extends GoloStatement implements Scope, BlockContainer {
+public final class LoopStatement extends GoloStatement implements BlockContainer, ReferencesHolder {
 
   private AssignmentStatement initStatement = null;
   private ExpressionStatement conditionStatement = constant(false);
@@ -108,14 +108,23 @@ public final class LoopStatement extends GoloStatement implements Scope, BlockCo
     return postStatement != null;
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void relink(ReferenceTable table) {
-    block.relink(table);
+  public LocalReference[] getReferences() {
+    if (hasInitStatement()) {
+      return new LocalReference[]{getInitStatement().getLocalReference()};
+    }
+    return new LocalReference[0];
   }
 
+  /**
+   * {@inheritDoc}
+   */
   @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    block.relinkTopLevel(table);
+  public int getReferencesCount() {
+    return hasInitStatement() ? 1 : 0;
   }
 
   @Override

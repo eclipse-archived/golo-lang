@@ -11,10 +11,9 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class AssignmentStatement extends GoloStatement {
+public final class AssignmentStatement extends GoloAssignment {
+
   private LocalReference localReference;
-  private ExpressionStatement expressionStatement;
-  private boolean declaring = false;
 
   AssignmentStatement() { super(); }
 
@@ -27,16 +26,14 @@ public final class AssignmentStatement extends GoloStatement {
     return this;
   }
 
-  public boolean isDeclaring() {
-    return declaring;
-  }
-
+  @Override
   public AssignmentStatement declaring() {
-    return declaring(true);
+    return this.declaring(true);
   }
 
+  @Override
   public AssignmentStatement declaring(boolean isDeclaring) {
-    this.declaring = isDeclaring;
+    super.declaring(isDeclaring);
     return this;
   }
 
@@ -45,30 +42,49 @@ public final class AssignmentStatement extends GoloStatement {
   }
 
   /**
-   * Defines the reference to assign to.
+   * {@inheritDoc}
    */
-  public AssignmentStatement to(Object ref) {
-    localReference = (LocalReference) ref;
+  @Override
+  public LocalReference[] getReferences() {
+    if (localReference != null) {
+      return new LocalReference[]{localReference};
+    }
+    return new LocalReference[0];
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public int getReferencesCount() {
+    return localReference == null ? 0 : 1;
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
+  public AssignmentStatement to(Object... refs) {
+    if (refs.length != 1 || refs[0] == null) {
+      throw new IllegalArgumentException("Must assign to one reference");
+    }
+    localReference = (LocalReference) refs[0];
     makeParentOf(localReference);
     return this;
   }
 
-  public ExpressionStatement getExpressionStatement() {
-    return expressionStatement;
-  }
-
   /**
-   * Defines the value to be assigned.
+   * @inheritDoc
    */
+  @Override
   public AssignmentStatement as(Object expr) {
-    expressionStatement = (ExpressionStatement) expr;
-    makeParentOf(expressionStatement);
+    super.as(expr);
     return this;
   }
 
   @Override
   public String toString() {
-    return String.format("%s = %s", localReference, expressionStatement);
+    return String.format("%s = %s", localReference, getExpressionStatement().toString());
   }
 
   /**
@@ -84,18 +100,7 @@ public final class AssignmentStatement extends GoloStatement {
    */
   @Override
   public void walk(GoloIrVisitor visitor) {
-    expressionStatement.accept(visitor);
+    super.walk(visitor);
   }
 
-  /**
-   * @inheritDoc
-   */
-  @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
-    if (original.equals(expressionStatement) && newElement instanceof ExpressionStatement) {
-      as(newElement);
-    } else {
-      throw cantReplace(original, newElement);
-    }
-  }
 }

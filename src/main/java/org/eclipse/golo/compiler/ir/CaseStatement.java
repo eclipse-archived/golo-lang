@@ -15,7 +15,7 @@ import java.util.LinkedList;
 import static java.util.Collections.unmodifiableList;
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class CaseStatement extends GoloStatement implements Scope, Alternatives<Block> {
+public final class CaseStatement extends GoloStatement implements Alternatives<Block> {
 
   private Block otherwise;
   private final LinkedList<WhenClause<Block>> clauses = new LinkedList<>();
@@ -54,22 +54,6 @@ public final class CaseStatement extends GoloStatement implements Scope, Alterna
   public CaseStatement ofAST(GoloASTNode n) {
     super.ofAST(n);
     return this;
-  }
-
-  @Override
-  public void relink(ReferenceTable table) {
-    this.getOtherwise().relink(table);
-    for (WhenClause<Block> c : getClauses()) {
-      c.action().relink(table);
-    }
-  }
-
-  @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    this.getOtherwise().relinkTopLevel(table);
-    for (WhenClause<Block> c : getClauses()) {
-      c.action().relinkTopLevel(table);
-    }
   }
 
   @Override

@@ -227,7 +227,6 @@ public class GoloCompiler {
     return goloModule;
   }
 
-
   /**
    * Makes a Golo parser from a reader.
    *

@@ -61,13 +61,24 @@ public abstract class GoloElement {
   public void makeParentOf(GoloElement childElement) {
     if (childElement != null) {
       childElement.setParentNode(this);
-      if (childElement instanceof Scope) {
-        Optional<ReferenceTable> referenceTable = this.getLocalReferenceTable();
-        if (referenceTable.isPresent()) {
-          ((Scope) childElement).relink(referenceTable.get());
-        }
-      }
+      relinkChild(childElement);
     }
+  }
+
+  private void relinkChild(GoloElement child) {
+    this.getLocalReferenceTable().ifPresent((rt) -> child.accept(new AbstractGoloIrVisitor() {
+      boolean prune = true;
+      @Override
+      public void visitBlock(Block b) {
+        b.getReferenceTable().relink(rt, prune);
+      }
+
+      @Override
+      public void visitClosureReference(ClosureReference c) {
+        prune = false;
+        c.walk(this);
+      }
+    }));
   }
 
   protected RuntimeException cantReplace() {
@@ -87,6 +98,7 @@ public abstract class GoloElement {
   }
 
   public void replaceInParentBy(GoloElement newElement) {
+    if (newElement == this) { return; }
     if (this.parent.isPresent()) {
       this.parent.get().replaceElement(this, newElement);
       this.parent.get().makeParentOf(newElement);

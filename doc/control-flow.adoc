@@ -66,11 +66,12 @@ function what = |obj| {
 IMPORTANT: `when` clauses are being evaluated in the declaration order, and only the first satisfied
 one is being executed.
 
-=== `match` statements
+[[match_expressions]]
+=== `match` expressions
 
-The `match` statement is a convenient shortcut for cases where a `case` statement would be used to
+The `match` expression is a convenient shortcut for cases where a `case` statement would be used to
 match a value, and give back a result. While it may resemble *pattern matching* operators in some
-other languages it is not fully equivalent, as Golo does not support destructuring.
+other languages it is not fully equivalent, as Golo does not support full destructuring matching (but `with` can help here).
 
 `match` is a great addition to the Golo programmer:
 

@@ -11,7 +11,7 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class ConditionalBranching extends GoloStatement implements Scope {
+public final class ConditionalBranching extends GoloStatement {
 
   private ExpressionStatement condition;
   private Block trueBlock;
@@ -58,28 +58,6 @@ public final class ConditionalBranching extends GoloStatement implements Scope {
   public ConditionalBranching ofAST(GoloASTNode node) {
     super.ofAST(node);
     return this;
-  }
-
-  @Override
-  public void relink(ReferenceTable table) {
-    trueBlock.relink(table);
-    if (falseBlock != null) {
-      falseBlock.relink(table);
-    }
-    if (elseConditionalBranching != null) {
-      elseConditionalBranching.relink(table);
-    }
-  }
-
-  @Override
-  public void relinkTopLevel(ReferenceTable table) {
-    trueBlock.relinkTopLevel(table);
-    if (falseBlock != null) {
-      falseBlock.relinkTopLevel(table);
-    }
-    if (elseConditionalBranching != null) {
-      elseConditionalBranching.relinkTopLevel(table);
-    }
   }
 
   public ExpressionStatement getCondition() {
