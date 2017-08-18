@@ -1,16 +1,22 @@
+sudo: required
+dist: trusty
+
 language: java
 
 jdk:
   - oraclejdk8
+  - oraclejdk9
 
 matrix:
-  fast_finish: true
+  allow_failures:
+    - jdk: oraclejdk9
 
 sudo: false
 addons:
   apt:
     packages:
       - oracle-java8-installer
+      - oracle-java9-installer
 
 notifications:
   webhooks:
