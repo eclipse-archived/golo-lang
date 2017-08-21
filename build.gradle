@@ -13,7 +13,6 @@ plugins {
   id 'java'
   id 'osgi'
   id 'jacoco'
-  id 'findbugs'
   id 'application'
   id 'maven-publish'
   id 'com.jfrog.bintray' version '1.7.3'
@@ -138,6 +137,8 @@ test {
   systemProperty 'java.awt.headless', 'true'
 }
 
+jacocoTestReport.dependsOn test
+
 // .................................................................................................................. //
 
 processResources {
@@ -148,24 +149,6 @@ processResources {
     'timestamp': versioning.info.full
   ])
 }
-
-// .................................................................................................................. //
-
-findbugs {
-  sourceSets = [sourceSets.main]
-  effort = 'max'
-  ignoreFailures = true
-  excludeFilter = file("$rootProject.projectDir/gradle/findbugs-exclusions.xml")
-}
-
-tasks.withType(FindBugs) {
-  reports {
-    xml.enabled = false
-    html.enabled = true
-  }
-}
-
-jacocoTestReport.dependsOn test
 
 // .................................................................................................................. //
 
@@ -293,14 +276,7 @@ distributions {
 
 // .................................................................................................................. //
 
-ext.mavenRepos = [
-  [
-    name: 'project',
-    url: "$buildDir/maven-repo",
-    user: '',
-    password: ''
-  ]
-]
+ext.mavenRepos = []
 
 if (project.hasProperty('eclipseRepoUsername')) {
   mavenRepos.add([
