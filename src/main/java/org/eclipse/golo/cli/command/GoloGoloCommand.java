@@ -78,7 +78,7 @@ public class GoloGoloCommand implements CliCommand {
       }
     } else if (file.getName().endsWith(".golo")) {
       try (FileInputStream in = new FileInputStream(file)) {
-        Class<?> loadedClass = loader.load(file.getName(), in);
+        Class<?> loadedClass = loader.load(file.getName(), in, file.toURI().toURL());
         if (module == null || loadedClass.getCanonicalName().equals(module)) {
           return loadedClass;
         }

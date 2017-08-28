@@ -10,6 +10,10 @@
 package org.eclipse.golo.compiler;
 
 import java.io.InputStream;
+import java.net.URL;
+import java.security.CodeSource;
+import java.security.ProtectionDomain;
+import java.security.cert.Certificate;
 import java.util.List;
 
 /**
@@ -55,6 +59,27 @@ public class GoloClassLoader extends ClassLoader {
     for (CodeGenerationResult result : results) {
       byte[] bytecode = result.getBytecode();
       lastClassIsModule = defineClass(null, bytecode, 0, bytecode.length);
+    }
+    return lastClassIsModule;
+  }
+  
+  /**
+   * Compiles and loads the resulting JVM bytecode for a Golo source file.
+   * This method declares a URL for the CodeSource of this class, which
+   * is useful for retrieving the location at runtime.
+   *
+   * @param goloSourceFilename    the source file name.
+   * @param sourceCodeInputStream the source input stream.
+   * @param sourceCodeLocation    the source file location.
+   * @return the class matching the Golo module defined in the source.
+   * @throws GoloCompilationException if either of the compilation phase failed.
+   */
+  public synchronized Class<?> load(String goloSourceFilename, InputStream sourceCodeInputStream, URL sourceCodeLocation) throws GoloCompilationException {
+    List<CodeGenerationResult> results = compiler.compile(goloSourceFilename, sourceCodeInputStream);
+    Class<?> lastClassIsModule = null;
+    for (CodeGenerationResult result : results) {
+      byte[] bytecode = result.getBytecode();
+      lastClassIsModule = defineClass(null, bytecode, 0, bytecode.length, new ProtectionDomain(new CodeSource(sourceCodeLocation, (Certificate[])null), null));
     }
     return lastClassIsModule;
   }
