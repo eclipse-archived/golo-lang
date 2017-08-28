@@ -78,7 +78,7 @@ public class ShebangCommand implements CliCommand {
     try (InputStream is = Files.newInputStream(path)) {
       Path filename = path.getFileName();
       if (filename != null) {
-        return loader.load(filename.toString(), is);
+        return loader.load(filename.toString(), is, path.toUri().toURL());
       } else {
         throw new RuntimeException(message("not_regular_file", path));
       }
