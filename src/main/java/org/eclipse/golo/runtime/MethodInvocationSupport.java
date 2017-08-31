@@ -224,7 +224,7 @@ public final class MethodInvocationSupport {
       DynamicObject dynamicObject = (DynamicObject) args[0];
       return dynamicObject.invoker(inlineCache.name, inlineCache.type());
     } else {
-      return findTarget(invocation, inlineCache.callerLookup, inlineCache);
+      return findTarget(invocation, inlineCache);
     }
   }
 
@@ -317,42 +317,47 @@ public final class MethodInvocationSupport {
       && (!"toString".equals(inlineCache.name) || ((DynamicObject) arg).hasMethod("toString"));
   }
 
-  private static MethodHandle findTarget(MethodInvocation invocation, Lookup lookup, InlineCache inlineCache) {
-    MethodHandle target;
-
-    target = new PropertyMethodFinder(invocation, lookup).find();
-    if (target != null) {
-      return target;
+  private static MethodHandle guardOnOverloaded(MethodHandle target, MethodInvocation invocation, MethodHandle reset) {
+    Object[] args = invocation.arguments();
+    Class<?>[] types = new Class<?>[args.length];
+    for (int i = 0; i < types.length; i++) {
+      types[i] = (args[i] == null) ? Object.class : args[i].getClass();
     }
+    MethodHandle guard;
+    switch (args.length) {
+      case 2:
+        guard = insertArguments(OVERLOADED_GUARD_1, 0, types[0], types[1]);
+        break;
+      case 3:
+        guard = insertArguments(OVERLOADED_GUARD_2, 0, types[0], types[1], types[2]);
+        break;
+      case 4:
+        guard = insertArguments(OVERLOADED_GUARD_3, 0, types[0], types[1], types[2], types[3]);
+        break;
+      case 5:
+        guard = insertArguments(OVERLOADED_GUARD_4, 0, types[0], types[1], types[2], types[3], types[4]);
+        break;
+      default:
+        guard = OVERLOADED_GUARD_GENERIC.bindTo(types).asCollector(Object[].class, types.length);
+    }
+    return guardWithTest(guard, target, reset);
+  }
+
+  private static MethodHandle findTarget(MethodInvocation invocation, InlineCache inlineCache) {
+    MethodHandle target;
+    Lookup lookup = inlineCache.callerLookup;
 
     RegularMethodFinder regularMethodFinder = new RegularMethodFinder(invocation, lookup);
     target = regularMethodFinder.find();
     if (target != null) {
       if (regularMethodFinder.isOverloaded()) {
-        Object[] args = invocation.arguments();
-        Class[] types = new Class[args.length];
-        for (int i = 0; i < types.length; i++) {
-          types[i] = (args[i] == null) ? Object.class : args[i].getClass();
-        }
-        MethodHandle guard;
-        switch (args.length) {
-          case 2:
-            guard = insertArguments(OVERLOADED_GUARD_1, 0, types[0], types[1]);
-            break;
-          case 3:
-            guard = insertArguments(OVERLOADED_GUARD_2, 0, types[0], types[1], types[2]);
-            break;
-          case 4:
-            guard = insertArguments(OVERLOADED_GUARD_3, 0, types[0], types[1], types[2], types[3]);
-            break;
-          case 5:
-            guard = insertArguments(OVERLOADED_GUARD_4, 0, types[0], types[1], types[2], types[3], types[4]);
-            break;
-          default:
-            guard = OVERLOADED_GUARD_GENERIC.bindTo(types).asCollector(Object[].class, types.length);
-        }
-        return guardWithTest(guard, target, inlineCache.resetFallback);
+        return guardOnOverloaded(target, invocation, inlineCache.resetFallback);
       }
+      return target;
+    }
+
+    target = new PropertyMethodFinder(invocation, lookup).find();
+    if (target != null) {
       return target;
     }
 
