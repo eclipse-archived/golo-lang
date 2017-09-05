@@ -75,5 +75,4 @@ abstract class MethodFinder {
     }
     return Optional.of(invocation.coerce(reorderArguments(method, target)));
   }
-
 }

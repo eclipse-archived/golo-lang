@@ -32,8 +32,8 @@ class RegularMethodFinder extends MethodFinder {
   @Override
   public MethodHandle find() {
     return Stream.concat(
-        findInMethods().map(this::toMethodHandle),
-        findInFields().map(this::toMethodHandle))
+        findInMethods().map(this::checkDeprecation).map(this::toMethodHandle),
+        findInFields().map(this::checkDeprecation).map(this::toMethodHandle))
         .filter(Optional::isPresent)
         .map(Optional::get)
         .findFirst()
@@ -121,4 +121,13 @@ class RegularMethodFinder extends MethodFinder {
   private boolean isMatchingField(Field field) {
     return field.getName().equals(invocation.name()) && !isStatic(field.getModifiers());
   }
+
+  private Field checkDeprecation(Field field) {
+    return Extractors.checkDeprecation(callerClass, field);
+  }
+
+  private Method checkDeprecation(Method method) {
+    return Extractors.checkDeprecation(callerClass, method);
+  }
+
 }

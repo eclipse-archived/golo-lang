@@ -9,10 +9,7 @@
 
 package org.eclipse.golo.runtime;
 
-import java.lang.reflect.Member;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.lang.reflect.Constructor;
+import java.lang.reflect.*;
 import java.util.stream.Stream;
 import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
@@ -96,6 +93,18 @@ public final class Extractors {
       m.getName().equals(name)
       && (isMethodDecorated(m) || argumentsNumberMatches(m.getParameterCount(), arity, varargs))
       && (arity < 0 || m.isVarArgs() == varargs);
+  }
+
+  public static <T extends AnnotatedElement & Member> T checkDeprecation(Class<?> caller, T object) {
+    if (object.isAnnotationPresent(Deprecated.class)) {
+      Warnings.deprecatedElement(
+          (object instanceof Constructor ? ((Constructor) object).toGenericString()
+           : object instanceof Method ? ((Method) object).toGenericString()
+           : object instanceof Field ? ((Field) object).toGenericString()
+           : object.getName()),
+          caller.getName());
+    }
+    return object;
   }
 
 }

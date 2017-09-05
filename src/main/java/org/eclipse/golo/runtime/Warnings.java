@@ -10,6 +10,8 @@
 package org.eclipse.golo.runtime;
 
 import java.util.Arrays;
+import java.util.HashSet;
+import gololang.Tuple;
 
 import static gololang.Messages.warning;
 import static gololang.Messages.message;
@@ -26,6 +28,8 @@ public final class Warnings {
 
   private static final boolean NO_PARAMETER_NAMES = load("golo.warnings.no-parameter-names", "true");
   private static final boolean UNAVAILABLE_CLASS = load("golo.warnings.unavailable-class", "false");
+  private static final boolean DEPRECATED = load("golo.warnings.deprecated", "true");
+  private static final HashSet<Tuple> SEEN_DEPRECATIONS = new HashSet<>();
 
   private static boolean load(String property, String def) {
     return Boolean.valueOf(System.getProperty(property, def));
@@ -40,6 +44,16 @@ public final class Warnings {
   public static void unavailableClass(String className, String callerModule) {
     if (UNAVAILABLE_CLASS && !className.startsWith("java.lang") && !className.startsWith("gololang")) {
       warning(message("unavailable_class", className, callerModule, GUIDE_BASE));
+    }
+  }
+
+  public static void deprecatedElement(String object, String caller) {
+    if (DEPRECATED) {
+      Tuple seen = new Tuple(object, caller);
+      if (!SEEN_DEPRECATIONS.contains(seen)) {
+        SEEN_DEPRECATIONS.add(seen);
+        warning(message("deprecated_element", object, caller, GUIDE_BASE));
+      }
     }
   }
 }

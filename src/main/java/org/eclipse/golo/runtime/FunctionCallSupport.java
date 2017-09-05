@@ -12,11 +12,8 @@ package org.eclipse.golo.runtime;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
-import java.lang.reflect.Constructor;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
+import java.lang.reflect.*;
 import java.util.List;
-import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.permuteArguments;
@@ -27,6 +24,7 @@ import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static org.eclipse.golo.runtime.NamedArgumentsHelper.*;
 import static gololang.Messages.message;
+import static org.eclipse.golo.runtime.Extractors.checkDeprecation;
 
 public final class FunctionCallSupport {
 
@@ -133,7 +131,7 @@ public final class FunctionCallSupport {
     String[] argumentNames = callSite.argumentNames;
 
     MethodHandle handle = null;
-    Object result = findStaticMethodOrField(callerClass, callerClass, functionName, args);
+    AccessibleObject result = findStaticMethodOrField(callerClass, callerClass, functionName, args);
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, args);
     }
@@ -252,10 +250,10 @@ public final class FunctionCallSupport {
     }
   }
 
-  private static Object findClassWithConstructorFromImports(Class<?> callerClass, String classname, Object[] args) {
+  private static AccessibleObject findClassWithConstructorFromImports(Class<?> callerClass, String classname, Object[] args) {
     String[] imports = Module.imports(callerClass);
     for (String imported : imports) {
-      Object result = findClassWithConstructor(callerClass, imported + "." + classname, args);
+      AccessibleObject result = findClassWithConstructor(callerClass, imported + "." + classname, args);
       if (result != null) {
         return result;
       }
@@ -269,12 +267,12 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithConstructor(Class<?> callerClass, String classname, Object[] args) {
+  private static AccessibleObject findClassWithConstructor(Class<?> callerClass, String classname, Object[] args) {
     try {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
         if (TypeMatching.argumentsMatch(constructor, args)) {
-          return constructor;
+          return checkDeprecation(callerClass, constructor);
         }
       }
     } catch (ClassNotFoundException ignored) {
@@ -283,7 +281,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, Object[] args) {
+  private static AccessibleObject findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, Object[] args) {
     String[] imports = Module.imports(callerClass);
     String[] classAndMethod = null;
     final int classAndMethodSeparator = functionName.lastIndexOf(".");
@@ -305,7 +303,7 @@ public final class FunctionCallSupport {
           importedClass = Class.forName(importedClassName + "." + classAndMethod[0], true, callerClass.getClassLoader());
         }
         String lookup = (classAndMethod == null) ? functionName : classAndMethod[1];
-        Object result = findStaticMethodOrField(callerClass, importedClass, lookup, args);
+        AccessibleObject result = findStaticMethodOrField(callerClass, importedClass, lookup, args);
         if (result != null) {
           return result;
         }
@@ -317,7 +315,7 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, Object[] args) {
+  private static AccessibleObject findClassWithStaticMethodOrField(Class<?> callerClass, String functionName, Object[] args) {
     int methodClassSeparatorIndex = functionName.lastIndexOf(".");
     if (methodClassSeparatorIndex >= 0) {
       String className = functionName.substring(0, methodClassSeparatorIndex);
@@ -333,36 +331,36 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static Object findStaticMethodOrField(Class<?> caller, Class<?> klass, String name, Object[] arguments) {
+  private static AccessibleObject findStaticMethodOrField(Class<?> caller, Class<?> klass, String name, Object[] arguments) {
     for (Method method : klass.getDeclaredMethods()) {
       if (methodMatches(caller, name, arguments, method, false)) {
-        return method;
+        return checkDeprecation(caller, method);
       }
     }
     for (Method method : klass.getMethods()) {
       if (methodMatches(caller, name, arguments, method, false)) {
-        return method;
+        return checkDeprecation(caller, method);
       }
     }
     for (Method method : klass.getDeclaredMethods()) {
       if (methodMatches(caller, name, arguments, method, true)) {
-        return method;
+        return checkDeprecation(caller, method);
       }
     }
     for (Method method : klass.getMethods()) {
       if (methodMatches(caller, name, arguments, method, true)) {
-        return method;
+        return checkDeprecation(caller, method);
       }
     }
     if (arguments.length == 0) {
       for (Field field : klass.getDeclaredFields()) {
         if (fieldMatches(name, field)) {
-          return field;
+          return checkDeprecation(caller, field);
         }
       }
       for (Field field : klass.getFields()) {
         if (fieldMatches(name, field)) {
-          return field;
+          return checkDeprecation(caller, field);
         }
       }
     }
