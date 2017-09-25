@@ -106,6 +106,10 @@ If the java code was not compiled with named parameters, the named arguments syn
 A warning is displayed when named arguments are used with functions without named parameters. It can be disabled by setting the `golo.warnings.no-parameter-names` system property to `false`.
 ====================
 
+[[warning-deprecate]]
+=== Deprecated method
+
+When calling a deprecated method or function, a warning is displayed. It can be disabled by setting the `golo.warnings.deprecated` system property to `false`.
 
 === `null`-safe instance method invocations
 
