@@ -145,6 +145,9 @@ public abstract class AbstractProcessor {
   }
 
   public static String adaptSections(String documentation, int rootLevel) {
+    if (documentation == null || documentation.isEmpty()) {
+      return "";
+    }
     StringBuilder output = new StringBuilder();
     for (String line: documentation.split("\n")) {
       output.append(subsection(line, rootLevel));
