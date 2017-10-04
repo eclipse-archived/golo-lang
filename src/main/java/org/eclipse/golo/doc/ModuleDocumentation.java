@@ -218,10 +218,6 @@ public class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public void visitAugmentation(Augmentation augment) {
-      /* NOTE:
-       * if multiple augmentations are defined for the same target
-       * only the line of the first one is kept.
-       */
       String target = augment.getTarget().toString();
       if (!augmentations.containsKey(target)) {
         augmentations.put(target, new AugmentationDocumentation()
@@ -232,7 +228,9 @@ public class ModuleDocumentation implements DocumentationElement {
         );
       }
       AugmentationDocumentation ad = augmentations.get(target);
-      ad.documentation(ad.documentation() + '\n' + augment.getDocumentation());
+      if (augment.getDocumentation() != null && !augment.getDocumentation().isEmpty()) {
+        ad.documentation(String.join("\n", ad.documentation(), augment.getDocumentation()));
+      }
       functionContext.push(ad);
       parents.push(ad);
       augment.walk(this);
