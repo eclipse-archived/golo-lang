@@ -9,15 +9,14 @@
 
 package org.eclipse.golo.maven;
 
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.compiler.parser.GoloParser;
-import org.eclipse.golo.compiler.parser.ParseException;
+import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.doc.HtmlProcessor;
+import org.eclipse.golo.doc.ModuleDocumentation;
 import org.apache.maven.plugin.AbstractMojo;
 import org.apache.maven.plugin.MojoExecutionException;
 import org.apache.maven.plugin.MojoFailureException;
 
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
@@ -61,15 +60,16 @@ public class GolodocMojo extends AbstractMojo {
   private class GolodocFileVisitor extends SimpleFileVisitor<Path> {
 
     private final PathMatcher matcher = FileSystems.getDefault().getPathMatcher("glob:**/*.golo");
-    private final HashMap<String, ASTCompilationUnit> units = new HashMap<>();
+    private final HashMap<String, ModuleDocumentation> units = new HashMap<>();
+    private final GoloCompiler compiler = new GoloCompiler();
 
     @Override
     public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) {
       if (matcher.matches(file)) {
-        try (FileInputStream in = new FileInputStream(file.toFile())) {
-          units.put(file.toString(), new GoloParser(in).CompilationUnit());
-        } catch (IOException | ParseException e) {
-          throw new RuntimeException("Parsing or I/O error on " + file, e);
+        try {
+          units.put(file.toString(), ModuleDocumentation.load(file.toString(), compiler));
+        } catch (IOException | GoloCompilationException e) {
+          throw new RuntimeException("Compilation or I/O error on " + file, e);
         }
         getLog().info("Generating documentation for " + file);
       }
