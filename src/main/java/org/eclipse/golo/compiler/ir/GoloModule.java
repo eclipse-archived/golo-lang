@@ -19,6 +19,7 @@ import static java.util.Collections.unmodifiableCollection;
 
 public final class GoloModule extends GoloElement implements FunctionContainer {
 
+  private String sourceFile;
   private final PackageAndClass packageAndClass;
   private final ReferenceTable globalReferences;
   private final Set<ModuleImport> imports = new LinkedHashSet<>();
@@ -58,6 +59,15 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
 
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
+  }
+
+  public String sourceFile() {
+    return this.sourceFile;
+  }
+
+  public GoloModule sourceFile(String file) {
+    this.sourceFile = file;
+    return this;
   }
 
   public Set<ModuleImport> getImports() {

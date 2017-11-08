@@ -187,6 +187,7 @@ public class GoloCompiler {
     parser.exceptionBuilder = getOrCreateExceptionBuilder(goloSourceFilename);
     try {
       compilationUnit = parser.CompilationUnit();
+      compilationUnit.setFilename(goloSourceFilename);
     } catch (ParseException pe) {
       exceptionBuilder.report(pe, compilationUnit);
     }
