@@ -66,6 +66,7 @@ public final class Main {
         JCommander parsedJCommander = cmd.getCommands().get(parsedCommand);
         Object commandObject = parsedJCommander.getObjects().get(0);
         if (commandObject instanceof CliCommand) {
+          gololang.Runtime.command((CliCommand) commandObject);
           ((CliCommand) commandObject).execute();
         } else {
           throw new AssertionError("WTF?");

@@ -189,7 +189,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     Context context = new Context();
     context.setExceptionBuilder(builder);
     visit(compilationUnit, context);
-    return context.module;
+    return context.module.sourceFile(compilationUnit.getFilename());
   }
 
   @Override

@@ -18,6 +18,9 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.math.BigInteger;
 import java.math.BigDecimal;
+import java.net.URI;
+import java.net.URL;
+import java.net.MalformedURLException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -481,11 +484,13 @@ public final class Predefined {
     } else {
       throw new IllegalArgumentException("encoding must be either a string or a charset instance");
     }
-    return new String(Files.readAllBytes(pathFrom(file)), charset);
+    return new String(Files.readAllBytes(toPath(file)), charset);
   }
 
-  private static Path pathFrom(Object file) {
-    if (file instanceof String) {
+  public static Path toPath(Object file) {
+    if (file == null) {
+      return null;
+    } else if (file instanceof String) {
       return Paths.get((String) file);
     } else if (file instanceof File) {
       return ((File) file).toPath();
@@ -493,6 +498,23 @@ public final class Predefined {
       return (Path) file;
     }
     throw new IllegalArgumentException("file must be a string, a file or a path");
+  }
+
+  public static URL toURL(Object ref) throws MalformedURLException {
+    if (ref == null) {
+      return null;
+    } else if (ref instanceof String) {
+      return new URL((String) ref);
+    } else if (ref instanceof URL) {
+      return (URL) ref;
+    } else if (ref instanceof URI) {
+      return ((URI) ref).toURL();
+    } else if (ref instanceof Path) {
+      return ((Path) ref).toUri().toURL();
+    } else if (ref instanceof File) {
+      return ((File) ref).toURI().toURL();
+    }
+    throw new IllegalArgumentException(String.format("Can't convert a %s into a URL", ref.getClass().getName()));
   }
 
   /**
@@ -529,7 +551,7 @@ public final class Predefined {
     if ("-".equals(file.toString())) {
       System.out.write(str.getBytes(encoding));
     } else {
-      Path path = pathFrom(file);
+      Path path = toPath(file);
       if (path.getParent() != null) {
         Files.createDirectories(path.getParent());
       }
@@ -549,7 +571,7 @@ public final class Predefined {
    * @return true if the file exists, false if it doesn't
    */
   public static boolean fileExists(Object file) {
-    return Files.exists(pathFrom(file));
+    return Files.exists(toPath(file));
   }
 
   /**
