@@ -18,14 +18,8 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 import java.math.BigInteger;
 import java.math.BigDecimal;
-import java.net.URI;
-import java.net.URL;
-import java.net.MalformedURLException;
 import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardOpenOption;
 import java.util.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -98,9 +92,13 @@ public final class Predefined {
    * Reads the next line of characters from the console.
    *
    * @return a String.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#readln()}.
    */
+  @Deprecated
   public static String readln() throws IOException {
-    return System.console().readLine();
+    // TODO: remove in 4.0
+    return gololang.IO.readln();
   }
 
   /**
@@ -108,19 +106,26 @@ public final class Predefined {
    *
    * @param message displays a prompt message.
    * @return a String.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#readln(String)}.
    */
+  @Deprecated
   public static String readln(String message) throws IOException {
-    System.out.print(message);
-    return readln();
+    // TODO: remove in 4.0
+    return gololang.IO.readln(message);
   }
 
   /**
    * Reads a password from the console with echoing disabled.
    *
    * @return a String.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#readPassword()}.
    */
+  @Deprecated
   public static String readPassword() throws IOException {
-    return String.valueOf(System.console().readPassword());
+    // TODO: remove in 4.0
+    return gololang.IO.readPassword();
   }
 
   /**
@@ -128,19 +133,26 @@ public final class Predefined {
    *
    * @param message displays a prompt message.
    * @return a String.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#readPassword(String)}.
    */
+  @Deprecated
   public static String readPassword(String message) throws IOException {
-    System.out.print(message);
-    return readPassword();
+    // TODO: remove in 4.0
+    return gololang.IO.readPassword(message);
   }
 
   /**
    * Reads a password from the console with echoing disabled, returning an {@code char[]} array.
    *
    * @return a character array.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#secureReadPassword()}.
    */
+  @Deprecated
   public static char[] secureReadPassword() throws IOException {
-    return System.console().readPassword();
+    // TODO: remove in 4.0
+    return gololang.IO.secureReadPassword();
   }
 
   /**
@@ -148,10 +160,13 @@ public final class Predefined {
    *
    * @param message displays a prompt message.
    * @return a character array.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#secureReadPassword(String)}.
    */
+  @Deprecated
   public static char[] secureReadPassword(String message) throws IOException {
-    System.out.print(message);
-    return secureReadPassword();
+    // TODO: remove in 4.0
+    return gololang.IO.secureReadPassword(message);
   }
 
   // ...................................................................................................................
@@ -430,7 +445,7 @@ public final class Predefined {
    * <p>
    * This is the same as calling {@code fun(name, module, arity, false)}.
    *
-   * @see Predefined#fun(Object, Object, Object, Object)
+   * @see #fun(Class, Object, Object, Object, Object)
    */
   @WithCaller
   public static FunctionReference fun(Class<?> caller, Object name, Object module, Object arity) throws Throwable {
@@ -442,7 +457,7 @@ public final class Predefined {
    * <p>
    * This is the same as calling {@code fun(name, module, -1)}.
    *
-   * @see Predefined#fun(Object, Object, Object)
+   * @see #fun(Class, Object, Object, Object)
    */
   @WithCaller
   public static FunctionReference fun(Class<?> caller, Object name, Object module) throws Throwable {
@@ -474,47 +489,13 @@ public final class Predefined {
    * @param file     the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
    * @param encoding the file encoding as a {@link String} or {@link Charset}.
    * @return the content as a {@link String}.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#fileToText(Object, Object)}
    */
+  @Deprecated
   public static Object fileToText(Object file, Object encoding) throws Throwable {
-    Charset charset = null;
-    if (encoding instanceof String) {
-      charset = Charset.forName((String) encoding);
-    } else if (encoding instanceof Charset) {
-      charset = (Charset) encoding;
-    } else {
-      throw new IllegalArgumentException("encoding must be either a string or a charset instance");
-    }
-    return new String(Files.readAllBytes(toPath(file)), charset);
-  }
-
-  public static Path toPath(Object file) {
-    if (file == null) {
-      return null;
-    } else if (file instanceof String) {
-      return Paths.get((String) file);
-    } else if (file instanceof File) {
-      return ((File) file).toPath();
-    } else if (file instanceof Path) {
-      return (Path) file;
-    }
-    throw new IllegalArgumentException("file must be a string, a file or a path");
-  }
-
-  public static URL toURL(Object ref) throws MalformedURLException {
-    if (ref == null) {
-      return null;
-    } else if (ref instanceof String) {
-      return new URL((String) ref);
-    } else if (ref instanceof URL) {
-      return (URL) ref;
-    } else if (ref instanceof URI) {
-      return ((URI) ref).toURL();
-    } else if (ref instanceof Path) {
-      return ((Path) ref).toUri().toURL();
-    } else if (ref instanceof File) {
-      return ((File) ref).toURI().toURL();
-    }
-    throw new IllegalArgumentException(String.format("Can't convert a %s into a URL", ref.getClass().getName()));
+    // TODO: remove in 4.0
+    return gololang.IO.fileToText(file, encoding);
   }
 
   /**
@@ -524,9 +505,13 @@ public final class Predefined {
    *
    * @param text the text to write.
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#textToFile(Object, Object)}.
    */
+  @Deprecated
   public static void textToFile(Object text, Object file) throws Throwable {
-    textToFile(text, file, Charset.defaultCharset());
+    // TODO: remove in 4.0
+    gololang.IO.textToFile(text, file);
   }
 
   /**
@@ -537,31 +522,12 @@ public final class Predefined {
    * @param text the text to write.
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
    * @param charset the charset to encode the text in.
+   * @deprecated Since 3.3, use {@link gololang.IO#textToFile(Object, Object, Object)}.
    */
+  @Deprecated
   public static void textToFile(Object text, Object file, Object charset) throws Throwable {
-    require(text instanceof String, "text must be a string");
-    Charset encoding;
-    if (charset instanceof String) {
-      encoding = Charset.forName((String) charset);
-    } else {
-      require(charset instanceof Charset, "not a charset");
-      encoding = (Charset) charset;
-    }
-    String str = (String) text;
-    if ("-".equals(file.toString())) {
-      System.out.write(str.getBytes(encoding));
-    } else {
-      Path path = toPath(file);
-      if (path.getParent() != null) {
-        Files.createDirectories(path.getParent());
-      }
-      Files.write(
-          path,
-          str.getBytes(encoding),
-          StandardOpenOption.WRITE,
-          StandardOpenOption.CREATE,
-          StandardOpenOption.TRUNCATE_EXISTING);
-    }
+    // TODO: remove in 4.0
+    gololang.IO.textToFile(text, file, charset);
   }
 
   /**
@@ -569,9 +535,13 @@ public final class Predefined {
    *
    * @param file the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
    * @return true if the file exists, false if it doesn't
+   *
+   * @deprecated Since 3.3, use {@link gololang.IO#fileExists(Object)}.
    */
+  @Deprecated
   public static boolean fileExists(Object file) {
-    return Files.exists(toPath(file));
+    // TODO: remove in 4.0
+    return gololang.IO.fileExists(file);
   }
 
   /**

@@ -10,7 +10,7 @@
 package org.eclipse.golo.doc;
 
 import gololang.FunctionReference;
-import gololang.Predefined;
+import gololang.IO;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -33,7 +33,7 @@ public class MarkdownProcessor extends AbstractProcessor {
   public void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable {
     setTargetFolder(targetFolder);
     for (ModuleDocumentation doc : modules.values()) {
-      Predefined.textToFile(render(doc), outputFile(doc.moduleName()));
+      IO.textToFile(render(doc), outputFile(doc.moduleName()));
     }
     renderIndex("index");
   }

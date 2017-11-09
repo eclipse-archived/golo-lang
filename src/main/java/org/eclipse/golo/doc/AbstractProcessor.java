@@ -11,7 +11,7 @@ package org.eclipse.golo.doc;
 
 import gololang.FunctionReference;
 import gololang.TemplateEngine;
-import gololang.Predefined;
+import gololang.IO;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -121,7 +121,7 @@ public abstract class AbstractProcessor {
   protected void renderIndex(String templateName) throws Throwable {
     FunctionReference indexTemplate = template(templateName, fileExtension());
     String index = (String) indexTemplate.invoke(this);
-    Predefined.textToFile(index, outputFile(templateName));
+    IO.textToFile(index, outputFile(templateName));
   }
 
   /**

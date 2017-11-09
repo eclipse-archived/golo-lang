@@ -15,7 +15,7 @@ import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
 import static java.util.Objects.requireNonNull;
-import static gololang.Predefined.toURL;
+import static gololang.IO.toURL;
 
 /**
  * A utility module containing functions to interact with the runtime environment.
@@ -137,7 +137,7 @@ public final class Runtime {
    *
    * <p>Equivalent to {@code load(file, true)}.
    *
-   * @param file: can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI}
+   * @param file can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI}
    *   identifying the file to load.
    * @return the loaded module class.
    * @see #load(Object, boolean)
@@ -151,9 +151,9 @@ public final class Runtime {
    *
    * <p>If {@code failOnException} is false, any exception is swallowed and null is return.
    *
-   * @param file: can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI}
+   * @param file can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI}
    *   identifying the file to load.
-   * @param failOnException: re-raise exception or not
+   * @param failOnException re-raise exception or not
    * @return the loaded module class, or {@code null} if an error occurred and {@code failOnException} is {@code false}
    * @see #load(Object, boolean)
    */

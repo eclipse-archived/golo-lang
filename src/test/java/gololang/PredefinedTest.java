@@ -11,7 +11,6 @@ package gololang;
 import org.testng.annotations.Test;
 
 import java.awt.event.ActionListener;
-import java.io.File;
 import java.io.IOException;
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
@@ -207,32 +206,6 @@ public class PredefinedTest {
   public void test_fun_overloaded2() throws Throwable {
     FunctionReference overloaded = Predefined.fun(null, "overloaded", MyCallable.class, 2);
     assertThat((Integer) overloaded.handle().invoke(1, 2), is(3));
-  }
-
-  @Test
-  public void test_fileToText() throws Throwable {
-    Object content = Predefined.fileToText("THIRD-PARTY", "UTF-8");
-    assertThat(content, instanceOf(String.class));
-    String text = (String) content;
-    assertThat(text, containsString("ASM"));
-    assertThat(text, containsString("INRIA"));
-    assertThat(text, containsString("DAMAGE"));
-    assertThat(text, containsString("INSA-Lyon"));
-  }
-
-  @Test
-  public void test_textToFile() throws Throwable {
-    File tempFile = File.createTempFile("plop", "daplop");
-    String message = "Plop!";
-    Predefined.textToFile(message, tempFile);
-    String text = (String) Predefined.fileToText(tempFile, "UTF-8");
-    assertThat(text, is(message));
-  }
-
-  @Test
-  public void test_fileExists() throws Throwable {
-    File tempFile = File.createTempFile("this_exists", "test");
-    assertThat(Predefined.fileExists(tempFile), is(true));
   }
 
   @Test

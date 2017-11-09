@@ -11,7 +11,7 @@ package org.eclipse.golo.doc;
 
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
 import gololang.FunctionReference;
-import gololang.Predefined;
+import gololang.IO;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -74,13 +74,13 @@ public class HtmlProcessor extends AbstractProcessor {
   private void renderModule(String sourceFile, ModuleDocumentation doc) throws Throwable {
     String moduleName = doc.moduleName();
     srcFile = outputFile(moduleName + "-src");
-    Predefined.textToFile(renderSource(moduleName, sourceFile), srcFile);
-    Predefined.textToFile(render(doc), outputFile(moduleName));
+    IO.textToFile(renderSource(moduleName, sourceFile), srcFile);
+    IO.textToFile(render(doc), outputFile(moduleName));
   }
 
   private String renderSource(String moduleName, String filename) throws Throwable {
     FunctionReference template = template("src", fileExtension());
-    String content = (String) Predefined.fileToText(filename, "UTF-8");
+    String content = (String) IO.fileToText(filename, "UTF-8");
     int nbLines = 0;
     for (int i = 0; i < content.length(); i++) {
       if (content.charAt(i) == '\n') {
