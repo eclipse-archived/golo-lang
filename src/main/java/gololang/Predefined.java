@@ -93,7 +93,7 @@ public final class Predefined {
    *
    * @return a String.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#readln()}.
+   * @deprecated Since 3.3, use {@link gololang.IO#readln()}. Will be removed in 4.0
    */
   @Deprecated
   public static String readln() throws IOException {
@@ -107,7 +107,7 @@ public final class Predefined {
    * @param message displays a prompt message.
    * @return a String.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#readln(String)}.
+   * @deprecated Since 3.3, use {@link gololang.IO#readln(String)}. Will be removed in 4.0
    */
   @Deprecated
   public static String readln(String message) throws IOException {
@@ -120,7 +120,7 @@ public final class Predefined {
    *
    * @return a String.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#readPassword()}.
+   * @deprecated Since 3.3, use {@link gololang.IO#readPassword()}. Will be removed in 4.0
    */
   @Deprecated
   public static String readPassword() throws IOException {
@@ -134,7 +134,7 @@ public final class Predefined {
    * @param message displays a prompt message.
    * @return a String.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#readPassword(String)}.
+   * @deprecated Since 3.3, use {@link gololang.IO#readPassword(String)}. Will be removed in 4.0
    */
   @Deprecated
   public static String readPassword(String message) throws IOException {
@@ -147,7 +147,7 @@ public final class Predefined {
    *
    * @return a character array.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#secureReadPassword()}.
+   * @deprecated Since 3.3, use {@link gololang.IO#secureReadPassword()}. Will be removed in 4.0
    */
   @Deprecated
   public static char[] secureReadPassword() throws IOException {
@@ -161,7 +161,7 @@ public final class Predefined {
    * @param message displays a prompt message.
    * @return a character array.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#secureReadPassword(String)}.
+   * @deprecated Since 3.3, use {@link gololang.IO#secureReadPassword(String)}. Will be removed in 4.0
    */
   @Deprecated
   public static char[] secureReadPassword(String message) throws IOException {
@@ -490,7 +490,7 @@ public final class Predefined {
    * @param encoding the file encoding as a {@link String} or {@link Charset}.
    * @return the content as a {@link String}.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#fileToText(Object, Object)}
+   * @deprecated Since 3.3, use {@link gololang.IO#fileToText(Object, Object)}. Will be removed in 4.0
    */
   @Deprecated
   public static Object fileToText(Object file, Object encoding) throws Throwable {
@@ -506,7 +506,7 @@ public final class Predefined {
    * @param text the text to write.
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#textToFile(Object, Object)}.
+   * @deprecated Since 3.3, use {@link gololang.IO#textToFile(Object, Object)}. Will be removed in 4.0
    */
   @Deprecated
   public static void textToFile(Object text, Object file) throws Throwable {
@@ -522,7 +522,7 @@ public final class Predefined {
    * @param text the text to write.
    * @param file the file to write to as an instance of either {@link String}, {@link File} or {@link Path}.
    * @param charset the charset to encode the text in.
-   * @deprecated Since 3.3, use {@link gololang.IO#textToFile(Object, Object, Object)}.
+   * @deprecated Since 3.3, use {@link gololang.IO#textToFile(Object, Object, Object)}. Will be removed in 4.0
    */
   @Deprecated
   public static void textToFile(Object text, Object file, Object charset) throws Throwable {
@@ -536,7 +536,7 @@ public final class Predefined {
    * @param file the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
    * @return true if the file exists, false if it doesn't
    *
-   * @deprecated Since 3.3, use {@link gololang.IO#fileExists(Object)}.
+   * @deprecated Since 3.3, use {@link gololang.IO#fileExists(Object)}. Will be removed in 4.0
    */
   @Deprecated
   public static boolean fileExists(Object file) {

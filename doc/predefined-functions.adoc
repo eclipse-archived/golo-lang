@@ -31,7 +31,7 @@ let value = readln()
 let pwd = readPassword("type your password:")
 ----
 
-NOTE: As of Golo 3.3, these functions are in the `gololang.IO` module, and those in `gololang.Predefined` are deprecated.
+NOTE: As of Golo 3.3, these functions are in the `gololang.IO` module, and those in `gololang.Predefined` are deprecated. They will be removed in Golo 4.0.
 
 === File I/O
 
