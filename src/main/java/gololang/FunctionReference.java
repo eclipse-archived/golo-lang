@@ -100,6 +100,9 @@ public class FunctionReference {
   }
 
   public FunctionReference asVarargsCollector(Class<?> arrayType) {
+    if (this.isVarargsCollector()) {
+      return this;
+    }
     return new FunctionReference(handle.asVarargsCollector(arrayType), this.parameterNames);
   }
 
@@ -108,7 +111,11 @@ public class FunctionReference {
   }
 
   public FunctionReference bindTo(Object x) {
-    return new FunctionReference(handle.bindTo(x), dropParameterNames(0, 1));
+    MethodHandle mh = this.handle.bindTo(x);
+    if (isVarargsCollector() && arity() > 1) {
+      mh = mh.asVarargsCollector(Object[].class);
+    }
+    return new FunctionReference(mh, dropParameterNames(0, 1));
   }
 
   public boolean isVarargsCollector() {
@@ -201,6 +208,12 @@ public class FunctionReference {
   /**
    * Compose a function with another function.
    *
+   * The {@code fun} function must accept 1 parameter that will be the value returned by this function, or no parameter, in
+   * which case the returned value will be ignored.
+   *
+   * The resulting function may throw a {@code ClassCastException} on invocation if the return type of this function
+   * does not match the type of the {@code fun} parameter.
+   *
    * @param fun the function that processes the results of {@code this} function.
    * @return a composed function.
    */
@@ -210,12 +223,20 @@ public class FunctionReference {
       other = fun.handle.asCollector(Object[].class, 1);
     } else if (fun.isVarargsCollector() && fun.arity() == 2) {
       other = MethodHandles.insertArguments(fun.handle, 1, new Object[]{new Object[0]});
+    } else if (fun.arity() == 0) {
+      other = MethodHandles.dropArguments(fun.handle, 0, Object.class);
     } else if (fun.arity() == 1) {
       other = fun.handle;
     } else {
-      throw new IllegalArgumentException("`andThen` requires a function that can be applied to 1 parameter");
+      throw new IllegalArgumentException("`andThen` requires a function that can be applied to 0 or 1 parameter");
     }
-    return new FunctionReference(filterReturnValue(this.handle, other), this.parameterNames);
+    MethodHandle mh = filterReturnValue(
+        this.handle.asType(this.handle.type().changeReturnType(Object.class)),
+        other.asType(other.type().changeParameterType(0, Object.class)));
+    if (isVarargsCollector()) {
+      mh = mh.asVarargsCollector(Object[].class);
+    }
+    return new FunctionReference(mh, this.parameterNames);
   }
 
   /*
@@ -227,8 +248,8 @@ public class FunctionReference {
    * @return a composed function.
    */
   public FunctionReference compose(FunctionReference fun) {
-    if (!acceptArity(1)) {
-      throw new UnsupportedOperationException("`compose` must be called on function accepting 1 parameter");
+    if (!acceptArity(1) && !acceptArity(0)) {
+      throw new UnsupportedOperationException("`compose` must be called on function accepting 0 or 1 parameter");
     }
     return fun.andThen(this);
   }
@@ -241,7 +262,11 @@ public class FunctionReference {
    * @return a partially applied function.
    */
   public FunctionReference bindAt(int position, Object value) {
-    return new FunctionReference(MethodHandles.insertArguments(this.handle, position, value), dropParameterNames(position, 1));
+    MethodHandle mh = MethodHandles.insertArguments(this.handle, position, value);
+    if (isVarargsCollector() && position < arity() - 1) {
+      mh = mh.asVarargsCollector(Object[].class);
+    }
+    return new FunctionReference(mh, dropParameterNames(position, 1));
   }
 
   /**
@@ -280,11 +305,11 @@ public class FunctionReference {
     if (values.length == 0) {
       return this;
     }
-    MethodHandle bounded = MethodHandles.insertArguments(handle, position, values);
-    if (handle.isVarargsCollector()) {
-      bounded = bounded.asVarargsCollector(Object[].class);
+    MethodHandle mh = MethodHandles.insertArguments(this.handle, position, values);
+    if (isVarargsCollector() && position < arity() - 1) {
+      mh = mh.asVarargsCollector(Object[].class);
     }
-    return new FunctionReference(bounded, dropParameterNames(position, values.length));
+    return new FunctionReference(mh, dropParameterNames(position, values.length));
   }
 
   /**

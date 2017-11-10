@@ -449,7 +449,7 @@ public final class Predefined {
     return fun(caller, name, module, -1);
   }
 
-  private static FunctionReference toFunctionReference(Method targetMethod, int functionArity) throws Throwable {
+  public static FunctionReference toFunctionReference(Method targetMethod, int functionArity) throws Throwable {
     String[] parameterNames = Arrays.stream(targetMethod.getParameters())
         .map(Parameter::getName)
         .toArray(String[]::new);

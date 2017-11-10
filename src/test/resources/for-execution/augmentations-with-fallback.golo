@@ -7,11 +7,9 @@ augment java.lang.String {
 }
 
 augmentation Fluent = {
-  function fallback = |this, functionName, args...| {
-    return match {
-      when args: length() is 1 then this: bindAt(functionName, args: get(0))
-      otherwise this: bindAt(functionName, args)
-    }
+  function fallback = |this, functionName, args...| -> match {
+    when args: length() is 1 then this: bindAt(functionName, args: get(0))
+    otherwise this: bindAt(functionName, args)
   }
 }
 
