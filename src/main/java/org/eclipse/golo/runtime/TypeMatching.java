@@ -151,7 +151,10 @@ public final class TypeMatching {
     return 0;
   }
 
-  private static Class<?> boxed(Class<?> t) {
+  /**
+   * @return the boxed version of the given type, and class itself otherwise.
+   */
+  public static Class<?> boxed(Class<?> t) {
     if (!t.isPrimitive()) {
       return t;
     }

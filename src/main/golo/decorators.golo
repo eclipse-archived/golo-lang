@@ -150,7 +150,7 @@ function lengthIs = |l| -> |v| {
 
 # .. Checkers .. #
 
-#XXX: checkers defined here need to be functions returning the actuall
+#XXX: checkers defined here need to be functions returning the actual
 # checkers, otherwise they are not accessible on import. Not very elegant.
 # Must be a better solution.
 

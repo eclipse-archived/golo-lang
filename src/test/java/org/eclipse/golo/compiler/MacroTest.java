@@ -14,8 +14,6 @@ import org.testng.annotations.Test;
 
 import org.eclipse.golo.internal.testing.GoloTest;
 
-import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModule;
-
 public class MacroTest extends GoloTest {
 
   @Override

@@ -102,7 +102,7 @@ macro myMacro = |args...| {
 function plop = -> "daplop"
 ```
 
-In the `myMacro` macro, `positional` will be `list[constant("foo")]`, `named`
+In the `myMacro` macro, `positional` will be `array[constant("foo")]`, `named`
 will be `map[["answer", constant(42)], ["foo", constant("bar")]]` and `last` will
 be the `plop` function IR node.
 ----
@@ -130,13 +130,37 @@ Same as `parseArguments(args, false)`
 See [`parseArguments(args, extractLast)`](#parseArguments_2)
 ----
 function parseArguments = |args| -> array[
-  list[arg foreach arg in args when not (arg oftype NamedArgument.class)],
+  array[arg foreach arg in args when not (arg oftype NamedArgument.class)],
   map[
     [arg: name(), arg: expression()]
     foreach arg in args when arg oftype NamedArgument.class
   ],
   null
 ]
+
+
+----
+Converts a IR node into the corresponding runtime value.
+
+This only works for literal values, classes, enums or arrays of theses values.
+Otherwise the node itself is returned.
+----
+function getLiteralValue = |node| -> match {
+  when node is null then null
+  when node oftype gololang.ir.ConstantStatement.class and node: value() oftype
+    gololang.ir.ClassReference.class then node: value(): dereference()
+  when node oftype gololang.ir.ConstantStatement.class then node: value()
+  when node oftype gololang.ir.CollectionLiteral.class then array[getLiteralValue(e) foreach e in node: children()]
+  when isEnum(node) then loadEnum(node: packageAndClass())
+  otherwise node
+}
+
+local function isEnum = |arg| -> arg oftype gololang.ir.FunctionInvocation.class
+                                and arg: arity() == 0
+                                and Class.forName(arg: packageAndClass(): packageName()): isEnum()
+
+local function loadEnum = |name| -> java.lang.Enum.valueOf(Class.forName(name: packageName()), name: className())
+
 
 local function applyIfTypeMatches = |type, mac| -> |elt| -> match {
   when elt oftype type then mac(elt)
@@ -153,6 +177,18 @@ local function applyToAll = |fun, args| {
     }
   }
   return res
+}
+
+----
+Wrap the given object in a `ToplevelElements`.
+
+If the argument is an array or a collection of more than 1 element, it is wrapped in a `ToplevelElements`.
+Otherwise, the element is returned unchanged.
+----
+function wrapToplevel = |elt| -> match {
+  when (isArray(elt) or elt oftype java.lang.Collection.class) and elt: size() == 1 then elt: get(0)
+  when isArray(elt) or elt oftype java.lang.Collection.class then gololang.ir.ToplevelElements.of(elt)
+  otherwise elt
 }
 
 ----
@@ -233,6 +269,7 @@ function toplevel = |type| -> |mac| -> |args...| -> match {
   otherwise applyToAll(applyIfTypeMatches(type, mac), args)
 }
 
+#== Symbols and scope management =======================================
 
 let SYMBOLS = org.eclipse.golo.compiler.SymbolGenerator()
 
@@ -278,6 +315,9 @@ function enter = |scope| -> SYMBOLS: enter(scope)
 Exists a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) and [`mangle`](#mangle_1)
 ----
 function exit = |scope| -> SYMBOLS: exit()
+
+
+#== Misc utilities =====================================================
 
 ----
 Throws a `StopCompilationException` to stop the compilation process.
