@@ -130,7 +130,7 @@ public class EvaluationEnvironment {
    *
    * @param source the module Golo source code as a string.
    * @return the corresponding module, as a {@link Class}.
-   * @see Predefined#fun(Object, Object)
+   * @see gololang.Predefined#fun(Class, Object, Object)
    */
   public Object asModule(String source) {
     try (InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8))) {
@@ -162,7 +162,7 @@ public class EvaluationEnvironment {
    *
    * @param source the module Golo source code as a string.
    * @return the corresponding module, as a {@link Class}.
-   * @see Predefined#fun(Object, Object)
+   * @see gololang.Predefined#fun(Class, Object, Object)
    */
   public Object anonymousModule(String source) {
     return asModule(anonymousModuleName() + "\n\n" + source);

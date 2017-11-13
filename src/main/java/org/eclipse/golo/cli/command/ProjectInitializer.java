@@ -16,13 +16,13 @@ import java.util.*;
 
 import static java.util.stream.Collectors.toList;
 
-import gololang.Predefined;
 import gololang.TemplateEngine;
 import gololang.FunctionReference;
 import gololang.Messages;
 
 import static gololang.Messages.message;
 import static gololang.Messages.info;
+import static gololang.IO.textToFile;
 
 class ProjectInitializer {
 
@@ -51,7 +51,7 @@ class ProjectInitializer {
     }
 
     public void create(Path root, Object... args) throws Throwable {
-      Predefined.textToFile(template.invoke(args), root.resolve(target), StandardCharsets.UTF_8);
+      textToFile(template.invoke(args), root.resolve(target), StandardCharsets.UTF_8);
     }
   }
 
@@ -250,6 +250,6 @@ class ProjectInitializer {
   }
 
   private void writeFile(Path file, Object content) throws Throwable {
-    Predefined.textToFile(content, file, StandardCharsets.UTF_8);
+    textToFile(content, file, StandardCharsets.UTF_8);
   }
 }

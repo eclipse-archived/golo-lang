@@ -10,7 +10,7 @@
 package org.eclipse.golo.doc;
 
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import gololang.Predefined;
+import gololang.IO;
 
 import java.nio.file.Path;
 import java.util.Map;
@@ -188,6 +188,6 @@ public class CtagsProcessor extends AbstractProcessor {
       file = src.getKey();
       render(src.getValue());
     }
-    Predefined.textToFile(ctagsAsString(), targetFile);
+    IO.textToFile(ctagsAsString(), targetFile);
   }
 }

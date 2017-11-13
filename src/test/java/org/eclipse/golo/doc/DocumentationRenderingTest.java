@@ -10,7 +10,7 @@
 package org.eclipse.golo.doc;
 
 import org.eclipse.golo.compiler.GoloCompiler;
-import gololang.Predefined;
+import gololang.IO;
 import org.testng.SkipException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -60,13 +60,13 @@ public class DocumentationRenderingTest {
     Path expectedDocFile = tempDir.resolve("my/package/Documented.markdown");
     check_file(expectedDocFile);
 
-    String contents = (String) Predefined.fileToText(expectedDocFile, "UTF-8");
+    String contents = (String) IO.fileToText(expectedDocFile, "UTF-8");
     assertThat(contents, is(result));
 
     Path expectedIndexFile = tempDir.resolve("index.markdown");
     check_file(expectedIndexFile);
 
-    contents = (String) Predefined.fileToText(expectedIndexFile, "UTF-8");
+    contents = (String) IO.fileToText(expectedIndexFile, "UTF-8");
     assertThat(contents, containsString("# Modules index"));
     assertThat(contents, containsString("* [my.package.Documented](my/package/Documented.markdown"));
   }
@@ -79,7 +79,7 @@ public class DocumentationRenderingTest {
 
   private void check_html_module(Path file) throws Throwable {
     check_file(file);
-    String result = (String) Predefined.fileToText(file, "UTF-8");
+    String result = (String) IO.fileToText(file, "UTF-8");
     assertThat(result, containsString("<h1>Documentation for my.package.Documented</h1>"));
     assertThat(result, containsString("<h3 id=\"with_doc_2\">with_doc(a, b)"));
     assertThat(result, containsString("<h4>Example:</h4>"));
@@ -109,7 +109,7 @@ public class DocumentationRenderingTest {
 
   private void check_html_home(Path file) throws Throwable {
     check_file(file);
-    String contents = (String) Predefined.fileToText(file, "UTF-8");
+    String contents = (String) IO.fileToText(file, "UTF-8");
     assertThat(contents, containsString("<h1>Modules index</h1>"));
     assertThat(contents, containsString("<a href=\"my/package/Documented.html\">my.package.Documented</a>"));
     assertThat(contents, containsString("<a href=\"index-all.html\" rel=\"index\""));
@@ -117,7 +117,7 @@ public class DocumentationRenderingTest {
 
   private void check_html_index(Path file) throws Throwable {
     check_file(file);
-    String contents = (String) Predefined.fileToText(file, "UTF-8");
+    String contents = (String) IO.fileToText(file, "UTF-8");
     assertThat(contents, containsString("<h1>Index</h1>"));
     assertThat(contents, containsString("<a href=\"index.html\" rel=\"home\""));
 
@@ -136,7 +136,7 @@ public class DocumentationRenderingTest {
 
   private void check_html_src(Path file) throws Throwable {
     check_file(file);
-    String contents = (String) Predefined.fileToText(file, "UTF-8");
+    String contents = (String) IO.fileToText(file, "UTF-8");
     assertThat(contents, containsString("<title>my.package.Documented source</title>"));
     assertThat(contents, containsString("<span class=\"line-number\" id=\"l-71\">71</span>"));
   }

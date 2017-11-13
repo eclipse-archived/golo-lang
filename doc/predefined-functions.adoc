@@ -31,6 +31,53 @@ let value = readln()
 let pwd = readPassword("type your password:")
 ----
 
+NOTE: As of Golo 3.3, these functions are in the `gololang.IO` module, and those in `gololang.Predefined` are deprecated. They will be removed in Golo 4.0.
+
+=== File I/O
+
+Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:
+
+[source,golo]
+----
+let text = fileToText("/some/file.txt", "UTF-8")
+----
+
+The first parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`. The second parameter
+represents the encoding charset, either as a `java.lang.String` or a `java.nio.charset.Charset`.
+
+We can write some text to a file, too:
+
+[source,golo]
+----
+textToFile("Hello, world!", "/foo/bar.txt")
+----
+
+The `textToFile` function overwrites existing files, and creates new ones if needed.
+
+These functions are provided for convenience, so if you need more fine-grained control over reading and writing text
+then we suggest that you look into the `java.nio.file` package.
+
+In addition, if you need to verify that a file exists, you can use the `fileExists` function.
+
+[source,golo]
+----
+if fileExists("/foo/bar.txt") {
+  println("file found!")
+}
+----
+
+As in the other File I/O methods, the parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`.
+The `fileExists` function will return true if the file exists, false if it doesn't.
+
+If you need the current path of execution, you can use the `currentDir` function.
+
+[source,golo]
+----
+println(currentDir())
+----
+
+NOTE: As of Golo 3.3, these functions are in the `gololang.IO` module, and those in `gololang.Predefined` are deprecated.
+
 === Number type conversions
 
 The following functions convert any number of string value to another number type:
@@ -231,49 +278,6 @@ adaptations:
 [source,golo]
 ----
 let always_true = asFunctionalInterface(java.lang.function.Predicate.class, |obj| -> true)
-----
-
-=== File I/O
-
-Sometimes it is very desirable to read the content of a text file. The `fileToText` function does just that:
-
-[source,golo]
-----
-let text = fileToText("/some/file.txt", "UTF-8")
-----
-
-The first parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`. The second parameter
-represents the encoding charset, either as a `java.lang.String` or a `java.nio.charset.Charset`.
-
-We can write some text to a file, too:
-
-[source,golo]
-----
-textToFile("Hello, world!", "/foo/bar.txt")
-----
-
-The `textToFile` function overwrites existing files, and creates new ones if needed.
-
-These functions are provided for convenience, so if you need more fine-grained control over reading and writing text
-then we suggest that you look into the `java.nio.file` package.
-
-In addition, if you need to verify that a file exists, you can use the `fileExists` function.
-
-[source,golo]
-----
-if fileExists("/foo/bar.txt") {
-  println("file found!")
-}
-----
-
-As in the other File I/O methods, the parameter is either a `java.lang.String`, a `java.io.File` or a `java.nio.file.Path`.
-The `fileExists` function will return true if the file exists, false if it doesn't.
-
-If you need the current path of execution, you can use the `currentDir` function.
-
-[source,golo]
-----
-println(currentDir())
 ----
 
 === Array types
