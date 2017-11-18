@@ -1573,7 +1573,7 @@ void Assignment():
 
 void Return(): {}
 {
-  <RETURN> (LOOKAHEAD(2) (BlankLine())? ExpressionStatement())?
+  <RETURN> (LOOKAHEAD(2) BlankLines() ExpressionStatement())?
 }
 
 void Argument():
