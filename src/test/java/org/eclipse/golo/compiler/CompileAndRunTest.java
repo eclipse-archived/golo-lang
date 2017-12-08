@@ -133,6 +133,9 @@ public class CompileAndRunTest {
     assertThat(main, notNullValue());
     assertThat(main.getReturnType().toString(), is("void"));
     assertThat(main.invoke(null, (Object[]) new String[1]), nullValue());
+
+    Method issue509 = moduleClass.getMethod("issue509");
+    assertThat((Integer) issue509.invoke(null), is(42));
   }
 
   @Test

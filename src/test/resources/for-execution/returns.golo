@@ -36,3 +36,9 @@ function raw_code = {
 }
 
 function main = |args| {}
+
+function issue509 = {
+  return # comment 1
+  # comment 2
+  42
+}
