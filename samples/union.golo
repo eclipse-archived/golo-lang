@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA-Lyon)
+# Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA Lyon)
 #
 # All rights reserved. This Example Content is intended to demonstrate
 # usage of Eclipse technology. It is provided to you under the terms and
@@ -24,7 +24,7 @@ augment Option {
   }
 }
 
-function monadicAdd = |mx, my| -> 
+function monadicAdd = |mx, my| ->
   mx: flatMap(|x| ->
     my: flatMap(|y| ->
       Option.Some(x + y)))
@@ -69,10 +69,10 @@ function test_option = {
 
   println(n)
   println(s)
-  
+
   require(n == Option.None(), "err")
   require(n is Option.None(), "err")
-  
+
   require(s == Option.Some(5), "err")
   require(s isnt Option.Some(5), "err")
 
@@ -94,11 +94,11 @@ function test_tree = {
   require(not Tree.Node(0, 0): isEmpty(), "err on Tree.Node:isEmpty")
   require(Tree.Empty(): isEmpty(), "err on Tree.Empty:isEmpty")
 
-  require(Tree.Leaf(0): whoAreYou() == "I'm a leaf", 
+  require(Tree.Leaf(0): whoAreYou() == "I'm a leaf",
     "err on Tree.Leaf:whoAreYou")
   require(Tree.Node(0, 0): whoAreYou() == "I'm a node",
     "err on Tree.Node:whoAreYou")
-  require(Tree.Empty(): whoAreYou() == "I'm empty", 
+  require(Tree.Empty(): whoAreYou() == "I'm empty",
     "err on Tree.Empty:whoAreYou")
 }
 
