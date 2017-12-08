@@ -16,11 +16,11 @@ plugins {
   id 'jacoco'
   id 'application'
   id 'maven-publish'
-  id 'com.jfrog.bintray' version '1.7.3'
+  id 'com.jfrog.bintray' version '1.8.0'
   id 'ca.coglinc.javacc' version '2.4.0'
-  id 'org.asciidoctor.convert' version '1.5.3'
-  id 'net.nemerosa.versioning' version '2.6.0'
-  id 'com.github.ben-manes.versions' version '0.14.0'
+  id 'org.asciidoctor.convert' version '1.5.7'
+  id 'net.nemerosa.versioning' version '2.6.1'
+  id 'com.github.ben-manes.versions' version '0.17.0'
 }
 
 // .................................................................................................................. //
