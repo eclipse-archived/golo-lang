@@ -1,4 +1,4 @@
-# Copyright (c) 2012-2017 Institut National des Sciences Appliquées de Lyon (INSA Lyon)
+# Copyright (c) 2012-2018 Institut National des Sciences Appliquées de Lyon (INSA Lyon)
 #
 # All rights reserved. This Example Content is intended to demonstrate
 # usage of Eclipse technology. It is provided to you under the terms and
