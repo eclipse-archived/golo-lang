@@ -15,6 +15,7 @@ import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.List;
 
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static java.util.Arrays.copyOfRange;
@@ -38,6 +39,14 @@ public final class TypeMatching {
       put(boolean.class, Boolean.class);
     }
   };
+
+  private static final List<Class<?>> NUMBERS = java.util.Arrays.asList(
+      Short.class,
+      Character.class,
+      Integer.class,
+      Long.class,
+      Float.class,
+      Double.class);
 
   public static boolean canAssign(Class<?>[] types, Object[] arguments, boolean varArgs) {
     if (types.length == 0 || arguments.length == 0) {
@@ -92,8 +101,63 @@ public final class TypeMatching {
     if (!type.isPrimitive() || value == null) {
       return false;
     }
-    return PRIMITIVE_MAP.get(type) == value.getClass();
+    Class<?> boxedType = PRIMITIVE_MAP.get(type);
+    Class<?> valueType = value.getClass();
+    if (boxedType == valueType) {
+      return true;
+    }
+    if (Number.class.isAssignableFrom(boxedType) && Number.class.isAssignableFrom(valueType)) {
+      return NUMBERS.indexOf(boxedType) > NUMBERS.indexOf(valueType);
+    }
+    return false;
   }
+
+  /**
+   * Compare two types arrays for type compatibility, using lexicographic order.
+   */
+  public static int compareTypes(Class<?>[] types1, Class<?>[] types2) {
+    if (types1.length != types2.length) {
+      return Integer.compare(types1.length, types2.length);
+    }
+    for (int i = 0; i < types1.length; i++) {
+      int cmp = compareSubstituable(types1[i], types2[i]);
+      if (cmp != 0) {
+        return cmp;
+      }
+    }
+    return 0;
+  }
+
+  /**
+   * Compare two type with a substituability relation (subtyping).
+   *
+   * <p>If the two type are not comparable, {@code 0} is returned so that the order is not changed in a stable sort.
+   */
+  public static int compareSubstituable(Class<?> type1, Class<?> type2) {
+    Class<?> boxed1 = boxed(type1);
+    Class<?> boxed2 = boxed(type2);
+    if (boxed1 == boxed2) {
+      return 0;
+    }
+    if (boxed1.isAssignableFrom(boxed2)) {
+      return 1;
+    }
+    if (boxed2.isAssignableFrom(boxed1)) {
+      return -1;
+    }
+    if (Number.class.isAssignableFrom(boxed1) && Number.class.isAssignableFrom(boxed2)) {
+      return Integer.compare(NUMBERS.indexOf(boxed1), NUMBERS.indexOf(boxed2));
+    }
+    return 0;
+  }
+
+  private static Class<?> boxed(Class<?> t) {
+    if (!t.isPrimitive()) {
+      return t;
+    }
+    return PRIMITIVE_MAP.get(t);
+  }
+
 
   public static boolean isLastArgumentAnArray(int index, Object[] args) {
     return index > 0 && args.length == index && args[index - 1] instanceof Object[];

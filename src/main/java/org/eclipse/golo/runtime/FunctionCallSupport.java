@@ -15,6 +15,7 @@ import gololang.FunctionReference;
 import java.lang.invoke.*;
 import java.lang.reflect.*;
 import java.util.List;
+import java.util.Optional;
 
 import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.permuteArguments;
@@ -333,37 +334,19 @@ public final class FunctionCallSupport {
   }
 
   private static AccessibleObject findStaticMethodOrField(Class<?> caller, Class<?> klass, String name, Object[] arguments) {
-    for (Method method : klass.getDeclaredMethods()) {
-      if (methodMatches(caller, name, arguments, method, false)) {
-        return checkDeprecation(caller, method);
-      }
-    }
-    for (Method method : klass.getMethods()) {
-      if (methodMatches(caller, name, arguments, method, false)) {
-        return checkDeprecation(caller, method);
-      }
-    }
-    for (Method method : klass.getDeclaredMethods()) {
-      if (methodMatches(caller, name, arguments, method, true)) {
-        return checkDeprecation(caller, method);
-      }
-    }
-    for (Method method : klass.getMethods()) {
-      if (methodMatches(caller, name, arguments, method, true)) {
-        return checkDeprecation(caller, method);
-      }
+    Optional<Method> meth = Extractors.getMethods(klass)
+      .filter(m -> methodMatches(caller, name, arguments, m, m.isVarArgs()))
+      .map(m -> checkDeprecation(caller, m))
+      .findFirst();
+    if (meth.isPresent()) {
+      return meth.get();
     }
     if (arguments.length == 0) {
-      for (Field field : klass.getDeclaredFields()) {
-        if (fieldMatches(name, field)) {
-          return checkDeprecation(caller, field);
-        }
-      }
-      for (Field field : klass.getFields()) {
-        if (fieldMatches(name, field)) {
-          return checkDeprecation(caller, field);
-        }
-      }
+      Optional<Field> f = Extractors.getFields(klass)
+        .filter(o -> fieldMatches(name, o))
+        .map(o -> checkDeprecation(caller, o))
+        .findFirst();
+      return f.orElse(null);
     }
     return null;
   }
