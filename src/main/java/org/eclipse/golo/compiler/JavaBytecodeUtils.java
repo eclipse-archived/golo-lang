@@ -58,7 +58,7 @@ final class JavaBytecodeUtils {
     if (element.hasPosition()) {
       Label label = new Label();
       visitor.visitLabel(label);
-      visitor.visitLineNumber(element.positionInSourceCode().getLine(), label);
+      visitor.visitLineNumber(element.positionInSourceCode().getStartLine(), label);
     }
   }
 }

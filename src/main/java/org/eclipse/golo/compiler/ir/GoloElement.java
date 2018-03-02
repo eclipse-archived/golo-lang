@@ -20,7 +20,7 @@ public abstract class GoloElement {
   private WeakReference<GoloASTNode> nodeRef;
   private GoloElement parent;
   private String documentation;
-  private PositionInSourceCode position = PositionInSourceCode.UNDEFINED;
+  private PositionInSourceCode position = PositionInSourceCode.undefined();
 
   public GoloASTNode getASTNode() {
     if (nodeRef == null) { return null; }
@@ -122,23 +122,12 @@ public abstract class GoloElement {
   }
 
   public GoloElement positionInSourceCode(PositionInSourceCode pos) {
-    if (pos == null) {
-      this.position = PositionInSourceCode.UNDEFINED;
-    } else {
-      this.position = pos;
-    }
+    this.position = PositionInSourceCode.of(pos);
     return this;
   }
 
-  public GoloElement positionInSourceCode(int line, int column) {
-    if (line <= 0 && column <= 0) {
-      return positionInSourceCode(null);
-    }
-    return positionInSourceCode(new PositionInSourceCode(line, column));
-  }
-
   public boolean hasPosition() {
-    return !PositionInSourceCode.UNDEFINED.equals(position);
+    return !position.isUndefined();
   }
 
   public Optional<ReferenceTable> getLocalReferenceTable() {

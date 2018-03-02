@@ -43,10 +43,20 @@ public class GoloASTNode extends SimpleNode {
   }
 
   public PositionInSourceCode getPositionInSourceCode() {
-    if (jjtGetFirstToken() != null) {
-      return new PositionInSourceCode(getLineInSourceCode(), getColumnInSourceCode());
+    Token firstToken = this.jjtGetFirstToken();
+    if (firstToken == null) {
+      return PositionInSourceCode.undefined();
     }
-    return null;
+    int startLine = firstToken.beginLine;
+    int startColumn = firstToken.beginColumn;
+    int endLine = firstToken.endLine;
+    int endColumn = firstToken.endColumn;
+    Token lastToken = this.jjtGetLastToken();
+    if (lastToken != null) {
+      endLine = lastToken.endLine;
+      endColumn = lastToken.endColumn;
+    }
+    return PositionInSourceCode.of(startLine, startColumn, endLine, endColumn);
   }
 
   @Override

@@ -164,7 +164,7 @@ public class ModuleDocumentation implements DocumentationElement {
       functionContext.push(functions);
       parents.push(ModuleDocumentation.this);
       moduleName = module.getPackageAndClass().toString();
-      moduleDefLine = module.positionInSourceCode().getLine();
+      moduleDefLine = module.positionInSourceCode().getStartLine();
       moduleDocumentation = module.documentation();
       module.walk(this);
     }
@@ -172,7 +172,7 @@ public class ModuleDocumentation implements DocumentationElement {
     @Override
     public void visitModuleImport(ModuleImport moduleImport) {
       if (!moduleImport.isImplicit()) {
-        imports.put(moduleImport.getPackageAndClass().toString(), moduleImport.positionInSourceCode().getLine());
+        imports.put(moduleImport.getPackageAndClass().toString(), moduleImport.positionInSourceCode().getStartLine());
       }
     }
 
@@ -182,7 +182,7 @@ public class ModuleDocumentation implements DocumentationElement {
               .parent(parents.peek())
               .name(struct.getName())
               .documentation(struct.documentation())
-              .line(struct.positionInSourceCode().getLine());
+              .line(struct.positionInSourceCode().getStartLine());
       structs.add(doc);
       currentMemberHolder = doc;
       parents.push(doc);
@@ -197,7 +197,7 @@ public class ModuleDocumentation implements DocumentationElement {
           .parent(parents.peek())
           .name(union.getName())
           .documentation(union.documentation())
-          .line(union.positionInSourceCode().getLine());
+          .line(union.positionInSourceCode().getStartLine());
       unions.add(this.currentUnion);
       parents.push(currentUnion);
       union.walk(this);
@@ -209,7 +209,7 @@ public class ModuleDocumentation implements DocumentationElement {
       UnionDocumentation.UnionValueDocumentation doc = this.currentUnion.addValue(value.getName())
           .parent(parents.peek())
           .documentation(value.documentation())
-          .line(value.positionInSourceCode().getLine());
+          .line(value.positionInSourceCode().getStartLine());
       currentMemberHolder = doc;
       parents.push(doc);
       value.walk(this);
@@ -225,7 +225,7 @@ public class ModuleDocumentation implements DocumentationElement {
                 .target(target)
                 .parent(parents.peek())
                 .augmentationNames(augment.getNames())
-                .line(augment.positionInSourceCode().getLine())
+                .line(augment.positionInSourceCode().getStartLine())
         );
       }
       AugmentationDocumentation ad = augmentations.get(target);
@@ -245,7 +245,7 @@ public class ModuleDocumentation implements DocumentationElement {
           .parent(parents.peek())
           .name(augment.getName())
           .documentation(augment.documentation())
-          .line(augment.positionInSourceCode().getLine());
+          .line(augment.positionInSourceCode().getStartLine());
       namedAugmentations.add(augmentDoc);
       functionContext.push(augmentDoc);
       parents.push(augmentDoc);
@@ -262,7 +262,7 @@ public class ModuleDocumentation implements DocumentationElement {
             .name(function.getName())
             .documentation(function.documentation())
             .augmentation(function.isInAugment())
-            .line(function.positionInSourceCode().getLine())
+            .line(function.positionInSourceCode().getStartLine())
             .local(function.isLocal())
             .arguments(function.getParameterNames())
             .varargs(function.isVarargs()));
@@ -272,7 +272,7 @@ public class ModuleDocumentation implements DocumentationElement {
     @Override
     public void visitLocalReference(LocalReference localRef) {
       if (localRef.isModuleState()) {
-        moduleStates.put(localRef.getName(), localRef.positionInSourceCode().getLine());
+        moduleStates.put(localRef.getName(), localRef.positionInSourceCode().getStartLine());
       }
     }
 
@@ -281,7 +281,7 @@ public class ModuleDocumentation implements DocumentationElement {
       currentMemberHolder.addMember(member.getName())
         .parent(parents.peek())
         .documentation(member.documentation())
-        .line(member.positionInSourceCode().getLine());
+        .line(member.positionInSourceCode().getStartLine());
     }
 
     @Override

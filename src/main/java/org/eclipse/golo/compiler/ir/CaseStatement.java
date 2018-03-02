@@ -52,6 +52,18 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
   }
 
   @Override
+  public CaseStatement documentation(String doc) {
+    super.documentation(doc);
+    return this;
+  }
+
+  @Override
+  public CaseStatement positionInSourceCode(PositionInSourceCode pos) {
+    super.positionInSourceCode(pos);
+    return this;
+  }
+
+  @Override
   public CaseStatement ofAST(GoloASTNode n) {
     super.ofAST(n);
     return this;

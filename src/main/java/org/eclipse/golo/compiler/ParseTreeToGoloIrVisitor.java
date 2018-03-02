@@ -179,8 +179,8 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
                               GoloASTNode node,
                               String message) {
       String errorMessage = message + ' ' + message("source_position",
-          node.getPositionInSourceCode().getLine(),
-          node.getPositionInSourceCode().getColumn());
+          node.getPositionInSourceCode().getStartLine(),
+          node.getPositionInSourceCode().getStartColumn());
       getOrCreateExceptionBuilder().report(type, node, errorMessage);
     }
 

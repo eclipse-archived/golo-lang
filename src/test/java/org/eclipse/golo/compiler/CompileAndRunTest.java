@@ -222,8 +222,10 @@ public class CompileAndRunTest {
       assertThat(problem.getSource().getIrElement(), instanceOf(ReferenceLookup.class));
       ReferenceLookup lookup = (ReferenceLookup) problem.getSource().getIrElement();
       assertThat(lookup.getName(), is("some_parameter"));
-      assertThat(lookup.positionInSourceCode().getLine(), is(4));
-      assertThat(lookup.positionInSourceCode().getColumn(), is(13));
+      assertThat(lookup.positionInSourceCode().getStartLine(), is(4));
+      assertThat(lookup.positionInSourceCode().getEndLine(), is(4));
+      assertThat(lookup.positionInSourceCode().getStartColumn(), is(13));
+      assertThat(lookup.positionInSourceCode().getEndColumn(), is(26));
       throw expected;
     }
   }
@@ -260,8 +262,10 @@ public class CompileAndRunTest {
       assertThat(problem.getSource().getIrElement(), instanceOf(AssignmentStatement.class));
       AssignmentStatement statement = (AssignmentStatement) problem.getSource().getIrElement();
       assertThat(statement.getLocalReference().getName(), is("foo"));
-      assertThat(statement.positionInSourceCode().getLine(), is(7));
-      assertThat(statement.positionInSourceCode().getColumn(), is(3));
+      assertThat(statement.positionInSourceCode().getStartLine(), is(7));
+      assertThat(statement.positionInSourceCode().getEndLine(), is(7));
+      assertThat(statement.positionInSourceCode().getStartColumn(), is(3));
+      assertThat(statement.positionInSourceCode().getEndColumn(), is(12));
       throw expected;
     }
   }

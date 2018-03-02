@@ -127,8 +127,13 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     LocalReference tempVar = localRef(symbols.next("match"))
       .variable()
       .synthetic();
-    CaseStatement caseStatement = cases().ofAST(matchExpression.getASTNode())
-      .otherwise(block(assign(matchExpression.getOtherwise()).to(tempVar)));
+    CaseStatement caseStatement = cases()
+      .documentation(matchExpression.documentation())
+      .positionInSourceCode(matchExpression.positionInSourceCode())
+      .otherwise(block(
+            assign(matchExpression.getOtherwise())
+            .to(tempVar)
+            .positionInSourceCode(matchExpression.getOtherwise().positionInSourceCode())));
 
     for (WhenClause<ExpressionStatement> c : matchExpression.getClauses()) {
       caseStatement.when(c.condition())

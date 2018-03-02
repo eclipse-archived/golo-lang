@@ -69,8 +69,8 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
       String message) {
     PositionInSourceCode position = node.getPositionInSourceCode();
     String errorMessage = message + ' ' + (
-        position != null
-        ? message("source_position", position.getLine(), position.getColumn())
+        (position != null || position.isUndefined())
+        ? message("source_position", position.getStartLine(), position.getStartColumn())
         : message("generated_code")) + ".";
 
     getExceptionBuilder().report(type, node, errorMessage);
