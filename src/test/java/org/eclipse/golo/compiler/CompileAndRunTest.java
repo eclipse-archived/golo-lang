@@ -17,8 +17,6 @@ import org.eclipse.golo.compiler.parser.ParseException;
 import org.eclipse.golo.compiler.testing.support.ClassWithOverloadedMethods;
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.*;
-import org.hamcrest.MatcherAssert;
-import org.hamcrest.Matchers;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -218,9 +216,9 @@ public class CompileAndRunTest {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
       GoloCompilationException.Problem problem = problems.get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
-      assertThat(problem.getSource().getIrElement(), instanceOf(ReferenceLookup.class));
-      ReferenceLookup lookup = (ReferenceLookup) problem.getSource().getIrElement();
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
+      assertThat(problem.getSource(), instanceOf(ReferenceLookup.class));
+      ReferenceLookup lookup = (ReferenceLookup) problem.getSource();
       assertThat(lookup.getName(), is("some_parameter"));
       assertThat(lookup.positionInSourceCode().getStartLine(), is(4));
       assertThat(lookup.positionInSourceCode().getEndLine(), is(4));
@@ -239,7 +237,7 @@ public class CompileAndRunTest {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
       GoloCompilationException.Problem problem = problems.get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
       assertThat(problem.getSource(), instanceOf(ASTAssignment.class));
       ASTAssignment assignment = (ASTAssignment) problem.getSource();
       assertThat(assignment.getName(), is("bar"));
@@ -258,9 +256,9 @@ public class CompileAndRunTest {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
       GoloCompilationException.Problem problem = problems.get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.ASSIGN_CONSTANT));
-      assertThat(problem.getSource().getIrElement(), instanceOf(AssignmentStatement.class));
-      AssignmentStatement statement = (AssignmentStatement) problem.getSource().getIrElement();
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.ASSIGN_CONSTANT));
+      assertThat(problem.getSource(), instanceOf(AssignmentStatement.class));
+      AssignmentStatement statement = (AssignmentStatement) problem.getSource();
       assertThat(statement.getLocalReference().getName(), is("foo"));
       assertThat(statement.positionInSourceCode().getStartLine(), is(7));
       assertThat(statement.positionInSourceCode().getEndLine(), is(7));
@@ -279,7 +277,7 @@ public class CompileAndRunTest {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
       GoloCompilationException.Problem problem = problems.get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
       throw expected;
     }
   }
@@ -293,7 +291,7 @@ public class CompileAndRunTest {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
       GoloCompilationException.Problem problem = problems.get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.REFERENCE_ALREADY_DECLARED_IN_BLOCK));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.REFERENCE_ALREADY_DECLARED_IN_BLOCK));
       throw expected;
     }
   }
@@ -526,12 +524,10 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
-      MatcherAssert.assertThat(problems.get(0).getFirstToken(), notNullValue());
-      assertThat(problems.get(0).getFirstToken().startOffset, greaterThan(-1));
-      assertThat(problems.get(0).getFirstToken().endOffset, greaterThan(-1));
-      MatcherAssert.assertThat(problems.get(0).getLastToken(), notNullValue());
-      assertThat(problems.get(0).getLastToken().startOffset, greaterThan(-1));
-      assertThat(problems.get(0).getLastToken().endOffset, greaterThan(-1));
+      assertThat(problems.get(0).getPositionInSourceCode().getStartLine(), is(8));
+      assertThat(problems.get(0).getPositionInSourceCode().getEndLine(), is(8));
+      assertThat(problems.get(0).getPositionInSourceCode().getStartColumn(), is(3));
+      assertThat(problems.get(0).getPositionInSourceCode().getEndColumn(), is(18));
       throw expected;
     }
   }
@@ -1202,7 +1198,7 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));
       GoloCompilationException.Problem problem = e.getProblems().get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.BREAK_OR_CONTINUE_OUTSIDE_LOOP));
     }
   }
 
@@ -1239,7 +1235,7 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));
       GoloCompilationException.Problem problem = e.getProblems().get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.PARSING));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.PARSING));
     }
   }
 
@@ -1251,7 +1247,7 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));
       GoloCompilationException.Problem problem = e.getProblems().get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.PARSING));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.PARSING));
     }
   }
 
@@ -1783,7 +1779,7 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException e) {
       assertThat(e.getProblems().size(), is(1));
       GoloCompilationException.Problem problem = e.getProblems().get(0);
-      assertThat(problem.getType(), Matchers.is(GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE));
+      assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.INCOMPLETE_NAMED_ARGUMENTS_USAGE));
     }
 
     Method golo_decoratored = moduleClass.getMethod("golo_decoratored");
@@ -1839,12 +1835,8 @@ public class CompileAndRunTest {
     } catch (GoloCompilationException expected) {
       List<GoloCompilationException.Problem> problems = expected.getProblems();
       assertThat(problems.size(), is(1));
-      MatcherAssert.assertThat(problems.get(0).getFirstToken(), notNullValue());
-      assertThat(problems.get(0).getFirstToken().startOffset, greaterThan(-1));
-      assertThat(problems.get(0).getFirstToken().endOffset, greaterThan(-1));
-      MatcherAssert.assertThat(problems.get(0).getLastToken(), notNullValue());
-      assertThat(problems.get(0).getLastToken().startOffset, greaterThan(-1));
-      assertThat(problems.get(0).getLastToken().endOffset, greaterThan(-1));
+      assertThat(problems.get(0).getPositionInSourceCode().getStartLine(), is(7));
+      assertThat(problems.get(0).getPositionInSourceCode().getStartColumn(), is(16));
       throw expected;
     }
   }

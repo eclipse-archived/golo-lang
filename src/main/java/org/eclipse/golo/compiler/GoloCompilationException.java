@@ -13,6 +13,8 @@ package org.eclipse.golo.compiler;
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 import org.eclipse.golo.compiler.parser.ParseException;
 import org.eclipse.golo.compiler.parser.Token;
+import org.eclipse.golo.compiler.ir.PositionInSourceCode;
+import org.eclipse.golo.compiler.ir.GoloElement;
 
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.LinkedList;
@@ -29,12 +31,12 @@ public class GoloCompilationException extends RuntimeException {
   /**
    * A problem reported either while compiling the source code or processing the intermediate representation.
    */
-  public static class Problem {
+  public static final class Problem {
 
     /**
      * The possible problem types.
      */
-    public static enum Type {
+    public enum Type {
       PARSING,
       AUGMENT_FUNCTION_NO_ARGS,
       UNDECLARED_REFERENCE,
@@ -48,18 +50,15 @@ public class GoloCompilationException extends RuntimeException {
     }
 
     private final Type type;
-    private final GoloASTNode source;
-    private final Token firstToken;
-    private final Token lastToken;
-
+    private final PositionInSourceCode position;
     private final String description;
+    private final Object source;
 
-    private Problem(Type type, GoloASTNode source, Token firstToken, Token lastToken, String description) {
+    private Problem(Type type, PositionInSourceCode position, String description, Object source) {
       this.type = type;
-      this.source = source;
-      this.firstToken = firstToken;
-      this.lastToken = lastToken;
+      this.position = position;
       this.description = description;
+      this.source = source;
     }
 
     /**
@@ -70,40 +69,29 @@ public class GoloCompilationException extends RuntimeException {
     }
 
     /**
-     * @return the problem source.
-     */
-    public GoloASTNode getSource() {
-      return source;
-    }
-
-    /**
-     * @return the problem detailed start token in source.
-     */
-    public Token getFirstToken() {
-      return firstToken;
-    }
-
-    /**
-     * @return the problem detailed end token in source.
-     */
-    public Token getLastToken() {
-      return lastToken;
-    }
-
-    /**
      * @return the problem description.
      */
     public String getDescription() {
       return description;
     }
 
+    /**
+     * @return the position in the source code.
+     */
+    public PositionInSourceCode getPositionInSourceCode() {
+      return position;
+    }
+
+    /**
+     * @return the source of the problem.
+     */
+    public Object getSource() {
+      return source;
+    }
+
     @Override
     public String toString() {
-      return "Problem{" +
-          "type=" + type +
-          ", source=" + source +
-          ", description='" + description + '\'' +
-          '}';
+      return String.format("Problem{type=%s, description='%s', position=%s}", type, description, position);
     }
   }
 
@@ -133,10 +121,26 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(Problem.Type type, GoloASTNode source, String description) {
-      exception.report(new Problem(type, source,
-            source != null ? source.jjtGetFirstToken() : null,
-            source != null ? source.jjtGetLastToken() : null,
-            description));
+      exception.report(new Problem(type,
+            source != null ? source.getPositionInSourceCode() : null,
+            description,
+            source));
+      return this;
+    }
+
+    /**
+     * Report a problem to the exception being built.
+     *
+     * @param type        the problem type.
+     * @param source      the problem source.
+     * @param description the problem description.
+     * @return the same builder object.
+     */
+    public Builder report(Problem.Type type, GoloElement source, String description) {
+      exception.report(new Problem(type,
+            source != null ? source.positionInSourceCode() : null,
+            description,
+            source));
       return this;
     }
 
@@ -148,7 +152,10 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(ParseException pe, GoloASTNode source) {
-      exception.report(new Problem(Problem.Type.PARSING, source, pe.currentToken, pe.currentToken, pe.getMessage()));
+      exception.report(new Problem(Problem.Type.PARSING,
+            PositionInSourceCode.of(pe.currentToken.beginLine, pe.currentToken.beginColumn, pe.currentToken.endLine, pe.currentToken.endColumn),
+            pe.getMessage(),
+            source));
       return this;
     }
 
@@ -159,7 +166,7 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(UnsupportedCharsetException uce) {
-      exception.report(new Problem(Problem.Type.INVALID_ENCODING, null, null, null, uce.getMessage()));
+      exception.report(new Problem(Problem.Type.INVALID_ENCODING, null, uce.getMessage(), null));
       return this;
     }
 

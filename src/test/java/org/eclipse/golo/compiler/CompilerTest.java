@@ -67,7 +67,7 @@ public class CompilerTest {
 
       problem = e.getProblems().get(0);
       assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNDECLARED_REFERENCE));
-      assertThat(problem.getSource().getLineInSourceCode(), is(4));
+      assertThat(problem.getPositionInSourceCode().getStartLine(), is(4));
     }
   }
 
@@ -87,7 +87,7 @@ public class CompilerTest {
 
       problem = e.getProblems().get(0);
       assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.PARSING));
-      assertThat(problem.getSource().getLineInSourceCode(), is(3));
+      assertThat(problem.getPositionInSourceCode().getStartLine(), is(3));
     }
   }
 
@@ -107,13 +107,13 @@ public class CompilerTest {
 
       problem = e.getProblems().get(0);
       assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNINITIALIZED_REFERENCE_ACCESS));
-      assertThat(problem.getSource().getLineInSourceCode(), is(4));
-      assertThat(problem.getSource().getColumnInSourceCode(), is(13));
+      assertThat(problem.getPositionInSourceCode().getStartLine(), is(4));
+      assertThat(problem.getPositionInSourceCode().getStartColumn(), is(13));
 
       problem = e.getProblems().get(1);
       assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.UNINITIALIZED_REFERENCE_ACCESS));
-      assertThat(problem.getSource().getLineInSourceCode(), is(5));
-      assertThat(problem.getSource().getColumnInSourceCode(), is(20));
+      assertThat(problem.getPositionInSourceCode().getStartLine(), is(5));
+      assertThat(problem.getPositionInSourceCode().getStartColumn(), is(20));
     }
   }
 
@@ -144,7 +144,7 @@ public class CompilerTest {
 
         problem = e.getProblems().get(0);
         assertThat(problem.getType(), is(GoloCompilationException.Problem.Type.AMBIGUOUS_DECLARATION));
-        assertThat(problem.getSource().getLineInSourceCode(), is(9));
+        assertThat(problem.getPositionInSourceCode().getStartLine(), is(9));
       }
     }
   }

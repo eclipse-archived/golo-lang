@@ -65,9 +65,8 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     return exceptionBuilder;
   }
 
-  private void errorMessage(GoloCompilationException.Problem.Type type, GoloASTNode node,
-      String message) {
-    PositionInSourceCode position = node.getPositionInSourceCode();
+  private void errorMessage(GoloCompilationException.Problem.Type type, GoloElement node, String message) {
+    PositionInSourceCode position = node.positionInSourceCode();
     String errorMessage = message + ' ' + (
         (position != null || position.isUndefined())
         ? message("source_position", position.getStartLine(), position.getStartColumn())
@@ -155,10 +154,10 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     LocalReference reference = assignmentStatement.getLocalReference();
     Set<LocalReference> assignedReferences = assignmentStack.peek();
     if (redeclaringReferenceInBlock(assignmentStatement, reference, assignedReferences)) {
-      errorMessage(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement.getASTNode(),
+      errorMessage(REFERENCE_ALREADY_DECLARED_IN_BLOCK, assignmentStatement,
           message("reference_already_declared", reference.getName()));
     } else if (assigningConstant(reference, assignedReferences)) {
-      errorMessage(ASSIGN_CONSTANT, assignmentStatement.getASTNode(),
+      errorMessage(ASSIGN_CONSTANT, assignmentStatement,
           message("assign_constant", reference.getName()));
     }
     bindReference(reference);
@@ -205,7 +204,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     ReferenceTable table = tableStack.peek();
     if (table == null) { return; }
     if (!table.hasReferenceFor(referenceLookup.getName())) {
-      errorMessage(UNDECLARED_REFERENCE, referenceLookup.getASTNode(),
+      errorMessage(UNDECLARED_REFERENCE, referenceLookup,
           message("undeclared_reference", referenceLookup.getName(),
           !functionStack.isEmpty()
             ? message("in_function", functionStack.peek().getName())
@@ -213,7 +212,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     }
     LocalReference ref = referenceLookup.resolveIn(table);
     if (isUninitialized(ref)) {
-      errorMessage(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup.getASTNode(),
+      errorMessage(UNINITIALIZED_REFERENCE_ACCESS, referenceLookup,
           message("uninitialized_reference_access", ref.getName()));
     }
   }
@@ -237,7 +236,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   @Override
   public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
     if (loopStack.isEmpty()) {
-      errorMessage(BREAK_OR_CONTINUE_OUTSIDE_LOOP, loopBreakFlowStatement.getASTNode(),
+      errorMessage(BREAK_OR_CONTINUE_OUTSIDE_LOOP, loopBreakFlowStatement,
           message("break_or_continue_outside_loop"));
     } else {
       loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
