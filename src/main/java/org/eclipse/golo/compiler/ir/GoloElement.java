@@ -12,28 +12,16 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-import java.lang.ref.WeakReference;
 import java.util.Optional;
 import java.util.NoSuchElementException;
 
 public abstract class GoloElement {
-  private WeakReference<GoloASTNode> nodeRef;
   private GoloElement parent;
   private String documentation;
   private PositionInSourceCode position = PositionInSourceCode.undefined();
 
-  public GoloASTNode getASTNode() {
-    if (nodeRef == null) { return null; }
-    return nodeRef.get();
-  }
-
-  private boolean hasASTNode() {
-    return nodeRef != null && nodeRef.get() != null;
-  }
-
   public GoloElement ofAST(GoloASTNode node) {
     if (node != null) {
-      nodeRef = new WeakReference<>(node);
       node.setIrElement(this);
       this.documentation(node.getDocumentation());
       this.positionInSourceCode(node.getPositionInSourceCode());

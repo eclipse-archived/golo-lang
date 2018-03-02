@@ -100,10 +100,10 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
             firstDeclaration = f;
           }
         }
-        errorMessage(AMBIGUOUS_DECLARATION, function.getASTNode(),
+        errorMessage(AMBIGUOUS_DECLARATION, function,
             message("ambiguous_function_declaration",
                 function.getName(),
-                firstDeclaration == null ? "unknown" : firstDeclaration.getASTNode().getPositionInSourceCode()));
+                firstDeclaration == null ? "unknown" : firstDeclaration.positionInSourceCode()));
       }
       container.addFunction(function);
     }
@@ -113,7 +113,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       if (existing != null) {
         errorMessage(AMBIGUOUS_DECLARATION, node,
             message("ambiguous_type_declaration",
-                name, existing.getASTNode().getPositionInSourceCode()));
+                name, existing.positionInSourceCode()));
         return true;
       }
       return false;
@@ -175,15 +175,17 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       return exceptionBuilder;
     }
 
-    public void errorMessage(GoloCompilationException.Problem.Type type,
-                              GoloASTNode node,
-                              String message) {
-      String errorMessage = message + ' ' + message("source_position",
-          node.getPositionInSourceCode().getStartLine(),
-          node.getPositionInSourceCode().getStartColumn());
-      getOrCreateExceptionBuilder().report(type, node, errorMessage);
+    private String errorDescription(PositionInSourceCode position, String message) {
+      return message + ' ' + message("source_position", position.getStartLine(), position.getStartColumn());
     }
 
+    public void errorMessage(GoloCompilationException.Problem.Type type, GoloASTNode node, String message) {
+      getOrCreateExceptionBuilder().report(type, node, errorDescription(node.getPositionInSourceCode(), message));
+    }
+
+    public void errorMessage(GoloCompilationException.Problem.Type type, GoloElement node, String message) {
+      getOrCreateExceptionBuilder().report(type, node, errorDescription(node.positionInSourceCode(), message));
+    }
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit, GoloCompilationException.Builder builder) {
