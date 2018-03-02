@@ -191,6 +191,11 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   @Override
+  public String toString() {
+    return String.format("GoloModule{name=%s, src=%s}", this.packageAndClass, this.sourceFile);
+  }
+
+  @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitModule(this);
   }

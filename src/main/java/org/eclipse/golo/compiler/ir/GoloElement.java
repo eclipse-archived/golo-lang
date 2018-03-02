@@ -35,14 +35,10 @@ public abstract class GoloElement {
     if (node != null) {
       nodeRef = new WeakReference<>(node);
       node.setIrElement(this);
-      setDocumentationAndPositionFrom(node);
+      this.documentation(node.getDocumentation());
+      this.positionInSourceCode(node.getPositionInSourceCode());
     }
     return this;
-  }
-
-  private void setDocumentationAndPositionFrom(GoloASTNode node) {
-    setDocumentation(node.getDocumentation());
-    setPositionInSourceCode(node.getPositionInSourceCode());
   }
 
   protected void setParentNode(GoloElement parentElement) {
@@ -92,53 +88,57 @@ public abstract class GoloElement {
     return new ClassCastException("expecting a " + expected + "but got a " + value.getClass());
   }
 
+  /**
+   * Replaces this element by the given one in its parent node.
+   *
+   * @param newElement the element to replace this one with.
+   * @throws IllegalStateException if this element has no parent.
+   */
   public void replaceInParentBy(GoloElement newElement) {
     if (newElement == this) { return; }
     if (this.parent != null) {
       this.parent.replaceElement(this, newElement);
       this.parent.makeParentOf(newElement);
-      if (hasASTNode()) {
-        getASTNode().setIrElement(newElement);
-      }
+      newElement.positionInSourceCode(this.position);
       this.setParentNode(null);
+    } else {
+      throw new IllegalStateException("This node has no parent");
     }
   }
 
-  public String getDocumentation() {
-    return documentation;
+  public String documentation() {
+    return this.documentation;
   }
 
-  public void setDocumentation(String doc) {
+  public GoloElement documentation(String doc) {
     if (doc != null) {
       this.documentation = doc;
     }
+    return this;
   }
 
-  public PositionInSourceCode getPositionInSourceCode() {
-    if (position != null) {
-      return position;
-    }
-    return PositionInSourceCode.UNDEFINED;
+  public PositionInSourceCode positionInSourceCode() {
+    return position;
   }
 
-  public void setPositionInSourceCode(PositionInSourceCode pos) {
-    if (PositionInSourceCode.UNDEFINED.equals(pos)) {
-      this.position = null;
+  public GoloElement positionInSourceCode(PositionInSourceCode pos) {
+    if (pos == null) {
+      this.position = PositionInSourceCode.UNDEFINED;
     } else {
       this.position = pos;
     }
+    return this;
   }
 
-  public void setPositionInSourceCode(int line, int column) {
-    if (line == 0 && column == 0) {
-      position = null;
-    } else {
-      position = new PositionInSourceCode(line, column);
+  public GoloElement positionInSourceCode(int line, int column) {
+    if (line <= 0 && column <= 0) {
+      return positionInSourceCode(null);
     }
+    return positionInSourceCode(new PositionInSourceCode(line, column));
   }
 
   public boolean hasPosition() {
-    return position != null && !PositionInSourceCode.UNDEFINED.equals(position);
+    return !PositionInSourceCode.UNDEFINED.equals(position);
   }
 
   public Optional<ReferenceTable> getLocalReferenceTable() {
