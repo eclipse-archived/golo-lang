@@ -22,7 +22,6 @@ public abstract class GoloElement {
 
   public GoloElement ofAST(GoloASTNode node) {
     if (node != null) {
-      node.setIrElement(this);
       this.documentation(node.getDocumentation());
       this.positionInSourceCode(node.getPositionInSourceCode());
     }

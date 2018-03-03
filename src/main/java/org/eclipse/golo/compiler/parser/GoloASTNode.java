@@ -15,16 +15,7 @@ import org.eclipse.golo.compiler.ir.PositionInSourceCode;
 
 public class GoloASTNode extends SimpleNode {
 
-  private GoloElement irElement;
   private String documentation;
-
-  public void setIrElement(GoloElement element) {
-    this.irElement = element;
-  }
-
-  public GoloElement getIrElement() {
-    return irElement;
-  }
 
   public GoloASTNode(int i) {
     super(i);
