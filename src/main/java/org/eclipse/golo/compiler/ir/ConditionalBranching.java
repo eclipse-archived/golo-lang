@@ -33,12 +33,12 @@ public final class ConditionalBranching extends GoloStatement<ConditionalBranchi
   }
 
   public ConditionalBranching whenTrue(Object block) {
-    setTrueBlock(Builders.toBlock(block));
+    setTrueBlock(Block.of(block));
     return this;
   }
 
   public ConditionalBranching whenFalse(Object block) {
-    setFalseBlock(block == null ? null : Builders.toBlock(block));
+    setFalseBlock(block == null ? null : Block.of(block));
     return this;
   }
 

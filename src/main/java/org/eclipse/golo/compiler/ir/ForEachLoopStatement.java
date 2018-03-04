@@ -28,7 +28,7 @@ public final class ForEachLoopStatement extends GoloStatement<ForEachLoopStateme
   }
 
   public ForEachLoopStatement block(Object block) {
-    this.block = Builders.toBlock(block);
+    this.block = Block.of(block);
     return this;
   }
 

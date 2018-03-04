@@ -75,7 +75,7 @@ public class CollectionComprehension extends ExpressionStatement<CollectionCompr
     if (expression == original && newElement instanceof ExpressionStatement) {
       expression(newElement);
     } else if (newElement instanceof Block && loopBlocks.contains(original)) {
-      loopBlocks.set(loopBlocks.indexOf(original), (Block) newElement);
+      loopBlocks.set(loopBlocks.indexOf(original), Block.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

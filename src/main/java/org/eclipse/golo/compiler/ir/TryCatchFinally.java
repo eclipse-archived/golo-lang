@@ -35,7 +35,7 @@ public class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public TryCatchFinally trying(Object block) {
-    this.tryBlock = makeParentOf((Block) block);
+    this.tryBlock = makeParentOf(Block.of(block));
     return this;
   }
 
@@ -44,7 +44,7 @@ public class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public TryCatchFinally catching(Object block) {
-    this.catchBlock = makeParentOf((Block) block);
+    this.catchBlock = makeParentOf(Block.of(block));
     this.catchBlock.getReferenceTable().add(Builders.localRef(exceptionId).synthetic());
     return this;
   }
@@ -54,7 +54,7 @@ public class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public TryCatchFinally finalizing(Object block) {
-    this.finallyBlock = makeParentOf((Block) block);
+    this.finallyBlock = makeParentOf(Block.of(block));
     return this;
   }
 

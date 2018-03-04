@@ -307,14 +307,6 @@ public final class Builders {
     throw cantConvert(statement, "GoloStatement");
   }
 
-  public static Block toBlock(Object block) {
-    if (block == null) { return Block.emptyBlock(); }
-    if (block instanceof Block) {
-      return (Block) block;
-    }
-    throw cantConvert(block, "Block");
-  }
-
   private static IllegalArgumentException cantConvert(Object value, String target) {
     return new IllegalArgumentException(
         String.format("%s is not a %s, but a %s",

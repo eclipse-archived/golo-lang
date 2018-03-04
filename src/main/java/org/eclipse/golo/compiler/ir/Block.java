@@ -42,6 +42,9 @@ public final class Block extends ExpressionStatement<Block> {
     if (block instanceof Block) {
       return (Block) block;
     }
+    if (block instanceof GoloStatement<?>) {
+      return emptyBlock().add(block);
+    }
     throw cantConvert("Block", block);
   }
 

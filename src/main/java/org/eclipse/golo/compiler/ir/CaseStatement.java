@@ -32,12 +32,12 @@ public final class CaseStatement extends GoloStatement<CaseStatement> implements
   }
 
   public CaseStatement then(Object action) {
-    this.clauses.getLast().setAction((Block) action);
+    this.clauses.getLast().setAction(Block.of(action));
     return this;
   }
 
   public CaseStatement otherwise(Object action) {
-    this.otherwise = makeParentOf((Block) action);
+    this.otherwise = makeParentOf(Block.of(action));
     return this;
   }
 

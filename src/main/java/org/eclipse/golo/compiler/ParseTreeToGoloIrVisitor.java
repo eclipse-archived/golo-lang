@@ -651,7 +651,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     node.jjtGetChild(0).jjtAccept(this, data);
     context.push(
       whileLoop(context.pop()).ofAST(node)
-        .block((Block) context.pop()));
+        .block(Block.of(context.pop())));
     return data;
   }
 
@@ -671,7 +671,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     if (node.jjtGetNumChildren() == 4) {
       node.jjtGetChild(3).jjtAccept(this, data);
-      loopStatement.block((Block) context.pop());
+      loopStatement.block(Block.of(context.pop()));
     }
     context.push(block.add(loopStatement));
     context.leaveScope();

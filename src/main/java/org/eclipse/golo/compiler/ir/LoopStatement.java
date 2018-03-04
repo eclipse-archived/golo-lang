@@ -148,7 +148,7 @@ public final class LoopStatement extends GoloStatement<LoopStatement> implements
     } else if (Objects.equals(postStatement, original)) {
       post(newElement);
     } else if (Objects.equals(block, original)) {
-      block((Block) newElement);
+      block(Block.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }
