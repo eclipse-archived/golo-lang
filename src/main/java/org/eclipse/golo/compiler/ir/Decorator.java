@@ -85,7 +85,7 @@ public final class Decorator extends GoloElement<Decorator> {
     if (expressionStatement instanceof FunctionInvocation) {
       return wrapInvocation((FunctionInvocation) expressionStatement, expression);
     }
-    return wrapAnonymousCall((ExpressionStatement) expressionStatement, expression);
+    return wrapAnonymousCall(ExpressionStatement.of(expressionStatement), expression);
   }
 
   @Override
@@ -101,7 +101,7 @@ public final class Decorator extends GoloElement<Decorator> {
   @Override
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expressionStatement.equals(original) && newElement instanceof ExpressionStatement) {
-      setExpressionStatement((ExpressionStatement) newElement);
+      setExpressionStatement(ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

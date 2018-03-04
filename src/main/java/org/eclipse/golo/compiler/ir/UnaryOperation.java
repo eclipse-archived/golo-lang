@@ -51,7 +51,7 @@ public final class UnaryOperation extends ExpressionStatement<UnaryOperation> {
   @Override
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expressionStatement.equals(original)) {
-      setExpressionStatement((ExpressionStatement) newElement);
+      setExpressionStatement(ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

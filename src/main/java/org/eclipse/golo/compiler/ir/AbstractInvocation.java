@@ -76,8 +76,8 @@ public abstract class AbstractInvocation<T extends AbstractInvocation<T>> extend
   @Override
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (newElement instanceof ExpressionStatement && arguments.contains(original)) {
-      this.arguments.set(arguments.indexOf((ExpressionStatement) original),
-          (ExpressionStatement) newElement);
+      this.arguments.set(arguments.indexOf(ExpressionStatement.of(original)),
+          ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

@@ -64,7 +64,7 @@ public final class CollectionLiteral extends ExpressionStatement<CollectionLiter
   @Override
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expressions.contains(original) && newElement instanceof ExpressionStatement) {
-      expressions.set(expressions.indexOf(original), (ExpressionStatement) newElement);
+      expressions.set(expressions.indexOf(original), ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

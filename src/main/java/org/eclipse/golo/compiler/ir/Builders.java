@@ -98,7 +98,7 @@ public final class Builders {
   }
 
   public static Decorator decorator(Object expr) {
-    return new Decorator((ExpressionStatement) expr);
+    return new Decorator(ExpressionStatement.of(expr));
   }
 
   public static GoloFunction functionDeclaration() {
@@ -129,7 +129,7 @@ public final class Builders {
   public static BinaryOperation anonCall(Object receiver, Object invocation) {
     return binaryOperation(
         OperatorType.ANON_CALL,
-        (ExpressionStatement) receiver,
+        ExpressionStatement.of(receiver),
         (FunctionInvocation) invocation);
   }
 
@@ -196,11 +196,11 @@ public final class Builders {
   }
 
   public static ReturnStatement returns(Object expr) {
-    return new ReturnStatement((ExpressionStatement) expr);
+    return new ReturnStatement(ExpressionStatement.of(expr));
   }
 
   public static ThrowStatement raise(Object expression) {
-    return new ThrowStatement((ExpressionStatement) expression);
+    return new ThrowStatement(ExpressionStatement.of(expression));
   }
 
   public static LocalReference localRef(Object name) {

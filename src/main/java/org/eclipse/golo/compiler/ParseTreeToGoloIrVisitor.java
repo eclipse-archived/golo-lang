@@ -587,7 +587,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         break;
       }
       argumentNode.jjtAccept(this, context);
-      ExpressionStatement statement = (ExpressionStatement) context.pop();
+      ExpressionStatement<?> statement = ExpressionStatement.of(context.pop());
       checkNamedArgument(context, node, invocation, statement);
       invocation.withArgs(statement);
     }
@@ -770,7 +770,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     for (String symbol : operators) {
       OperatorType operator = OperatorType.fromString(symbol);
       if (right == null) {
-        right = (ExpressionStatement) context.pop();
+        right = ExpressionStatement.of(context.pop());
         if (operator == OperatorType.ELVIS_METHOD_CALL) {
           ((MethodInvocation) right).setNullSafeGuarded(true);
         }
@@ -802,7 +802,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   private List<ExpressionStatement<?>> operatorStatements(Context context, int operatorsCount) {
     LinkedList<ExpressionStatement<?>> statements = new LinkedList<>();
     for (int i = 0; i < operatorsCount + 1; i++) {
-      statements.addFirst((ExpressionStatement) context.pop());
+      statements.addFirst(ExpressionStatement.of(context.pop()));
     }
     return statements;
   }

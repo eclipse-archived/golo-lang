@@ -29,7 +29,7 @@ public class CollectionComprehension extends ExpressionStatement<CollectionCompr
   protected CollectionComprehension self() { return this; }
 
   public CollectionComprehension expression(Object expression) {
-    this.expression = (ExpressionStatement) expression;
+    this.expression = ExpressionStatement.of(expression);
     makeParentOf(this.expression);
     return this;
   }

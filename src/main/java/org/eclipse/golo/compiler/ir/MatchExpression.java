@@ -34,12 +34,12 @@ public final class MatchExpression extends ExpressionStatement<MatchExpression> 
   }
 
   public MatchExpression then(Object action) {
-    this.clauses.getLast().setAction((ExpressionStatement) action);
+    this.clauses.getLast().setAction(ExpressionStatement.of(action));
     return this;
   }
 
   public MatchExpression otherwise(Object action) {
-    otherwise = (ExpressionStatement) action;
+    this.otherwise = ExpressionStatement.of(action);
     makeParentOf(otherwise);
     return this;
   }

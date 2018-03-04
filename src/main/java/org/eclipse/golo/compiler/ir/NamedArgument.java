@@ -33,7 +33,7 @@ public final class NamedArgument extends ExpressionStatement<NamedArgument> {
   }
 
   public NamedArgument value(Object value) {
-    expression = (ExpressionStatement) value;
+    expression = ExpressionStatement.of(value);
     makeParentOf(expression);
     return this;
   }
@@ -69,6 +69,6 @@ public final class NamedArgument extends ExpressionStatement<NamedArgument> {
     if (expression != original) {
       throw doesNotContain(original);
     }
-    value((ExpressionStatement) newElement);
+    value(newElement);
   }
 }

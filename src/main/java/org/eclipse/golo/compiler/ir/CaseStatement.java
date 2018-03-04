@@ -27,7 +27,7 @@ public final class CaseStatement extends GoloStatement<CaseStatement> implements
   protected CaseStatement self() { return this; }
 
   public CaseStatement when(Object cond) {
-    WhenClause<Block> clause = new WhenClause<Block>((ExpressionStatement) cond, null);
+    WhenClause<Block> clause = new WhenClause<Block>(ExpressionStatement.of(cond), null);
     this.clauses.add(clause);
     makeParentOf(clause);
     return this;

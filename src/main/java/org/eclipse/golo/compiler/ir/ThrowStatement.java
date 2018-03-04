@@ -36,7 +36,7 @@ public final class ThrowStatement extends GoloStatement<ThrowStatement> {
   @Override
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(original, expressionStatement) && newElement instanceof ExpressionStatement) {
-      setExpressionStatement((ExpressionStatement) newElement);
+      setExpressionStatement(ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

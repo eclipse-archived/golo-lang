@@ -44,13 +44,13 @@ public final class BinaryOperation extends ExpressionStatement<BinaryOperation> 
   }
 
   public BinaryOperation left(Object expr) {
-    leftExpression = (ExpressionStatement) expr;
+    leftExpression = ExpressionStatement.of(expr);
     makeParentOf(leftExpression);
     return this;
   }
 
   public BinaryOperation right(Object expr) {
-    rightExpression = (ExpressionStatement) expr;
+    rightExpression = ExpressionStatement.of(expr);
     makeParentOf(rightExpression);
     return this;
   }

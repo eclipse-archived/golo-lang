@@ -38,13 +38,13 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
 
   @Override
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
-    if (condition.equals(original)) {
+    if (this.condition.equals(original)) {
       if (!(newElement instanceof ExpressionStatement)) {
         throw cantConvert("ExpressionStatement", newElement);
       }
-      this.condition = (ExpressionStatement) newElement;
+      this.condition = ExpressionStatement.of(newElement);
       makeParentOf(this.condition);
-    } else if (action.equals(original)) {
+    } else if (this.action.equals(original)) {
       @SuppressWarnings("unchecked")
       T element = (T) newElement;
       setAction(element);
