@@ -34,8 +34,12 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     this.parent = parentElement;
   }
 
-  public Optional<GoloElement<?>> getParentNode() {
-    return Optional.ofNullable(this.parent);
+  public boolean hasParent() {
+    return this.parent != null;
+  }
+
+  public GoloElement<?> parent() {
+    return this.parent;
   }
 
   public <C extends GoloElement<?>> C makeParentOf(C childElement) {

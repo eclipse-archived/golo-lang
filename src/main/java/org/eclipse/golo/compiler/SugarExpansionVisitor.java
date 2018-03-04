@@ -50,8 +50,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     function.insertMissingReturnStatement();
     if (!expressionToBlock(function)) {
       function.walk(this);
-      if (function.hasDecorators() && function.getParentNode().isPresent()) {
-        FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
+      if (function.hasDecorators() && function.hasParent()) {
+        FunctionContainer parent = (FunctionContainer) function.parent();
         GoloFunction decorator = function.createDecorator();
         parent.addFunction(decorator);
         decorator.accept(this);
@@ -145,7 +145,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
         .positionInSourceCode(c.positionInSourceCode());
     }
     Block block = block();
-    for (GoloAssignment a : matchExpression.declarations()) {
+    for (GoloAssignment<?> a : matchExpression.declarations()) {
       block.add(a);
     }
     matchExpression.clearDeclarations();
@@ -218,7 +218,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       .variable()
       .synthetic();
     Block mainBlock = block();
-    for (GoloAssignment a : collection.declarations()) {
+    for (GoloAssignment<?> a : collection.declarations()) {
       mainBlock.add(a);
     }
     collection.clearDeclarations();
@@ -397,7 +397,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Block b = Builders.block((Object[]) expr.declarations());
     expr.replaceInParentBy(b);
     expr.clearDeclarations();
-    LocalReference  r = Builders.localRef(symbols.next("localdec")).synthetic();
+    LocalReference r = Builders.localRef(symbols.next("localdec")).synthetic();
     b.add(Builders.define(r).as(expr));
     b.add(r.lookup());
     b.accept(this);

@@ -27,7 +27,7 @@ public final class UnionValue extends TypeWithMembers<UnionValue> {
   }
 
   public Union getUnion() {
-    return (Union) getParentNode().get();
+    return (Union) parent();
   }
 
   protected String getFactoryDelegateName() {
