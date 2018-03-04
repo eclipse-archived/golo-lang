@@ -87,12 +87,17 @@ public abstract class GoloElement<T extends GoloElement<T>> {
    * @param newElement the element to replace this one with.
    * @throws IllegalStateException if this element has no parent.
    */
-  public void replaceInParentBy(GoloElement<?> newElement) {
+  public final void replaceInParentBy(GoloElement<?> newElement) {
     if (newElement == this) { return; }
     if (this.parent != null) {
       this.parent.replaceElement(this, newElement);
       this.parent.makeParentOf(newElement);
-      newElement.position = this.position;
+      if (newElement.position == null) {
+        newElement.position = this.position;
+      }
+      if (newElement.documentation == null || newElement.documentation.isEmpty()) {
+        newElement.documentation = this.documentation;
+      }
       this.setParentNode(null);
     } else {
       throw new IllegalStateException("This node has no parent");
@@ -111,7 +116,10 @@ public abstract class GoloElement<T extends GoloElement<T>> {
   }
 
   public PositionInSourceCode positionInSourceCode() {
-    return position;
+    if (this.position == null && this.parent != null) {
+      return this.parent.positionInSourceCode();
+    }
+    return PositionInSourceCode.of(this.position);
   }
 
   public T positionInSourceCode(PositionInSourceCode pos) {

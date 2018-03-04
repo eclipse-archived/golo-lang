@@ -40,7 +40,7 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> {
   private String decoratorRef = null;
   private final LinkedList<Decorator> decorators = new LinkedList<>();
 
-  public static enum Scope {
+  public enum Scope {
     MODULE, AUGMENT, CLOSURE
   }
 

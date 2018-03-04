@@ -15,7 +15,7 @@ import java.util.LinkedList;
 
 public final class CollectionLiteral extends ExpressionStatement<CollectionLiteral> {
 
-  public static enum Type {
+  public enum Type {
     array, list, set, map, tuple, vector, range
   }
 

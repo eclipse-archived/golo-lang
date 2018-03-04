@@ -86,13 +86,15 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     ConditionalBranching branch = branch()
       .condition(lastClause.condition())
       .whenTrue(lastClause.action())
-      .whenFalse(caseStatement.getOtherwise());
+      .whenFalse(caseStatement.getOtherwise())
+      .positionInSourceCode(lastClause.positionInSourceCode());
     while (!clauses.isEmpty()) {
       lastClause = clauses.removeLast();
       branch = branch()
         .condition(lastClause.condition())
         .whenTrue(lastClause.action())
-        .elseBranch(branch);
+        .elseBranch(branch)
+        .positionInSourceCode(lastClause.positionInSourceCode());
     }
     caseStatement.replaceInParentBy(branch);
     branch.accept(this);
@@ -128,16 +130,19 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       .variable()
       .synthetic();
     CaseStatement caseStatement = cases()
-      .documentation(matchExpression.documentation())
       .positionInSourceCode(matchExpression.positionInSourceCode())
       .otherwise(block(
             assign(matchExpression.getOtherwise())
-            .to(tempVar)
-            .positionInSourceCode(matchExpression.getOtherwise().positionInSourceCode())));
+            .to(tempVar)));
 
     for (WhenClause<ExpressionStatement<?>> c : matchExpression.getClauses()) {
       caseStatement.when(c.condition())
-        .then(block(assign(c.action()).to(tempVar)));
+        .then(block(
+              assign(c.action())
+              .to(tempVar)
+              .positionInSourceCode(c.action().positionInSourceCode())
+            ).positionInSourceCode(c.action().positionInSourceCode()))
+        .positionInSourceCode(c.positionInSourceCode());
     }
     Block block = block();
     for (GoloAssignment a : matchExpression.declarations()) {
@@ -273,7 +278,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       loopInnerBlock = block().add(
           branch()
           .condition(foreachStatement.getWhenClause())
-          .whenTrue(foreachStatement.getBlock()));
+          .whenTrue(foreachStatement.getBlock()))
+        .positionInSourceCode(foreachStatement.positionInSourceCode());
     } else {
       loopInnerBlock = foreachStatement.getBlock();
     }

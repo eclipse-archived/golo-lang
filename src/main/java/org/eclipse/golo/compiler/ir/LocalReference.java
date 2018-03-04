@@ -13,7 +13,7 @@ package org.eclipse.golo.compiler.ir;
 
 public final class LocalReference extends GoloElement<LocalReference> {
 
-  public static enum Kind {
+  public enum Kind {
     CONSTANT, VARIABLE, MODULE_CONSTANT, MODULE_VARIABLE
   }
 
