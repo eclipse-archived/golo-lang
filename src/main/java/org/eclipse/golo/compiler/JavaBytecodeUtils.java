@@ -54,7 +54,7 @@ final class JavaBytecodeUtils {
     }
   }
 
-  static void visitLine(GoloElement element, MethodVisitor visitor) {
+  static void visitLine(GoloElement<?> element, MethodVisitor visitor) {
     if (element.hasPosition()) {
       Label label = new Label();
       visitor.visitLabel(label);

@@ -15,12 +15,11 @@ import org.eclipse.golo.compiler.PackageAndClass;
 import java.util.Collection;
 import java.util.Set;
 import java.util.LinkedHashSet;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Arrays.asList;
 import static java.util.Collections.unmodifiableSet;
 
-public final class Union extends GoloElement {
+public final class Union extends GoloElement<Union> {
 
   private PackageAndClass moduleName;
   private final String name;
@@ -31,11 +30,7 @@ public final class Union extends GoloElement {
     this.name = name;
   }
 
-  @Override
-  public Union ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected Union self() { return this; }
 
   public String getName() {
     return name;
@@ -82,7 +77,7 @@ public final class Union extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (values.contains(original) && newElement instanceof UnionValue) {
       values.remove(original);
       addValue((UnionValue) newElement);

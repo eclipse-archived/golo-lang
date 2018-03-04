@@ -10,7 +10,6 @@
 
 package org.eclipse.golo.compiler.parser;
 
-import org.eclipse.golo.compiler.ir.GoloElement;
 import org.eclipse.golo.compiler.ir.PositionInSourceCode;
 
 public class GoloASTNode extends SimpleNode {

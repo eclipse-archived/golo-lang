@@ -10,17 +10,19 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public final class WhenClause<T extends GoloElement> extends GoloElement {
-  private ExpressionStatement condition;
+public final class WhenClause<T extends GoloElement<?>> extends GoloElement<WhenClause<T>> {
+  private ExpressionStatement<?> condition;
   private T action;
 
-  WhenClause(ExpressionStatement condition, T action) {
+  WhenClause(ExpressionStatement<?> condition, T action) {
     this.condition = condition;
     makeParentOf(condition);
     setAction(action);
   }
 
-  public ExpressionStatement condition() { return this.condition; }
+  protected WhenClause<T> self() { return this; }
+
+  public ExpressionStatement<?> condition() { return this.condition; }
 
   public T action() { return this.action; }
 
@@ -35,7 +37,7 @@ public final class WhenClause<T extends GoloElement> extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (condition.equals(original)) {
       if (!(newElement instanceof ExpressionStatement)) {
         throw cantConvert("ExpressionStatement", newElement);

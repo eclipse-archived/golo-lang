@@ -10,10 +10,9 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 import java.util.Objects;
 
-public class TryCatchFinally extends GoloStatement {
+public class TryCatchFinally extends GoloStatement<TryCatchFinally> {
 
   private final String exceptionId;
   private Block tryBlock;
@@ -25,11 +24,7 @@ public class TryCatchFinally extends GoloStatement {
     this.exceptionId = exceptionId;
   }
 
-  @Override
-  public TryCatchFinally ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected TryCatchFinally self() { return this; }
 
   public String getExceptionId() {
     return exceptionId;
@@ -103,7 +98,7 @@ public class TryCatchFinally extends GoloStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(original, tryBlock)) {
       trying(newElement);
     } else if (Objects.equals(original, catchBlock)) {

@@ -11,14 +11,13 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import java.util.*;
 
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Collections.unmodifiableCollection;
 
-public final class GoloModule extends GoloElement implements FunctionContainer {
+public final class GoloModule extends GoloElement<GoloModule> implements FunctionContainer {
 
   private String sourceFile;
   private final PackageAndClass packageAndClass;
@@ -52,11 +51,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     this.globalReferences = references;
   }
 
-  @Override
-  public GoloModule ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected GoloModule self() { return this; }
 
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
@@ -153,7 +148,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     struct.setModuleName(getPackageAndClass());
   }
 
-  public GoloElement getSubtypeByName(String name) {
+  public GoloElement<?> getSubtypeByName(String name) {
     for (Struct s : structs) {
       if (s.getName().equals(name)) {
         return s;
@@ -226,7 +221,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 

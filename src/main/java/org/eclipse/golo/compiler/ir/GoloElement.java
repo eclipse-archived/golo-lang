@@ -15,28 +15,30 @@ import org.eclipse.golo.compiler.parser.GoloASTNode;
 import java.util.Optional;
 import java.util.NoSuchElementException;
 
-public abstract class GoloElement {
-  private GoloElement parent;
+public abstract class GoloElement<T extends GoloElement<T>> {
+  private GoloElement<?> parent;
   private String documentation;
-  private PositionInSourceCode position = PositionInSourceCode.undefined();
+  private PositionInSourceCode position;
 
-  public GoloElement ofAST(GoloASTNode node) {
+  protected abstract T self();
+
+  public T ofAST(GoloASTNode node) {
     if (node != null) {
       this.documentation(node.getDocumentation());
       this.positionInSourceCode(node.getPositionInSourceCode());
     }
-    return this;
+    return self();
   }
 
-  protected void setParentNode(GoloElement parentElement) {
+  protected void setParentNode(GoloElement<?> parentElement) {
     this.parent = parentElement;
   }
 
-  public Optional<GoloElement> getParentNode() {
+  public Optional<GoloElement<?>> getParentNode() {
     return Optional.ofNullable(this.parent);
   }
 
-  public void makeParentOf(GoloElement childElement) {
+  public void makeParentOf(GoloElement<?> childElement) {
     if (childElement != null) {
       childElement.setParentNode(this);
       relinkChild(childElement);
@@ -63,16 +65,19 @@ public abstract class GoloElement {
     return new UnsupportedOperationException(getClass().getName() + " can't replace elements");
   }
 
-  protected RuntimeException cantReplace(GoloElement original, GoloElement replacement) {
+  protected RuntimeException cantReplace(GoloElement<?> original, GoloElement<?> replacement) {
     return new IllegalArgumentException(this + " can't replace " + original + " with " + replacement);
   }
 
-  protected RuntimeException doesNotContain(GoloElement element) {
+  protected RuntimeException doesNotContain(GoloElement<?> element) {
     return new NoSuchElementException(element + " not in " + this);
   }
 
   protected static RuntimeException cantConvert(String expected, Object value) {
-    return new ClassCastException("expecting a " + expected + "but got a " + value.getClass());
+    return new ClassCastException(String.format(
+          "expecting a %s but got a %s",
+          expected,
+          value == null ? "null value" : value.getClass()));
   }
 
   /**
@@ -81,12 +86,12 @@ public abstract class GoloElement {
    * @param newElement the element to replace this one with.
    * @throws IllegalStateException if this element has no parent.
    */
-  public void replaceInParentBy(GoloElement newElement) {
+  public void replaceInParentBy(GoloElement<?> newElement) {
     if (newElement == this) { return; }
     if (this.parent != null) {
       this.parent.replaceElement(this, newElement);
       this.parent.makeParentOf(newElement);
-      newElement.positionInSourceCode(this.position);
+      newElement.position = this.position;
       this.setParentNode(null);
     } else {
       throw new IllegalStateException("This node has no parent");
@@ -97,24 +102,28 @@ public abstract class GoloElement {
     return this.documentation;
   }
 
-  public GoloElement documentation(String doc) {
+  public T documentation(String doc) {
     if (doc != null) {
       this.documentation = doc;
     }
-    return this;
+    return self();
   }
 
   public PositionInSourceCode positionInSourceCode() {
     return position;
   }
 
-  public GoloElement positionInSourceCode(PositionInSourceCode pos) {
-    this.position = PositionInSourceCode.of(pos);
-    return this;
+  public T positionInSourceCode(PositionInSourceCode pos) {
+    if (pos != null && pos.isUndefined()) {
+      this.position = null;
+    } else {
+      this.position = pos;
+    }
+    return self();
   }
 
   public boolean hasPosition() {
-    return !position.isUndefined();
+    return position != null && !position.isUndefined();
   }
 
   public Optional<ReferenceTable> getLocalReferenceTable() {
@@ -154,6 +163,6 @@ public abstract class GoloElement {
    * @see #doesNotContain(GoloElement)
    * @see #cantConvert(String, Object)
    */
-  protected abstract void replaceElement(GoloElement original, GoloElement newElement);
+  protected abstract void replaceElement(GoloElement<?> original, GoloElement<?> newElement);
 
 }

@@ -12,14 +12,13 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.List;
 import java.util.LinkedList;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Collections.unmodifiableList;
 
-public class CollectionComprehension extends ExpressionStatement {
+public class CollectionComprehension extends ExpressionStatement<CollectionComprehension> {
 
   private final CollectionLiteral.Type type;
-  private ExpressionStatement expression;
+  private ExpressionStatement<?> expression;
   private final List<Block> loopBlocks = new LinkedList<>();
 
   CollectionComprehension(CollectionLiteral.Type type) {
@@ -27,11 +26,7 @@ public class CollectionComprehension extends ExpressionStatement {
     this.type = type;
   }
 
-  @Override
-  public CollectionComprehension ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected CollectionComprehension self() { return this; }
 
   public CollectionComprehension expression(Object expression) {
     this.expression = (ExpressionStatement) expression;
@@ -46,7 +41,7 @@ public class CollectionComprehension extends ExpressionStatement {
     return this;
   }
 
-  public ExpressionStatement getExpression() {
+  public ExpressionStatement<?> getExpression() {
     return this.expression;
   }
 
@@ -79,7 +74,7 @@ public class CollectionComprehension extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expression == original && newElement instanceof ExpressionStatement) {
       expression(newElement);
     } else if (newElement instanceof Block && loopBlocks.contains(original)) {

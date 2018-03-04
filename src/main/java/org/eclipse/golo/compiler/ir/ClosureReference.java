@@ -14,7 +14,7 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.Collections;
 
-public class ClosureReference extends ExpressionStatement {
+public class ClosureReference extends ExpressionStatement<ClosureReference> {
 
   private GoloFunction target;
   private final Set<String> capturedReferenceNames = new LinkedHashSet<>();
@@ -23,6 +23,8 @@ public class ClosureReference extends ExpressionStatement {
     super();
     setTarget(target);
   }
+
+  protected ClosureReference self() { return this; }
 
   public GoloFunction getTarget() {
     return target;
@@ -67,7 +69,7 @@ public class ClosureReference extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (newElement instanceof GoloFunction && target.equals(original)) {
       setTarget((GoloFunction) newElement);
     } else {

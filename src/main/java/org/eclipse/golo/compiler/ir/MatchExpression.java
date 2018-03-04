@@ -13,21 +13,21 @@ package org.eclipse.golo.compiler.ir;
 import java.util.List;
 import java.util.LinkedList;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
 import static java.util.Collections.unmodifiableList;
 
-public final class MatchExpression extends ExpressionStatement implements Alternatives<ExpressionStatement> {
+public final class MatchExpression extends ExpressionStatement<MatchExpression> implements Alternatives<ExpressionStatement<?>> {
 
-  private ExpressionStatement otherwise;
-  private final LinkedList<WhenClause<ExpressionStatement>> clauses = new LinkedList<>();
+  private ExpressionStatement<?> otherwise;
+  private final LinkedList<WhenClause<ExpressionStatement<?>>> clauses = new LinkedList<>();
 
   MatchExpression() {
     super();
   }
 
+  protected MatchExpression self() { return this; }
+
   public MatchExpression when(Object cond) {
-    WhenClause<ExpressionStatement> clause = new WhenClause<ExpressionStatement>(ExpressionStatement.of(cond), null);
+    WhenClause<ExpressionStatement<?>> clause = new WhenClause<ExpressionStatement<?>>(ExpressionStatement.of(cond), null);
     this.clauses.add(clause);
     makeParentOf(clause);
     return this;
@@ -44,18 +44,12 @@ public final class MatchExpression extends ExpressionStatement implements Altern
     return this;
   }
 
-  public List<WhenClause<ExpressionStatement>> getClauses() {
+  public List<WhenClause<ExpressionStatement<?>>> getClauses() {
     return unmodifiableList(this.clauses);
   }
 
-  public ExpressionStatement getOtherwise() {
+  public ExpressionStatement<?> getOtherwise() {
     return this.otherwise;
-  }
-
-  @Override
-  public MatchExpression ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
   }
 
   @Override
@@ -65,14 +59,14 @@ public final class MatchExpression extends ExpressionStatement implements Altern
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (WhenClause<ExpressionStatement> clause : clauses) {
+    for (WhenClause<ExpressionStatement<?>> clause : clauses) {
       clause.accept(visitor);
     }
     otherwise.accept(visitor);
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (!(newElement instanceof ExpressionStatement || newElement instanceof WhenClause)) {
       throw cantConvert("ExpressionStatement or WhenClause", newElement);
     }
@@ -82,7 +76,7 @@ public final class MatchExpression extends ExpressionStatement implements Altern
     }
     if (clauses.contains(original)) {
       @SuppressWarnings("unchecked")
-      WhenClause<ExpressionStatement> when = (WhenClause<ExpressionStatement>) newElement;
+      WhenClause<ExpressionStatement<?>> when = (WhenClause<ExpressionStatement<?>>) newElement;
       clauses.set(clauses.indexOf(original), when);
       makeParentOf(when);
       return;

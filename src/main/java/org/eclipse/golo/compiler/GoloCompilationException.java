@@ -12,7 +12,6 @@ package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 import org.eclipse.golo.compiler.parser.ParseException;
-import org.eclipse.golo.compiler.parser.Token;
 import org.eclipse.golo.compiler.ir.PositionInSourceCode;
 import org.eclipse.golo.compiler.ir.GoloElement;
 
@@ -136,7 +135,7 @@ public class GoloCompilationException extends RuntimeException {
      * @param description the problem description.
      * @return the same builder object.
      */
-    public Builder report(Problem.Type type, GoloElement source, String description) {
+    public Builder report(Problem.Type type, GoloElement<?> source, String description) {
       exception.report(new Problem(type,
             source != null ? source.positionInSourceCode() : null,
             description,

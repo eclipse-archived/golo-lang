@@ -12,22 +12,24 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
 
-public final class Decorator extends  GoloElement {
+public final class Decorator extends GoloElement<Decorator> {
 
-  private ExpressionStatement expressionStatement;
+  private ExpressionStatement<?> expressionStatement;
 
   private boolean constant = false;
 
-  Decorator(ExpressionStatement expressionStatement) {
+  Decorator(ExpressionStatement<?> expressionStatement) {
     super();
     setExpressionStatement(expressionStatement);
   }
 
-  public ExpressionStatement getExpressionStatement() {
+  protected Decorator self() { return this; }
+
+  public ExpressionStatement<?> getExpressionStatement() {
     return expressionStatement;
   }
 
-  private boolean isValidDecoratorExpressoin(ExpressionStatement expr) {
+  private boolean isValidDecoratorExpressoin(ExpressionStatement<?> expr) {
     return expr instanceof ReferenceLookup
           || expr instanceof FunctionInvocation
           || expr instanceof ClosureReference
@@ -35,7 +37,7 @@ public final class Decorator extends  GoloElement {
             && OperatorType.ANON_CALL.equals(((BinaryOperation) expr).getType()));
   }
 
-  public void setExpressionStatement(ExpressionStatement expr) {
+  public void setExpressionStatement(ExpressionStatement<?> expr) {
     if (!isValidDecoratorExpressoin(expr)) {
       throw new IllegalArgumentException("Decorator expression must be a reference or an invocation, got a "
           + expr.getClass().getSimpleName());
@@ -61,22 +63,22 @@ public final class Decorator extends  GoloElement {
     return constant(true);
   }
 
-  private ExpressionStatement wrapLookup(ReferenceLookup reference, ExpressionStatement expression) {
+  private ExpressionStatement<?> wrapLookup(ReferenceLookup reference, ExpressionStatement<?> expression) {
     return Builders.call(reference.getName())
       .constant(this.isConstant())
       .withArgs(expression);
   }
 
-  private ExpressionStatement wrapInvocation(FunctionInvocation invocation, ExpressionStatement expression) {
+  private ExpressionStatement<?> wrapInvocation(FunctionInvocation invocation, ExpressionStatement<?> expression) {
     return Builders.anonCall(invocation, Builders.functionInvocation()
         .constant(this.isConstant())
         .withArgs(expression));
   }
-  private ExpressionStatement wrapAnonymousCall(ExpressionStatement call, ExpressionStatement expression) {
+  private ExpressionStatement<?> wrapAnonymousCall(ExpressionStatement<?> call, ExpressionStatement<?> expression) {
     return Builders.anonCall(call, Builders.functionInvocation().constant(this.isConstant()).withArgs(expression));
   }
 
-  public ExpressionStatement wrapExpression(ExpressionStatement expression) {
+  public ExpressionStatement<?> wrapExpression(ExpressionStatement<?> expression) {
     if (expressionStatement instanceof ReferenceLookup) {
       return wrapLookup((ReferenceLookup) expressionStatement, expression);
     }
@@ -97,7 +99,7 @@ public final class Decorator extends  GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expressionStatement.equals(original) && newElement instanceof ExpressionStatement) {
       setExpressionStatement((ExpressionStatement) newElement);
     } else {

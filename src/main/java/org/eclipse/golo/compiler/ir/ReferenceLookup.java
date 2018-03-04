@@ -10,7 +10,7 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public class ReferenceLookup extends ExpressionStatement {
+public final class ReferenceLookup extends ExpressionStatement<ReferenceLookup> {
 
   private final String name;
 
@@ -18,6 +18,8 @@ public class ReferenceLookup extends ExpressionStatement {
     super();
     this.name = name;
   }
+
+  protected ReferenceLookup self() { return this; }
 
   public String getName() {
     return name;
@@ -51,7 +53,7 @@ public class ReferenceLookup extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 

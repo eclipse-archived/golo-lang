@@ -11,7 +11,6 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.ir.*;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import java.util.Deque;
 import java.util.HashSet;
@@ -65,7 +64,7 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
     return exceptionBuilder;
   }
 
-  private void errorMessage(GoloCompilationException.Problem.Type type, GoloElement node, String message) {
+  private void errorMessage(GoloCompilationException.Problem.Type type, GoloElement<?> node, String message) {
     PositionInSourceCode position = node.positionInSourceCode();
     String errorMessage = message + ' ' + (
         (position != null || position.isUndefined())

@@ -13,21 +13,16 @@ package org.eclipse.golo.compiler.ir;
 import org.eclipse.golo.compiler.PackageAndClass;
 
 import java.util.Set;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static org.eclipse.golo.compiler.ir.Builders.*;
 
-public final class Struct extends TypeWithMembers {
+public final class Struct extends TypeWithMembers<Struct> {
 
   public static final String IMMUTABLE_FACTORY_METHOD = "$_immutable";
 
   private PackageAndClass moduleName;
 
-  @Override
-  public Struct ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected Struct self() { return this; }
 
   Struct(String name) {
     super(name);

@@ -16,7 +16,6 @@ import java.util.LinkedHashSet;
 import java.util.LinkedList;
 
 import org.eclipse.golo.compiler.PackageAndClass;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Collections.unmodifiableSet;
 
@@ -37,7 +36,7 @@ import static java.util.Collections.unmodifiableSet;
  * augment MyType with MyAugmentation
  * </code></pre>
  */
-public final class Augmentation extends GoloElement implements FunctionContainer {
+public final class Augmentation extends GoloElement<Augmentation> implements FunctionContainer {
   private PackageAndClass target;
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
   private final Set<String> names = new LinkedHashSet<>();
@@ -47,11 +46,7 @@ public final class Augmentation extends GoloElement implements FunctionContainer
     this.target = target;
   }
 
-  @Override
-  public Augmentation ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected Augmentation self() { return this; }
 
   public PackageAndClass getTarget() {
     return target;
@@ -127,7 +122,7 @@ public final class Augmentation extends GoloElement implements FunctionContainer
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (functions.contains(original) && newElement instanceof GoloFunction) {
       functions.remove((GoloFunction) original);
       functions.add((GoloFunction) newElement);

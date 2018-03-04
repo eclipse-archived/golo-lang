@@ -12,7 +12,7 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.List;
 
-public interface Alternatives<T extends GoloElement> {
+public interface Alternatives<T extends GoloElement<?>> {
   Alternatives<T> when(Object cond);
 
   Alternatives<T> then(Object action);

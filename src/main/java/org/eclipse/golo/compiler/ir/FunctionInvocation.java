@@ -10,9 +10,7 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
-public class FunctionInvocation extends AbstractInvocation {
+public final class FunctionInvocation extends AbstractInvocation<FunctionInvocation> {
 
   private boolean onReference = false;
   private boolean onModuleState = false;
@@ -28,11 +26,7 @@ public class FunctionInvocation extends AbstractInvocation {
     super(name);
   }
 
-  @Override
-  public FunctionInvocation ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected FunctionInvocation self() { return this; }
 
   public FunctionInvocation onReference(boolean isOnReference) {
     this.onReference = isOnReference;

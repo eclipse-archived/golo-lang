@@ -11,12 +11,12 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class BinaryOperation extends ExpressionStatement {
+public final class BinaryOperation extends ExpressionStatement<BinaryOperation> {
+
   private final OperatorType type;
-  private ExpressionStatement leftExpression;
-  private ExpressionStatement rightExpression;
+  private ExpressionStatement<?> leftExpression;
+  private ExpressionStatement<?> rightExpression;
 
   BinaryOperation(OperatorType type) {
     super();
@@ -33,17 +33,13 @@ public final class BinaryOperation extends ExpressionStatement {
     throw cantConvert("BinaryOperation", type);
   }
 
-  @Override
-  public BinaryOperation ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected BinaryOperation self() { return this; }
 
   public OperatorType getType() {
     return type;
   }
 
-  public ExpressionStatement getLeftExpression() {
+  public ExpressionStatement<?> getLeftExpression() {
     return leftExpression;
   }
 
@@ -59,7 +55,7 @@ public final class BinaryOperation extends ExpressionStatement {
     return this;
   }
 
-  public ExpressionStatement getRightExpression() {
+  public ExpressionStatement<?> getRightExpression() {
     return rightExpression;
   }
 
@@ -86,7 +82,7 @@ public final class BinaryOperation extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (!(newElement instanceof ExpressionStatement)) {
       throw cantConvert("ExpressionStatement", newElement);
     }

@@ -85,7 +85,7 @@ public final class Builders {
     return new DestructuringAssignment();
   }
 
-  public static UnaryOperation not(ExpressionStatement expression) {
+  public static UnaryOperation not(ExpressionStatement<?> expression) {
     return new UnaryOperation(OperatorType.NOT, expression);
   }
 
@@ -299,10 +299,10 @@ public final class Builders {
     return new TryCatchFinally(exceptionId);
   }
 
-  public static GoloStatement toGoloStatement(Object statement) {
+  public static GoloStatement<?> toGoloStatement(Object statement) {
     if (statement == null) { return null; }
     if (statement instanceof GoloStatement) {
-      return (GoloStatement) statement;
+      return (GoloStatement<?>) statement;
     }
     throw cantConvert(statement, "GoloStatement");
   }

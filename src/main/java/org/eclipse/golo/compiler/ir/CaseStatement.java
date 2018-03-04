@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.LinkedList;
 
 import static java.util.Collections.unmodifiableList;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class CaseStatement extends GoloStatement implements Alternatives<Block> {
+public final class CaseStatement extends GoloStatement<CaseStatement> implements Alternatives<Block> {
 
   private Block otherwise;
   private final LinkedList<WhenClause<Block>> clauses = new LinkedList<>();
@@ -24,6 +23,8 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
   CaseStatement() {
     super();
   }
+
+  protected CaseStatement self() { return this; }
 
   public CaseStatement when(Object cond) {
     WhenClause<Block> clause = new WhenClause<Block>((ExpressionStatement) cond, null);
@@ -52,24 +53,6 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
   }
 
   @Override
-  public CaseStatement documentation(String doc) {
-    super.documentation(doc);
-    return this;
-  }
-
-  @Override
-  public CaseStatement positionInSourceCode(PositionInSourceCode pos) {
-    super.positionInSourceCode(pos);
-    return this;
-  }
-
-  @Override
-  public CaseStatement ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
-
-  @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitCaseStatement(this);
   }
@@ -83,7 +66,7 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
   }
 
   @Override
-  public void replaceElement(GoloElement original, GoloElement newElement) {
+  public void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (!(newElement instanceof Block || newElement instanceof WhenClause)) {
       throw cantConvert("Block or WhenClause", newElement);
     }

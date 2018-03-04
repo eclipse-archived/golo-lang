@@ -10,9 +10,7 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
-public final class LoopBreakFlowStatement extends GoloStatement {
+public final class LoopBreakFlowStatement extends GoloStatement<LoopBreakFlowStatement> {
 
   public static enum Type {
     BREAK, CONTINUE
@@ -34,6 +32,8 @@ public final class LoopBreakFlowStatement extends GoloStatement {
     return new LoopBreakFlowStatement(Type.BREAK);
   }
 
+  protected LoopBreakFlowStatement self() { return this; }
+
   public Type getType() {
     return type;
   }
@@ -47,12 +47,6 @@ public final class LoopBreakFlowStatement extends GoloStatement {
   }
 
   @Override
-  public LoopBreakFlowStatement ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
-
-  @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitLoopBreakFlowStatement(this);
   }
@@ -63,7 +57,7 @@ public final class LoopBreakFlowStatement extends GoloStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 

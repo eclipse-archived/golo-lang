@@ -14,14 +14,13 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
 import static java.util.Collections.unmodifiableList;
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Objects.requireNonNull;
 
-public final class Block extends ExpressionStatement {
-  private final List<GoloStatement> statements = new LinkedList<>();
+public final class Block extends ExpressionStatement<Block> {
+
+  private final List<GoloStatement<?>> statements = new LinkedList<>();
   private ReferenceTable referenceTable;
   private boolean hasReturn = false;
 
@@ -29,6 +28,8 @@ public final class Block extends ExpressionStatement {
     super();
     this.referenceTable = referenceTable;
   }
+
+  protected Block self() { return this; }
 
   public static Block emptyBlock() {
     return new Block(new ReferenceTable());
@@ -44,14 +45,8 @@ public final class Block extends ExpressionStatement {
     throw cantConvert("Block", block);
   }
 
-  @Override
-  public Block ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
-
   public void merge(Block other) {
-    for (GoloStatement innerStatement : other.getStatements()) {
+    for (GoloStatement<?> innerStatement : other.getStatements()) {
       this.addStatement(innerStatement);
     }
   }
@@ -81,7 +76,7 @@ public final class Block extends ExpressionStatement {
     this.referenceTable = referenceTable.flatDeepCopy(true);
   }
 
-  public List<GoloStatement> getStatements() {
+  public List<GoloStatement<?>> getStatements() {
     return unmodifiableList(statements);
   }
 
@@ -90,28 +85,28 @@ public final class Block extends ExpressionStatement {
     return this;
   }
 
-  private void updateStateWith(GoloStatement statement) {
+  private void updateStateWith(GoloStatement<?> statement) {
     referenceTable.updateFrom(statement);
     makeParentOf(statement);
     checkForReturns(statement);
   }
 
-  public void addStatement(GoloStatement statement) {
+  public void addStatement(GoloStatement<?> statement) {
     statements.add(statement);
     updateStateWith(statement);
   }
 
-  public void prependStatement(GoloStatement statement) {
+  public void prependStatement(GoloStatement<?> statement) {
     statements.add(0, statement);
     updateStateWith(statement);
   }
 
-  private void setStatement(int idx, GoloStatement statement) {
+  private void setStatement(int idx, GoloStatement<?> statement) {
     statements.set(idx, statement);
     updateStateWith(statement);
   }
 
-  private void checkForReturns(GoloStatement statement) {
+  private void checkForReturns(GoloStatement<?> statement) {
     if (statement instanceof ReturnStatement || statement instanceof ThrowStatement) {
       hasReturn = true;
     } else if (statement instanceof ConditionalBranching) {
@@ -152,13 +147,13 @@ public final class Block extends ExpressionStatement {
     for (LocalReference ref : referenceTable.ownedReferences()) {
       ref.accept(visitor);
     }
-    for (GoloStatement statement : statements) {
+    for (GoloStatement<?> statement : statements) {
       statement.accept(visitor);
     }
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (statements.contains(original) && newElement instanceof GoloStatement) {
       setStatement(statements.indexOf(original), (GoloStatement) newElement);
     } else {

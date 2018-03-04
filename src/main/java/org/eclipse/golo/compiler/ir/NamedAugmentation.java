@@ -15,13 +15,12 @@ import java.util.Set;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import org.eclipse.golo.compiler.PackageAndClass;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 import static java.util.Collections.unmodifiableSet;
 
 /**
  * Named augmentation definition
  */
-public final class NamedAugmentation extends GoloElement implements FunctionContainer {
+public final class NamedAugmentation extends GoloElement<NamedAugmentation> implements FunctionContainer {
   private final PackageAndClass name;
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
 
@@ -38,11 +37,7 @@ public final class NamedAugmentation extends GoloElement implements FunctionCont
     return this.name;
   }
 
-  @Override
-  public NamedAugmentation ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected NamedAugmentation self() { return this; }
 
   @Override
   public Set<GoloFunction> getFunctions() {
@@ -85,7 +80,7 @@ public final class NamedAugmentation extends GoloElement implements FunctionCont
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (functions.contains(original)) {
       functions.remove(original);
       add(newElement);

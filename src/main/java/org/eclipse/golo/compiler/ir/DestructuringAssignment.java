@@ -10,14 +10,12 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
 import java.util.List;
 import java.util.LinkedList;
 import static java.util.Collections.unmodifiableList;
 import static java.util.Objects.requireNonNull;
 
-public final class DestructuringAssignment extends GoloAssignment {
+public final class DestructuringAssignment extends GoloAssignment<DestructuringAssignment> {
 
   private final List<LocalReference> references = new LinkedList<>();
   private boolean isVarargs = false;
@@ -26,11 +24,7 @@ public final class DestructuringAssignment extends GoloAssignment {
     super();
   }
 
-  @Override
-  public DestructuringAssignment ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected DestructuringAssignment self() { return this; }
 
   public boolean isVarargs() {
     return this.isVarargs;
@@ -45,25 +39,6 @@ public final class DestructuringAssignment extends GoloAssignment {
     return varargs(true);
   }
 
-  @Override
-  public DestructuringAssignment declaring() {
-    return this.declaring(true);
-  }
-
-  @Override
-  public DestructuringAssignment declaring(boolean d) {
-    super.declaring(d);
-    return this;
-  }
-
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public DestructuringAssignment as(Object expr) {
-    super.as(expr);
-    return this;
-  }
 
   /**
    * {@inheritDoc}

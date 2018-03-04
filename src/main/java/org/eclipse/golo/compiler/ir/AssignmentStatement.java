@@ -10,33 +10,13 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
-public final class AssignmentStatement extends GoloAssignment {
+public final class AssignmentStatement extends GoloAssignment<AssignmentStatement> {
 
   private LocalReference localReference;
 
   AssignmentStatement() { super(); }
 
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public AssignmentStatement ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
-
-  @Override
-  public AssignmentStatement declaring() {
-    return this.declaring(true);
-  }
-
-  @Override
-  public AssignmentStatement declaring(boolean isDeclaring) {
-    super.declaring(isDeclaring);
-    return this;
-  }
+  protected AssignmentStatement self() { return this; }
 
   public LocalReference getLocalReference() {
     return localReference;
@@ -74,15 +54,6 @@ public final class AssignmentStatement extends GoloAssignment {
     return this;
   }
 
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public AssignmentStatement as(Object expr) {
-    super.as(expr);
-    return this;
-  }
-
   @Override
   public String toString() {
     return String.format("%s = %s", localReference, getExpressionStatement().toString());
@@ -94,14 +65,6 @@ public final class AssignmentStatement extends GoloAssignment {
   @Override
   public void accept(GoloIrVisitor visitor) {
     visitor.visitAssignmentStatement(this);
-  }
-
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public void walk(GoloIrVisitor visitor) {
-    super.walk(visitor);
   }
 
 }

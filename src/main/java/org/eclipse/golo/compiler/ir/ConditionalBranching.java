@@ -10,11 +10,9 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
+public final class ConditionalBranching extends GoloStatement<ConditionalBranching> {
 
-public final class ConditionalBranching extends GoloStatement {
-
-  private ExpressionStatement condition;
+  private ExpressionStatement<?> condition;
   private Block trueBlock;
   private ConditionalBranching elseConditionalBranching;
   private Block falseBlock;
@@ -23,11 +21,13 @@ public final class ConditionalBranching extends GoloStatement {
     super();
   }
 
+  protected ConditionalBranching self() { return this; }
+
   public ConditionalBranching condition(Object cond) {
     if (cond == null) {
       setCondition(Builders.constant(false));
     } else {
-      setCondition((ExpressionStatement) cond);
+      setCondition(ExpressionStatement.of(cond));
     }
     return this;
   }
@@ -55,17 +55,11 @@ public final class ConditionalBranching extends GoloStatement {
     return whenFalse(alternative);
   }
 
-  @Override
-  public ConditionalBranching ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
-
-  public ExpressionStatement getCondition() {
+  public ExpressionStatement<?> getCondition() {
     return condition;
   }
 
-  public void setCondition(ExpressionStatement condition) {
+  public void setCondition(ExpressionStatement<?> condition) {
     this.condition = condition;
     makeParentOf(condition);
   }
@@ -143,7 +137,7 @@ public final class ConditionalBranching extends GoloStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (condition == original && newElement instanceof ExpressionStatement) {
       condition(newElement);
     } else if (elseConditionalBranching == original && newElement instanceof ConditionalBranching) {

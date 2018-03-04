@@ -12,30 +12,25 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.List;
 import java.util.LinkedList;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class CollectionLiteral extends ExpressionStatement {
+public final class CollectionLiteral extends ExpressionStatement<CollectionLiteral> {
 
   public static enum Type {
     array, list, set, map, tuple, vector, range
   }
 
   private final Type type;
-  private final List<ExpressionStatement> expressions = new LinkedList<>();
+  private final List<ExpressionStatement<?>> expressions = new LinkedList<>();
 
   CollectionLiteral(Type type) {
     super();
     this.type = type;
   }
 
-  @Override
-  public CollectionLiteral ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected CollectionLiteral self() { return this; }
 
   public CollectionLiteral add(Object expression) {
-    ExpressionStatement expr = ExpressionStatement.of(expression);
+    ExpressionStatement<?> expr = ExpressionStatement.of(expression);
     this.expressions.add(expr);
     makeParentOf(expr);
     return this;
@@ -45,7 +40,7 @@ public final class CollectionLiteral extends ExpressionStatement {
     return type;
   }
 
-  public List<ExpressionStatement> getExpressions() {
+  public List<ExpressionStatement<?>> getExpressions() {
     return expressions;
   }
 
@@ -61,13 +56,13 @@ public final class CollectionLiteral extends ExpressionStatement {
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (ExpressionStatement expression : expressions) {
+    for (ExpressionStatement<?> expression : expressions) {
       expression.accept(visitor);
     }
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expressions.contains(original) && newElement instanceof ExpressionStatement) {
       expressions.set(expressions.indexOf(original), (ExpressionStatement) newElement);
     } else {

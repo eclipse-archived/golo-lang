@@ -10,27 +10,23 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 import java.util.Objects;
 
 import static org.eclipse.golo.compiler.ir.Builders.*;
 
-public final class LoopStatement extends GoloStatement implements BlockContainer, ReferencesHolder {
+public final class LoopStatement extends GoloStatement<LoopStatement> implements BlockContainer, ReferencesHolder {
 
   private AssignmentStatement initStatement = null;
-  private ExpressionStatement conditionStatement = constant(false);
-  private GoloStatement postStatement = null;
+  private ExpressionStatement<?> conditionStatement;
+  private GoloStatement<?> postStatement = null;
   private Block block = Block.emptyBlock();;
 
   LoopStatement() {
     super();
+    this.setConditionStatement(constant(false));
   }
 
-  @Override
-  public LoopStatement ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected LoopStatement self() { return this; }
 
   public LoopStatement init(Object assignment) {
     if (assignment instanceof AssignmentStatement) {
@@ -78,11 +74,11 @@ public final class LoopStatement extends GoloStatement implements BlockContainer
     makeParentOf(init);
   }
 
-  public ExpressionStatement getConditionStatement() {
+  public ExpressionStatement<?> getConditionStatement() {
     return conditionStatement;
   }
 
-  public void setConditionStatement(ExpressionStatement cond) {
+  public void setConditionStatement(ExpressionStatement<?> cond) {
     conditionStatement = (cond == null ? constant(false) : cond);
     makeParentOf(conditionStatement);
   }
@@ -96,11 +92,11 @@ public final class LoopStatement extends GoloStatement implements BlockContainer
     makeParentOf(this.block);
   }
 
-  public GoloStatement getPostStatement() {
+  public GoloStatement<?> getPostStatement() {
     return postStatement;
   }
 
-  public void setPostStatement(GoloStatement stat) {
+  public void setPostStatement(GoloStatement<?> stat) {
     postStatement = stat;
     makeParentOf(postStatement);
   }
@@ -146,7 +142,7 @@ public final class LoopStatement extends GoloStatement implements BlockContainer
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(initStatement, original)) {
       init(newElement);
     } else if (Objects.equals(conditionStatement, original)) {

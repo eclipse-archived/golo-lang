@@ -12,22 +12,24 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
 
-public class UnaryOperation extends ExpressionStatement {
+public final class UnaryOperation extends ExpressionStatement<UnaryOperation> {
 
   private final OperatorType type;
-  private ExpressionStatement expressionStatement;
+  private ExpressionStatement<?> expressionStatement;
 
-  UnaryOperation(OperatorType type, ExpressionStatement expressionStatement) {
+  UnaryOperation(OperatorType type, ExpressionStatement<?> expressionStatement) {
     super();
     this.type = type;
     setExpressionStatement(expressionStatement);
   }
 
-  public ExpressionStatement getExpressionStatement() {
+  protected UnaryOperation self() { return this; }
+
+  public ExpressionStatement<?> getExpressionStatement() {
     return expressionStatement;
   }
 
-  private void setExpressionStatement(ExpressionStatement statement) {
+  private void setExpressionStatement(ExpressionStatement<?> statement) {
     this.expressionStatement = statement;
     makeParentOf(statement);
   }
@@ -47,7 +49,7 @@ public class UnaryOperation extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expressionStatement.equals(original)) {
       setExpressionStatement((ExpressionStatement) newElement);
     } else {

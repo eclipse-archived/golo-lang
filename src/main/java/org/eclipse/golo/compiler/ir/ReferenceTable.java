@@ -42,7 +42,7 @@ public final class ReferenceTable {
     return table.containsKey(name) || parent != null && parent.hasReferenceFor(name);
   }
 
-  public void updateFrom(GoloStatement statement) {
+  public void updateFrom(GoloStatement<?> statement) {
     if (statement instanceof ReferencesHolder) {
       for (LocalReference r : ((ReferencesHolder) statement).getDeclaringReferences()) {
         this.add(r);

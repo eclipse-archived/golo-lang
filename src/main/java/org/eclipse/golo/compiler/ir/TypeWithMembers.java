@@ -23,7 +23,8 @@ import static java.util.stream.Collectors.toList;
 /**
  * An abstract class for struct-like types.
  */
-abstract class TypeWithMembers extends GoloElement {
+abstract class TypeWithMembers<T extends TypeWithMembers<T>> extends GoloElement<T> {
+
   private final Set<Member> members = new LinkedHashSet<>();
   private final String name;
 
@@ -46,11 +47,11 @@ abstract class TypeWithMembers extends GoloElement {
     return getPackageAndClass().toString();
   }
 
-  public TypeWithMembers members(Object... members) {
+  public T members(Object... members) {
     for (Object member : members) {
       withMember(member);
     }
-    return this;
+    return self();
   }
 
   public boolean hasMembers() {
@@ -66,13 +67,13 @@ abstract class TypeWithMembers extends GoloElement {
     members.forEach(this::addMember);
   }
 
-  public TypeWithMembers withMember(Object member) {
+  public T withMember(Object member) {
     if (member instanceof Member) {
       addMember((Member) member);
     } else {
       addMember(new Member(member.toString()));
     }
-    return this;
+    return self();
   }
 
   protected List<String> getMemberNames() {
@@ -118,7 +119,7 @@ abstract class TypeWithMembers extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 }

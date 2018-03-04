@@ -14,10 +14,10 @@ import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 
-public abstract class AbstractInvocation extends ExpressionStatement {
+public abstract class AbstractInvocation<T extends AbstractInvocation<T>> extends ExpressionStatement<T> {
 
   private final String name;
-  private final List<ExpressionStatement> arguments = new LinkedList<>();
+  private final List<ExpressionStatement<?>> arguments = new LinkedList<>();
   protected boolean usesNamedArguments = false;
 
   AbstractInvocation(String name) {
@@ -29,19 +29,19 @@ public abstract class AbstractInvocation extends ExpressionStatement {
     return name;
   }
 
-  private void addArgument(ExpressionStatement argument) {
+  private void addArgument(ExpressionStatement<?> argument) {
     arguments.add(argument);
     makeParentOf(argument);
   }
 
-  public AbstractInvocation withArgs(Object... arguments) {
+  public T withArgs(Object... arguments) {
     for (Object argument : arguments) {
       addArgument(ExpressionStatement.of(argument));
     }
-    return this;
+    return self();
   }
 
-  public List<ExpressionStatement> getArguments() {
+  public List<ExpressionStatement<?>> getArguments() {
     return Collections.unmodifiableList(arguments);
   }
 
@@ -57,9 +57,9 @@ public abstract class AbstractInvocation extends ExpressionStatement {
     return this.arguments.isEmpty() || this.usesNamedArguments;
   }
 
-  public AbstractInvocation withNamedArguments() {
+  public T withNamedArguments() {
     setUsesNamedArguments(true);
-    return this;
+    return self();
   }
 
   private void setUsesNamedArguments(boolean usesNamedArguments) {
@@ -68,13 +68,13 @@ public abstract class AbstractInvocation extends ExpressionStatement {
 
   @Override
   public void walk(GoloIrVisitor visitor) {
-    for (ExpressionStatement arg : arguments) {
+    for (ExpressionStatement<?> arg : arguments) {
       arg.accept(visitor);
     }
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (newElement instanceof ExpressionStatement && arguments.contains(original)) {
       this.arguments.set(arguments.indexOf((ExpressionStatement) original),
           (ExpressionStatement) newElement);

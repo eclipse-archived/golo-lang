@@ -135,7 +135,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
             .to(tempVar)
             .positionInSourceCode(matchExpression.getOtherwise().positionInSourceCode())));
 
-    for (WhenClause<ExpressionStatement> c : matchExpression.getClauses()) {
+    for (WhenClause<ExpressionStatement<?>> c : matchExpression.getClauses()) {
       caseStatement.when(c.condition())
         .then(block(assign(c.action()).to(tempVar)));
     }
@@ -160,7 +160,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   public void visitCollectionLiteral(CollectionLiteral collection) {
     if (!expressionToBlock(collection)) {
       collection.walk(this);
-      AbstractInvocation construct = call("gololang.Predefined." + collection.getType().toString())
+      AbstractInvocation<?> construct = call("gololang.Predefined." + collection.getType().toString())
         .withArgs(collection.getExpressions().toArray());
       collection.replaceInParentBy(construct);
       construct.accept(this);
@@ -173,7 +173,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Object value = constantStatement.getValue();
     if (value instanceof GoloParser.FunctionRef) {
       GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
-      AbstractInvocation fun = call("gololang.Predefined.fun").constant()
+      AbstractInvocation<?> fun = call("gololang.Predefined.fun").constant()
         .withArgs(
             constant(ref.name),
             classRef(ref.module == null
@@ -221,7 +221,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Block innerBlock = mainBlock;
     for (Block loop : collection.getLoopBlocks()) {
       innerBlock.addStatement(loop);
-      GoloStatement loopStatement = loop.getStatements().get(0);
+      GoloStatement<?> loopStatement = loop.getStatements().get(0);
       innerBlock = ((BlockContainer) loopStatement).getBlock();
     }
     innerBlock.addStatement(
@@ -374,7 +374,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     visitExpression(invoke);
   }
 
-  private void visitExpression(ExpressionStatement expr) {
+  private void visitExpression(ExpressionStatement<?> expr) {
     if (!expressionToBlock(expr)) {
       expr.walk(this);
     }
@@ -383,7 +383,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   /**
    * Convert an expression with local declarations into a block.
    */
-  private boolean expressionToBlock(ExpressionStatement expr) {
+  private boolean expressionToBlock(ExpressionStatement<?> expr) {
     // TODO: make TCO aware expansion? (or wait for a more general optimization pass)
     if (!expr.hasLocalDeclarations()) {
       return false;
