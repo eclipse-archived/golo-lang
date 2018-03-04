@@ -22,7 +22,7 @@ public abstract class GoloElement<T extends GoloElement<T>> {
 
   protected abstract T self();
 
-  public T ofAST(GoloASTNode node) {
+  public final T ofAST(GoloASTNode node) {
     if (node != null) {
       this.documentation(node.getDocumentation());
       this.positionInSourceCode(node.getPositionInSourceCode());
@@ -30,21 +30,21 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     return self();
   }
 
-  protected void setParentNode(GoloElement<?> parentElement) {
+  private void setParentNode(GoloElement<?> parentElement) {
     this.parent = parentElement;
   }
 
-  public boolean hasParent() {
+  public final boolean hasParent() {
     return this.parent != null;
   }
 
-  public GoloElement<?> parent() {
+  public final GoloElement<?> parent() {
     return this.parent;
   }
 
-  public <C extends GoloElement<?>> C makeParentOf(C childElement) {
-    if (childElement != null) {
-      childElement.setParentNode(this);
+  protected final <C extends GoloElement<?>> C makeParentOf(C childElement) {
+    if (childElement != null && childElement.parent() != this) {
+      ((GoloElement<?>) childElement).setParentNode(this);
       relinkChild(childElement);
     }
     return childElement;
@@ -66,19 +66,19 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     }));
   }
 
-  protected RuntimeException cantReplace() {
+  protected final RuntimeException cantReplace() {
     return new UnsupportedOperationException(getClass().getName() + " can't replace elements");
   }
 
-  protected RuntimeException cantReplace(GoloElement<?> original, GoloElement<?> replacement) {
+  protected final RuntimeException cantReplace(GoloElement<?> original, GoloElement<?> replacement) {
     return new IllegalArgumentException(this + " can't replace " + original + " with " + replacement);
   }
 
-  protected RuntimeException doesNotContain(GoloElement<?> element) {
+  protected final RuntimeException doesNotContain(GoloElement<?> element) {
     return new NoSuchElementException(element + " not in " + this);
   }
 
-  protected static RuntimeException cantConvert(String expected, Object value) {
+  protected static final RuntimeException cantConvert(String expected, Object value) {
     return new ClassCastException(String.format(
           "expecting a %s but got a %s",
           expected,
@@ -108,25 +108,25 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     }
   }
 
-  public String documentation() {
+  public final String documentation() {
     return this.documentation;
   }
 
-  public T documentation(String doc) {
+  public final T documentation(String doc) {
     if (doc != null) {
       this.documentation = doc;
     }
     return self();
   }
 
-  public PositionInSourceCode positionInSourceCode() {
+  public final PositionInSourceCode positionInSourceCode() {
     if (this.position == null && this.parent != null) {
       return this.parent.positionInSourceCode();
     }
     return PositionInSourceCode.of(this.position);
   }
 
-  public T positionInSourceCode(PositionInSourceCode pos) {
+  public final T positionInSourceCode(PositionInSourceCode pos) {
     if (pos != null && pos.isUndefined()) {
       this.position = null;
     } else {
@@ -135,12 +135,12 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     return self();
   }
 
-  public boolean hasPosition() {
-    return position != null && !position.isUndefined();
+  public final boolean hasPosition() {
+    return position != null || (this.parent != null && this.parent != this && this.parent.hasPosition());
   }
 
   public Optional<ReferenceTable> getLocalReferenceTable() {
-    if (this.parent != null) {
+    if (this.parent != null && this.parent != this) {
       return parent.getLocalReferenceTable();
     }
     return Optional.empty();

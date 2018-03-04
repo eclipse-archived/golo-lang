@@ -14,9 +14,8 @@ import org.eclipse.golo.compiler.PackageAndClass;
 
 public final class UnionValue extends TypeWithMembers<UnionValue> {
 
-  UnionValue(Union union, String name) {
+  UnionValue(String name) {
     super(name);
-    setParentNode(union);
   }
 
   protected UnionValue self() { return this; }
@@ -32,14 +31,6 @@ public final class UnionValue extends TypeWithMembers<UnionValue> {
 
   protected String getFactoryDelegateName() {
     return getUnion().getPackageAndClass().toString() + "." + getName();
-  }
-
-  @Override
-  protected void setParentNode(GoloElement<?> parent) {
-    if (!(parent instanceof Union)) {
-      throw new IllegalArgumentException("UnionValue can only be defined in a Union");
-    }
-    super.setParentNode(parent);
   }
 
   @Override

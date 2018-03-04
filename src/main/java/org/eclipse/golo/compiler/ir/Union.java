@@ -45,7 +45,7 @@ public final class Union extends GoloElement<Union> {
   }
 
   public UnionValue createValue(String name) {
-    return new UnionValue(this, name);
+    return new UnionValue(name);
   }
 
   public boolean addValue(UnionValue value) {
@@ -57,9 +57,9 @@ public final class Union extends GoloElement<Union> {
   }
 
   public Union value(String name, Member... members) {
-    UnionValue value = new UnionValue(this, name);
+    UnionValue value = new UnionValue(name);
     value.addMembers(asList(members));
-    values.add(value);
+    addValue(value);
     return this;
   }
 
