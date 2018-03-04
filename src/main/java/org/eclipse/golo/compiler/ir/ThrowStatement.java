@@ -47,7 +47,6 @@ public final class ThrowStatement extends GoloStatement<ThrowStatement> {
   }
 
   private void setExpressionStatement(GoloStatement<?> stat) {
-    this.expressionStatement = stat;
-    makeParentOf(stat);
+    this.expressionStatement = makeParentOf(stat);
   }
 }

@@ -31,8 +31,7 @@ public class ClosureReference extends ExpressionStatement<ClosureReference> {
   }
 
   private void setTarget(GoloFunction target) {
-    this.target = target;
-    makeParentOf(target);
+    this.target = makeParentOf(target);
     this.positionInSourceCode(target.positionInSourceCode());
     this.documentation(target.documentation());
     updateCapturedReferenceNames();

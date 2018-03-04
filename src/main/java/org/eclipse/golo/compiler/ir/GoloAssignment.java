@@ -38,8 +38,7 @@ public abstract class GoloAssignment<T extends GoloAssignment<T>> extends GoloSt
    * Defines the value to be assigned.
    */
   public final T as(Object expr) {
-    this.expressionStatement = ExpressionStatement.of(expr);
-    makeParentOf(expressionStatement);
+    this.expressionStatement = makeParentOf(ExpressionStatement.of(expr));
     return self();
   }
 

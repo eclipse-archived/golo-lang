@@ -27,9 +27,7 @@ public final class CaseStatement extends GoloStatement<CaseStatement> implements
   protected CaseStatement self() { return this; }
 
   public CaseStatement when(Object cond) {
-    WhenClause<Block> clause = new WhenClause<Block>(ExpressionStatement.of(cond), null);
-    this.clauses.add(clause);
-    makeParentOf(clause);
+    this.clauses.add(makeParentOf(new WhenClause<Block>(ExpressionStatement.of(cond), null)));
     return this;
   }
 
@@ -39,8 +37,7 @@ public final class CaseStatement extends GoloStatement<CaseStatement> implements
   }
 
   public CaseStatement otherwise(Object action) {
-    otherwise = (Block) action;
-    makeParentOf(otherwise);
+    this.otherwise = makeParentOf((Block) action);
     return this;
   }
 
@@ -77,8 +74,7 @@ public final class CaseStatement extends GoloStatement<CaseStatement> implements
     if (clauses.contains(original)) {
       @SuppressWarnings("unchecked")
       WhenClause<Block> when = (WhenClause<Block>) newElement;
-      clauses.set(clauses.indexOf(original), when);
-      makeParentOf(when);
+      clauses.set(clauses.indexOf(original), makeParentOf(when));
       return;
     }
     throw doesNotContain(original);

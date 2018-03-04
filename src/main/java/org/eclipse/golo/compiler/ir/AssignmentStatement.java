@@ -49,8 +49,7 @@ public final class AssignmentStatement extends GoloAssignment<AssignmentStatemen
     if (refs.length != 1 || refs[0] == null) {
       throw new IllegalArgumentException("Must assign to one reference");
     }
-    localReference = (LocalReference) refs[0];
-    makeParentOf(localReference);
+    this.localReference = makeParentOf((LocalReference) refs[0]);
     return this;
   }
 

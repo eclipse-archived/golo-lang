@@ -46,8 +46,7 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> {
 
   GoloFunction() {
     super();
-    block = Builders.block();
-    makeParentOf(block);
+    this.block = makeParentOf(Builders.block());
   }
 
   protected GoloFunction self() { return this; }
@@ -144,11 +143,10 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> {
   }
 
   public GoloFunction block(Block block) {
-    this.block = requireNonNull(block);
+    this.block = makeParentOf(requireNonNull(block));
     for (String param : parameterNames) {
       addParameterToBlockReferences(param);
     }
-    makeParentOf(this.block);
     return this;
   }
 
@@ -272,8 +270,7 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> {
   }
 
   public void addDecorator(Decorator decorator) {
-    this.decorators.add(decorator);
-    makeParentOf(decorator);
+    this.decorators.add(makeParentOf(decorator));
   }
 
   public List<Decorator> getDecorators() {

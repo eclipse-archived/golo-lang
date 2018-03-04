@@ -59,8 +59,7 @@ abstract class TypeWithMembers<T extends TypeWithMembers<T>> extends GoloElement
   }
 
   protected void addMember(Member member) {
-    this.members.add(member);
-    makeParentOf(member);
+    this.members.add(makeParentOf(member));
   }
 
   void addMembers(Iterable<Member> members) {

@@ -39,7 +39,6 @@ public final class DestructuringAssignment extends GoloAssignment<DestructuringA
     return varargs(true);
   }
 
-
   /**
    * {@inheritDoc}
    */

@@ -46,8 +46,7 @@ public final class NamedAugmentation extends GoloElement<NamedAugmentation> impl
 
   @Override
   public void addFunction(GoloFunction func) {
-    functions.add(func);
-    makeParentOf(func);
+    functions.add(makeParentOf(func));
   }
 
   @Override

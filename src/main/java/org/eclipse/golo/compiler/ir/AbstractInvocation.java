@@ -30,8 +30,7 @@ public abstract class AbstractInvocation<T extends AbstractInvocation<T>> extend
   }
 
   private void addArgument(ExpressionStatement<?> argument) {
-    arguments.add(argument);
-    makeParentOf(argument);
+    arguments.add(makeParentOf(argument));
   }
 
   public T withArgs(Object... arguments) {

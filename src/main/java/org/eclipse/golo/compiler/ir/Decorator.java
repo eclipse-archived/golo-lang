@@ -42,8 +42,7 @@ public final class Decorator extends GoloElement<Decorator> {
       throw new IllegalArgumentException("Decorator expression must be a reference or an invocation, got a "
           + expr.getClass().getSimpleName());
     }
-    this.expressionStatement = expr;
-    makeParentOf(expr);
+    this.expressionStatement = makeParentOf(expr);
   }
 
   public boolean isConstant() {

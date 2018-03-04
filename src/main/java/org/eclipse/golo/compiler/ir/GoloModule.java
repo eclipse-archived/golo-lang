@@ -88,8 +88,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   }
 
   public void addImport(ModuleImport moduleImport) {
-    imports.add(moduleImport);
-    makeParentOf(moduleImport);
+    imports.add(makeParentOf(moduleImport));
   }
 
   @Override
@@ -124,8 +123,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   }
 
   public void addNamedAugmentation(NamedAugmentation augment) {
-    namedAugmentations.add(augment);
-    makeParentOf(augment);
+    namedAugmentations.add(makeParentOf(augment));
   }
 
   // TODO: refactor to not return the value...
@@ -143,8 +141,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   }
 
   public void addStruct(Struct struct) {
-    structs.add(struct);
-    makeParentOf(struct);
+    structs.add(makeParentOf(struct));
     struct.setModuleName(getPackageAndClass());
   }
 
@@ -163,8 +160,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   }
 
   public void addUnion(Union union) {
-    unions.add(union);
-    makeParentOf(union);
+    unions.add(makeParentOf(union));
     union.setModuleName(this.getPackageAndClass());
     this.addImport(new ModuleImport(union.getPackageAndClass(), true));
   }
@@ -181,8 +177,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   }
 
   private void addLocalState(LocalReference reference) {
-    moduleState.add(reference);
-    makeParentOf(reference);
+    moduleState.add(makeParentOf(reference));
   }
 
   @Override

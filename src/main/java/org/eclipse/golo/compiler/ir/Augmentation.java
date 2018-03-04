@@ -67,8 +67,7 @@ public final class Augmentation extends GoloElement<Augmentation> implements Fun
 
   @Override
   public void addFunction(GoloFunction func) {
-    functions.add(func);
-    makeParentOf(func);
+    functions.add(makeParentOf(func));
   }
 
   @Override

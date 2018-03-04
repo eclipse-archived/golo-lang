@@ -27,9 +27,7 @@ public final class MatchExpression extends ExpressionStatement<MatchExpression> 
   protected MatchExpression self() { return this; }
 
   public MatchExpression when(Object cond) {
-    WhenClause<ExpressionStatement<?>> clause = new WhenClause<ExpressionStatement<?>>(ExpressionStatement.of(cond), null);
-    this.clauses.add(clause);
-    makeParentOf(clause);
+    this.clauses.add(makeParentOf(new WhenClause<ExpressionStatement<?>>(ExpressionStatement.of(cond), null)));
     return this;
   }
 
@@ -39,8 +37,7 @@ public final class MatchExpression extends ExpressionStatement<MatchExpression> 
   }
 
   public MatchExpression otherwise(Object action) {
-    this.otherwise = ExpressionStatement.of(action);
-    makeParentOf(otherwise);
+    this.otherwise = makeParentOf(ExpressionStatement.of(action));
     return this;
   }
 
@@ -77,8 +74,7 @@ public final class MatchExpression extends ExpressionStatement<MatchExpression> 
     if (clauses.contains(original)) {
       @SuppressWarnings("unchecked")
       WhenClause<ExpressionStatement<?>> when = (WhenClause<ExpressionStatement<?>>) newElement;
-      clauses.set(clauses.indexOf(original), when);
-      makeParentOf(when);
+      clauses.set(clauses.indexOf(original), makeParentOf(when));
       return;
     }
     throw doesNotContain(original);

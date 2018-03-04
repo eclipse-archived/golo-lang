@@ -49,8 +49,7 @@ public final class Union extends GoloElement<Union> {
   }
 
   public boolean addValue(UnionValue value) {
-    makeParentOf(value);
-    return values.add(value);
+    return values.add(makeParentOf(value));
   }
 
   public Collection<UnionValue> getValues() {

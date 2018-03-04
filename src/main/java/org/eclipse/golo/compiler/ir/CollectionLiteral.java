@@ -30,9 +30,7 @@ public final class CollectionLiteral extends ExpressionStatement<CollectionLiter
   protected CollectionLiteral self() { return this; }
 
   public CollectionLiteral add(Object expression) {
-    ExpressionStatement<?> expr = ExpressionStatement.of(expression);
-    this.expressions.add(expr);
-    makeParentOf(expr);
+    this.expressions.add(makeParentOf(ExpressionStatement.of(expression)));
     return this;
   }
 

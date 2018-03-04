@@ -43,8 +43,7 @@ public final class ConditionalBranching extends GoloStatement<ConditionalBranchi
   }
 
   public ConditionalBranching elseBranch(Object elseBranch) {
-    this.elseConditionalBranching = (ConditionalBranching) elseBranch;
-    makeParentOf(elseConditionalBranching);
+    this.elseConditionalBranching = makeParentOf((ConditionalBranching) elseBranch);
     return this;
   }
 
@@ -60,8 +59,7 @@ public final class ConditionalBranching extends GoloStatement<ConditionalBranchi
   }
 
   public void setCondition(ExpressionStatement<?> condition) {
-    this.condition = condition;
-    makeParentOf(condition);
+    this.condition = makeParentOf(condition);
   }
 
   public Block getTrueBlock() {
@@ -69,8 +67,7 @@ public final class ConditionalBranching extends GoloStatement<ConditionalBranchi
   }
 
   public void setTrueBlock(Block block) {
-    this.trueBlock = block;
-    makeParentOf(block);
+    this.trueBlock = makeParentOf(block);
   }
 
   public Block getFalseBlock() {
@@ -78,10 +75,7 @@ public final class ConditionalBranching extends GoloStatement<ConditionalBranchi
   }
 
   public void setFalseBlock(Block block) {
-    this.falseBlock = block;
-    if (block != null) {
-      makeParentOf(block);
-    }
+    this.falseBlock = makeParentOf(block);
   }
 
   public boolean hasFalseBlock() {
@@ -93,8 +87,7 @@ public final class ConditionalBranching extends GoloStatement<ConditionalBranchi
   }
 
   public void setElseConditionalBranching(ConditionalBranching elseBranch) {
-    this.elseConditionalBranching = elseBranch;
-    makeParentOf(elseBranch);
+    this.elseConditionalBranching = makeParentOf(elseBranch);
   }
 
   public boolean hasElseConditionalBranching() {

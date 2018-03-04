@@ -15,8 +15,7 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
   private T action;
 
   WhenClause(ExpressionStatement<?> condition, T action) {
-    this.condition = condition;
-    makeParentOf(condition);
+    this.condition = makeParentOf(condition);
     setAction(action);
   }
 
@@ -27,8 +26,7 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
   public T action() { return this.action; }
 
   public void setAction(T a) {
-    this.action = a;
-    makeParentOf(a);
+    this.action = makeParentOf(a);
   }
 
   @Override
@@ -42,8 +40,7 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
       if (!(newElement instanceof ExpressionStatement)) {
         throw cantConvert("ExpressionStatement", newElement);
       }
-      this.condition = ExpressionStatement.of(newElement);
-      makeParentOf(this.condition);
+      this.condition = makeParentOf(ExpressionStatement.of(newElement));
     } else if (this.action.equals(original)) {
       @SuppressWarnings("unchecked")
       T element = (T) newElement;

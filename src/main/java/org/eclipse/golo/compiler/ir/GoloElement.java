@@ -38,11 +38,12 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     return Optional.ofNullable(this.parent);
   }
 
-  public void makeParentOf(GoloElement<?> childElement) {
+  public <C extends GoloElement<?>> C makeParentOf(C childElement) {
     if (childElement != null) {
       childElement.setParentNode(this);
       relinkChild(childElement);
     }
+    return childElement;
   }
 
   private void relinkChild(GoloElement child) {

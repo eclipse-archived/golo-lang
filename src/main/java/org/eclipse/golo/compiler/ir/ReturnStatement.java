@@ -32,8 +32,7 @@ public final class ReturnStatement extends GoloStatement<ReturnStatement> {
   }
 
   private void setExpressionStatement(GoloStatement<?> stat) {
-    this.expressionStatement = stat;
-    makeParentOf(stat);
+    this.expressionStatement = makeParentOf(stat);
   }
 
   public boolean isReturningVoid() {

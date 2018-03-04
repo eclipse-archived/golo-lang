@@ -29,15 +29,12 @@ public class CollectionComprehension extends ExpressionStatement<CollectionCompr
   protected CollectionComprehension self() { return this; }
 
   public CollectionComprehension expression(Object expression) {
-    this.expression = ExpressionStatement.of(expression);
-    makeParentOf(this.expression);
+    this.expression = makeParentOf(ExpressionStatement.of(expression));
     return this;
   }
 
   public CollectionComprehension loop(Object b) {
-    Block theBlock = Block.of(b);
-    this.loopBlocks.add(theBlock);
-    makeParentOf(theBlock);
+    this.loopBlocks.add(makeParentOf(Block.of(b)));
     return this;
   }
 

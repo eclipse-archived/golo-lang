@@ -70,8 +70,7 @@ public final class LoopStatement extends GoloStatement<LoopStatement> implements
   }
 
   public void setInitStatement(AssignmentStatement init) {
-    this.initStatement = init;
-    makeParentOf(init);
+    this.initStatement = makeParentOf(init);
   }
 
   public ExpressionStatement<?> getConditionStatement() {
@@ -79,8 +78,8 @@ public final class LoopStatement extends GoloStatement<LoopStatement> implements
   }
 
   public void setConditionStatement(ExpressionStatement<?> cond) {
-    conditionStatement = (cond == null ? constant(false) : cond);
-    makeParentOf(conditionStatement);
+    this.conditionStatement = (cond == null ? constant(false) : cond);
+    makeParentOf(this.conditionStatement);
   }
 
   public Block getBlock() {
@@ -97,8 +96,7 @@ public final class LoopStatement extends GoloStatement<LoopStatement> implements
   }
 
   public void setPostStatement(GoloStatement<?> stat) {
-    postStatement = stat;
-    makeParentOf(postStatement);
+    this.postStatement = makeParentOf(stat);
   }
 
   public boolean hasPostStatement() {

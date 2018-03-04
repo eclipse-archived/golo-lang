@@ -30,8 +30,7 @@ public final class UnaryOperation extends ExpressionStatement<UnaryOperation> {
   }
 
   private void setExpressionStatement(ExpressionStatement<?> statement) {
-    this.expressionStatement = statement;
-    makeParentOf(statement);
+    this.expressionStatement = makeParentOf(statement);
   }
 
   public OperatorType getType() {

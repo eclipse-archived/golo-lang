@@ -33,8 +33,7 @@ public final class NamedArgument extends ExpressionStatement<NamedArgument> {
   }
 
   public NamedArgument value(Object value) {
-    expression = ExpressionStatement.of(value);
-    makeParentOf(expression);
+    this.expression = makeParentOf(ExpressionStatement.of(value));
     return this;
   }
 
