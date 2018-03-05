@@ -12,27 +12,28 @@ package org.eclipse.golo.compiler.ir;
 
 import static gololang.Messages.message;
 
-public final class NamedArgument extends ExpressionStatement {
+public final class NamedArgument extends ExpressionStatement<NamedArgument> {
 
   private String name;
-  private ExpressionStatement expression;
+  private ExpressionStatement<?> expression;
 
   NamedArgument(String name) {
     super();
     this.name = name;
   }
 
+  protected NamedArgument self() { return this; }
+
   public String getName() {
     return name;
   }
 
-  public ExpressionStatement getExpression() {
+  public ExpressionStatement<?> getExpression() {
     return expression;
   }
 
   public NamedArgument value(Object value) {
-    expression = (ExpressionStatement) value;
-    makeParentOf(expression);
+    this.expression = makeParentOf(ExpressionStatement.of(value));
     return this;
   }
 
@@ -42,7 +43,7 @@ public final class NamedArgument extends ExpressionStatement {
    * <p>Always throws an exception since {@link NamedArgument} can't have a local declaration.
    */
   @Override
-  public ExpressionStatement with(Object a) {
+  public NamedArgument with(Object a) {
     throw new UnsupportedOperationException(message("invalid_local_definition", this.getClass().getName()));
   }
 
@@ -63,10 +64,10 @@ public final class NamedArgument extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (expression != original) {
       throw doesNotContain(original);
     }
-    value((ExpressionStatement) newElement);
+    value(newElement);
   }
 }

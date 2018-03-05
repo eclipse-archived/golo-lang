@@ -12,21 +12,21 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.LinkedList;
 
-public abstract class ExpressionStatement extends GoloStatement {
+public abstract class ExpressionStatement<T extends ExpressionStatement<T>> extends GoloStatement<T> {
 
-  private final LinkedList<GoloAssignment> declarations = new LinkedList<>();
+  private final LinkedList<GoloAssignment<?>> declarations = new LinkedList<>();
 
   /**
    * Defines a variable declaration (assignment) local to this expression.
    */
-  public ExpressionStatement with(Object a) {
+  public T with(Object a) {
     if (!(a instanceof GoloAssignment)) {
       throw new IllegalArgumentException(("Must be an assignment, got " + a));
     }
-    GoloAssignment declaration = (GoloAssignment) a;
+    GoloAssignment<?> declaration = (GoloAssignment<?>) a;
     declarations.add(declaration.declaring());
     makeParentOf(declaration);
-    return this;
+    return self();
   }
 
   /**
@@ -50,9 +50,12 @@ public abstract class ExpressionStatement extends GoloStatement {
     declarations.clear();
   }
 
-  public static ExpressionStatement of(Object expr) {
+  public static ExpressionStatement<?> of(Object expr) {
     if (expr instanceof ExpressionStatement) {
-      return (ExpressionStatement) expr;
+      return (ExpressionStatement<?>) expr;
+    }
+    if (expr == null) {
+      return null;
     }
     throw cantConvert("ExpressionStatement", expr);
   }

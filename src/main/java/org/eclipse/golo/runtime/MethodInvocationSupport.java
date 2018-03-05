@@ -260,9 +260,9 @@ public final class MethodInvocationSupport {
           methodType(Object.class, Object.class, Object.class, Object[].class),
           false);
       Object[] fallbackArgs = new Object[]{
-          args[0],
-          inlineCache.name,
-          Arrays.copyOfRange(args, 1, args.length)
+        args[0],
+        inlineCache.name,
+        Arrays.copyOfRange(args, 1, args.length)
       };
       target = lookupTarget(receiverClass, fallbackCallSite, fallbackArgs);
       if (target != null) {

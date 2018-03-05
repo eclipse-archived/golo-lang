@@ -10,23 +10,23 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public final class WhenClause<T extends GoloElement> extends GoloElement {
-  private ExpressionStatement condition;
+public final class WhenClause<T extends GoloElement<?>> extends GoloElement<WhenClause<T>> {
+  private ExpressionStatement<?> condition;
   private T action;
 
-  WhenClause(ExpressionStatement condition, T action) {
-    this.condition = condition;
-    makeParentOf(condition);
+  WhenClause(ExpressionStatement<?> condition, T action) {
+    this.condition = makeParentOf(condition);
     setAction(action);
   }
 
-  public ExpressionStatement condition() { return this.condition; }
+  protected WhenClause<T> self() { return this; }
+
+  public ExpressionStatement<?> condition() { return this.condition; }
 
   public T action() { return this.action; }
 
   public void setAction(T a) {
-    this.action = a;
-    makeParentOf(a);
+    this.action = makeParentOf(a);
   }
 
   @Override
@@ -35,14 +35,13 @@ public final class WhenClause<T extends GoloElement> extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
-    if (condition.equals(original)) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
+    if (this.condition.equals(original)) {
       if (!(newElement instanceof ExpressionStatement)) {
         throw cantConvert("ExpressionStatement", newElement);
       }
-      this.condition = (ExpressionStatement) newElement;
-      makeParentOf(this.condition);
-    } else if (action.equals(original)) {
+      this.condition = makeParentOf(ExpressionStatement.of(newElement));
+    } else if (this.action.equals(original)) {
       @SuppressWarnings("unchecked")
       T element = (T) newElement;
       setAction(element);

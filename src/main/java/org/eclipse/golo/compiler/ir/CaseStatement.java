@@ -14,9 +14,8 @@ import java.util.List;
 import java.util.LinkedList;
 
 import static java.util.Collections.unmodifiableList;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class CaseStatement extends GoloStatement implements Alternatives<Block> {
+public final class CaseStatement extends GoloStatement<CaseStatement> implements Alternatives<Block> {
 
   private Block otherwise;
   private final LinkedList<WhenClause<Block>> clauses = new LinkedList<>();
@@ -25,21 +24,20 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
     super();
   }
 
+  protected CaseStatement self() { return this; }
+
   public CaseStatement when(Object cond) {
-    WhenClause<Block> clause = new WhenClause<Block>((ExpressionStatement) cond, null);
-    this.clauses.add(clause);
-    makeParentOf(clause);
+    this.clauses.add(makeParentOf(new WhenClause<Block>(ExpressionStatement.of(cond), null)));
     return this;
   }
 
   public CaseStatement then(Object action) {
-    this.clauses.getLast().setAction((Block) action);
+    this.clauses.getLast().setAction(Block.of(action));
     return this;
   }
 
   public CaseStatement otherwise(Object action) {
-    otherwise = (Block) action;
-    makeParentOf(otherwise);
+    this.otherwise = makeParentOf(Block.of(action));
     return this;
   }
 
@@ -49,12 +47,6 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
 
   public Block getOtherwise() {
     return this.otherwise;
-  }
-
-  @Override
-  public CaseStatement ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
   }
 
   @Override
@@ -71,7 +63,7 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
   }
 
   @Override
-  public void replaceElement(GoloElement original, GoloElement newElement) {
+  public void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (!(newElement instanceof Block || newElement instanceof WhenClause)) {
       throw cantConvert("Block or WhenClause", newElement);
     }
@@ -82,8 +74,7 @@ public final class CaseStatement extends GoloStatement implements Alternatives<B
     if (clauses.contains(original)) {
       @SuppressWarnings("unchecked")
       WhenClause<Block> when = (WhenClause<Block>) newElement;
-      clauses.set(clauses.indexOf(original), when);
-      makeParentOf(when);
+      clauses.set(clauses.indexOf(original), makeParentOf(when));
       return;
     }
     throw doesNotContain(original);

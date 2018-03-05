@@ -74,7 +74,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       + description + ")Ljava/lang/invoke/CallSite;", false);
   }
 
-  private static RuntimeException invalidElement(GoloElement element) {
+  private static RuntimeException invalidElement(GoloElement<?> element) {
     return new IllegalStateException(prefixed("bug", message("no_element_remains", element.getClass())));
   }
 
@@ -376,7 +376,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label blockStart = new Label();
     Label blockEnd = new Label();
     currentMethodVisitor.visitLabel(blockStart);
-    for (GoloStatement statement : block.getStatements()) {
+    for (GoloStatement<?> statement : block.getStatements()) {
       visitLine(statement, currentMethodVisitor);
       statement.accept(this);
       insertMissingPop(statement);
@@ -392,8 +392,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     context.referenceTableStack.pop();
   }
 
-  private void insertMissingPop(GoloStatement statement) {
-    Class<? extends GoloStatement> statementClass = statement.getClass();
+  private void insertMissingPop(GoloStatement<?> statement) {
+    Class<?> statementClass = statement.getClass();
     if (statementClass == FunctionInvocation.class) {
       currentMethodVisitor.visitInsn(POP);
     } else if (statementClass == BinaryOperation.class) {
@@ -490,9 +490,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     currentMethodVisitor.visitInsn(ATHROW);
   }
 
-  private List<String> visitInvocationArguments(AbstractInvocation invocation) {
+  private List<String> visitInvocationArguments(AbstractInvocation<?> invocation) {
     List<String> argumentNames = new ArrayList<>();
-    for (ExpressionStatement argument : invocation.getArguments()) {
+    for (ExpressionStatement<?> argument : invocation.getArguments()) {
       if (invocation.usesNamedArguments()) {
         NamedArgument namedArgument = (NamedArgument) argument;
         argumentNames.add(namedArgument.getName());

@@ -12,10 +12,11 @@ package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
 
-public final class BinaryOperation extends ExpressionStatement {
+public final class BinaryOperation extends ExpressionStatement<BinaryOperation> {
+
   private final OperatorType type;
-  private ExpressionStatement leftExpression;
-  private ExpressionStatement rightExpression;
+  private ExpressionStatement<?> leftExpression;
+  private ExpressionStatement<?> rightExpression;
 
   BinaryOperation(OperatorType type) {
     super();
@@ -32,27 +33,27 @@ public final class BinaryOperation extends ExpressionStatement {
     throw cantConvert("BinaryOperation", type);
   }
 
+  protected BinaryOperation self() { return this; }
+
   public OperatorType getType() {
     return type;
   }
 
-  public ExpressionStatement getLeftExpression() {
+  public ExpressionStatement<?> getLeftExpression() {
     return leftExpression;
   }
 
   public BinaryOperation left(Object expr) {
-    leftExpression = (ExpressionStatement) expr;
-    makeParentOf(leftExpression);
+    this.leftExpression = makeParentOf(ExpressionStatement.of(expr));
     return this;
   }
 
   public BinaryOperation right(Object expr) {
-    rightExpression = (ExpressionStatement) expr;
-    makeParentOf(rightExpression);
+    this.rightExpression = makeParentOf(ExpressionStatement.of(expr));
     return this;
   }
 
-  public ExpressionStatement getRightExpression() {
+  public ExpressionStatement<?> getRightExpression() {
     return rightExpression;
   }
 
@@ -79,7 +80,7 @@ public final class BinaryOperation extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (!(newElement instanceof ExpressionStatement)) {
       throw cantConvert("ExpressionStatement", newElement);
     }

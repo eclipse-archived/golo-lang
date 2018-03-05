@@ -10,11 +10,10 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
 import static java.util.Objects.requireNonNull;
 
-public final class Member extends GoloElement {
+public final class Member extends GoloElement<Member> {
+
   private final String name;
 
   Member(String name) {
@@ -22,21 +21,14 @@ public final class Member extends GoloElement {
     this.name = requireNonNull(name);
   }
 
+  protected Member self() { return this; }
+
   public String getName() {
     return name;
   }
 
   public boolean isPublic() {
     return !name.startsWith("_");
-  }
-
-  /**
-   * @inheritDoc
-   */
-  @Override
-  public Member ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
   }
 
   /**
@@ -60,7 +52,7 @@ public final class Member extends GoloElement {
    * @inheritDoc
    */
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace(original, newElement);
   }
 

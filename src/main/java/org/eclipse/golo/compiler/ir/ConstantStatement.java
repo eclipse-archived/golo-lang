@@ -12,7 +12,7 @@ package org.eclipse.golo.compiler.ir;
 
 import static gololang.Messages.message;
 
-public class ConstantStatement extends ExpressionStatement {
+public final class ConstantStatement extends ExpressionStatement<ConstantStatement> {
 
   private Object value;
 
@@ -29,13 +29,15 @@ public class ConstantStatement extends ExpressionStatement {
     value = v;
   }
 
+  protected ConstantStatement self() { return this; }
+
   /**
    * {@inheritDoc}
    *
    * <p>Always throws an exception since {@link NamedArgument} can't have a local declaration.
    */
   @Override
-  public ExpressionStatement with(Object a) {
+  public ConstantStatement with(Object a) {
     throw new UnsupportedOperationException(message("invalid_local_definition", this.getClass().getName()));
   }
 
@@ -60,7 +62,7 @@ public class ConstantStatement extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 

@@ -452,7 +452,7 @@ public class IrTreeDumper implements GoloIrVisitor {
     System.out.println();
   }
 
-  private void printLocalDeclarations(ExpressionStatement expr) {
+  private void printLocalDeclarations(ExpressionStatement<?> expr) {
     if (expr.hasLocalDeclarations()) {
       incr();
       space();

@@ -13,15 +13,14 @@ package org.eclipse.golo.compiler.ir;
 import java.util.List;
 import java.util.LinkedList;
 import java.util.Objects;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import static java.util.Collections.unmodifiableList;
 
-public final class ForEachLoopStatement extends GoloStatement implements BlockContainer, ReferencesHolder {
+public final class ForEachLoopStatement extends GoloStatement<ForEachLoopStatement> implements BlockContainer, ReferencesHolder {
   private Block block = Block.emptyBlock();
-  private ExpressionStatement iterable;
+  private ExpressionStatement<?> iterable;
   private final List<LocalReference> valueRefs = new LinkedList<>();
-  private ExpressionStatement whenClause;
+  private ExpressionStatement<?> whenClause;
   private boolean isVarargs = false;
 
   ForEachLoopStatement() {
@@ -29,15 +28,11 @@ public final class ForEachLoopStatement extends GoloStatement implements BlockCo
   }
 
   public ForEachLoopStatement block(Object block) {
-    this.block = Builders.toBlock(block);
+    this.block = Block.of(block);
     return this;
   }
 
-  @Override
-  public ForEachLoopStatement ofAST(GoloASTNode node) {
-    node.setIrElement(this);
-    return this;
-  }
+  protected ForEachLoopStatement self() { return this; }
 
   public ForEachLoopStatement on(Object iterable) {
     this.iterable = ExpressionStatement.of(iterable);
@@ -67,7 +62,7 @@ public final class ForEachLoopStatement extends GoloStatement implements BlockCo
     return this;
   }
 
-  public ExpressionStatement getIterable() {
+  public ExpressionStatement<?> getIterable() {
     return iterable;
   }
 
@@ -107,7 +102,7 @@ public final class ForEachLoopStatement extends GoloStatement implements BlockCo
     return whenClause != null;
   }
 
-  public ExpressionStatement getWhenClause() {
+  public ExpressionStatement<?> getWhenClause() {
     return whenClause;
   }
 
@@ -129,7 +124,7 @@ public final class ForEachLoopStatement extends GoloStatement implements BlockCo
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(iterable, original)) {
       on(newElement);
     } else if (Objects.equals(whenClause, original)) {

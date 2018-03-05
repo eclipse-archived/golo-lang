@@ -10,30 +10,11 @@
 
 package org.eclipse.golo.compiler.parser;
 
-import org.eclipse.golo.compiler.ir.GoloElement;
 import org.eclipse.golo.compiler.ir.PositionInSourceCode;
 
 public class GoloASTNode extends SimpleNode {
 
-  private GoloElement irElement;
   private String documentation;
-
-  public void setIrElement(GoloElement element) {
-    this.irElement = element;
-
-    if (jjtGetFirstToken() != null) {
-      // Only add a reverse weak ref to this ASTNode if it was constructed by
-      // the parser and is  really part of the AST (on the contrary, temporary
-      // AST elements used in the ParseTreeToGoloIR visitor to create IR
-      // elements should not be referenced, since they can be garbage collected
-      // at any moment and they don't reflect the source code exactly
-      element.setASTNode(this);
-    }
-  }
-
-  public GoloElement getIrElement() {
-    return irElement;
-  }
 
   public GoloASTNode(int i) {
     super(i);
@@ -52,7 +33,20 @@ public class GoloASTNode extends SimpleNode {
   }
 
   public PositionInSourceCode getPositionInSourceCode() {
-    return new PositionInSourceCode(getLineInSourceCode(), getColumnInSourceCode());
+    Token firstToken = this.jjtGetFirstToken();
+    if (firstToken == null) {
+      return PositionInSourceCode.undefined();
+    }
+    int startLine = firstToken.beginLine;
+    int startColumn = firstToken.beginColumn;
+    int endLine = firstToken.endLine;
+    int endColumn = firstToken.endColumn;
+    Token lastToken = this.jjtGetLastToken();
+    if (lastToken != null) {
+      endLine = lastToken.endLine;
+      endColumn = lastToken.endColumn;
+    }
+    return PositionInSourceCode.of(startLine, startColumn, endLine, endColumn);
   }
 
   @Override

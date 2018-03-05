@@ -10,10 +10,9 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 import org.eclipse.golo.compiler.PackageAndClass;
 
-public final class ModuleImport extends GoloElement {
+public final class ModuleImport extends GoloElement<ModuleImport> {
 
   private final PackageAndClass packageAndClass;
   private final boolean implicit;
@@ -28,11 +27,7 @@ public final class ModuleImport extends GoloElement {
     this(packageAndClass, false);
   }
 
-  @Override
-  public ModuleImport ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected ModuleImport self() { return this; }
 
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
@@ -75,7 +70,7 @@ public final class ModuleImport extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 }

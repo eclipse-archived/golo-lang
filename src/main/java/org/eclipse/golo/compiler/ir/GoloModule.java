@@ -11,14 +11,13 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
 import java.util.*;
 
 import static java.util.Collections.unmodifiableSet;
 import static java.util.Collections.unmodifiableCollection;
 
-public final class GoloModule extends GoloElement implements FunctionContainer {
+public final class GoloModule extends GoloElement<GoloModule> implements FunctionContainer {
 
   private String sourceFile;
   private final PackageAndClass packageAndClass;
@@ -52,11 +51,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
     this.globalReferences = references;
   }
 
-  @Override
-  public GoloModule ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected GoloModule self() { return this; }
 
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
@@ -93,8 +88,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   public void addImport(ModuleImport moduleImport) {
-    imports.add(moduleImport);
-    makeParentOf(moduleImport);
+    imports.add(makeParentOf(moduleImport));
   }
 
   @Override
@@ -129,8 +123,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   public void addNamedAugmentation(NamedAugmentation augment) {
-    namedAugmentations.add(augment);
-    makeParentOf(augment);
+    namedAugmentations.add(makeParentOf(augment));
   }
 
   // TODO: refactor to not return the value...
@@ -148,12 +141,11 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   public void addStruct(Struct struct) {
-    structs.add(struct);
-    makeParentOf(struct);
+    structs.add(makeParentOf(struct));
     struct.setModuleName(getPackageAndClass());
   }
 
-  public GoloElement getSubtypeByName(String name) {
+  public GoloElement<?> getSubtypeByName(String name) {
     for (Struct s : structs) {
       if (s.getName().equals(name)) {
         return s;
@@ -168,8 +160,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   public void addUnion(Union union) {
-    unions.add(union);
-    makeParentOf(union);
+    unions.add(makeParentOf(union));
     union.setModuleName(this.getPackageAndClass());
     this.addImport(new ModuleImport(union.getPackageAndClass(), true));
   }
@@ -186,8 +177,12 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   private void addLocalState(LocalReference reference) {
-    moduleState.add(reference);
-    makeParentOf(reference);
+    moduleState.add(makeParentOf(reference));
+  }
+
+  @Override
+  public String toString() {
+    return String.format("GoloModule{name=%s, src=%s}", this.packageAndClass, this.sourceFile);
   }
 
   @Override
@@ -221,7 +216,7 @@ public final class GoloModule extends GoloElement implements FunctionContainer {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 

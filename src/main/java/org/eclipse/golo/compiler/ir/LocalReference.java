@@ -10,11 +10,10 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class LocalReference extends GoloElement {
+public final class LocalReference extends GoloElement<LocalReference> {
 
-  public static enum Kind {
+  public enum Kind {
     CONSTANT, VARIABLE, MODULE_CONSTANT, MODULE_VARIABLE
   }
 
@@ -28,11 +27,7 @@ public final class LocalReference extends GoloElement {
     this.name = name;
   }
 
-  @Override
-  public LocalReference ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected LocalReference self() { return this; }
 
   public Kind getKind() {
     return kind;
@@ -134,7 +129,7 @@ public final class LocalReference extends GoloElement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 }

@@ -10,4 +10,4 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public abstract class GoloStatement extends GoloElement { }
+public abstract class GoloStatement<T extends GoloStatement<T>> extends GoloElement<T> { }

@@ -12,26 +12,27 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.Objects;
 
-public final class ReturnStatement extends GoloStatement {
+public final class ReturnStatement extends GoloStatement<ReturnStatement> {
 
-  private GoloStatement expressionStatement;
+  private GoloStatement<?> expressionStatement;
   private boolean returningVoid;
   private boolean synthetic;
 
-  ReturnStatement(ExpressionStatement expression) {
+  ReturnStatement(ExpressionStatement<?> expression) {
     super();
     setExpressionStatement(expression);
     this.returningVoid = false;
     this.synthetic = false;
   }
 
-  public GoloStatement getExpressionStatement() {
+  protected ReturnStatement self() { return this; }
+
+  public GoloStatement<?> getExpressionStatement() {
     return expressionStatement;
   }
 
-  private void setExpressionStatement(GoloStatement stat) {
-    this.expressionStatement = stat;
-    makeParentOf(stat);
+  private void setExpressionStatement(GoloStatement<?> stat) {
+    this.expressionStatement = makeParentOf(stat);
   }
 
   public boolean isReturningVoid() {
@@ -70,9 +71,9 @@ public final class ReturnStatement extends GoloStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(original, expressionStatement) && newElement instanceof ExpressionStatement) {
-      setExpressionStatement((ExpressionStatement) newElement);
+      setExpressionStatement(ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }

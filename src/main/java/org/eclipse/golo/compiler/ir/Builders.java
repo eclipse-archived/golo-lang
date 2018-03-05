@@ -85,7 +85,7 @@ public final class Builders {
     return new DestructuringAssignment();
   }
 
-  public static UnaryOperation not(ExpressionStatement expression) {
+  public static UnaryOperation not(ExpressionStatement<?> expression) {
     return new UnaryOperation(OperatorType.NOT, expression);
   }
 
@@ -98,7 +98,7 @@ public final class Builders {
   }
 
   public static Decorator decorator(Object expr) {
-    return new Decorator((ExpressionStatement) expr);
+    return new Decorator(ExpressionStatement.of(expr));
   }
 
   public static GoloFunction functionDeclaration() {
@@ -129,7 +129,7 @@ public final class Builders {
   public static BinaryOperation anonCall(Object receiver, Object invocation) {
     return binaryOperation(
         OperatorType.ANON_CALL,
-        (ExpressionStatement) receiver,
+        ExpressionStatement.of(receiver),
         (FunctionInvocation) invocation);
   }
 
@@ -196,11 +196,11 @@ public final class Builders {
   }
 
   public static ReturnStatement returns(Object expr) {
-    return new ReturnStatement((ExpressionStatement) expr);
+    return new ReturnStatement(ExpressionStatement.of(expr));
   }
 
   public static ThrowStatement raise(Object expression) {
-    return new ThrowStatement((ExpressionStatement) expression);
+    return new ThrowStatement(ExpressionStatement.of(expression));
   }
 
   public static LocalReference localRef(Object name) {
@@ -299,20 +299,12 @@ public final class Builders {
     return new TryCatchFinally(exceptionId);
   }
 
-  public static GoloStatement toGoloStatement(Object statement) {
+  public static GoloStatement<?> toGoloStatement(Object statement) {
     if (statement == null) { return null; }
     if (statement instanceof GoloStatement) {
-      return (GoloStatement) statement;
+      return (GoloStatement<?>) statement;
     }
     throw cantConvert(statement, "GoloStatement");
-  }
-
-  public static Block toBlock(Object block) {
-    if (block == null) { return Block.emptyBlock(); }
-    if (block instanceof Block) {
-      return (Block) block;
-    }
-    throw cantConvert(block, "Block");
   }
 
   private static IllegalArgumentException cantConvert(Object value, String target) {

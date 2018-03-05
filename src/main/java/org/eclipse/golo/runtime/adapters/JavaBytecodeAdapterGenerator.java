@@ -146,9 +146,9 @@ public class JavaBytecodeAdapterGenerator {
   private void makeConstructors(ClassWriter classWriter, AdapterDefinition adapterDefinition) {
     try {
       Class<?> parentClass = Class.forName(adapterDefinition.getParent(), true, adapterDefinition.getClassLoader());
-      for (Constructor constructor : parentClass.getDeclaredConstructors()) {
+      for (Constructor<?> constructor : parentClass.getDeclaredConstructors()) {
         if (Modifier.isPublic(constructor.getModifiers()) || Modifier.isProtected(constructor.getModifiers())) {
-          Class[] parameterTypes = constructor.getParameterTypes();
+          Class<?>[] parameterTypes = constructor.getParameterTypes();
           Type[] adapterParameterTypes = new Type[parameterTypes.length + 1];
           adapterParameterTypes[0] = Type.getType(AdapterDefinition.class);
           for (int i = 1; i < adapterParameterTypes.length; i++) {
@@ -163,7 +163,7 @@ public class JavaBytecodeAdapterGenerator {
               "Lorg/eclipse/golo/runtime/adapters/AdapterDefinition;");
           methodVisitor.visitVarInsn(ALOAD, 0);
           int argIndex = 2;
-          for (Class parameterType : parameterTypes) {
+          for (Class<?> parameterType : parameterTypes) {
             argIndex = loadArgument(methodVisitor, parameterType, argIndex);
           }
           methodVisitor.visitMethodInsn(INVOKESPECIAL, Type.getInternalName(parentClass), "<init>", Type.getConstructorDescriptor(constructor), false);

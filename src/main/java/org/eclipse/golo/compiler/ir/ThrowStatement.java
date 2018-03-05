@@ -11,16 +11,17 @@
 package org.eclipse.golo.compiler.ir;
 
 import java.util.Objects;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public final class ThrowStatement extends GoloStatement {
+public final class ThrowStatement extends GoloStatement<ThrowStatement> {
 
-  private GoloStatement expressionStatement;
+  private GoloStatement<?> expressionStatement;
 
-  ThrowStatement(GoloStatement expressionStatement) {
+  ThrowStatement(GoloStatement<?> expressionStatement) {
     super();
     setExpressionStatement(expressionStatement);
   }
+
+  protected ThrowStatement self() { return this; }
 
   @Override
   public void accept(GoloIrVisitor visitor) {
@@ -33,26 +34,19 @@ public final class ThrowStatement extends GoloStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(original, expressionStatement) && newElement instanceof ExpressionStatement) {
-      setExpressionStatement((ExpressionStatement) newElement);
+      setExpressionStatement(ExpressionStatement.of(newElement));
     } else {
       throw cantReplace(original, newElement);
     }
   }
 
-  public GoloStatement getExpressionStatement() {
+  public GoloStatement<?> getExpressionStatement() {
     return expressionStatement;
   }
 
-  private void setExpressionStatement(GoloStatement stat) {
-    this.expressionStatement = stat;
-    makeParentOf(stat);
-  }
-
-  @Override
-  public ThrowStatement ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
+  private void setExpressionStatement(GoloStatement<?> stat) {
+    this.expressionStatement = makeParentOf(stat);
   }
 }

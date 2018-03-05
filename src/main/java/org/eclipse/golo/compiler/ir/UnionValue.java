@@ -11,21 +11,14 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
+public final class UnionValue extends TypeWithMembers<UnionValue> {
 
-public final class UnionValue extends TypeWithMembers {
-
-  UnionValue(Union union, String name) {
+  UnionValue(String name) {
     super(name);
-    setParentNode(union);
   }
 
-  @Override
-  public UnionValue ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected UnionValue self() { return this; }
 
   @Override
   public PackageAndClass getPackageAndClass() {
@@ -33,19 +26,11 @@ public final class UnionValue extends TypeWithMembers {
   }
 
   public Union getUnion() {
-    return (Union) getParentNode().get();
+    return (Union) parent();
   }
 
   protected String getFactoryDelegateName() {
     return getUnion().getPackageAndClass().toString() + "." + getName();
-  }
-
-  @Override
-  protected void setParentNode(GoloElement parent) {
-    if (!(parent instanceof Union)) {
-      throw new IllegalArgumentException("UnionValue can only be defined in a Union");
-    }
-    super.setParentNode(parent);
   }
 
   @Override

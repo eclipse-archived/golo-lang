@@ -11,9 +11,8 @@
 package org.eclipse.golo.compiler.ir;
 
 import org.eclipse.golo.runtime.OperatorType;
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 
-public class MethodInvocation extends AbstractInvocation {
+public final class MethodInvocation extends AbstractInvocation<MethodInvocation> {
 
   private boolean nullSafeGuarded = false;
 
@@ -21,11 +20,7 @@ public class MethodInvocation extends AbstractInvocation {
     super(name);
   }
 
-  @Override
-  public MethodInvocation ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected MethodInvocation self() { return this; }
 
   public void setNullSafeGuarded(boolean nullSafeGuarded) {
     this.nullSafeGuarded = nullSafeGuarded;

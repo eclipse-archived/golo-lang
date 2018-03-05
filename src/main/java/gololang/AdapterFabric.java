@@ -77,8 +77,8 @@ public final class AdapterFabric {
       Object[] cargs = new Object[args.length + 1];
       cargs[0] = adapterDefinition;
       System.arraycopy(args, 0, cargs, 1, args.length);
-      for (Constructor constructor : adapterClass.getConstructors()) {
-        Class[] parameterTypes = constructor.getParameterTypes();
+      for (Constructor<?> constructor : adapterClass.getConstructors()) {
+        Class<?>[] parameterTypes = constructor.getParameterTypes();
         if ((cargs.length == parameterTypes.length) || (constructor.isVarArgs() && (cargs.length >= parameterTypes.length))) {
           if (TypeMatching.canAssign(parameterTypes, cargs, constructor.isVarArgs())) {
             return constructor.newInstance(cargs);

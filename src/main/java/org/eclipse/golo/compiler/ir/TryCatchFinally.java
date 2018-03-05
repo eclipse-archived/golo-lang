@@ -10,10 +10,9 @@
 
 package org.eclipse.golo.compiler.ir;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
 import java.util.Objects;
 
-public class TryCatchFinally extends GoloStatement {
+public class TryCatchFinally extends GoloStatement<TryCatchFinally> {
 
   private final String exceptionId;
   private Block tryBlock;
@@ -25,11 +24,7 @@ public class TryCatchFinally extends GoloStatement {
     this.exceptionId = exceptionId;
   }
 
-  @Override
-  public TryCatchFinally ofAST(GoloASTNode node) {
-    super.ofAST(node);
-    return this;
-  }
+  protected TryCatchFinally self() { return this; }
 
   public String getExceptionId() {
     return exceptionId;
@@ -40,8 +35,7 @@ public class TryCatchFinally extends GoloStatement {
   }
 
   public TryCatchFinally trying(Object block) {
-    tryBlock = (Block) block;
-    makeParentOf(tryBlock);
+    this.tryBlock = makeParentOf(Block.of(block));
     return this;
   }
 
@@ -50,9 +44,8 @@ public class TryCatchFinally extends GoloStatement {
   }
 
   public TryCatchFinally catching(Object block) {
-    catchBlock = (Block) block;
-    makeParentOf(catchBlock);
-    catchBlock.getReferenceTable().add(Builders.localRef(exceptionId).synthetic());
+    this.catchBlock = makeParentOf(Block.of(block));
+    this.catchBlock.getReferenceTable().add(Builders.localRef(exceptionId).synthetic());
     return this;
   }
 
@@ -61,8 +54,7 @@ public class TryCatchFinally extends GoloStatement {
   }
 
   public TryCatchFinally finalizing(Object block) {
-    finallyBlock = (Block) block;
-    makeParentOf(finallyBlock);
+    this.finallyBlock = makeParentOf(Block.of(block));
     return this;
   }
 
@@ -103,7 +95,7 @@ public class TryCatchFinally extends GoloStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (Objects.equals(original, tryBlock)) {
       trying(newElement);
     } else if (Objects.equals(original, catchBlock)) {

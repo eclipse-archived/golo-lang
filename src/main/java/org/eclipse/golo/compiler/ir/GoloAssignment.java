@@ -10,43 +10,42 @@
 
 package org.eclipse.golo.compiler.ir;
 
-public abstract class GoloAssignment extends GoloStatement implements ReferencesHolder {
+public abstract class GoloAssignment<T extends GoloAssignment<T>> extends GoloStatement<T> implements ReferencesHolder {
 
   private boolean declaring = false;
-  private ExpressionStatement expressionStatement;
+  private ExpressionStatement<?> expressionStatement;
 
   GoloAssignment() { super(); }
 
-  public boolean isDeclaring() {
+  public final boolean isDeclaring() {
     return declaring;
   }
 
-  public GoloAssignment declaring(boolean isDeclaring) {
+  public final T declaring(boolean isDeclaring) {
     this.declaring = isDeclaring;
-    return this;
+    return self();
   }
 
-  public GoloAssignment declaring() {
-    return declaring(true);
+  public final T declaring() {
+    return this.declaring(true);
   }
 
-  public ExpressionStatement getExpressionStatement() {
-    return expressionStatement;
+  public final ExpressionStatement<?> getExpressionStatement() {
+    return this.expressionStatement;
   }
 
   /**
    * Defines the value to be assigned.
    */
-  public GoloAssignment as(Object expr) {
-    expressionStatement = ExpressionStatement.of(expr);
-    makeParentOf(expressionStatement);
-    return this;
+  public final T as(Object expr) {
+    this.expressionStatement = makeParentOf(ExpressionStatement.of(expr));
+    return self();
   }
 
   /**
    * Defines the reference to assign to.
    */
-  public abstract GoloAssignment to(Object... refs);
+  public abstract T to(Object... refs);
 
 
   /**
@@ -64,7 +63,7 @@ public abstract class GoloAssignment extends GoloStatement implements References
    * @inheritDoc
    */
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (original.equals(getExpressionStatement()) && newElement instanceof ExpressionStatement) {
       as(newElement);
     } else {
@@ -79,6 +78,4 @@ public abstract class GoloAssignment extends GoloStatement implements References
   public void walk(GoloIrVisitor visitor) {
     expressionStatement.accept(visitor);
   }
-
-
 }

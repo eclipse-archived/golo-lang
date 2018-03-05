@@ -16,15 +16,13 @@ import java.util.HashSet;
 import java.util.Set;
 import java.util.Collection;
 
-import org.eclipse.golo.compiler.parser.GoloASTNode;
-
 import static java.util.Collections.unmodifiableList;
 import static java.util.Arrays.asList;
 import java.util.Objects;
 import static org.eclipse.golo.compiler.ir.Builders.*;
 import static java.util.Objects.requireNonNull;
 
-public final class GoloFunction extends ExpressionStatement {
+public final class GoloFunction extends ExpressionStatement<GoloFunction> {
 
   private static final SymbolGenerator SYMBOLS = new SymbolGenerator("function");
 
@@ -42,21 +40,16 @@ public final class GoloFunction extends ExpressionStatement {
   private String decoratorRef = null;
   private final LinkedList<Decorator> decorators = new LinkedList<>();
 
-  public static enum Scope {
+  public enum Scope {
     MODULE, AUGMENT, CLOSURE
   }
 
   GoloFunction() {
     super();
-    block = Builders.block();
-    makeParentOf(block);
+    this.block = makeParentOf(Builders.block());
   }
 
-  @Override
-  public GoloFunction ofAST(GoloASTNode n) {
-    super.ofAST(n);
-    return this;
-  }
+  protected GoloFunction self() { return this; }
 
   // name -----------------------------------------------------------------------------------------
   public GoloFunction name(String n) {
@@ -150,11 +143,10 @@ public final class GoloFunction extends ExpressionStatement {
   }
 
   public GoloFunction block(Block block) {
-    this.block = requireNonNull(block);
+    this.block = makeParentOf(requireNonNull(block));
     for (String param : parameterNames) {
       addParameterToBlockReferences(param);
     }
-    makeParentOf(this.block);
     return this;
   }
 
@@ -278,8 +270,7 @@ public final class GoloFunction extends ExpressionStatement {
   }
 
   public void addDecorator(Decorator decorator) {
-    this.decorators.add(decorator);
-    makeParentOf(decorator);
+    this.decorators.add(makeParentOf(decorator));
   }
 
   public List<Decorator> getDecorators() {
@@ -291,7 +282,7 @@ public final class GoloFunction extends ExpressionStatement {
   }
 
   public GoloFunction createDecorator() {
-    ExpressionStatement expr = refLookup("__$$_original");
+    ExpressionStatement<?> expr = refLookup("__$$_original");
     for (Decorator decorator : this.getDecorators()) {
       expr = decorator.wrapExpression(expr);
     }
@@ -335,7 +326,7 @@ public final class GoloFunction extends ExpressionStatement {
   }
 
   @Override
-  protected void replaceElement(GoloElement original, GoloElement newElement) {
+  protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     throw cantReplace();
   }
 

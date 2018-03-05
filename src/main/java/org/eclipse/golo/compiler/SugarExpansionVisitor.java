@@ -50,8 +50,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     function.insertMissingReturnStatement();
     if (!expressionToBlock(function)) {
       function.walk(this);
-      if (function.hasDecorators() && function.getParentNode().isPresent()) {
-        FunctionContainer parent = (FunctionContainer) function.getParentNode().get();
+      if (function.hasDecorators() && function.hasParent()) {
+        FunctionContainer parent = (FunctionContainer) function.parent();
         GoloFunction decorator = function.createDecorator();
         parent.addFunction(decorator);
         decorator.accept(this);
@@ -86,13 +86,15 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     ConditionalBranching branch = branch()
       .condition(lastClause.condition())
       .whenTrue(lastClause.action())
-      .whenFalse(caseStatement.getOtherwise());
+      .whenFalse(caseStatement.getOtherwise())
+      .positionInSourceCode(lastClause.positionInSourceCode());
     while (!clauses.isEmpty()) {
       lastClause = clauses.removeLast();
       branch = branch()
         .condition(lastClause.condition())
         .whenTrue(lastClause.action())
-        .elseBranch(branch);
+        .elseBranch(branch)
+        .positionInSourceCode(lastClause.positionInSourceCode());
     }
     caseStatement.replaceInParentBy(branch);
     branch.accept(this);
@@ -127,15 +129,23 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     LocalReference tempVar = localRef(symbols.next("match"))
       .variable()
       .synthetic();
-    CaseStatement caseStatement = cases().ofAST(matchExpression.getASTNode())
-      .otherwise(block(assign(matchExpression.getOtherwise()).to(tempVar)));
+    CaseStatement caseStatement = cases()
+      .positionInSourceCode(matchExpression.positionInSourceCode())
+      .otherwise(block(
+            assign(matchExpression.getOtherwise())
+            .to(tempVar)));
 
-    for (WhenClause<ExpressionStatement> c : matchExpression.getClauses()) {
+    for (WhenClause<ExpressionStatement<?>> c : matchExpression.getClauses()) {
       caseStatement.when(c.condition())
-        .then(block(assign(c.action()).to(tempVar)));
+        .then(block(
+              assign(c.action())
+              .to(tempVar)
+              .positionInSourceCode(c.action().positionInSourceCode())
+            ).positionInSourceCode(c.action().positionInSourceCode()))
+        .positionInSourceCode(c.positionInSourceCode());
     }
     Block block = block();
-    for (GoloAssignment a : matchExpression.declarations()) {
+    for (GoloAssignment<?> a : matchExpression.declarations()) {
       block.add(a);
     }
     matchExpression.clearDeclarations();
@@ -155,7 +165,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   public void visitCollectionLiteral(CollectionLiteral collection) {
     if (!expressionToBlock(collection)) {
       collection.walk(this);
-      AbstractInvocation construct = call("gololang.Predefined." + collection.getType().toString())
+      AbstractInvocation<?> construct = call("gololang.Predefined." + collection.getType().toString())
         .withArgs(collection.getExpressions().toArray());
       collection.replaceInParentBy(construct);
       construct.accept(this);
@@ -168,7 +178,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Object value = constantStatement.getValue();
     if (value instanceof GoloParser.FunctionRef) {
       GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
-      AbstractInvocation fun = call("gololang.Predefined.fun").constant()
+      AbstractInvocation<?> fun = call("gololang.Predefined.fun").constant()
         .withArgs(
             constant(ref.name),
             classRef(ref.module == null
@@ -208,7 +218,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       .variable()
       .synthetic();
     Block mainBlock = block();
-    for (GoloAssignment a : collection.declarations()) {
+    for (GoloAssignment<?> a : collection.declarations()) {
       mainBlock.add(a);
     }
     collection.clearDeclarations();
@@ -216,7 +226,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Block innerBlock = mainBlock;
     for (Block loop : collection.getLoopBlocks()) {
       innerBlock.addStatement(loop);
-      GoloStatement loopStatement = loop.getStatements().get(0);
+      GoloStatement<?> loopStatement = loop.getStatements().get(0);
       innerBlock = ((BlockContainer) loopStatement).getBlock();
     }
     innerBlock.addStatement(
@@ -268,7 +278,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
       loopInnerBlock = block().add(
           branch()
           .condition(foreachStatement.getWhenClause())
-          .whenTrue(foreachStatement.getBlock()));
+          .whenTrue(foreachStatement.getBlock()))
+        .positionInSourceCode(foreachStatement.positionInSourceCode());
     } else {
       loopInnerBlock = foreachStatement.getBlock();
     }
@@ -369,7 +380,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     visitExpression(invoke);
   }
 
-  private void visitExpression(ExpressionStatement expr) {
+  private void visitExpression(ExpressionStatement<?> expr) {
     if (!expressionToBlock(expr)) {
       expr.walk(this);
     }
@@ -378,7 +389,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   /**
    * Convert an expression with local declarations into a block.
    */
-  private boolean expressionToBlock(ExpressionStatement expr) {
+  private boolean expressionToBlock(ExpressionStatement<?> expr) {
     // TODO: make TCO aware expansion? (or wait for a more general optimization pass)
     if (!expr.hasLocalDeclarations()) {
       return false;
@@ -386,7 +397,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     Block b = Builders.block((Object[]) expr.declarations());
     expr.replaceInParentBy(b);
     expr.clearDeclarations();
-    LocalReference  r = Builders.localRef(symbols.next("localdec")).synthetic();
+    LocalReference r = Builders.localRef(symbols.next("localdec")).synthetic();
     b.add(Builders.define(r).as(expr));
     b.add(r.lookup());
     b.accept(this);
