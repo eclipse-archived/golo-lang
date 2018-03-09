@@ -10,7 +10,6 @@
 
 package org.eclipse.golo.doc;
 
-import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
 import gololang.FunctionReference;
 import gololang.IO;
 

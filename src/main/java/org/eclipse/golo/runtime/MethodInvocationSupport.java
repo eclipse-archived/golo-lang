@@ -181,29 +181,29 @@ public final class MethodInvocationSupport {
   }
 
   public static boolean overloadedGuard_1(Class<?> t1, Class<?> t2, Object receiver, Object arg) {
-    return receiver.getClass() == t1 &&
-        (arg == null || arg.getClass() == t2);
+    return receiver.getClass() == t1
+      && (arg == null || arg.getClass() == t2);
   }
 
   public static boolean overloadedGuard_2(Class<?> t1, Class<?> t2, Class<?> t3, Object receiver, Object arg1, Object arg2) {
-    return receiver.getClass() == t1 &&
-        (arg1 == null || arg1.getClass() == t2) &&
-        (arg2 == null || arg2.getClass() == t3);
+    return receiver.getClass() == t1
+      && (arg1 == null || arg1.getClass() == t2)
+      && (arg2 == null || arg2.getClass() == t3);
   }
 
   public static boolean overloadedGuard_3(Class<?> t1, Class<?> t2, Class<?> t3, Class<?> t4, Object receiver, Object arg1, Object arg2, Object arg3) {
-    return receiver.getClass() == t1 &&
-        (arg1 == null || arg1.getClass() == t2) &&
-        (arg2 == null || arg2.getClass() == t3) &&
-        (arg3 == null || arg3.getClass() == t4);
+    return receiver.getClass() == t1
+      && (arg1 == null || arg1.getClass() == t2)
+      && (arg2 == null || arg2.getClass() == t3)
+      && (arg3 == null || arg3.getClass() == t4);
   }
 
   public static boolean overloadedGuard_4(Class<?> t1, Class<?> t2, Class<?> t3, Class<?> t4, Class<?> t5, Object receiver, Object arg1, Object arg2, Object arg3, Object arg4) {
-    return receiver.getClass() == t1 &&
-        (arg1 == null || arg1.getClass() == t2) &&
-        (arg2 == null || arg2.getClass() == t3) &&
-        (arg3 == null || arg3.getClass() == t4) &&
-        (arg4 == null || arg4.getClass() == t5);
+    return receiver.getClass() == t1
+      && (arg1 == null || arg1.getClass() == t2)
+      && (arg2 == null || arg2.getClass() == t3)
+      && (arg3 == null || arg3.getClass() == t4)
+      && (arg4 == null || arg4.getClass() == t5);
   }
 
   public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {

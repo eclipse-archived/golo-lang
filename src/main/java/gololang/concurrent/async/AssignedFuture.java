@@ -79,8 +79,6 @@ public final class AssignedFuture implements Future {
 
   @Override
   public String toString() {
-    return "AssignedFuture{" +
-        "value=" + value +
-        '}';
+    return String.format("AssignedFuture{value=%s}", value);
   }
 }

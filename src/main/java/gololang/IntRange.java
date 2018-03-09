@@ -16,11 +16,11 @@ import java.util.Objects;
 
 final class IntRange extends AbstractRange<Integer> {
 
-  public IntRange(int from, int to) {
+  IntRange(int from, int to) {
     super(from, to);
   }
 
-  public IntRange(int to) {
+  IntRange(int to) {
     super(to);
   }
 

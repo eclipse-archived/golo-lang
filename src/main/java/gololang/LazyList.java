@@ -179,13 +179,13 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    */
   @Override
   public boolean equals(Object o) {
-    if (o == this) return true;
-    if (o == null) return false;
-    if (!(o instanceof LazyList)) return false;
+    if (o == this) { return true; }
+    if (o == null) { return false; }
+    if (!(o instanceof LazyList)) { return false; }
     LazyList other = (LazyList) o;
-    if (this.isEmpty() && other.isEmpty()) return true;
-    if (!this.head.equals(other.head)) return false;
-    if (this.tail.equals(other.tail)) return true;
+    if (this.isEmpty() && other.isEmpty()) { return true; }
+    if (!this.head.equals(other.head)) { return false; }
+    if (this.tail.equals(other.tail)) { return true; }
     return this.tail().equals(other.tail());
   }
 
@@ -251,8 +251,8 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * @return the element at the specified position in this list
    */
   public Object get(int index) {
-    if (index < 0 || this.isEmpty()) throw new IndexOutOfBoundsException();
-    if (index == 0) return this.head();
+    if (index < 0 || this.isEmpty()) { throw new IndexOutOfBoundsException(); }
+    if (index == 0) { return this.head(); }
     return this.tail().get(index - 1);
   }
 
@@ -270,7 +270,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
   public int indexOf(Object o) {
     int idx = 0;
     for (Object elt : this) {
-      if (elt.equals(o)) return idx;
+      if (elt.equals(o)) { return idx; }
       idx++;
     }
     return -1;
@@ -309,7 +309,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
   @Override
   public boolean containsAll(Collection<?> c) {
     for (Object elt : c) {
-      if (!this.contains(elt)) return false;
+      if (!this.contains(elt)) { return false; }
     }
     return true;
   }

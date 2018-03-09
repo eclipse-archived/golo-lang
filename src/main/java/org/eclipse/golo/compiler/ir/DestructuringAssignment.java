@@ -12,8 +12,6 @@ package org.eclipse.golo.compiler.ir;
 
 import java.util.List;
 import java.util.LinkedList;
-import static java.util.Collections.unmodifiableList;
-import static java.util.Objects.requireNonNull;
 
 public final class DestructuringAssignment extends GoloAssignment<DestructuringAssignment> {
 

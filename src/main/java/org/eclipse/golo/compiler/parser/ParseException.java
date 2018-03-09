@@ -118,23 +118,23 @@ public class ParseException extends Exception {
       }
       expected.append(EOL).append("    ");
     }
-    String retval = message("unexpected_token");
+    StringBuilder retval = new StringBuilder(message("unexpected_token"));
     Token tok = currentToken.next;
     for (int i = 0; i < maxSize; i++) {
-      if (i != 0) retval += " ";
+      if (i != 0) {
+        retval.append(" ");
+      }
       if (tok.kind == 0) {
-        retval += tokenImage[0];
+        retval.append(tokenImage[0]);
         break;
       }
-      retval += " " + tokenImage[tok.kind];
-      retval += " `";
-      retval += add_escapes(tok.image);
-      retval += "` ";
+      retval.append(" ").append(tokenImage[tok.kind]);
+      retval.append(" `").append(addEscapes(tok.image)).append("` ");
       tok = tok.next;
     }
-    retval += message("source_position", currentToken.next.beginLine, currentToken.next.beginColumn);
+    retval.append(message("source_position", currentToken.next.beginLine, currentToken.next.beginColumn));
 
-    return retval;
+    return retval.toString();
   }
 
   /**
@@ -142,7 +142,7 @@ public class ParseException extends Exception {
    * when these raw version cannot be used as part of an ASCII
    * string literal.
    */
-  static String add_escapes(String str) {
+  static String addEscapes(String str) {
     StringBuffer retval = new StringBuffer();
     char ch;
     for (int i = 0; i < str.length(); i++) {

@@ -154,7 +154,6 @@ public class ModuleDocumentation implements DocumentationElement {
   private class ModuleVisitor implements GoloIrVisitor {
 
     private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
-    private FunctionDocumentation currentFunction = null;
     private UnionDocumentation currentUnion;
     private MemberHolder currentMemberHolder;
     private Deque<DocumentationElement> parents = new LinkedList<>();

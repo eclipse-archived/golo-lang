@@ -80,8 +80,6 @@ public final class DynamicVariable {
 
   @Override
   public String toString() {
-    return "DynamicVariable{" +
-        "value=" + value() +
-        '}';
+    return String.format("DynamicVariable{value=%s}", value());
   }
 }

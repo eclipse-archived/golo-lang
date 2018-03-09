@@ -160,9 +160,6 @@ public final class Promise {
 
   @Override
   public String toString() {
-    return "Promise{" +
-        "resolved=" + resolved +
-        ", value=" + value +
-        '}';
+    return String.format("Promise{resolved=%s, value=%s}", resolved, value);
   }
 }

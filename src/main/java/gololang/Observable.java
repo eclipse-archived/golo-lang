@@ -105,9 +105,7 @@ public final class Observable {
 
   @Override
   public String toString() {
-    return "Observable{" +
-        "value=" + value +
-        '}';
+    return String.format("Observable{value=%s}", value);
   }
 
   public interface Function {
