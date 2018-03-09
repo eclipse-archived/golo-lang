@@ -50,7 +50,7 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     return childElement;
   }
 
-  private void relinkChild(GoloElement child) {
+  private void relinkChild(GoloElement<?> child) {
     this.getLocalReferenceTable().ifPresent((rt) -> child.accept(new AbstractGoloIrVisitor() {
       boolean prune = true;
       @Override

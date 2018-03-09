@@ -35,7 +35,7 @@ public class IOTest {
     File tempFile = File.createTempFile("plop", "daplop");
     String message = "Plop!";
     IO.textToFile(message, tempFile);
-    String text = (String) IO.fileToText(tempFile, "UTF-8");
+    String text = IO.fileToText(tempFile, "UTF-8");
     assertThat(text, is(message));
   }
 

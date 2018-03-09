@@ -81,7 +81,7 @@ public class HtmlProcessor extends AbstractProcessor {
 
   private String renderSource(String moduleName, String filename) throws Throwable {
     FunctionReference template = template("src", fileExtension());
-    String content = (String) IO.fileToText(filename, "UTF-8");
+    String content = IO.fileToText(filename, "UTF-8");
     int nbLines = 0;
     for (int i = 0; i < content.length(); i++) {
       if (content.charAt(i) == '\n') {
