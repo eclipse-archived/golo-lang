@@ -16,6 +16,7 @@ import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
 
 import static org.eclipse.golo.runtime.TypeMatching.argumentsNumberMatches;
+import static org.eclipse.golo.runtime.TypeMatching.compareTypes;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 
 public final class Extractors {
@@ -45,7 +46,7 @@ public final class Extractors {
         if (m2.isVarArgs() && !m1.isVarArgs()) {
           return -1;
         }
-        return 0;
+        return compareTypes(m1.getParameterTypes(), m2.getParameterTypes());
       });
   }
 
