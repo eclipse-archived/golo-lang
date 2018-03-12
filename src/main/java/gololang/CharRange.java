@@ -18,11 +18,11 @@ import java.util.NoSuchElementException;
  */
 final class CharRange extends AbstractRange<Character> {
 
-  public CharRange(char from, char to) {
+  CharRange(char from, char to) {
     super(from, to);
   }
 
-  public CharRange(char to) {
+  CharRange(char to) {
     super(to);
   }
 

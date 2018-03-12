@@ -32,8 +32,8 @@ public abstract class ExpressionStatement<T extends ExpressionStatement<T>> exte
   /**
    * Returns the local declarations of this expression if any.
    */
-  public GoloAssignment[] declarations() {
-    return declarations.toArray(new GoloAssignment[declarations.size()]);
+  public GoloAssignment<?>[] declarations() {
+    return declarations.toArray(new GoloAssignment<?>[declarations.size()]);
   }
 
   /**

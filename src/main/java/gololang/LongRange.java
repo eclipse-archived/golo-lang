@@ -16,11 +16,11 @@ import java.util.Objects;
 
 final class LongRange extends AbstractRange<Long> {
 
-  public LongRange(long from, long to) {
+  LongRange(long from, long to) {
     super(from, to);
   }
 
-  public LongRange(long to) {
+  LongRange(long to) {
     super(to);
   }
 

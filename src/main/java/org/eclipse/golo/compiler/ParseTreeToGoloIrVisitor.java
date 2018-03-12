@@ -892,7 +892,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTLocalDeclaration node, Object data) {
     Context context = (Context) data;
-    ExpressionStatement expr = (ExpressionStatement) context.peek();
+    ExpressionStatement<?> expr = (ExpressionStatement<?>) context.peek();
     boolean oldState = context.inLocalDeclaration;
     context.inLocalDeclaration = true;
     for (int i = 0; i < node.jjtGetNumChildren(); i++) {

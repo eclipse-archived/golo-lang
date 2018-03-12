@@ -14,8 +14,6 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Objects;
 
-import static java.util.Collections.unmodifiableList;
-
 public final class ForEachLoopStatement extends GoloStatement<ForEachLoopStatement> implements BlockContainer, ReferencesHolder {
   private Block block = Block.emptyBlock();
   private ExpressionStatement<?> iterable;

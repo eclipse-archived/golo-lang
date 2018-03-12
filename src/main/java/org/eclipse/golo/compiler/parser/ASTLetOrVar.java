@@ -12,7 +12,7 @@ package org.eclipse.golo.compiler.parser;
 
 public class ASTLetOrVar extends GoloASTNode implements NamedNode {
 
-  public static enum Type {
+  public enum Type {
     LET, VAR
   }
 

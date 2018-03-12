@@ -173,10 +173,10 @@ public class FunctionReference {
 
   @Override
   public String toString() {
-    return "FunctionReference{" +
-        "handle=" + (handle.isVarargsCollector() ? "(varargs)" : "") + handle +
-        ", parameterNames=" + Arrays.toString(parameterNames) +
-        '}';
+    return String.format("FunctionReference{handle=%s%s, parameterNames=%s}",
+        handle.isVarargsCollector() ? "(varargs)" : "",
+        handle,
+        Arrays.toString(parameterNames));
   }
 
   @Override
