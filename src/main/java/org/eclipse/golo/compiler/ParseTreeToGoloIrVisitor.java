@@ -758,30 +758,21 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     return data;
   }
 
+  private void createOperatorChain(List<String> opSymbols, GoloASTNode node, Context context) {
+    List<OperatorType> operators = opSymbols
+        .stream()
+        .map(OperatorType::fromString)
+        .collect(Collectors.toList());
+    List<ExpressionStatement<?>> statements = operatorStatements(context, operators.size());
+    ExpressionStatement<?> operation = assembleBinaryOperation(statements, operators).ofAST(node);
+    context.push(operation);
+  }
+
   @Override
   public Object visit(ASTInvocationExpression node, Object data) {
     Context context = (Context) data;
     node.childrenAccept(this, context);
-    BinaryOperation current = null;
-    ExpressionStatement<?> left;
-    ExpressionStatement<?> right = null;
-    List<String> operators = node.getOperators();
-    Collections.reverse(operators);
-    for (String symbol : operators) {
-      OperatorType operator = OperatorType.fromString(symbol);
-      if (right == null) {
-        right = ExpressionStatement.of(context.pop());
-        if (operator == OperatorType.ELVIS_METHOD_CALL) {
-          ((MethodInvocation) right).setNullSafeGuarded(true);
-        }
-      } else if (operator == OperatorType.ELVIS_METHOD_CALL) {
-        BinaryOperation rOp = (BinaryOperation) right;
-        ((MethodInvocation) rOp.getLeftExpression()).setNullSafeGuarded(true);
-      }
-      left = (ExpressionStatement) context.pop();
-      right = current = binaryOperation(operator, left, right).ofAST(node);
-    }
-    context.push(current);
+    createOperatorChain(node.getOperators(), node, context);
     return data;
   }
 
@@ -811,13 +802,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTMultiplicativeExpression node, Object data) {
     Context context = (Context) data;
     node.childrenAccept(this, context);
-    List<OperatorType> operators = node.getOperators()
-        .stream()
-        .map(OperatorType::fromString)
-        .collect(Collectors.toList());
-    List<ExpressionStatement<?>> statements = operatorStatements(context, operators.size());
-    ExpressionStatement<?> operation = assembleBinaryOperation(statements, operators).ofAST(node);
-    context.push(operation);
+    createOperatorChain(node.getOperators(), node, context);
     return data;
   }
 
@@ -825,13 +810,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   public Object visit(ASTAdditiveExpression node, Object data) {
     Context context = (Context) data;
     node.childrenAccept(this, context);
-    List<OperatorType> operators = node.getOperators()
-        .stream()
-        .map(OperatorType::fromString)
-        .collect(Collectors.toList());
-    List<ExpressionStatement<?>> statements = operatorStatements(context, operators.size());
-    ExpressionStatement<?> operation = assembleBinaryOperation(statements, operators).ofAST(node);
-    context.push(operation);
+    createOperatorChain(node.getOperators(), node, context);
     return data;
   }
 

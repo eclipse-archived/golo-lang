@@ -50,6 +50,9 @@ public final class BinaryOperation extends ExpressionStatement<BinaryOperation> 
 
   public BinaryOperation right(Object expr) {
     this.rightExpression = makeParentOf(ExpressionStatement.of(expr));
+    if (this.type == OperatorType.ELVIS_METHOD_CALL && this.rightExpression instanceof MethodInvocation) {
+      ((MethodInvocation) this.rightExpression).setNullSafeGuarded(true);
+    }
     return this;
   }
 
