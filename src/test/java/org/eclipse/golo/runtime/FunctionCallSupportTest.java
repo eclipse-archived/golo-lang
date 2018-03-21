@@ -158,4 +158,44 @@ public class FunctionCallSupportTest {
     CallSite callSite = FunctionCallSupport.bootstrap(lookup, name, type, 0);
     assertThat(callSite.dynamicInvoker().invokeWithArguments(new FunctionReference(plopFunc)), is((Object) "Plop!"));
   }
+
+  @Test
+  public void test_import_and_call_merging() throws Throwable {
+    String[] is = {"", "a.b.c", "a.b", "a", "a.b.c.d"};
+    String[] fs = {"a.b.c.d", "b.c.d", "c.d", "d"};
+    String[] results = {
+      "a.b.c.d",
+      "b.c.d",
+      "c.d",
+      "d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.c.d",
+      "a.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d",
+      "a.b.c.d"
+    };
+
+    int r = 0;
+    for (int i = 0; i < is.length; i++) {
+      for (int f = 0; f < fs.length; f++) {
+        assertThat(
+            FunctionCallSupport.mergeImportAndCall(is[i], fs[f]),
+            is(results[r]));
+        r++;
+      }
+    }
+    assertThat(FunctionCallSupport.mergeImportAndCall("a.b.c", "e.c.d"), is("a.b.c.e.c.d"));
+    assertThat(FunctionCallSupport.mergeImportAndCall("a.b.c", "b.e.d"), is("a.b.c.b.e.d"));
+  }
 }

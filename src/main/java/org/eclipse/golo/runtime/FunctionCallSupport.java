@@ -26,9 +26,18 @@ import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static org.eclipse.golo.runtime.NamedArgumentsHelper.*;
 import static gololang.Messages.message;
+import static gololang.Messages.info;
 import static org.eclipse.golo.runtime.Extractors.checkDeprecation;
 
 public final class FunctionCallSupport {
+  private static final boolean DEBUG = Boolean.getBoolean("golo.debug.function-resolution");
+
+
+  private static void debug(String message, Object... args) {
+    if (DEBUG || gololang.Runtime.debugMode()) {
+      info("Function resolution: " + String.format(message, args));
+    }
+  }
 
   private FunctionCallSupport() {
     throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
@@ -133,7 +142,10 @@ public final class FunctionCallSupport {
     String[] argumentNames = callSite.argumentNames;
 
     MethodHandle handle = null;
-    AccessibleObject result = findStaticMethodOrField(callerClass, callerClass, functionName, args);
+    AccessibleObject result = null;
+    if (!functionName.contains(".")) {
+      result = findStaticMethodOrField(callerClass, callerClass, functionName, args);
+    }
     if (result == null) {
       result = findClassWithStaticMethodOrField(callerClass, functionName, args);
     }
@@ -255,25 +267,24 @@ public final class FunctionCallSupport {
   private static AccessibleObject findClassWithConstructorFromImports(Class<?> callerClass, String classname, Object[] args) {
     String[] imports = Module.imports(callerClass);
     for (String imported : imports) {
-      AccessibleObject result = findClassWithConstructor(callerClass, imported + "." + classname, args);
+      AccessibleObject result = findClassWithConstructor(
+          callerClass,
+          mergeImportAndCall(imported, classname),
+          args);
       if (result != null) {
         return result;
-      }
-      if (imported.endsWith(classname)) {
-        result = findClassWithConstructor(callerClass, imported, args);
-        if (result != null) {
-          return result;
-        }
       }
     }
     return null;
   }
 
   private static AccessibleObject findClassWithConstructor(Class<?> callerClass, String classname, Object[] args) {
+    debug("looking for constructor for `%s`", classname);
     try {
       Class<?> targetClass = Class.forName(classname, true, callerClass.getClassLoader());
       for (Constructor<?> constructor : targetClass.getConstructors()) {
         if (TypeMatching.argumentsMatch(constructor, args)) {
+          debug("constructor found");
           return checkDeprecation(callerClass, constructor);
         }
       }
@@ -283,35 +294,54 @@ public final class FunctionCallSupport {
     return null;
   }
 
-  private static AccessibleObject findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, Object[] args) {
-    String[] imports = Module.imports(callerClass);
-    String[] classAndMethod = null;
-    final int classAndMethodSeparator = functionName.lastIndexOf(".");
-    if (classAndMethodSeparator > 0) {
-      classAndMethod = new String[]{
-          functionName.substring(0, classAndMethodSeparator),
-          functionName.substring(classAndMethodSeparator + 1)
-      };
+  static String mergeImportAndCall(String importName, String functionName) {
+    if (importName == null || importName.isEmpty()) {
+      return functionName;
     }
+    String[] importParts = importName.split("\\.");
+    String[] functionParts = functionName.split("\\.");
+    StringBuilder merged = new StringBuilder();
+    int fidx = 0;
+    for (String imp : importParts) {
+      if (imp.equals(functionParts[fidx])) {
+        fidx++;
+      } else if (fidx > 0) {
+        return importName + '.' + functionName;
+      }
+      if (merged.length() != 0) {
+        merged.append('.');
+      }
+      merged.append(imp);
+    }
+    while (fidx < functionParts.length - 1) {
+      merged.append('.').append(functionParts[fidx]);
+      fidx++;
+    }
+    if (fidx == functionParts.length - 1) {
+      merged.append('.').append(functionParts[fidx]);
+    }
+    return merged.toString();
+  }
+
+  private static AccessibleObject findClassWithStaticMethodOrFieldFromImports(Class<?> callerClass, String functionName, Object[] args) {
+    AccessibleObject result = null;
+    if (functionName.contains(".")) {
+      result = findClassWithStaticMethodOrField(
+          callerClass,
+          mergeImportAndCall(callerClass.getCanonicalName(), functionName),
+          args);
+      if (result != null) {
+        return result;
+      }
+    }
+    String[] imports = Module.imports(callerClass);
     for (String importedClassName : imports) {
-      try {
-        Class<?> importedClass;
-        try {
-          importedClass = Class.forName(importedClassName, true, callerClass.getClassLoader());
-        } catch (ClassNotFoundException expected) {
-          if (classAndMethod == null) {
-            throw expected;
-          }
-          importedClass = Class.forName(importedClassName + "." + classAndMethod[0], true, callerClass.getClassLoader());
-        }
-        String lookup = (classAndMethod == null) ? functionName : classAndMethod[1];
-        AccessibleObject result = findStaticMethodOrField(callerClass, importedClass, lookup, args);
-        if (result != null) {
-          return result;
-        }
-      } catch (ClassNotFoundException ignored) {
-        // ignored to try the next strategy
-        Warnings.unavailableClass(importedClassName, callerClass.getName());
+      result = findClassWithStaticMethodOrField(
+          callerClass,
+          mergeImportAndCall(importedClassName, functionName),
+          args);
+      if (result != null) {
+        return result;
       }
     }
     return null;
@@ -322,6 +352,7 @@ public final class FunctionCallSupport {
     if (methodClassSeparatorIndex >= 0) {
       String className = functionName.substring(0, methodClassSeparatorIndex);
       String methodName = functionName.substring(methodClassSeparatorIndex + 1);
+      debug("looking for function `%s` in named `%s`", methodName, className);
       try {
         Class<?> targetClass = Class.forName(className, true, callerClass.getClassLoader());
         return findStaticMethodOrField(callerClass, targetClass, methodName, args);
@@ -334,11 +365,13 @@ public final class FunctionCallSupport {
   }
 
   private static AccessibleObject findStaticMethodOrField(Class<?> caller, Class<?> klass, String name, Object[] arguments) {
+    debug("looking for function `%s` in loaded class `%s`", name, klass.getCanonicalName());
     Optional<Method> meth = Extractors.getMethods(klass)
       .filter(m -> methodMatches(caller, name, arguments, m, m.isVarArgs()))
       .map(m -> checkDeprecation(caller, m))
       .findFirst();
     if (meth.isPresent()) {
+      debug("method found");
       return meth.get();
     }
     if (arguments.length == 0) {
