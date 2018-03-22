@@ -38,6 +38,8 @@ import java.math.BigInteger;
 import org.eclipse.golo.compiler.utils.StringUnescaping;
 import org.eclipse.golo.compiler.utils.StringBlockIndenter;
 import org.eclipse.golo.compiler.GoloCompilationException;
+import gololang.ir.ClassReference;
+import gololang.ir.FunctionRef;
 
 public class GoloParser {
 
@@ -60,44 +62,6 @@ public class GoloParser {
     do {
       t = getNextToken();
     } while (t.kind != kind);
-  }
-
-  public static class ParserClassRef {
-
-    public String name;
-
-    public ParserClassRef(String name) {
-      this.name = name;
-    }
-
-    @Override
-    public String toString() {
-      return "Class<" + name + ">";
-    }
-  }
-
-  public static class FunctionRef {
-
-    public String module;
-    public String name;
-    public int arity;
-    public boolean varargs;
-
-    public FunctionRef(String module, String name, int arity, boolean varargs) {
-      this.module = module;
-      this.name = name;
-      this.arity = arity;
-      this.varargs = varargs;
-    }
-
-    @Override
-    public String toString() {
-      return "FunctionRef{module=" + module
-                          + ",name=" + name
-                          + ",arity=" + arity
-                          + (varargs ? ",varargs" : "")
-                          + "}";
-    }
   }
 }
 
@@ -486,7 +450,7 @@ void BlankLine() #void:{}
 
 void BlankLines() #void: {}
 {
-  (BlankLine())*
+  (LOOKAHEAD(2) BlankLine())*
 }
 
 String QualifiedName() #void:
@@ -624,7 +588,7 @@ Integer IntegerLiteral() #void:
   }
 }
 
-GoloParser.ParserClassRef ClassLiteral() #void:
+ClassReference ClassLiteral() #void:
 {
   Token literal;
 }
@@ -633,7 +597,7 @@ GoloParser.ParserClassRef ClassLiteral() #void:
   {
     String image = literal.image;
     int suffixLength = image.endsWith("class") ? 6 : 7;
-    return new GoloParser.ParserClassRef(image.substring(0, image.length() - suffixLength));
+    return ClassReference.of(image.substring(0, image.length() - suffixLength));
   }
 }
 
@@ -674,7 +638,7 @@ BigDecimal BigDecimalLiteral() #void:
   }
 }
 
-GoloParser.FunctionRef FunctionRef() #void:
+FunctionRef FunctionRef() #void:
 {
   Token literal;
 }
@@ -702,7 +666,7 @@ GoloParser.FunctionRef FunctionRef() #void:
         arity = Integer.valueOf(parts[1]);
       }
     }
-    return new GoloParser.FunctionRef(module, name, arity, varargs);
+    return FunctionRef.of(module, name, arity, varargs);
   }
 }
 
@@ -936,7 +900,7 @@ ASTUnionDeclaration UnionDeclaration():
   }
 }
 
-void AugmentationDeclaration(String context) #void:
+void AugmentationDeclaration() #void:
 {
   String documentation = null;
   ASTFunctionDeclaration func;
@@ -948,17 +912,6 @@ void AugmentationDeclaration(String context) #void:
       {
         func.setAugmentation(true);
         func.setDocumentation(documentation);
-        ASTFunction body = (ASTFunction) func.jjtGetChild(0);
-        if (body.getParameters().isEmpty()) {
-          String description = "Error: augmentation function " +
-            func.getName() + " " + context +
-            " must take at least 1 argument ('this' would be a good idea...)";
-          if (exceptionBuilder == null) {
-            throw new TokenMgrError(description, 0);
-          }
-          exceptionBuilder.report(GoloCompilationException.Problem.Type.AUGMENT_FUNCTION_NO_ARGS, body, description);
-        }
-        documentation = null;
       }
       BlankLines()
     )*
@@ -970,7 +923,7 @@ ASTNamedAugmentationDeclaration NamedAugmentationDeclaration():
   Token name;
 }
 {
-  <NAMEDAUGMENTATION> name=<IDENTIFIER> "=" AugmentationDeclaration("in " + name)
+  <NAMEDAUGMENTATION> name=<IDENTIFIER> "=" AugmentationDeclaration()
   {
     jjtThis.setName(name.image);
     return jjtThis;
@@ -984,7 +937,7 @@ ASTAugmentDeclaration AugmentDeclaration():
 }
 {
   <AUGMENT> target=QualifiedName() (
-    AugmentationDeclaration("on " + target)
+    AugmentationDeclaration()
     |
     (<WITH> names=AugmentationNames())
     )
@@ -1148,7 +1101,7 @@ void TryCatchFinally():
 
 void ExpressionStatement(): {}
 {
-  OrIfNullExpression() (LOOKAHEAD(2) LocalDeclaration())? (LOOKAHEAD(1) BlankLine())?
+  (OrIfNullExpression() (LOOKAHEAD(2) LocalDeclaration())? (LOOKAHEAD(1) BlankLine())?)
 }
 
 void LocalDeclaration(): {}
@@ -1186,7 +1139,11 @@ void UnaryExpression() #void:
   Token token = null;
 }
 {
-  (token=<UNARY_OPERATOR>)? InvocationExpression() #UnaryExpression(token != null)
+  (token=<UNARY_OPERATOR>)? InvocationExpression() {
+    if (token != null) {
+      jjtThis.setOperator(token.image);
+    }
+  } #UnaryExpression(token != null)
 }
 
 void InvocationExpression() #void:

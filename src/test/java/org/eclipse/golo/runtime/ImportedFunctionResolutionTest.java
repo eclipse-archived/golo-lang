@@ -33,7 +33,7 @@ public class ImportedFunctionResolutionTest extends GoloTest {
 
 
   @Override
-  protected String srcDir() {
+  public String srcDir() {
     return "for-execution/call-resolution/";
   }
 

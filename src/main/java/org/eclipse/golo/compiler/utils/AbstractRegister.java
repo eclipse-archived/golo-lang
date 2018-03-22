@@ -17,12 +17,12 @@ import java.util.Collection;
 
 public abstract class AbstractRegister<K, V> extends AbstractMap<K, Set<V>> implements Register<K, V> {
 
-  private Map<K, Set<V>> map;
+  private final Map<K, Set<V>> map;
 
   public AbstractRegister() {
     super();
     this.map = initMap();
-  };
+  }
 
   protected abstract Map<K, Set<V>> initMap();
 

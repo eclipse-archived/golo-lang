@@ -11,7 +11,7 @@
 package org.eclipse.golo.doc;
 
 import org.eclipse.golo.compiler.GoloCompiler;
-import org.eclipse.golo.compiler.ir.GoloModule;
+import gololang.ir.GoloModule;
 
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;

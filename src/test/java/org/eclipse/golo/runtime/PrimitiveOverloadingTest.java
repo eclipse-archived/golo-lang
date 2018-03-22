@@ -99,7 +99,7 @@ public class PrimitiveOverloadingTest extends GoloTest {
   }
 
   @Override
-  protected String srcDir() {
+  public String srcDir() {
     return "for-execution/";
   }
 

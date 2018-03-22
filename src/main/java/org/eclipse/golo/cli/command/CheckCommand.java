@@ -12,6 +12,7 @@ package org.eclipse.golo.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
+import com.beust.jcommander.ParametersDelegate;
 
 import java.io.File;
 import java.io.IOException;
@@ -36,9 +37,12 @@ public class CheckCommand implements CliCommand {
   @Parameter(descriptionKey = "source_files")
   List<String> files = new LinkedList<>();
 
+  @ParametersDelegate
+  ClasspathOption classpath = new ClasspathOption();
+
   @Override
   public void execute() throws Throwable {
-    GoloCompiler compiler = new GoloCompiler();
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     for (String file : files) {
       check(new File(file), compiler);
     }

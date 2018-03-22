@@ -10,10 +10,11 @@
 
 package org.eclipse.golo.runtime.augmentation;
 
-import java.util.stream.Stream;
-import java.util.function.Predicate;
 import org.eclipse.golo.runtime.Loader;
 import org.eclipse.golo.runtime.Module;
+
+import java.util.function.Predicate;
+import java.util.stream.Stream;
 
 import static org.eclipse.golo.runtime.augmentation.AugmentationApplication.Kind;
 
@@ -77,14 +78,14 @@ public final class DefiningModule {
 
   private Stream<AugmentationApplication> fullyNamedAugmentationsFor(Loader loader, Class<?> receiverType) {
     return Stream.of(Module.augmentationApplications(module))
-      .map(targetName -> loader.load(targetName))
+      .map(loader::load)
       .filter(target -> target != null && target.isAssignableFrom(receiverType))
       .flatMap(target -> qualifyAugmentations(loader, target));
   }
 
   private Stream<AugmentationApplication> qualifyAugmentations(Loader loader, Class<?> target) {
     return Stream.of(Module.augmentationApplications(module, target))
-      .flatMap(augmentName -> fullyQualifiedName(augmentName))
+      .flatMap(this::fullyQualifiedName)
       .map(augmentName -> new AugmentationApplication(
               loader.load(augmentName),
               target, scope, Kind.NAMED));

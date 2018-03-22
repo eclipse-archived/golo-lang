@@ -26,7 +26,8 @@ import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModu
 
 public class StructTest extends GoloTest {
 
-  protected String srcDir() { return "for-execution/"; }
+  @Override
+  public String srcDir() { return "for-execution/"; }
 
   private static final String SRC = "src/test/resources/for-execution/";
 

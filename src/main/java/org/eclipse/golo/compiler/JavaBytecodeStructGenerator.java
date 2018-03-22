@@ -10,8 +10,8 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.Struct;
-import org.eclipse.golo.compiler.ir.Member;
+import gololang.ir.Struct;
+import gololang.ir.Member;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.FieldVisitor;
 import org.objectweb.asm.Label;
@@ -22,7 +22,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
-import static org.eclipse.golo.compiler.ir.Struct.IMMUTABLE_FACTORY_METHOD;
+import static gololang.ir.Struct.IMMUTABLE_FACTORY_METHOD;
 
 class JavaBytecodeStructGenerator {
 
@@ -136,7 +136,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitInsn(AASTORE);
-      index = index + 1;
+      index++;
     }
     visitor.visitInsn(ARETURN);
     visitor.visitMaxs(0, 0);
@@ -213,7 +213,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitFieldInsn(GETFIELD, owner, member.getName(), "Ljava/lang/Object;");
       visitor.visitInsn(AASTORE);
-      i = i + 1;
+      i++;
     }
     visitor.visitMethodInsn(INVOKESTATIC, "java/util/Objects", "hash", "([Ljava/lang/Object;)I", false);
     visitor.visitInsn(IRETURN);
@@ -287,7 +287,7 @@ class JavaBytecodeStructGenerator {
       visitor.visitVarInsn(ALOAD, 0);
       visitor.visitVarInsn(ALOAD, arg);
       visitor.visitFieldInsn(PUTFIELD, owner, member.getName(), "Ljava/lang/Object;");
-      arg = arg + 1;
+      arg++;
     }
     initMembersField(struct, owner, visitor);
     visitor.visitVarInsn(ALOAD, 0);
@@ -333,7 +333,7 @@ class JavaBytecodeStructGenerator {
       loadInteger(visitor, arg);
       visitor.visitLdcInsn(member.getName());
       visitor.visitInsn(AASTORE);
-      arg = arg + 1;
+      arg++;
     }
     visitor.visitFieldInsn(PUTFIELD, owner, "members", "[Ljava/lang/String;");
   }

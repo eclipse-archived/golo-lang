@@ -15,7 +15,7 @@ import org.eclipse.golo.internal.testing.GoloTest;
 
 public class AugmentationResolutionTest extends GoloTest {
   @Override
-  protected String srcDir() {
+  public String srcDir() {
     return "for-execution/call-resolution/";
   }
 

@@ -20,7 +20,7 @@ import java.util.Locale;
 public final class Messages {
 
   private static final boolean ANSI = !System.getProperty("os.name").contains("Windows");
-  private static boolean color = (System.console() != null);
+  private static final boolean color = (System.console() != null);
 
   private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("messages", Locale.getDefault());
 
@@ -69,8 +69,15 @@ public final class Messages {
   /**
    * Prints an error message to standard error.
    */
+  public static void error(Object message, String prefix) {
+    printPrefixed("error", prefix + String.valueOf(message), ERROR);
+  }
+
+  /**
+   * Prints an error message to standard error.
+   */
   public static void error(Object message) {
-    printPrefixed("error", message.toString(), ERROR);
+    error(message, "");
   }
 
   /**

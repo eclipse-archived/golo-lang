@@ -16,6 +16,7 @@ package gololang.concurrent.workers;
  * This interface is mostly used to facilitate the design of the Java API, as worker functions are made out of
  * function references in Golo.
  */
+@FunctionalInterface
 public interface WorkerFunction {
 
   /**

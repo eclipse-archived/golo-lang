@@ -12,8 +12,8 @@ package org.eclipse.golo.compiler.testing.support;
 
 public class SamSupportHelpers {
 
-  public static interface Echo {
-    public Object echo(Object echo);
+  public interface Echo {
+    Object echo(Object echo);
   }
 
   public static Object apply(Echo echo) {

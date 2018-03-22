@@ -27,7 +27,7 @@ public class ASTAndExpression extends GoloASTNode {
   }
 
   public void increaseCount() {
-    count = count + 1;
+    count += 1;
   }
 
   @Override

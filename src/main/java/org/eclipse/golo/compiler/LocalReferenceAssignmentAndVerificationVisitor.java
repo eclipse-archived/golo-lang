@@ -10,7 +10,7 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.*;
+import gololang.ir.*;
 
 import java.util.Deque;
 import java.util.HashSet;
@@ -24,11 +24,10 @@ import static gololang.Messages.prefixed;
 class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisitor {
 
   private GoloModule module = null;
-  private AssignmentCounter assignmentCounter = new AssignmentCounter();
-  private Deque<GoloFunction> functionStack = new LinkedList<>();
-  private Deque<ReferenceTable> tableStack = new LinkedList<>();
-  private Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
-  private Deque<LoopStatement> loopStack = new LinkedList<>();
+  private final AssignmentCounter assignmentCounter = new AssignmentCounter();
+  private final Deque<GoloFunction> functionStack = new LinkedList<>();
+  private final Deque<ReferenceTable> tableStack = new LinkedList<>();
+  private final Deque<Set<LocalReference>> assignmentStack = new LinkedList<>();
   private GoloCompilationException.Builder exceptionBuilder;
   private final HashSet<LocalReference> uninitializedReferences = new HashSet<>();
 
@@ -65,7 +64,10 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   }
 
   private void errorMessage(GoloCompilationException.Problem.Type type, GoloElement<?> node, String message) {
-    PositionInSourceCode position = node.positionInSourceCode();
+    PositionInSourceCode position = null;
+    if (node != null) {
+      position = node.positionInSourceCode();
+    }
     String errorMessage = message + ' ' + (
         (position != null || position.isUndefined())
         ? message("source_position", position.getStartLine(), position.getStartColumn())
@@ -221,30 +223,16 @@ class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisit
   }
 
   @Override
-  public void visitLoopStatement(LoopStatement loopStatement) {
-    loopStack.push(loopStatement);
-    loopStatement.walk(this);
-    loopStack.pop();
-  }
-
-  @Override
-  public void visitClosureReference(ClosureReference closureReference) {
-    closureReference.updateCapturedReferenceNames();
-  }
+  public void visitClosureReference(ClosureReference closureReference) { }
 
   @Override
   public void visitLoopBreakFlowStatement(LoopBreakFlowStatement loopBreakFlowStatement) {
-    if (loopStack.isEmpty()) {
+    if (loopBreakFlowStatement.getEnclosingLoop() == null) {
       errorMessage(BREAK_OR_CONTINUE_OUTSIDE_LOOP, loopBreakFlowStatement,
           message("break_or_continue_outside_loop"));
-    } else {
-      loopBreakFlowStatement.setEnclosingLoop(loopStack.peek());
     }
   }
 
   @Override
-  public void visitMember(Member member) {
-    // We don't want to check references in member default values.
-    // The check will be done in the generated factory that effectively uses the default value.
-  }
+  public void visitMember(Member member) { }
 }

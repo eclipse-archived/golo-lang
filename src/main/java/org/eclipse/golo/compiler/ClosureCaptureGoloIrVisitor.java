@@ -10,7 +10,7 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.*;
+import gololang.ir.*;
 
 import java.util.*;
 
@@ -25,7 +25,7 @@ public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
     final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
 
     Set<String> shouldBeParameters() {
-      Set<String> result = new HashSet<>();
+      Set<String> result = new LinkedHashSet<>();
       for (String refName : accessedReferences) {
         if (!localReferences.contains(refName)) {
           result.add(refName);
@@ -100,7 +100,9 @@ public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
   }
 
   private void declaredParameters(List<String> references) {
-    context().parameterReferences.addAll(references);
+    if (!stack.isEmpty()) {
+      context().parameterReferences.addAll(references);
+    }
   }
 
   @Override
@@ -164,8 +166,8 @@ public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
     }
     locallyAssigned(referenceName);
     assignmentStatement.walk(this);
-    if (assignmentStatement.getExpressionStatement() instanceof ClosureReference) {
-      ClosureReference closure = (ClosureReference) assignmentStatement.getExpressionStatement();
+    if (assignmentStatement.expression() instanceof ClosureReference) {
+      ClosureReference closure = (ClosureReference) assignmentStatement.expression();
       closure.getTarget().setSyntheticSelfName(referenceName);
     }
   }
@@ -173,11 +175,6 @@ public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
   @Override
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     accessed(referenceLookup.getName());
-  }
-
-  @Override
-  public void visitThrowStatement(ThrowStatement throwStatement) {
-    throwStatement.getExpressionStatement().accept(this);
   }
 
   @Override

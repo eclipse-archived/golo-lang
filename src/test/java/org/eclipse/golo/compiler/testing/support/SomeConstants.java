@@ -11,5 +11,5 @@
 package org.eclipse.golo.compiler.testing.support;
 
 public interface SomeConstants {
-  public static final String FOO = "FOO";
+  String FOO = "FOO";
 }

@@ -13,6 +13,7 @@ package org.eclipse.golo.runtime.adapters;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Map;
 
 import static java.lang.invoke.MethodType.genericMethodType;
@@ -28,7 +29,7 @@ public final class AdapterSupport {
   private static final MethodHandle FALLBACK;
 
   static {
-    MethodHandles.Lookup lookup = MethodHandles.lookup();
+    Lookup lookup = MethodHandles.lookup();
     try {
       FALLBACK = lookup.findStatic(AdapterSupport.class, "fallback",
           MethodType.methodType(Object.class, AdapterCallSite.class, Object[].class));
@@ -39,17 +40,17 @@ public final class AdapterSupport {
 
   static final class AdapterCallSite extends MutableCallSite {
 
-    final MethodHandles.Lookup callerLookup;
+    final Lookup callerLookup;
     final String name;
 
-    AdapterCallSite(MethodType type, MethodHandles.Lookup callerLookup, String name) {
+    AdapterCallSite(MethodType type, Lookup callerLookup, String name) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
     }
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) {
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type) {
     AdapterCallSite callSite = new AdapterCallSite(type, caller, name);
     MethodHandle fallbackHandle = FALLBACK
         .bindTo(callSite)

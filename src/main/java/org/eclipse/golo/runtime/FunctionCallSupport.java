@@ -13,21 +13,21 @@ package org.eclipse.golo.runtime;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.*;
 import java.util.List;
 import java.util.Optional;
 
-import static java.lang.invoke.MethodHandles.Lookup;
 import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodType.methodType;
 import static java.lang.reflect.Modifier.isPrivate;
 import static java.lang.reflect.Modifier.isStatic;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
-import static org.eclipse.golo.runtime.NamedArgumentsHelper.*;
 import static gololang.Messages.message;
 import static gololang.Messages.info;
 import static org.eclipse.golo.runtime.Extractors.checkDeprecation;
+import static org.eclipse.golo.runtime.NamedArgumentsHelper.*;
 
 public final class FunctionCallSupport {
   private static final boolean DEBUG = Boolean.getBoolean("golo.debug.function-resolution");
@@ -43,14 +43,14 @@ public final class FunctionCallSupport {
     throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
-  static class FunctionCallSite extends MutableCallSite {
+  public static class FunctionCallSite extends MutableCallSite {
 
     final Lookup callerLookup;
     final String name;
     final boolean constant;
     final String[] argumentNames;
 
-    FunctionCallSite(MethodHandles.Lookup callerLookup, String name, MethodType type, boolean constant, String... argumentNames) {
+    FunctionCallSite(Lookup callerLookup, String name, MethodType type, boolean constant, String... argumentNames) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -65,7 +65,7 @@ public final class FunctionCallSupport {
 
   static {
     try {
-      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      Lookup lookup = MethodHandles.lookup();
       FALLBACK = lookup.findStatic(
           FunctionCallSupport.class,
           "fallback",

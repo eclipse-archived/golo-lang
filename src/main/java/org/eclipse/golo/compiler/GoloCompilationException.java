@@ -12,8 +12,7 @@ package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.parser.GoloASTNode;
 import org.eclipse.golo.compiler.parser.ParseException;
-import org.eclipse.golo.compiler.ir.PositionInSourceCode;
-import org.eclipse.golo.compiler.ir.GoloElement;
+import gololang.ir.GoloElement;
 
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.LinkedList;
@@ -52,12 +51,21 @@ public class GoloCompilationException extends RuntimeException {
     private final PositionInSourceCode position;
     private final String description;
     private final Object source;
+    private final Throwable cause;
 
-    private Problem(Type type, PositionInSourceCode position, String description, Object source) {
+    /**
+     * Constructs a new problem to report.
+     *
+     * @param type        the problem type.
+     * @param source      the problem source, which may be of any meaningful type.
+     * @param description the problem description in a human-readable form.
+     */
+    private Problem(Type type, PositionInSourceCode position, String description, Object source, Throwable cause) {
       this.type = type;
       this.position = position;
       this.description = description;
       this.source = source;
+      this.cause = cause;
     }
 
     /**
@@ -86,6 +94,13 @@ public class GoloCompilationException extends RuntimeException {
      */
     public Object getSource() {
       return source;
+    }
+
+    /**
+     * @return the cause exception
+     */
+    public Throwable getCause() {
+      return cause;
     }
 
     @Override
@@ -123,7 +138,7 @@ public class GoloCompilationException extends RuntimeException {
       exception.report(new Problem(type,
             source != null ? source.getPositionInSourceCode() : null,
             description,
-            source));
+            source, null));
       return this;
     }
 
@@ -139,9 +154,28 @@ public class GoloCompilationException extends RuntimeException {
       exception.report(new Problem(type,
             source != null ? source.positionInSourceCode() : null,
             description,
-            source));
+            source, null));
       return this;
     }
+
+    /**
+     * Report a problem to the exception being built.
+     *
+     * @param type        the problem type.
+     * @param source      the problem source.
+     * @param description the problem description.
+     * @param cause       the exception that caused the problem
+     * @return the same builder object.
+     */
+    public Builder report(Problem.Type type, GoloElement<?> source, String description, Throwable cause) {
+      exception.report(new Problem(type,
+            source != null ? source.positionInSourceCode() : null,
+            description,
+            source, cause));
+      return this;
+    }
+
+
 
     /**
      * Report a parsing error problem to the exception being built.
@@ -154,7 +188,7 @@ public class GoloCompilationException extends RuntimeException {
       exception.report(new Problem(Problem.Type.PARSING,
             PositionInSourceCode.of(pe.currentToken.beginLine, pe.currentToken.beginColumn, pe.currentToken.endLine, pe.currentToken.endColumn),
             pe.getMessage(),
-            source));
+            source, pe));
       return this;
     }
 
@@ -165,7 +199,7 @@ public class GoloCompilationException extends RuntimeException {
      * @return the same builder object.
      */
     public Builder report(UnsupportedCharsetException uce) {
-      exception.report(new Problem(Problem.Type.INVALID_ENCODING, null, uce.getMessage(), null));
+      exception.report(new Problem(Problem.Type.INVALID_ENCODING, null, uce.getMessage(), null, uce));
       return this;
     }
 

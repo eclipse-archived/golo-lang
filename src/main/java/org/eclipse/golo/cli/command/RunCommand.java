@@ -18,7 +18,8 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import java.util.LinkedList;
 import java.util.List;
 
-import static gololang.Messages.*;
+import static gololang.Messages.error;
+import static gololang.Messages.message;
 
 @Parameters(commandNames = {"run"}, resourceBundle = "commands", commandDescriptionKey = "run")
 public class RunCommand implements CliCommand {
@@ -34,13 +35,12 @@ public class RunCommand implements CliCommand {
 
   @Override
   public void execute() throws Throwable {
-
     try {
       Class<?> module = Class.forName(this.module, true, classpath.initGoloClassLoader());
       callRun(module, this.arguments.toArray(new String[this.arguments.size()]));
     } catch (ClassNotFoundException e) {
       error(message("module_not_found", this.module));
-    } catch (CliCommand.NoMainMethodException e) {
+    } catch (NoMainMethodException e) {
       error(message("module_no_main", this.module));
     }
   }

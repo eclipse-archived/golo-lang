@@ -1,11 +1,10 @@
-// vim:ft=asciidoc:tw=79:foldmethod=marker:foldmarker=<<<,>>>
 
 == Decorators
 
 Golo features Python-like decorators.
 
 === Presentation
-//<<<
+
 Decorators are similar in syntax and purpose to Java annotations.
 However, the concepts behind them are very different. Indeed, whereas Java
 annotations are compiler or VM directives, decorators are actually plain
@@ -25,10 +24,9 @@ it in an other object with the same interface, delegating operations to the
 wrapped object. This is exactly what a decorator does here, the interface
 being "function" (more precisely a `gololang.FunctionReference`).
 
-//>>>
 
 === Principles and syntax
-//<<<
+
 As in Python, and similarly to Java annotations, a decorator is used with a
 `@` prefix before the function definition. As an example, the decorator
 `deco1` only prints its name before returning the result unchanged
@@ -332,11 +330,9 @@ decorator!
 
 Let's now illustrate with some use cases and examples, with a presentation of
 some decorators of the standard module
-link:./golodoc/gololang/Decorators[`gololang.Decorators`].
-//>>>
+link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`].
 
 === Use cases and examples
-//<<<
 
 Use cases are at least the same as
 http://en.wikipedia.org/wiki/Aspect-oriented_programming[aspect oriented programming]
@@ -346,15 +342,13 @@ but your imagination is your limit.
 Some are presented here for illustration.
 
 ==== Logging
-//<<<
 
 Logging is a classical example use case of AOP. See the
 xref:_principles_and_syntax[Principles and syntax] section for an example.
 
-//>>>
 
 ==== Pre/post conditions checking
-//<<<
+
 Decorators can be used to check pre-conditions, that is conditions that must
 hold for arguments, and post-conditions, that is conditions that must hold for
 returned values, of a function.
@@ -362,7 +356,7 @@ returned values, of a function.
 Indeed, a decorated can execute code before delegating to the decorated
 function, of after the delegation.
 
-The module link:./golodoc/gololang/Decorators[`gololang.Decorators`] provide two
+The module link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`] provide two
 decorators and several utility functions to check pre and post conditions.
 
 `checkResult` is a parametrized decorator taking a checker as parameter. It
@@ -432,7 +426,7 @@ function mul = |v| -> 10 * v
 ----
 
 Several factory functions are available in
-link:./golodoc/gololang/Decorators[`gololang.Decorators`] to ease the creation
+link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`] to ease the creation
 of checkers:
 
 * `any` is a void checker that does nothing. It can used when you need to check
@@ -455,10 +449,8 @@ let isInteger = isOfType(Integer.class)
 
 The full set of standard checkers is documented in the generated *golodoc*
 (hint: look for `doc/golodoc` in the Golo distribution).
-//>>>
 
 ==== Locking
-//<<<
 
 As seen, decorator can be used to wrap a function call between checking
 operation, but also between a lock/unlock in a concurrent context:
@@ -483,11 +475,9 @@ function foo = |a, b| {
   return a + b
 }
 ----
-//>>>
 
 
 ==== Memoization
-//<<<
 
 Memoization is the optimization technique that stores the results of a expensive
 computation to return them directly on subsequent calls. It is quite easy,
@@ -497,7 +487,7 @@ delegating to the decorated function, and storing the result in the hashmap if
 needed.
 
 Such a decorator is provided in the
-link:./golodoc/gololang/Decorators[`gololang.Decorators`] module, presented
+link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`] module, presented
 here as an example:
 
 [source, golo]
@@ -544,16 +534,15 @@ function fact = |n| {
 }
 ----
 
-//>>>
 
-==== Generic context 
-//<<<
+==== Generic context
+
 Decorators can be used to define a generic wrapper around a function, that
 extends the previous example (and can be used to implement most of them).
 This functionality is provided by the
-link:./golodoc/gololang/Decorators#withContext_context[`gololang.Decorators.withContext`]
+link:{golodoc}/gololang/Decorators.html#withContext_context[`gololang.Decorators.withContext`]
 standard decorator. This decorator take a context, such as the one returned by
-link:./golodoc/gololang/Decorators#defaultContext_[`gololang.Decorators.defaultContext`]
+link:{golodoc}/gololang/Decorators.html#defaultContext_[`gololang.Decorators.defaultContext`]
 function.
 
 A context is an object with 4 defined methods:
@@ -652,7 +641,3 @@ logging, locking, and so on. It can be more interesting if you want to provide
 several functionalities, instead of stacking more specific decorators, since
 stacking, or decorator composition, adds indirection levels and deepen the call
 stack.
-
-//>>>
-
-//>>>

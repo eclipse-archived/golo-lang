@@ -169,6 +169,10 @@ public final class TypeMatching {
            || (isVarArgs && argsNumber >= paramsNumber - 1);
   }
 
+  public static boolean argumentsNumberMatches(Method method, int argsNumber) {
+    return argumentsNumberMatches(method.getParameterCount(), argsNumber, method.isVarArgs());
+  }
+
   public static boolean argumentsMatch(Method method, Object[] arguments) {
     return argumentsMatch(method, arguments, method.isVarArgs());
   }

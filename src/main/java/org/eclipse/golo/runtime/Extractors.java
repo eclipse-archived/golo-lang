@@ -11,13 +11,12 @@
 package org.eclipse.golo.runtime;
 
 import java.lang.reflect.*;
-import java.util.stream.Stream;
-import java.lang.reflect.Modifier;
 import java.util.function.Predicate;
+import java.util.stream.Stream;
 
-import static org.eclipse.golo.runtime.TypeMatching.argumentsNumberMatches;
 import static org.eclipse.golo.runtime.TypeMatching.compareTypes;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
+import static org.eclipse.golo.runtime.TypeMatching.argumentsNumberMatches;
 
 public final class Extractors {
   private Extractors() {
@@ -29,6 +28,10 @@ public final class Extractors {
       return Stream.empty();
     }
     return Stream.of(klass.getConstructors());
+  }
+
+  public static Stream<Method> getFunctions(Class<?> klass) {
+    return getMethods(klass).filter(Extractors::isFunction);
   }
 
   public static Stream<Method> getMethods(Class<?> klass) {
@@ -86,6 +89,10 @@ public final class Extractors {
     return !Modifier.isAbstract(m.getModifiers());
   }
 
+  public static boolean isFunction(Method m) {
+    return isConcrete(m) && isPublic(m) && isStatic(m);
+  }
+
   public static Predicate<Member> isNamed(String name) {
     return m -> m.getName().equals(name);
   }
@@ -100,8 +107,7 @@ public final class Extractors {
   public static <T extends AnnotatedElement & Member> T checkDeprecation(Class<?> caller, T object) {
     if (object.isAnnotationPresent(Deprecated.class)) {
       Warnings.deprecatedElement(
-          (object instanceof Constructor ? ((Constructor) object).toGenericString()
-           : object instanceof Method ? ((Method) object).toGenericString()
+          (object instanceof Executable ? ((Executable) object).toGenericString()
            : object instanceof Field ? ((Field) object).toGenericString()
            : object.getName()),
           caller.getName());

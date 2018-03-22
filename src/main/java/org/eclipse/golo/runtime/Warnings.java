@@ -10,17 +10,17 @@
 
 package org.eclipse.golo.runtime;
 
-import java.util.Arrays;
-import java.util.HashSet;
 import gololang.Tuple;
 
-import static gololang.Messages.warning;
+import java.util.Arrays;
+import java.util.HashSet;
+
 import static gololang.Messages.message;
+import static gololang.Messages.warning;
 import static org.eclipse.golo.cli.command.Metadata.GUIDE_BASE;
 
 /**
  * A static class to deal with several kinds of warnings.
- * <p>
  */
 public final class Warnings {
   private Warnings() {
@@ -37,13 +37,13 @@ public final class Warnings {
   }
 
   public static void noParameterNames(String methodName, String[] argumentNames) {
-    if (NO_PARAMETER_NAMES) {
+    if (NO_PARAMETER_NAMES || gololang.Runtime.debugMode()) {
       warning(message("no_parameter_names", methodName, Arrays.toString(argumentNames), GUIDE_BASE));
     }
   }
 
   public static void unavailableClass(String className, String callerModule) {
-    if (UNAVAILABLE_CLASS && !className.startsWith("java.lang") && !className.startsWith("gololang")) {
+    if ((UNAVAILABLE_CLASS || gololang.Runtime.debugMode()) && !className.startsWith("java.lang") && !className.startsWith("gololang")) {
       warning(message("unavailable_class", className, callerModule, GUIDE_BASE));
     }
   }

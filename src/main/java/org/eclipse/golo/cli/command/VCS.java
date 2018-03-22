@@ -24,7 +24,7 @@ import java.nio.charset.StandardCharsets;
 class VCS {
 
   public static final class InitException extends Exception {
-    private int status;
+    private final int status;
 
     InitException(int status, String message) {
       super(message);
@@ -38,10 +38,10 @@ class VCS {
 
   private static final long TIMEOUT = 5L;
 
-  private ProcessBuilder command = new ProcessBuilder().inheritIO();
+  private final ProcessBuilder command = new ProcessBuilder().inheritIO();
   private Path ignore;
   private Path destination;
-  private List<String> toIgnore = new LinkedList<>();
+  private final List<String> toIgnore = new LinkedList<>();
 
   public VCS command(String... commands) {
     command.command(commands);
@@ -88,7 +88,7 @@ class VCS {
     return this;
   }
 
-  public void createIgnoreFile() throws FileNotFoundException, UnsupportedEncodingException, IOException {
+  public void createIgnoreFile() throws IOException {
     if (ignore == null) { return; }
     Files.createDirectories(destination);
     try (PrintWriter writer = new PrintWriter(Files.newBufferedWriter(destination.resolve(ignore), StandardCharsets.UTF_8))) {

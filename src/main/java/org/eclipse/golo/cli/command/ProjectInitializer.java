@@ -10,20 +10,27 @@
 
 package org.eclipse.golo.cli.command;
 
-import java.io.*;
-import java.nio.file.*;
-import java.nio.charset.StandardCharsets;
-import java.util.*;
-
-import static java.util.stream.Collectors.toList;
-
-import gololang.TemplateEngine;
 import gololang.FunctionReference;
 import gololang.Messages;
+import gololang.TemplateEngine;
+import org.eclipse.golo.cli.command.VCS.InitException;
 
-import static gololang.Messages.message;
-import static gololang.Messages.info;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileAlreadyExistsException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.LinkedList;
+import java.util.List;
+
 import static gololang.IO.textToFile;
+import static gololang.Messages.info;
+import static gololang.Messages.message;
+import static java.util.stream.Collectors.toList;
 
 class ProjectInitializer {
 
@@ -32,19 +39,19 @@ class ProjectInitializer {
   private Path projectDir;
   private String projectName;
   private String runCommand = "";
-  private List<Path> directories = new LinkedList<>();
+  private final List<Path> directories = new LinkedList<>();
   private String manager;
   private String projectFileName;
   private Path sourcesDir;
   private VCS vcs;
-  private List<String> patternsToIgnore = new LinkedList<>();
+  private final List<String> patternsToIgnore = new LinkedList<>();
   private Profile profile;
-  private List<ProjectFile> files = new LinkedList<>();
-  private String version = "0.1.0-SNAPSHOT";
+  private final List<ProjectFile> files = new LinkedList<>();
+  private final String version = "0.1.0-SNAPSHOT";
 
   static class ProjectFile {
-    private Path target;
-    private FunctionReference template;
+    private final Path target;
+    private final FunctionReference template;
 
     ProjectFile(Path target, FunctionReference template) {
       this.target = target;
@@ -184,7 +191,7 @@ class ProjectInitializer {
       }
       try {
         vcs.init();
-      } catch (IOException | InterruptedException | VCS.InitException e) {
+      } catch (IOException | InterruptedException | InitException e) {
         Messages.warning(message("vcs_init_error", vcs));
         Messages.warning(e);
       }

@@ -37,7 +37,6 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
     }
     code {
       font-family: Menlo, Monaco, Consolas, "Courier New", monospace;
-      font-size: 80%;
       background-color: #eee;
       padding: 1px 3px;
       -webkit-border-radius: 2px;
@@ -45,7 +44,6 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
       border-radius: 2px;
     }
     pre code {
-      font-size: 120%;
       padding-left: 0px;
       padding-right: 0px;
     }
@@ -443,6 +441,5 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 <link rel="stylesheet" href="http://golo-lang.org/documentation/next/styles/github.min.css"/>
 <script src="http://golo-lang.org/documentation/next/highlight.min.js"></script>
 <script>hljs.initHighlighting()</script>
-
 </body>
 </html>

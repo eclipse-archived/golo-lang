@@ -16,7 +16,7 @@ import java.lang.reflect.Method;
 public final class Module {
 
   private static final Class<?>[] EMPTY_TYPES = new Class<?>[]{};
-  private static final Object[] EMPTY_ARGS = new Object[]{};
+  private static final Object[] EMPTY_ARGS = {};
 
   private Module() {
     throw new UnsupportedOperationException("Don't instantiate utility classes");

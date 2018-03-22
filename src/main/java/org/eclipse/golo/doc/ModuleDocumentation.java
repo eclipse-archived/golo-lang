@@ -10,9 +10,8 @@
 
 package org.eclipse.golo.doc;
 
-import org.eclipse.golo.compiler.parser.*;
-import org.eclipse.golo.compiler.ir.*;
 import org.eclipse.golo.compiler.GoloCompiler;
+import gololang.ir.*;
 
 import java.util.*;
 
@@ -153,10 +152,10 @@ public class ModuleDocumentation implements DocumentationElement {
 
   private class ModuleVisitor implements GoloIrVisitor {
 
-    private Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
+    private final Deque<Set<FunctionDocumentation>> functionContext = new LinkedList<>();
     private UnionDocumentation currentUnion;
     private MemberHolder currentMemberHolder;
-    private Deque<DocumentationElement> parents = new LinkedList<>();
+    private final Deque<DocumentationElement> parents = new LinkedList<>();
 
     @Override
     public void visitModule(GoloModule module) {
@@ -257,14 +256,14 @@ public class ModuleDocumentation implements DocumentationElement {
     public void visitFunction(GoloFunction function) {
       if (!GoloModule.MODULE_INITIALIZER_FUNCTION.equals(function.getName())) {
         functionContext.peek().add(new FunctionDocumentation()
-            .parent(parents.peek())
-            .name(function.getName())
-            .documentation(function.documentation())
-            .augmentation(function.isInAugment())
-            .line(function.positionInSourceCode().getStartLine())
-            .local(function.isLocal())
-            .arguments(function.getParameterNames())
-            .varargs(function.isVarargs()));
+          .parent(parents.peek())
+          .name(function.getName())
+          .documentation(function.documentation())
+          .augmentation(function.isInAugment())
+          .line(function.positionInSourceCode().getStartLine())
+          .local(function.isLocal())
+          .arguments(function.getParameterNames())
+          .varargs(function.isVarargs()));
       }
     }
 
@@ -377,6 +376,15 @@ public class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public void visitNamedArgument(NamedArgument namedArgument) {
+    }
+
+    @Override
+    public void visitNoop(Noop noop) {
+    }
+
+    @Override
+    public void visitToplevelElements(ToplevelElements toplevels) {
+      toplevels.walk(this);
     }
   }
 }

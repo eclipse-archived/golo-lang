@@ -10,13 +10,13 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.*;
-import org.eclipse.golo.compiler.parser.GoloParser;
+import gololang.ir.*;
 import java.util.List;
 import java.util.Deque;
 import java.util.LinkedList;
 
-import static org.eclipse.golo.compiler.ir.Builders.*;
+import static gololang.ir.MethodInvocation.invoke;
+import static gololang.ir.ConditionalBranching.branch;
 
 /**
  * Visitor to expand some syntactic sugar.
@@ -24,9 +24,9 @@ import static org.eclipse.golo.compiler.ir.Builders.*;
  * Modify the IR to transform some nodes, in order to expand syntactic sugar, such as case and match
  * statements, foreach loops, list comprehension, and so on.
  */
-class SugarExpansionVisitor extends AbstractGoloIrVisitor {
+public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
-  private final SymbolGenerator symbols = new SymbolGenerator("sugar");
+  private final SymbolGenerator symbols = new SymbolGenerator("golo.compiler.sugar");
   private final List<GoloFunction> functionsToAdd = new LinkedList<>();
   private GoloModule module;
 
@@ -40,6 +40,12 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   }
 
   @Override
+  public void visitBlock(Block block) {
+    visitExpression(block);
+    block.flatten();
+  }
+
+  @Override
   public void visitClosureReference(ClosureReference closure) {
     functionsToAdd.add(closure.getTarget().name(symbols.next("closure")));
     visitExpression(closure);
@@ -50,12 +56,13 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     function.insertMissingReturnStatement();
     if (!expressionToBlock(function)) {
       function.walk(this);
-      if (function.hasDecorators() && function.hasParent()) {
+      if (function.isDecorated() && function.hasParent()) {
         FunctionContainer parent = (FunctionContainer) function.parent();
         GoloFunction decorator = function.createDecorator();
         parent.addFunction(decorator);
         decorator.accept(this);
       }
+      function.insertMissingReturnStatement();
     }
   }
 
@@ -126,30 +133,28 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    */
   @Override
   public void visitMatchExpression(MatchExpression matchExpression) {
-    LocalReference tempVar = localRef(symbols.next("match"))
+    LocalReference tempVar = LocalReference.of(symbols.next("match"))
       .variable()
       .synthetic();
-    CaseStatement caseStatement = cases()
+    CaseStatement caseStatement = CaseStatement.cases()
       .positionInSourceCode(matchExpression.positionInSourceCode())
-      .otherwise(block(
-            assign(matchExpression.getOtherwise())
-            .to(tempVar)));
+      .otherwise(Block.of(
+            AssignmentStatement.create(tempVar, matchExpression.getOtherwise(), false)));
 
     for (WhenClause<ExpressionStatement<?>> c : matchExpression.getClauses()) {
       caseStatement.when(c.condition())
-        .then(block(
-              assign(c.action())
-              .to(tempVar)
+        .then(Block.of(
+              AssignmentStatement.create(tempVar, c.action(), false)
               .positionInSourceCode(c.action().positionInSourceCode())
             ).positionInSourceCode(c.action().positionInSourceCode()))
         .positionInSourceCode(c.positionInSourceCode());
     }
-    Block block = block();
+    Block block = Block.empty();
     for (GoloAssignment<?> a : matchExpression.declarations()) {
       block.add(a);
     }
     matchExpression.clearDeclarations();
-    block.add(define(tempVar).as(constant(null)));
+    block.add(AssignmentStatement.create(tempVar, null, true));
     block.add(caseStatement);
     block.add(tempVar.lookup());
     matchExpression.replaceInParentBy(block);
@@ -165,7 +170,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   public void visitCollectionLiteral(CollectionLiteral collection) {
     if (!expressionToBlock(collection)) {
       collection.walk(this);
-      AbstractInvocation<?> construct = call("gololang.Predefined." + collection.getType().toString())
+      AbstractInvocation<?> construct = FunctionInvocation.of("gololang.Predefined." + collection.getType().toString())
         .withArgs(collection.getExpressions().toArray());
       collection.replaceInParentBy(construct);
       construct.accept(this);
@@ -175,21 +180,23 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     constantStatement.walk(this);
-    Object value = constantStatement.getValue();
-    if (value instanceof GoloParser.FunctionRef) {
-      GoloParser.FunctionRef ref = (GoloParser.FunctionRef) value;
-      AbstractInvocation<?> fun = call("gololang.Predefined.fun").constant()
-        .withArgs(
-            constant(ref.name),
-            classRef(ref.module == null
-              ? this.module.getPackageAndClass()
-              : ref.module),
-            constant(ref.arity),
-            constant(ref.varargs));
+    Object value = constantStatement.value();
+    if (value instanceof FunctionRef) {
+      FunctionInvocation fun = literalFunctionRefToCall((FunctionRef) value);
       constantStatement.replaceInParentBy(fun);
       fun.accept(this);
-      return;
     }
+  }
+
+  private FunctionInvocation literalFunctionRefToCall(FunctionRef ref) {
+    return FunctionInvocation.of("gololang.Predefined.fun").constant().withArgs(
+            ConstantStatement.of(ref.name()),
+            ConstantStatement.of(ClassReference.of(ref.module() == null
+              ? this.module.getPackageAndClass()
+              : ref.module())),
+            ConstantStatement.of(ref.arity()),
+            ConstantStatement.of(ref.varargs()));
+
   }
 
   /**
@@ -214,36 +221,35 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   @Override
   public void visitCollectionComprehension(CollectionComprehension collection) {
     CollectionLiteral.Type tempColType = collection.getMutableType();
-    LocalReference tempVar = localRef(symbols.next("comprehension"))
+    LocalReference tempVar = LocalReference.of(symbols.next("comprehension"))
       .variable()
       .synthetic();
-    Block mainBlock = block();
+    Block mainBlock = Block.empty();
     for (GoloAssignment<?> a : collection.declarations()) {
       mainBlock.add(a);
     }
     collection.clearDeclarations();
-    mainBlock.add(define(tempVar).as(collection(tempColType)));
+    mainBlock.add(AssignmentStatement.create(tempVar, CollectionLiteral.create(tempColType), true));
     Block innerBlock = mainBlock;
-    for (Block loop : collection.getLoopBlocks()) {
-      innerBlock.addStatement(loop);
-      GoloStatement<?> loopStatement = loop.getStatements().get(0);
-      innerBlock = ((BlockContainer) loopStatement).getBlock();
+    for (GoloStatement<?> loop : collection.loops()) {
+      innerBlock.add(loop);
+      innerBlock = ((BlockContainer) loop).getBlock();
     }
-    innerBlock.addStatement(
-        invoke("add").withArgs(collection.getExpression()).on(tempVar.lookup()));
+    innerBlock.add(
+        invoke("add").withArgs(collection.expression()).on(tempVar.lookup()));
 
     if (collection.getType() == CollectionLiteral.Type.array
         || collection.getType() == CollectionLiteral.Type.tuple) {
-      mainBlock.addStatement(
-          assign(invoke("toArray").on(tempVar.lookup())).to(tempVar));
+      mainBlock.add(
+          AssignmentStatement.create(tempVar, invoke("toArray").on(tempVar.lookup()), false));
     }
 
     if (collection.getType() == CollectionLiteral.Type.tuple) {
-      mainBlock.addStatement(
-          assign(call("Tuple.fromArray").withArgs(tempVar.lookup())).to(tempVar));
+      mainBlock.add(
+          AssignmentStatement.create(tempVar, FunctionInvocation.of("Tuple.fromArray").withArgs(tempVar.lookup()), false));
     }
 
-    mainBlock.addStatement(tempVar.lookup());
+    mainBlock.add(tempVar.lookup());
     collection.replaceInParentBy(mainBlock);
     mainBlock.accept(this);
   }
@@ -268,14 +274,14 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    */
   @Override
   public void visitForEachLoopStatement(ForEachLoopStatement foreachStatement) {
-    LocalReference iterVar = localRef(symbols.next("forEachIterator"))
+    LocalReference iterVar = LocalReference.of(symbols.next("forEachIterator"))
       .variable()
       .synthetic();
 
     // deal with when clause
     Block loopInnerBlock;
     if (foreachStatement.hasWhenClause()) {
-      loopInnerBlock = block().add(
+      loopInnerBlock = Block.of(
           branch()
           .condition(foreachStatement.getWhenClause())
           .whenTrue(foreachStatement.getBlock()))
@@ -286,20 +292,19 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
     // init the reference to the next iterator value
     if (foreachStatement.isDestructuring()) {
-      loopInnerBlock.prependStatement(
-          destruct().declaring()
+      loopInnerBlock.prepend(
+          DestructuringAssignment.destruct(invoke("next").on(iterVar.lookup())).declaring()
           .varargs(foreachStatement.isVarargs())
-          .to((Object[]) foreachStatement.getReferences())
-          .as(invoke("next").on(iterVar.lookup())));
+          .to((Object[]) foreachStatement.getReferences()));
     } else {
-      loopInnerBlock.prependStatement(
-          define(foreachStatement.getLocalReference()).as(invoke("next").on(iterVar.lookup())));
+      loopInnerBlock.prepend(
+          AssignmentStatement.create(foreachStatement.getLocalReference(), invoke("next").on(iterVar.lookup()), true));
     }
 
     // build the equivalent loop
-    LoopStatement newLoop = loop()
+    LoopStatement newLoop = LoopStatement.loop()
       .init(
-          define(iterVar).as(invoke("iterator").on(foreachStatement.getIterable())))
+          AssignmentStatement.create(iterVar, invoke("iterator").on(foreachStatement.getIterable()), true))
       .condition(
           invoke("hasNext").on(iterVar.lookup()))
       .block(loopInnerBlock);
@@ -324,17 +329,18 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    */
   @Override
   public void visitDestructuringAssignment(DestructuringAssignment assignment) {
-    LocalReference tmpRef = localRef(symbols.next("destruct")).synthetic();
-    Block block = block()
-      .add(define(tmpRef).as(invoke("destruct").on(assignment.getExpressionStatement())));
+    LocalReference tmpRef = LocalReference.of(symbols.next("destruct")).synthetic();
+    Block block = Block.of(AssignmentStatement.create(tmpRef, invoke("destruct").on(assignment.expression()), true));
     int last = assignment.getReferencesCount() - 1;
     int idx = 0;
     for (LocalReference ref : assignment.getReferences()) {
-      block.add(assignment().declaring(assignment.isDeclaring())
-          .to(ref).as(
+      block.add(
+          AssignmentStatement.create(
+            ref,
             invoke(assignment.isVarargs() && idx == last ? "subTuple" : "get")
-            .withArgs(constant(idx))
-            .on(tmpRef.lookup())));
+            .withArgs(ConstantStatement.of(idx))
+            .on(tmpRef.lookup()),
+            assignment.isDeclaring()));
       idx++;
     }
     assignment.replaceInParentBy(block);
@@ -358,11 +364,6 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   @Override
   public void visitUnaryOperation(UnaryOperation op) {
     visitExpression(op);
-  }
-
-  @Override
-  public void visitBlock(Block block) {
-    visitExpression(block);
   }
 
   @Override
@@ -394,11 +395,11 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     if (!expr.hasLocalDeclarations()) {
       return false;
     }
-    Block b = Builders.block((Object[]) expr.declarations());
+    Block b = Block.block((Object[]) expr.declarations());
     expr.replaceInParentBy(b);
     expr.clearDeclarations();
-    LocalReference r = Builders.localRef(symbols.next("localdec")).synthetic();
-    b.add(Builders.define(r).as(expr));
+    LocalReference r = LocalReference.of(symbols.next("localdec")).synthetic();
+    b.add(AssignmentStatement.create(r, expr, true));
     b.add(r.lookup());
     b.accept(this);
     return true;

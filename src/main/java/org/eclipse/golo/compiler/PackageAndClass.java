@@ -10,6 +10,9 @@
 
 package org.eclipse.golo.compiler;
 
+import gololang.ir.GoloType;
+import gololang.ir.GoloModule;
+
 import static java.util.Objects.requireNonNull;
 
 /**
@@ -40,7 +43,7 @@ public final class PackageAndClass {
    * @param qualifiedName a qualified name.
    * @return a package and class definition.
    */
-  public static PackageAndClass fromString(String qualifiedName) {
+  private static PackageAndClass fromString(String qualifiedName) {
     return new PackageAndClass(
         extractTargetJavaPackage(qualifiedName),
         extractTargetJavaClass(qualifiedName));
@@ -69,6 +72,31 @@ public final class PackageAndClass {
     return moduleName;
   }
 
+  /**
+   * Creates a {@code PackageAndClass}.
+   *
+   * Extracts the name from the given object.
+   *
+   * @param o a {@code String}, {@code PackageAndClass}, {@code Class}, {@link GoloType} or {@link GoloModule} instance.
+   */
+  public static PackageAndClass of(Object o) {
+    if (o instanceof PackageAndClass) {
+      return (PackageAndClass) o;
+    }
+    if (o instanceof String) {
+      return fromString((String) o);
+    }
+    if (o instanceof Class) {
+      return fromString(((Class) o).getName());
+    }
+    if (o instanceof GoloType) {
+      return ((GoloType) o).getPackageAndClass();
+    }
+    if (o instanceof GoloModule) {
+      return ((GoloModule) o).getPackageAndClass();
+    }
+    throw new IllegalArgumentException("Can't create a PackageAndClass from a " + o.getClass().getName());
+  }
 
   /**
    * Create an inner class.
@@ -218,9 +246,7 @@ public final class PackageAndClass {
     PackageAndClass that = (PackageAndClass) o;
 
     if (className != null ? !className.equals(that.className) : that.className != null) { return false; }
-    if (packageName != null ? !packageName.equals(that.packageName) : that.packageName != null) { return false; }
-
-    return true;
+    return !(packageName != null ? !packageName.equals(that.packageName) : that.packageName != null);
   }
 
   @Override

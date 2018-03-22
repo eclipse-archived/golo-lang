@@ -13,7 +13,6 @@ package org.eclipse.golo.runtime.augmentation;
 import java.util.stream.Stream;
 import org.eclipse.golo.runtime.MethodInvocation;
 
-import static java.lang.reflect.Modifier.*;
 import static org.eclipse.golo.runtime.augmentation.DefiningModule.Scope;
 
 /**
@@ -45,7 +44,7 @@ public final class AugmentationApplication {
       return Stream.empty();
     }
     return Stream.of(augmentation.getMethods())
-      .filter(method -> invocation.match(method))
+      .filter(invocation::match)
       .map(method -> new AugmentationMethod(kind, scope, target, method));
   }
 }
