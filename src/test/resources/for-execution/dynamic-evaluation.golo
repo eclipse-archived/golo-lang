@@ -19,3 +19,8 @@ function run_plop = {
     return f(a, b)
   """)
 }
+
+function main = |args| {
+  require(maxer() == 10, "err: maxer")
+  require(run_plop() == 3, "err: run_plop")
+}
