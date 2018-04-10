@@ -1,6 +1,7 @@
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.16110.svg)](http://dx.doi.org/10.5281/zenodo.16110)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eclipse/golo-lang?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
 [![Build Status](https://travis-ci.org/eclipse/golo-lang.svg?branch=master)](https://travis-ci.org/eclipse/golo-lang)
+[![Build status](https://ci.appveyor.com/api/projects/status/v8tivtu0jvpavnwn/branch/master?svg=true)](https://ci.appveyor.com/project/jponge/golo-lang/branch/master)
 [ ![Download](https://api.bintray.com/packages/golo-lang/downloads/distributions/images/download.svg) ](https://bintray.com/golo-lang/downloads/distributions/_latestVersion)
 
 # Golo, a lightweight dynamic language for the JVM.
@@ -104,11 +105,11 @@ Of course you can combine profiles, like:
 ## License
 
     Copyright (c) 2012-2018 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
-    
+
     This program and the accompanying materials are made available under the
     terms of the Eclipse Public License 2.0 which is available at
     http://www.eclipse.org/legal/epl-2.0.
-    
+
     SPDX-License-Identifier: EPL-2.0
 
 ## Contributing
