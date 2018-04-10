@@ -45,7 +45,10 @@ public class HtmlProcessor extends AbstractProcessor {
     if (out.getParent() != null) {
       out = out.getParent();
     }
-    return out.relativize(docFile(dst)).toString()
+    // The replace is to have a valid relative uri on Windows...
+    // I'd rather use URI::relativize, but it only works when one URI is the strict prefix of the other
+    // i.e. can't generate relative URIs containing '..' (what a shame!)
+    return out.relativize(docFile(dst)).toString().replace('\\', '/')
       + (dst.id().isEmpty() ? "" : ("#" + dst.id()));
   }
 
