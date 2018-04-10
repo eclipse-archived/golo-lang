@@ -105,18 +105,25 @@ public abstract class AbstractProcessor {
     if (doc.getParent() != null) {
       doc = doc.getParent();
     }
-    return doc.relativize(outputFile(dst)).toString();
+    // The replace is to have a valid relative uri on Windows...
+    // I'd rather use URI::relativize, but it only works when one URI is the strict prefix of the other
+    // i.e. can't generate relative URIs containing '..' (what a shame!)
+    return doc.relativize(outputFile(dst)).toString().replace('\\', '/');
   }
 
   /**
    * Returns the link to the given filename from the given filename.
    */
   public String linkToFile(String src, String dst) {
+    //
     Path out = outputFile(src);
     if (out.getParent() != null) {
       out = out.getParent();
     }
-    return out.relativize(outputFile(dst)).toString();
+    // The replace is to have a valid relative uri on Windows...
+    // I'd rather use URI::relativize, but it only works when one URI is the strict prefix of the other
+    // i.e. can't generate relative URIs containing '..' (what a shame!)
+    return out.relativize(outputFile(dst)).toString().replace('\\', '/');
   }
 
   protected void renderIndex(String templateName) throws Throwable {
