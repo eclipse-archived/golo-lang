@@ -17,7 +17,7 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 @Parameters(commandNames = {"version"}, resourceBundle = "commands", commandDescriptionKey = "version")
 public class VersionCommand implements CliCommand {
 
-  @Parameter(names = "--full", description = "version.full")
+  @Parameter(names = "--full", descriptionKey = "version.full")
   boolean full = false;
 
   @Override

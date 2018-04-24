@@ -1,0 +1,70 @@
+= GOLO-GOLO(1)
+:doctype: manpage
+
+== NAME
+
+golo-golo - Dynamically loads and runs Golo source files.
+
+== SYNOPSIS
+
+*golo* *golo* [*--classpath* _path_] [*--module* _module name_] *--files* _files_ ... *--args* _argument_ ...
+
+== DESCRIPTION
+
+*golo golo* takes several Golo source files (+*.golo+ and directories) as input.
+It expects the last one of them to have a `main` function to call (or use
+*--module* to define the golo module with the `main` function).
+The Golo code is compiled on the fly and executed straight into a JVM.
+
+You may also pass arguments to the `main` function by appending *--args*
+on the command line invocation.
+
+== OPTIONS
+
+*--args* _argument_ ...::
+      Program arguments.
+
+*--classpath* _path_::
+      a list of classpath elements (.jar and directories).
+
+*--files* _file_ ...::
+      Golo source files (+*.golo+ and directories).
+      The last one must have a `main` function,
+      or *--module* must be used to specify which module to run.
+
+*--module* _module name_::
+      The Golo module containing the main function to run.
+
+
+== EXAMPLES
+
+Suppose that we have a module `EchoArgs` as follows:
+
+[source,golo]
+----
+module EchoArgs
+
+function main = |args| {
+  foreach arg in args {
+    println("->  " + arg)
+  }
+}
+----
+
+We may invoke it as follows:
+
+[source]
+----
+$ golo golo --files samples/echo-args.golo --args plop da plop
+-> plop
+-> da
+-> plop
+$
+----
+
+
+== SEE ALSO
+
+golo(1), golo-shebang(1)
+
+include::man-footer.adoc[]

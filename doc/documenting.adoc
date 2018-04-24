@@ -97,14 +97,14 @@ If several candidates are found, only the *first one* is used, and a warning is 
 
 === Rendering documentation
 
-The `golo doc` command can render documentation in `html` (the default) or `markdown` format:
+The link:{man}/golo-doc.html[`golo doc`] command can render documentation in `html` (the default) or `markdown` format:
 
 [source]
 ----
 $ golo doc --output target/documentation src/**/*.golo
 ----
 
-In addition, `golo doc` can also produce ctags `tags` file, to be used by
+In addition, link:{man}/golo-doc.html[`golo doc`] can also produce ctags `tags` file, to be used by
 editors such as Vim or emacs. In this mode, the special output target `-` can
 be used to print the tags on standard output, which is needed by some editors
 or extensions.
