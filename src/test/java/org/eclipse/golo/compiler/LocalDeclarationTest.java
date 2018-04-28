@@ -26,7 +26,7 @@ import static org.eclipse.golo.internal.testing.TestUtils.compileAndLoadGoloModu
 
 public class LocalDeclarationTest extends GoloTest {
 
-  protected String srcDir() { return "for-test/"; }
+  public String srcDir() { return "for-test/"; }
 
   @Test
   public void localDeclaration() throws Throwable {

@@ -255,9 +255,9 @@ public class DynamicObjectTest {
     assertThat(object.toString(), is("Foo{bar=42}"));
   }
 
-  private static enum Kinds {
+  private enum Kinds {
     FOO,
-    BAR;
+    BAR
   }
 
   @Test

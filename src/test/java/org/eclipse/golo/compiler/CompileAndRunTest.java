@@ -10,8 +10,8 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.AssignmentStatement;
-import org.eclipse.golo.compiler.ir.ReferenceLookup;
+import gololang.ir.AssignmentStatement;
+import gololang.ir.ReferenceLookup;
 import org.eclipse.golo.compiler.parser.ASTAssignment;
 import org.eclipse.golo.compiler.parser.ParseException;
 import org.eclipse.golo.compiler.testing.support.ClassWithOverloadedMethods;
@@ -649,7 +649,7 @@ public class CompileAndRunTest {
     assertThat((List<Integer>) tail_method.invoke(null), contains(2, 3));
 
     Method head_method_empty = moduleClass.getMethod("head_method_empty");
-    assertThat((Integer) head_method_empty.invoke(null), is(nullValue()));
+    assertThat(head_method_empty.invoke(null), is(nullValue()));
 
     Method tail_method_empty = moduleClass.getMethod("tail_method_empty");
     assertThat((Boolean) tail_method_empty.invoke(null), is(true));
@@ -1359,7 +1359,7 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(Object[].class));
     Object[] array = (Object[]) result;
-    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, (Object) 12, (Object) 13)));
+    assertThat(array, both(arrayWithSize(3)).and(arrayContaining(11, 12, 13)));
 
     Method override_toString = moduleClass.getMethod("override_toString");
     result = override_toString.invoke(null);
@@ -1403,7 +1403,7 @@ public class CompileAndRunTest {
     assertThat(result, notNullValue());
     assertThat(result, instanceOf(Object[].class));
     Object[] array = (Object[]) result;
-    assertThat(array, both(arrayWithSize(3)).and(arrayContaining((Object) 11, (Object) 12, (Object) 13)));
+    assertThat(array, both(arrayWithSize(3)).and(arrayContaining(11, 12, 13)));
 
     Method override_toString = moduleClass.getMethod("override_toString");
     result = override_toString.invoke(null);

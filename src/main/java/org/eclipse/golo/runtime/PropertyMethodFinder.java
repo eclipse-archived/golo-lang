@@ -18,7 +18,7 @@ import java.util.Objects;
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.invoke.MethodType.methodType;
 
-public class PropertyMethodFinder extends MethodFinder {
+class PropertyMethodFinder extends MethodFinder {
 
   private static final MethodHandle FLUENT_SETTER;
 
@@ -37,9 +37,9 @@ public class PropertyMethodFinder extends MethodFinder {
     return o;
   }
 
-  private String propertyName;
+  private final String propertyName;
 
-  public PropertyMethodFinder(MethodInvocation invocation, Lookup lookup) {
+  PropertyMethodFinder(MethodInvocation invocation, Lookup lookup) {
     super(invocation, lookup);
     this.propertyName = capitalize(invocation.name());
   }

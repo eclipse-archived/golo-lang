@@ -13,6 +13,7 @@ package org.eclipse.golo.runtime;
 import gololang.DynamicObject;
 
 import java.lang.invoke.*;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.WeakHashMap;
@@ -36,7 +37,7 @@ public final class MethodInvocationSupport {
 
     static final int MEGAMORPHIC_THRESHOLD = 5;
 
-    final MethodHandles.Lookup callerLookup;
+    final Lookup callerLookup;
     final String name;
     final boolean nullSafeGuarded;
     final String[] argumentNames;
@@ -93,7 +94,7 @@ public final class MethodInvocationSupport {
 
   static {
     try {
-      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      Lookup lookup = MethodHandles.lookup();
 
       CLASS_GUARD = lookup.findStatic(
           MethodInvocationSupport.class,
@@ -208,12 +209,7 @@ public final class MethodInvocationSupport {
 
   public static MethodHandle vtableLookup(InlineCache inlineCache, Object[] args) {
     Class<?> receiverClass = args[0].getClass();
-    MethodHandle target = inlineCache.vtable.get(receiverClass);
-    if (target == null) {
-      target = lookupTarget(receiverClass, inlineCache, args);
-      inlineCache.vtable.put(receiverClass, target);
-    }
-    return target;
+    return inlineCache.vtable.computeIfAbsent(receiverClass, k -> lookupTarget(receiverClass, inlineCache, args));
   }
 
   private static MethodHandle lookupTarget(Class<?> receiverClass, InlineCache inlineCache, Object[] args) {
@@ -259,7 +255,7 @@ public final class MethodInvocationSupport {
           "fallback",
           methodType(Object.class, Object.class, Object.class, Object[].class),
           false);
-      Object[] fallbackArgs = new Object[]{
+      Object[] fallbackArgs = {
         args[0],
         inlineCache.name,
         Arrays.copyOfRange(args, 1, args.length)
@@ -279,7 +275,7 @@ public final class MethodInvocationSupport {
       root = makeNullSafeGuarded(root);
     }
     inlineCache.setTarget(root);
-    inlineCache.depth = inlineCache.depth + 1;
+    inlineCache.depth += 1;
     return target.invokeWithArguments(args);
   }
 

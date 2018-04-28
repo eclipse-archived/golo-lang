@@ -10,8 +10,6 @@
 
 package gololang;
 
-import java.util.Iterator;
-
 /**
  * Structure having a head and a tail.
  * <p>
@@ -76,12 +74,7 @@ public interface HeadTail<E> extends Iterable<E> {
    * @return an iterable on the values contained in the wrapped instance
    */
   static <E> Iterable<E> toIterable(HeadTail<E> headTail) {
-    return new Iterable<E>() {
-      @Override
-      public Iterator<E> iterator() {
-        return new HeadTailIterator<E>(headTail);
-      }
-    };
+    return () -> new HeadTailIterator<>(headTail);
   }
 
 }

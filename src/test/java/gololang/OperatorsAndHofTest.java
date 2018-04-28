@@ -19,7 +19,7 @@ import java.util.function.*;
 public class OperatorsAndHofTest extends GoloTest {
 
   @Override
-  protected String srcDir() {
+  public String srcDir() {
     return "for-test/";
   }
 

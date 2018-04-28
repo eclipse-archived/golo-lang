@@ -16,7 +16,7 @@ import java.util.LinkedList;
 public class ASTForEachLoop extends GoloASTNode {
 
   private String elementIdentifier;
-  private List<String> names = new LinkedList<>();
+  private final List<String> names = new LinkedList<>();
   private boolean isVarargs = false;
 
   public ASTForEachLoop(int id) {

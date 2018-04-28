@@ -10,11 +10,14 @@
 package org.eclipse.golo.runtime;
 
 import gololang.annotations.DecoratedBy;
+
 import java.lang.invoke.MethodHandle;
 import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
-import static java.lang.invoke.MethodType.methodType;
 import java.lang.reflect.Method;
+
+import static java.lang.invoke.MethodType.methodType;
 
 public final class DecoratorsHelper {
 
@@ -23,7 +26,7 @@ public final class DecoratorsHelper {
 
   static {
     try {
-      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      Lookup lookup = MethodHandles.lookup();
       FUNCTION_REFERENCE_TO_METHODHANDLE = lookup.findStatic(
           DecoratorsHelper.class,
           "functionReferenceToMethodHandle",
@@ -56,7 +59,7 @@ public final class DecoratorsHelper {
     return ((gololang.FunctionReference) retValue).handle();
   }
 
-  public static MethodHandle getDecoratedMethodHandle(MethodHandles.Lookup caller, Method originalMethod, int arity) {
+  public static MethodHandle getDecoratedMethodHandle(Lookup caller, Method originalMethod, int arity) {
     try {
       Method decoratorMethod = getDecoratorMethod(originalMethod);
       MethodHandle decorator = caller.unreflect(decoratorMethod);
@@ -68,8 +71,7 @@ public final class DecoratorsHelper {
         return combined.asVarargsCollector(Object[].class);
       } else {
         MethodHandle invoker = MethodHandles.invoker(MethodType.genericMethodType(arity));
-        MethodHandle combined = MethodHandles.foldArguments(invoker, decorator);
-        return combined;
+        return MethodHandles.foldArguments(invoker, decorator);
       }
     } catch (IllegalAccessException ex) {
       throw new IllegalStateException("Unable to get the decorator for a method marked as decorated", ex);

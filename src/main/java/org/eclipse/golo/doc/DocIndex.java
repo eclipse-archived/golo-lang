@@ -18,7 +18,7 @@ import gololang.FunctionReference;
  */
 class DocIndex implements Iterable<DocumentationElement> {
 
-  private SortedSet<DocumentationElement> elements = new TreeSet<>();
+  private final SortedSet<DocumentationElement> elements = new TreeSet<>();
 
   public void update(ModuleDocumentation moduleDoc) {
     for (DocumentationElement e : moduleDoc.functions()) {
@@ -58,7 +58,7 @@ class DocIndex implements Iterable<DocumentationElement> {
     for (DocumentationElement e : elements) {
       String k = f.invoke(e).toString();
       if (!map.containsKey(k)) {
-        map.put(k, new TreeSet<DocumentationElement>());
+        map.put(k, new TreeSet<>());
       }
       map.get(k).add(e);
     }

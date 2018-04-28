@@ -30,11 +30,11 @@ public abstract class AbstractProcessor {
 
   public abstract void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable;
 
-  private TemplateEngine templateEngine = new TemplateEngine();
-  private HashMap<String, FunctionReference> templateCache = new HashMap<>();
+  private final TemplateEngine templateEngine = new TemplateEngine();
+  private final Map<String, FunctionReference> templateCache = new HashMap<>();
 
   private Path targetFolder;
-  private Set<ModuleDocumentation> modules = new TreeSet<>();
+  private final Set<ModuleDocumentation> modules = new TreeSet<>();
 
   public void setTargetFolder(Path target) {
     this.targetFolder = target.toAbsolutePath();

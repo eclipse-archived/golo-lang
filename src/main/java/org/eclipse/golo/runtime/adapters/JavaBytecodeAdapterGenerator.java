@@ -50,7 +50,7 @@ public class JavaBytecodeAdapterGenerator {
     int i = 0;
     for (String iface : interfaces) {
       types[i] = jvmType(iface);
-      i = i + 1;
+      i++;
     }
     return types;
   }
@@ -93,7 +93,7 @@ public class JavaBytecodeAdapterGenerator {
     for (Method method : getAllVirtualMethods(adapterDefinition)) {
       int access = isPublic(method.getModifiers()) ? ACC_PUBLIC : ACC_PROTECTED;
       if (method.isVarArgs()) {
-        access = access & ACC_VARARGS;
+        access &= ACC_VARARGS;
       }
       String name = method.getName();
       String descriptor = Type.getMethodDescriptor(method);

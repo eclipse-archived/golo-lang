@@ -13,6 +13,8 @@ package org.eclipse.golo.compiler;
 import java.io.InputStream;
 import java.util.List;
 
+import gololang.ir.GoloModule;
+
 /**
  * Provides a facility to dynamically load Golo source code and access the generated code from a dedicated class loader.
  * <p>
@@ -24,7 +26,7 @@ import java.util.List;
  */
 public class GoloClassLoader extends ClassLoader {
 
-  private final GoloCompiler compiler = new GoloCompiler();
+  private final GoloCompiler compiler;
 
   /**
    * Creates a class loader from a parent.
@@ -33,6 +35,7 @@ public class GoloClassLoader extends ClassLoader {
    */
   public GoloClassLoader(ClassLoader parent) {
     super(parent);
+    compiler = new GoloCompiler();
   }
 
   /**
@@ -40,6 +43,11 @@ public class GoloClassLoader extends ClassLoader {
    */
   public GoloClassLoader() {
     super();
+    compiler = new GoloCompiler();
+  }
+
+  public GoloCompiler getCompiler() {
+    return this.compiler;
   }
 
   /**
@@ -51,7 +59,23 @@ public class GoloClassLoader extends ClassLoader {
    * @throws GoloCompilationException if either of the compilation phase failed.
    */
   public synchronized Class<?> load(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    List<CodeGenerationResult> results = compiler.compile(goloSourceFilename, sourceCodeInputStream);
+    return load(compiler.compile(goloSourceFilename, sourceCodeInputStream));
+  }
+
+  /**
+   * Compiles and loads the resulting JVM bytecode for a Golo module IR.
+   *
+   * @param goloSourceFilename    the source file name.
+   * @param module  the Golo module IR to load.
+   * @return the class matching the Golo module defined in the IR.
+   * @throws GoloCompilationException if either of the compilation phase failed.
+   */
+  public synchronized Class<?> load(String goloSourceFilename, GoloModule module) {
+    compiler.refine(module);
+    return load(compiler.generate(module, goloSourceFilename));
+  }
+
+  private Class<?> load(List<CodeGenerationResult> results) {
     Class<?> lastClassIsModule = null;
     for (CodeGenerationResult result : results) {
       byte[] bytecode = result.getBytecode();

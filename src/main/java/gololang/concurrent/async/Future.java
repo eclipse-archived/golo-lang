@@ -71,6 +71,7 @@ public interface Future {
   /**
    * Simple interface for a future observer / callback.
    */
+  @FunctionalInterface
   interface Observer {
 
     /**

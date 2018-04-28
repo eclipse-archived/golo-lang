@@ -75,7 +75,7 @@ final class CharRange extends AbstractRange<Character> {
 
       private boolean started = false;
       private char current = from();
-      private char to = to();
+      private final char to = to();
 
       @Override
       public boolean hasNext() {
@@ -90,7 +90,7 @@ final class CharRange extends AbstractRange<Character> {
         } else {
           started = true;
         }
-        current = (char) (current + increment());
+        current += increment();
         return value;
       }
     };

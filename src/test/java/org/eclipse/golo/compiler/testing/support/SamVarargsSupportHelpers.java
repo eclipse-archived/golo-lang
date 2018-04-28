@@ -12,8 +12,8 @@ package org.eclipse.golo.compiler.testing.support;
 
 public class SamVarargsSupportHelpers {
 
-  public static interface EchoVA {
-    public Object echo(Object... echo);
+  public interface EchoVA {
+    Object echo(Object... echo);
   }
 
   public static Object apply(EchoVA echo) {

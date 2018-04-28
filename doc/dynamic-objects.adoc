@@ -146,7 +146,7 @@ thus write code such as:
 ----
 function dump = |obj| {
   foreach prop in obj: properties() {
-    println(prop: getKey() + " -> " + prop: getValue())
+    println(prop: key() + " -> " + prop: value())
   }
 }
 ----

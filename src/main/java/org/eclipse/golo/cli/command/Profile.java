@@ -22,7 +22,7 @@ class Profile {
   private String defaultFileName;
   private String label;
   private boolean runnable = false;
-  private List<Path> directories = emptyList();;
+  private List<Path> directories = emptyList();
 
   public Profile defaultFileName(String fileName) {
     this.defaultFileName = fileName;

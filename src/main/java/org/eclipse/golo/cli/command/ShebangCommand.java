@@ -11,19 +11,16 @@ package org.eclipse.golo.cli.command;
 
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
-import java.io.IOException;
-import java.io.InputStream;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.Paths;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.stream.Collectors;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
+
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.*;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static gololang.Messages.message;
 
@@ -63,7 +60,7 @@ public class ShebangCommand implements CliCommand {
   private List<String> classpath(Path basedir) throws IOException {
     PathMatcher jarFiles = FileSystems.getDefault().getPathMatcher("glob:**/*.jar");
     return Files.walk(basedir)
-        .filter(path -> jarFiles.matches(path))
+        .filter(jarFiles::matches)
         .map(path -> path.toAbsolutePath().toString())
         .collect(Collectors.toList());
   }

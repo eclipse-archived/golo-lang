@@ -12,13 +12,12 @@ package org.eclipse.golo.runtime;
 
 import java.lang.invoke.CallSite;
 import java.lang.invoke.ConstantCallSite;
-import java.lang.invoke.MethodHandles;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.invoke.MethodType;
 
-import static org.eclipse.golo.runtime.Module.imports;
-import static java.lang.invoke.MethodHandles.constant;
-
 import static gololang.Messages.message;
+import static java.lang.invoke.MethodHandles.constant;
+import static org.eclipse.golo.runtime.Module.imports;
 
 public final class ClassReferenceSupport {
 
@@ -26,7 +25,7 @@ public final class ClassReferenceSupport {
     throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type) throws ClassNotFoundException {
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type) throws ClassNotFoundException {
     String className = name.replaceAll("#", "\\.");
     Class<?> callerClass = caller.lookupClass();
     ClassLoader classLoader = callerClass.getClassLoader();

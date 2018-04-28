@@ -299,7 +299,7 @@ Instead, we provide 3 helper functions.
 let e = mapEntry("foo", "bar")
 
 # prints "foo => bar"
-println(e: getKey() + " => " + e: getValue())
+println(e: key() + " => " + e: value())
 ----
 
 `box` gives instances of `java.util.concurrent.atomic.AtomicReference`, and can

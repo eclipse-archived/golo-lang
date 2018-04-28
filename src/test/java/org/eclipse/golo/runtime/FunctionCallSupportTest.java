@@ -61,7 +61,7 @@ public class FunctionCallSupportTest {
 
 
   @FunctionalInterface
-  static interface DummyFunctionalInterface {
+  interface DummyFunctionalInterface {
 
     String plop();
 

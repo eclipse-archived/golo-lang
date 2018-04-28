@@ -151,7 +151,7 @@ public class BigIntegerRangeTest {
       assertThat(range.iterator().hasNext(), is(false));
       assertThat(range.isEmpty(), is(true));
       assertThat(range.size(), is(0));
-      assertThat((Object) range.head(), is(nullValue()));
+      assertThat(range.head(), is(nullValue()));
       assertThat(range.tail().isEmpty(), is(true));
     }
   }

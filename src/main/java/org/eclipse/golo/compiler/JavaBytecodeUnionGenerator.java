@@ -10,9 +10,9 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.Union;
-import org.eclipse.golo.compiler.ir.UnionValue;
-import org.eclipse.golo.compiler.ir.Member;
+import gololang.ir.Union;
+import gololang.ir.UnionValue;
+import gololang.ir.Member;
 import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;

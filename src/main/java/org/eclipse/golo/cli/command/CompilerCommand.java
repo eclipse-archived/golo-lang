@@ -44,8 +44,7 @@ public class CompilerCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     // TODO: recurse into directories
-    classpath.initGoloClassLoader();
-    GoloCompiler compiler = new GoloCompiler();
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     final boolean compilingToJar = this.output.endsWith(".jar");
     File outputDir = compilingToJar ? null : new File(this.output);
     JarOutputStream jarOutputStream = compilingToJar ? new JarOutputStream(new FileOutputStream(new File(this.output)), manifest()) : null;

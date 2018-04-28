@@ -13,8 +13,8 @@ package org.eclipse.golo.doc;
 import gololang.IO;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.LinkedList;
+import java.util.Map;
 
 public class CtagsProcessor extends AbstractProcessor {
 
@@ -36,7 +36,11 @@ public class CtagsProcessor extends AbstractProcessor {
   }
 
   private void ctagsFunction(FunctionDocumentation funct, String parent, boolean named) {
-    String address = String.format("/function[:blank:]+%s[:blank:]+=/", funct.name());
+    ctagsFunction(funct, parent, named, "function", "f");
+  }
+
+  private void ctagsFunction(FunctionDocumentation funct, String parent, boolean named, String keyword, String tag) {
+    String address = String.format("/%s[:blank:]+%s[:blank:]+=/", keyword, funct.name());
 
     StringBuilder signature = new StringBuilder("\tsignature:(");
     if (funct.arity() > 0) {
@@ -48,7 +52,7 @@ public class CtagsProcessor extends AbstractProcessor {
     }
     signature.append(")");
 
-    StringBuilder fields = new StringBuilder("f");
+    StringBuilder fields = new StringBuilder(tag);
     fields.append("\tline:").append(funct.line());
     if (funct.local()) {
       fields.append("\taccess:private\tfile:");
@@ -178,7 +182,7 @@ public class CtagsProcessor extends AbstractProcessor {
   @Override
   public void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable {
     Path targetFile = null;
-    if (targetFolder.toString().equals("-")) {
+    if ("-".equals(targetFolder.toString())) {
       targetFile = targetFolder;
     } else {
       targetFile = targetFolder.resolve("tags");

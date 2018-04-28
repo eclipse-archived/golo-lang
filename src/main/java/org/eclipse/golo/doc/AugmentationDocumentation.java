@@ -28,8 +28,8 @@ class AugmentationDocumentation extends AbstractSet<FunctionDocumentation> imple
   private String documentation;
   private int line;
   private DocumentationElement parent;
-  private SortedSet<FunctionDocumentation> functions = new TreeSet<>();
-  private List<String> augmentationNames = new LinkedList<>();
+  private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
+  private final List<String> augmentationNames = new LinkedList<>();
 
   /**
    * {@inheritDoc}

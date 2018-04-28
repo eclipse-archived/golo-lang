@@ -132,7 +132,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    */
   @Override
   public Iterator<Object> iterator() {
-    return new HeadTailIterator<Object>(this);
+    return new HeadTailIterator<>(this);
   }
 
   /**

@@ -12,13 +12,14 @@ package org.eclipse.golo.doc;
 
 import java.util.List;
 import java.util.LinkedList;
+import java.util.Objects;
 
 class FunctionDocumentation implements DocumentationElement {
 
   private String name;
   private int line;
   private String documentation;
-  private List<String> arguments = new LinkedList<>();
+  private final List<String> arguments = new LinkedList<>();
   private boolean augmentation = false;
   private boolean varargs = false;
   private boolean local = false;
@@ -167,6 +168,24 @@ class FunctionDocumentation implements DocumentationElement {
   public FunctionDocumentation parent(DocumentationElement p) {
     parent = p;
     return this;
+  }
+
+  @Override
+  public boolean equals(Object other) {
+    if (other == null) { return false; }
+    if (other == this) { return true; }
+    if (!(other instanceof FunctionDocumentation)) { return false; }
+    FunctionDocumentation that = (FunctionDocumentation) other;
+    return this.name.equals(that.name)
+        && this.local == that.local
+        && this.varargs == that.varargs
+        && this.augmentation == that.augmentation
+        && this.arity() == that.arity();
+  }
+
+  @Override
+  public int hashCode() {
+    return Objects.hash(this.name, this.local, this.varargs, this.augmentation, this.arity());
   }
 
   @Override

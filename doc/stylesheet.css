@@ -51,7 +51,17 @@ h3, .details li.blockList > pre {
   font-size: 180%;
   font-style: normal;
   font-weight: bold;
+  white-space: normal;
 }
+
+.details li.blockList > pre > a {
+  color: #666;
+}
+
+.details li.blockList > pre > a:nth-of-type(2) {
+  color: #333;
+}
+
 .details h4 { display: none }
 h4 {
   font-size: 130%;

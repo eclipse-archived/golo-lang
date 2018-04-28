@@ -77,8 +77,8 @@ final class BigIntegerRange extends AbstractRange<BigInteger> {
 
       private boolean started = false;
       private BigInteger current = from();
-      private BigInteger to = to();
-      private BigInteger inc = _increment();
+      private final BigInteger to = to();
+      private final BigInteger inc = _increment();
 
       @Override
       public boolean hasNext() {

@@ -34,4 +34,9 @@ public class ASTUnaryExpression extends GoloASTNode {
   public Object jjtAccept(GoloParserVisitor visitor, Object data) {
     return visitor.visit(this, data);
   }
+
+  @Override
+  public String toString() {
+    return String.format("ASTUnaryExpression{operator=%s}", operator);
+  }
 }

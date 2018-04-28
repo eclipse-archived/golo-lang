@@ -56,7 +56,7 @@ public class GoloGoloCommand implements CliCommand {
     }
     try {
       callRun(lastClass, this.arguments.toArray(new String[this.arguments.size()]));
-    } catch (CliCommand.NoMainMethodException e) {
+    } catch (NoMainMethodException e) {
       error(message("module_no_main", lastClass.getName()));
     }
   }

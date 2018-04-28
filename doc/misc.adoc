@@ -257,7 +257,7 @@ to test if the host operating system is _likely_ to support ANSI codes.
 The `gololang.Errors` module offers types, augmentations and decorators to deal with errors in a more functional way. This is similar for instance to Haskell
 https://hackage.haskell.org/package/base/docs/Data-Maybe.html[`Maybe`] and
 https://hackage.haskell.org/package/base/docs/Data-Either.html[`Either`] or Rust
-https://doc.rust-lang.org/std/option/[`Option`] and 
+https://doc.rust-lang.org/std/option/[`Option`] and
 https://doc.rust-lang.org/std/result/[`Result`].
 
 ==== Option
@@ -316,8 +316,8 @@ function safeGetter = |aMap, aKey| -> aMap: get(aKey)
 let m = map[["a", 2], ["answer", 12]]
 
 # (19 + 2) * 2 = 42
-safeGetter(m, "answer"): map(^plus2): map(^mult2): orElseGet(^bar)    
-      
+safeGetter(m, "answer"): map(^plus2): map(^mult2): orElseGet(^bar)
+
 # get null, option returns None, bar gives 42
 safeGetter(m, "plop"): map(^plus2): map(^mult2): orElseGet(^bar)
 
@@ -325,7 +325,7 @@ safeGetter(m, "plop"): map(^plus2): map(^mult2): orElseGet(^bar)
 safeGetter(null, "answer"): map(^plus2): map(^mult2): orElseGet(^bar)
 ----
 
-See the link:./golodoc/gololang/Errors[`gololang.Errors`] module documentation for a full description of the added methods.
+See the link:{golodoc}/gololang/Errors.html[`gololang.Errors`] module documentation for a full description of the added methods.
 
 ==== Result
 
@@ -333,14 +333,14 @@ See the link:./golodoc/gololang/Errors[`gololang.Errors`] module documentation f
 
 The `result` decorator is the equivalent to `option`. The `trying` higher order function takes an anonymous block, executes it and returns a corresponding `Result`.
 
-See the link:./golodoc/gololang/Errors[`gololang.Errors`] module documentation and the javadoc for the link:./javadoc/gololang/error/Result.html[`gololang.error.Result`] class for more details.
+See the link:{golodoc}/gololang/Errors.html[`gololang.Errors`] module documentation and the javadoc for the link:{javadoc}/gololang/error/Result.html[`gololang.error.Result`] class for more details.
 
 As a bonus, `Result` objects can be destructured into the error and the value. For instance:
 
 [source,golo]
 ----
 @result
-function foo = { 
+function foo = {
   # can throw an exception, return null or a plain value
 }
 

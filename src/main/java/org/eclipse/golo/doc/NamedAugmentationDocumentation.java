@@ -24,7 +24,7 @@ class NamedAugmentationDocumentation extends AbstractSet<FunctionDocumentation> 
   private String documentation;
   private int line;
   private DocumentationElement parent;
-  private Set<FunctionDocumentation> functions = new TreeSet<>();
+  private final Set<FunctionDocumentation> functions = new TreeSet<>();
 
   /**
    * {@inheritDoc}

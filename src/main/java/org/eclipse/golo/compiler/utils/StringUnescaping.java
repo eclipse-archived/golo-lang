@@ -25,7 +25,7 @@ public final class StringUnescaping {
         switch (nextChar) {
           case 'u':
             ch = (char) Integer.parseInt(str.substring(i + 2, i + 6), 16);
-            i = i + 4;
+            i += 4;
             break;
           case '\\':
             ch = '\\';

@@ -21,12 +21,12 @@ public abstract class GoloTest {
   private GoloClassLoader loader;
   private static final String RESOURCES = "src/test/resources/";
 
-  protected Class<?> load(String moduleName) throws Throwable {
+  public Class<?> load(String moduleName) throws Throwable {
     return TestUtils.compileAndLoadGoloModule(RESOURCES + srcDir(), moduleName + ".golo", loader);
   }
 
-  protected void run(String moduleName) throws Throwable {
-    TestUtils.runTests(RESOURCES + srcDir(), moduleName + ".golo", loader);
+  public void run(String moduleName) throws Throwable {
+    TestUtils.runTestsIn(load(moduleName), filenameFor(moduleName));
   }
 
   protected Object run(String moduleName, String functionName, Object... args) throws Throwable {
@@ -40,7 +40,11 @@ public abstract class GoloTest {
     return null;
   }
 
-  protected abstract String srcDir();
+  public String filenameFor(String moduleName) {
+    return RESOURCES + srcDir() + moduleName + ".golo";
+  }
+
+  public abstract String srcDir();
 
   @BeforeMethod
   public void setUp() {

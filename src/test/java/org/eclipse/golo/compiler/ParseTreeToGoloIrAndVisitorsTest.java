@@ -10,12 +10,12 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.GoloModule;
+import gololang.ir.GoloModule;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
 import org.eclipse.golo.compiler.parser.GoloOffsetParser;
 import org.eclipse.golo.compiler.parser.GoloParser;
 import org.eclipse.golo.compiler.parser.ParseException;
-import org.eclipse.golo.compiler.ir.IrTreeDumper;
+import gololang.ir.IrTreeDumper;
 import org.eclipse.golo.internal.testing.TestUtils;
 
 import org.eclipse.golo.internal.testing.Tracing;

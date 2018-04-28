@@ -35,7 +35,7 @@ abstract class MethodFinder {
     this.callerClass = lookup.lookupClass();
   }
 
-  public abstract MethodHandle find();
+  abstract MethodHandle find();
 
   protected int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
     // deal with the first parameter (implicit receiver).
@@ -49,7 +49,7 @@ abstract class MethodFinder {
     return argumentsOrder;
   }
 
-  public MethodHandle reorderArguments(Method method, MethodHandle handle) {
+  MethodHandle reorderArguments(Method method, MethodHandle handle) {
     String[] argumentNames = invocation.argumentNames();
     if (argumentNames.length == 0) { return handle; }
     if (hasNamedParameters(method)) {

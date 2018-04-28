@@ -21,7 +21,7 @@ class UnionDocumentation implements DocumentationElement {
     private String name;
     private String documentation;
     private int line;
-    private List<MemberDocumentation> members = new LinkedList<>();
+    private final List<MemberDocumentation> members = new LinkedList<>();
     private DocumentationElement parent;
 
     public String type() {
@@ -95,7 +95,7 @@ class UnionDocumentation implements DocumentationElement {
   private String name;
   private String documentation;
   private int line;
-  private List<UnionValueDocumentation> values = new LinkedList<>();
+  private final List<UnionValueDocumentation> values = new LinkedList<>();
   private DocumentationElement parent;
 
   public String type() {

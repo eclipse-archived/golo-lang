@@ -10,7 +10,7 @@
 
 package org.eclipse.golo.doc;
 
-interface DocumentationElement extends Comparable<DocumentationElement> {
+public interface DocumentationElement extends Comparable<DocumentationElement> {
 
   /**
    * The simple name of the element.

@@ -11,6 +11,7 @@
 package org.eclipse.golo.runtime;
 
 import java.lang.invoke.*;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.Objects;
@@ -29,11 +30,11 @@ public final class OperatorSupport {
 
   static class MonomorphicInlineCache extends MutableCallSite {
 
-    final MethodHandles.Lookup callerLookup;
+    final Lookup callerLookup;
     final String name;
     MethodHandle fallback;
 
-    MonomorphicInlineCache(MethodHandles.Lookup callerLookup, String name, MethodType type) {
+    MonomorphicInlineCache(Lookup callerLookup, String name, MethodType type) {
       super(type);
       this.callerLookup = callerLookup;
       this.name = name;
@@ -55,7 +56,7 @@ public final class OperatorSupport {
 
   static {
     try {
-      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      Lookup lookup = MethodHandles.lookup();
 
       FALLBACK_1 = lookup.findStatic(
           OperatorSupport.class,
@@ -136,7 +137,7 @@ public final class OperatorSupport {
     return target.invokeWithArguments(args);
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, int arity) throws NoSuchMethodException, IllegalAccessException {
 
     if (NO_GUARD_OPERATORS.contains(name)) {
       MethodHandle target = caller.findStatic(OperatorSupport.class, name + "_noguard",

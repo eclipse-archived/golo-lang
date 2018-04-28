@@ -72,7 +72,7 @@ final class IntRange extends AbstractRange<Integer> {
 
       private boolean started = false;
       private int current = from();
-      private int to = to();
+      private final int to = to();
 
       @Override
       public boolean hasNext() {
@@ -84,14 +84,14 @@ final class IntRange extends AbstractRange<Integer> {
         final int value = current;
         if (started) {
           if (hasNext()) {
-            current = current + increment();
+            current += increment();
             return value;
           } else {
             throw new NoSuchElementException("iteration has finished");
           }
         } else {
           started = true;
-          current = current + increment();
+          current += increment();
           return value;
         }
       }

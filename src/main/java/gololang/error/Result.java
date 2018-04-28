@@ -438,7 +438,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * Ok(21): andThen(|x| -> x + 1): andThen(|x| -> Ok(2 * x)) == Ok(42)
    * </code></pre>
    */
-  public Result<? extends Object, ? extends Throwable> andThen(FunctionReference mapper) {
+  public Result<?, ? extends Throwable> andThen(FunctionReference mapper) {
     Objects.requireNonNull(mapper);
     if (isEmpty() || isError()) {
       return this;

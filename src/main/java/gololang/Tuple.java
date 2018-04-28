@@ -105,7 +105,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
           throw new NoSuchElementException();
         }
         Object result = data[i];
-        i = i + 1;
+        i++;
         return result;
       }
 

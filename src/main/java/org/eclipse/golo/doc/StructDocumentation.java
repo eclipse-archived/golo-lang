@@ -21,7 +21,7 @@ class StructDocumentation implements DocumentationElement, MemberHolder {
   private String name;
   private String documentation;
   private int line;
-  private List<MemberDocumentation> members = new LinkedList<>();
+  private final List<MemberDocumentation> members = new LinkedList<>();
   private DocumentationElement parent;
 
   public String type() {

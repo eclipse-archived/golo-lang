@@ -13,6 +13,7 @@ package org.eclipse.golo.runtime;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.util.Arrays;
 
 import static java.lang.invoke.MethodHandles.guardWithTest;
@@ -44,7 +45,7 @@ public final class ClosureCallSupport {
 
   static {
     try {
-      MethodHandles.Lookup lookup = MethodHandles.lookup();
+      Lookup lookup = MethodHandles.lookup();
 
       GUARD = lookup.findStatic(
           ClosureCallSupport.class,
@@ -60,7 +61,7 @@ public final class ClosureCallSupport {
     }
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, Object... bsmArgs) {
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, Object... bsmArgs) {
     boolean constant = ((int) bsmArgs[0]) == 1;
     String[] argumentNames = new String[bsmArgs.length - 1];
     for (int i = 0; i < bsmArgs.length - 1; i++) {

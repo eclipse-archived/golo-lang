@@ -9,11 +9,12 @@
  */
 package gololang;
 
-import java.net.URL;
-import java.io.InputStream;
-
-import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.cli.command.spi.CliCommand;
+import org.eclipse.golo.compiler.GoloClassLoader;
+import gololang.ir.GoloModule;
+
+import java.io.InputStream;
+import java.net.URL;
 
 import static java.util.Objects.requireNonNull;
 import static gololang.IO.toURL;
@@ -55,17 +56,14 @@ public final class Runtime {
     String val = null;
     if (prop != null) {
       val = System.getProperty(prop);
-      if (val != null) {
-        return val.toLowerCase().equals(value.toLowerCase());
-      }
     }
-    if (env != null) {
+    if (val == null && env != null) {
       val = System.getenv(env);
-      if (val != null) {
-        return val.toLowerCase().equals(value.toLowerCase());
-      }
     }
-    return defaultValue;
+    if (val == null) {
+      return defaultValue;
+    }
+    return val.toLowerCase().equals(value.toLowerCase());
   }
 
   private static boolean debug = loadBoolean("golo.debug", "GOLO_DEBUG", false);
@@ -136,15 +134,14 @@ public final class Runtime {
   /**
    * Load a golo file given its path or URL.
    *
-   * <p>Equivalent to {@code load(file, true)}.
+   * <p>Equivalent to {@code load(module, true)}.
    *
-   * @param file can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI}
-   *   identifying the file to load.
+   * @param module can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI} identifying the file to load, or directly a {@link GoloModule}.
    * @return the loaded module class.
    * @see #load(Object, boolean)
    */
-  public static Class<?> load(Object file) throws Exception {
-    return load(file, true);
+  public static Class<?> load(Object module) throws Exception {
+    return load(module, true);
   }
 
   /**
@@ -152,17 +149,20 @@ public final class Runtime {
    *
    * <p>If {@code failOnException} is false, any exception is swallowed and null is return.
    *
-   * @param file can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI}
-   *   identifying the file to load.
+   * @param module can be a {@code String}, a {@code java.nio.file.Path}, a {@code java.net.URL} or a {@code java.net.URI} identifying the file to load, or directly a {@link GoloModule}.
    * @param failOnException re-raise exception or not
    * @return the loaded module class, or {@code null} if an error occurred and {@code failOnException} is {@code false}
    * @see #load(Object, boolean)
    */
-  public static Class<?> load(Object file, boolean failOnException) throws Exception {
+  public static Class<?> load(Object module, boolean failOnException) throws Exception {
     try {
-      URL url = toURL(file);
+      if (module instanceof GoloModule) {
+        GoloModule mod = (GoloModule) module;
+        return classLoader().load(mod.sourceFile(), mod);
+      }
+      URL url = toURL(module);
       try (InputStream is = url.openStream()) {
-        return classLoader().load(file.toString(), is);
+        return classLoader().load(module.toString(), is);
       }
     } catch (Exception e) {
       if (failOnException) {

@@ -18,7 +18,7 @@ import java.util.function.Function;
  * names of the classes to load. Moreover, the {@code ClassNotFoundException} is catched to return
  * {@code null}, allowing a more "flowing" use. For instance:
  * <pre class="listing"><code class="lang-java" data-lang="java">
- * Loader loader = new Loader(this.getClass().getClassLoader());
+ * Loader loader = Loader.forObject(this);
  * Stream.of("java.lang.String", "gololang.Tuple", "foo.bar.Baz", "java.util.LinkedList")
  *     .map(loader)
  *     .filter(java.util.Objects::nonNull)
@@ -32,14 +32,37 @@ public final class Loader implements Function<String, Class<?>> {
     this.loader = loader;
   }
 
+  public static Loader forClassLoader(ClassLoader loader) {
+    return new Loader(loader);
+  }
+
+  /**
+   * Create a loader using the {@code ClassLoader} of the current thread.
+   *
+   * @return a {@code Loader}
+   */
+  public static Loader forCurrentThread() {
+    return new Loader(Thread.currentThread().getContextClassLoader());
+  }
+
   /**
    * Create a loader using the {@code ClassLoader} of the given class
    *
    * @param klass the class whose {@code ClassLoader} to use
    * @return a {@code Loader}
-   * */
+   */
   public static Loader forClass(Class<?> klass) {
     return new Loader(klass.getClassLoader());
+  }
+
+  /**
+   * Create a loader using the {@code ClassLoader} of the class of the given object
+   *
+   * @param obj the object whose class {@code ClassLoader} to use
+   * @return a {@code Loader}
+   */
+  static Loader forObject(Object obj) {
+    return forClass(obj.getClass());
   }
 
   /**

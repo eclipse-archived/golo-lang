@@ -75,12 +75,9 @@ public final class Observable {
    */
   public Observable filter(final Predicate predicate) {
     final Observable observable = new Observable(null);
-    this.onChange(new Observer() {
-      @Override
-      public void apply(Object newValue) {
-        if (predicate.apply(newValue)) {
-          observable.set(newValue);
-        }
+    this.onChange(newValue -> {
+      if (predicate.apply(newValue)) {
+        observable.set(newValue);
       }
     });
     return observable;
@@ -94,12 +91,7 @@ public final class Observable {
    */
   public Observable map(final Function function) {
     final Observable observable = new Observable(null);
-    this.onChange(new Observer() {
-      @Override
-      public void apply(Object newValue) {
-        observable.set(function.apply(newValue));
-      }
-    });
+    this.onChange(newValue -> observable.set(function.apply(newValue)));
     return observable;
   }
 
@@ -108,14 +100,17 @@ public final class Observable {
     return String.format("Observable{value=%s}", value);
   }
 
+  @FunctionalInterface
   public interface Function {
     Object apply(Object value);
   }
 
+  @FunctionalInterface
   public interface Predicate {
     boolean apply(Object value);
   }
 
+  @FunctionalInterface
   public interface Observer {
     void apply(Object newValue);
   }

@@ -294,7 +294,7 @@ println("golo": notExistingMethod(1,2))
 Golo comes with a set of pre-defined augmentations over collections, strings, closures and more.
 
 These augmentation do not require a special import, and they are defined in the
-link:./golodoc/gololang/StandardAugmentations[`gololang.StandardAugmentations`] module.
+link:{golodoc}/gololang/StandardAugmentations.html[`gololang.StandardAugmentations`] module.
 
 Here is an example:
 

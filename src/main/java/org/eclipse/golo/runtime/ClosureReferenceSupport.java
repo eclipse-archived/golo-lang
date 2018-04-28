@@ -13,6 +13,7 @@ package org.eclipse.golo.runtime;
 import gololang.FunctionReference;
 
 import java.lang.invoke.*;
+import java.lang.invoke.MethodHandles.Lookup;
 import java.lang.reflect.Method;
 import java.lang.reflect.Parameter;
 
@@ -25,7 +26,7 @@ public final class ClosureReferenceSupport {
     throw new UnsupportedOperationException("Don't instantiate invokedynamic bootstrap class");
   }
 
-  public static CallSite bootstrap(MethodHandles.Lookup caller, String name, MethodType type, String moduleClass, int arity, int varargs) throws Throwable {
+  public static CallSite bootstrap(Lookup caller, String name, MethodType type, String moduleClass, int arity, int varargs) throws Throwable {
     Class<?> module = caller.lookupClass().getClassLoader().loadClass(moduleClass);
     Method function = module.getDeclaredMethod(name, genericMethodType(arity, varargs == 1).parameterArray());
     function.setAccessible(true);

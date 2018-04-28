@@ -10,7 +10,7 @@
 
 package org.eclipse.golo.compiler;
 
-import org.eclipse.golo.compiler.ir.GoloModule;
+import gololang.ir.GoloModule;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
 import org.eclipse.golo.compiler.parser.GoloOffsetParser;
 import org.eclipse.golo.compiler.parser.GoloParser;
@@ -61,6 +61,7 @@ public class GoloCompiler {
   public void resetExceptionBuilder() {
     exceptionBuilder = null;
   }
+
   /**
    * Initializes a parser from an input stream. This method is made public for the requirements of IDEs support.
    *
@@ -101,10 +102,10 @@ public class GoloCompiler {
    */
   public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
     resetExceptionBuilder();
-    ASTCompilationUnit compilationUnit = parse(goloSourceFilename, initParser(goloSourceFilename, sourceCodeInputStream));
+    ASTCompilationUnit compilationUnit = parse(goloSourceFilename,
+                                          initParser(goloSourceFilename, sourceCodeInputStream));
     GoloModule goloModule = check(compilationUnit);
-    JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
-    return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
+    return generate(goloModule, goloSourceFilename);
   }
 
   private void throwIfErrorEncountered() {
@@ -166,7 +167,7 @@ public class GoloCompiler {
     for (CodeGenerationResult result : results) {
       String entryName = result.getPackageAndClass().packageName().replaceAll("\\.", "/");
       if (!entryName.isEmpty()) {
-        entryName = entryName + "/";
+        entryName += "/";
       }
       entryName = entryName + result.getPackageAndClass().className() + ".class";
       jarOutputStream.putNextEntry(new ZipEntry(entryName));
@@ -211,8 +212,12 @@ public class GoloCompiler {
    * @throws GoloCompilationException if an error exists in the source represented by the input parse tree.
    */
   public final GoloModule check(ASTCompilationUnit compilationUnit) {
-    GoloModule goloModule = transform(compilationUnit);
-    return refine(goloModule);
+    return refine(transform(compilationUnit));
+  }
+
+  public final List<CodeGenerationResult> generate(GoloModule goloModule, String goloSourceFilename) {
+    JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
+    return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
   }
 
   public final GoloModule transform(ASTCompilationUnit compilationUnit) {

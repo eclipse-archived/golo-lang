@@ -8,6 +8,10 @@
 :stylesheet: readthedocs.css
 :source-highlighter: highlightjs
 :highlightjsdir: .
+:samples-dir: ../samples
+:tests-dir: ../src/test/resources
+:golodoc: ./golodoc
+:javadoc: ./javadoc
 
 This is the documentation for the Golo programming language.
 

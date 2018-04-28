@@ -24,10 +24,14 @@ import java.util.LinkedList;
 import java.util.List;
 import java.lang.reflect.Method;
 import java.lang.reflect.InvocationTargetException;
+import gololang.Tuple;
+
 
 import static java.lang.reflect.Modifier.isStatic;
 import static java.lang.reflect.Modifier.isPublic;
 import static org.testng.Assert.fail;
+import static org.testng.Assert.assertEquals;
+
 
 public class TestUtils {
 
@@ -67,7 +71,7 @@ public class TestUtils {
   public static boolean isTestMethod(Method m) {
     return (isPublic(m.getModifiers())
         && isStatic(m.getModifiers())
-        && (m.getName().startsWith("test_") || m.getName().startsWith("check_"))
+        && (m.getName().startsWith("test") || m.getName().startsWith("check"))
         && m.getParameterCount() == 0);
   }
 
@@ -85,17 +89,26 @@ public class TestUtils {
     return new GoloClassLoader(o.getClass().getClassLoader());
   }
 
-  public static void runTests(String sourceFolder, String goloModuleName, GoloClassLoader classLoader) throws Throwable {
-    Class<?> testModule = compileAndLoadGoloModule(sourceFolder, goloModuleName, classLoader);
+  public static void runTestsIn(Class<?> testModule, String filename) throws Throwable {
     for (Method testMethod : getTestMethods(testModule)) {
       try {
-        testMethod.invoke(null);
+        Tuple result = (Tuple) testMethod.invoke(null);
+        if (result != null) {
+          assertEquals(result.get(0), result.get(1));
+        }
       } catch (InvocationTargetException e) {
         fail("method " + testMethod.getName()
-            + " in " + sourceFolder + goloModuleName + " failed: "
-            + e.getCause());
+            + " in " + testModule.getName()
+            + "(" + filename + ")"
+            + " failed: " + e.getCause());
       }
     }
+  }
+
+  public static void runTests(String sourceFolder, String goloModuleName, GoloClassLoader classLoader) throws Throwable {
+    runTestsIn(
+        compileAndLoadGoloModule(sourceFolder, goloModuleName, classLoader),
+        sourceFolder + goloModuleName);
   }
 
 }

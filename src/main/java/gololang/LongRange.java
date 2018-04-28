@@ -72,7 +72,7 @@ final class LongRange extends AbstractRange<Long> {
 
       private boolean started = false;
       private long current = from();
-      private long to = to();
+      private final long to = to();
 
       @Override
       public boolean hasNext() {
@@ -84,14 +84,14 @@ final class LongRange extends AbstractRange<Long> {
         final long value = current;
         if (started) {
           if (hasNext()) {
-            current = current + increment();
+            current += increment();
             return value;
           } else {
             throw new NoSuchElementException("iteration has finished");
           }
         } else {
           started = true;
-          current = current + increment();
+          current += increment();
           return value;
         }
       }

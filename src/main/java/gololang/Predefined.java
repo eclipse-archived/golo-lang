@@ -907,7 +907,7 @@ public final class Predefined {
    * @return a {@code java.util.concurrent.atomic.AtomicReference} instance wrapping the object
    */
   public static Object box(Object obj) {
-    return new java.util.concurrent.atomic.AtomicReference<Object>(obj);
+    return new java.util.concurrent.atomic.AtomicReference<>(obj);
   }
 
   // ...................................................................................................................
@@ -917,7 +917,7 @@ public final class Predefined {
    * @return a list of the given values.
    */
   public static List<Object> list(Object... values) {
-    return new LinkedList<Object>(Arrays.asList(values));
+    return new LinkedList<>(Arrays.asList(values));
   }
 
   /**
@@ -926,7 +926,7 @@ public final class Predefined {
    * @return a set of the given values.
    */
   public static Set<Object> set(Object... values) {
-    return new LinkedHashSet<Object>(Arrays.asList(values));
+    return new LinkedHashSet<>(Arrays.asList(values));
   }
 
   /**
@@ -944,7 +944,7 @@ public final class Predefined {
    * @return a vector of the give values.
    */
   public static List<Object> vector(Object... values) {
-    return new ArrayList<Object>(Arrays.asList(values));
+    return new ArrayList<>(Arrays.asList(values));
   }
 
   /**
