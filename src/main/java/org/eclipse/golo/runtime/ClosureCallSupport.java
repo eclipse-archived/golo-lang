@@ -124,23 +124,10 @@ public final class ClosureCallSupport {
   }
 
   private static MethodHandle reorderArguments(String[] parameterNames, MethodHandle handle, String[] argumentNames) {
-    if (parameterNames.length > 0) {
-      int[] argumentsOrder = new int[parameterNames.length + 1];
-      argumentsOrder[0] = 0;
-      argumentsOrder[1] = 1;
-      for (int i = 0; i < argumentNames.length; i++) {
-        int actualPosition = -1;
-        for (int j = 0; j < parameterNames.length; j++) {
-          if (parameterNames[j].equals(argumentNames[i])) {
-            actualPosition = j;
-          }
-        }
-        checkArgumentPosition(actualPosition, argumentNames[i], "closure " + Arrays.toString(parameterNames));
-        argumentsOrder[actualPosition + 1] = i + 1;
-      }
-      return permuteArguments(handle, handle.type(), argumentsOrder);
-    }
-    Warnings.noParameterNames("closure " + Arrays.toString(parameterNames), argumentNames);
-    return handle;
+    return NamedArgumentsHelper.reorderArguments(
+        "closure " + Arrays.toString(parameterNames),
+        Arrays.asList(parameterNames),
+        handle,
+        argumentNames, 1, 1);
   }
 }

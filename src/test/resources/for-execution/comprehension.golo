@@ -162,8 +162,8 @@ function run = |tests...| {
     println("FAILED")
     System.exit(1)
   }
-
 }
+
 function main = |args| {
   run(
     ^test_forloop,

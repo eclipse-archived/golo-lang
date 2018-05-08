@@ -147,6 +147,7 @@ public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
         accessed(name);
       }
     }
+
     functionInvocation.walk(this);
   }
 

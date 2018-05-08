@@ -14,6 +14,7 @@ import gololang.ir.*;
 import java.util.List;
 import java.util.Deque;
 import java.util.LinkedList;
+import java.util.function.Function;
 
 import static gololang.ir.MethodInvocation.invoke;
 import static gololang.ir.ConditionalBranching.branch;
@@ -24,7 +25,7 @@ import static gololang.ir.ConditionalBranching.branch;
  * Modify the IR to transform some nodes, in order to expand syntactic sugar, such as case and match
  * statements, foreach loops, list comprehension, and so on.
  */
-public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
+class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
   private final SymbolGenerator symbols = new SymbolGenerator("golo.compiler.sugar");
   private final List<GoloFunction> functionsToAdd = new LinkedList<>();
@@ -39,6 +40,9 @@ public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     }
   }
 
+  /**
+   * Generate the local function corresponding to this closure.
+   */
   @Override
   public void visitBlock(Block block) {
     visitExpression(block);
@@ -88,6 +92,12 @@ public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    */
   @Override
   public void visitCaseStatement(CaseStatement caseStatement) {
+    ConditionalBranching branch = convertCaseToConditional(caseStatement);
+    caseStatement.replaceInParentBy(branch);
+    branch.accept(this);
+  }
+
+  private ConditionalBranching convertCaseToConditional(CaseStatement caseStatement) {
     Deque<WhenClause<Block>> clauses = new LinkedList<>(caseStatement.getClauses());
     WhenClause<Block> lastClause = clauses.removeLast();
     ConditionalBranching branch = branch()
@@ -103,15 +113,13 @@ public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
         .elseBranch(branch)
         .positionInSourceCode(lastClause.positionInSourceCode());
     }
-    caseStatement.replaceInParentBy(branch);
-    branch.accept(this);
+    return branch;
   }
 
   /**
    * Match expansion.
    * <p>
-   * Convert a {@link MatchExpression} node into a block containing a {@link CaseStatement},
-   * replace it in the parent and visit it to expand it.
+   * Convert a {@link MatchExpression} node into a block containing a {@link CaseStatement}.
    * For instance
    * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * match {
@@ -136,29 +144,80 @@ public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     LocalReference tempVar = LocalReference.of(symbols.next("match"))
       .variable()
       .synthetic();
+    Block converted = convertMatchToBlock(matchExpression, (e) -> AssignmentStatement.create(tempVar, e, false));
+    converted.prepend(AssignmentStatement.create(tempVar, ConstantStatement.of(null), true));
+    converted.add(tempVar.lookup());
+    matchExpression.replaceInParentBy(converted);
+    converted.accept(this);
+  }
+
+  private static Block convertMatchToBlock(MatchExpression matchExpression, Function<ExpressionStatement<?>, ? extends GoloStatement<?>> mapping) {
+    Block converted = Block.empty();
+    for (GoloAssignment<?> a : matchExpression.declarations()) {
+      converted.add(a);
+    }
+    matchExpression.clearDeclarations();
+    converted.add(convertMatchToMappedCase(matchExpression, mapping));
+    return converted;
+  }
+
+  private static CaseStatement convertMatchToMappedCase(MatchExpression matchExpression, Function<ExpressionStatement<?>, ? extends GoloStatement<?>> mapping) {
     CaseStatement caseStatement = CaseStatement.cases()
-      .positionInSourceCode(matchExpression.positionInSourceCode())
-      .otherwise(Block.of(
-            AssignmentStatement.create(tempVar, matchExpression.getOtherwise(), false)));
+      .otherwise(Block.of(mapping.apply(matchExpression.getOtherwise())));
 
     for (WhenClause<ExpressionStatement<?>> c : matchExpression.getClauses()) {
       caseStatement.when(c.condition())
-        .then(Block.of(
-              AssignmentStatement.create(tempVar, c.action(), false)
-              .positionInSourceCode(c.action().positionInSourceCode())
-            ).positionInSourceCode(c.action().positionInSourceCode()))
+        .then(mapping.apply(c.action()).positionInSourceCode(c.action().positionInSourceCode()))
         .positionInSourceCode(c.positionInSourceCode());
     }
-    Block block = Block.empty();
-    for (GoloAssignment<?> a : matchExpression.declarations()) {
-      block.add(a);
+    return caseStatement;
+  }
+
+  /**
+   * Special returned values.
+   *
+   * <p>
+   * Deal with special return cases:
+   * <ul>
+   *   <li>when returning a {@link MatchExpression}, convert it to a
+   * {@link CaseStatement} containing {@link ReturnStatement} instead of assignments.
+   * For instance
+   * <pre>
+   * return match {
+   *   when cond1 then val1
+   *   when cond2 then val2
+   *   otherwise val3
+   * }
+   * </pre>
+   * is converted into the equivalent of
+   * <pre>
+   * case {
+   *   when cond1 {
+   *     return val1
+   *   }
+   *   when cond2 {
+   *     return val2
+   *   }
+   *   otherwise {
+   *     return val3
+   *   }
+   * }
+   * </pre>
+   *
+   * This will allows for better optimisations (e.g. TCE).
+   * </li>
+   * </ul>
+   */
+  @Override
+  public void visitReturnStatement(ReturnStatement ret) {
+    if (ret.expression() instanceof MatchExpression) {
+      MatchExpression matchExpression = (MatchExpression) ret.expression();
+      Block converted = convertMatchToBlock(matchExpression, ReturnStatement::of);
+      ret.replaceInParentBy(converted);
+      converted.accept(this);
+    } else {
+      super.visitReturnStatement(ret);
     }
-    matchExpression.clearDeclarations();
-    block.add(AssignmentStatement.create(tempVar, null, true));
-    block.add(caseStatement);
-    block.add(tempVar.lookup());
-    matchExpression.replaceInParentBy(block);
-    block.accept(this);
   }
 
   /**

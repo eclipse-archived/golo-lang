@@ -1,4 +1,5 @@
 
+[[decorators]]
 == Decorators
 
 Golo features Python-like decorators.

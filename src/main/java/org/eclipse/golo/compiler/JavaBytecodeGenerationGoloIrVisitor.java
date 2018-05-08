@@ -45,6 +45,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private static final Handle CLOSURE_INVOCATION_HANDLE = makeHandle(
       "ClosureCallSupport", "[Ljava/lang/Object;");
 
+  private static final JavaBytecodeStructGenerator STRUCT_GENERATOR = new JavaBytecodeStructGenerator();
+  private static final JavaBytecodeUnionGenerator UNION_GENERATOR = new JavaBytecodeUnionGenerator();
+
+  private static final boolean USE_TCE = gololang.Runtime.loadBoolean("golo.optimize.tce", "GOLO_OPTIMIZE_TCE", true);
+
   private ClassWriter classWriter;
   private String klass;
   private String jvmKlass;
@@ -54,8 +59,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private Context context;
   private GoloModule currentModule;
   private String returnTypeCast;
-  private static final JavaBytecodeStructGenerator STRUCT_GENERATOR = new JavaBytecodeStructGenerator();
-  private static final JavaBytecodeUnionGenerator UNION_GENERATOR = new JavaBytecodeUnionGenerator();
+  private GoloFunction currentFunction;
+  private final Map<GoloFunction, Label> functionLabels = new HashMap<>();
 
   private static final class Context {
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
@@ -339,9 +344,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       currentMethodVisitor.visitParameter(parameter, ACC_FINAL);
     }
     currentMethodVisitor.visitCode();
-    visitLine(function, currentMethodVisitor);
+    functionLabels.put(function, visitLine(function, currentMethodVisitor));
+    currentFunction = function;
     function.walk(this);
     returnTypeCast = null;
+    currentFunction = null;
     if (function.isModuleInit()) {
       currentMethodVisitor.visitInsn(RETURN);
     }
@@ -489,7 +496,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitReturnStatement(ReturnStatement returnStatement) {
-    returnStatement.walk(this);
+    GoloStatement<?> expr = returnStatement.expression();
+    if (isRecursiveTailCall(expr)) {
+      storeInvocationArguments((FunctionInvocation) expr, currentFunction);
+      currentMethodVisitor.visitJumpInsn(GOTO, functionLabels.get(currentFunction));
+      return;
+    }
+    if (expr != null) {
+      expr.accept(this);
+    }
     if (returnStatement.isReturningVoid()) {
       currentMethodVisitor.visitInsn(RETURN);
     } else {
@@ -498,7 +513,19 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       }
       currentMethodVisitor.visitInsn(ARETURN);
     }
+  }
 
+  private boolean isRecursiveTailCall(GoloStatement<?> statement) {
+    if (USE_TCE && statement instanceof FunctionInvocation) {
+      FunctionInvocation invoke = (FunctionInvocation) statement;
+      if (currentFunction.isDecorated()) { return false; }
+      if (invoke.isOnReference()) {
+        return invoke.getName().equals(currentFunction.getSyntheticSelfName())
+          && invoke.getArity() == currentFunction.getArity() - currentFunction.getSyntheticParameterCount();
+      }
+      return invoke.getName().equals(currentFunction.getName()) && invoke.getArity() == currentFunction.getArity();
+    }
+    return false;
   }
 
   @Override
@@ -519,6 +546,38 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       argument.accept(this);
     }
     return argumentNames;
+  }
+
+  private void storeInvocationArguments(AbstractInvocation<?> invocation, GoloFunction function) {
+    int offset = function.getBlock().getReferenceTable().size();
+    storeRegularInvocationArguments(reorderArguments(invocation.getArguments(), function.getParameterNames()), offset);
+    reloadNextCallArguments(function.getArity(), offset, function.getSyntheticParameterCount());
+  }
+
+  private void reloadNextCallArguments(int paramNumber, int tmpOffset, int paramOffset) {
+    for (int i = 0; i < paramNumber - paramOffset; i++) {
+      currentMethodVisitor.visitVarInsn(ALOAD, i + tmpOffset);
+      currentMethodVisitor.visitVarInsn(ASTORE, i + paramOffset);
+    }
+  }
+
+  private static List<GoloElement<?>> reorderArguments(List<GoloElement<?>> arguments, List<String> parameterNames) {
+    if (!arguments.stream().allMatch(e -> e instanceof NamedArgument)) {
+      return arguments;
+    }
+    List<GoloElement<?>> ordered = new ArrayList<>(arguments);
+    for (GoloElement<?> arg : arguments) {
+      NamedArgument named = (NamedArgument) arg;
+      ordered.set(parameterNames.indexOf(named.getName()), named.expression());
+    }
+    return ordered;
+  }
+
+  private void storeRegularInvocationArguments(List<GoloElement<?>> arguments, int offset) {
+    for (int i = 0; i < arguments.size(); i++) {
+      arguments.get(i).accept(this);
+      currentMethodVisitor.visitVarInsn(ASTORE, i + offset);
+    }
   }
 
   @Override

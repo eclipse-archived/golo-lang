@@ -189,6 +189,10 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
     return Scope.AUGMENT.equals(scope);
   }
 
+  public boolean isInModule() {
+    return Scope.MODULE.equals(scope);
+  }
+
   public GoloFunction asClosure() {
     this.scope = Scope.CLOSURE;
     return this;

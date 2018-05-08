@@ -74,16 +74,13 @@ class AugmentationMethodFinder extends MethodFinder {
   }
 
   @Override
-  protected int[] getArgumentsOrder(Method method, List<String> parameterNames, String[] argumentNames) {
-    // redefined to ignore the first parameter (explicit receiver)
-    int[] argumentsOrder = new int[parameterNames.size()];
-    argumentsOrder[0] = 0;
-    for (int i = 0; i < argumentNames.length; i++) {
-      int actualPosition = parameterNames.indexOf(argumentNames[i]);
-      checkArgumentPosition(actualPosition, argumentNames[i], method.getName() + parameterNames);
-      argumentsOrder[actualPosition] = i + 1;
-    }
-    return argumentsOrder;
+  public MethodHandle reorderArguments(Method method, MethodHandle handle) {
+    return NamedArgumentsHelper.reorderArguments(
+        method.getName(),
+        NamedArgumentsHelper.getParameterNames(method),
+        handle,
+        invocation.argumentNames(),
+        1, 0);
   }
 
   @Override
