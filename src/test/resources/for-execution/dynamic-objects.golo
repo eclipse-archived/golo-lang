@@ -1,32 +1,47 @@
 module golotest.execution.DynamicObjects
 
-function get_value = -> DynamicObject(): define("foo", "foo"): foo()
+import org.hamcrest.MatcherAssert
+import org.hamcrest.Matchers
 
-function set_then_get_value = -> DynamicObject(): foo("foo"): foo()
-
-function call_as_method = -> DynamicObject():
-  define("echo", |this, str| -> str):
-  echo("w00t")
-
-function person_to_str = {
-  let bean = DynamicObject(): name("Mr Bean"): email("mrbean@outlook.com")
-  bean: define("toString", |this| -> this: name() + " <" + this: email() + ">")
-  return bean: toString()
+function test_get_value = {
+  assertThat(DynamicObject(): define("foo", "foo"): foo(), `is("foo"))
 }
 
-function with_function_update = {
-  let obj = DynamicObject(): define("value", 0)
-  obj: define("operation", |this| -> this: value(this: value() + 1))
+function test_set_then_get_value = {
+  assertThat(DynamicObject(): foo("foo"): foo(), `is("foo"))
+}
+
+function test_call_as_method = {
+  assertThat(
+    DynamicObject()
+    : define("echo", |this, str| -> str)
+    : echo("w00t"),
+    `is("w00t"))
+}
+
+function test_person_to_str = {
+  let bean = DynamicObject()
+    : name("Mr Bean")
+    : email("mrbean@outlook.com")
+    : define("toString",
+        |this| -> this: name() + " <" + this: email() + ">")
+  assertThat(bean: toString(), `is("Mr Bean <mrbean@outlook.com>"))
+}
+
+function test_with_function_update = {
+  let obj = DynamicObject()
+    : define("value", 0)
+    : define("operation", |this| -> this: value(this: value() + 1))
   foreach (i in range(0, 10)) {
     obj: operation()
   }
   obj: define("operation", |this| -> this: value(this: value() * 2))
   obj: operation()
   obj: operation()
-  return obj: value()
+  assertThat(obj: value(), `is(40))
 }
 
-function mixins = {
+function test_mixins = {
   let foo = DynamicObject():
     define("a", 1):
     define("b", |this, x| -> x + 1):
@@ -35,32 +50,27 @@ function mixins = {
     define("a", |this| -> 2):
     define("c", "[plop]")
   let baz = foo: mixin(bar)
-  return baz: a() + baz: b(1) + baz: c()
+  assertThat(baz: a() + baz: b(1) + baz: c(), `is("4[plop]"))
 }
 
-function copying = {
+function test_copying = {
   let foo = DynamicObject(): define("a", 1)
   let bar = foo: copy(): define("a", 2)
-  return foo: a() + bar: a()
+  assertThat(foo: a() + bar: a(), `is(3))
 }
 
-function mrfriz = {
+function test_mrfriz = {
   let foo = DynamicObject(): define("a", 1): freeze()
-  if (foo: a()) isnt 1 {
-    raise("a() shall have been 1")
-  }
+  assertThat(foo: a(), `is(1))
   try {
     foo: a(666)
-    return "freeze had no effect"
+    raise("freeze had no effect")
   } catch (e) {
-    return match {
-      when e oftype java.lang.IllegalStateException.class then "OK"
-      otherwise "WTF"
-    }
+    assertThat(e, isA(java.lang.IllegalStateException.class))
   }
 }
 
-function propz = {
+function test_propz = {
   let props = DynamicObject():
     foo("foo"):
     bar("bar"):
@@ -69,10 +79,11 @@ function propz = {
   foreach (prop in props) {
     result = result + prop: getKey() + ":" + prop: getValue()
   }
-  return result
+  # Damn ordering on sets...
+  assertThat(result, either(`is("foo:foobar:bar")): `or(`is("bar:barfoo:foo")))
 }
 
-function with_varargs = {
+function test_with_varargs = {
   let prefix = "@"
   let result = java.lang.StringBuilder()
   let obj = DynamicObject():
@@ -111,29 +122,28 @@ function with_varargs = {
   obj: jhon_doe(array[4, 5])
   obj: jhon_doe(array[])
 
-  return result: toString()
+  assertThat(result: toString(),
+    `is("||@1|@2@3|@4@5|[foo]@1[foo]@2@3[foo]@4@5[foo][fallback:jhon_doe][fallback:jhon_doe]@2@3"))
 }
 
-function kinds = {
+function test_kinds = {
   let t = DynamicObject("Foo")
 
-  require(t: hasKind("Foo"), "err with good hasKind")
-  require(not t: hasKind("Plop"), "err with bad hasKind")
-  require(t: sameKind(DynamicObject("Foo")), "err with good sameKind")
-  require(not t: sameKind(DynamicObject("Plop")), "err with bad sameKind")
-  return true
+  assertThat(t: hasKind("Foo"), `is(true))
+  assertThat(t: hasKind("Plop"), `is(false))
+  assertThat(t: sameKind(DynamicObject("Foo")), `is(true))
+  assertThat(t: sameKind(DynamicObject("Plop")), `is(false))
 }
 
-function checkToString = {
+function check_toString = {
   let t = DynamicObject("Foo"): name("bar")
-  require(t: toString() == "Foo{name=bar}", "err in default toString")
+  assertThat(t: toString(), `is("Foo{name=bar}"))
 
   t: define("toString", |this| -> "I'm a Foo named "+ this: name())
-  require(t: toString() == "I'm a Foo named bar", "err in redefined toString")
-  return true
+  assertThat(t: toString(), `is("I'm a Foo named bar"))
 }
 
-function checkDelegate = {
+function check_delegate = {
   let t = DynamicObject("deleguee")
     : name("Zaphod")
     : define("sayHello", |this| -> "Hello, I'm " + this: name())
@@ -145,31 +155,30 @@ function checkDelegate = {
     : define("varargs", |this, a, b...| -> "B" + a + b: asList())
     : fallback(DynamicObject.delegate(t))
 
-  require(s: sayHello() == "Hello, I'm Zaphod", "err sayHello")
-  require(s: name() == "Zaphod", "err name")
-  require(s: foo() == "bar", "err foo")
+  assertThat(s: sayHello(), `is("Hello, I'm Zaphod"))
+  assertThat(s: name(), `is("Zaphod"))
+  assertThat(s: foo(), `is("bar"))
 
   s: define("answer", 42)
-  require(s: answer() == 42, "err answer")
-  require(t: get("answer") is null, "err answer")
+  assertThat(s: answer(), `is(42))
+  assertThat(t: get("answer"), `is(nullValue()))
 
   s: prop1("a")
-  require(s: prop1() == "a", "err prop1")
-  require(t: get("prop1") is null, "err prop1")
+  assertThat(s: prop1(), `is("a"))
+  assertThat(t: get("prop1"), `is(nullValue()))
 
   s: name("Trillian")
-  require(s: name() == "Trillian", "err name 2")
-  require(t: name() == "Zaphod", "err name 2")
+  assertThat(s: name(), `is("Trillian"))
+  assertThat(t: name(), `is("Zaphod"))
 
-  require(s: varargs(1, 2, 3) == "B1[2, 3]", "err varargs")
-  require(s: multi(1, 2, 3) == "Z1[2, 3]", "err multi")
+  assertThat(s: varargs(1, 2, 3), `is("B1[2, 3]"))
+  assertThat(s: multi(1, 2, 3), `is("Z1[2, 3]"))
 
-  require(s: plic() is null, "err not defined get")
+  assertThat(s: plic(), `is(nullValue()))
   try {
     s: plop("a", "b")
     raise("err not defined call")
   } catch(e) {
-    require(e oftype UnsupportedOperationException.class, "err not defined call")
+    assertThat(e, isA(UnsupportedOperationException.class))
   }
-  return true
 }
