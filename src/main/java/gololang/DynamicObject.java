@@ -102,6 +102,7 @@ public final class DynamicObject {
    * @return the same dynamic object.
    */
   public DynamicObject undefine(String name) {
+    frozenMutationCheck();
     properties.remove(name);
     return this;
   }
@@ -147,7 +148,7 @@ public final class DynamicObject {
    * @return {@code true} if frozen, {@code false} otherwise.
    */
   public boolean isFrozen() {
-    return frozen;
+    return this.frozen;
   }
 
   /**
@@ -354,7 +355,7 @@ public final class DynamicObject {
   }
 
   private void frozenMutationCheck() {
-    if (frozen) {
+    if (this.frozen) {
       throw new IllegalStateException("the object is frozen");
     }
   }
