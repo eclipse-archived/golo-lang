@@ -286,4 +286,25 @@ public class DynamicObjectTest {
         "dynamic-objects.golo",
         classLoader(this));
   }
+
+  @Test
+  public void test_isFrozen() throws Throwable {
+    DynamicObject o = new DynamicObject();
+    assertThat(o.isFrozen(), is(false));
+    o.freeze();
+    assertThat(o.isFrozen(), is(true));
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void test_defined_frozen() throws Throwable {
+    DynamicObject o = new DynamicObject().freeze();
+    o.define("answer", 42);
+  }
+
+  @Test(expectedExceptions = IllegalStateException.class)
+  public void test_undefined_frozen() throws Throwable {
+    DynamicObject o = new DynamicObject().define("answer", 42).freeze();
+    o.undefine("answer");
+  }
+
 }

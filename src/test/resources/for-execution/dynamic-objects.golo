@@ -182,3 +182,32 @@ function check_delegate = {
     assertThat(e, isA(UnsupportedOperationException.class))
   }
 }
+
+function test_isFrozen = {
+  let o = DynamicObject()
+  assertThat(o: isFrozen(), `is(false))
+  o: freeze()
+  assertThat(o: isFrozen(), `is(true))
+}
+
+function test_defined_frozen = {
+  let o = DynamicObject(): freeze()
+  try {
+    o: define("answer", 42)
+    raise("should fail")
+  } catch(e) {
+    assertThat(e, isA(IllegalStateException.class))
+  }
+}
+
+function test_undefined_frozen = {
+  let o = DynamicObject(): define("answer", 42): freeze()
+  try {
+    o: undefine("answer")
+    raise("should fail")
+  } catch(e) {
+    assertThat(e, isA(IllegalStateException.class))
+  }
+}
+
+
