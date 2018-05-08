@@ -89,6 +89,7 @@ public final class MethodInvocationSupport {
       add("fallback");
       add("hasKind");
       add("sameKind");
+      add("isFrozen");
     }
   };
 

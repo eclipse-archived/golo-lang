@@ -1138,51 +1138,6 @@ public class CompileAndRunTest {
   }
 
   @Test
-  public void dynamic_objects() throws Throwable {
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "dynamic-objects.golo");
-
-    Method get_value = moduleClass.getMethod("get_value");
-    assertThat((String) get_value.invoke(null), is("foo"));
-
-    Method set_then_get_value = moduleClass.getMethod("set_then_get_value");
-    assertThat((String) set_then_get_value.invoke(null), is("foo"));
-
-    Method call_as_method = moduleClass.getMethod("call_as_method");
-    assertThat((String) call_as_method.invoke(null), is("w00t"));
-
-    Method person_to_str = moduleClass.getMethod("person_to_str");
-    assertThat((String) person_to_str.invoke(null), is("Mr Bean <mrbean@outlook.com>"));
-
-    Method with_function_update = moduleClass.getMethod("with_function_update");
-    assertThat((Integer) with_function_update.invoke(null), is(40));
-
-    Method mixins = moduleClass.getMethod("mixins");
-    assertThat((String) mixins.invoke(null), is("4[plop]"));
-
-    Method copying = moduleClass.getMethod("copying");
-    assertThat((Integer) copying.invoke(null), is(3));
-
-    Method mrfriz = moduleClass.getMethod("mrfriz");
-    assertThat((String) mrfriz.invoke(null), is("OK"));
-
-    Method propz = moduleClass.getMethod("propz");
-    // Damn ordering on sets...
-    assertThat((String) propz.invoke(null), either(is("foo:foobar:bar")).or(is("bar:barfoo:foo")));
-
-    Method with_varargs = moduleClass.getMethod("with_varargs");
-    assertThat((String) with_varargs.invoke(null), is("||@1|@2@3|@4@5|[foo]@1[foo]@2@3[foo]@4@5[foo][fallback:jhon_doe][fallback:jhon_doe]@2@3"));
-
-    Method kinds = moduleClass.getMethod("kinds");
-    assertThat((Boolean) kinds.invoke(null), is(true));
-
-    Method checkToString = moduleClass.getMethod("checkToString");
-    assertThat((Boolean) checkToString.invoke(null), is(true));
-
-    Method checkDelegate = moduleClass.getMethod("checkDelegate");
-    assertThat((Boolean) checkDelegate.invoke(null), is(true));
-  }
-
-  @Test
   public void continue_and_break() throws Throwable {
     Class<?> moduleClass = compileAndLoadGoloModule(SRC, "continue-and-break.golo");
 
