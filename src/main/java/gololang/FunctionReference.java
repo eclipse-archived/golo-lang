@@ -150,7 +150,7 @@ public class FunctionReference {
    * Check if this function can be invoked with the given number of arguments.
    */
   public boolean acceptArity(int nb) {
-    return arity() == nb || (arity() == nb + 1 && isVarargsCollector());
+    return arity() == nb || (nb >= arity() - 1 && isVarargsCollector());
   }
 
   public Object invoke(Object... args) throws Throwable {

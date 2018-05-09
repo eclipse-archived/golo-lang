@@ -224,6 +224,24 @@ function test_arity = {
   assertEquals((|a, b...| -> "dhoo"): arity(), 2)
 }
 
+function test_accept_arity = {
+  assertEquals(( -> null): acceptArity(0), true)
+  assertEquals(( -> null): acceptArity(1), false)
+  assertEquals((|a| -> null): acceptArity(0), false)
+  assertEquals((|a| -> null): acceptArity(1), true)
+  assertEquals((|a| -> null): acceptArity(2), false)
+
+  assertEquals((|a...| -> null): acceptArity(0), true)
+  assertEquals((|a...| -> null): acceptArity(1), true)
+  assertEquals((|a...| -> null): acceptArity(2), true)
+
+  assertEquals((|a, b...| -> null): acceptArity(0), false)
+  assertEquals((|a, b...| -> null): acceptArity(1), true)
+  assertEquals((|a, b...| -> null): acceptArity(2), true)
+  assertEquals((|a, b...| -> null): acceptArity(3), true)
+  assertEquals((|a, b...| -> null): acceptArity(42), true)
+}
+
 function test_iob = {
   assertEquals(^bar: invokeOrBind("a"): invokeOrBind("b"): invokeOrBind("c"),
                "abc")
