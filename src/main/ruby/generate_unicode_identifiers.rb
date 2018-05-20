@@ -10,7 +10,7 @@
 
 require 'open-uri'
 
-UNICODE_DATA_URL = "http://www.unicode.org/Public/6.2.0/ucd/UnicodeData.txt"
+UNICODE_DATA_URL = "https://www.unicode.org/Public/8.0.0/ucd/UnicodeData.txt"
 CATEGORIES = %w(Lu Ll Lo Lt Nl Sc Sm So Pc)
 EXCEPT = %w(+ - * / % < = > ! ( ) [ ] { } # ' " ^ | . ~ ^ \\ : ; ? @ `).map(&:ord)
 
