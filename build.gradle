@@ -149,10 +149,10 @@ jacocoTestReport {
 
 processResources {
   filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: [
-    'version': version,
-    'golo.version': version,
+    'version'              : version,
+    'golo.version'         : version,
     'gradle-plugin.version': '0.6',
-    'timestamp': versioning.info.full
+    'timestamp'            : versioning.info.full
   ])
 }
 
@@ -238,7 +238,6 @@ task golodebugScripts(type: CreateStartScripts) {
 }
 startScripts.dependsOn golodebugScripts
 
-
 // .................................................................................................................. //
 
 distributions {
@@ -285,18 +284,18 @@ ext.mavenRepos = []
 
 if (project.hasProperty('eclipseRepoUsername')) {
   mavenRepos.add([
-    name: 'eclipse',
-    url : 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/'),
-    user: eclipseRepoUsername,
+    name    : 'eclipse',
+    url     : 'https://repo.eclipse.org/content/repositories/golo-' + (version.endsWith('-SNAPSHOT') ? 'snapshots/' : 'releases/'),
+    user    : eclipseRepoUsername,
     password: eclipseRepoPassword
   ])
 }
 
 if (project.hasProperty('bintrayRepoUsername')) {
   mavenRepos.add([
-    name: 'bintray',
-    url: 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
-    user: bintrayRepoUsername,
+    name    : 'bintray',
+    url     : 'https://api.bintray.com/maven/golo-lang/golo-lang/golo',
+    user    : bintrayRepoUsername,
     password: bintrayRepoPassword
   ])
 }
@@ -304,41 +303,43 @@ if (project.hasProperty('bintrayRepoUsername')) {
 publishing {
   publications {
     golo(MavenPublication) {
-      pom.withXml {
-        asNode().children().last() + {
-          resolveStrategy = Closure.DELEGATE_FIRST
-          name 'Eclipse Golo Programming Language'
-          description 'Eclipse Golo: a lightweight dynamic language for the JVM.'
-          url 'http://golo-lang.org/'
-          developers {
-            developer {
-              name 'Golo committers'
-              email 'golo-dev@eclipse.org'
-            }
-          }
-          licenses {
-            license {
-              name 'Eclipse Public License - v 2.0'
-              url 'https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html'
-              distribution 'repo'
-            }
-          }
-          scm {
-            url 'https://github.com/eclipse/golo-lang'
-            connection 'scm:git:git@github.com:eclipse/golo-lang.git'
-            developerConnection 'scm:git:ssh:git@github.com:eclipse/golo-lang.git'
-          }
-        }
-      }
+
       from components.java
+
       artifact sourceJar {
         classifier 'sources'
       }
       artifact javadocJar {
         classifier 'javadoc'
       }
+
+      pom {
+        name = 'Eclipse Golo Programming Language'
+        description = 'Eclipse Golo: a lightweight dynamic language for the JVM.'
+        url = 'http://golo-lang.org/'
+        developers {
+          developer {
+            name = 'Golo committers'
+            email = 'golo-dev@eclipse.org'
+          }
+        }
+        licenses {
+          license {
+            name = 'Eclipse Public License - v 2.0'
+            url = 'https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html'
+            distribution = 'repo'
+          }
+        }
+        scm {
+          url = 'https://github.com/eclipse/golo-lang'
+          connection = 'scm:git:git@github.com:eclipse/golo-lang.git'
+          developerConnection = 'scm:git:ssh:git@github.com:eclipse/golo-lang.git'
+        }
+      }
     }
+
   }
+
   repositories {
     mavenRepos.each { repo ->
       maven {
@@ -357,7 +358,7 @@ publishing {
 
 bintray {
   user = project.hasProperty('bintrayRepoUsername') ? bintrayRepoUsername : System.getenv('BINTRAY_USER')
-  key  = project.hasProperty('bintrayRepoPassword') ? bintrayRepoPassword : System.getenv('BINTRAY_KEY')
+  key = project.hasProperty('bintrayRepoPassword') ? bintrayRepoPassword : System.getenv('BINTRAY_KEY')
   filesSpec {
     from distZip.archivePath
     into '.'
@@ -418,7 +419,7 @@ javadoc {
   options.addBooleanOption("-allow-script-in-comments", true)
 }
 
-task javadocJar (type: Jar, dependsOn: javadoc) {
+task javadocJar(type: Jar, dependsOn: javadoc) {
   from javadoc.destinationDir
 }
 
@@ -448,7 +449,7 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
 // .................................................................................................................. //
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '4.2.1'
+  gradleVersion = '4.8'
   description 'Generates the Gradle wrapper scripts.'
 }
 
