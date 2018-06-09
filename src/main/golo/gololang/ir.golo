@@ -80,7 +80,7 @@ augment gololang.ir.GoloElement {
   function dump = |this| -> this: accept(IrTreeDumper())
 }
 
-#== ## Types
+#== ## Types -----------------------------------------------------------------
 
 ----
 Creates a structure
@@ -103,7 +103,7 @@ However, this builder can be useful if one wants to customize the member (e.g. b
 function member = |name| -> Member.of(name)
 
 
-#== ## Functions
+#== ## Functions -------------------------------------------------------------
 
 ----
 Create a function decorator from the given expression.
@@ -131,7 +131,7 @@ and [`lambda`](#lambda_1v)
 function `function = |name| -> GoloFunction.`function(name)
 
 
-#== ## Augmentations
+#== ## Augmentations ---------------------------------------------------------
 
 ----
 Creates an augmentation on the target name.

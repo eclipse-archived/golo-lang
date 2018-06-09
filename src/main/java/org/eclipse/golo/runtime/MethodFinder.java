@@ -13,15 +13,11 @@ package org.eclipse.golo.runtime;
 import java.lang.invoke.MethodHandle;
 import java.lang.reflect.Method;
 import java.util.Optional;
-import java.util.List;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 
-import static java.lang.invoke.MethodHandles.permuteArguments;
 import static java.lang.invoke.MethodHandles.Lookup;
-import static org.eclipse.golo.runtime.NamedArgumentsHelper.hasNamedParameters;
 import static org.eclipse.golo.runtime.NamedArgumentsHelper.getParameterNames;
-import static org.eclipse.golo.runtime.NamedArgumentsHelper.checkArgumentPosition;
 
 abstract class MethodFinder {
 

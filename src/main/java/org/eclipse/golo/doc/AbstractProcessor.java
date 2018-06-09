@@ -18,23 +18,22 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.file.Path;
+import java.nio.file.FileSystems;
 import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeSet;
+import java.util.*;
 
 public abstract class AbstractProcessor {
 
   public abstract String render(ModuleDocumentation module) throws Throwable;
 
-  public abstract void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable;
+  public abstract void process(Collection<ModuleDocumentation> modules, Path targetFolder) throws Throwable;
 
   private final TemplateEngine templateEngine = new TemplateEngine();
   private final Map<String, FunctionReference> templateCache = new HashMap<>();
 
   private Path targetFolder;
   private final Set<ModuleDocumentation> modules = new TreeSet<>();
+  private Map<String, Set<ModuleDocumentation>> packages = new TreeMap<>();
 
   public void setTargetFolder(Path target) {
     this.targetFolder = target.toAbsolutePath();
@@ -49,7 +48,22 @@ public abstract class AbstractProcessor {
   }
 
   protected void addModule(ModuleDocumentation module) {
-    modules.add(module);
+    this.modules.add(module);
+    if (!module.isEmpty()) {
+      String packageName = module.packageName();
+      if (!packageName.isEmpty()) {
+        packages.putIfAbsent(packageName, new TreeSet<ModuleDocumentation>());
+        packages.get(packageName).add(module);
+      }
+    }
+  }
+
+  protected Set<ModuleDocumentation> getSubmodulesOf(ModuleDocumentation doc) {
+    return this.packages.getOrDefault(doc.moduleName(), Collections.emptySet());
+  }
+
+  public Set<Map.Entry<String, Set<ModuleDocumentation>>> getPackages() {
+    return this.packages.entrySet();
   }
 
   protected String fileExtension() {
@@ -82,7 +96,7 @@ public abstract class AbstractProcessor {
     if (targetFolder == null) {
       throw new IllegalStateException("no target folder defined");
     }
-    return targetFolder.resolve(name.replace('.', '/')
+    return targetFolder.resolve(name.replace(".", FileSystems.getDefault().getSeparator())
         + (fileExtension().isEmpty() ? "" : ("." + fileExtension())));
   }
 
@@ -93,6 +107,9 @@ public abstract class AbstractProcessor {
     DocumentationElement parent = doc;
     while (parent.parent() != parent) {
       parent = parent.parent();
+    }
+    if (parent instanceof ModuleDocumentation) {
+      return outputFile(((ModuleDocumentation) parent).moduleName());
     }
     return outputFile(parent.name());
   }
@@ -108,7 +125,7 @@ public abstract class AbstractProcessor {
     // The replace is to have a valid relative uri on Windows...
     // I'd rather use URI::relativize, but it only works when one URI is the strict prefix of the other
     // i.e. can't generate relative URIs containing '..' (what a shame!)
-    return doc.relativize(outputFile(dst)).toString().replace('\\', '/');
+    return doc.relativize(outputFile(dst)).toString().replace(FileSystems.getDefault().getSeparator(), "/");
   }
 
   /**
@@ -123,7 +140,7 @@ public abstract class AbstractProcessor {
     // The replace is to have a valid relative uri on Windows...
     // I'd rather use URI::relativize, but it only works when one URI is the strict prefix of the other
     // i.e. can't generate relative URIs containing '..' (what a shame!)
-    return out.relativize(outputFile(dst)).toString().replace('\\', '/');
+    return out.relativize(outputFile(dst)).toString().replace(FileSystems.getDefault().getSeparator(), "/");
   }
 
   protected void renderIndex(String templateName) throws Throwable {
@@ -155,6 +172,9 @@ public abstract class AbstractProcessor {
   public static String adaptSections(String documentation, int rootLevel) {
     if (documentation == null || documentation.isEmpty()) {
       return "";
+    }
+    if (rootLevel == 0) {
+      return documentation;
     }
     StringBuilder output = new StringBuilder();
     for (String line: documentation.split("\n")) {

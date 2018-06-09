@@ -14,7 +14,7 @@ import gololang.FunctionReference;
 import gololang.IO;
 
 import java.nio.file.Path;
-import java.util.Map;
+import java.util.Collection;
 
 public class MarkdownProcessor extends AbstractProcessor {
 
@@ -31,9 +31,9 @@ public class MarkdownProcessor extends AbstractProcessor {
   }
 
   @Override
-  public void process(Map<String, ModuleDocumentation> modules, Path targetFolder) throws Throwable {
+  public void process(Collection<ModuleDocumentation> modules, Path targetFolder) throws Throwable {
     setTargetFolder(targetFolder);
-    for (ModuleDocumentation doc : modules.values()) {
+    for (ModuleDocumentation doc : modules) {
       IO.textToFile(render(doc), outputFile(doc.moduleName()));
     }
     renderIndex("index");

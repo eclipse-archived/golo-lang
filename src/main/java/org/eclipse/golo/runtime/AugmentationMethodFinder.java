@@ -15,12 +15,10 @@ import java.lang.reflect.Method;
 import java.util.stream.Stream;
 import java.util.Comparator;
 import java.util.Objects;
-import java.util.List;
 import org.eclipse.golo.runtime.augmentation.DefiningModule;
 
 import static java.lang.invoke.MethodHandles.*;
 import static java.lang.reflect.Modifier.*;
-import static org.eclipse.golo.runtime.NamedArgumentsHelper.checkArgumentPosition;
 
 class AugmentationMethodFinder extends MethodFinder {
 

@@ -11,7 +11,6 @@
 package gololang.ir;
 
 import java.util.*;
-import org.eclipse.golo.compiler.PackageAndClass;
 
 import static gololang.ir.GoloFunction.function;
 import static java.util.stream.Collectors.toList;

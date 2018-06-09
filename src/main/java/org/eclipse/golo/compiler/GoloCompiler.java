@@ -105,6 +105,9 @@ public class GoloCompiler {
     ASTCompilationUnit compilationUnit = parse(goloSourceFilename,
                                           initParser(goloSourceFilename, sourceCodeInputStream));
     GoloModule goloModule = check(compilationUnit);
+    if (goloModule.isEmpty()) {
+      return Collections.emptyList();
+    }
     return generate(goloModule, goloSourceFilename);
   }
 

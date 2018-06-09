@@ -19,7 +19,7 @@ import org.testng.annotations.Test;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.HashMap;
+import java.util.HashSet;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
@@ -55,8 +55,8 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("* `tail`"));
 
     Path tempDir = Files.createTempDirectory("foo");
-    HashMap<String, ModuleDocumentation> docs = new HashMap<>();
-    docs.put(SRC + "doc.golo", doc);
+    HashSet<ModuleDocumentation> docs = new HashSet<>();
+    docs.add(doc);
     processor.process(docs, tempDir);
     Path expectedDocFile = tempDir.resolve("my/package/Documented.markdown");
     check_file(expectedDocFile);
@@ -106,14 +106,38 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("<a href=\"Documented-src.html#l-67\" rel=\"source\""));
     assertThat(result, containsString("<a href=\"../../index.html\" rel=\"home\""));
     assertThat(result, containsString("<a href=\"../../index-all.html\" rel=\"index\""));
+    assertThat(result, containsString(" <a href=\"../package.html\" rel=\"up\""));
   }
 
   private void check_html_home(Path file) throws Throwable {
     check_file(file);
     String contents = IO.fileToText(file, "UTF-8");
     assertThat(contents, containsString("<h1>Modules index</h1>"));
-    assertThat(contents, containsString("<a href=\"my/package/Documented.html\">my.package.Documented</a>"));
     assertThat(contents, containsString("<a href=\"index-all.html\" rel=\"index\""));
+    assertThat(contents, containsString("<dt><a class=\"package\" href=\"my/package.html\">my.package</a>"));
+    assertThat(contents, containsString("<dt><a href=\"my/package/Documented.html\">my.package.Documented</a>"));
+    assertThat(contents, containsString("<dd><p>Waoo, this is a documented module</p>"));
+  }
+
+  private void check_html_package(Path file) throws Throwable {
+    check_file(file);
+    String contents = IO.fileToText(file, "UTF-8");
+    assertThat(contents, containsString("<h1>Index of my.package</h1>"));
+    assertThat(contents, containsString("<a href=\"../index-all.html\" rel=\"index\""));
+    assertThat(contents, containsString("<a href=\"../index.html\" rel=\"home\""));
+    assertThat(contents, containsString("<dt><a href=\"package/Documented.html\">my.package.Documented</a>"));
+    assertThat(contents, containsString("<dd><p>Waoo, this is a documented module</p>"));
+  }
+
+  private void check_html_package2(Path file) throws Throwable {
+    check_file(file);
+    String contents = IO.fileToText(file, "UTF-8");
+    assertThat(contents, containsString("<h1>Index of docpackage</h1>"));
+    assertThat(contents, containsString("<a href=\"index-all.html\" rel=\"index\""));
+    assertThat(contents, containsString("<a href=\"index.html\" rel=\"home\""));
+    assertThat(contents, containsString("<p>Doc for package docpackage.</p>"));
+    assertThat(contents, containsString("<h2>with a title</h2>"));
+    assertThat(contents, containsString("<dt><a href=\"docpackage/MyModule.html\">docpackage.MyModule</a>"));
   }
 
   private void check_html_index(Path file) throws Throwable {
@@ -145,8 +169,9 @@ public class DocumentationRenderingTest {
   @Test
   public void html_processor() throws Throwable {
     Path tempDir = Files.createTempDirectory("foo");
-    HashMap<String, ModuleDocumentation> docs = new HashMap<>();
-    docs.put(SRC + "doc.golo", loadDoc(SRC + "doc.golo"));
+    HashSet<ModuleDocumentation> docs = new HashSet<>();
+    docs.add(loadDoc(SRC + "doc.golo"));
+    docs.add(loadDoc(SRC + "docpackage/MyModule.golo"));
 
     HtmlProcessor processor = new HtmlProcessor();
     processor.setTargetFolder(tempDir);
@@ -156,6 +181,8 @@ public class DocumentationRenderingTest {
     check_html_src(tempDir.resolve("my/package/Documented-src.html"));
     check_html_home(tempDir.resolve("index.html"));
     check_html_index(tempDir.resolve("index-all.html"));
+    check_html_package(tempDir.resolve("my/package.html"));
+    check_html_package2(tempDir.resolve("docpackage.html"));
   }
 
   @Test

@@ -1,7 +1,6 @@
 package gololang.ir;
 
 import gololang.FunctionReference;
-import gololang.Tuple;
 import java.util.*;
 import java.util.function.BiFunction;
 

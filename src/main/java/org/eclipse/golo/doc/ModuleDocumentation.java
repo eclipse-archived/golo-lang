@@ -11,13 +11,15 @@
 package org.eclipse.golo.doc;
 
 import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.compiler.PackageAndClass;
 import gololang.ir.*;
 
 import java.util.*;
 
 public class ModuleDocumentation implements DocumentationElement {
 
-  private String moduleName;
+  private String sourceFile;
+  private PackageAndClass moduleName;
   private int moduleDefLine;
   private String moduleDocumentation;
 
@@ -41,8 +43,30 @@ public class ModuleDocumentation implements DocumentationElement {
     module.accept(new ModuleVisitor());
   }
 
+  ModuleDocumentation() {
+
+  }
+
   public static ModuleDocumentation load(String filename, GoloCompiler compiler) throws java.io.IOException {
     return new ModuleDocumentation(compiler.transform(compiler.parse(filename)));
+  }
+
+  public static ModuleDocumentation empty(String name) {
+    if (name == null || name.trim().isEmpty()) {
+      throw new IllegalArgumentException("Can't create empty module documentation without name");
+    }
+    ModuleDocumentation doc = new ModuleDocumentation();
+    doc.moduleName = PackageAndClass.of(name);
+    return doc;
+  }
+
+  public boolean isEmpty() {
+    return moduleStates.isEmpty()
+      && functions.isEmpty()
+      && augmentations.isEmpty()
+      && structs.isEmpty()
+      && unions.isEmpty()
+      && namedAugmentations.isEmpty();
   }
 
   public String goloVersion() {
@@ -74,8 +98,24 @@ public class ModuleDocumentation implements DocumentationElement {
     return pubFunctions;
   }
 
+  public String sourceFile() {
+    return this.sourceFile;
+  }
+
   public String moduleName() {
-    return moduleName;
+    return moduleName.toString();
+  }
+
+  public String packageName() {
+    return moduleName.packageName();
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public String label() {
+    return moduleName.toString();
   }
 
   /**
@@ -83,7 +123,7 @@ public class ModuleDocumentation implements DocumentationElement {
    */
   @Override
   public String name() {
-    return moduleName;
+    return moduleName.className();
   }
 
   /**
@@ -91,7 +131,7 @@ public class ModuleDocumentation implements DocumentationElement {
    */
   @Override
   public String fullName() {
-    return moduleName;
+    return moduleName.toString();
   }
 
   /**
@@ -124,6 +164,11 @@ public class ModuleDocumentation implements DocumentationElement {
 
   public String moduleDocumentation() {
     return (moduleDocumentation != null) ? moduleDocumentation : "\n";
+  }
+
+  public ModuleDocumentation moduleDocumentation(String doc) {
+    this.moduleDocumentation = doc;
+    return this;
   }
 
   /**
@@ -161,9 +206,10 @@ public class ModuleDocumentation implements DocumentationElement {
     public void visitModule(GoloModule module) {
       functionContext.push(functions);
       parents.push(ModuleDocumentation.this);
-      moduleName = module.getPackageAndClass().toString();
+      moduleName = module.getPackageAndClass();
       moduleDefLine = module.positionInSourceCode().getStartLine();
       moduleDocumentation = module.documentation();
+      sourceFile = module.sourceFile();
       module.walk(this);
     }
 
