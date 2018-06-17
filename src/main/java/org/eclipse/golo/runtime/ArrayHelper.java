@@ -32,6 +32,13 @@ public final class ArrayHelper {
     return new Object[0];
   }
 
+  public static Object last(Object[] array) {
+    if (array.length == 0) {
+      return null;
+    }
+    return array[array.length - 1];
+  }
+
   public static boolean isEmpty(Object[] array) {
     return array.length == 0;
   }

@@ -78,9 +78,14 @@ class ArrayMethodFinder extends MethodFinder {
             MethodHandles.constant(Class.class, invocation.receiverClass()),
             0, invocation.receiverClass());
       case "head":
+      case "first":
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "head", methodType(Object.class, Object[].class));
+      case "last":
+        checkArity(0);
+        return lookup.findStatic(
+            ArrayHelper.class, "last", methodType(Object.class, Object[].class));
       case "tail":
         checkArity(0);
         return lookup.findStatic(

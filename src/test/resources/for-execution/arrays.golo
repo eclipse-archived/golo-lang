@@ -95,3 +95,11 @@ function isEmpty_method = {
 function tail_method_empty = {
   return array[]: tail(): equals(array[])
 }
+
+function last_method_empty = {
+  return array[]: last()
+}
+
+function last_method = {
+  return array[1, 2, 3]: last()
+}
