@@ -10,6 +10,7 @@
 
 package org.eclipse.golo.runtime;
 
+import java.util.NoSuchElementException;
 import static java.util.Arrays.copyOfRange;
 
 public final class ArrayHelper {
@@ -32,9 +33,16 @@ public final class ArrayHelper {
     return new Object[0];
   }
 
+  public static Object first(Object[] array) {
+    if (array.length == 0) {
+      throw new NoSuchElementException("Empty array");
+    }
+    return array[0];
+  }
+
   public static Object last(Object[] array) {
     if (array.length == 0) {
-      return null;
+      throw new NoSuchElementException("Empty array");
     }
     return array[array.length - 1];
   }

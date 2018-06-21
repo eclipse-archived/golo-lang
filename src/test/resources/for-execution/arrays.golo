@@ -97,9 +97,33 @@ function tail_method_empty = {
 }
 
 function last_method_empty = {
-  return array[]: last()
+  try {
+    return array[]: last()
+  } catch (e) {
+    if e oftype java.util.NoSuchElementException.class {
+      return
+    }
+    throw e
+  }
+  raise("must fail")
 }
 
 function last_method = {
   return array[1, 2, 3]: last()
+}
+
+function first_method_empty = {
+  try {
+    array[]: first()
+  } catch (e) {
+    if e oftype java.util.NoSuchElementException.class {
+      return
+    }
+    throw e
+  }
+  raise("must fail")
+}
+
+function first_method = {
+  return array[1, 2, 3]: first()
 }
