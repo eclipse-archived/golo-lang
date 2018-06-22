@@ -656,6 +656,18 @@ public class CompileAndRunTest {
 
     Method isEmpty_method = moduleClass.getMethod("isEmpty_method");
     assertThat((Boolean) isEmpty_method.invoke(null), is(true));
+
+    Method last_method_empty = moduleClass.getMethod("last_method_empty");
+    last_method_empty.invoke(null);
+
+    Method last_method = moduleClass.getMethod("last_method");
+    assertThat((Integer) last_method.invoke(null), is(3));
+
+    Method first_method_empty = moduleClass.getMethod("first_method_empty");
+    first_method_empty.invoke(null);
+
+    Method first_method = moduleClass.getMethod("first_method");
+    assertThat((Integer) first_method.invoke(null), is(1));
   }
 
   @Test
