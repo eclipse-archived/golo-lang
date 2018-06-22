@@ -160,6 +160,18 @@ local function toDynamicObjectFromJSONObject = |obj| {
               dyno: get(level): append(subDyno)
           }
         })
+    } else if isJSONArray(item) {
+         let lst = list[]
+         item: each(|val| {
+            if isJSONObject(val) is false and isJSONArray(val) is false {
+               lst: add(val)
+            } else if isJSONObject(val) {
+                let subDyno = DynamicObject()
+                parseMembers(val, subDyno)
+                lst: add(subDyno)
+            } 
+        })
+        dyno: get(level): append(lst)
     }
     return dyno
   }
