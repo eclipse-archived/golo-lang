@@ -16,11 +16,11 @@ plugins {
   id 'jacoco'
   id 'application'
   id 'maven-publish'
-  id 'com.jfrog.bintray' version '1.8.0'
+  id 'com.jfrog.bintray' version '1.8.4'
   id 'ca.coglinc.javacc' version '2.4.0'
-  id 'org.asciidoctor.convert' version '1.5.7'
-  id 'net.nemerosa.versioning' version '2.6.1'
-  id 'com.github.ben-manes.versions' version '0.17.0'
+  id 'org.asciidoctor.convert' version '1.5.8.1'
+  id 'net.nemerosa.versioning' version '2.7.1'
+  id 'com.github.ben-manes.versions' version '0.20.0'
 }
 
 // .................................................................................................................. //
@@ -85,13 +85,13 @@ configurations.all {
 }
 
 dependencies {
-  compile 'org.ow2.asm:asm:5.1'
+  compile 'org.ow2.asm:asm:6.2.1'
   compile 'com.beust:jcommander:1.60'
   compile 'com.github.rjeschke:txtmark:0.13'
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
-  testCompile 'org.ow2.asm:asm-util:5.1'
-  testCompile 'org.ow2.asm:asm-analysis:5.1'
+  testCompile 'org.ow2.asm:asm-util:6.2.1'
+  testCompile 'org.ow2.asm:asm-analysis:6.2.1'
   testCompile 'org.hamcrest:hamcrest-all:1.3'
   testCompile 'org.skyscreamer:jsonassert:1.5.0'
   testCompile 'org.testng:testng:6.11'
@@ -449,7 +449,7 @@ task deployMavenPluginToBintray(type: Exec, dependsOn: buildMavenPlugin) {
 // .................................................................................................................. //
 
 task wrapper(type: Wrapper) {
-  gradleVersion = '4.8'
+  gradleVersion = '4.10'
   description 'Generates the Gradle wrapper scripts.'
 }
 
