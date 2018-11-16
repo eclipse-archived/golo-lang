@@ -104,7 +104,7 @@ jar {
   manifest {
     name 'Eclipse Golo'
     symbolicName 'org.eclipse.golo'
-    vendor 'INSA-Lyon and contributors'
+    vendor 'Eclipse Golo Project'
     license 'http://www.eclipse.org/legal/epl-2.0'
     description 'A dynamic language for the JVM'
   }
