@@ -3,6 +3,8 @@
 [![Build Status](https://travis-ci.org/eclipse/golo-lang.svg?branch=master)](https://travis-ci.org/eclipse/golo-lang)
 [![Build status](https://ci.appveyor.com/api/projects/status/v8tivtu0jvpavnwn/branch/master?svg=true)](https://ci.appveyor.com/project/jponge/golo-lang/branch/master)
 [ ![Download](https://api.bintray.com/packages/golo-lang/downloads/distributions/images/download.svg) ](https://bintray.com/golo-lang/downloads/distributions/_latestVersion)
+[![Code Quality: Java](https://img.shields.io/lgtm/grade/java/g/eclipse/golo-lang.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/eclipse/golo-lang/context:java)
+[![Total Alerts](https://img.shields.io/lgtm/alerts/g/eclipse/golo-lang.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/eclipse/golo-lang/alerts)
 
 # Golo, a lightweight dynamic language for the JVM.
 
