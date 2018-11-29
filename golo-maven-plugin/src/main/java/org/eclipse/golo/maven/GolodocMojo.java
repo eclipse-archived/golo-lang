@@ -51,7 +51,7 @@ public class GolodocMojo extends AbstractMojo {
     try {
       GolodocFileVisitor visitor = new GolodocFileVisitor();
       Files.walkFileTree(root, visitor);
-      new HtmlProcessor().process(visitor.units, Paths.get(outputDirectory));
+      new HtmlProcessor().process(visitor.units.values(), Paths.get(outputDirectory));
     } catch (Throwable t) {
       getLog().error(t);
       throw new MojoFailureException("I/O error", t);
