@@ -422,7 +422,7 @@ a multi-line string.
 
 === Collection literals
 
-Golo support special support for common collections. The syntax uses brackets prefixed by a
+Golo has special support for common collections. The syntax uses brackets prefixed by a
 collection name, as in:
 
 [source,golo]
