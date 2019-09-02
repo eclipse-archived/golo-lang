@@ -14,6 +14,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
 import org.testng.Assert;
 import java.io.File;
+import java.util.Arrays;
+import java.nio.file.Files;
+import java.util.Iterator;
 
 import gololang.IO;
 
@@ -33,6 +36,7 @@ public class IOTest {
   @Test
   public void test_textToFile() throws Throwable {
     File tempFile = File.createTempFile("plop", "daplop");
+    tempFile.deleteOnExit();
     String message = "Plop!";
     IO.textToFile(message, tempFile);
     String text = IO.fileToText(tempFile, "UTF-8");
@@ -42,7 +46,18 @@ public class IOTest {
   @Test
   public void test_fileExists() throws Throwable {
     File tempFile = File.createTempFile("this_exists", "test");
+    tempFile.deleteOnExit();
     assertThat(IO.fileExists(tempFile), is(true));
+  }
+
+  @Test
+  public void test_ReaderIterator() throws Throwable {
+    File tempFile = File.createTempFile("iteratorTest", null);
+    tempFile.deleteOnExit();
+    String[] lines = { "first line", "second line", "third line"};
+    Files.write(tempFile.toPath(), Arrays.asList(lines));
+    Iterator<String> iter = IO.LinesIterator.of(IO.openFile(tempFile));
+    assertThat(() -> iter, contains(lines));
   }
 
 }

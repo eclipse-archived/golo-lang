@@ -944,3 +944,11 @@ augment gololang.FunctionReference {
   function accept = |this, args...| -> this: invoke(args)
 }
 
+
+augment java.io.BufferedReader {
+
+  ----
+  Makes a `BufferedReader` an Iterable on its lines.
+  ----
+  function iterator = |this| -> gololang.IO$LinesIterator.of(this)
+}
