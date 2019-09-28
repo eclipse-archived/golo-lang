@@ -11,6 +11,6 @@
 /**
  * Java package for golo IR tree elements.
  *
- * <p>See the <a href="../../../golodoc/gololang/ir.html"><code>gololang.ir</code></a> golo module for fluent factories and augmentations.
+ * <p>See the <a href="../../../golodoc/gololang/ir/DSL.html"><code>gololang.ir.DSL</code></a> golo module for fluent factories and augmentations.
  */
 package gololang.ir;
