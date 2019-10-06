@@ -16,7 +16,7 @@ to improve fluent IR building.
 See the [`gololang.ir`](../../javadoc/gololang/ir/package-summary.html) java
 package javadoc for documentation on the IR elements themselves.
 ----
-module gololang.ir
+module gololang.ir.DSL
 
 import java.lang.reflect
 import org.eclipse.golo.compiler
@@ -925,77 +925,77 @@ augment gololang.ir.ExpressionStatement {
   ----
   See [`and`](#and_2)
   ----
-  function `and = |this, other| -> gololang.ir.`and(this, other)
+  function `and = |this, other| -> gololang.ir.DSL.`and(this, other)
 
   ----
   See [`divide`](#divide_2)
   ----
-  function divide = |this, other| -> gololang.ir.divide(this, other)
+  function divide = |this, other| -> gololang.ir.DSL.divide(this, other)
 
   ----
   See [`equals`](#equals_2)
   ----
-  function equalsTo = |this, other| -> gololang.ir.equals(this, other)
+  function equalsTo = |this, other| -> gololang.ir.DSL.equals(this, other)
 
   ----
   See [`is`](#is_2)
   ----
-  function `is = |this, other| -> gololang.ir.`is(this, other)
+  function `is = |this, other| -> gololang.ir.DSL.`is(this, other)
 
   ----
   See [`isnt`](#isnt_2)
   ----
-  function `isnt = |this, other| -> gololang.ir.`isnt(this, other)
+  function `isnt = |this, other| -> gololang.ir.DSL.`isnt(this, other)
 
   ----
   See [`lessOrEquals`](#lessOrEquals_2)
   ----
-  function lessOrEquals = |this, other| -> gololang.ir.lessOrEquals(this, other)
+  function lessOrEquals = |this, other| -> gololang.ir.DSL.lessOrEquals(this, other)
 
   ----
   See [`lessThan`](#lessThan_2)
   ----
-  function lessThan = |this, other| -> gololang.ir.lessThan(this, other)
+  function lessThan = |this, other| -> gololang.ir.DSL.lessThan(this, other)
 
   ----
   See [`moreOrEquals`](#moreOrEquals_2)
   ----
-  function moreOrEquals = |this, other| -> gololang.ir.moreOrEquals(this, other)
+  function moreOrEquals = |this, other| -> gololang.ir.DSL.moreOrEquals(this, other)
 
   ----
   See [`moreThan`](#moreThan_2)
   ----
-  function moreThan = |this, other| -> gololang.ir.moreThan(this, other)
+  function moreThan = |this, other| -> gololang.ir.DSL.moreThan(this, other)
 
   ----
   See [`notEquals`](#notEquals_2)
   ----
-  function notEquals = |this, other| -> gololang.ir.notEquals(this, other)
+  function notEquals = |this, other| -> gololang.ir.DSL.notEquals(this, other)
 
   ----
   See [`oftype`](#oftype_2)
   ----
-  function `oftype = |this, other| -> gololang.ir.`oftype(this, other)
+  function `oftype = |this, other| -> gololang.ir.DSL.`oftype(this, other)
 
   ----
   See [`or`](#or_2)
   ----
-  function `or = |this, other| -> gololang.ir.`or(this, other)
+  function `or = |this, other| -> gololang.ir.DSL.`or(this, other)
 
   ----
   See [`orIfNull`](#orIfNull_2)
   ----
-  function `orIfNull = |this, other| -> gololang.ir.`orIfNull(this, other)
+  function `orIfNull = |this, other| -> gololang.ir.DSL.`orIfNull(this, other)
 
   ----
   See [`plus`](#plus_2)
   ----
-  function plus = |this, other| -> gololang.ir.plus(this, other)
+  function plus = |this, other| -> gololang.ir.DSL.plus(this, other)
 
   ----
   See [`times`](#times_2)
   ----
-  function times = |this, other| -> gololang.ir.times(this, other)
+  function times = |this, other| -> gololang.ir.DSL.times(this, other)
 }
 
 
