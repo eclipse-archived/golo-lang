@@ -44,7 +44,9 @@ public class GoloCompilationException extends RuntimeException {
       UNINITIALIZED_REFERENCE_ACCESS,
       INVALID_ENCODING,
       INCOMPLETE_NAMED_ARGUMENTS_USAGE,
-      AMBIGUOUS_DECLARATION
+      AMBIGUOUS_DECLARATION,
+      UNKNOWN_MACRO,
+      MACRO_EXPANSION
     }
 
     private final Type type;

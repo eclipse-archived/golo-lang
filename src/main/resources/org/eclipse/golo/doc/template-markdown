@@ -61,6 +61,16 @@ let CONFIG = com.github.rjeschke.txtmark.Configuration.builder()
 #### `<%= funcDoc: label() %>`
 <%= adaptSections(funcDoc: documentation(), 4) %>
 <% }}} %>
+<% if not doc: macros(): isEmpty() { %>
+## Macros
+<% foreach funcDoc in doc: macros() { %>
+<%if funcDoc: varargs() {%>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>...)`
+<%} else {%>
+#### `<%= funcDoc: name() %>(<%= funcDoc: arguments(): join(", ") %>)`
+<%}%>
+<%= funcDoc: documentation() %>
+<%}}%>
 <% if not doc: functions(): isEmpty() { %>
 ## Functions
 <% foreach funcDoc in doc: functions() { %>

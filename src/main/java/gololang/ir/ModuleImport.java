@@ -12,6 +12,14 @@ package gololang.ir;
 
 import org.eclipse.golo.compiler.PackageAndClass;
 
+/**
+ * An import of a Golo or Java module, class or package.
+ *
+ * <p>Represents golo code such as
+ * <pre class="listing"><code class="lang-golo" data-lang="golo">
+ * import java.util.Collections
+ * </code></pre>
+ */
 public final class ModuleImport extends GoloElement<ModuleImport> implements ToplevelGoloElement {
 
   private final PackageAndClass packageAndClass;
@@ -23,10 +31,33 @@ public final class ModuleImport extends GoloElement<ModuleImport> implements Top
     this.implicit = implicit;
   }
 
+  /**
+   * Create an implicit module import.
+   *
+   * <p>
+   * Implicit imports are ones automatically added to a module, contrary to ones added by the developer.
+   * If the given name is already a module import, it is returned unchanged if already implicit; a new one is created
+   * otherwise.
+   * The name to import is derived using {@link PackageAndClass#of(Object)}.
+   */
   public static ModuleImport implicit(Object name) {
+    if (name instanceof ModuleImport) {
+      ModuleImport mod = (ModuleImport) name;
+      if (mod.implicit) {
+        return mod;
+      }
+      return new ModuleImport(mod.packageAndClass, true);
+    }
     return new ModuleImport(PackageAndClass.of(name), true);
   }
 
+  /**
+   * Create a module import.
+   *
+   * <p>
+   * If the given name is already a module import, it is returned unchanged.
+   * The name to import is derived using {@link PackageAndClass#of(Object)}.
+   */
   public static ModuleImport of(Object name) {
     if (name instanceof ModuleImport) {
       return (ModuleImport) name;
@@ -36,10 +67,18 @@ public final class ModuleImport extends GoloElement<ModuleImport> implements Top
 
   protected ModuleImport self() { return this; }
 
+  /**
+   * Returns the {@link PackageAndClass} of the module to be imported.
+   */
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
   }
 
+  /**
+   * Checks if this import is implicit.
+   * <p>
+   * Implicit imports are ones automatically added to a module, contrary to ones added by the developer.
+   */
   public boolean isImplicit() {
     return this.implicit;
   }
@@ -57,6 +96,9 @@ public final class ModuleImport extends GoloElement<ModuleImport> implements Top
 
   /**
    * {@inheritDoc}
+   * <p>
+   * Equality ignores the implicit status.
+   * Therefore, adding explicitly a import that is already implicit is a noop.
    */
   @Override
   public boolean equals(Object o) {

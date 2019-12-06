@@ -19,7 +19,7 @@ import org.eclipse.golo.compiler.PackageAndClass;
 /**
  * Abstract representation of a Golo invocation in the IR tree.
  * <p>
- * Used to represent regular function call and method invocation.
+ * Used to represent regular function call, method invocation, and macro call.
  * <p>
  * Note that the called object is only refereed by its name and not an IR node, since the linkage is done at runtime.
  * There is no guaranty that such an object exists.
@@ -88,6 +88,8 @@ public abstract class AbstractInvocation<T extends AbstractInvocation<T>> extend
    * @see #withNamedArguments()
    * @see ExpressionStatement#of(Object)
    */
+  // NOTE: arguments are GoloElement and not ExpressionStatement since macro calls can be applied to top-level elements
+  // (e.g. struct or function definitions) that are not expressions.
   public T withArgs(Object... arguments) {
     for (Object argument : arguments) {
       if (argument instanceof GoloElement) {

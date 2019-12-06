@@ -90,7 +90,7 @@ public final class Runtime {
    * Checks if the main golo command should print stack traces on error.
    */
   public static boolean showStackTrace() {
-    return showStackTrace;
+    return showStackTrace || debug;
   }
 
   /**

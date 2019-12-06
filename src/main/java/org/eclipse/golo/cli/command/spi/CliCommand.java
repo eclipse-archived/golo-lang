@@ -41,12 +41,12 @@ public interface CliCommand {
   }
 
   default void handleCompilationException(GoloCompilationException e, boolean exit) {
-    Messages.error(e.getMessage());
+    Messages.error(e.getLocalizedMessage());
     for (GoloCompilationException.Problem problem : e.getProblems()) {
       Messages.error(problem.getDescription(), "  ");
       Throwable cause = problem.getCause();
       if (cause != null) {
-        handleThrowable(cause, false, gololang.Runtime.debugMode() || gololang.Runtime.showStackTrace(), "    ");
+        handleThrowable(cause, false, gololang.Runtime.debugMode(), "    ");
       }
     }
     if (exit) {
@@ -55,7 +55,7 @@ public interface CliCommand {
   }
 
   default void handleThrowable(Throwable e) {
-    handleThrowable(e, true);
+    handleThrowable(e, gololang.Runtime.showStackTrace());
   }
 
   default void handleThrowable(Throwable e, boolean exit) {
@@ -67,9 +67,9 @@ public interface CliCommand {
   }
 
   default void handleThrowable(Throwable e, boolean exit, boolean withStack, String indent) {
-    Messages.error(e, indent);
+    Messages.error(e.getLocalizedMessage(), indent);
     if (e.getCause() != null) {
-      Messages.error(e.getCause().getMessage(), "  " + indent);
+      Messages.error(e.getCause().getLocalizedMessage(), "  " + indent);
     }
     if (withStack) {
       Messages.printStackTrace(e);

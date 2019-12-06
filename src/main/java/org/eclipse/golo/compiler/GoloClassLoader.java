@@ -35,7 +35,7 @@ public class GoloClassLoader extends ClassLoader {
    */
   public GoloClassLoader(ClassLoader parent) {
     super(parent);
-    compiler = new GoloCompiler();
+    compiler = new GoloCompiler(this);
   }
 
   /**
@@ -43,7 +43,7 @@ public class GoloClassLoader extends ClassLoader {
    */
   public GoloClassLoader() {
     super();
-    compiler = new GoloCompiler();
+    compiler = new GoloCompiler(this);
   }
 
   public GoloCompiler getCompiler() {
@@ -71,6 +71,7 @@ public class GoloClassLoader extends ClassLoader {
    * @throws GoloCompilationException if either of the compilation phase failed.
    */
   public synchronized Class<?> load(String goloSourceFilename, GoloModule module) {
+    compiler.expand(module);
     compiler.refine(module);
     return load(compiler.generate(module, goloSourceFilename));
   }

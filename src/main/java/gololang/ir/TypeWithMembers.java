@@ -12,7 +12,6 @@ package gololang.ir;
 
 import java.util.*;
 
-import static gololang.ir.GoloFunction.function;
 import static java.util.stream.Collectors.toList;
 
 /**
@@ -104,7 +103,7 @@ public abstract class TypeWithMembers<T extends TypeWithMembers<T>> extends Golo
   }
 
   protected GoloFunction createFullArgsConstructor() {
-    return function(getName()).synthetic()
+    return GoloFunction.function(getName()).synthetic()
       .withParameters(getMemberNames())
       .returns(FunctionInvocation.of(getFactoryDelegateName()).withArgs(getFullArgs()));
   }

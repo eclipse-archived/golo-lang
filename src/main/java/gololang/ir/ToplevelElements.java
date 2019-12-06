@@ -19,6 +19,10 @@ import java.util.List;
 
 /**
  * A container of top-level {@code GoloElement}.
+ * <p>
+ * This class is mainly used by top-level macros to return a collection of golo top-level elements,
+ * i.e. functions, structs, augments and so on, since a macro must return a unique GoloElement to
+ * inject in the Ir by replacing the macro call.
  *
  * <p>This element must never be present in a tree.
  */
@@ -34,6 +38,8 @@ public final class ToplevelElements extends GoloElement<ToplevelElements> implem
 
   /**
    * Creates a top-level elements container.
+   *
+   * <p>Mainly used to return several nodes from a top-level macro.
    */
   public static ToplevelElements of(Object... elements) {
     ToplevelElements tl = new ToplevelElements();
@@ -65,6 +71,9 @@ public final class ToplevelElements extends GoloElement<ToplevelElements> implem
 
   /**
    * Map a golo function on the contained elements.
+   * <p>
+   * This can be used in top-level macros to apply the macro on a top-level from a previous macro application, for
+   * instance when stacking decorator-like macros returning a {@code ToplevelElements}.
    */
   public ToplevelElements map(FunctionReference fun) throws Throwable {
     ToplevelElements res = new ToplevelElements();

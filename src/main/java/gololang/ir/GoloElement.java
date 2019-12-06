@@ -258,8 +258,8 @@ public abstract class GoloElement<T extends GoloElement<T>> {
   /**
    * Stores a meta-data in this element.
    * <p>
-   * A meta-data can be any object. The main purpose is to allow visitors to store some generic informations in the IR
-   * that can be used later by other compilation steps (for instance add some Java annotations to the
+   * A meta-data can be any object. The main purpose is to allow visitors or macros to store some generic informations in the IR
+   * that can be used later by other macros or compilation steps (for instance add some Java annotations to the
    * generated methods).
    */
   public final T metadata(String name, Object value) {
@@ -293,7 +293,8 @@ public abstract class GoloElement<T extends GoloElement<T>> {
   /**
    * Replaces this element by the given one in its parent node.
    * <p>
-   * This method is typically used during the sugar expansion to replace the element by a desugarized version.
+   * This method is typically used during the sugar and macros expansion stages to replace the element by a desugarized version,
+   * or the macro call by its result.
    *
    * @param newElement the element to replace this one with.
    * @throws IllegalStateException if this element has no parent.
@@ -409,6 +410,11 @@ public abstract class GoloElement<T extends GoloElement<T>> {
     public void visitClosureReference(ClosureReference c) {
       prune = false;
       c.walk(this);
+    }
+
+    @Override
+    public void visitMacroInvocation(MacroInvocation macroInvocation) {
+      macroInvocation.walk(this);
     }
   }
 }

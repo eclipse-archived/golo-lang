@@ -24,13 +24,28 @@ class FunctionDocumentation implements DocumentationElement {
   private boolean varargs = false;
   private boolean local = false;
   private DocumentationElement parent;
+  private boolean isMacro = false;
+
+  FunctionDocumentation() {
+    this(false);
+  }
+
+  FunctionDocumentation(boolean isMacro) {
+    this.isMacro = isMacro;
+  }
+
+  public boolean isMacro() {
+    return isMacro;
+  }
 
   /**
    * {@inheritDoc}
    */
   @Override
   public String type() {
-    return local ? "local function" : "function";
+    return isMacro ? "macro"
+           : local ? "local function"
+           : "function";
   }
 
   /**
@@ -180,12 +195,13 @@ class FunctionDocumentation implements DocumentationElement {
         && this.local == that.local
         && this.varargs == that.varargs
         && this.augmentation == that.augmentation
+        && this.isMacro == that.isMacro
         && this.arity() == that.arity();
   }
 
   @Override
   public int hashCode() {
-    return Objects.hash(this.name, this.local, this.varargs, this.augmentation, this.arity());
+    return Objects.hash(this.name, this.local, this.varargs, this.augmentation, this.isMacro(), this.arity());
   }
 
   @Override

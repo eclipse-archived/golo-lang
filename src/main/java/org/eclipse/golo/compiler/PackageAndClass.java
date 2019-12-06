@@ -29,7 +29,7 @@ public final class PackageAndClass {
    * @param packageName the package name.
    * @param className   the class name.
    */
-  public PackageAndClass(String packageName, String className) {
+  PackageAndClass(String packageName, String className) {
     this.packageName = requireNonNull(packageName);
     this.className = requireNonNull(className);
     if (className.isEmpty()) {

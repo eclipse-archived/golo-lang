@@ -72,6 +72,8 @@ include::workers.adoc[]
 
 include::templates.adoc[]
 
+include::macros.adoc[]
+
 include::documenting.adoc[]
 
 include::misc.adoc[]

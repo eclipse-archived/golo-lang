@@ -44,6 +44,9 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
   private Block block;
   private boolean synthetic = false;
   private boolean decorator = false;
+  private boolean macro = false;
+  private boolean special = false;
+  private boolean contextual = false;
   private String syntheticSelfName = null;
   private String decoratorRef = null;
   private final LinkedList<Decorator> decorators = new LinkedList<>();
@@ -62,7 +65,7 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
   /**
    * Copy constructor.
    * <p>
-   * make a shallow copy of the given function: the block is shared, parameters and decorators are copied.
+   * make a partial copy of the given function: the properties are copied, but children node are not
    */
   private GoloFunction(GoloFunction function) {
     this.name = function.name;
@@ -71,13 +74,14 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
     this.varargs = function.varargs;
     this.synthetic = function.synthetic;
     this.decorator = function.decorator;
+    this.macro = function.macro;
+    this.special = function.special;
+    this.contextual = function.contextual;
     this.syntheticSelfName = function.syntheticSelfName;
     this.decoratorRef = function.decoratorRef;
     this.parameterNames.addAll(function.parameterNames);
     this.syntheticParameterNames.addAll(function.syntheticParameterNames);
     this.documentation(function.documentation());
-    this.decorators.addAll(function.decorators);
-    this.block(function.block);
     this.positionInSourceCode(function.positionInSourceCode());
   }
 
@@ -315,6 +319,38 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
     }
   }
 
+  // macro ----------------------------------------------------------------------------------------
+  public GoloFunction asMacro(boolean value) {
+    this.macro = value;
+    return this;
+  }
+
+  public GoloFunction asMacro() {
+    return asMacro(true);
+  }
+
+  public boolean isMacro() {
+    return this.macro;
+  }
+
+  public boolean isSpecialMacro() {
+    return this.special;
+  }
+
+  public GoloFunction special(boolean value) {
+    this.special = value;
+    return this;
+  }
+
+  public boolean isContextualMacro() {
+    return this.contextual;
+  }
+
+  public GoloFunction contextual(boolean value) {
+    this.contextual = value;
+    return this;
+  }
+
   // decorators -----------------------------------------------------------------------------------
   /**
    * Adds decorators to this function.
@@ -393,12 +429,13 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
 
   @Override
   public String toString() {
-    return String.format("Function{name=%s, arity=%d, vararg=%s, synthetic=%s, self=%s}",
+    return String.format("Function{name=%s, arity=%d, vararg=%s, synthetic=%s, self=%s, macro=%s}",
         getName(),
         getArity(),
         isVarargs(),
         synthetic,
-        syntheticSelfName);
+        syntheticSelfName,
+        isMacro());
   }
 
   @Override

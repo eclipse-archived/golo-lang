@@ -104,9 +104,10 @@ public final class SymbolGenerator {
   }
 
   /**
-   * Mangles the given name.
+   * Mangles the given name without using the counter.
    *
-   * <p>Mangling is escaped for names beginning by {@code ESCAPE_MANGLE}.
+   * <p>This can be used in macros to provide hygiene by mangling the local variable names. Mangling is escaped for
+   * names beginning by {@code ESCAPE_MANGLE}.
    *
    * <p>For instance:
    * <pre class="listing"><code class="lang-golo" data-lang="golo">
@@ -166,6 +167,9 @@ public final class SymbolGenerator {
    * @param scopeName the name of the scope.
    */
   public SymbolGenerator enter(String scopeName) {
+    if (scopeName == null || scopeName.isEmpty()) {
+      return this;
+    }
     this.prefixes.addLast(scopeName.replace('.', '$'));
     return this;
   }
