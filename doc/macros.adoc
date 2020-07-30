@@ -401,14 +401,18 @@ A similar example that does not use side effects is given in the <<injecting_imp
 
 ==== Calling macros with a block
 
-An other special call syntax, for which the `&` prefix is mandatory, is when a macro must be called with a complete block as last argument.
+An other special call syntax, for which the `&` prefix is mandatory, is when a macro last parameter is a block.
+In that case, the block can be provided inside curly braces but *outside* the calling parenthesis.
+The last macro argument will therefore be a `gololang.ir.Block`.
 
-For instance:
+For instance, given:
 [source,golo]
 ----
-macro mymacro = |value, block| -> ....
-
-#...
+macro mymacro = |value, block| -> &quote {
+  if args: get(0) == $(value) {
+    $(block)
+  }
+}
 
 function main = |args| {
 
@@ -418,6 +422,19 @@ function main = |args| {
   }
 }
 ----
+
+the `value` argument is a `gololang.ir.ConstantStatement` representing `42` and the `block` argument is a `gololang.ir.Block` containing two nodes for the `println("hello")` statement and the `doSomething()` call.
+This call will be expanded as
+[source,golo]
+----
+function main = |args| {
+  if args: get(0) == 42 {
+    println("hello")
+    doSomething()
+  }
+}
+----
+
 
 See the <<sample_do_while,`do ... while`>> example below for an example of a macro using a block.
 
@@ -431,11 +448,36 @@ For instance, a macro taking an integer and a function declaration as arguments:
 
 [source,golo]
 ----
-macro example = |intConstant, funDeclaration| -> ...
-
-&example(42) {
-function foo = |a, b| -> a + b
+macro example = |intConstant, funDeclaration| {
+  if intConstant: value() > 40 {
+    funDeclaration: getBlock(): prependStatement(call("println"): withArgs(intConstant))
+  }
+  return funDeclaration
 }
+----
+
+will be called as
+[source,golo]
+----
+&example(42) {
+function add = |a, b| -> a + b
+}
+
+&example(1) {
+function double = |a| -> 2 * a
+}
+----
+
+Here the macro arguments will be a `gololang.ir.ConstantStatement` with `42` and `1` as values respectively, and a `gololang.ir.GoloFunction` representing `add` and `double` functions respectively.
+The previous code will be expanded as
+[source,golo]
+----
+function add = |a, b| {
+  println(42)
+  return a + b
+}
+
+function double = |a| -> 2 * a
 ----
 
 A macro can also be applied to several top-level elements:
@@ -448,9 +490,9 @@ macro mymacro = |toplevel...| {
 }
 
 &mymacro {
-function bar = |a, b| -> a + b
+function mult = |a, b| -> a * b
 
-struct Foo = {x}
+struct Point = {x, y}
 }
 ----
 
@@ -459,13 +501,13 @@ Thus the previous example could have been written
 [source,golo]
 ----
 @example(42)
-function foo = |a, b| -> a + b
+function add = |a, b| -> a + b
 
 @mymacro
-function bar = |a, b| -> a + b
+function mult = |a, b| -> a * b
 
 @mymacro
-struct Foo = {x}
+struct Point = {x, y}
 ----
 
 [WARNING]
