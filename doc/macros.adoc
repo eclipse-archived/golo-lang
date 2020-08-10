@@ -408,11 +408,22 @@ The last macro argument will therefore be a `gololang.ir.Block`.
 For instance, given:
 [source,golo]
 ----
+module calling.macro.with.block
+
+&use("gololang.ir.Quote")
+
 macro mymacro = |value, block| -> &quote {
   if args: get(0) == $(value) {
     $(block)
   }
 }
+----
+
+[source,golo]
+----
+module using.macro.with.block
+
+&use("calling.macro.with.block")
 
 function main = |args| {
 
