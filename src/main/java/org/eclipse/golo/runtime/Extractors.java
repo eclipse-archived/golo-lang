@@ -10,6 +10,8 @@
 
 package org.eclipse.golo.runtime;
 
+import org.eclipse.golo.compiler.macro.Macro;
+
 import java.lang.reflect.*;
 import java.util.function.Predicate;
 import java.util.stream.Stream;
@@ -32,6 +34,10 @@ public final class Extractors {
 
   public static Stream<Method> getFunctions(Class<?> klass) {
     return getMethods(klass).filter(Extractors::isFunction);
+  }
+
+  public static Stream<Method> getMacros(Class<?> klass) {
+    return getMethods(klass).filter(Extractors::isMacro);
   }
 
   public static Stream<Method> getMethods(Class<?> klass) {
@@ -90,7 +96,11 @@ public final class Extractors {
   }
 
   public static boolean isFunction(Method m) {
-    return isConcrete(m) && isPublic(m) && isStatic(m);
+    return isConcrete(m) && isPublic(m) && isStatic(m) && !m.isAnnotationPresent(Macro.class);
+  }
+
+  public static boolean isMacro(Method m) {
+    return isConcrete(m) && isPublic(m) && isStatic(m) && m.isAnnotationPresent(Macro.class);
   }
 
   public static Predicate<Member> isNamed(String name) {

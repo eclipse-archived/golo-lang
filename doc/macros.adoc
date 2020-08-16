@@ -1,0 +1,1108 @@
+== Macros
+
+Golo's macro system gives the developer access to some language internals.
+This allows to extend the language and reduce boilerplate code relatively easily.
+
+[[macros-principle]]
+=== Principle
+
+First, let's remind some basis of the compilation process.
+Here is a simplified view of the way Golo compiles a program:
+
+[[compilation-steps]]
+1. read the source code text and parse it (creates an AST),
+2. generate an intermediate representation tree (IR) that reflects the code structure,
+3. do some checks and magic on the IR (syntactic sugar, closed values in lambda, etc.)
+4. generate JVM bytecode from the final IR.
+
+The IR tree is a logical representation of the program structure, independently of the text (and even the concrete syntax).
+A representation of this tree can be seen using the `golo diagnose` command.
+
+As an example, the following Golo code
+
+[source,golo]
+----
+include::{samples-dir}/helloworld.golo[lines=8..-1]
+----
+
+gives the following (simplified) IR:
+
+----
+# hello.World
+#   Function main = |args|
+#     Block
+#        - LocalReference{kind=CONSTANT, name='args', index=0}
+#       Function call: println
+#         Constant = Hello world!
+#       Return
+#         Constant = null
+----
+
+Golo macros are functions that manipulate this IR tree at compile time, between the steps 2 and 3 above.
+They are similar to C preprocessing macros, but much more powerful and robust.
+
+Using macros, one can generate functions and types and inject them in the program, create alternative control structures that will be transformed into regular ones, or create instructions computed at compile time instead of runtime (e.g. display debug messages if a environment variable is set).
+
+More generally, macros can be seen as a way to trade dynamic runtime dependencies for static compile time ones.
+Indeed, many dynamic Golo features, like module imports or named augmentations, can be made static by using macros instead.
+
+
+=== Creating macros
+
+Macros are regular functions (or Java static methods) whose parameters are IR nodes, and that return an IR node.
+
+In order to identify macro calls in the IR and to provide some checks, macros need to be identified as such.
+A Java static method intended to be used as a macro must be annotated with the link:{javadoc}/org/eclipse/golo/compiler/macro/Macro.html[`org.eclipse.golo.compiler.macro.Macro`] annotation.
+In the same way, a Golo function that is actually a macro is declared using the `macro` keyword instead of `function`.
+It is otherwise a regular function.
+
+Most macros work by returning a new node that will replace the macro call in the final IR tree (see <<substituting_macros,Substituting macros>>).
+It is thus necessary to create a subtree representing the Golo code that will be compiled.
+To ease this creation, a fluent API over the IR tree elements is provided.
+
+==== IR API
+
+The package link:{javadoc}gololang/ir/package-summary.html[`gololang.ir`] contains the classes used to represent elements of the Golo language, and thus nodes in the IR tree.
+These classes provide a fluent API to configure their instances.
+The link:{golodoc}gololang/ir.html[`gololang.ir`] module contains factory functions and augmentations to ease the creation of these nodes.
+
+For instance, a subtree representing the Golo code:
+[source,golo]
+----
+obj: foo(42)
+----
+
+can be created by:
+[source,golo]
+----
+invoke("foo"): withArgs(42): on(refLookup("obj"))
+----
+
+Similarly, the subtree of:
+[source,golo]
+----
+function foo = {
+  let f = |a, b| -> a + b
+  return f("answer ", 42)
+}
+----
+
+can be created by:
+[source,golo]
+----
+`function("foo"): body(
+  define("f"): as(
+    lambda("a", "b"): returns(plus(refLookup("a"), refLookup("b")))),
+  returns(call("f"): withArgs(constant("answer "), constant(42)))
+)
+----
+
+See the link:{golodoc}/gololang/ir.html[golodoc] for a full description of this API.
+
+
+==== Quoting
+
+An other way to create IR nodes is to use the `quote` macro from the link:{golodoc}/gololang/ir/Quote.html[`gololang.ir.Quote`] module.
+This macro convert its argument node into calls to the builder functions and IR API.
+For instance, the code:
+[source,golo]
+----
+let f = &quote(|a, b| -> a + b)
+----
+is expanded into:
+[source,golo]
+----
+let f = gololang.ir.lambda("a", "b"): block(
+  gololang.ir.Block.of(gololang.ir.ReturnStatement.of(
+    gololang.ir.BinaryOperation.create(gololang.ir.OperatorType.PLUS(),
+      gololang.ir.ReferenceLookup.of("a"),
+      gololang.ir.ReferenceLookup.of("b")))))
+----
+where all calls are fully qualified ones, so there is no need to import the `gololang.ir` modules.
+
+See the corresponding link:{golodoc}/gololang/ir/Quote.html[golodoc] for a full documentation of this module.
+
+
+[[special_macros]]
+==== Special macros
+
+Special macros are macros that can interact with the expansion visitor itself.
+They allow to tune the way macros are expanded in the current module.
+The predefined special macros are currently:
+
+- `use`: adds a module to lookup macros into;
+- `dontExpandRegularCalls`: don't try to expand regular calls as macros; all macro calls must therefore be prefixed with `&`;
+- `dontRecurse`: don't expand the result of a macro (can be useful for debugging);
+- `recursionLimit`: define the nesting limit of macro calls.
+
+Special macros can be created in Java by using the link:{javadoc}/org/eclipse/golo/compiler/macro/SpecialMacro.html[`org.eclipse.golo.compiler.macro.SpecialMacro`] annotation and accepting a link:{javadoc}/org/eclipse/golo/compiler/macro/MacroExpansionIrVisitor.html[`org.eclipse.golo.compiler.macro.MacroExpansionIrVisitor`] as first parameter.
+In golo, the `@special` decorator macro can be used to specify that a macro is a special one, e.g.:
+[source,golo]
+----
+@special
+macro mySpecialMacro = |visitor, arg| { ... }
+----
+
+
+=== Using macros
+
+==== Execution model
+
+When the IR tree is created by the parser, it is fed to the macro expansion process.
+A visitor walk the tree to search for macro invocations and try to expand them.
+
+Syntactically, macros can be called as regular functions.
+However, to be explicit, the call can optionally use the `&` prefix to be identified as a macro invocation.
+Since macros can be called where function calls are not allowed (e.g. at the root of the module), these calls must also be explicitly prefixed with `&`.
+
+To expand a macro, the compiler tries to find the corresponding macro function (or static method annotated with `@Macro`) that matches the callsite.
+This search is much simpler than regular function calls, since it does not involve the full golo resolution engine.
+As such, some features are not available for macro, such as banged call or named arguments footnote:[Actually, named arguments can be used in a macro call, but are seen as `NamedArgument` nodes in the macro body and thus require a special handling… see for instance link:{golodoc}/gololang/macros/Utils.html#parseArguments_2[`gololang.macros.Utils.parseArguments`]].
+
+[[macro-dont-expand-regular]]
+Since the compiler tries to expand every function call in the tree, this step can be time consuming.
+This strategy can be turned off with the `&dontExpandRegularCalls()` <<special_macros,special macro>>.
+In that case, every macro invocation _must_ be prefixed with `&`.
+
+For the compiler to find the macro, you must either use a fully qualified name, as in `&my.module.theMacro(arguments)`, or import the module, as it is the case for regular functions.
+
+An additional way is to use the link:{golodoc}/gololang/macros.html#use_3v[`&use`] <<special_macros,special macro>>.
+This macro adds the given module into the macro lookup process, just like `import`.
+However, unlike `import`, the module will not be used to resolve regular function calls at runtime.
+Moreover, if the used module has a macro named `init`, the call to `&use` is expanded to the result of calling the `init` macro with the remaining arguments.
+For instance: `&use("module.with.macro", "foo", 42)` with be expanded into the macro call `&module.with.macro.init("foo", 42)` which will be expanded itself.
+This allows to "automatically" inject some code into the _using_ module.
+
+Whether you must use one or the other depends on how the module is used.
+If your code only depends on macros from the module, `&use` will be cleaner.
+If your code has runtime dependencies on regular functions from the given module, then it must obviously be imported.
+See also <<creating_function_calls>> for concerns about the resolution of functions in macro modules.
+
+
+[WARNING]
+===============
+Using macros creates a *compile-time* dependency.
+Therefore, the module containing the used macros _must_ be compiled _before_ the module using it.
+The order of files in the command line (`golo compile` or `golo golo`) is therefore relevant: modules containing macros _must_ appear before other modules.
+
+For instance, given a module defining macros in `my-macros.golo`, and a module using them in `app.golo`, the following commands will both fail with a compilation error:
+[source]
+----
+$ golo compile app.golo my-macros.golo
+$ golo golo --files app.golo my-macros.golo
+----
+
+Indeed, the macro call in `app.golo` can't be resolved, since the macro itself is not yet compiled.
+Switching files on the command line works in both cases:
+[source]
+----
+$ golo compile my-macros.golo app.golo
+$ golo golo --files my-macros.golo app.golo
+----
+compile or execute the code correctly.
+Obviously, the macros can also be compiled in a separate step, as in:
+[source]
+----
+$ golo compile my-macros.golo
+$ golo golo --files app.golo
+----
+
+As a consequence, a macro can't be used in the module that defines it.
+
+===============
+
+[[substituting_macros]]
+==== Substituting macros
+
+The simplest and more natural macros are _substituting macros_.
+Such macros are pure functions returning a new IR node, that will replace the macro call in the tree.
+
+For instance, given a macro that returns a constant value:
+[source, golo]
+----
+include::{tests-dir}/for-macros/varargs-macros.golo[tag=answer]
+----
+
+Any calls to that macro will be replaced by the constant value. Code such as:
+[source,golo]
+----
+println(answer())
+----
+will be converted into:
+[source,golo]
+----
+println(42)
+----
+
+Of course, the macro can generate any code, such as the following:
+[source,golo]
+----
+include::{tests-dir}/for-macros/varargs-macros.golo[tag=sayHellos]
+----
+
+This macros take a reference to a variable (`lst`) and a list of nodes representing expressions.
+It then create a block, that is a sequence of statements, and adds invocation of the `add` method on the `lst` reference.
+The newly created node is returned.
+The document tree and the argument nodes are left unchanged; this is a pure function.
+
+The following invocation
+[source,golo]
+----
+include::{tests-dir}/for-macros/varargs.golo[tag=test_sayHellos,indent=0]
+----
+will be expanded into:
+[source,golo]
+----
+let l = list[]
+l: add("Hello " + "foo")
+l: add("Hello " + 42)
+l: add("Hello " + plop(42))
+----
+
+The IR node representing the call to the `sayHellos` macro is replaced by the node returned by the macro, that is a block containing a sequence of `:add` invocations.
+The expansion of the macro, i.e. the substitution of the macro call by the created block, is done by the compiler in the expansion process, not by the macro itself.
+
+As you can see, all macros are expanded, thus the second value added is the `42` constant, but function calls _are not_ evaluated, since the value will be computed at runtime.
+Here, the `answer` macro call is expanded _before_ the `sayHellos` one (arguments are visited before calls).
+After being inserted in the IR tree to replace the macro call, the result of the macro is visited again to expand the macro calls that it might contain.
+
+[[macro-recursion-limit]]
+To avoid infinite expansion if a macro returns a (maybe indirect) call to itself, or even deeply nested macro calls (which are indeed code smells), a nesting limit is defined.
+The compilation process stops with an error if the limit is exceeded.
+The default limit is 42, but can be changed globally using the `golo.macros.recursion-limit` system property, or locally to a module using the link:{golodoc}/gololang/macros.html#recursionLimit_2[`gololang.macros.recursionLimit`] special macro.
+
+
+Finally, macros that return `null` are replaced by a “no-op” node, ignored by the latter compilation stages. Note that this kind of node can only be used where _statements_ are expected.
+This feature can be used to switch on or off some code at compile time, as presented in the <<conditional_inclusion, examples section>>.
+
+[[macro_side_effect]]
+==== Macros with side-effects
+
+It is possible for the macro to act with side-effects.
+As usual, it is recommended to avoid side-effects as much as possible, since this tends to create code that is harder to maintain, and usually coupled to the code structure, which reduce macro reuse.
+
+However, here is a contrived example of such side-effect macro:
+[source,golo]
+----
+include::{tests-dir}/for-macros/sideeffect-macros.golo[tag=sideeffect]
+----
+
+This macro must be applied on the right-hand side of a binary operation expression, which must be an integer constant.
+It increments this constant, and replaces the left-hand side of the expression by the constant value `40`.
+Thus, code such as:
+[source,golo]
+----
+include::{tests-dir}/for-macros/sideeffect.golo[tag=test_sideeffect]
+----
+will be expanded to:
+[source,golo]
+----
+let v = 40 + 2
+----
+
+As you can see, the macro itself is tied to the structure (must be called on the right expression of a binary operation).
+Navigation methods of the IR API (`ancestor`, `next`, etc.) can help to retrieve a node regardless the tree structure.
+However, as a general rule, it is wiser for a macro to only affect its arguments, and return a new node to be replaced by.
+
+As a side note, the previous example will works whatever the left expression.
+For instance, since function calls are resolved runtime and macros expanded compile time, the fact that the `foo` function does not even exists is not a problem, since the expression is replaced by the macro.
+
+Most of the time, even macros with side effects should return a node, even if it's its unchanged argument (see for instance <<top_level_macros,macros on top-level elements>>)
+
+[WARNING]
+====
+If, using a side effect such as presented here, you add a macro call into a node that had already been expanded, or is currently expanding, the node will not be visited again and thus the macro will no be expanded.
+
+For instance, consider a macro such as:
+[source,golo]
+----
+
+macro someMacro = |v| {
+  #...
+}
+
+macro bad = |val| {
+  val: ancestor(`oftype(Block.class))
+     ?: previous(`oftype(Block.class))
+     ?: add(macroCall("someMacro"): withArgs(val))
+}
+----
+
+The aim is to add a macro call to `someMacro` in the block just before the current one.
+However, the injected macro call will not be expanded, since the expansion process does not revisit nodes.
+Calling this macro will thus lead to a compiling error.
+The same purpose can be achieved by creating a regular function (say `someMacroInternals`) doing the `someMacro` work, and call it instead of injecting a call to the macro (assuming that this function does not generate a macro call itself), as in:
+[source,golo]
+----
+macro someMacro = |v| -> someMacroInternals(v)
+
+local function someMacroInternals = |v| {
+  #...
+}
+
+macro better = |val| {
+  val: ancestor(`oftype(Block.class))
+      ?: previous(`oftype(Block.class))
+      ?: add(someMacroInternals(val))
+}
+----
+
+It is however possible to inject macro calls in not-yet-visited nodes, or in the node returned by the macro.
+====
+
+In the previous example, we accessed to the ancestor of the macro call node as an ancestor of its argument.
+When no arguments are present, we can create a macro that has access to the current tree in the form of a more robust _contextual macro_.
+
+
+[[contextual_macros]]
+==== Contextual macros
+
+Contextual macros are called with the macro call itself as implicit first argument.
+They are defined just like regular macros, but must be decorated with the `@contextual` macro.
+To create a contextual macro in Java, use the link:{javadoc}/org/eclipse/golo/compiler/macro/ContextualMacro.html[`org.eclipse.golo.compiler.macro.ContextualMacro`] annotation.
+
+Suppose you want to add several element to a module. You can use a contextual macro, invoked as top-level.
+For instance, a macro defined as:
+
+[source,golo]
+----
+@contextual
+macro imports = |self, package, classes...| {
+  let prefix = package: value() + "."
+  let mod = self: enclosingModule()
+  foreach cls in classes {
+    mod?: addImport(moduleImport(prefix + cls: value()))
+  }
+}
+----
+
+and called like:
+
+[source,golo]
+----
+&imports("my.super.package", "Foo", "Bar", "Baz")
+----
+
+will result in:
+
+[source,golo]
+----
+import my.supper.package.Foo
+import my.supper.package.Bar
+import my.supper.package.Baz
+----
+
+Contextual macros are a way to access the IR node of the macro call itself.
+This can be used to check the context of the macro (where it is called), mutate other nodes of the tree, and so on.
+As stated <<macro_side_effect,previously>>, it is however advised to avoid direct IR tree mutation, and use <<substituting_macros,substitution>> instead.
+
+A similar example that does not use side effects is given in the <<injecting_imports,injecting imports>> section.
+
+
+==== Calling macros with a block
+
+An other special call syntax, for which the `&` prefix is mandatory, is when a macro last parameter is a block.
+In that case, the block can be provided inside curly braces but *outside* the calling parenthesis.
+The last macro argument will therefore be a `gololang.ir.Block`.
+
+For instance, given:
+[source,golo]
+----
+module calling.macro.with.block
+
+&use("gololang.ir.Quote")
+
+macro mymacro = |value, block| -> &quote {
+  if args: get(0) == $(value) {
+    $(block)
+  }
+}
+----
+
+[source,golo]
+----
+module using.macro.with.block
+
+&use("calling.macro.with.block")
+
+function main = |args| {
+
+  &mymacro(42) {
+    println("hello")
+    doSomething()
+  }
+}
+----
+
+the `value` argument is a `gololang.ir.ConstantStatement` representing `42` and the `block` argument is a `gololang.ir.Block` containing two nodes for the `println("hello")` statement and the `doSomething()` call.
+This call will be expanded as
+[source,golo]
+----
+function main = |args| {
+  if args: get(0) == 42 {
+    println("hello")
+    doSomething()
+  }
+}
+----
+
+
+See the <<sample_do_while,`do ... while`>> example below for an example of a macro using a block.
+
+
+[[top_level_macros]]
+==== Macros on top-level and decorator-like syntax
+
+A similar syntax can be used to apply a macro on a top-level element, where the classical argument syntax is not valid.
+
+For instance, a macro taking an integer and a function declaration as arguments:
+
+[source,golo]
+----
+macro example = |intConstant, funDeclaration| {
+  if intConstant: value() > 40 {
+    funDeclaration: getBlock(): prependStatement(call("println"): withArgs(intConstant))
+  }
+  return funDeclaration
+}
+----
+
+will be called as
+[source,golo]
+----
+&example(42) {
+function add = |a, b| -> a + b
+}
+
+&example(1) {
+function double = |a| -> 2 * a
+}
+----
+
+Here the macro arguments will be a `gololang.ir.ConstantStatement` with `42` and `1` as values respectively, and a `gololang.ir.GoloFunction` representing `add` and `double` functions respectively.
+The previous code will be expanded as
+[source,golo]
+----
+function add = |a, b| {
+  println(42)
+  return a + b
+}
+
+function double = |a| -> 2 * a
+----
+
+A macro can also be applied to several top-level elements:
+[source,golo]
+----
+macro mymacro = |toplevel...| {
+  foreach elt in toplevel {
+    sideEffect(elt)
+  }
+}
+
+&mymacro {
+function mult = |a, b| -> a * b
+
+struct Point = {x, y}
+}
+----
+
+When the block contains only a single declaration, the decorator syntax can be used.
+Thus the previous example could have been written
+[source,golo]
+----
+@example(42)
+function add = |a, b| -> a + b
+
+@mymacro
+function mult = |a, b| -> a * b
+
+@mymacro
+struct Point = {x, y}
+----
+
+[WARNING]
+====
+Keep in mind that macros, even when using the decorator-like syntax, are expanded compile-time, even if the function is not used, while regular decorators are computed at runtime, for each call (unless banged). When mixing regular runtime decorators and top-level macros on functions, the macros are thus always applied _first_. See for instance the following example:
+[source,golo]
+----
+module AMacros
+
+import gololang.ir
+
+macro deco = |f| {
+  f: getBlock(): prependStatement(
+    call("println"): withArgs("deco"))
+  return f
+}
+----
+
+[source,golo]
+----
+module ATest
+
+&use("AMacros")
+
+function regular = |f| -> {
+  println("regular")
+  return f()
+}
+
+@deco
+function say1 = {
+  println(1)
+}
+
+@regular
+function say2 = {
+  println(2)
+}
+
+@deco
+@regular
+function say3 = {
+  println(3)
+}
+
+@regular
+@deco
+function say4 = {
+  println(4)
+}
+
+function main = |args| {
+  say1()
+  println("--")
+  say2()
+  println("--")
+  say3()
+  println("--")
+  say4()
+}
+----
+
+Running this program will give:
+
+----
+$ golo golo --files a-macros.golo a.golo
+deco
+1
+--
+regular
+2
+--
+regular
+deco
+3
+--
+regular
+deco
+4
+----
+====
+
+The decorator syntax allows to apply a macro on the module itself. For instance:
+[source,golo]
+----
+@moduleMacro
+module Foo
+
+#...
+----
+
+A macro applied to a module using the decorator syntax will always be the last macro applied, after the module had been visited and all other macros expanded.
+Moreover, since there is no parent in which to replace the macro call by its result, such a macro _must_ work by side effect, and can't be a substituting macro.
+
+
+Macros applied on top-level elements may often return a link:{javadoc}/gololang/ir/ToplevelElements.html[`ToplevelElements`] to inject several top-level elements into the module, without using side effects.
+When stacking such macros, for instance with the decorator notation, each macro must be prepared to receive a `ToplevelElements` containing various kinds of elements, instead of the decorated one, and deal with it accordingly.
+A good practice is to check the received parameter for its type and ignore unexpected elements.
+If the received node is a `ToplevelElements`, the macro should be applied to all its elements and return another `ToplevelElements` (i.e. _map_ itself).
+The decorator link:{golodoc}/gololang/macros/Utils.html#toplevel_1[`gololang.macros.Utils::toplevel`] helps to create such macros.
+
+
+=== Some macro pitfalls
+
+==== Hygiene
+
+When a macro defines local variables, naming them can be critical, since it can introduce clashes with variables existing in the scope of the macro call site, and these variables can leak outside the scope of the macro footnote:[https://en.wikipedia.org/wiki/Hygienic_macro#The_hygiene_problem[Wikipedia on the hygiene problem]].
+
+For instance, suppose that one creates a macro to swap the values of two variables.
+
+[source, golo]
+----
+macro swap = |a, b| -> block(
+  define("tmp"): as(a),
+  assign(b): to(a),
+  assign(refLookup("tmp")): to(b))
+----
+
+which can be used as:
+
+[source,golo]
+----
+var first = 42
+var second = 69
+swap(first, second)
+----
+
+and will expand to:
+
+[source,golo]
+----
+var first = 42
+var second = 69
+let tmp = first
+first = second
+second = tmp
+----
+
+So far, so good.
+But if the macro is called is a scope where the `tmp` variable is already defined, or if it's called twice in the same scope, we will have a name clash:
+
+[source,golo]
+----
+let tmp = "foo"
+var first = 42
+var second = 69
+swap(first, second)
+----
+
+expands to:
+
+[source,golo]
+----
+let tmp = "foo"
+var first = 42
+var second = 69
+let tmp = first
+first = second
+second = tmp
+----
+
+This is a well known issue of macro systems without hygiene, such as the C preprocessor.
+The approach used here is to generate a unique name at expansion time.
+In order to generate unique names, the builder function link:{golodoc}/gololang/ir.html#localRef_0[`gololang.ir.localRef`], when called with no argument, will create a reference with a mangled unique name.
+If full control on the name generation is needed, a link:{javadoc}/org/eclipse/golo/compiler/SymbolGenerator.html[`SymbolGenerator`] can be used.
+The link:{golodoc}/gololang/macros/Utils.html#gensym_0[`gensym`] and link:{golodoc}/gololang/macros/Utils.html#mangle_1[`mangle`] functions in the link:{golodoc}/gololang/macros/Utils.html[`gololang.macros.Utils`] module can also be useful.
+
+Applied to the `swap` example, this gives:
+
+[source,golo]
+----
+include::{tests-dir}/for-macros/simple-macros.golo[tag=swap]
+----
+
+The code
+
+[source,golo]
+----
+include::{tests-dir}/for-macros/simple.golo[tag=test_swap,indent=0]
+----
+
+will expand to:
+
+[source,golo]
+----
+let tmp = "foo"
+var first = 42
+var second = 69
+let __$$_ref_1 = first
+first = second
+second = __$$_ref_1
+first = first + 1
+let __$$_ref_2 = first
+first = second
+second = __$$_ref_2
+----
+
+To be more precise, the actual IR generated by
+
+[source,golo]
+----
+var first = 42
+var second = 69
+swap(first, second)
+----
+
+is
+
+----
+# Assignment: LocalReference{kind=VARIABLE, name='first', index=1} (declaring)
+#   Constant = 42
+# Assignment: LocalReference{kind=VARIABLE, name='second', index=2} (declaring)
+#   Constant = 69
+# Block
+#   Assignment: LocalReference{kind=CONSTANT, name='__$$_ref_1', index=3} (declaring)
+#     Reference lookup: first
+#   Assignment: LocalReference{kind=CONSTANT, name='first', index=1}
+#     Reference lookup: second
+#   Assignment: LocalReference{kind=CONSTANT, name='second', index=2}
+#     Reference lookup: __$$_ref_1
+----
+
+As you can see, since the macro generated a `Block`, the temporary variable scope is limited, and the variable can't leak outside the macro.
+Have we tried to `println(__$$_ref_1)` after the swap, we would have get an undeclared reference error.
+
+Using generated symbol names and restricting scopes allows to create robust macros.
+It is however the responsibility of the developer to use these features.
+For instance, the first naive implementation of swap would work as expected, until used in a scope where the `tmp` variable exists.
+
+
+[[injecting_functions]]
+==== Injecting functions
+
+The use of unique names prevents clashes when creating local variables.
+However, a generated name is not always desirable.
+One main case is a macro injecting a function into the calling module.
+Indeed, if one wants to use the said function, the name must be known.
+However, using a hard coded name can lead to the same kind of name clashes.
+
+For instance, consider a macro injecting a `foo` function in its module:
+[source,golo]
+----
+macro createFoo = -> `function("foo"): withParameters("a"): returns(plus(refLookup("a"), constant(42)))
+----
+used as
+[source,golo]
+----
+module Test
+
+&createFoo()
+----
+and expanding into
+[source,golo]
+----
+module Test
+
+function foo = |a| -> a + 42
+----
+
+If the calling module already contains a `foo` function with the same arity, the one created by the macro will not be added, since a module can't contain two function with the same signature.
+
+It is thus advised to not hard-code the name of generated functions into the macro, but to derive it from its arguments. For instance:
+[source,golo]
+----
+macro createFoo = |funName| -> `function("foo" + funName: name()): withParameters("a")
+  : returns(plus(refLookup("a"), constant(42)))
+----
+Called as `&createFoo(bar)`, this will generate a `foobar` function.
+
+Note that injecting types (`struct`, `union`) and module states have the same issue.
+
+
+[[injecting_imports]]
+==== Injecting imports
+
+Using macros, one can inject `import` statements in a module.
+For instance, one can create a macro to import a bunch of classical modules as:
+[source,golo]
+----
+let USUAL_IMPORTS = array[
+  "java.util",
+  "java.nio.file",
+  "java.io",
+  "java.util.function",
+  "java.util.stream"
+]
+
+macro importUsualModules = -> toplevels(array[
+  moduleImport(name) foreach name in USUAL_IMPORTS
+])
+----
+
+However, this behavior must be well documented since it can lead to unexpected results.
+Indeed, if the calling module defines some functions with the same name and arity as imported ones, or import other modules defining such functions, name clashes or shadowing can appear.
+The code generated by the macro, if it rely on the imported modules, or the code in the module itself can thus call the wrong function.
+
+
+[[creating_function_calls]]
+==== Creating function calls
+
+When a macro generate a function call, some care must be taken concerning its resolution.
+Indeed, the called function must be available in the _module applying the macro_.
+For instance, suppose you have a module `some.Module` containing a function `foo`, and a macro creating a call to this function:
+
+[source,golo]
+----
+module some.Module
+
+function foo = |x| -> x
+
+macro myMacro = -> call("foo"): withArgs(42)
+----
+
+Using this macro as:
+
+[source,golo]
+----
+module Test
+
+&use("some.Module")
+
+function main = |args| {
+  println(myMacro())
+}
+----
+
+will be expanded as
+
+[source,golo]
+----
+module Test
+
+function main = |args| {
+  println(foo(42))
+}
+----
+
+which will fail since `some.Module` is not imported in the `Test` module, and thus the function `foo` can't be found.
+
+Depending on the desired behavior, several solution can be considered:
+
+. use a fully qualified name, i.e. `call("some.Module.foo"): withArgs(42)`;
+. let the user import the required module, which provides a kind of polymorphism, since the `foo` function called will be defined by the imported module and not the macro itself;
+. inject the import in the calling module. Note that it can require the macro to be a contextual one. For instance:
+[source,golo]
+----
+@contextual
+macro myMacro = |self| {
+  self: enclosingModule()?: addImport("some.Module"))
+  return call("foo"): withArgs(42)
+}
+----
+
+The macro will thus be expanded as:
+[source,golo]
+----
+module Test
+
+import some.Module
+
+function main = |args| {
+  println(foo(42))
+}
+----
+
+However, this can fail to produce the desired behavior (see <<injecting_imports,the previous section>>).
+
+
+=== Testing and debugging macros
+
+Since macros are expanded at compile time, they can be difficult to test and debug.
+Here are some advices.
+
+As already said, the `diagnose` command displays the internal representation of the parsed code.
+Its `--stage` option can configure which <<compilation-steps, compilation step>> is dumped:
+
+- `raw`: the IR representation in stage 2, which reflect the code as written in the source;
+- `expanded`: the IR after macro expansion, when all macro calls are replaced by their result;
+- `refined`: the final IR, right before the bytecode generation (step 3).
+
+These options are useful to inspect the result of expanding macros, for debugging purpose for instance.
+The `golo.macros.recursion-limit` system property can be used to tweek the nested macros expansion, to dump intermediary expansion steps.
+
+As an alternative, it is possible to dump the same representation of any IR node using its link:{golodoc}/gololang/ir.html#augment.gololang.ir.GoloElement.dump_1[`dump`] method.
+This can be used to inspect the arguments of a macro, or the produced node, when debugging a macro.
+It is moreover possible to manually expand the macros in a node by using the link:{javadoc}/org/eclipse/golo/compiler/GoloCompiler.html#expand-gololang.ir.GoloModule-[`expand`] and link:{javadoc}/org/eclipse/golo/compiler/GoloCompiler.html#expandOnce-gololang.ir.GoloModule-[`expandOnce`] methods of the compiler (which can be accessed using `gololang.Runtime.classLoader(): compiler()`).
+
+To debug macros, the expansion process can be tuned using some predefined special macros that configure the <<macro-recursion-limit, recursion limit>>, <<macro-dont-expand-regular, regular call expansion>>, and so on (see the link:{golodoc}/gololang/macros.html[`gololang.macros`] module).
+
+The `golo.debug.macros` system property can be set to `true` to allow the expansion process to be _really_ verbose about its work.
+
+To ease the tests and debugging of macro functions, as well as improve code reuse, it is strongly recommended to define regular functions that create IR nodes, and call these functions from macros.
+Indeed, it is easier to call such a function in a test suite to inspect its result.
+In anyway, a macro can be called as a regular function (i.e. at runtime) either by using the `dontExpandRegularCalls` special macro and calling the macro without the `&` prefix (e.g. in a test module) or by using a function reference (e.g. `^module::macro()`).
+Calling a special or contextual macro as a regular function is however tricky since the implicit arguments (the macro call and the expansion engine resp.) are not injected and must therefore be supplied explicitly.
+
+
+=== Examples of macros
+
+Here are some example of macros, to whet your appetite.
+
+[[conditional_inclusion]]
+==== Conditional inclusion
+
+[source,golo]
+----
+macro debug = |message| {
+  if Runtime.debugMode() {
+    return invoke("println"): withArgs(message): on(call("System.err"))
+  }
+}
+----
+
+This macro will expand to `System.err(): println(message)` if in link:{javadoc}/gololang/Runtime.html#debugMode--[debug mode], and to a no-op otherwise.
+Thus, running the code:
+[source,golo]
+----
+function main = |args| {
+  debug("debug test")
+  println("ok")
+}
+----
+
+will result in:
+[source]
+----
+$ golo golo --files macro.golo test.golo
+ok
+$ GOLO_DEBUG=true golo golo --files macro.golo test.golo
+debug test
+ok
+----
+
+Of course, one can write a regular function with the same behavior, but since it's a macro, the test to the environment variable and the print statement are not event present in the bytecode of the first run.
+Compare
+[source]
+----
+$ golo compile macro.golo test.golo
+$ javap -v Test.class
+...
+public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=1, locals=1, args_size=1
+         0: ldc           #25                 // String ok
+         2: invokedynamic #37,  0             // InvokeDynamic #0:println:(Ljava/lang/Object;)Ljava/lang/Object;
+         7: pop
+         8: aconst_null
+         9: return
+...
+----
+with
+[source]
+----
+$ GOLO_DEBUG=true golo compile macro.golo test.golo
+$ javap -v Test.class
+...
+  public static void main(java.lang.String[]);
+    descriptor: ([Ljava/lang/String;)V
+    flags: ACC_PUBLIC, ACC_STATIC
+    Code:
+      stack=2, locals=1, args_size=1
+         0: invokedynamic #35,  0             // InvokeDynamic #0:"System#err":()Ljava/lang/Object;
+         5: ldc           #37                 // String debug test
+         7: invokedynamic #45,  0             // InvokeDynamic #1:println:(Ljava/lang/Object;Ljava/lang/Object;)Ljava/lang/Object;
+        12: pop
+        13: ldc           #47                 // String ok
+        15: invokedynamic #50,  0             // InvokeDynamic #0:println:(Ljava/lang/Object;)Ljava/lang/Object;
+        20: pop
+        21: aconst_null
+        22: return
+...
+----
+
+Moreover, the message can be generated by a function call, that will only happen in debug mode:
+[source,golo]
+----
+debug(foo())
+----
+
+If we used a regular function, the `foo()` call would have happen even if not in debug mode, since parameters evaluation is strict, and thus we would have to use lazy evaluation trick like:
+[source,golo]
+----
+function debug = |msgClosure| {
+  if Runtime.debugMode() {
+    System.err(): println(msgClosure())
+  }
+}
+
+debug(-> foo())
+----
+
+Note that if the module is compiled in debug mode and run in normal mode, the debug message is still printed, since the macro is expanded at compile time:
+[source]
+----
+$ GOLO_DEBUG=true golo compile macro.golo test.golo
+$ golo run --module Test
+debug test
+ok
+----
+
+An alternative `debug` implementation could return the test to debug mode itself, avoiding boilerplate code but not the runtime cost.
+
+A similar approach can be used to create a `assert` macro that is removed from production code. The asserted expression can even be used to generate an error message. Given the following macro
+
+[source,golo]
+----
+macro assert = |expr| {
+  if Boolean.getBoolean("gololang.with-assert") {
+    require(expr oftype BinaryOperation.class,
+            "assert argument must be a binary expression")
+
+    let message = invoke("format")
+      : withArgs(expr: left(), expr: right())
+      : on(constant(
+            "Should have %%s %s %%s at %s %s": format(
+              expr: type(),
+              expr: enclosingModule()?: sourceFile(),
+              expr: positionInSourceCode())))
+    return call("require"): withArgs(expr, message)
+  }
+}
+----
+
+used as in
+
+[source,golo]
+----
+function main = |args| {
+  let a = 41
+  assert(a > 42)
+}
+----
+
+When used in normal mode, nothing happens, since the macro returns `null`.
+[source]
+----
+$ golo golo --files assert.golo test-assert.golo
+----
+
+but setting the property:
+[source]
+----
+$ GOLO_OPTS='-Dgololang.with-assert=true' golo golo --files assert.golo test-assert.golo
+Exception in thread "main" java.lang.AssertionError: Should have 41 > 42 at test-assert.golo {line=7, column=12}
+----
+
+since the code is expanded into:
+[source,golo]
+----
+function main = |args| {
+  let a = 41
+  require(a > 42,
+      "Should have %s > %s at test-assert.golo {line=7, column=12}"
+      : format(a, 42))
+}
+----
+
+
+[[sample_do_while]]
+==== `do ... while`
+
+Golo does not provide a `do ... while` construct. Here is a sample macro implementing this feature:
+[source,golo]
+----
+include::{tests-dir}/for-macros/simple-macros.golo[tag=dowhile]
+----
+
+This macro can be called like:
+[source,golo]
+----
+include::{tests-dir}/for-macros/simple.golo[tag=dowhile]
+----
+
+which is expanded into:
+[source,golo]
+----
+let l = list[]
+var i = 0
+l: add(i)
+i = i - 1
+while i > 0 {
+  l: add(i)
+  i = i - 1
+}
+----

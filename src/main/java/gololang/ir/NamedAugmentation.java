@@ -20,6 +20,7 @@ import static gololang.Messages.message;
 public final class NamedAugmentation extends GoloElement<NamedAugmentation> implements FunctionContainer, ToplevelGoloElement, NamedElement {
   private final PackageAndClass name;
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
+  private final Set<MacroInvocation> macroCalls = new LinkedHashSet<>();
 
   private NamedAugmentation(PackageAndClass name) {
     super();
@@ -69,6 +70,15 @@ public final class NamedAugmentation extends GoloElement<NamedAugmentation> impl
    * {@inheritDoc}
    */
   @Override
+  public void addMacroInvocation(MacroInvocation macroCall) {
+    macroCalls.add(macroCall);
+    makeParentOf(macroCall);
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
   public boolean hasFunctions() {
     return !functions.isEmpty();
   }
@@ -101,6 +111,7 @@ public final class NamedAugmentation extends GoloElement<NamedAugmentation> impl
   @Override
   public List<GoloElement<?>> children() {
     LinkedList<GoloElement<?>> children = new LinkedList<>(functions);
+    children.addAll(macroCalls);
     return children;
   }
 
@@ -111,6 +122,8 @@ public final class NamedAugmentation extends GoloElement<NamedAugmentation> impl
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (functions.contains(original)) {
       functions.remove(original);
+    } else if (macroCalls.contains(original)) {
+      macroCalls.remove(original);
     } else {
       throw cantReplace(original, newElement);
     }

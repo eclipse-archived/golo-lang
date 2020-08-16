@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <%@params processor %>
-<% let types = list["function", "struct", "union", "augmentation", "member"] %>
+<% let types = list["function", "macro", "struct", "union", "augmentation", "member"] %>
 <html>
 <head>
   <title>Index</title>

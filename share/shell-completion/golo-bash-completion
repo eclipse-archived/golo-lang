@@ -51,7 +51,7 @@ _golo ()
 			return 0
 			;;
     --stage)
-			COMPREPLY=( $( compgen -W 'ast raw refined' -- "$cur" ) )
+			COMPREPLY=( $( compgen -W 'ast raw expanded refined' -- "$cur" ) )
 			return 0
 			;;
 		--type)

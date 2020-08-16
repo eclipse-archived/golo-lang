@@ -27,6 +27,8 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   private final Set<NamedAugmentation> namedAugmentations = new LinkedHashSet<>();
   private final Set<GoloType<?>> types = new LinkedHashSet<>();
   private final Set<LocalReference> moduleState = new LinkedHashSet<>();
+  private final Set<MacroInvocation> topLevelMacroInvocations = new LinkedHashSet<>();
+  private MacroInvocation decoratorMacro = null;
   private GoloFunction moduleStateInitializer = null;
   private boolean hasMain = false;
 
@@ -106,6 +108,15 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
     return unmodifiableCollection(augmentations.values());
   }
 
+  public GoloModule decoratorMacro(MacroInvocation macro) {
+    this.decoratorMacro = macro;
+    return this;
+  }
+
+  public Optional<MacroInvocation> decoratorMacro() {
+    return Optional.ofNullable(this.decoratorMacro);
+  }
+
   /**
    * {@inheritDoc}
    */
@@ -136,6 +147,16 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
     if (function.isMain()) {
       hasMain = true;
     }
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addMacroInvocation(MacroInvocation macroCall) {
+    if (macroCall == null) return;
+    this.topLevelMacroInvocations.add(macroCall);
+    makeParentOf(macroCall);
   }
 
   private void addAugmentation(Augmentation augment) {
@@ -195,6 +216,8 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
       namedAugmentations.add((NamedAugmentation) element);
     } else if (element instanceof LocalReference) {
       this.moduleState.add((LocalReference) element);
+    } else if (element instanceof MacroInvocation) {
+      addMacroInvocation((MacroInvocation) element);
     } else if (element instanceof AssignmentStatement) {
       addModuleStateInitializer((AssignmentStatement) element);
     } else {
@@ -217,6 +240,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   @Override
   public List<GoloElement<?>> children() {
     LinkedList<GoloElement<?>> children = new LinkedList<>();
+    children.addAll(topLevelMacroInvocations);
     children.addAll(getImports());
     children.addAll(types);
     children.addAll(augmentations.values());
@@ -232,7 +256,8 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
         && augmentations.isEmpty()
         && namedAugmentations.isEmpty()
         && moduleState.isEmpty()
-        && functions.isEmpty();
+        && functions.isEmpty()
+        && topLevelMacroInvocations.isEmpty();
   }
 
   /**
@@ -242,6 +267,8 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (original instanceof GoloFunction) {
       this.functions.remove(original);
+    } else if (original instanceof MacroInvocation) {
+      topLevelMacroInvocations.remove(original);
     } else {
       throw cantReplace(original, newElement);
     }

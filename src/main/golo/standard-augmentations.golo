@@ -10,7 +10,7 @@
 #
 # ............................................................................................... #
 ----
-This module defines the set of standard augmentations.
+This module defines the set of standard augmentations imported by default.
 ----
 module gololang.StandardAugmentations
 

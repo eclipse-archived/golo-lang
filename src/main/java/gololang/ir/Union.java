@@ -28,6 +28,7 @@ import static java.util.Collections.unmodifiableSet;
 public final class Union extends GoloType<Union> implements ToplevelGoloElement {
 
   private final Set<UnionValue> values = new LinkedHashSet<>();
+  private final Set<MacroInvocation> macroCalls = new LinkedHashSet<>();
 
   private Union(String name) {
     super(name);
@@ -69,15 +70,38 @@ public final class Union extends GoloType<Union> implements ToplevelGoloElement 
   }
 
   /**
-   * Adds a value according to the given argument.
+   * Adds a macro invocation to this union.
+   *
+   * <p>The macro is supposed to return a {@link UnionValue} when expanded.
+   * This allows decorator-like syntax on union values:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * union Foo = {
+   *   &#64;someMacro
+   *   Value = {a, b}
+   *
+   *   &#64;otherMacro
+   *   OtherValue
+   * }
+   * </code></pre>
+   */
+  public boolean addMacroInvocation(MacroInvocation macroCall) {
+    return macroCalls.add(makeParentOf(macroCall));
+  }
+
+  /**
+   * Adds a value or a macro invocation according to the given argument.
    *
    * @see #addValue(UnionValue)
+   * @see #addMacroInvocation(MacroInvocation)
    */
   public boolean addElement(GoloElement<?> elt) {
     if (elt instanceof UnionValue) {
       return addValue((UnionValue) elt);
     }
-    throw cantConvert("UnionValue", elt);
+    if (elt instanceof MacroInvocation) {
+      return addMacroInvocation((MacroInvocation) elt);
+    }
+    throw cantConvert("UnionValue or MacroInvocation", elt);
   }
 
   public Collection<UnionValue> getValues() {
@@ -114,6 +138,7 @@ public final class Union extends GoloType<Union> implements ToplevelGoloElement 
   @Override
   public List<GoloElement<?>> children() {
     List<GoloElement<?>> children = new LinkedList<>(values);
+    children.addAll(macroCalls);
     return children;
   }
 
@@ -124,6 +149,8 @@ public final class Union extends GoloType<Union> implements ToplevelGoloElement 
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (values.contains(original)) {
       values.remove(original);
+    } else if (macroCalls.contains(original)) {
+      macroCalls.remove(original);
     } else {
       throw cantReplace(original, newElement);
     }

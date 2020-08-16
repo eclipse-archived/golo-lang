@@ -4,6 +4,8 @@ import gololang.FunctionReference;
 import java.util.*;
 import java.util.function.BiFunction;
 
+// TODO: tests
+
 public final class Visitors {
   private Visitors() {
     throw new UnsupportedOperationException();
@@ -52,7 +54,7 @@ public final class Visitors {
    * This last version is more complicated, but gives full access to the user on how to walk the tree and change the
    * accumulator.
    */
-  public static abstract class DispatchIrVisitor implements GoloIrVisitor, BiFunction<Object, GoloElement<?>, Object> {
+  public abstract static class DispatchIrVisitor implements GoloIrVisitor, BiFunction<Object, GoloElement<?>, Object> {
 
     private Object accumulator;
     private Walk walk;
@@ -67,6 +69,9 @@ public final class Visitors {
       if (f != null) {
         try {
           switch (f.arity()) {
+            case 0:
+              accumulator = f.invoke();
+              break;
             case 1:
               accumulator = f.invoke(elt);
               break;
@@ -80,7 +85,7 @@ public final class Visitors {
               }
               break;
             default:
-              throw new IllegalArgumentException("The dispatched function must have an arity of 1, 2 or 3");
+              throw new IllegalArgumentException("The dispatched function must have an arity of 0, 1, 2 or 3");
           }
         } catch (RuntimeException e) {
           throw e;
@@ -300,6 +305,11 @@ public final class Visitors {
     }
 
     @Override
+    public void visitMacroInvocation(MacroInvocation elt) {
+      dispatch(elt);
+    }
+
+    @Override
     public void visitNoop(Noop elt) {
       dispatch(elt);
     }
@@ -386,7 +396,7 @@ public final class Visitors {
    * <p>
    * This is the same as {@code visitor(function, Walk.PREFIX)}.
    */
-  public static GoloIrVisitor visitor(FunctionReference function) {
+  public static DispatchIrVisitor visitor(FunctionReference function) {
     return visitor(function, Walk.PREFIX);
   }
 

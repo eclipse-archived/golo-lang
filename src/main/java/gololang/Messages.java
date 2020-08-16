@@ -13,6 +13,8 @@ package gololang;
 import java.text.MessageFormat;
 import java.util.ResourceBundle;
 import java.util.Locale;
+import gololang.ir.GoloElement;
+import gololang.ir.GoloModule;
 
 /**
  * Functions to display various localized messages.
@@ -66,6 +68,25 @@ public final class Messages {
     System.err.println(prefixed(prefix, message, color));
   }
 
+  public static void printPrefixedWithPosition(String prefix, Object message, GoloElement<?> node, String color) {
+    String source = "unknown";
+    int line = 0;
+    int column = 0;
+    if (node != null) {
+      GoloModule mod = node.enclosingModule();
+      if (mod != null) {
+        source = mod.sourceFile();
+      }
+      line = node.positionInSourceCode().getStartLine();
+      column = node.positionInSourceCode().getStartColumn();
+    }
+    printPrefixed(
+        prefix,
+        node == null ? String.valueOf(message) : String.format("%s (%s {l=%s,c=%s})",
+          message, source, line, column),
+        color);
+  }
+
   /**
    * Prints an error message to standard error.
    */
@@ -81,17 +102,39 @@ public final class Messages {
   }
 
   /**
+   * Prints an error message to standard error with information from given IR node.
+   */
+  public static void error(Object message, GoloElement<?> node) {
+    printPrefixedWithPosition("error", message, node, ERROR);
+  }
+
+
+  /**
    * Prints a warning to standard error.
    */
   public static void warning(Object message) {
-    printPrefixed("warning", message.toString(), WARNING);
+    printPrefixed("warning", String.valueOf(message), WARNING);
+  }
+
+  /**
+   * Prints a warning to standard error with information from given IR node.
+   */
+  public static void warning(Object message, GoloElement<?> node) {
+    printPrefixedWithPosition("warning", message, node, WARNING);
   }
 
   /**
    * Prints an info message to standard error.
    */
   public static void info(Object message) {
-    printPrefixed("info", message.toString(), INFO);
+    printPrefixed("info", String.valueOf(message), INFO);
+  }
+
+  /**
+   * Prints an info message to standard error with information from given IR node.
+   */
+  public static void info(Object message, GoloElement<?> node) {
+    printPrefixedWithPosition("info", message, node, INFO);
   }
 
   /**

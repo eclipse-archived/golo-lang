@@ -26,6 +26,7 @@ public class ModuleDocumentation implements DocumentationElement {
   private final Map<String, Integer> imports = new TreeMap<>();
   private final Map<String, Integer> moduleStates = new TreeMap<>();
   private final SortedSet<FunctionDocumentation> functions = new TreeSet<>();
+  private final SortedSet<FunctionDocumentation> macros = new TreeSet<>();
   private final Map<String, AugmentationDocumentation> augmentations = new TreeMap<>();
   private final SortedSet<StructDocumentation> structs = new TreeSet<>();
   private final SortedSet<UnionDocumentation> unions = new TreeSet<>();
@@ -48,7 +49,7 @@ public class ModuleDocumentation implements DocumentationElement {
   }
 
   public static ModuleDocumentation load(String filename, GoloCompiler compiler) throws java.io.IOException {
-    return new ModuleDocumentation(compiler.transform(compiler.parse(filename)));
+    return new ModuleDocumentation(compiler.expand(compiler.transform(compiler.parse(filename))));
   }
 
   public static ModuleDocumentation empty(String name) {
@@ -63,6 +64,7 @@ public class ModuleDocumentation implements DocumentationElement {
   public boolean isEmpty() {
     return moduleStates.isEmpty()
       && functions.isEmpty()
+      && macros.isEmpty()
       && augmentations.isEmpty()
       && structs.isEmpty()
       && unions.isEmpty()
@@ -100,6 +102,10 @@ public class ModuleDocumentation implements DocumentationElement {
 
   public String sourceFile() {
     return this.sourceFile;
+  }
+
+  public SortedSet<FunctionDocumentation> macros() {
+    return macros;
   }
 
   public String moduleName() {
@@ -301,7 +307,7 @@ public class ModuleDocumentation implements DocumentationElement {
     @Override
     public void visitFunction(GoloFunction function) {
       if (!GoloModule.MODULE_INITIALIZER_FUNCTION.equals(function.getName())) {
-        functionContext.peek().add(new FunctionDocumentation()
+        FunctionDocumentation fdoc = new FunctionDocumentation(function.isMacro())
           .parent(parents.peek())
           .name(function.getName())
           .documentation(function.documentation())
@@ -309,7 +315,8 @@ public class ModuleDocumentation implements DocumentationElement {
           .line(function.positionInSourceCode().getStartLine())
           .local(function.isLocal())
           .arguments(function.getParameterNames())
-          .varargs(function.isVarargs()));
+          .varargs(function.isVarargs());
+        (function.isMacro() ? macros : functionContext.peek()).add(fdoc);
       }
     }
 
@@ -422,6 +429,10 @@ public class ModuleDocumentation implements DocumentationElement {
 
     @Override
     public void visitNamedArgument(NamedArgument namedArgument) {
+    }
+
+    @Override
+    public void visitMacroInvocation(MacroInvocation call) {
     }
 
     @Override

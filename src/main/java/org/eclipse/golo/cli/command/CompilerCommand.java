@@ -47,9 +47,17 @@ public class CompilerCommand implements CliCommand {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     final boolean compilingToJar = this.output.endsWith(".jar");
     File outputDir = compilingToJar ? null : new File(this.output);
+    if (outputDir != null && outputDir.isFile()) {
+      error(message("file_exists", outputDir));
+      return;
+    }
     JarOutputStream jarOutputStream = compilingToJar ? new JarOutputStream(new FileOutputStream(new File(this.output)), manifest()) : null;
     for (String source : this.sources) {
       File file = new File(source);
+      if (!file.canRead()) {
+        error(message("file_not_found", source));
+        break;
+      }
       try (FileInputStream in = new FileInputStream(file)) {
         if (compilingToJar) {
           compiler.compileToJar(file.getName(), in, jarOutputStream);
@@ -57,10 +65,12 @@ public class CompilerCommand implements CliCommand {
           compiler.compileTo(file.getName(), in, outputDir);
         }
       } catch (IOException e) {
-        error(message("file_not_found", source));
-        return;
+        error(e.getLocalizedMessage());
+        break;
       } catch (GoloCompilationException e) {
         handleCompilationException(e);
+      } catch (Throwable t) {
+        handleThrowable(t);
       }
     }
     if (compilingToJar) {

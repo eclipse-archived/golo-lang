@@ -334,6 +334,15 @@
   </ul></li>
   <% } %>
 
+
+  <% if not doc: macros(): isEmpty() { %>
+  <li><a href="#macros">Macros</a><ul>
+    <% foreach funcDoc in doc: macros() { %>
+    <li><%= tocItem(funcDoc) %></li>
+    <% } %>
+  </ul></li>
+  <% } %>
+
   <% if not doc: functions(): isEmpty() { %>
   <li><a href="#functions">Functions</a><ul>
     <% foreach funcDoc in doc: functions() { %>
@@ -449,6 +458,16 @@
         <%= process(funcDoc: documentation(), 4) %>
       </div>
     <% } %>
+  <% } %>
+<% } %>
+
+<% if not doc: macros(): isEmpty() { %>
+  <h2 id="macros">Macros</h2>
+  <% foreach funcDoc in doc: macros() { %>
+    <%= sectionTitle(3, funcDoc, src) %>
+    <div class="golodoc">
+      <%= process(funcDoc: documentation(), 3) %>
+    </div>
   <% } %>
 <% } %>
 

@@ -62,6 +62,16 @@ public class ModuleDocumentationTest {
   }
 
   @Test
+  public void checkMacros() throws Throwable {
+    assertThat(doc.macros().size(), is(1));
+    assertThat(doc.macros().first().name(), is("macroExample"));
+    assertThat(doc.macros().first().line(), is(119));
+    assertThat(doc.macros().first().documentation(), containsString("This is a macro"));
+    assertThat(doc.macros().first().arguments(), contains("x", "y"));
+    assertThat(doc.macros().first().isMacro(), is(true));
+  }
+
+  @Test
   public void checkAugmentations() throws Throwable {
     assertThat(doc.augmentations().size(), is(1));
     assertThat(doc.augmentations().iterator().next().target(), is("java.lang.String"));
@@ -124,7 +134,6 @@ public class ModuleDocumentationTest {
     assertThat(union.values().get(1).members().get(1).name(), is("tail"));
     assertThat(union.values().get(1).members().get(1).line(), is(105));
     assertThat(union.values().get(1).members().get(1).documentation(), containsString("tail of the list"));
-
   }
 
   @Test

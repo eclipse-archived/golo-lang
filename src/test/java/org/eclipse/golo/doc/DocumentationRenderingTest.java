@@ -24,6 +24,7 @@ import java.util.HashSet;
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
+import static org.hamcrest.Matchers.not;
 
 public class DocumentationRenderingTest {
 
@@ -70,6 +71,12 @@ public class DocumentationRenderingTest {
     contents = IO.fileToText(expectedIndexFile, "UTF-8");
     assertThat(contents, containsString("# Modules index"));
     assertThat(contents, containsString("* [my.package.Documented](my/package/Documented.markdown"));
+
+    String macrodoc = processor.render(loadDoc(SRC + "docpackage/macros.golo"));
+    assertThat(macrodoc, containsString("## Macros"));
+    assertThat(macrodoc, containsString("### `foo()`"));
+    assertThat(macrodoc, containsString("This is a macro"));
+
   }
 
   private void check_file(Path file) throws Throwable {
@@ -109,6 +116,15 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString(" <a href=\"../package.html\" rel=\"up\""));
   }
 
+  private void check_html_macros(Path file) throws Throwable {
+    check_file(file);
+    String result = IO.fileToText(file, "UTF-8");
+    assertThat(result, containsString("<h2 id=\"macros\">Macros</h2>"));
+    assertThat(result, containsString("<h3 id=\"foo_0\">foo()"));
+    assertThat(result, containsString("<p>This is a macro</p>"));
+  }
+
+
   private void check_html_home(Path file) throws Throwable {
     check_file(file);
     String contents = IO.fileToText(file, "UTF-8");
@@ -138,6 +154,7 @@ public class DocumentationRenderingTest {
     assertThat(contents, containsString("<p>Doc for package docpackage.</p>"));
     assertThat(contents, containsString("<h2>with a title</h2>"));
     assertThat(contents, containsString("<dt><a href=\"docpackage/MyModule.html\">docpackage.MyModule</a>"));
+    assertThat(contents, containsString("<dt><a href=\"docpackage/MyMacros.html\">docpackage.MyMacros</a>"));
   }
 
   private void check_html_index(Path file) throws Throwable {
@@ -157,6 +174,7 @@ public class DocumentationRenderingTest {
     assertThat(contents, containsString("<a href=\"my/package/Documented.html#MyAugment\">MyAugment</a>: named augmentation in module my.package.Documented"));
     assertThat(contents, containsString("<a href=\"my/package/Documented.html#List.Cons.head\">head</a>: member in union value my.package.Documented.List$Cons"));
     assertThat(contents, containsString("<a href=\"my/package/Documented.html#Point.x\">x</a>: member in struct my.package.Documented.Point"));
+    assertThat(contents, containsString("<a href=\"docpackage/MyMacros.html#foo_0\">foo()</a>: macro in module docpackage.MyMacros"));
   }
 
   private void check_html_src(Path file) throws Throwable {
@@ -172,6 +190,7 @@ public class DocumentationRenderingTest {
     HashSet<ModuleDocumentation> docs = new HashSet<>();
     docs.add(loadDoc(SRC + "doc.golo"));
     docs.add(loadDoc(SRC + "docpackage/MyModule.golo"));
+    docs.add(loadDoc(SRC + "docpackage/macros.golo"));
 
     HtmlProcessor processor = new HtmlProcessor();
     processor.setTargetFolder(tempDir);
@@ -183,6 +202,7 @@ public class DocumentationRenderingTest {
     check_html_index(tempDir.resolve("index-all.html"));
     check_html_package(tempDir.resolve("my/package.html"));
     check_html_package2(tempDir.resolve("docpackage.html"));
+    check_html_macros(tempDir.resolve("docpackage/MyMacros.html"));
   }
 
   @Test
@@ -204,6 +224,9 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("List\tfile\t/^union[:blank:]+List[:blank:]+=[:blank:]+{/;\"\tg\tline:87\tlanguage:golo"));
     assertThat(result, containsString("head\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:100\taccess:public\tvalue:Cons\tlanguage:golo"));
     assertThat(result, containsString("tail\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:105\taccess:public\tvalue:Cons\tlanguage:golo"));
+
+    result = processor.render(loadDoc(SRC + "docpackage/macros.golo"));
+    assertThat(result, containsString("foo\tfile\t/macro[:blank:]+foo[:blank:]+=/;\"\td\tline:11\taccess:public\tsignature:()\tlanguage:golo"));
   }
 
 }

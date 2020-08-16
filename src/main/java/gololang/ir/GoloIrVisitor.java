@@ -80,6 +80,8 @@ public interface GoloIrVisitor {
 
   void visitMember(Member member);
 
+  void visitMacroInvocation(MacroInvocation macroInvocation);
+
   void visitNoop(Noop noop);
 
   void visitToplevelElements(ToplevelElements toplevel);

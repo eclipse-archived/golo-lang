@@ -340,6 +340,16 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       annotation.visit("value", function.getDecoratorRef());
       annotation.visitEnd();
     }
+    if (function.isMacro()) {
+      currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/Macro;", true).visitEnd();
+      if (function.isSpecialMacro()) {
+        currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/SpecialMacro;", true).visitEnd();
+      }
+      if (function.isContextualMacro()) {
+        currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/ContextualMacro;", true).visitEnd();
+      }
+      returnTypeCast = "gololang/ir/GoloElement";
+    }
     for (String parameter: function.getParameterNames()) {
       currentMethodVisitor.visitParameter(parameter, ACC_FINAL);
     }
@@ -377,6 +387,25 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     MethodType signature;
     if (function.isVarargs()) {
       signature = MethodType.genericMethodType(function.getArity() - 1, true);
+    } else if (function.isMacro()) {
+      signature = MethodType.methodType(GoloElement.class);
+      int arity = function.getArity() - (function.isVarargs() ? 1 : 0);
+      int i = 0;
+      if (function.isContextualMacro()) {
+        signature = signature.appendParameterTypes(gololang.ir.AbstractInvocation.class);
+        i++;
+      }
+      if (function.isSpecialMacro()) {
+        signature = signature.appendParameterTypes(org.eclipse.golo.compiler.macro.MacroExpansionIrVisitor.class);
+        i++;
+      }
+      while (i < arity) {
+        signature = signature.appendParameterTypes(GoloElement.class);
+        i++;
+      }
+      if (function.isVarargs()) {
+        signature = signature.appendParameterTypes(GoloElement[].class);
+      }
     } else {
       signature = MethodType.genericMethodType(function.getArity());
     }
@@ -616,6 +645,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         goloFunctionSignature(methodInvocation.getArity() + 1),
         METHOD_INVOCATION_HANDLE,
         bootstrapArgs.toArray());
+  }
+
+  @Override
+  public void visitMacroInvocation(MacroInvocation macroInvocation) {
+    throw invalidElement(macroInvocation);
   }
 
   @Override

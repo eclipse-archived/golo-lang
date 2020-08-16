@@ -122,7 +122,11 @@ public class DiagnoseCommand implements CliCommand {
         switch (this.stage) {
           case "raw":
             break;
+          case "expanded":
+            compiler.expand(module);
+            break;
           case "refined":
+            compiler.expand(module);
             compiler.refine(module);
             break;
           default:
@@ -158,10 +162,11 @@ public class DiagnoseCommand implements CliCommand {
       switch (value) {
         case "ast":
         case "raw":
+        case "expanded":
         case "refined":
           return;
         default:
-          throw new ParameterException(message("diagnose_stage_error", "{ast, raw, refined}"));
+          throw new ParameterException(message("diagnose_stage_error", "{ast, raw, expanded, refined}"));
       }
     }
   }

@@ -16,6 +16,7 @@ public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
   private boolean local = false;
   private boolean augmentation = false;
   private boolean decorator = false;
+  private boolean macro = false;
 
   public ASTFunctionDeclaration(int i) {
     super(i);
@@ -59,14 +60,23 @@ public class ASTFunctionDeclaration extends GoloASTNode implements NamedNode {
     this.decorator = decorator;
   }
 
+  public boolean isMacro() {
+    return macro;
+  }
+
+  public void setMacro(boolean  macro) {
+    this.macro = macro;
+  }
+
   @Override
   public String toString() {
     return String.format(
-        "ASTFunctionDeclaration{name='%s', local=%s, decorator=%s, augmentation=%s}",
+        "ASTFunctionDeclaration{name='%s', local=%s, decorator=%s, augmentation=%s, macro=%s}",
         name,
         local,
         decorator,
-        augmentation);
+        augmentation,
+        macro);
   }
 
   @Override

@@ -112,3 +112,8 @@ A named augmentation
 augmentation MyAugment = {
   function foobar = |this, a| -> 42
 }
+
+----
+This is a macro
+----
+macro macroExample = |x, y| -> gololang.ir.contant(42)

@@ -37,6 +37,7 @@ import static gololang.Messages.message;
 public final class Augmentation extends GoloElement<Augmentation> implements FunctionContainer, ToplevelGoloElement {
   private final PackageAndClass target;
   private final Set<GoloFunction> functions = new LinkedHashSet<>();
+  private final Set<MacroInvocation> macroCalls = new LinkedHashSet<>();
   private final Set<String> names = new LinkedHashSet<>();
 
   private Augmentation(PackageAndClass target) {
@@ -95,6 +96,15 @@ public final class Augmentation extends GoloElement<Augmentation> implements Fun
       throw new IllegalArgumentException(message("augment_function_no_args", func.getName(), this.getPackageAndClass()));
     }
     functions.add(makeParentOf(func));
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public void addMacroInvocation(MacroInvocation macroCall) {
+    macroCalls.add(macroCall);
+    makeParentOf(macroCall);
   }
 
   /**
@@ -190,6 +200,8 @@ public final class Augmentation extends GoloElement<Augmentation> implements Fun
   protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
     if (functions.contains(original)) {
       functions.remove(original);
+    } else if (macroCalls.contains(original)) {
+      macroCalls.remove(original);
     } else {
       throw cantReplace(original, newElement);
     }
@@ -210,6 +222,7 @@ public final class Augmentation extends GoloElement<Augmentation> implements Fun
   @Override
   public List<GoloElement<?>> children() {
     LinkedList<GoloElement<?>> children = new LinkedList<>(functions);
+    children.addAll(macroCalls);
     return children;
   }
 }

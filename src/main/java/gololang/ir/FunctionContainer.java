@@ -27,13 +27,23 @@ public interface FunctionContainer {
   void addFunction(GoloFunction func);
 
   /**
-   * Adds a function.
+   * Adds a macro invocation to this container.
+   *
+   * <p>The macro is supposed to return a {@link GoloFunction} when expanded.
+   */
+  void addMacroInvocation(MacroInvocation macroCall);
+
+  /**
+   * Adds a function or a macro invocation according to the given argument.
    *
    * @see #addFunction(GoloFunction)
+   * @see #addMacroInvocation(MacroInvocation)
    */
   default void addElement(Object elt) {
     if (elt instanceof GoloFunction) {
       addFunction((GoloFunction) elt);
+    } else if (elt instanceof MacroInvocation) {
+      addMacroInvocation((MacroInvocation) elt);
     } else if (!(elt instanceof Noop)) {
       throw new IllegalArgumentException("Can't add a " + elt.getClass().getName());
     }

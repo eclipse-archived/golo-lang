@@ -24,6 +24,9 @@ class DocIndex implements Iterable<DocumentationElement> {
     for (DocumentationElement e : moduleDoc.functions()) {
       elements.add(e);
     }
+    for (DocumentationElement e : moduleDoc.macros()) {
+      elements.add(e);
+    }
     for (StructDocumentation e : moduleDoc.structs()) {
       elements.add(e);
       for (MemberDocumentation m : e.members()) {

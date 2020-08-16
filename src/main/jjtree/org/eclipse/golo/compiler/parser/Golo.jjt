@@ -10,6 +10,7 @@
 
 // ............................................................................................. //
 
+
 options {
   MULTI = true;
   VISITOR = true;
@@ -174,7 +175,15 @@ TOKEN :
 // Specials
 TOKEN :
 {
- < DECORATOR: "@" >
+  < DECORATOR: "@" >
+}
+
+// Macros
+TOKEN :
+{
+  < MACRO_INVOCATION: "&" >
+  |
+  < MACRO: "macro" >
 }
 
 // References
@@ -502,6 +511,7 @@ String QualifiedName() #void:
   }
 }
 
+// TODO: allows macros on function parameters ?
 List<String> Parameters() #void:
 {
   Token rootToken;
@@ -715,7 +725,11 @@ String Documentation() #void:
 
 // ............................................................................................. //
 
-ASTCompilationUnit CompilationUnit(): {}
+ASTCompilationUnit CompilationUnit():
+{
+  ASTLetOrVar state;
+  ASTMacroInvocation macro;
+}
 {
   try {
     (
@@ -725,7 +739,12 @@ ASTCompilationUnit CompilationUnit(): {}
         ( ImportDeclaration() BlankLines() )*
         (
           try {
-            ToplevelDeclaration() BlankLines()
+            (ToplevelDeclaration() BlankLines())
+            |
+            (state=LetOrVar() BlankLines())
+            {
+              state.setModuleState(true);
+            }
           }
           catch (ParseException e) {
             skipto(NEWLINE, e, jjtThis);
@@ -750,6 +769,7 @@ void ModuleDeclaration():
 }
 {
   (documentation=Documentation())?
+  (DecoratorDeclaration())*
   <MODULE> name=QualifiedName()
   {
     jjtThis.setName(name);
@@ -812,20 +832,15 @@ void ToplevelDeclaration():
   ASTStructDeclaration structDecl;
   ASTUnionDeclaration unionDecl;
   ASTNamedAugmentationDeclaration namedAugmentationDecl;
-  ASTLetOrVar state;
   Token local = null;
   String documentation = null;
+  ASTMacroInvocation macro;
 }
 {
   (
     (documentation=Documentation())?
-    (
-      augmentDecl=AugmentDeclaration()
-      {
-        augmentDecl.setDocumentation(documentation);
-      }
-      |
-      (DecoratorDeclaration())* (local=<LOCAL>)? functionDecl=FunctionDeclaration()
+    (DecoratorDeclaration())* (
+      (local=<LOCAL>)? functionDecl=FunctionDeclaration()
       {
         if (local != null) {
           functionDecl.setLocal(true);
@@ -843,6 +858,11 @@ void ToplevelDeclaration():
         unionDecl.setDocumentation(documentation);
       }
       |
+      augmentDecl=AugmentDeclaration()
+      {
+        augmentDecl.setDocumentation(documentation);
+      }
+      |
       namedAugmentationDecl=NamedAugmentationDeclaration()
       {
         namedAugmentationDecl.setDocumentation(documentation);
@@ -850,10 +870,12 @@ void ToplevelDeclaration():
     )
   )
   |
-  state=LetOrVar()
-  {
-    state.setModuleState(true);
-  }
+  (
+    macro=MacroInvocation()
+    {
+      macro.setTopLevel(true);
+    }
+  )
 }
 
 ASTMemberDeclaration MemberDeclaration():
@@ -878,6 +900,7 @@ ASTStructDeclaration StructDeclaration():
 }
 {
   <STRUCT> name=<IDENTIFIER> "=" "{" BlankLines()
+    // TODO: allows macros on struct members ?
     MemberDeclaration() BlankLines()
     (
       "," BlankLines() MemberDeclaration() BlankLines()
@@ -896,8 +919,10 @@ void UnionValue():
 }
 {
   (documentation=Documentation())?
+  (DecoratorDeclaration())*
   name=<IDENTIFIER>
   ("=" "{" BlankLines()
+    // TODO: allows macros on union members ?
     MemberDeclaration() BlankLines()
     (
       "," BlankLines() MemberDeclaration() BlankLines()
@@ -931,15 +956,27 @@ void AugmentationDeclaration() #void:
 {
   String documentation = null;
   ASTFunctionDeclaration func;
+  ASTMacroInvocation macro;
 }
 {
   "{" BlankLines()
     (
-      (documentation=Documentation())? (DecoratorDeclaration())* func=FunctionDeclaration()
-      {
-        func.setAugmentation(true);
-        func.setDocumentation(documentation);
-      }
+      (
+        (
+          (documentation=Documentation())?
+          (DecoratorDeclaration())*
+          func=FunctionDeclaration()
+          {
+            func.setAugmentation(true);
+            func.setDocumentation(documentation);
+          }
+        )
+        |
+        macro=MacroInvocation()
+        {
+          macro.setTopLevel(true);
+        }
+      )
       BlankLines()
     )*
   "}"
@@ -980,7 +1017,15 @@ ASTFunctionDeclaration FunctionDeclaration():
   Token name;
 }
 {
-  <FUNCTION> name=<IDENTIFIER> "=" Function()
+  (
+    <FUNCTION>
+    |
+    <MACRO>
+    {
+      jjtThis.setMacro(true);
+    }
+  )
+  name=<IDENTIFIER> "=" Function()
   {
     jjtThis.setName(name.image);
     return jjtThis;
@@ -1149,6 +1194,8 @@ void Atom() #void: {}
   LOOKAHEAD(2) FunctionInvocation()
   |
   LOOKAHEAD(2) Reference()
+  |
+  MacroInvocation()
   |
   Match()
   |
@@ -1323,6 +1370,37 @@ void Block(): {}
   }
   catch (ParseException e) {
     skipto(NEWLINE, e, jjtThis);
+  }
+}
+
+ASTMacroInvocation MacroInvocation():
+{
+  String name;
+  Token token;
+}
+{
+  token=<MACRO_INVOCATION> name=QualifiedName()
+  (LOOKAHEAD(2) Arguments())?
+  // TODO: fix choice conflict
+  (LOOKAHEAD(4)
+    ("{" BlankLines()
+      (
+        try {
+          (ImportDeclaration() BlankLines())
+          |
+          (ToplevelDeclaration() BlankLines())
+        }
+        catch (ParseException e) {
+          skipto(NEWLINE, e, jjtThis);
+        }
+      )+
+    BlankLines() "}")
+    |
+    Block()
+  )?
+  {
+    jjtThis.setName(name);
+    return jjtThis;
   }
 }
 

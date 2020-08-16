@@ -296,6 +296,14 @@ public abstract class AbstractGoloIrVisitor implements GoloIrVisitor {
    * @inheritDoc
    */
   @Override
+  public void visitMacroInvocation(MacroInvocation macroInvocation) {
+    throw new IllegalStateException("No macro must remain at this stage");
+  }
+
+  /**
+   * @inheritDoc
+   */
+  @Override
   public void visitNoop(Noop noop) {
     noop.walk(this);
   }

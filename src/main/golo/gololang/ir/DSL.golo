@@ -15,11 +15,13 @@ to improve fluent IR building.
 
 See the [`gololang.ir`](../../javadoc/gololang/ir/package-summary.html) java
 package javadoc for documentation on the IR elements themselves.
+See the [`gololang.ir.Quote`](./ir/Quote.html) module for an alternative way to create IR nodes.
 ----
 module gololang.ir.DSL
 
 import java.lang.reflect
 import org.eclipse.golo.compiler
+import gololang.ir
 
 
 #== # Toplevel elements =======================================================
@@ -65,9 +67,11 @@ augment gololang.ir.GoloModule {
 ----
 Creates an IR [`import`](../../javadoc/gololang/ir/ModuleImport.html) node.
 
-- *param* `name`: the name of the module to import.
+- *param* `mod`: the module to import.
+
+See [`ModuleImport.of`](../../javadoc/gololang/ir/ModuleImport.html#of-java.lang.Object-)
 ----
-function `import = |name| -> ModuleImport.of(name)
+function `import = |mod| -> ModuleImport.of(mod)
 
 
 ----
@@ -80,7 +84,15 @@ augment gololang.ir.GoloElement {
   function dump = |this| -> this: accept(IrTreeDumper())
 }
 
-#== ## Types -----------------------------------------------------------------
+----
+Create a container for top-level elements
+
+See [`ToplevelElements.of`](../../javadoc/gololang/ir/ToplevelElements.html#of-java.lang.Object...-)
+----
+function toplevels = |elements...| -> ToplevelElements.of(elements)
+
+
+#== ## Types ------------------------------------------------------------------
 
 ----
 Creates a structure
@@ -103,7 +115,7 @@ However, this builder can be useful if one wants to customize the member (e.g. b
 function member = |name| -> Member.of(name)
 
 
-#== ## Functions -------------------------------------------------------------
+#== ## Functions --------------------------------------------------------------
 
 ----
 Create a function decorator from the given expression.
@@ -130,8 +142,17 @@ and [`lambda`](#lambda_1v)
 ----
 function `function = |name| -> GoloFunction.`function(name)
 
+----
+Create a macro declaration.
 
-#== ## Augmentations ---------------------------------------------------------
+This is just a function with a macro flag set.
+
+See [`function`](#function_1)
+----
+function `macro = |name| -> `function(name): asMacro()
+
+
+#== ## Augmentations ----------------------------------------------------------
 
 ----
 Creates an augmentation on the target name.
@@ -674,6 +695,15 @@ Delegates on `MethodInvocation.invoke`.
 - *returns* a `MethodInvocation`
 ----
 function invoke = |meth| -> MethodInvocation.invoke(meth)
+
+
+----
+Call a macro.
+
+- *param* `name`: the name of the macro
+- *returns* a [`MacroInvocation`](../../javadoc/gololang/ir/MacroInvocation.html)
+----
+function macroCall = |name| -> MacroInvocation.call(name)
 
 
 ----
@@ -1497,7 +1527,7 @@ function `continue = -> LoopBreakFlowStatement.newContinue()
 ----
 Void statement.
 
-Since this statement is ignored, it can be used to replace a element in the tree
+Since this statement is ignored, it can be used to replace a statement in the tree
 instead of removing it.
 ----
 function noop = -> Noop.of(null)

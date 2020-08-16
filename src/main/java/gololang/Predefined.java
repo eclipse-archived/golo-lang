@@ -28,13 +28,15 @@ import org.objectweb.asm.Type;
 import org.eclipse.golo.runtime.Extractors;
 import org.eclipse.golo.runtime.Loader;
 import org.eclipse.golo.runtime.WithCaller;
+import gololang.ir.GoloElement;
+import gololang.ir.GoloFunction;
+import org.eclipse.golo.compiler.macro.Macro;
 
 import static java.lang.invoke.MethodHandles.dropArguments;
 import static java.lang.reflect.Modifier.isStatic;
 import static org.eclipse.golo.runtime.DecoratorsHelper.isMethodDecorated;
 import static org.eclipse.golo.runtime.DecoratorsHelper.getDecoratedMethodHandle;
 import static java.util.stream.Collectors.toList;
-
 /**
  * <code>Predefined</code> provides the module of predefined functions in Golo. The provided module is imported by
  * default.
@@ -968,5 +970,57 @@ public final class Predefined {
       m.put(t.get(0), t.get(1));
     }
     return m;
+  }
+
+  /**
+   * Macro to define a special macro.
+   * <p>
+   * A special macro is a macro whose first implicit parameter is the expansion visitor itself.
+   * <p>
+   * For instance:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * &#64;special
+   * macro mySpecialMacro = |visitor, arg| {
+   *   ...
+   * }
+   * </code></pre>
+   */
+  @Macro
+  public static GoloElement<?> special(GoloFunction fun) {
+    if (!fun.isMacro()) {
+      throw new IllegalArgumentException("The `special` macro decorator must be used on macros");
+    }
+    if (fun.getArity() == 0 || (fun.isContextualMacro() && fun.getArity() == 1)) {
+      throw new IllegalArgumentException(String.format(
+            "Special macro `%s` must take at least 1 argument (`expander` would be a good idea…)",
+            fun.getName()));
+    }
+    return fun.special(true);
+  }
+
+  /**
+   * Macro to define a contextual macro.
+   * <p>
+   * A contextual macro is a macro whose first implicit parameter is the macro call itself.
+   * <p>
+   * For instance:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * &#64;contextual
+   * macro mySpecialMacro = |self, arg| {
+   *   ...
+   * }
+   * </code></pre>
+   */
+  @Macro
+  public static GoloElement<?> contextual(GoloFunction fun) {
+    if (!fun.isMacro()) {
+      throw new IllegalArgumentException("The `contextual` macro decorator must be used on macros");
+    }
+    if (fun.getArity() == 0 || (fun.isSpecialMacro() && fun.getArity() == 1)) {
+      throw new IllegalArgumentException(String.format(
+            "Contextual macro `%s` must take at least 1 argument (`self` would be a good idea…)",
+            fun.getName()));
+    }
+    return fun.contextual(true);
   }
 }

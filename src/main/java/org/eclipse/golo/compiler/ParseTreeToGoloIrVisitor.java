@@ -35,6 +35,8 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     public GoloModule module;
     private final Deque<FunctionContainer> functionContainersStack = new LinkedList<>();
     private final Deque<Deque<Object>> objectStack = new LinkedList<>();
+    private final Deque<MacroInvocation> macroInvocationStack = new LinkedList<>();
+    private boolean mustAddFunction = true;
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
     public boolean inLocalDeclaration = false;
     private GoloCompilationException.Builder exceptionBuilder;
@@ -72,6 +74,29 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       referenceTableStack.pop();
     }
 
+    public void enterMacroInvocation(MacroInvocation macro) {
+      macroInvocationStack.push(macro);
+      mustAddFunction = false;
+    }
+
+    public void leaveMacroInvocation(boolean isTopLevel) {
+      MacroInvocation mac = macroInvocationStack.pop();
+      mustAddFunction = !inMacroInvocation();
+      if (isTopLevel && mustAddFunction) {
+        this.functionContainersStack.peek().addMacroInvocation(mac);
+      } else {
+        this.push(mac);
+      }
+    }
+
+    public boolean inMacroInvocation() {
+      return !macroInvocationStack.isEmpty();
+    }
+
+    public MacroInvocation currentMacroInvocation() {
+      return macroInvocationStack.peek();
+    }
+
     public GoloModule createModule(String name) {
       ReferenceTable global = new ReferenceTable();
       referenceTableStack.push(global);
@@ -82,36 +107,96 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
 
     public void enterAugmentation(ASTAugmentDeclaration node) {
       functionContainersStack.push(Augmentation.of(node.getTarget()).with(node.getAugmentationNames()).ofAST(node));
+      mustAddFunction = true;
       newObjectStack();
     }
 
     public void leaveAugmentation() {
       popObjectStack();
-      module.add((Augmentation) functionContainersStack.pop());
+      Augmentation converted = decoratorsAsMacroCalls((Augmentation) functionContainersStack.pop());
+      if (converted == null) { return; }
+      if (inMacroInvocation()) {
+        push(converted);
+      } else {
+        module.add(converted);
+      }
+      mustAddFunction = !inMacroInvocation();
     }
 
     public void enterNamedAugmentation(ASTNamedAugmentationDeclaration node) {
       NamedAugmentation namedAugmentation = NamedAugmentation.of(node.getName()).ofAST(node);
       functionContainersStack.push(namedAugmentation);
+      mustAddFunction = true;
       newObjectStack();
     }
 
     public void leaveNamedAugmentation() {
       popObjectStack();
-      module.add((NamedAugmentation) functionContainersStack.pop());
+      NamedAugmentation converted = decoratorsAsMacroCalls((NamedAugmentation) functionContainersStack.pop());
+      if (converted == null) { return; }
+      if (inMacroInvocation()) {
+        push(converted);
+      } else {
+        module.add(converted);
+      }
+      mustAddFunction = !inMacroInvocation();
+    }
+
+    public <T extends GoloElement<?>> MacroInvocation convertDecoratorsAsMacroCalls(T topLevel) {
+      MacroInvocation decoratorLike = null;
+      while (this.peek() instanceof Decorator) {
+        decoratorLike = asMacroInvocation(((Decorator) this.pop()).expression())
+          .withArgs(decoratorLike == null ? topLevel : decoratorLike);
+      }
+      return decoratorLike;
+    }
+
+    private static MacroInvocation asMacroInvocation(ExpressionStatement<?> expressionStatement) {
+      if (expressionStatement instanceof ReferenceLookup) {
+        return MacroInvocation.call(((ReferenceLookup) expressionStatement).getName())
+          .positionInSourceCode(expressionStatement.positionInSourceCode());
+      } else if (expressionStatement instanceof FunctionInvocation) {
+        FunctionInvocation f = (FunctionInvocation) expressionStatement;
+        return MacroInvocation.create(f.getName(), f.getArguments().toArray())
+          .positionInSourceCode(expressionStatement.positionInSourceCode());
+      }
+      throw new IllegalArgumentException("Can't convert this decorator into a macro invocation");
+    }
+
+
+
+    private <T extends GoloElement<?>> T decoratorsAsMacroCalls(T topLevel) {
+      MacroInvocation decoratorLike = convertDecoratorsAsMacroCalls(topLevel);
+      if (decoratorLike != null) {
+        this.module.addMacroInvocation(decoratorLike);
+        return null;
+      }
+      return topLevel;
     }
 
     public <N extends GoloASTNode & NamedNode, T extends GoloElement<T>> void addType(N node, T type) {
-      if (!checkExistingSubtype(node, node.getName())) {
-        module.add(type);
+      T converted = decoratorsAsMacroCalls(type);
+      if (converted == null) { return; }
+      if (inMacroInvocation()) {
+        this.push(converted);
+      } else if (!checkExistingSubtype(node, node.getName())) {
+        module.add(converted);
       }
     }
 
     public void addImport(ModuleImport i) {
-      this.module.add(i);
+      if (inMacroInvocation()) {
+        this.push(i);
+      } else {
+        this.module.add(i);
+      }
     }
 
     public void addFunction(GoloFunction function) {
+      if (!mustAddFunction) {
+        this.push(function);
+        return;
+      }
       FunctionContainer container = this.functionContainersStack.peek();
       GoloFunction firstDeclaration = container.getFunction(function);
       if (firstDeclaration != null) {
@@ -230,8 +315,10 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
   @Override
   public Object visit(ASTModuleDeclaration node, Object data) {
     Context context = (Context) data;
-    context.createModule(node.getName()).ofAST(node);
-    return node.childrenAccept(this, data);
+    GoloModule module = context.createModule(node.getName()).ofAST(node);
+    node.childrenAccept(this, data);
+    module.decoratorMacro(context.convertDecoratorsAsMacroCalls(module));
+    return data;
   }
 
   @Override
@@ -296,8 +383,11 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
         value.withMember(context.pop());
       }
     }
+    MacroInvocation decoLike = context.convertDecoratorsAsMacroCalls(value);
     Union currentUnion = (Union) context.peek();
-    if (!currentUnion.addValue(value)) {
+    if (decoLike != null) {
+      currentUnion.addMacroInvocation(decoLike);
+    } else if (!currentUnion.addValue(value)) {
       context.errorMessage(AMBIGUOUS_DECLARATION, node,
           message("ambiguous_unionvalue_declaration", node.getName()));
     }
@@ -339,7 +429,8 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
     GoloFunction function = GoloFunction.function(node.getName()).ofAST(node)
         .local(node.isLocal())
         .inAugment(node.isAugmentation())
-        .decorator(node.isDecorator());
+        .decorator(node.isDecorator())
+        .asMacro(node.isMacro());
     while (context.peek() instanceof Decorator) {
       function.decoratedWith(context.pop());
     }
@@ -591,6 +682,20 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       }
       invocation.withNamedArguments();
     }
+  }
+
+  @Override
+  public Object visit(ASTMacroInvocation node, Object data) {
+    Context context = (Context) data;
+    context.enterMacroInvocation(MacroInvocation.call(node.getName()).ofAST(node));
+    final int numChildren = node.jjtGetNumChildren();
+    for (int i = 0; i < numChildren; i++) {
+      GoloASTNode argumentNode = (GoloASTNode) node.jjtGetChild(i);
+      argumentNode.jjtAccept(this, data);
+      context.currentMacroInvocation().withArgs(context.pop());
+    }
+    context.leaveMacroInvocation(node.isTopLevel());
+    return data;
   }
 
   private ExpressionStatement<?> visitAbstractInvocation(Object data, GoloASTNode node, AbstractInvocation<?> invocation) {
