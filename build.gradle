@@ -18,7 +18,7 @@ plugins {
   id 'maven-publish'
   id 'com.jfrog.bintray' version '1.8.4'
   id 'ca.coglinc.javacc' version '2.4.0'
-  id 'org.asciidoctor.convert' version '1.5.9.1'
+  id 'org.asciidoctor.jvm.convert' version '3.1.0'
   id 'net.nemerosa.versioning' version '2.8.2'
   id 'com.github.ben-manes.versions' version '0.20.0'
   id 'com.adarshr.test-logger' version '1.6.0'
@@ -160,15 +160,18 @@ processResources {
 // .................................................................................................................. //
 
 asciidoctorj {
-  version = '1.5.4'
+  version = '2.4.0'
 }
 
 asciidoctor {
-  sourceDir 'doc'
+  sourceDir file('doc')
+  baseDirFollowsSourceDir()
   sources {
     include 'golo-guide.adoc'
   }
-  backends 'html5'
+  outputOptions {
+    backends = ['html5']
+  }
 }
 
 task assembleAsciidoc(type: Copy, dependsOn: asciidoctor) {
