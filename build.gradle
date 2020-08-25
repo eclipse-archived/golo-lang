@@ -86,13 +86,13 @@ configurations.all {
 }
 
 dependencies {
-  compile 'org.ow2.asm:asm:7.0'
+  compile 'org.ow2.asm:asm:8.0'
   compile 'com.beust:jcommander:1.60'
   compile 'com.github.rjeschke:txtmark:0.13'
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
-  testCompile 'org.ow2.asm:asm-util:7.0'
-  testCompile 'org.ow2.asm:asm-analysis:7.0'
+  testCompile 'org.ow2.asm:asm-util:8.0'
+  testCompile 'org.ow2.asm:asm-analysis:8.0'
   testCompile 'org.hamcrest:hamcrest-all:1.3'
   testCompile 'org.skyscreamer:jsonassert:1.5.0'
   testCompile 'org.testng:testng:6.11'
