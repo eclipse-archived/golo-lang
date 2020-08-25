@@ -33,12 +33,12 @@ repositories {
 
 // .................................................................................................................. //
 
-ext {
-  goloCliMain = 'org.eclipse.golo.cli.Main'
-  goloSources = fileTree('src/main/golo').include('**/*.golo')
-  goloDocs = file("$buildDir/docs/golodoc")
-  goloClasses = file("$buildDir/golo-classes")
-}
+  ext {
+    goloCliMain = 'org.eclipse.golo.cli.Main'
+    goloSources = fileTree('src/main/golo').include('**/*.golo')
+    goloDocs = file("$buildDir/docs/golodoc")
+    goloClasses = file("$buildDir/golo-classes")
+  }
 
 // .................................................................................................................. //
 
