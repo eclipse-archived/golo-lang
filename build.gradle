@@ -87,7 +87,7 @@ configurations.all {
 
 dependencies {
   compile 'org.ow2.asm:asm:8.0'
-  compile 'com.beust:jcommander:1.60'
+  compile 'com.beust:jcommander:1.71'
   compile 'com.github.rjeschke:txtmark:0.13'
   compile 'com.googlecode.json-simple:json-simple:1.1.1'
 
