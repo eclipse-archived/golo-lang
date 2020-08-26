@@ -17,6 +17,7 @@ plugins {
   id("net.nemerosa.versioning") version "2.8.2"
 
   `java-library`
+  application
   id("ca.coglinc.javacc") version "2.4.0"
 }
 
@@ -114,6 +115,42 @@ tasks.test {
 val clean by tasks.named<Delete>("clean") {
   delete(generatedSourcesDir)
 }
+
+application {
+  mainClass.set(goloCliMain)
+  applicationDefaultJvmArgs = listOf("-Xms256m", "-Xmx1024M", "-Xss1024M", "-server", "-XX:-TieredCompilation")
+}
+
+val startScripts by tasks.named<CreateStartScripts>("startScripts")
+
+tasks.create<CreateStartScripts>("vanillaScripts") {
+  outputDir = file("build/vanilla-golo")
+  mainClassName = goloCliMain
+  applicationName = "vanilla-golo"
+  classpath = startScripts.classpath
+}
+
+tasks.create<CreateStartScripts>("goloshScripts") {
+  outputDir = file("build/golosh")
+  mainClassName = "$goloCliMain shebang"
+  applicationName = "golosh"
+  classpath = startScripts.classpath
+}
+
+tasks.create<CreateStartScripts>("golodebugScripts") {
+  outputDir = file("build/golo-debug")
+  mainClassName = goloCliMain
+  applicationName = "golo-debug"
+  classpath = startScripts.classpath
+  defaultJvmOpts = listOf(
+    "-agentlib:jdwp=transport=dt_socket,server=y,address=6666,suspend=y",
+    "-server",
+    "-Dgolo.debug=true",
+    "-Xdiag"
+  )
+}
+
+startScripts.dependsOn("vanillaScripts", "goloshScripts", "golodebugScripts")
 
 tasks.wrapper {
   distributionType = Wrapper.DistributionType.ALL
