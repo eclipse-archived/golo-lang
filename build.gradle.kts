@@ -45,6 +45,10 @@ dependencies {
   testImplementation("org.testng:testng:7.3.0")
 }
 
+configurations.all {
+  exclude(module = "junit")
+}
+
 group = "org.eclipse.golo"
 version = "3.4.0-SNAPSHOT"
 
