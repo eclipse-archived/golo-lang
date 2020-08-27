@@ -289,9 +289,22 @@ publishing {
   }
 
   repositories {
+
     maven {
-      name = "cameraReady"
+      name = "CameraReady"
       url = uri("$buildDir/repos/camera-ready")
+    }
+
+    maven {
+      name = "SonatypeOSS"
+      credentials {
+        username = if (project.hasProperty("ossrhUsername")) project.property("ossrhUsername") as String else System.getenv("OSSRH_USERNAME")
+        password = if (project.hasProperty("ossrhPassword")) project.property("ossrhPassword") as String else System.getenv("OSSRH_PASSWORD")
+      }
+
+      val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
+      val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
+      url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
     }
   }
 }
