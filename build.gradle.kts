@@ -19,6 +19,7 @@ plugins {
   `java-library`
   application
   `maven-publish`
+  signing
 
   id("ca.coglinc.javacc") version "2.4.0"
   id("org.asciidoctor.jvm.convert") version "3.1.0"
@@ -294,3 +295,8 @@ publishing {
     }
   }
 }
+
+signing {
+  sign(publishing.publications["main"])
+}
+
