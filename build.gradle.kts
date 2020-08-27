@@ -211,3 +211,41 @@ tasks.wrapper {
   distributionType = Wrapper.DistributionType.ALL
   gradleVersion = "6.6"
 }
+
+distributions {
+  named("main") {
+    contents {
+      from(projectDir) {
+        include("README*")
+        include("LICENSE")
+        include("CONTRIB*")
+        include("THIRD-PARTY")
+        include("NOTICE.md")
+      }
+      into("samples") {
+        from("samples")
+      }
+      into("share") {
+        from("share")
+      }
+      from(tasks.named("golodoc")) {
+        into("docs/golodoc")
+      }
+      from(tasks.named("javadoc")) {
+        into("docs/javadoc")
+      }
+      from(tasks.named("asciidoctor")) {
+        into("docs")
+      }
+      from(tasks.named("vanillaScripts")) {
+        into("bin")
+      }
+      from(tasks.named("goloshScripts")) {
+        into("bin")
+      }
+      from(tasks.named("golodebugScripts")) {
+        into("bin")
+      }
+    }
+  }
+}
