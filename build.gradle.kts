@@ -18,6 +18,8 @@ plugins {
 
   `java-library`
   application
+  `maven-publish`
+
   id("ca.coglinc.javacc") version "2.4.0"
   id("org.asciidoctor.jvm.convert") version "3.1.0"
 }
@@ -56,6 +58,9 @@ version = "3.4.0-SNAPSHOT"
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
   targetCompatibility = JavaVersion.VERSION_1_8
+
+  withJavadocJar()
+  withSourcesJar()
 }
 
 sourceSets {
@@ -246,6 +251,46 @@ distributions {
       from(tasks.named("golodebugScripts")) {
         into("bin")
       }
+    }
+  }
+}
+
+publishing {
+
+  publications {
+    create<MavenPublication>("main") {
+      from(components["java"])
+      pom {
+        name.set("Eclipse Golo Programming Language")
+        description.set("Eclipse Golo: a lightweight dynamic language for the JVM.")
+        url.set("https://golo-lang.org")
+        inceptionYear.set("2012")
+        developers {
+          developer {
+            name.set("Golo committers")
+            email.set("golo-dev@eclipse.org")
+          }
+        }
+        licenses {
+          license {
+            name.set("Eclipse Public License - v 2.0")
+            url.set("https://www.eclipse.org/org/documents/epl-2.0/EPL-2.0.html")
+            distribution.set("repo")
+          }
+        }
+        scm {
+          url.set("https://github.com/eclipse/golo-lang")
+          connection.set("scm:git:git@github.com:eclipse/golo-lang.git")
+          developerConnection.set("scm:git:ssh:git@github.com:eclipse/golo-lang.git")
+        }
+      }
+    }
+  }
+
+  repositories {
+    maven {
+      name = "cameraReady"
+      url = uri("$buildDir/repos/camera-ready")
     }
   }
 }
