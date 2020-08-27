@@ -19,6 +19,7 @@ plugins {
   `java-library`
   application
   id("ca.coglinc.javacc") version "2.4.0"
+  id("org.asciidoctor.jvm.convert") version "3.1.0"
 }
 
 repositories {
@@ -170,7 +171,12 @@ tasks.create<CreateStartScripts>("golodebugScripts") {
 
 startScripts.dependsOn("vanillaScripts", "goloshScripts", "golodebugScripts")
 
+tasks.javadoc {
+  isFailOnError = false
+}
+
 tasks.register<JavaExec>("golodoc") {
+  dependsOn("goloc")
   description = "Generates documentation of the standard Golo modules."
   group = "Documentation"
 
@@ -179,6 +185,26 @@ tasks.register<JavaExec>("golodoc") {
   classpath = files(sourceSets["main"].runtimeClasspath, goloClasses)
   inputs.dir(goloSources)
   outputs.dir(goloDocs)
+}
+
+tasks.named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
+  sourceDir("doc")
+  baseDirFollowsSourceFile()
+  sources {
+    include("golo-guide.adoc")
+  }
+}
+
+tasks.create<Copy>("assembleAsciidoc") {
+  dependsOn("asciidoctor")
+  from("doc/highlightjs") {
+    include("**/*")
+  }
+  into("build/docs/asciidoc")
+}
+
+tasks.create("doc") {
+  dependsOn("asciidoctor", "golodoc", "javadoc")
 }
 
 tasks.wrapper {
