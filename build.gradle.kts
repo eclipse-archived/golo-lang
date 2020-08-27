@@ -259,7 +259,7 @@ distributions {
 publishing {
 
   publications {
-    create<MavenPublication>("mavenJava") {
+    create<MavenPublication>("main") {
       artifactId = "golo"
       from(components["java"])
       pom {
@@ -311,6 +311,6 @@ publishing {
 }
 
 signing {
-  sign(publishing.publications["mavenJava"])
+  sign(publishing.publications["main"])
 }
 
