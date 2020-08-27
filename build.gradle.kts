@@ -259,7 +259,8 @@ distributions {
 publishing {
 
   publications {
-    create<MavenPublication>("main") {
+    create<MavenPublication>("mavenJava") {
+      artifactId = "golo"
       from(components["java"])
       pom {
         name.set("Eclipse Golo Programming Language")
@@ -310,6 +311,6 @@ publishing {
 }
 
 signing {
-  sign(publishing.publications["main"])
+  sign(publishing.publications["mavenJava"])
 }
 
