@@ -121,6 +121,20 @@ application {
   applicationDefaultJvmArgs = listOf("-Xms256m", "-Xmx1024M", "-Xss1024M", "-server", "-XX:-TieredCompilation")
 }
 
+tasks.jar {
+  dependsOn("goloc")
+  manifest {
+    attributes(
+      "name" to "Eclipse Golo",
+      "symbolicName" to "org.eclipse.golo",
+      "vendor" to "Eclipse Golo Project",
+      "license" to "http://www.eclipse.org/legal/epl-2.0",
+      "description" to "A dynamic language for the JVM"
+    )
+  }
+  from(goloClasses)
+}
+
 val startScripts by tasks.named<CreateStartScripts>("startScripts")
 
 tasks.create<CreateStartScripts>("vanillaScripts") {
