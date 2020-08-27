@@ -30,7 +30,7 @@ val goloCliMain = "org.eclipse.golo.cli.Main"
 val goloSources = fileTree("src/main/golo")
 goloSources.include("**/*.golo")
 val goloClasses = "$buildDir/golo-classes"
-//val goloDocs = file("$buildDir/docs/golodoc")
+val goloDocs = file("$buildDir/docs/golodoc")
 
 dependencies {
   implementation("org.ow2.asm:asm:8.0")
@@ -169,6 +169,17 @@ tasks.create<CreateStartScripts>("golodebugScripts") {
 }
 
 startScripts.dependsOn("vanillaScripts", "goloshScripts", "golodebugScripts")
+
+tasks.register<JavaExec>("golodoc") {
+  description = "Generates documentation of the standard Golo modules."
+  group = "Documentation"
+
+  main = goloCliMain
+  args = listOf("doc", "--format", "html", "--output", goloDocs.absolutePath) + goloSources.map { it.absolutePath }
+  classpath = files(sourceSets["main"].runtimeClasspath, goloClasses)
+  inputs.dir(goloSources)
+  outputs.dir(goloDocs)
+}
 
 tasks.wrapper {
   distributionType = Wrapper.DistributionType.ALL
