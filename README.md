@@ -1,7 +1,6 @@
+![Gradle CI](https://github.com/eclipse/golo-lang/workflows/Gradle%20CI/badge.svg?branch=master)
 [![DOI](https://zenodo.org/badge/doi/10.5281/zenodo.16110.svg)](http://dx.doi.org/10.5281/zenodo.16110)
 [![Gitter](https://badges.gitter.im/Join%20Chat.svg)](https://gitter.im/eclipse/golo-lang?utm_source=badge&utm_medium=badge&utm_campaign=pr-badge&utm_content=badge)
-[![Build Status](https://travis-ci.org/eclipse/golo-lang.svg?branch=master)](https://travis-ci.org/eclipse/golo-lang)
-[ ![Download](https://api.bintray.com/packages/golo-lang/downloads/distributions/images/download.svg) ](https://bintray.com/golo-lang/downloads/distributions/_latestVersion)
 
 # Golo, a lightweight dynamic language for the JVM.
 
