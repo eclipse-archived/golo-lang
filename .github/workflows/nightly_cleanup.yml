@@ -1,6 +1,6 @@
 # Copied from https://poweruser.blog/storage-housekeeping-on-github-actions-e2997b5b23d1
 
-name: 'nightly artifacts cleanup'
+name: 'Nightly artifacts cleanup (> 14 days)'
 on:
   schedule:
     - cron: '0 4 * * *' # every night at 4 am UTC
