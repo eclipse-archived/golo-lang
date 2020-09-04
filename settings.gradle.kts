@@ -8,4 +8,9 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-rootProject.name = 'golo'
+rootProject.name = "golo"
+
+if (!JavaVersion.current().isJava8) {
+  throw GradleException("Golo is not fully compatible with Java 9 and beyond, please use Java 8 to build it")
+}
+
