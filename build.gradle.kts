@@ -29,12 +29,18 @@ repositories {
   jcenter()
 }
 
+group = "org.eclipse.golo"
+version = "3.4.0-SNAPSHOT"
+
 val generatedSourcesDir = "$projectDir/src/main/generated"
 val goloCliMain = "org.eclipse.golo.cli.Main"
 val goloSources = fileTree("src/main/golo")
 goloSources.include("**/*.golo")
 val goloClasses = "$buildDir/golo-classes"
 val goloDocs = file("$buildDir/docs/golodoc")
+
+val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
+val isCalledFromCI = "true" == System.getenv("CI")
 
 dependencies {
   implementation("org.ow2.asm:asm:8.0")
@@ -52,9 +58,6 @@ dependencies {
 configurations.all {
   exclude(module = "junit")
 }
-
-group = "org.eclipse.golo"
-version = "3.4.0-SNAPSHOT"
 
 java {
   sourceCompatibility = JavaVersion.VERSION_1_8
@@ -234,11 +237,6 @@ tasks.create("doc") {
   dependsOn("asciidoctor", "golodoc", "javadoc")
 }
 
-tasks.wrapper {
-  distributionType = Wrapper.DistributionType.ALL
-  gradleVersion = "6.6"
-}
-
 distributions {
   named("main") {
     contents {
@@ -326,8 +324,14 @@ publishing {
 
       val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
       val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
-      url = uri(if (version.toString().endsWith("SNAPSHOT")) snapshotsRepoUrl else releasesRepoUrl)
+      url = uri(if (isReleaseVersion) releasesRepoUrl else snapshotsRepoUrl)
     }
+  }
+}
+
+tasks.withType<PublishToMavenRepository> {
+  onlyIf {
+    !isCalledFromCI || (isCalledFromCI && !isReleaseVersion)
   }
 }
 
@@ -335,3 +339,13 @@ signing {
   sign(publishing.publications["main"])
 }
 
+tasks.withType<Sign>().configureEach {
+  onlyIf {
+    isReleaseVersion
+  }
+}
+
+tasks.wrapper {
+  distributionType = Wrapper.DistributionType.ALL
+  gradleVersion = "6.6.1"
+}
