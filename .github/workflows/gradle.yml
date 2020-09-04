@@ -21,8 +21,9 @@ jobs:
       run: chmod +x gradlew
     - name: Build with Gradle
       run: ./gradlew build
-    - name: Publish with Gradle
-      run: ./gradlew publish
+# Note: need a Gradle signatory of some kind or it fails
+#     - name: Publish with Gradle
+#       run: ./gradlew publish
     - uses: actions/upload-artifact@v2
       with:
         name: Golo distribution from this build
