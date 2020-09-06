@@ -177,13 +177,29 @@ public final class Predefined {
    * Requires that an object is not the <code>null</code> reference.
    *
    * @param obj the object to test against <code>null</code>.
+   * @return the object itself if not null
    * @throws AssertionError if <code>obj</code> is <code>null</code>.
    */
-  public static void requireNotNull(Object obj) throws AssertionError {
+  public static Object requireNotNull(Object obj) throws AssertionError {
     if (obj != null) {
-      return;
+      return obj;
     }
     throw new AssertionError("null reference encountered");
+  }
+
+  /**
+   * Requires that an object has the given type.
+   *
+   * @param obj the object to test
+   * @param type the expected type of the object
+   * @return the object itself if not null
+   * @throws AssertionError if {@code obj} is not a {@code type}
+   */
+  public static <T> T requireType(Object obj, Class<? extends T> type) {
+    if (type.isInstance(obj)) {
+      return type.cast(obj);
+    }
+    throw new AssertionError(String.format("%s expected, got %s", type.getName(), obj.getClass().getName()));
   }
 
   /**

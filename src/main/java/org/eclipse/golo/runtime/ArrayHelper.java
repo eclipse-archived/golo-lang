@@ -50,4 +50,13 @@ public final class ArrayHelper {
   public static boolean isEmpty(Object[] array) {
     return array.length == 0;
   }
+
+  public static boolean contains(Object[] array, Object elt) {
+    for (Object o : array) {
+      if ((o != null) && (o.equals(elt) || o == null && elt == null)) {
+        return true;
+      }
+    }
+    return false;
+  }
 }
