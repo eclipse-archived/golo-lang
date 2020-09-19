@@ -47,6 +47,8 @@ will contain the `GoloFunction`.
 - *param* `args`: an array containing the arguments
 - *returns* a tuple containing an array of the arguments but the last, and the
   last argument.
+
+See also [`parseArguments`](#parseArguments_2)
 ----
 function extractLastArgument = |args| -> [
   java.util.Arrays.copyOf(args, args: length() - 1),
@@ -71,6 +73,8 @@ When called as `&foo(a=42, b="hello")`, the `arguments` variable will contains
 `map[["a", constant(42)], ["b", constant("hello")]]`
 
 The elements of the collection that are not `NamedArgument` are ignored.
+
+See also [`parseArguments`](#parseArguments_2)
 ----
 function namedArgsToMap = |args| -> map[
   [arg: name(), arg: expression()]
@@ -286,3 +290,29 @@ See `gololang.Messages` for instance to display console messages.
 macro stopCompilation = |args...| -> `throw(call("org.eclipse.golo.compiler.StopCompilationException"): withArgs(args))
 
 
+----
+Generate a name in the current name space.
+
+Useful if a macro generates calls to functions defined in the same module. Instead of relying on the module to be
+imported, one wants to use a fully qualified function name. This macro generate such a name without hard coding the
+current module name in the written macro.
+
+For instance, instead of writing:
+```
+module MyModule
+
+function myFunction = -> null
+
+macro = -> gololang.ir.DSL.call("MyModule.myFunction")
+```
+we can write:
+```
+module MyModule
+
+function myFunction = -> null
+
+macro = -> gololang.ir.DSL.call(&gololang.macros.Utils.thisModule("myFunction")
+```
+----
+@contextual
+macro thisModule = |self, name| -> constant(self: enclosingModule(): packageAndClass(): toString() + "." + name: value())

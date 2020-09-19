@@ -216,9 +216,14 @@ function test_toplevel = {
   assertThat(l: get(4), `is(a))
 }
 
+function test_thisModule = {
+  assertThat(&thisModule("plop"), `is("golo.test.MacroUtils.plop"))
+}
+
 function main = |args| {
   # test_parseArguments()
   # test_extractLastArgument()
   # test_namedArgsToMap()
-  test_toplevel()
+  # test_toplevel()
+  test_thisModule()
 }
