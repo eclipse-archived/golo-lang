@@ -286,3 +286,10 @@ function vector_not_exists = {
 }
 
 # ............................................................................................... #
+
+function oneof_empty = -> "hello": isOneOf()
+function oneof_one_ok = -> "hello": isOneOf(String.class)
+function oneof_one_gen = -> "hello": isOneOf(Object.class)
+function oneof_one_bad = -> 42: isOneOf(String.class)
+function oneof_multi_ok = -> 42: isOneOf(String.class, Number.class)
+function oneof_multi_bad = -> "hello": isOneOf(Number.class, Integer.class)

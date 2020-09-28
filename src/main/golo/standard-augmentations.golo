@@ -65,6 +65,24 @@ local function _join = |this, separator| {
 # ............................................................................................... #
 
 ----
+Objects augmentations.
+----
+augment java.lang.Object {
+
+  ----
+  Checks if this object is an instance of one of the given class.
+  ----
+  function isOneOf = |this, classes...| {
+    foreach cls in classes {
+      if this oftype cls {
+        return true
+      }
+    }
+    return false
+  }
+}
+
+----
 Number augmentations.
 ----
 augment java.lang.Number {
