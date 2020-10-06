@@ -98,7 +98,7 @@ public final class SymbolGenerator implements Iterator<String> {
         + idx);
   }
 
-  private String name(String localName) {
+  private synchronized String name(String localName) {
     String name = PREFIX + String.join(JOIN, prefixes);
     if (localName != null && !"".equals(localName)) {
       name += JOIN + localName;
@@ -157,8 +157,8 @@ public final class SymbolGenerator implements Iterator<String> {
    * @return the corresponding generated name
    * @see #escapeName(Object)
    */
-  public String getFor(Object localName) {
-    String ln = escapeName(localName);
+  public String getFor(Object name) {
+    String ln = escapeName(name);
     if (ln.startsWith(ESCAPE_MANGLE)) {
       return ln.substring(ESCAPE_MANGLE.length());
     }
@@ -196,7 +196,7 @@ public final class SymbolGenerator implements Iterator<String> {
   /**
    * Exit from a scope.
    */
-  public SymbolGenerator exit() {
+  public synchronized SymbolGenerator exit() {
     if (this.prefixes.size() > 1) {
       this.prefixes.removeLast();
     }
@@ -213,7 +213,7 @@ public final class SymbolGenerator implements Iterator<String> {
    *
    * @see #escapeName(Object)
    */
-  public SymbolGenerator enter(Object scopeName) {
+  public synchronized SymbolGenerator enter(Object scopeName) {
     String sn = escapeName(scopeName);
     if (!sn.isEmpty()) {
       this.prefixes.addLast(sn);
@@ -230,8 +230,7 @@ public final class SymbolGenerator implements Iterator<String> {
    * @see #enter(Object)
    * @see #withScopes(Supplier)
    */
-  public SymbolGenerator enter() {
+  public synchronized SymbolGenerator enter() {
     return enter(this.scopeSupplier.get());
   }
-
 }
