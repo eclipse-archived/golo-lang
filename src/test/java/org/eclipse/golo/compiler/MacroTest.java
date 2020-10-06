@@ -90,4 +90,9 @@ public class MacroTest extends GoloTest {
     load("with-init-macros2");
     run("with-init");
   }
+
+  @Test
+  public void localSymbolGenerator() throws Throwable {
+    run("symgen");
+  }
 }

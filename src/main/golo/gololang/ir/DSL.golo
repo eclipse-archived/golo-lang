@@ -1543,3 +1543,30 @@ tools.
 ----
 function comment = |message| -> Noop.of(message)
 
+
+#== ## Misc -------------------------------------------------------------------
+
+@contextual
+macro localSymbols = |self, public| -> generateLocalSymbols(
+  self: enclosingModule(): packageAndClass(): toString(),
+  not (public: value()),
+  _SYMBOLS_: next("symbols"))
+
+@contextual
+macro localSymbols = |self| -> generateLocalSymbols(
+  self: enclosingModule(): PackageAndClass(): toString(),
+  true,
+  _SYMBOLS_: next("symbols"))
+
+local function generateLocalSymbols = |scope, isLocal, generatorName| -> toplevels(
+    `let(generatorName, call("org.eclipse.golo.compiler.SymbolGenerator")
+                        : withArgs(constant(scope))),
+    `function("gensym"): `local(isLocal)
+      : returns(invoke("next"): on(refLookup(generatorName))),
+    `function("gensym"): `local(isLocal): withParameters("name")
+      : returns(invoke("next"): withArgs(refLookup("name")): on(refLookup(generatorName))),
+    `function("enterSymScope"): `local(isLocal): withParameters("scope")
+      : body(invoke("enter"): withArgs(refLookup("scope")): on(refLookup(generatorName))),
+    `function("exitSymScope"): `local(isLocal)
+      : body(invoke("exit"): on(refLookup(generatorName)))
+  )
