@@ -17,6 +17,8 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.core.IsIterableContaining.hasItem;
 import static org.hamcrest.core.IsIterableContaining.hasItems;
 
+import java.util.*;
+
 public class SymbolGeneratorTest {
 
   @Test
@@ -104,7 +106,22 @@ public class SymbolGeneratorTest {
 
     sym.enter("t u v");
     assertThat(sym.next(), is("__$$_a_b$c_x$y$z_t_u_v_3"));
+  }
 
+  @Test
+  public void test_scope_supplier() {
+    Iterator<String> scopes = Arrays.asList("b", "c", "d").iterator();
+    SymbolGenerator sym = new SymbolGenerator("a");
+    sym.withScopes(scopes::next);
+
+    assertThat(sym.next(), is("__$$_a_1"));
+    sym.enter();
+    assertThat(sym.next(), is("__$$_a_b_2"));
+    sym.enter();
+    assertThat(sym.next(), is("__$$_a_b_c_3"));
+    sym.exit().exit();
+    sym.enter();
+    assertThat(sym.next(), is("__$$_a_d_4"));
   }
 }
 
