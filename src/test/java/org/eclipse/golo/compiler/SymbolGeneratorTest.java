@@ -92,5 +92,19 @@ public class SymbolGeneratorTest {
     assertThat(sym.next("foo"), is("__$$_a_foo_2"));
     assertThat(sym.getFor("$foo"), is("foo"));
   }
+
+  @Test
+  public void test_name_escape() {
+    SymbolGenerator sym = new SymbolGenerator("a b.c");
+
+    assertThat(sym.next(), is("__$$_a_b$c_1"));
+
+    sym.enter("x.y.z");
+    assertThat(sym.next(), is("__$$_a_b$c_x$y$z_2"));
+
+    sym.enter("t u v");
+    assertThat(sym.next(), is("__$$_a_b$c_x$y$z_t_u_v_3"));
+
+  }
 }
 
