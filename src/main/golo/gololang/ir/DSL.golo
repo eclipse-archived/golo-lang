@@ -19,10 +19,13 @@ See the [`gololang.ir.Quote`](./ir/Quote.html) module for an alternative way to 
 ----
 module gololang.ir.DSL
 
+
 import java.lang.reflect
 import org.eclipse.golo.compiler
 import gololang.ir
 
+
+let _SYMBOLS_ =  org.eclipse.golo.compiler.SymbolGenerator("gololang.ir.DSL")
 
 #== # Toplevel elements =======================================================
 
@@ -542,7 +545,7 @@ Create a local reference with a generated name.
 
 - *returns* a new [`LocalReference`](../../javadoc/gololang/ir/LocalReference.html)
 ----
-function localRef = -> LocalReference.generate()
+function localRef = -> LocalReference.of(_SYMBOLS_: next())
 
 ----
 Create a local reference with the name.

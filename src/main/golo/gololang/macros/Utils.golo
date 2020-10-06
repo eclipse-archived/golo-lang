@@ -313,6 +313,7 @@ function enterSymScope = |scope| {
   SYMBOLS: enter(scope)
 }
 
+
 ----
 Exists a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) and [`mangle`](#mangle_1)
 ----

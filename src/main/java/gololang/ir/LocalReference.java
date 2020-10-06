@@ -20,8 +20,6 @@ import org.eclipse.golo.compiler.SymbolGenerator;
  */
 public final class LocalReference extends GoloElement<LocalReference> {
 
-  private static final SymbolGenerator REF_SYMBOLS = new SymbolGenerator("golo.ir.builders.ref");
-
   public enum Kind {
     CONSTANT, VARIABLE, MODULE_CONSTANT, MODULE_VARIABLE
   }
@@ -53,17 +51,6 @@ public final class LocalReference extends GoloElement<LocalReference> {
       return new LocalReference(((ReferenceLookup) name).getName());
     }
     return new LocalReference(name.toString());
-  }
-
-  /**
-   * Creates a new local reference with a generated unique name.
-   */
-  public static LocalReference generate() {
-    return new LocalReference(REF_SYMBOLS.next());
-  }
-
-  public static LocalReference generate(String prefix) {
-    return new LocalReference(REF_SYMBOLS.next(prefix));
   }
 
   public static LocalReference create(Object name, Kind kind) {
