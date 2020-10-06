@@ -12,14 +12,17 @@ package org.eclipse.golo.compiler;
 
 import java.util.Deque;
 import java.util.Iterator;
-import java.util.LinkedList;
+import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
+import java.util.function.UnaryOperator;
+import java.util.Random;
 
 /**
  * Name generator for synthetic objects.
  * <p>
- * The generated name follows the patter {@code __$$_<name>_<counter>}.
+ * The generated name follows the patter {@code __$$_<name>_<suffix>}.
  * The default name is {@code symbol}.
  * <p>
  * The generator maintains a stack of scope names, to generate hierarchical names.
@@ -36,13 +39,13 @@ import java.util.function.Supplier;
  * sym.next(); // __$$_closure_4
  * </code></pre>
  * <p>
- * Since the counter maintains uniqueness, the name and scopes only purpose is to give
+ * Since the suffix generator maintains uniqueness, the name and scopes only purpose is to give
  * somewhat readable names to help debugging.
  * <p>
  * Be warned that the uniqueness is only preserved in the context of a single generator.
  * Two independent generators with the same name (and scope) can produce identical names.
  * <p>
- * A counter is used instead of e.g. the generation timestamp or a random number to guarantee stability across
+ * A counter is used as default suffix instead of e.g. the generation timestamp or a random number to guarantee stability across
  * compilations to ease debugging.
  * <p>If a true uniqueness is required, or if the somewhat predictability of the symbol is a concern, one can use
  * {@link #getFor(Object)} or even {@link #next(Object)} in conjunction with {@code System.nanoTime()} or
@@ -52,24 +55,110 @@ import java.util.function.Supplier;
  * ),
  * or just add such additional value as a generator scope (for instance
  * <code class="lang-java">sym.enter(Thread.currentThread().getId()).next()</code>).
+ *
+ * Moreover, a {@code UnaryOperator} can be provided in the constructor to customize the suffix generation.
+ * Some helper functions are provided to create such operator, as well as scope suppliers.
  */
 public final class SymbolGenerator implements Iterator<String> {
-  // TODO: customize the suffix generation with a Supplier<String>
-  // TODO: prefix from the current thread ID
   public static final String PREFIX = "__$$_";
   public static final String DEFAULT_NAME = "symbol";
   public static final String ESCAPE_MANGLE = "$";
   public static final String JOIN = "_";
-  private final AtomicLong counter = new AtomicLong();
-  private final Deque<String> prefixes = new LinkedList<>();
-  private Supplier<Object> scopeSupplier;
+  private final Deque<String> prefixes = new LinkedBlockingDeque<>();
+  private Supplier<?> scopeSupplier;
+  private final UnaryOperator<Object> suffixUpdater;
+  private final AtomicReference<Object> currentSuffix = new AtomicReference<>();
 
-  public SymbolGenerator(String name) {
-    this.prefixes.addLast(name == null ? DEFAULT_NAME : escapeName(name));
+  public SymbolGenerator(String name, UnaryOperator<Object> suffixUpdater) {
+    this.prefixes.addLast(escapeName(name));
+    this.suffixUpdater = suffixUpdater;
+    this.currentSuffix.updateAndGet(this.suffixUpdater);
   }
 
   public SymbolGenerator() {
-    this(null);
+    this(DEFAULT_NAME, counter());
+  }
+
+  public SymbolGenerator(String name) {
+    this(name, counter());
+  }
+
+  public SymbolGenerator(UnaryOperator<Object> suffixUpdater) {
+    this(DEFAULT_NAME, suffixUpdater);
+  }
+
+  /**
+   * Returns a counter.
+   *
+   * Each call to this method returns a new independent counter.
+   * This is the default suffix updater.
+   */
+  public static UnaryOperator<Object> counter() {
+    AtomicLong counter = new AtomicLong();
+    return (old) -> String.valueOf(counter.getAndIncrement());
+  }
+
+  /**
+   * Returns a counter starting from the given value.
+   *
+   * Each call to this method returns a new independent counter.
+   * Can be used as a suffix updater.
+   */
+  public static UnaryOperator<Object> counter(long start) {
+    AtomicLong counter = new AtomicLong(start);
+    return (old) -> String.valueOf(counter.getAndIncrement());
+  }
+
+  /**
+   * Returns a random number.
+   *
+   * Each call to this method returns a new independent random generator.
+   * Can be used as a suffix updater.
+   */
+  public static UnaryOperator<Object> random() {
+    Random rnd = new Random();
+    return (old) -> String.valueOf(rnd.nextLong());
+  }
+
+  /**
+   * Returns a random number with the given seed.
+   *
+   * Each call to this method returns a new independent random generator.
+   * Can be used as a suffix updater.
+   */
+  public static UnaryOperator<Object> random(long seed) {
+    Random rnd = new Random(seed);
+    return (old) -> String.valueOf(rnd.nextLong());
+  }
+
+  /**
+   * Returns the current thread ID as a String.
+   *
+   * Can be used as a scope supplier.
+   * @see #withScopes(Supplier)
+   */
+  public static String threadId() {
+    return String.valueOf(Thread.currentThread().getId());
+  }
+
+  /**
+   * Returns the system time as a String.
+   *
+   * Can be used as a scope supplier.
+   * @see #withScopes(Supplier)
+   */
+  public static String timedScopes() {
+    return String.valueOf(System.nanoTime());
+  }
+
+
+  /**
+   * Returns the system time as a String.
+   *
+   * Can be used as a suffix updater.
+   */
+  public static Object timedSuffixes(Object old) {
+    return String.valueOf(System.nanoTime());
   }
 
   /**
@@ -80,25 +169,30 @@ public final class SymbolGenerator implements Iterator<String> {
    *
    * @param scopes an object supplier that returns the named used for the scope
    * @see #enter()
+   * @see #timedScopes()
+   * @see #threadId()
    */
   public SymbolGenerator withScopes(Supplier<Object> scopes) {
     this.scopeSupplier = scopes;
     return this;
   }
 
+  /**
+   * Minimal check for name validity.
+   */
   public static String escapeName(Object name) {
     return name == null ? "" : String.valueOf(name).replace('.', '$').replace(' ', '_');
   }
 
-  private String name(String localName, long idx) {
+  private String name(String localName, Object suffix) {
     return name(
         (localName == null || "".equals(localName)
           ? ""
           : (localName + JOIN))
-        + idx);
+        + String.valueOf(suffix));
   }
 
-  private synchronized String name(String localName) {
+  private String name(String localName) {
     String name = PREFIX + String.join(JOIN, prefixes);
     if (localName != null && !"".equals(localName)) {
       name += JOIN + localName;
@@ -109,7 +203,7 @@ public final class SymbolGenerator implements Iterator<String> {
   /**
    * Generates the next name for the current context.
    * <p>
-   * Increments the counter and returns the name generated by the current scope and counter.
+   * Generates a suffix and returns the name generated by the current scope and suffix.
    *
    * @return the next name
    */
@@ -127,8 +221,7 @@ public final class SymbolGenerator implements Iterator<String> {
   /**
    * Generates the next name for the current context and given simple name.
    * <p>
-   * Increments the counter and returns the name generated by the given name and the current scope and counter, and increment
-   * it.
+   * Generates a suffix and returns the name generated by the given name and the current scope and suffix.
    *
    * <p><strong>Warning</strong>: only minimal check is made that the given name will produce a valid language symbol.
    * @param name the simple name to derive the unique name from; the value will be escaped
@@ -136,11 +229,11 @@ public final class SymbolGenerator implements Iterator<String> {
    * @see #escapeName(Object)
    */
   public String next(Object name) {
-    return name(escapeName(name), counter.incrementAndGet());
+    return name(escapeName(name), this.currentSuffix.updateAndGet(this.suffixUpdater));
   }
 
   /**
-   * Mangles the given name without using the counter.
+   * Mangles the given name without using the generated suffix.
    *
    * <p>This can be used in macros to provide hygiene by mangling the local variable names. Mangling is escaped for
    * names beginning by {@code ESCAPE_MANGLE}.
@@ -168,8 +261,7 @@ public final class SymbolGenerator implements Iterator<String> {
   /**
    * Generate the name for the current context and given simple name.
    * <p>
-   * Returns the name generated by the given name and the current scope and counter, without
-   * incrementing it.
+   * Returns the name generated by the given name and the current scope and suffix, without generating the next one.
    * <p><strong>Warning</strong>: only minimal check is made that the given name will produce a valid language symbol.
    *
    * @param name the simple name to derive the unique name from; the value will be escaped
@@ -178,7 +270,7 @@ public final class SymbolGenerator implements Iterator<String> {
    * @see #escapeName(Object)
    */
   public String current(Object name) {
-    return name(escapeName(name), counter.get());
+    return name(escapeName(name), currentSuffix.get());
   }
 
   /**
@@ -190,7 +282,7 @@ public final class SymbolGenerator implements Iterator<String> {
    * @return the generated name
    */
   public String current() {
-    return name(null, counter.get());
+    return name(null, currentSuffix.get());
   }
 
   /**
@@ -213,7 +305,7 @@ public final class SymbolGenerator implements Iterator<String> {
    *
    * @see #escapeName(Object)
    */
-  public synchronized SymbolGenerator enter(Object scopeName) {
+  public SymbolGenerator enter(Object scopeName) {
     String sn = escapeName(scopeName);
     if (!sn.isEmpty()) {
       this.prefixes.addLast(sn);
@@ -230,7 +322,7 @@ public final class SymbolGenerator implements Iterator<String> {
    * @see #enter(Object)
    * @see #withScopes(Supplier)
    */
-  public synchronized SymbolGenerator enter() {
+  public SymbolGenerator enter() {
     return enter(this.scopeSupplier.get());
   }
 }
