@@ -44,10 +44,13 @@ import java.util.concurrent.atomic.AtomicLong;
  * A counter is used instead of e.g. the generation timestamp or a random number to guarantee stability across
  * compilations to ease debugging.
  * <p>If a true uniqueness is required, or if the somewhat predictability of the symbol is a concern, one can use
- * {@link #getFor(String)} or even {@link #next(String)} in conjunction with {@code System.nanoTime()} or
- * {@code Random.nextLong()} (for instance <code class="lang-java">sym.next(String.valueOf(System.nanoTime()))</code>),
- * or just add such additional value as a generator scope (for instance <code
- * class="lang-java">sym.enter(String.valueOf(Random.nextLong())).next()</code>).
+ * {@link #getFor(Object)} or even {@link #next(Object)} in conjunction with {@code System.nanoTime()} or
+ * {@code Random.nextLong()} (for instance
+ * <code class="lang-java">sym.getFor(System.nanoTime())</code> or
+ * <code class="lang-java">sym.next(Random.nextLong())</code>
+ * ),
+ * or just add such additional value as a generator scope (for instance
+ * <code class="lang-java">sym.enter(Thread.currentThread().getId()).next()</code>).
  */
 public final class SymbolGenerator implements Iterator<String> {
   // TODO: customize the suffix generation with a Supplier<String>
