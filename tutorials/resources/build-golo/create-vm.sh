@@ -5,12 +5,18 @@ vm_cpus=3
 vm_mem="4G"
 vm_disk="100GB"
 
+multipass launch focal --name ${vm_name} --cpus ${vm_cpus} --mem ${vm_mem} --disk ${vm_disk} \
+  --cloud-init ./cloud-init.yaml || error_code=$?
+
+if [ "${error_code}" -eq 2 ] || [ "${error_code}" -eq 1 ]; then
+  # exit code == 1: "error: No such file: ./cloud-init.yaml"
+  # exit code == 2: ""launch failed: instance "golo-lang-vm" already exists
+  exit 1
+fi
+
 if [ ! -d "golo-distribution" ];then
   mkdir golo-distribution
 fi
-
-multipass launch focal --name ${vm_name} --cpus ${vm_cpus} --mem ${vm_mem} --disk ${vm_disk} \
-  --cloud-init ./cloud-init.yaml
 
 echo "Initialize ${vm_name}..."
 

@@ -100,7 +100,7 @@ The last step is to add the `bin` directory of the created directory `golo-distr
 For example, from your working directory, you can type the following commands (if you use bash):
 
 ```shell
-echo "export GOLO_HOME=~/${PWD}/golo-distribution/golo" >> ~/.bashrc
+echo "export GOLO_HOME='${PWD}/golo-distribution/golo'" >> ~/.bashrc
 echo 'export PATH=$PATH:$GOLO_HOME/bin' >> ~/.bashrc
 source ~/.bashrc
 ```
@@ -115,6 +115,14 @@ You should get something like this:
 
 ```shell
 3.4.0-SNAPSHOT
+```
+
+🖐️ **If you don't want to install golo locally, you'd rather do:**
+
+```shell
+echo "export GOLO_HOME='${PWD}/golo-distribution/golo'" >> ./golo.env
+echo 'export PATH=$PATH:$GOLO_HOME/bin' >> ./golo.env
+source ./golo.env
 ```
 
 ### The essential "Hello World!"
