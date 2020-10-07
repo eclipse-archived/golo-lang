@@ -28,7 +28,7 @@ function main = |args| { # 2️⃣
 ```
 
 > - 1️⃣ always start with a module name
-> - 2️⃣ a Golo program has alaways a `main` function, and you use the pipe notation to pass the arguments
+> - 2️⃣ a Golo program has alaways a `main` function, and you use the pipe notation to declare the parameters
 
 ✋ **To run it**, type this command: `golo golo --files 01-hello.golo`
 
@@ -143,7 +143,7 @@ function main = |args| { # 4️⃣
 
 > - 0️⃣ you can use multi-lines comments at the header of the functions
 > - 1️⃣ this is a parameter-less function
-> - 2️⃣ you need to use the pipe notation to pass parameter(s)
+> - 2️⃣ you need to use the pipe notation to declare the parameter(s)
 > - 3️⃣ you can use a compact form (`|arg| -> 42`) to define a regular function (you don't need to use the return keyword)
 > - 4️⃣ you'll get:
 >    ```
@@ -211,6 +211,7 @@ module hello.world
 
 function main = |args| {
 
+  # === if then else ===
   let value = 5
 
   if value <= 5 { # 1️⃣
@@ -219,7 +220,8 @@ function main = |args| {
     println("value is > 5")
   }
 
-  # the case construction can only be used inside a closure or a function
+  # === case when ===
+  # the case construction is used inside a closure or a function
   let choice = |value| {
     case {
       when value == "one" {
@@ -237,8 +239,21 @@ function main = |args| {
   println (choice("two")) # 2️⃣
   println (choice("three")) # 3️⃣
 
-  # The values to be returned are specified after a then keyword that follows a boolean expression to be evaluated.
+  # you can use the case as a statement
+  let another_value = "one"
+  case {
+      when another_value == "one" {
+          println("ONE")
+      }
+      when another_value == "two" {
+          println("TWO")
+      }
+      otherwise {
+          println("NOT IN THE LIST")
+      }
+  } # 4️⃣
 
+  # === match when then ===
   let your_choice = "one"
 
   let and_the_result_is = -> match {
@@ -246,8 +261,9 @@ function main = |args| {
     when your_choice == "two" then "TWO"
     otherwise "NOT IN THE LIST"
   }
+  # The values to be returned are specified after a then keyword that follows a boolean expression to be evaluated.
 
-  println(and_the_result_is()) # 4️⃣
+  println(and_the_result_is()) # 5️⃣
 
   # === Loops ===
 
@@ -256,14 +272,14 @@ function main = |args| {
   while (counter < 10) {
     counter = counter + 1
   }
-  println(counter) # 5️⃣
+  println(counter) # 6️⃣
 
   # for
   counter = 0
   for (var i = 0, i <= 10, i = i + 1) {
     counter = i
   }
-  println(counter) # 6️⃣
+  println(counter) # 7️⃣
 
 }
 ```
@@ -272,8 +288,9 @@ function main = |args| {
 > - 2️⃣ it will print `TWO`
 > - 3️⃣ it will print `NOT IN THE LIST`
 > - 4️⃣ it will print `ONE`
-> - 5️⃣ it will print `10`
+> - 5️⃣ it will print `ONE`
 > - 6️⃣ it will print `10`
+> - 7️⃣ it will print `10`
 
 ✋ **To run it**, type this command: `golo golo --files 05-control-flow.golo`
 

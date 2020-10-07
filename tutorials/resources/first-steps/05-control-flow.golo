@@ -2,6 +2,7 @@ module hello.world
 
 function main = |args| {
 
+  # === if then else ===
   let value = 5
 
   if value <= 5 {
@@ -10,7 +11,8 @@ function main = |args| {
     println("value is > 5")
   }
 
-  # the case construction can only be used inside a closure or a function
+  # === case when ===
+  # the case construction is used inside a closure or a function
   let choice = |value| {
     case {
       when value == "one" {
@@ -28,8 +30,21 @@ function main = |args| {
   println (choice("two"))
   println (choice("three"))
 
-  # The values to be returned are specified after a then keyword that follows a boolean expression to be evaluated.
+  # you can use the case as a statement
+  let another_value = "one"
+  case {
+      when another_value == "one" {
+          println("ONE")
+      }
+      when another_value == "two" {
+          println("TWO")
+      }
+      otherwise {
+          println("NOT IN THE LIST")
+      }
+  }
 
+  # === match when then ===
   let your_choice = "one"
 
   let and_the_result_is = -> match {
@@ -37,6 +52,7 @@ function main = |args| {
     when your_choice == "two" then "TWO"
     otherwise "NOT IN THE LIST"
   }
+  # The values to be returned are specified after a then keyword that follows a boolean expression to be evaluated.
 
   println(and_the_result_is())
 
