@@ -55,9 +55,14 @@ final class JavaBytecodeUtils {
   }
 
   static Label visitLine(GoloElement<?> element, MethodVisitor visitor) {
-    Label label = new Label();
+    Label label = labelAtPosition(element, visitor);
     visitor.visitLabel(label);
-    if (element.hasPosition()) {
+    return label;
+  }
+
+  static Label labelAtPosition(GoloElement<?> element, MethodVisitor visitor) {
+    Label label = new Label();
+    if (element != null && element.hasPosition()) {
       visitor.visitLineNumber(element.positionInSourceCode().getStartLine(), label);
     }
     return label;

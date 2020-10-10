@@ -756,55 +756,98 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
-    Label tryStart = new Label();
+    if (tryCatchFinally.isTryCatch()) {
+      generateTryCatch(
+          tryCatchFinally.getTryBlock(),
+          tryCatchFinally.getCatchBlock(),
+          tryCatchFinally.getExceptionRefIndex());
+    }
+    if (tryCatchFinally.isTryFinally()) {
+      generateTryFinally(
+          tryCatchFinally.getTryBlock(),
+          tryCatchFinally.getFinallyBlock());
+    }
+    if (tryCatchFinally.isTryCatchFinally()) {
+      generateTryCatchFinally(
+          tryCatchFinally.getTryBlock(),
+          tryCatchFinally.getCatchBlock(),
+          tryCatchFinally.getFinallyBlock(),
+          tryCatchFinally.getExceptionRefIndex());
+    }
+  }
+
+  private void generateTryCatch(Block tryBlock, Block catchBlock, int refIndex) {
+    Label tryStart = visitLine(tryBlock, currentMethodVisitor);
     Label tryEnd = new Label();
     Label catchStart = new Label();
     Label catchEnd = new Label();
 
-    Label rethrowStart = null;
-    Label rethrowEnd = null;
-    if (tryCatchFinally.isTryCatchFinally()) {
-      rethrowStart = new Label();
-      rethrowEnd = new Label();
-    }
-
-    currentMethodVisitor.visitLabel(tryStart);
-    tryCatchFinally.getTryBlock().accept(this);
-    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
-      currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
-    }
+    // try
+    tryBlock.accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
     currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
     currentMethodVisitor.visitLabel(tryEnd);
 
-    if (tryCatchFinally.isTryFinally()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
-    }
-
-    if (tryCatchFinally.isTryCatchFinally()) {
-      currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
-    }
-
+    // catch
     currentMethodVisitor.visitLabel(catchStart);
-    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
-      Block catchBlock = tryCatchFinally.getCatchBlock();
-      int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
-      currentMethodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
-      tryCatchFinally.getCatchBlock().accept(this);
-    } else {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitInsn(ATHROW);
-    }
+    currentMethodVisitor.visitVarInsn(ASTORE, refIndex);
+    catchBlock.accept(this);
+    currentMethodVisitor.visitLabel(catchEnd);
+  }
+
+  private void generateTryFinally(Block tryBlock, Block finallyBlock) {
+    Label tryStart = visitLine(tryBlock, currentMethodVisitor);
+    Label tryEnd = new Label();
+    Label rethrowStart = new Label();
+    Label rethrowEnd = new Label();
+
+    // try
+    tryBlock.accept(this);
+    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, rethrowStart, null);
+    currentMethodVisitor.visitLabel(tryEnd);
+
+    // finally
+    finallyBlock.accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+
+    currentMethodVisitor.visitLabel(rethrowStart);
+    finallyBlock.accept(this);
+    currentMethodVisitor.visitInsn(ATHROW);
+    currentMethodVisitor.visitLabel(rethrowEnd);
+  }
+
+  private void generateTryCatchFinally(Block tryBlock, Block catchBlock, Block finallyBlock, int refIndex) {
+    Label tryStart = labelAtPosition(tryBlock, currentMethodVisitor);
+    Label tryEnd = new Label();
+    Label catchStart = labelAtPosition(catchBlock, currentMethodVisitor);
+    Label catchEnd = new Label();
+    Label rethrowStart = new Label();
+    Label rethrowEnd = new Label();
+
+    // try
+    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
+    currentMethodVisitor.visitLabel(tryStart);
+    tryBlock.accept(this);
+    currentMethodVisitor.visitLabel(tryEnd);
+
+    finallyBlock.accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+
+    // catch
+    currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
+    currentMethodVisitor.visitLabel(catchStart);
+    currentMethodVisitor.visitVarInsn(ASTORE, refIndex);
+    catchBlock.accept(this);
     currentMethodVisitor.visitLabel(catchEnd);
 
-    if (tryCatchFinally.isTryCatchFinally()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
-      currentMethodVisitor.visitLabel(rethrowStart);
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitInsn(ATHROW);
-      currentMethodVisitor.visitLabel(rethrowEnd);
-    }
+    // finally
+    finallyBlock.accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+
+    currentMethodVisitor.visitLabel(rethrowStart);
+    finallyBlock.accept(this);
+    currentMethodVisitor.visitInsn(ATHROW);
+    currentMethodVisitor.visitLabel(rethrowEnd);
   }
 
   @Override

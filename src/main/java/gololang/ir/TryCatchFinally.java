@@ -71,6 +71,13 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
     return exceptionId;
   }
 
+  /**
+   * Returns the internal index of the exception reference.
+   */
+  public int getExceptionRefIndex() {
+    return this.catchBlock.getReferenceTable().get(this.exceptionId).getIndex();
+  }
+
   public Block getTryBlock() {
     return tryBlock;
   }
@@ -89,7 +96,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public Block getCatchBlock() {
-    return catchBlock;
+    return catchBlock != null ? catchBlock : Block.nullBlock();
   }
 
   /**
@@ -118,7 +125,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public Block getFinallyBlock() {
-    return finallyBlock;
+    return finallyBlock != null ? finallyBlock : Block.nullBlock();
   }
 
   /**

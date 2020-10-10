@@ -21,14 +21,79 @@ import static java.util.Objects.requireNonNull;
  *
  * <p>A block defines a scope, and as such maintains its local reference table.
  */
-public final class Block extends ExpressionStatement<Block> implements Iterable<GoloStatement<?>> {
-  private final List<GoloStatement<?>> statements = new LinkedList<>();
+public class Block extends ExpressionStatement<Block> implements Iterable<GoloStatement<?>> {
+
+  private static final Block NULL = new Block() {
+    @Override
+    public void accept(GoloIrVisitor visitor) { }
+
+    @Override
+    public void merge(Block other) { throw new UnsupportedOperationException(); }
+
+    @Override
+    public Block ref(Object o) { return this; }
+
+    @Override
+    public void internReferenceTable() {}
+
+    @Override
+    public List<GoloStatement<?>> getStatements() { return Collections.emptyList(); }
+
+    @Override
+    public Iterator<GoloStatement<?>> iterator() { return Collections.emptyIterator(); }
+
+    @Override
+    public Block map(FunctionReference fun) throws Throwable { return this; }
+
+    @Override
+    public Block add(Object statement) { throw new UnsupportedOperationException(); }
+
+    @Override
+    public Block prepend(Object statement) { throw new UnsupportedOperationException(); }
+
+    @Override
+    public void flatten() {}
+
+    @Override
+    public int size() { return 0; }
+
+    @Override
+    public boolean hasOnlyReturn() { return false; }
+
+    @Override
+    public boolean hasOnlyExpression() { return false; }
+
+    @Override
+    public String toString() { return "{NULL}"; }
+
+    @Override
+    public boolean isEmpty() { return true; }
+
+    @Override
+    public void walk(GoloIrVisitor visitor) {}
+
+    @Override
+    public List<GoloElement<?>> children() { return Collections.emptyList(); }
+
+    @Override
+    protected void replaceElement(GoloElement<?> original, GoloElement<?> newElement) {
+      throw new UnsupportedOperationException();
+    }
+  };
+
+  private final List<GoloStatement<?>> statements;
   private ReferenceTable referenceTable;
   private boolean hasReturn = false;
+
+  private Block() {
+    super();
+    statements = Collections.emptyList();
+  }
 
   Block(ReferenceTable referenceTable) {
     super();
     this.referenceTable = requireNonNull(referenceTable);
+    this.statements = new LinkedList<>();
   }
 
   protected Block self() { return this; }
@@ -38,6 +103,15 @@ public final class Block extends ExpressionStatement<Block> implements Iterable<
    */
   public static Block empty() {
     return new Block(new ReferenceTable());
+  }
+
+  /**
+   * Return the null block.
+   *
+   * Null Object that does nothing.
+   */
+  public static Block nullBlock() {
+    return NULL;
   }
 
   /**
