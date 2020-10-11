@@ -776,17 +776,22 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void generateTryCatch(Block tryBlock, Block catchBlock, int refIndex) {
-    Label tryStart = visitLine(tryBlock, currentMethodVisitor);
+  private void generateTryBlock(Block tryBlock, Label target) {
+    Label tryStart = labelAtPosition(tryBlock, currentMethodVisitor);
     Label tryEnd = new Label();
-    Label catchStart = new Label();
+    currentMethodVisitor.visitLabel(tryStart);
+    tryBlock.accept(this);
+    currentMethodVisitor.visitLabel(tryEnd);
+    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, target, null);
+  }
+
+  private void generateTryCatch(Block tryBlock, Block catchBlock, int refIndex) {
+    Label catchStart = labelAtPosition(catchBlock, currentMethodVisitor);
     Label catchEnd = new Label();
 
     // try
-    tryBlock.accept(this);
+    generateTryBlock(tryBlock, catchStart);
     currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
-    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
-    currentMethodVisitor.visitLabel(tryEnd);
 
     // catch
     currentMethodVisitor.visitLabel(catchStart);
@@ -796,20 +801,18 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void generateTryFinally(Block tryBlock, Block finallyBlock) {
-    Label tryStart = visitLine(tryBlock, currentMethodVisitor);
+    Label tryStart = labelAtPosition(tryBlock, currentMethodVisitor);
     Label tryEnd = new Label();
     Label rethrowStart = new Label();
     Label rethrowEnd = new Label();
 
     // try
-    tryBlock.accept(this);
-    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, rethrowStart, null);
-    currentMethodVisitor.visitLabel(tryEnd);
+    generateTryBlock(tryBlock, rethrowStart);
 
-    // finally
     finallyBlock.accept(this);
     currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
 
+    // rethrow
     currentMethodVisitor.visitLabel(rethrowStart);
     finallyBlock.accept(this);
     currentMethodVisitor.visitInsn(ATHROW);
@@ -817,18 +820,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void generateTryCatchFinally(Block tryBlock, Block catchBlock, Block finallyBlock, int refIndex) {
-    Label tryStart = labelAtPosition(tryBlock, currentMethodVisitor);
-    Label tryEnd = new Label();
     Label catchStart = labelAtPosition(catchBlock, currentMethodVisitor);
     Label catchEnd = new Label();
     Label rethrowStart = new Label();
     Label rethrowEnd = new Label();
 
     // try
-    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
-    currentMethodVisitor.visitLabel(tryStart);
-    tryBlock.accept(this);
-    currentMethodVisitor.visitLabel(tryEnd);
+    generateTryBlock(tryBlock, catchStart);
 
     finallyBlock.accept(this);
     currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
@@ -840,12 +838,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     catchBlock.accept(this);
     currentMethodVisitor.visitLabel(catchEnd);
 
-    // finally
     finallyBlock.accept(this);
     currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
 
+    // rethrow
     currentMethodVisitor.visitLabel(rethrowStart);
+    currentMethodVisitor.visitVarInsn(ASTORE, refIndex);
     finallyBlock.accept(this);
+    currentMethodVisitor.visitVarInsn(ALOAD, refIndex);
     currentMethodVisitor.visitInsn(ATHROW);
     currentMethodVisitor.visitLabel(rethrowEnd);
   }

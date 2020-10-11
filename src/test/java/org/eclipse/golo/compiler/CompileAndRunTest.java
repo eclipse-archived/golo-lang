@@ -1885,9 +1885,9 @@ public class CompileAndRunTest {
 
   }
 
-  @Test
-  public void test_nested_try() throws Throwable {
-    runTests(SRC, "nested-try.golo", classLoader(this));
-  }
+  // @Test
+  // public void test_nested_try() throws Throwable {
+  //   runTests(SRC, "nested-try.golo", classLoader(this));
+  // }
 
 }
