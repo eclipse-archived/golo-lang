@@ -75,6 +75,9 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    * Returns the internal index of the exception reference.
    */
   public int getExceptionRefIndex() {
+    if (!this.hasCatchBlock()) {
+      return -1;
+    }
     return this.catchBlock.getReferenceTable().get(this.exceptionId).getIndex();
   }
 
