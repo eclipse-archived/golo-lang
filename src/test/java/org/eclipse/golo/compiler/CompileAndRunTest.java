@@ -1886,7 +1886,6 @@ public class CompileAndRunTest {
 
   }
 
-  @Ignore
   @Test
   public void test_nested_try() throws Throwable {
     runTests(SRC, "nested-try.golo", classLoader(this));
