@@ -35,16 +35,16 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   private Block catchBlock;
   private Block finallyBlock;
 
-  private TryCatchFinally(String exceptionId) {
+  private TryCatchFinally() {
     super();
-    this.exceptionId = exceptionId;
+    this.exceptionId = null;
   }
 
   /**
    * Creates an empty {@code try catch finally} statement.
    */
   public static TryCatchFinally tryCatch() {
-    return new TryCatchFinally(null);
+    return new TryCatchFinally();
   }
 
 
@@ -54,7 +54,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    * Less readable than the fluent API, but useful for meta-generation.
    */
   public static TryCatchFinally create(String exceptionName, GoloElement<?> tryBlock, GoloElement<?> catchBlock, GoloElement<?> finallyBlock) {
-    return new TryCatchFinally(null)
+    return new TryCatchFinally()
       .trying(tryBlock)
       .catching(exceptionName, catchBlock)
       .finalizing(finallyBlock);
