@@ -31,6 +31,7 @@ import java.util.List;
 public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
 
   private String exceptionId;
+  private LocalReference dummyException;
   private Block tryBlock;
   private Block catchBlock;
   private Block finallyBlock;
@@ -76,7 +77,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    */
   public int getExceptionRefIndex() {
     if (!this.hasCatchBlock()) {
-      return -1;
+      return this.dummyException.getIndex();
     }
     return this.catchBlock.getReferenceTable().get(this.exceptionId).getIndex();
   }
@@ -140,7 +141,9 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    * @see Block#of(Object)
    */
   public TryCatchFinally finalizing(Object block) {
+    this.dummyException = LocalReference.generate();
     this.finallyBlock = makeParentOf(Block.of(block));
+    this.finallyBlock.getReferenceTable().add(this.dummyException);
     return this;
   }
 

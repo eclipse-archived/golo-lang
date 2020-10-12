@@ -785,13 +785,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private void generateRethrow(TryCatchFinally tryCatchFinally, Label rethrowStart, Label rethrowEnd) {
     currentMethodVisitor.visitLabel(rethrowStart);
-    if (tryCatchFinally.hasCatchBlock()) {
-      currentMethodVisitor.visitVarInsn(ASTORE, tryCatchFinally.getExceptionRefIndex());
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitVarInsn(ALOAD, tryCatchFinally.getExceptionRefIndex());
-    } else {
-      tryCatchFinally.getFinallyBlock().accept(this);
-    }
+    currentMethodVisitor.visitVarInsn(ASTORE, tryCatchFinally.getExceptionRefIndex());
+    tryCatchFinally.getFinallyBlock().accept(this);
+    currentMethodVisitor.visitVarInsn(ALOAD, tryCatchFinally.getExceptionRefIndex());
     currentMethodVisitor.visitInsn(ATHROW);
     currentMethodVisitor.visitLabel(rethrowEnd);
   }
