@@ -11,6 +11,7 @@
 package org.eclipse.golo.runtime;
 
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import static java.util.Arrays.copyOfRange;
 
 public final class ArrayHelper {
@@ -53,10 +54,19 @@ public final class ArrayHelper {
 
   public static boolean contains(Object[] array, Object elt) {
     for (Object o : array) {
-      if ((o != null) && (o.equals(elt) || o == null && elt == null)) {
+      if (Objects.deepEquals(o, elt)) {
         return true;
       }
     }
     return false;
+  }
+
+  public static int indexOf(Object[] array, Object elt) {
+    for (int i = 0; i < array.length; i++) {
+      if (Objects.deepEquals(array[i], elt)) {
+        return i;
+      }
+    }
+    return -1;
   }
 }
