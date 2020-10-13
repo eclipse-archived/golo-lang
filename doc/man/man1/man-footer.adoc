@@ -1,0 +1,16 @@
+
+== BUGS
+
+See https://github.com/eclipse/golo-lang/issues for issues.
+
+
+== AUTHOR
+
+See https://github.com/eclipse/golo-lang/graphs/contributors or the `CONTRIBUTORS` file in the golo source distribution.
+
+
+== COPYRIGHT
+
+This work is made available under the terms of the Eclipse Public License 2.0.
+See http://www.eclipse.org/legal/epl-2.0 or the `LICENCE` file in the golo source distribution.
+

@@ -12,6 +12,7 @@
 :tests-dir: ../src/test/resources
 :golodoc: ./golodoc
 :javadoc: ./javadoc
+:man: ./man/man1
 
 This is the documentation for the Golo programming language.
 

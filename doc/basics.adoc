@@ -55,7 +55,7 @@ NOTE: Golo identifiers can be non-ascii characters (e.g., Japanese, Emoji, Arabi
 
 Of course, we need to run this incredibly complex application.
 
-Golo comes with a `golo` script found in the distribution `bin/` folder. It provides several
+Golo comes with a link:{man}/golo.html[`golo`] script found in the distribution `bin/` folder. It provides several
 commands, notably:
 
 - `version` to query the Golo version, and
@@ -86,8 +86,8 @@ Hello world!
 $
 ----
 
-`golo golo` takes several Golo source files (*.golo and directories) as input.
-It expects the last one to have a `main` function to call (or use
+link:{man}/golo-golo.html[`golo golo`] takes several Golo source files (*.golo and directories) as input.
+It expects the last one of them to have a `main` function to call (or use
 `--module` to define the golo module with the `main` function).
 The Golo code is compiled on the fly and executed straight into a JVM.
 
@@ -121,11 +121,11 @@ Note that `args` is expected to be an array.
 
 Finally, the `--classpath` flag allows to specify a list of classpath elements, which can be either
 directories or `.jar` files. The system property `golo.class.path` or the environment variable `GOLOPATH` can also be used to specify these elements.
-See the `golo help` command for details on the various Golo commands.
+See the `golo --help` command for details on the various Golo commands.
 
 === Compiling Golo source code
 
-Golo comes with a compiler that generates JVM bytecode in `.class` files. We will give more details
+Golo comes with a compiler (link:{man}/golo-compile.html[`compile`] command) that generates JVM bytecode in `.class` files. We will give more details
 in the chapter on interoperability with Java.
 
 Compiling Golo files is straightforward:
@@ -162,7 +162,7 @@ This would take all `.golo` files from the `sample` folder, and assemble the res
 
 === Running compiled Golo code
 
-Golo provides a `golo` command for running compiled Golo code:
+Golo provides a link:{man}/golo-run.html[`run`] command for running compiled Golo code:
 
 [source]
 ----
@@ -176,7 +176,7 @@ Simple, isn't it?
 
 === Running Golo script
 
-Golo provides a `shebang` command for running a Golo file as a simple script.
+Golo provides a link:{man}/golo-shebang.html[`shebang`] command for running a Golo file as a simple script.
 
 [source,golo]
 ----
@@ -255,7 +255,7 @@ $
 
 === Passing JVM-specific flags
 
-Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment
+Both link:{man}/golo-golo.html[`golo`] and link:{man}/golo-run.html[`run`] commands can be given JVM-specific flags using the `JAVA_OPTS` environment
 variable.
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:

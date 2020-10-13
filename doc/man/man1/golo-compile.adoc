@@ -1,0 +1,85 @@
+= GOLO-COMPILE(1)
+:doctype: manpage
+
+== NAME
+
+golo-compile - Compile golo source files
+
+== SYNOPSIS
+
+*golo* *compile* [*--classpath* _path_] [*--output* _directory_] _file_ ...
+
+== DESCRIPTION
+
+The `golo compile` command generates JVM bytecode in `.class` files.
+Each module creates a `.class` file name as the module, in a directory hierarchy matching the prefix.
+For instance, a `module my.package.Module` will compile to a `my/package/Module.class` file.
+
+Some other `.class` files can be created if the module contains augmentations or user defined types.
+Augmentations are compiled as inner classes of the module.
+For instance the golo source
+
+----
+module my.package.Module
+
+augmentation Foo = {
+  #...
+}
+
+augment java.lang.String {
+  #...
+}
+----
+
+will compile to 3 files:
+
+* `my/package/Module.class` for the main module,
+* `my/package/Module$Foo.class` for the named augmentation,
+* `my/package/Module$java$lang$String.class` for the augmentation on `String`.
+
+User defined types are compiled into `.class` in a `types` subdirectory. For instance
+
+----
+module my.package.Other
+
+struct Foo = {x}
+----
+
+with create the additional file `my/package/Other/types/Foo.class`.
+
+
+== OPTIONS
+
+*--classpath* _path_::
+      Classpath elements (.jar and directories).
+
+*--output* _directory_::
+      The compiled classes output directory or Jar archive (created if needed).
+
+
+== EXAMPLES
+
+To compile the given module into `.class` files:
+
+----
+$ golo compile my-module.golo
+----
+
+To compile the given module into an other directory:
+
+----
+$ golo compile --output build src/my-module.golo
+----
+
+To create a Jar archive from all the modules in the `src/` directory:
+
+----
+$ golo compile --output mylib.jar src/*.golo
+----
+
+
+== SEE ALSO
+
+golo(1),golo-run(1),golo-golo(1)
+
+include::man-footer.adoc[]

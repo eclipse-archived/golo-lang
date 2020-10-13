@@ -1,0 +1,79 @@
+= GOLO-DOC(1)
+:doctype: manpage
+:source-highlighter: highlightjs
+:highlightjsdir: ../..
+
+== NAME
+
+golo-doc - Generate documentation from Golo source files
+
+== SYNOPSIS
+
+*golo* *doc* [_options_] _file_ ...
+
+== DESCRIPTION
+
+Golo provides a support for documentation blocks on modules, functions, augmentations, structs and unions, as well as fields.
+
+This command can render such documentation in the form of HTLM files (the default) or Markdown.
+In addition, it can produce a ctags `tags` file, to be used by
+editors such as Vim or emacs. In this mode, the special output target `-` can
+be used to print the tags on standard output, which is needed by some editors
+or extensions.
+
+
+== OPTIONS
+
+*--classpath* _path_::
+      Classpath elements (.jar and directories).
+
+*--format* _format_::
+      Documentation format to use.
+      Can be 'html', 'markdown', 'ctags'.
+      Defaults to 'html'.
+
+*--output* _directory_::
+      The documentation output directory.
+      With 'ctags' format, '-' can be used for standard output
+      (e.g. when executed in an editor).
+      Defaults to the current directory.
+
+Directories are traversed recursively.
+
+
+== DOCUMENTATION BLOCKS
+
+Blocks are delimited by `----` and contain free-form Markdown text.
+The documentation block must be written right before the element to document.
+For instance:
+
+[source,golo]
+....
+----
+This is a *nice* module that does a bunch of useless things.
+
+See more at [our website](http://www.typeunsafe.org).
+----
+module Hello
+
+----
+Adds 2 elements, which is quite surprising given the name.
+
+* `x` is the first argument,
+* `y` is the second argument.
+
+The following snipped prints `3`:
+
+    let result = adder(1, 2)
+    println(result)
+
+Impressive!
+----
+function adder = |x, y| -> x + y
+....
+
+Sections can be added in the documentation using the normal markdown syntax. The level of the titles is adapted to the generated documentation.
+
+
+include::man-footer.adoc[]
+

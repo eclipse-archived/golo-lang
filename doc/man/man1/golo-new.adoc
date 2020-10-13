@@ -1,0 +1,136 @@
+= GOLO-NEW(1)
+:doctype: manpage
+
+== NAME
+
+golo-new - Generate new Golo projects
+
+== SYNOPSIS
+
+*golo* *new* [_options_] _name_ ...
+
+== DESCRIPTION
+
+
+== OPTIONS
+
+
+*--path* _directory_::
+      Path for the new projects. Defaults to current directory.
+
+*--profile* _profile_::
+      Profile to use: '*app*' or 'lib'
+
+*--type* _type_::
+      Type of project: 'maven', 'gradle' or  '*simple*'
+
+*--vcs* _version control_::
+      Type of version control system: '*none*', 'git' or 'hg'.
+
+
+== PROFILES
+
+The *--profile* option defines the kind of project you want to create, and will influence the files and hierarchy generated. Two profiles are currently supported:
+
+- *app* will create a application project, with a `main` function;
+- *lib* will create a library project.
+
+== TYPE
+
+The *golo new* command generate a basic configuration file for *maven* or *gradle*.
+The hierarchy of files generated also depends on the type of project chosen, to match the usual conventions of the tool.
+
+== VERSION CONTROL
+
+If ask to, the tool can also generate and initialize a local repository for version control, using *git* or *hg*.
+Note that the tool must be installed.
+
+== EXAMPLES
+
+Creating a new application:
+[source]
+----
+$ golo new --profile app newapp
+[info] Generating a new simple project named “newapp”…
+[info] Project “newapp” created.
+[info] Run it with:
+	golo golo --files *.golo
+$ tree newapp
+newapp/
+├── imports
+├── jars
+└── main.golo
+
+$ cd newapp; golo golo --files *.golo
+Hello newapp
+----
+
+Creating a new library:
+[source]
+----
+$ golo new --profile lib mylib
+[info] Generating a new simple project named “mylib”…
+[info] Project “mylib” created.
+$ tree mylib/
+mylib/
+├── imports
+├── jars
+├── lib.golo
+└── samples
+----
+
+Creating a full application project using git and gradle:
+[source]
+----
+$ golo new --vcs git --type gradle --profile app killerapp
+[info] Generating a new gradle project named “killerapp”…
+Initialized empty Git repository in killerapp/.git/
+[info] Project “killerapp” created.
+[info] Run it with:
+	gradle -q run
+
+$ tree -a killerapp/
+killerapp/
+├── build.gradle
+├── .git
+│   ├── branches
+│   ├── config
+│   ├── description
+│   ├── HEAD
+│   ├── hooks
+│   │   └── ...
+│   ├── info
+│   │   └── ...
+│   ├── objects
+│   │   └── ...
+│   └── refs
+│       └── ...
+├── .gitignore
+├── README.md
+└── src
+    ├── main
+    │   ├── golo
+    │   │   └── main.golo
+    │   └── resources
+    └── test
+        └── golo
+
+$ cd killerapp; gradle -q run
+Hello killerapp
+
+$ git status
+On branch master
+
+No commits yet
+
+Untracked files:
+  (use "git add <file>..." to include in what will be committed)
+	.gitignore
+	README.md
+	build.gradle
+	src/
+
+----
+
+
+include::man-footer.adoc[]

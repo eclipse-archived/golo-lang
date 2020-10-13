@@ -1,0 +1,41 @@
+= GOLOSH(1)
+:doctype: manpage
+
+== NAME
+
+golosh - Dynamically loads and runs from Golo source files
+
+== SYNOPSIS
+
+*golosh* _main_file_ _arguments_ ...
+
+== DESCRIPTION
+
+This script is an alias for the *golo-shebang(1)* command, to ease the use of `env` hasbanged scripts.
+
+== EXAMPLES
+
+[source,golo]
+----
+#!/usr/bin/env golosh
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+[source]
+----
+$ chmod +x hello.golo
+$ ./hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+== SEE ALSO
+
+golo-golo(1), golo-shebang(1)
+
+include::man-footer.adoc[]

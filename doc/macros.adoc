@@ -16,7 +16,7 @@ Here is a simplified view of the way Golo compiles a program:
 4. generate JVM bytecode from the final IR.
 
 The IR tree is a logical representation of the program structure, independently of the text (and even the concrete syntax).
-A representation of this tree can be seen using the `golo diagnose` command.
+A representation of this tree can be seen using the link:{man}/golo-diagnose.html[`golo diagnose`] command.
 
 As an example, the following Golo code
 
@@ -62,9 +62,9 @@ To ease this creation, a fluent API over the IR tree elements is provided.
 
 ==== IR API
 
-The package link:{javadoc}gololang/ir/package-summary.html[`gololang.ir`] contains the classes used to represent elements of the Golo language, and thus nodes in the IR tree.
+The package link:{javadoc}/gololang/ir/package-summary.html[`gololang.ir`] contains the classes used to represent elements of the Golo language, and thus nodes in the IR tree.
 These classes provide a fluent API to configure their instances.
-The link:{golodoc}gololang/ir.html[`gololang.ir`] module contains factory functions and augmentations to ease the creation of these nodes.
+The link:{golodoc}/gololang/ir/DSL.html[`gololang.ir.DSL`] module contains factory functions and augmentations to ease the creation of these nodes.
 
 For instance, a subtree representing the Golo code:
 [source,golo]
@@ -97,7 +97,7 @@ can be created by:
 )
 ----
 
-See the link:{golodoc}/gololang/ir.html[golodoc] for a full description of this API.
+See the link:{golodoc}/gololang/ir/DSL.html[golodoc] for a full description of this API.
 
 
 ==== Quoting
@@ -183,7 +183,9 @@ See also <<creating_function_calls>> for concerns about the resolution of functi
 ===============
 Using macros creates a *compile-time* dependency.
 Therefore, the module containing the used macros _must_ be compiled _before_ the module using it.
-The order of files in the command line (`golo compile` or `golo golo`) is therefore relevant: modules containing macros _must_ appear before other modules.
+The order of files in the command line (
+link:{man}/golo-compile.html[`golo compile`] or
+link:{man]/golo-golo.html[`golo golo`]) is therefore relevant: modules containing macros _must_ appear before other modules.
 
 For instance, given a module defining macros in `my-macros.golo`, and a module using them in `app.golo`, the following commands will both fail with a compilation error:
 [source]
@@ -892,7 +894,7 @@ However, this can fail to produce the desired behavior (see <<injecting_imports,
 Since macros are expanded at compile time, they can be difficult to test and debug.
 Here are some advices.
 
-As already said, the `diagnose` command displays the internal representation of the parsed code.
+As already said, the link:{man}/golo-diagnose.html[`diagnose`] command displays the internal representation of the parsed code.
 Its `--stage` option can configure which <<compilation-steps, compilation step>> is dumped:
 
 - `raw`: the IR representation in stage 2, which reflect the code as written in the source;

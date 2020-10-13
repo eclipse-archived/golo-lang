@@ -1,0 +1,45 @@
+= GOLO-RUN(1)
+:doctype: manpage
+
+== NAME
+
+golo-run - Runs compiled Golo code
+
+== SYNOPSIS
+
+*golo* *run* [*--classpath* _path_] *--module* _module name_  _arguments_ ...
+
+== DESCRIPTION
+
+This command runs a compiled golo program, in the form of a +*.class+ file or a jar archive.
+
+== OPTIONS
+
+*--classpath* _path_::
+      Classpath elements (.jar and directories).
+
+*--module* _module name_::
+      The Golo module containing the main function to run.
+
+
+== EXAMPLES
+
+After compiling the source using
+[source]
+----
+$ golo compile --output build samples/helloworld.golo
+----
+
+one can run the programm as:
+[source]
+----
+$ golo run --classpath build --module hello.World
+Hello world!
+----
+
+
+== SEE ALSO
+
+golo-compile(1), golo-golo(1)
+
+include::man-footer.adoc[]

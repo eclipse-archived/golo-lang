@@ -222,8 +222,24 @@ tasks.named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
   baseDirFollowsSourceFile()
   sources {
     include("golo-guide.adoc")
+    include("index.adoc")
+    include("man/man1/golo*.adoc")
   }
 }
+
+tasks.create<org.asciidoctor.gradle.jvm.AsciidoctorTask>("manpages") {
+  sourceDir("doc/man")
+  baseDirFollowsSourceFile()
+  setOutputDir(file("build/manpages"))
+  sources {
+    include("**/golo*.adoc")
+  }
+  outputOptions {
+    setBackends(listOf("manpage"))
+    // separateOutputDirs = false
+  }
+}
+
 
 tasks.create<Copy>("assembleAsciidoc") {
   dependsOn("asciidoctor")
@@ -234,7 +250,7 @@ tasks.create<Copy>("assembleAsciidoc") {
 }
 
 tasks.create("doc") {
-  dependsOn("asciidoctor", "golodoc", "javadoc")
+  dependsOn("asciidoctor", "golodoc", "javadoc", "manpages")
 }
 
 distributions {
@@ -261,6 +277,12 @@ distributions {
       }
       from(tasks.named("asciidoctor")) {
         into("docs")
+      }
+      into("docs") {
+        from("doc/highlightjs")
+      }
+      from(tasks.named("manpages")) {
+        into("man")
       }
       from(tasks.named("vanillaScripts")) {
         into("bin")

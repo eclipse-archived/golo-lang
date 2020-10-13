@@ -1,0 +1,43 @@
+= GOLO-CHECK(1)
+:doctype: manpage
+
+== NAME
+
+golo-check - Checks golo source files for errors
+
+== SYNOPSIS
+
+*golo* *check* [*--classpath* _path_] [*--exit*] [*--verbose*] _file_ ...
+
+== DESCRIPTION
+
+The `golo check` command parses and checks Golo source files for correctness. It equivalent to _golo-compile_(1) excepts that no bytecode is generated.
+This command can be used as an editor backend to check code while editing.
+
+== OPTIONS
+
+*--classpath* _path::
+      Classpath elements (.jar and directories).
+
+*--exit*::
+      Exit on the first encountered error. Checking continue with the next file if absent.
+
+*--verbose*::
+      Be more verbose
+
+
+
+== EXAMPLES
+
+To check all the golo files in `src/` for error:
+
+----
+$ golo check --verbose src/
+----
+
+== SEE ALSO
+
+golo(1), golo-compile(1)
+
+include::man-footer.adoc[]
+

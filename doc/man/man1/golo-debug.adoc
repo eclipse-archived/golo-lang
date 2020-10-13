@@ -1,0 +1,60 @@
+= GOLO-DEBUG(1)
+:doctype: manpage
+
+== NAME
+
+golo-debug - runs golo programs in a debugger
+
+== SYNOPSIS
+
+*golo-debug* [_options_] _command_ [_arguments_]
+
+== DESCRIPTION
+
+This programm is just a wrapper around *golo(1)* that additionnaly sets some environment options to ease debugging.
+
+More specifically, the `golo.debug` property is set to `true`, and the JVM is run with a debugging JDWP agent option listening on the port 6666 (namely `-agentlib:jdwp=transport=dt_socket,server=y,address=6666,suspend=y -Xdiag`).
+
+== ENVIRONMENT VARIABLES AND PROPERTIES
+
+The behavior of the golo compiler or runtime can be tuned using some environment variables or java properties.
+
+*GOLO_DEBUG_OPTS* or *JAVA_OPTS*::
+  Defines additional JVM options.
+  For instance, to trace the class loaded, one can define
+  `GOLO_DEBUG_OPTS="-verbose:class"`
+
+*CLASSPATH*::
+  Defines the search path for java classes. Also used for golo modules.
+
+Other environment variables and properties that are used by *golo(1)*.
+
+
+== EXAMPLES
+
+First, run the programm in debug mode:
+[source]
+----
+$ golo-debug golo --files samples/coin-change.golo
+Listening for transport dt_socket at address: 6666
+----
+
+Attach a debugger:
+[source]
+----
+$ jdb -sourcepath sample -attach 6666
+----
+
+See the JDB documentation[1] for more information.
+
+Graphical debuggers can also be used.
+
+== SEE ALSO
+
+java(1), golo(1)
+
+== NOTES
+
+1. link:http://docs.oracle.com/javase/8/docs/technotes/tools/windows/jdb.html[The JDB documentation]
+
+include::man-footer.adoc[]
