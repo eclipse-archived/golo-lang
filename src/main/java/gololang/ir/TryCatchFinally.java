@@ -31,20 +31,21 @@ import java.util.List;
 public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
 
   private String exceptionId;
+  private LocalReference dummyException;
   private Block tryBlock;
   private Block catchBlock;
   private Block finallyBlock;
 
-  private TryCatchFinally(String exceptionId) {
+  private TryCatchFinally() {
     super();
-    this.exceptionId = exceptionId;
+    this.exceptionId = null;
   }
 
   /**
    * Creates an empty {@code try catch finally} statement.
    */
   public static TryCatchFinally tryCatch() {
-    return new TryCatchFinally(null);
+    return new TryCatchFinally();
   }
 
 
@@ -54,7 +55,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    * Less readable than the fluent API, but useful for meta-generation.
    */
   public static TryCatchFinally create(String exceptionName, GoloElement<?> tryBlock, GoloElement<?> catchBlock, GoloElement<?> finallyBlock) {
-    return new TryCatchFinally(null)
+    return new TryCatchFinally()
       .trying(tryBlock)
       .catching(exceptionName, catchBlock)
       .finalizing(finallyBlock);
@@ -69,6 +70,16 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    */
   public String getExceptionId() {
     return exceptionId;
+  }
+
+  /**
+   * Returns the internal index of the exception reference.
+   */
+  public int getExceptionRefIndex() {
+    if (!this.hasCatchBlock()) {
+      return this.dummyException.getIndex();
+    }
+    return this.catchBlock.getReferenceTable().get(this.exceptionId).getIndex();
   }
 
   public Block getTryBlock() {
@@ -89,7 +100,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public Block getCatchBlock() {
-    return catchBlock;
+    return catchBlock != null ? catchBlock : Block.nullBlock();
   }
 
   /**
@@ -118,7 +129,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
   }
 
   public Block getFinallyBlock() {
-    return finallyBlock;
+    return finallyBlock != null ? finallyBlock : Block.nullBlock();
   }
 
   /**
@@ -130,7 +141,9 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    * @see Block#of(Object)
    */
   public TryCatchFinally finalizing(Object block) {
+    this.dummyException = LocalReference.generate();
     this.finallyBlock = makeParentOf(Block.of(block));
+    this.finallyBlock.getReferenceTable().add(this.dummyException);
     return this;
   }
 
