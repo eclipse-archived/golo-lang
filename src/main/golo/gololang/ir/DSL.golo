@@ -1562,11 +1562,24 @@ local function generateLocalSymbols = |scope, isLocal, generatorName| -> topleve
     `let(generatorName, call("org.eclipse.golo.compiler.SymbolGenerator")
                         : withArgs(constant(scope))),
     `function("gensym"): `local(isLocal)
+      : documentation("Generate a new unique name using an internal `SymbolGenerator`.")
       : returns(invoke("next"): on(refLookup(generatorName))),
     `function("gensym"): `local(isLocal): withParameters("name")
+      : documentation("Generate a new unique name using an internal `SymbolGenerator` with the given name as prefix.")
       : returns(invoke("next"): withArgs(refLookup("name")): on(refLookup(generatorName))),
     `function("enterSymScope"): `local(isLocal): withParameters("scope")
+      : documentation("Enters a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) and [`mangle`](#mangle_1)")
       : body(invoke("enter"): withArgs(refLookup("scope")): on(refLookup(generatorName))),
     `function("exitSymScope"): `local(isLocal)
+      : documentation("Exists a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) and [`mangle`](#mangle_1)")
       : body(invoke("exit"): on(refLookup(generatorName)))
   )
+
+    # `function("mangle"): `local(isLocal): withParameters("name")
+    #   : documentation("""
+    #     Mangles the given name to ensure hygiene.
+    #
+    #     If the argument is a `LocalReference` or a `ReferenceLookup`, a new object with
+    #     the same type, but with a mangled name, is returned.
+    #   """),
+    #   : returns(...),

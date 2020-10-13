@@ -131,6 +131,11 @@ public final class SymbolGenerator implements Iterator<String> {
     return (old) -> String.valueOf(rnd.nextLong());
   }
 
+  public static Supplier<String> scopeCounter() {
+    AtomicLong counter = new AtomicLong();
+    return () -> String.valueOf(counter.getAndIncrement());
+  }
+
   /**
    * Returns the current thread ID as a String.
    *

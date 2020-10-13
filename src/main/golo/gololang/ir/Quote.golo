@@ -73,13 +73,21 @@ module gololang.ir.Quote
 
 import gololang.ir
 
-let SYMBOLS = DynamicVariable(org.eclipse.golo.compiler.SymbolGenerator("quoted"))
+let SYMBOLS = DynamicVariable(org.eclipse.golo.compiler.SymbolGenerator("gololang.ir.Quote"):
+withScopes(org.eclipse.golo.compiler.SymbolGenerator.scopeCounter()))
 
-local function mangle = |name, protected| -> match {
-  when protected is null then name
-  when protected: contains(name) then name
-  otherwise SYMBOLS: value(): getFor(name)
+local function _mangle = |name, protected| -> match {
+  when protected is null then ConstantStatement.of(name)
+  when protected: contains(name) then ConstantStatement.of(name)
+  otherwise FunctionInvocation.create("gololang.ir.Quote.mangle", false, false, false, ConstantStatement.of(name))
 }
+
+function mangle = |name| -> SYMBOLS: value(): getFor(name)
+function gensym = -> SYMBOLS: value(): next()
+function gensym =  |name| -> SYMBOLS: value(): next(name)
+function enterSymScope = |scope| { SYMBOLS: value(): enter(scope) }
+function enterSymScope = { SYMBOLS: value(): enter() }
+function exitSymScope = { SYMBOLS: value(): exit() }
 
 local function augmentProtected = |p, ns| {
   if p is null {
@@ -159,7 +167,7 @@ local function quoteThrow = |node, p| -> callIr("ThrowStatement.of")
   : withArgs(quoteNode(node: expression(), p))
 
 local function quoteLocalRef = |node, p| -> callIr("LocalReference.create"): withArgs(
-    ConstantStatement.of(mangle(node: name(), p)),
+    _mangle(node: name(), p),
     enumValue(node: kind()))
 
 local function quoteAssignment = |node, p| -> callIr("AssignmentStatement.create")
@@ -170,7 +178,7 @@ local function quoteAssignment = |node, p| -> callIr("AssignmentStatement.create
 
 local function quoteReference = |node, p| -> quoteLocalDeclaration(
   callIr("ReferenceLookup.of"): withArgs(
-    ConstantStatement.of(mangle(node: name(), p))),
+    _mangle(node: name(), p)),
   node: declarations(), p)
 
 local function quoteCollection = |node, p| -> quoteLocalDeclaration(
@@ -200,10 +208,10 @@ local function quoteMethodInvocation = |node, p| -> quoteLocalDeclaration(
   node: declarations(), p)
 
 local function quoteTryCatch = |node, p| -> callIr("TryCatchFinally.create"): withArgs(
-  ConstantStatement.of(match {
-    when node: hasCatchBlock() then mangle(node: exceptionId(), p)
-    otherwise null
-  }),
+  match {
+    when node: hasCatchBlock() then _mangle(node: exceptionId(), p)
+    otherwise ConstantStatement.of(null)
+  },
   quoteBlock(node: tryBlock(), p),
   match {
     when node: hasCatchBlock() then quoteBlock(node: catchBlock(), p)
@@ -445,9 +453,18 @@ See [`quoteNode`](#quoteNode_2).
 ----
 @contextual
 macro quote = |self, nodes...| {
-  SYMBOLS: value(): enter(manglePrefix(self))
-  let quoted = _quote_(set[], nodes)
-  SYMBOLS: value(): exit()
+  enterSymScope(manglePrefix(self))
+  let tmp = gensym("quoted")
+  let quoted = Block.block(
+    FunctionInvocation.create("gololang.ir.Quote.enterSymScope", false, false, false,
+                              ConstantStatement.of(manglePrefix(self))),
+    FunctionInvocation.create("gololang.ir.Quote.enterSymScope", false, false, false),
+    AssignmentStatement.create(tmp, _quote_(set[], nodes), true),
+    FunctionInvocation.create("gololang.ir.Quote.exitSymScope", false, false, false),
+    FunctionInvocation.create("gololang.ir.Quote.exitSymScope", false, false, false),
+    ReferenceLookup.of(tmp)
+  )
+  exitSymScope()
   return quoted
 }
 
@@ -464,6 +481,7 @@ local function manglePrefix = |invocation| {
     fun?: name() orIfNull "",
     fun?: arity() orIfNull 0)
 }
+
 ----
 Converts the given nodes to calls to builder functions.
 
