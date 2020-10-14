@@ -1017,7 +1017,7 @@ Fixed-point combinator.
 This is an abstraction of recursion.
 
 - *param* `f` the function that will recur
-- *retun* a function that makes recursive call to `f`
+- *return* a function that makes recursive call to `f`
 ----
 function recur = |f| -> (|x| -> f(|y| -> x(x)(y)))((|x| -> f(|y| -> x(x)(y))))
 

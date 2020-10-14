@@ -896,7 +896,9 @@ be invoked on arrays:
 - `head()` returns the first element of the array (or `null` if empty),
 - `tail()` returns a copy of the array without its first element (or an empty
   array if empty),
-- `isEmpty()` checks if the array is empty.
+- `isEmpty()` checks if the array is empty,
+- `contains(value)` checks if the array contains the given value,
+- `indexOf(value)` returns the index of the value in the array, or -1 if not present.
 
 Given a reference `a` on some array:
 

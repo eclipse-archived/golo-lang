@@ -76,5 +76,4 @@ public interface HeadTail<E> extends Iterable<E> {
   static <E> Iterable<E> toIterable(HeadTail<E> headTail) {
     return () -> new HeadTailIterator<>(headTail);
   }
-
 }

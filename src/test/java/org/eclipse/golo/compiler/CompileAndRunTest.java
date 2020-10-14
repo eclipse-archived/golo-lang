@@ -669,6 +669,9 @@ public class CompileAndRunTest {
 
     Method first_method = moduleClass.getMethod("first_method");
     assertThat((Integer) first_method.invoke(null), is(1));
+
+    assertThat((Object[]) moduleClass.getMethod("contains_index").invoke(null), arrayContaining(true, false, 2, -1));
+
   }
 
   @Test

@@ -65,6 +65,24 @@ local function _join = |this, separator| {
 # ............................................................................................... #
 
 ----
+Objects augmentations.
+----
+augment java.lang.Object {
+
+  ----
+  Checks if this object is an instance of one of the given class.
+  ----
+  function isOneOf = |this, classes...| {
+    foreach cls in classes {
+      if this oftype cls {
+        return true
+      }
+    }
+    return false
+  }
+}
+
+----
 Number augmentations.
 ----
 augment java.lang.Number {
@@ -291,6 +309,23 @@ augment java.util.Collection {
   * return a tuple of the values
   ----
   function destruct = |this| -> Tuple.fromArray(this: toArray())
+
+  ----
+  Maps a function returning a collection and flatten the result (a.k.a bind)
+
+      let l = list[1, 2, 3]: flatMap(|e| -> list[e, e, e])
+      require(l == list[1, 1, 1, 2, 2, 2, 3, 3, 3], "err")
+
+  - *param* `this`: a collection
+  - *param* `func`: a mapping function returning a collection
+  ----
+  function flatMap = |this, func| {
+    let result = this: newWithSameType()
+    foreach elt in this {
+      result: addAll(func(elt))
+    }
+    return result
+  }
 }
 
 # ............................................................................................... #
@@ -909,3 +944,11 @@ augment gololang.FunctionReference {
   function accept = |this, args...| -> this: invoke(args)
 }
 
+
+augment java.io.BufferedReader {
+
+  ----
+  Makes a `BufferedReader` an Iterable on its lines.
+  ----
+  function iterator = |this| -> gololang.IO$LinesIterator.of(this)
+}

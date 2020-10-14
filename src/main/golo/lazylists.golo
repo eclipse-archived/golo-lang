@@ -62,7 +62,6 @@ For example:
     let myList = cons(1, cons(2, cons(3, emptyList())))
 
 gives a lazy list equivalent to `list[1, 2, 3]`
-
 ----
 function cons = |head, tail| -> match {
   when isClosure(tail) then gololang.LazyList.cons(head, tail)

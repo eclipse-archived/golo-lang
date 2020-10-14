@@ -97,6 +97,14 @@ class ArrayMethodFinder extends MethodFinder {
         checkArity(0);
         return lookup.findStatic(
             ArrayHelper.class, "isEmpty", methodType(boolean.class, Object[].class));
+      case "contains":
+        checkArity(1);
+        return lookup.findStatic(
+            ArrayHelper.class, "contains", methodType(boolean.class, Object[].class, Object.class));
+      case "indexOf":
+        checkArity(1);
+        return lookup.findStatic(
+            ArrayHelper.class, "indexOf", methodType(int.class, Object[].class, Object.class));
       default:
         throw new UnsupportedOperationException(message("array_method_not_supported", invocation.name()));
     }

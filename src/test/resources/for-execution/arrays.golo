@@ -127,3 +127,12 @@ function first_method_empty = {
 function first_method = {
   return array[1, 2, 3]: first()
 }
+
+function contains_index = {
+  let a = array[1, 'a', "plop"]
+  return array[
+    a: contains('a'),
+    a: contains('z'),
+    a: indexOf("plop"),
+    a: indexOf("foo")]
+}

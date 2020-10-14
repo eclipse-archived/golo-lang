@@ -107,6 +107,7 @@ public final class PackageAndClass {
    * PackageAndClass inner = cls.createInnerClass("Egg"); // foo.bar.Spam$Egg
    * </code></pre>
    *
+   * @param name the name of the inner class.
    * @return a new {@code PackageAndClass} identifying an inner class of this class.
    */
   public PackageAndClass createInnerClass(String name) {
