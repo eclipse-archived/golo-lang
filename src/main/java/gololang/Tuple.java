@@ -14,6 +14,7 @@ import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 import org.eclipse.golo.runtime.InvalidDestructuringException;
+import org.eclipse.golo.runtime.ArrayHelper;
 
 /**
  * Represents an tuple object.
@@ -49,6 +50,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * @return a tuple from the array values.
    */
   public static Tuple fromArray(Object[] values) {
+    if (values.length == 0) { return EMPTY; }
     return new Tuple(values);
   }
 
@@ -212,24 +214,11 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * @return a tuple containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct) {
-    if (number < this.data.length && !substruct) {
-      throw InvalidDestructuringException.notEnoughValues(number, this.data.length, substruct);
+    Object[] destruct = ArrayHelper.newStyleDestruct(this.data, number, substruct);
+    if (number <= this.data.length + 1 && substruct) {
+      destruct[number - 1] = fromArray((Object[]) destruct[number - 1]);
     }
-    if (number == this.data.length && !substruct) {
-      return Arrays.copyOf(this.data, number);
-    }
-    if (number <= this.data.length && substruct) {
-      Object[] destruct = new Object[number];
-      System.arraycopy(this.data, 0, destruct, 0, number - 1);
-      destruct[number - 1] = this.subTuple(number - 1);
-      return destruct;
-    }
-    if (number == this.data.length + 1 && substruct) {
-      Object[] destruct = Arrays.copyOf(this.data, number);
-      destruct[number - 1] = EMPTY;
-      return destruct;
-    }
-    throw InvalidDestructuringException.tooManyValues(number);
+    return destruct;
   }
 
   /**
