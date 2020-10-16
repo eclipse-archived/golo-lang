@@ -10,19 +10,23 @@
 
 package gololang;
 
+import org.eclipse.golo.runtime.InvalidDestructuringException;
+
 /**
  * Base class for Golo union objects.
  * <p>
  * This class defines common behavior.
  */
 public abstract class Union {
+
+  private static final Object[] EMPTY = new Object[0];
   /**
    * Array conversion.
    *
    * @return an array containing the values (in member orders)
    */
   public Object[] toArray() {
-    return new Object[]{};
+    return EMPTY;
   }
 
   /**
@@ -44,8 +48,17 @@ public abstract class Union {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return a tuple containing the values to assign.
    */
-  public Tuple __$$_destruct(int number, boolean substruct) {
-    // TODO: new style destruct
-    return this.destruct();
+  public Object[] __$$_destruct(int number, boolean substruct) {
+    Object[] fields = toArray();
+    if (fields.length == 0) {
+      throw new InvalidDestructuringException("This union has no field");
+    }
+    if (number == fields.length && !substruct) {
+      return fields;
+    }
+    if (number <= fields.length) {
+      throw InvalidDestructuringException.notEnoughValues(number, fields.length, substruct);
+    }
+    throw InvalidDestructuringException.tooManyValues(number);
   }
 }

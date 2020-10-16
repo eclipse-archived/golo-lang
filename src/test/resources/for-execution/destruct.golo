@@ -237,6 +237,7 @@ function test_map = {
 union MyUnion = {
   Foo = { x, y }
   Bar = { a, b, c }
+  Void
 }
 
 function test_union = {
@@ -250,6 +251,43 @@ function test_union = {
   require(a == "a", "err")
   require(b == "b", "err")
   require(c == "c", "err")
+}
+
+function test_union_bad = {
+  try {
+    let a, b, c = MyUnion.Foo(1, 2)
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+
+  try {
+    let a, b, c... = MyUnion.Foo(1, 2)
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+
+  try {
+    let a, b, c... = MyUnion.Bar(1, 2, 3)
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+
+  try {
+    let a, b = MyUnion.Bar(1, 2, 3)
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+
+  try {
+    let a, b = MyUnion.Void()
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
 }
 
 function test_swap = {

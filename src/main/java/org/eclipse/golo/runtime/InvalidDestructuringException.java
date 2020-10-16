@@ -27,13 +27,13 @@ public class InvalidDestructuringException extends IllegalArgumentException {
 
   public static InvalidDestructuringException tooManyValues(int expected) {
     return new InvalidDestructuringException(String.format(
-          "Invalid destructuring: too many values (expecting %d).",
+          "too many values (expecting %d).",
             expected));
   }
 
   public static InvalidDestructuringException notEnoughValues(int expected, int available, boolean sub) {
     return new InvalidDestructuringException(String.format(
-          "Invalid destructuring: not enough values (expecting%s %d and got %d).",
+          "not enough values (expecting%s %d and got %d).",
             sub ? " at least" : "",
             sub ? expected - 1 : expected,
             available));
