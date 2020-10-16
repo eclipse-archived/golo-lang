@@ -1,68 +1,115 @@
 
 module golotest.execution.Destructuring
 
+import org.hamcrest.MatcherAssert
+import org.hamcrest.Matchers
+
+import org.eclipse.golo.runtime
+
 struct Point = { x, y }
 
 struct Triplet = {a, b, c}
 
 local function fail = {
-  throw AssertionError("Test should fail")
+throw AssertionError("Test should fail")
 }
 
 function test_tuple_samesize = {
-  let a, b, c = [1, 2, 3]
-  require(a == 1, "err")
-  require(b == 2, "err")
-  require(c == 3, "err")
+let a, b, c = [1, 2, 3]
+assertThat(a, `is(1))
+assertThat(b, `is(2))
+assertThat(c, `is(3))
+}
+
+function test_tuple_samesize_with_sub = {
+let a, b, c... = [1, 2, 3]
+assertThat(a, `is(1))
+assertThat(b, `is(2))
+assertThat(c, `is([3]))
 }
 
 function test_tuple_var = {
-  var a, b, c = [1, 2, 3]
-  require(a == 1, "err")
-  require(b == 2, "err")
-  require(c == 3, "err")
-  a = 4
-  b = 5
-  c = 6
-  require(a == 4, "err")
-  require(b == 5, "err")
-  require(c == 6, "err")
+var a, b, c = [1, 2, 3]
+require(a == 1, "err")
+require(b == 2, "err")
+require(c == 3, "err")
+a = 4
+b = 5
+c = 6
+require(a == 4, "err")
+require(b == 5, "err")
+require(c == 6, "err")
 }
 
 function test_tuple_rest = {
-  let fst, scd, rest... = [1, 2, 3, 4, 5]
-  require(fst == 1, "err")
-  require(scd == 2, "err")
-  require(rest == [3, 4, 5], "err")
+let a, b, c... = [1, 2, 3, 4, 5]
+assertThat(a, `is(1))
+assertThat(b, `is(2))
+assertThat(c, `is([3, 4, 5]))
 }
 
 # ignored, old version. Should fail now.
 function _tuple_less_old = {
-  let fst, scd = [1, 2, 3, 4]
-  require(fst == 1, "err")
-  require(scd == 2, "err")
+let fst, scd = [1, 2, 3, 4]
+require(fst == 1, "err")
+require(scd == 2, "err")
 }
 
 function test_tuple_less_new = {
-  try {
-    let fst, scd = [1, 2, 3, 4]
-    fail()
-  } catch(e) {
-    require(e: message(): contains("Non exact destructuring"), "err")
-  }
+try {
+  let fst, scd = [1, 2, 3, 4]
+  fail()
+} catch(e) {
+  assertThat(e, isA(InvalidDestructuringException.class))
+}
+}
+
+function test_tuple_more_with_sub = {
+let a, b, c... = [1, 2]
+assertThat(a, `is(1))
+assertThat(b, `is(2))
+assertThat(c, `is([]))
+}
+
+function test_tuple_more = {
+try {
+  let a, b, c = [1, 2]
+  fail()
+} catch(e) {
+  assertThat(e, isA(InvalidDestructuringException.class))
+}
+}
+
+function test_tuple_many_more_with_sub = {
+try {
+  let a, b, c, d... = [1, 2]
+  fail()
+} catch(e) {
+  assertThat(e, isA(InvalidDestructuringException.class))
+}
+}
+
+function test_tuple_many_more = {
+try {
+  let a, b, c, d = [1, 2]
+  fail()
+} catch(e) {
+  assertThat(e, isA(InvalidDestructuringException.class))
+}
 }
 
 
-function test_struct = {
-  let p = Point(3, 4)
-  let x, y = p
-  require(x == 3, "err")
-  require(y == 4, "err")
 
-  let a, b, c = Triplet(5, 6, 7)
-  require(a == 5, "err")
-  require(b == 6, "err")
-  require(c == 7, "err")
+function test_struct = {
+let p = Point(3, 4)
+let x, y = p
+require(x == 3, "err")
+require(y == 4, "err")
+
+let a, b, c = Triplet(5, 6, 7)
+require(a == 5, "err")
+require(b == 6, "err")
+require(c == 7, "err")
 }
 
 function test_struct_not_exact = {
@@ -70,21 +117,21 @@ function test_struct_not_exact = {
     let x, y = Triplet(1, 2, 3)
     fail()
   } catch(e) {
-    require(e: message(): contains("Non exact destructuring"), "err")
+    assertThat(e, isA(InvalidDestructuringException.class))
   }
 
   try {
     let a, b, c, d = Triplet(4, 5, 6)
     fail()
   } catch(e) {
-    require(e: message(): contains("Non exact destructuring"), "err")
+    assertThat(e, isA(InvalidDestructuringException.class))
   }
 
   try {
     let a, b, c... = Triplet(4, 5, 6)
     fail()
   } catch(e) {
-    require(e: message(): contains("Non exact destructuring"), "err")
+    assertThat(e, isA(InvalidDestructuringException.class))
   }
 }
 
