@@ -30,6 +30,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   private final SymbolGenerator symbols = new SymbolGenerator("golo.compiler.sugar");
   private final List<GoloFunction> functionsToAdd = new LinkedList<>();
   private GoloModule module;
+  private final boolean useNewStyleDestruct = gololang.Runtime.loadBoolean("new", "golo.destruct.version", "GOLO_DESTRUCT_VERSION", false);
 
   @Override
   public void visitModule(GoloModule module) {
@@ -236,6 +237,9 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     }
   }
 
+  /**
+   * Converts a literal function reference into a call to {@Predefined.fun}.
+   */
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     constantStatement.walk(this);
@@ -373,8 +377,19 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
   /**
    * Destructuring assignment expansion.
+   */
+  @Override
+  public void visitDestructuringAssignment(DestructuringAssignment assignment) {
+    Block replacement = useNewStyleDestruct ? newDestructuring(assignment) : oldDestructuring(assignment);
+    assignment.replaceInParentBy(replacement);
+    replacement.accept(this);
+  }
+
+  /**
+   * Destructuring assignment expansion.
+   * <p>Old version (before 3.4.0)
    * <p>
-   * convert code like
+   * Converts code like
    * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let a, b, c... = expr
    * </code></pre>
@@ -386,8 +401,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * let c = tmp: subTuple(2)
    * </code></pre>
    */
-  @Override
-  public void visitDestructuringAssignment(DestructuringAssignment assignment) {
+  private Block oldDestructuring(DestructuringAssignment assignment) {
     LocalReference tmpRef = LocalReference.of(symbols.next("destruct")).synthetic();
     Block block = Block.of(AssignmentStatement.create(tmpRef, invoke("destruct").on(assignment.expression()), true));
     int last = assignment.getReferencesCount() - 1;
@@ -402,8 +416,44 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
             assignment.isDeclaring()));
       idx++;
     }
-    assignment.replaceInParentBy(block);
-    block.accept(this);
+    return block;
+  }
+
+  /**
+   * Destructuring assignment expansion.
+   * <p>Old version (after 3.4.0)
+   * <p>
+   * Converts code like
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let a, b, c... = expr
+   * </code></pre>
+   * into something equivalent to
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let tmp = expr: __$$_destruct(3, true)
+   * let a = tmp: get(0)
+   * let b = tmp: get(1)
+   * let c = tmp: get(2)
+   * </code></pre>
+   */
+  private Block newDestructuring(DestructuringAssignment assignment) {
+    LocalReference tmpRef = LocalReference.of(symbols.next("destruct")).synthetic();
+    Block block = Block.of(AssignmentStatement.create(tmpRef,
+          invoke("__$$_destruct")
+          .withArgs(
+            ConstantStatement.of(assignment.getReferencesCount()),
+            ConstantStatement.of(assignment.isVarargs()))
+          .on(assignment.expression()),
+        true));
+    int idx = 0;
+    for (LocalReference ref : assignment.getReferences()) {
+      block.add(
+          AssignmentStatement.create(
+            ref,
+            invoke("get").withArgs(ConstantStatement.of(idx)).on(tmpRef.lookup()),
+            assignment.isDeclaring()));
+      idx++;
+    }
+    return block;
   }
 
   /**
