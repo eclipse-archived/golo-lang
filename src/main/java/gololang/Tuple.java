@@ -13,6 +13,7 @@ package gololang;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * Represents an tuple object.
@@ -27,6 +28,8 @@ import java.util.NoSuchElementException;
  * </code></pre>
  */
 public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
+
+  private static final Tuple EMPTY = new Tuple();
 
   private final Object[] data;
 
@@ -181,7 +184,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
   }
 
   /**
-   * Returns a new tuple containg the remaining elements.
+   * Returns a new tuple containing the remaining elements.
    *
    * @return a tuple.
    */
@@ -208,20 +211,25 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return a tuple containing the values to assign.
    */
-  public Tuple __$$_destruct(int number, boolean substruct) {
-    // TODO: defines a specific exception?
-    // TODO: localize the error message?
-    if (number == this.data.length) {
-      return this;
+  public Object[] __$$_destruct(int number, boolean substruct) {
+    if (number < this.data.length && !substruct) {
+      throw InvalidDestructuringException.notEnoughValues(number, this.data.length, substruct);
     }
-    if (number < this.data.length && substruct) {
+    if (number == this.data.length && !substruct) {
+      return Arrays.copyOf(this.data, number);
+    }
+    if (number <= this.data.length && substruct) {
       Object[] destruct = new Object[number];
       System.arraycopy(this.data, 0, destruct, 0, number - 1);
       destruct[number - 1] = this.subTuple(number - 1);
-      return fromArray(destruct);
+      return destruct;
     }
-    throw new Error(String.format("Non exact destructuring: this tuple has %d values.", this.data.length));
-
+    if (number == this.data.length + 1 && substruct) {
+      Object[] destruct = Arrays.copyOf(this.data, number);
+      destruct[number - 1] = EMPTY;
+      return destruct;
+    }
+    throw InvalidDestructuringException.tooManyValues(number);
   }
 
   /**

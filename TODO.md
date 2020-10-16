@@ -11,9 +11,9 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
 - [x] Adds a custom exception to signal invalid destructuring
 - [ ] update the known `destruct()` method in the stdlib
   - [ ] provides a new destructuring method
-    - [ ] Tuple
+    - [x] Tuple
+    - [x] struct
     - [ ] array
-    - [ ] struct
     - [ ] union
     - [ ] iter/collections
     - [ ] Result

@@ -11,6 +11,7 @@
 package gololang;
 
 import java.util.Iterator;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * Base class for Golo structure objects.
@@ -76,17 +77,14 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return a tuple containing the values to assign.
    */
-  public Tuple __$$_destruct(int number, boolean substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct) {
     if (number == this.members.length && !substruct) {
-      return Tuple.fromArray(toArray());
+      return toArray();
     }
-    // TODO: defines a specific exception?
-    // TODO: localize the error message?
-    throw new Error(String.format("Non exact destructuring: %s with %d fields destructured into %d variables%s.",
-          this.getClass().getName(),
-          this.members.length,
-          number,
-          substruct ? " with sub structure" : ""));
+    if (number <= this.members.length) {
+      throw InvalidDestructuringException.notEnoughValues(number, this.members.length, substruct);
+    }
+    throw InvalidDestructuringException.tooManyValues(number);
   }
 
   /**
