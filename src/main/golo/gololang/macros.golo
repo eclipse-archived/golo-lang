@@ -133,7 +133,7 @@ See also [`gololang.meta.Annotations::makeDeprecated`](meta/Annotations.html#mak
 macro deprecated = |args...| {
   # TODO: generate a list of deprecated functions and types (a la javadoc) ?
   # TODO: when swithching to java >= 9, adds the `since` and `forRemoval` arguments to the annotation
-  let positional, named = parseArguments(args)
+  let positional, named, _ = parseArguments(args)
   require(positional: size() > 0, "`deprecated` macro must be applied on an element")
   return gololang.meta.Annotations.makeDeprecated(
       named: get("since")?: value(),

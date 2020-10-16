@@ -359,7 +359,7 @@ See [`parseArguments`](../macros/Utils.html#parseArguments_1),
     [`getLiteralValue`](../macros/Utils.html#getLiteralValue_1)
 ----
 function extractAnnotationArguments = |annotation, args| {
-  let p, n = parseArguments(args)
+  let p, n, _ = parseArguments(args)
   let namedMap, unknown = extractAnnotationNamedArguments(annotation, n)
   let positionnals, elements = filterPositionnalArguments(p)
   let fields = extractAnnotationFields(annotation)

@@ -13,7 +13,7 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
   - [ ] provides a new destructuring method
     - [x] Tuple
     - [x] struct
-    - [ ] array
+    - [x] array
     - [ ] union
     - [ ] iter/collections
     - [ ] Result
@@ -25,9 +25,4 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
   - [ ] if applicable, use the new one in the old one
 - [ ] provides augmentations to adapt both ways
 - [ ] update the doc
-
-## DOING
-
-throwing the sepecific exception in tuple and struct
- -> stash implementing for array
 

@@ -122,7 +122,7 @@ function test_parseArguments = {
   var l, m, r = [null, null, null]
 
 
-  l, m = parseArguments(args, false)
+  l, m, r = parseArguments(args, false)
   assertThat(
     array[c: value() foreach c in l],
   `is(
@@ -221,9 +221,9 @@ function test_thisModule = {
 }
 
 function main = |args| {
-  # test_parseArguments()
+  test_parseArguments()
   # test_extractLastArgument()
   # test_namedArgsToMap()
   # test_toplevel()
-  test_thisModule()
+  # test_thisModule()
 }
