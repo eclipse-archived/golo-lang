@@ -68,6 +68,10 @@ class ArrayMethodFinder extends MethodFinder {
       case "destruct":
         checkArity(0);
         return lookup.findStatic(gololang.Tuple.class, "fromArray", methodType(gololang.Tuple.class, Object[].class));
+      case "__$$_destruct":
+        checkArity(2);
+        return lookup.findStatic(
+            ArrayHelper.class, "newStyleDestruct", methodType(gololang.Tuple.class, Object[].class, int.class, boolean.class));
       case "equals":
         checkArity(1);
         return lookup.findStatic(Arrays.class, "equals",

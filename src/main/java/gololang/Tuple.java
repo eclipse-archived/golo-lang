@@ -194,8 +194,35 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * Helper for destructuring.
    *
    * @return the tuple itself
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
   public Tuple destruct() { return this; }
+
+  /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return a tuple containing the values to assign.
+   */
+  public Tuple __$$_destruct(int number, boolean substruct) {
+    // TODO: defines a specific exception?
+    // TODO: localize the error message?
+    if (number == this.data.length) {
+      return this;
+    }
+    if (number < this.data.length && substruct) {
+      Object[] destruct = new Object[number];
+      System.arraycopy(this.data, 0, destruct, 0, number - 1);
+      destruct[number - 1] = this.subTuple(number - 1);
+      return fromArray(destruct);
+    }
+    throw new Error(String.format("Non exact destructuring: this tuple has %d values.", this.data.length));
+
+  }
 
   /**
    * Extract a sub-tuple.

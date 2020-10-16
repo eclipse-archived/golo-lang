@@ -81,6 +81,11 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
   public Tuple destruct() {
     return new Tuple(condition, action);
   }
+
+  public Tuple __$$_destruct(int number, boolean substruct) {
+    // TODO: new style destruct
+    return this.destruct();
+  }
 }
 
 

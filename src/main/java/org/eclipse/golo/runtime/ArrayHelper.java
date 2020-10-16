@@ -12,6 +12,7 @@ package org.eclipse.golo.runtime;
 
 import java.util.NoSuchElementException;
 import java.util.Objects;
+import gololang.Tuple;
 import static java.util.Arrays.copyOfRange;
 
 public final class ArrayHelper {
@@ -68,5 +69,10 @@ public final class ArrayHelper {
       }
     }
     return -1;
+  }
+
+  public static Tuple newStyleDestruct(Object[] array, int number, boolean sub) {
+    // TODO: new style destructuring on arrays
+    return Tuple.fromArray(array);
   }
 }

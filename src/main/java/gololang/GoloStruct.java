@@ -60,9 +60,33 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * Destructuration helper.
    *
    * @return a tuple with the current values.
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
   public Tuple destruct() {
     return Tuple.fromArray(toArray());
+  }
+
+  /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return a tuple containing the values to assign.
+   */
+  public Tuple __$$_destruct(int number, boolean substruct) {
+    if (number == this.members.length && !substruct) {
+      return Tuple.fromArray(toArray());
+    }
+    // TODO: defines a specific exception?
+    // TODO: localize the error message?
+    throw new Error(String.format("Non exact destructuring: %s with %d fields destructured into %d variables%s.",
+          this.getClass().getName(),
+          this.members.length,
+          number,
+          substruct ? " with sub structure" : ""));
   }
 
   /**

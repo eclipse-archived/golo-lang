@@ -311,6 +311,34 @@ augment java.util.Collection {
   function destruct = |this| -> Tuple.fromArray(this: toArray())
 
   ----
+  New style destructuring helper.
+
+  New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+  members of the structure.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
+  - *return* a tuple containing the values to assign.
+  ----
+  function __$$_destruct = |this, number, substruct| {
+    # TODO: new style destruct
+    if substruct {
+      let a = newTypedArray(Object.class, number)
+      let r = _newWithSameType(this)
+      a: set(number - 1, r)
+      let it = this: iterator()
+      for (var i = 0, i < number - 1, i = i + 1) {
+        a: set(i, it: next())
+      }
+      while (it: hasNext()) {
+        r: add(it: next())
+      }
+      return Tuple.fromArray(a)
+    }
+    return this: destruct()
+  }
+
+  ----
   Maps a function returning a collection and flatten the result (a.k.a bind)
 
       let l = list[1, 2, 3]: flatMap(|e| -> list[e, e, e])
@@ -320,7 +348,7 @@ augment java.util.Collection {
   - *param* `func`: a mapping function returning a collection
   ----
   function flatMap = |this, func| {
-    let result = this: newWithSameType()
+    let result = _newWithSameType(this)
     foreach elt in this {
       result: addAll(func(elt))
     }
@@ -861,6 +889,21 @@ augment java.util.Map$Entry {
   Destructurate a map entry in key and value
   ----
   function destruct = |this| -> [ this: getKey(), this: getValue() ]
+
+  ----
+  New style destructuring helper.
+
+  New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+  members of the structure.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
+  - *return* a tuple containing the values to assign.
+  ----
+  function __$$_destruct = |this, number, substruct| {
+    # TODO: new style destruct
+    return this: destruct()
+  }
 
   ----
   Convert then entry into an array containing the key and the value.

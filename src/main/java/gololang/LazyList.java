@@ -243,6 +243,21 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
   }
 
   /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return a tuple containing the values to assign.
+   */
+  public Tuple __$$_destruct(int number, boolean substruct) {
+    // TODO: new style destruct
+    return this.destruct();
+  }
+
+  /**
    * Returns the element at the specified position in this list.
    * <p>
    * Note that it evaluates the list up to the required element.

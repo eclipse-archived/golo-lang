@@ -661,5 +661,20 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
     return new Tuple(error, value);
   }
 
+  /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return a tuple containing the values to assign.
+   */
+  public Tuple __$$_destruct(int number, boolean substruct) {
+    // TODO: new style destruct
+    return this.destruct();
+  }
+
 }
 

@@ -30,7 +30,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   private final SymbolGenerator symbols = new SymbolGenerator("golo.compiler.sugar");
   private final List<GoloFunction> functionsToAdd = new LinkedList<>();
   private GoloModule module;
-  private final boolean useNewStyleDestruct = gololang.Runtime.loadBoolean("new", "golo.destruct.version", "GOLO_DESTRUCT_VERSION", false);
+  private final boolean useNewStyleDestruct = gololang.Runtime.loadBoolean("new", "golo.destruct.version", "GOLO_DESTRUCT_VERSION", true);
 
   @Override
   public void visitModule(GoloModule module) {
