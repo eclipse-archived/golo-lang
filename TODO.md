@@ -9,18 +9,18 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
 - [x] implement the new desugarization
   - [ ] allows to explicitly skip the rest (e.g. with special arg `_`) to avoid generating an unused (recursive) member
 - [x] Adds a custom exception to signal invalid destructuring
-- [ ] update the known `destruct()` method in the stdlib
-  - [ ] provides a new destructuring method
+- update the known `destruct()` method in the stdlib
+  - provides a new destructuring method
     - [x] Tuple
     - [x] struct
     - [x] array
-    - [ ] union
+    - [x] union
     - [ ] iter/collections
-    - [ ] Result
-    - [ ] map item
-    - [ ] lazy lists
+    - [x] Result
+    - [x] map item
+    - [x] lazy lists
     - [ ] ranges
-    - [ ] When IR
+    - [x] When IR
   - [ ] mark the old one deprecated (may depend on PR #551 to annotated golo code)
   - [ ] if applicable, use the new one in the old one
 - [ ] provides augmentations to adapt both ways

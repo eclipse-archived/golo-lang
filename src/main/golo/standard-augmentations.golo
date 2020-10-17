@@ -901,8 +901,10 @@ augment java.util.Map$Entry {
   - *return* a tuple containing the values to assign.
   ----
   function __$$_destruct = |this, number, substruct| {
-    # TODO: new style destruct
-    return this: destruct()
+    if (number == 2 and not substruct) {
+      return array[this: getKey(), this: getValue()]
+    }
+    throw org.eclipse.golo.runtime.InvalidDestructuringException("A Map.Entry must destructure to exactly two values")
   }
 
   ----

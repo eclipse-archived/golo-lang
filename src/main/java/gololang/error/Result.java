@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import gololang.Tuple;
 import gololang.FunctionReference;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * A container object which represent the result of a maybe failing operation.
@@ -671,9 +672,11 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return a tuple containing the values to assign.
    */
-  public Tuple __$$_destruct(int number, boolean substruct) {
-    // TODO: new style destruct
-    return this.destruct();
+  public Object[] __$$_destruct(int number, boolean substruct) {
+    if (number == 2 && !substruct) {
+      return new Object[]{error, value};
+    }
+    throw new InvalidDestructuringException("A Result must destructure to exactly two values");
   }
 
 }

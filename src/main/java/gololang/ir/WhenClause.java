@@ -13,6 +13,7 @@ package gololang.ir;
 import java.util.Arrays;
 import java.util.List;
 import gololang.Tuple;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 public final class WhenClause<T extends GoloElement<?>> extends GoloElement<WhenClause<T>> {
   private ExpressionStatement<?> condition;
@@ -82,9 +83,11 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
     return new Tuple(condition, action);
   }
 
-  public Tuple __$$_destruct(int number, boolean substruct) {
-    // TODO: new style destruct
-    return this.destruct();
+  public Object[] __$$_destruct(int number, boolean substruct) {
+    if (number == 2 && !substruct) {
+      return new Object[]{condition, action};
+    }
+    throw new InvalidDestructuringException("A WhenClause must destructure to exactly two values");
   }
 }
 
