@@ -12,6 +12,11 @@
 module golo.test.LazyList
 
 import gololang.LazyLists
+import org.hamcrest.MatcherAssert
+import org.hamcrest.Matchers
+
+import org.eclipse.golo.runtime
+
 
 local function longLL = ->
       LazyList.cons(1, -> LazyList.cons(2, -> LazyList.cons(3, -> LazyList.cons(4, -> LazyList.cons(5, -> emptyList())))))
@@ -171,6 +176,59 @@ function test_dropWhile = -> [
   [list[4, 5], longL(), list[]]
 ]
 
+local function fail = {
+  throw AssertionError("Test should fail")
+}
+
+function test_destruct = {
+  let a, b... = longLL()
+  assertThat(a, `is(longLL(): head()))
+  assertThat(b, `is(longLL(): tail()))
+
+  let x, y, z... = longLL()
+  assertThat(x, `is(longLL(): head()))
+  assertThat(y, `is(longLL(): tail(): head()))
+  assertThat(z, `is(longLL(): tail(): tail()))
+
+  let c, d, e, f, g = longLL()
+  assertThat(c, `is(1))
+  assertThat(d, `is(2))
+  assertThat(e, `is(3))
+  assertThat(f, `is(4))
+  assertThat(g, `is(5))
+
+  let h, i, j, k, l... = longLL()
+  assertThat(h, `is(1))
+  assertThat(i, `is(2))
+  assertThat(j, `is(3))
+  assertThat(k, `is(4))
+  assertThat(l: head(), `is(5))
+
+  let c1, d1, e1, f1, g1, h1... = longLL()
+  assertThat(c1, `is(1))
+  assertThat(d1, `is(2))
+  assertThat(e1, `is(3))
+  assertThat(f1, `is(4))
+  assertThat(g1, `is(5))
+  assertThat(h1, `is(empty()))
+
+  try {
+    let v, w = longLL()
+    fail()
+  } catch(e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+
+  try {
+    let m, n, o, p, q, r = longLL()
+    fail()
+  } catch(e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+
+}
+
+
 function main = |args| {
   require(test_empty(), "err: test_empty")
   require(test_head(): get(0) == test_head(): get(1), "err: test_head")
@@ -205,4 +263,5 @@ function main = |args| {
   require(test_takeWhile(): get(0) == test_takeWhile(): get(1), "err: test_takeWhile")
   require(test_drop(): get(0) == test_drop(): get(1), "err: test_drop")
   require(test_dropWhile(): get(0) == test_dropWhile(): get(1), "err: test_dropWhile")
+  test_destruct()
 }

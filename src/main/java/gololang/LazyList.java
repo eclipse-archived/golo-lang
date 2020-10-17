@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import org.eclipse.golo.runtime.InvalidDestructuringException;
+
 /**
  * Represents a lazy list object.
  * <p>
@@ -252,9 +254,27 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return a tuple containing the values to assign.
    */
-  public Tuple __$$_destruct(int number, boolean substruct) {
-    // TODO: new style destruct
-    return this.destruct();
+  public Object[] __$$_destruct(int number, boolean substruct) {
+    Object[] destruct = new Object[number];
+    LazyList current = this;
+    for (int i = 0; i < number - 1; i++) {
+      if (current.isEmpty()) {
+        throw InvalidDestructuringException.tooManyValues(number);
+      }
+      destruct[i] = current.head();
+      current = current.tail();
+    }
+    if (substruct) {
+      destruct[number - 1] = current;
+    } else if (current.isEmpty()) {
+      throw InvalidDestructuringException.tooManyValues(number);
+    } else {
+      destruct[number - 1] = current.head();
+      if (!current.tail().isEmpty()) {
+        throw InvalidDestructuringException.notEnoughValues(number, substruct);
+      }
+    }
+    return destruct;
   }
 
   /**
