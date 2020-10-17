@@ -197,16 +197,52 @@ function test_array_more_with_sub = {
   assertThat(c, `is(emptyArray()))
 }
 
-# function test_range = {
-#   let fst, scd, rest... = [1..6]
-#   require(fst == 1, "err")
-#   require(scd == 2, "err")
-#   require(rest == [3, 4, 5], "err")
-#
-#   let a, b = [1..4]
-#   require(a == 1, "err")
-#   require(b == 2, "err")
-# }
+function test_range_1 = {
+  let f, s, r... = [1..6]
+  assertThat(f, `is(1))
+  assertThat(s, `is(2))
+  assertThat(r, `is([3..6]))
+}
+
+function test_range_2 = {
+  let x, y, z = [0..3]
+  assertThat(x, `is(0))
+  assertThat(y, `is(1))
+  assertThat(z, `is(2))
+}
+
+function test_range_3 = {
+  let c, d, e... = [0..3]
+  assertThat(c, `is(0))
+  assertThat(d, `is(1))
+  assertThat(e, `is([2..3]))
+}
+
+function test_range_4 = {
+  let g, h, i, j... = [0..3]
+  assertThat(g, `is(0))
+  assertThat(h, `is(1))
+  assertThat(i, `is(2))
+  assertThat(j, `is(emptyIterable()))
+}
+
+function test_range_5 = {
+  try {
+    let a, b = [1..4]
+    fail()
+  } catch(e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_range_6 = {
+  try {
+    let k, l, m, n = [0..3]
+    fail()
+  } catch(e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
 
 function test_foreach = {
   let l = list[ [1, 2, 3], [3, 4, 5] ]

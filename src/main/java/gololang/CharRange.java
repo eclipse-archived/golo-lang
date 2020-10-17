@@ -95,4 +95,12 @@ final class CharRange extends AbstractRange<Character> {
       }
     };
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Range<Character> newStartingFrom(Character newStart) {
+    return new CharRange(newStart, this.to()).incrementBy(this.increment());
+  }
 }

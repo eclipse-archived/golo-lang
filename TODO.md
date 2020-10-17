@@ -19,7 +19,7 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
     - [x] Result
     - [x] map item
     - [x] lazy lists
-    - [ ] ranges
+    - [x] ranges
     - [x] When IR
   - [ ] mark the old one deprecated (may depend on PR #551 to annotated golo code)
   - [ ] if applicable, use the new one in the old one

@@ -97,4 +97,12 @@ final class IntRange extends AbstractRange<Integer> {
       }
     };
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Range<Integer> newStartingFrom(Integer newStart) {
+    return new IntRange(newStart, this.to()).incrementBy(this.increment());
+  }
 }

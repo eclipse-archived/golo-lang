@@ -13,6 +13,8 @@ package gololang;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Objects;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -110,18 +112,14 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     }
     @SuppressWarnings("rawtypes")
     Range otherRange = (Range) other;
-    return this.from().equals(otherRange.from())
-           && this.to().equals(otherRange.to())
-           && this.increment() == otherRange.increment();
+    return this.from.equals(otherRange.from())
+           && this.to.equals(otherRange.to())
+           && this.increment == otherRange.increment();
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(new int[]{
-      this.from().hashCode(),
-      this.to().hashCode(),
-      this.increment()}
-    );
+    return Objects.hash(this.from, this.to, this.increment);
   }
 
   @Override
@@ -157,8 +155,35 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return a tuple containing the values to assign.
    */
-  public Tuple __$$_destruct(int number, boolean substruct) {
-    // TODO: new style destruct
-    return this.destruct();
+  public Object[] __$$_destruct(int number, boolean substruct) {
+    if (number < size() && !substruct) {
+      throw InvalidDestructuringException.notEnoughValues(number, size(), substruct);
+    }
+    if (number == size() && !substruct) {
+      return toArray();
+    }
+    if (number <= size() && substruct) {
+      Object[] d = new Object[number];
+      Iterator<T> it = this.iterator();
+      for (int i = 0; i < number - 1; i++) {
+        d[i] = it.next();
+      }
+      d[number - 1] = newStartingFrom(it.next());
+      return d;
+    }
+    if (number == size() + 1 && substruct) {
+      Object[] d = Arrays.copyOf(toArray(), number);
+      d[number - 1] = newStartingFrom(to());
+      return d;
+    }
+    throw InvalidDestructuringException.tooManyValues(number);
   }
+
+  /**
+   * Returns a copy of this range with a new starting value.
+   *
+   * <p>There is no check that the {@code newStart} value is compatible with the current start and increment. It is
+   * therefore possible that the new range yields different values than the original.
+   */
+  public abstract Range<T> newStartingFrom(T newStart);
 }
