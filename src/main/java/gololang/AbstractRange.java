@@ -135,6 +135,11 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     return from.compareTo(to) >= 0;
   }
 
+  /**
+   * Destructuring helper.
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
+   */
+  @Deprecated
   public Tuple destruct() {
     Object[] data = new Object[this.size()];
     int i = 0;
@@ -153,7 +158,7 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
-   * @return a tuple containing the values to assign.
+   * @return an array containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct) {
     if (number < size() && !substruct) {

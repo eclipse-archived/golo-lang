@@ -21,8 +21,11 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
     - [x] lazy lists
     - [x] ranges
     - [x] When IR
-  - [ ] mark the old one deprecated (may depend on PR #551 to annotated golo code)
-  - [ ] if applicable, use the new one in the old one
-- [ ] provides augmentations to adapt both ways
+  - [x] mark the old one deprecated (may depend on PR #551 to annotate golo code)
+    - [ ] use the real deprecated macro when #551 is merged
+- [ ] provides augmentations to adapt both ways ?
 - [ ] update the doc
+  - [ ] describe new style destruct
+  - [ ] rationale
+  - [ ] document feature flag
 

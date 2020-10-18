@@ -239,7 +239,9 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * Destructuration helper.
    *
    * @return a tuple of head and tail
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() {
     return new Tuple(head(), tail());
   }
@@ -252,7 +254,7 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
-   * @return a tuple containing the values to assign.
+   * @return an array containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct) {
     Object[] destruct = new Object[number];

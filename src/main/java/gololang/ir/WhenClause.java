@@ -79,10 +79,25 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
     return Arrays.asList(condition, action);
   }
 
+  /**
+   * Destructuring helper.
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
+   */
+  @Deprecated
   public Tuple destruct() {
     return new Tuple(condition, action);
   }
 
+  /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return an array containing the values to assign.
+   */
   public Object[] __$$_destruct(int number, boolean substruct) {
     if (number == 2 && !substruct) {
       return new Object[]{condition, action};

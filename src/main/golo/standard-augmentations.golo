@@ -318,9 +318,14 @@ augment java.util.Collection {
   ----
   Destructuration helper.
 
-  * return a tuple of the values
+  - returns a tuple of the values
+
+  *Deprecated since 3.4. This method should not be called directly and is no more used by new style destructuring.
   ----
-  function destruct = |this| -> Tuple.fromArray(this: toArray())
+  function destruct = |this| {
+    org.eclipse.golo.runtime.Warnings.deprecatedElement("destruct", "gololang.StandardAugmentations.Collection")
+    return Tuple.fromArray(this: toArray())
+  }
 
   ----
   New style destructuring helper.
@@ -330,7 +335,7 @@ augment java.util.Collection {
 
   - *param* `number`: number of variable that will be affected.
   - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
-  - *return* a tuple containing the values to assign.
+  - *return* an array containing the values to assign.
   ----
   function __$$_destruct = |this, number, substruct| {
     if number < this: size() and not substruct {
@@ -912,8 +917,13 @@ augment java.util.Map {
 augment java.util.Map$Entry {
   ----
   Destructurate a map entry in key and value
+
+  *Deprecated since 3.4. This method should not be called directly and is no more used by new style destructuring.
   ----
-  function destruct = |this| -> [ this: getKey(), this: getValue() ]
+  function destruct = |this| {
+    org.eclipse.golo.runtime.Warnings.deprecatedElement("destruct", "gololang.StandardAugmentations.Map.Entry")
+    return [ this: getKey(), this: getValue() ]
+  }
 
   ----
   New style destructuring helper.

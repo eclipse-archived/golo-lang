@@ -201,6 +201,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * @return the tuple itself
    * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() { return this; }
 
   /**
@@ -211,7 +212,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
-   * @return a tuple containing the values to assign.
+   * @return an array containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct) {
     Object[] destruct = ArrayHelper.newStyleDestruct(this.data, number, substruct);

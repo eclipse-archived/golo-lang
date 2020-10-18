@@ -63,6 +63,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * @return a tuple with the current values.
    * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() {
     return Tuple.fromArray(toArray());
   }
@@ -75,7 +76,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
-   * @return a tuple containing the values to assign.
+   * @return an array containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct) {
     if (number == this.members.length && !substruct) {
