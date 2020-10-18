@@ -15,7 +15,7 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
     - [x] struct
     - [x] array
     - [x] union
-    - [ ] iter/collections
+    - [x] iter/collections
     - [x] Result
     - [x] map item
     - [x] lazy lists

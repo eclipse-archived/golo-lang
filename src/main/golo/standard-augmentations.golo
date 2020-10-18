@@ -289,6 +289,18 @@ augment java.lang.Iterable {
     }
     return false
   }
+
+  ----
+  New style destructuring helper
+  ----
+  function __$$_destruct = |this, number, substruct| {
+    let it = this: iterator()
+    let d = destructIterator(it, number, substruct)
+    if substruct {
+      d: set(number - 1, asInterfaceInstance(java.lang.Iterable.class, -> it))
+    }
+    return d
+  }
 }
 
 # ............................................................................................... #
@@ -321,21 +333,34 @@ augment java.util.Collection {
   - *return* a tuple containing the values to assign.
   ----
   function __$$_destruct = |this, number, substruct| {
-    # TODO: new style destruct
-    if substruct {
-      let a = newTypedArray(Object.class, number)
-      let r = _newWithSameType(this)
-      a: set(number - 1, r)
+    if number < this: size() and not substruct {
+      throw org.eclipse.golo.runtime.InvalidDestructuringException.notEnoughValues(number, this: size(), substruct)
+    }
+    if number == this: size() and not substruct {
+      return this: toArray()
+    }
+    let d = newTypedArray(Object.class, number)
+    let col = _newWithSameType(this)
+    d: set(number - 1, col)
+    if number <= this: size() and substruct {
       let it = this: iterator()
       for (var i = 0, i < number - 1, i = i + 1) {
-        a: set(i, it: next())
+        d: set(i, it: next())
       }
-      while (it: hasNext()) {
-        r: add(it: next())
+      while it: hasNext() {
+        col: add(it: next())
       }
-      return Tuple.fromArray(a)
+      return d
     }
-    return this: destruct()
+    if number == this: size() + 1 and substruct {
+      var i = 0
+      foreach v in this {
+        d: set(i, v)
+        i = i + 1
+      }
+      return d
+    }
+    throw org.eclipse.golo.runtime.InvalidDestructuringException.tooManyValues(number)
   }
 
   ----
@@ -996,4 +1021,34 @@ augment java.io.BufferedReader {
   Makes a `BufferedReader` an Iterable on its lines.
   ----
   function iterator = |this| -> gololang.IO$LinesIterator.of(this)
+}
+
+local function destructIterator = |it, number, substruct| {
+  let d = newTypedArray(Object.class, number)
+  if substruct {
+    d: set(number - 1, it)
+  }
+  let nbValues = match {
+    when substruct then number - 1
+    otherwise number
+  }
+  try {
+    for (var i = 0, i < nbValues, i = i + 1) {
+      d: set(i, it: next())
+    }
+  } catch (e) {
+    if e oftype java.util.NoSuchElementException.class {
+      throw org.eclipse.golo.runtime.InvalidDestructuringException.notEnoughValues(number, substruct)
+    }
+    throw e
+  }
+  if (it: hasNext() and not substruct) {
+    throw org.eclipse.golo.runtime.InvalidDestructuringException.tooManyValues(number)
+  }
+  return d
+}
+
+
+augment java.util.Iterator {
+  function __$$_destruct = |this, number, substruct| -> destructIterator(this, number, substruct)
 }

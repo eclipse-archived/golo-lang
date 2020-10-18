@@ -134,15 +134,184 @@ function test_struct_not_exact = {
   }
 }
 
-function test_list = {
-  let l = list[1, 2, 3, 4, 5]
-
-  let fst, scd, rest... = l
-  require(fst == 1, "err")
-  require(scd == 2, "err")
-  require(rest == list[3, 4, 5], "err")
-
+function test_list_1 = {
+  let a, b, c... = list[1, 2, 3, 4, 5]
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(list[3, 4, 5]))
 }
+
+function test_list_2 = {
+  let a, b, c... = list[1, 2, 3]
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(list[3]))
+}
+
+function test_list_3 = {
+  let a, b, c = list[1, 2, 3]
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(3))
+}
+
+function test_list_4 = {
+  let a, b, c, d... = list[1, 2, 3]
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(3))
+  assertThat(d, `is(list[]))
+}
+
+function test_list_5 = {
+  try {
+    let a, b = list[1, 2, 3]
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_list_6 = {
+  try {
+    let a, b, c = list[1, 2]
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_list_7 = {
+  try {
+    let a, b, c, d... = list[1, 2]
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_iter_1 = {
+  let a, b, c... = list[1, 2, 3, 4, 5]: iterator()
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, isA(java.util.Iterator.class))
+  assertThat(c: next(), `is(3))
+  assertThat(c: next(), `is(4))
+  assertThat(c: next(), `is(5))
+  assertThat(c: hasNext(), `is(false))
+}
+
+function test_iter_2 = {
+  let a, b, c... = list[1, 2, 3]: iterator()
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, isA(java.util.Iterator.class))
+  assertThat(c: next(), `is(3))
+  assertThat(c: hasNext(), `is(false))
+}
+
+function test_iter_3 = {
+  let a, b, c = list[1, 2, 3]: iterator()
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(3))
+}
+
+function test_iter_4 = {
+  let a, b, c, d... = list[1, 2, 3]: iterator()
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(3))
+  assertThat(d, isA(java.util.Iterator.class))
+  assertThat(d: hasNext(), `is(false))
+}
+
+function test_iter_5 = {
+  try {
+    let a, b = list[1, 2, 3]: iterator()
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_iter_6 = {
+  try {
+    let a, b, c = list[1, 2]: iterator()
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_iter_7 = {
+  try {
+    let a, b, c, d... = list[1, 2]:iterator()
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_iterable_1 = {
+  let a, b, c... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3, 4, 5]: iterator())
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, isA(java.lang.Iterable.class))
+  assertThat(c, contains(3, 4, 5))
+}
+
+function test_iterable_2 = {
+  let a, b, c... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3]: iterator())
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, isA(java.lang.Iterable.class))
+  assertThat(c, contains(3))
+}
+
+function test_iterable_3 = {
+  let a, b, c = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3]: iterator())
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(3))
+}
+
+function test_iterable_4 = {
+  let a, b, c, d... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3]: iterator())
+  assertThat(a, `is(1))
+  assertThat(b, `is(2))
+  assertThat(c, `is(3))
+  assertThat(d, isA(java.lang.Iterable.class))
+  assertThat(d, `is(emptyIterable()))
+}
+
+function test_iterable_5 = {
+  try {
+    let a, b = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3]: iterator())
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_iterable_6 = {
+  try {
+    let a, b, c = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2]: iterator())
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
+function test_iterable_7 = {
+  try {
+    let a, b, c, d... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2]:iterator())
+    fail()
+  } catch (e) {
+    assertThat(e, isA(InvalidDestructuringException.class))
+  }
+}
+
 
 function test_array_less = {
   try {
@@ -351,3 +520,6 @@ function test_destruct_affectation_inside_closure = {
   require(closure() == 1, "err")
 }
 
+function main = |args| {
+  test_iterable_1()
+}
