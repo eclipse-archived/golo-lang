@@ -683,7 +683,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return an array containing the values to assign.
    */
-  public Object[] __$$_destruct(int number, boolean substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
     if (number == 2 && !substruct) {
       return new Object[]{error, value};
     }

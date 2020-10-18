@@ -50,7 +50,7 @@ public abstract class Union {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return an array containing the values to assign.
    */
-  public Object[] __$$_destruct(int number, boolean substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
     Object[] fields = toArray();
     if (fields.length == 0) {
       throw new InvalidDestructuringException("This union has no field");

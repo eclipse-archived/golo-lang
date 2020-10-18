@@ -293,10 +293,10 @@ augment java.lang.Iterable {
   ----
   New style destructuring helper
   ----
-  function __$$_destruct = |this, number, substruct| {
+  function __$$_destruct = |this, number, substruct, toSkip| {
     let it = this: iterator()
-    let d = destructIterator(it, number, substruct)
-    if substruct {
+    let d = destructIterator(it, number, substruct, toSkip)
+    if substruct and not toSkip: get(number - 1) {
       d: set(number - 1, asInterfaceInstance(java.lang.Iterable.class, -> it))
     }
     return d
@@ -337,30 +337,41 @@ augment java.util.Collection {
   - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
   - *return* an array containing the values to assign.
   ----
-  function __$$_destruct = |this, number, substruct| {
+  function __$$_destruct = |this, number, substruct, toSkip| {
     if number < this: size() and not substruct {
       throw org.eclipse.golo.runtime.InvalidDestructuringException.notEnoughValues(number, this: size(), substruct)
     }
     if number == this: size() and not substruct {
-      return this: toArray()
+      return org.eclipse.golo.runtime.ArrayHelper.nullify(this: toArray(), toSkip)
     }
     let d = newTypedArray(Object.class, number)
-    let col = _newWithSameType(this)
+    let col = match {
+      when toSkip: get(number - 1) then null
+      otherwise _newWithSameType(this)
+    }
     d: set(number - 1, col)
     if number <= this: size() and substruct {
       let it = this: iterator()
       for (var i = 0, i < number - 1, i = i + 1) {
-        d: set(i, it: next())
+        if not toSkip: get(i) {
+          d: set(i, it: next())
+        } else {
+          it: next()
+        }
       }
-      while it: hasNext() {
-        col: add(it: next())
+      if col isnt null {
+        while it: hasNext() {
+          col: add(it: next())
+        }
       }
       return d
     }
     if number == this: size() + 1 and substruct {
       var i = 0
       foreach v in this {
-        d: set(i, v)
+        if not toSkip: get(i) {
+          d: set(i, v)
+        }
         i = i + 1
       }
       return d
@@ -935,7 +946,7 @@ augment java.util.Map$Entry {
   - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
   - *return* a tuple containing the values to assign.
   ----
-  function __$$_destruct = |this, number, substruct| {
+  function __$$_destruct = |this, number, substruct, toSkip| {
     if (number == 2 and not substruct) {
       return array[this: getKey(), this: getValue()]
     }
@@ -1033,9 +1044,9 @@ augment java.io.BufferedReader {
   function iterator = |this| -> gololang.IO$LinesIterator.of(this)
 }
 
-local function destructIterator = |it, number, substruct| {
+local function destructIterator = |it, number, substruct, toSkip| {
   let d = newTypedArray(Object.class, number)
-  if substruct {
+  if substruct and not toSkip: get(number - 1) {
     d: set(number - 1, it)
   }
   let nbValues = match {
@@ -1044,7 +1055,11 @@ local function destructIterator = |it, number, substruct| {
   }
   try {
     for (var i = 0, i < nbValues, i = i + 1) {
-      d: set(i, it: next())
+      if toSkip: get(i) {
+        it: next()
+      } else {
+        d: set(i, it: next())
+      }
     }
   } catch (e) {
     if e oftype java.util.NoSuchElementException.class {
@@ -1060,5 +1075,5 @@ local function destructIterator = |it, number, substruct| {
 
 
 augment java.util.Iterator {
-  function __$$_destruct = |this, number, substruct| -> destructIterator(this, number, substruct)
+  function __$$_destruct = |this, number, substruct, toSkip| -> destructIterator(this, number, substruct, toSkip)
 }

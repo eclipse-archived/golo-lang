@@ -78,7 +78,7 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return an array containing the values to assign.
    */
-  public Object[] __$$_destruct(int number, boolean substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
     if (number == this.members.length && !substruct) {
       return toArray();
     }

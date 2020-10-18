@@ -429,7 +429,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * </code></pre>
    * into something equivalent to
    * <pre class="listing"><code class="lang-golo" data-lang="golo">
-   * let tmp = expr: __$$_destruct(3, true)
+   * let tmp = expr: __$$_destruct(3, true, array[false, false, false])
    * let a = tmp: get(0)
    * let b = tmp: get(1)
    * let c = tmp: get(2)
@@ -437,22 +437,30 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    */
   private Block newDestructuring(DestructuringAssignment assignment) {
     LocalReference tmpRef = LocalReference.of(symbols.next("destruct")).synthetic();
-    Block block = Block.of(AssignmentStatement.create(tmpRef,
+    Block block = Block.empty();
+    Object[] toSkip = new Object[assignment.getReferencesCount()];
+    int idx = 0;
+    for (LocalReference ref : assignment.getReferences()) {
+      if ("_".equals(ref.getName())) {
+        toSkip[idx] = ConstantStatement.of(true);
+      } else {
+        toSkip[idx] = ConstantStatement.of(false);
+        block.add(
+            AssignmentStatement.create(
+              ref,
+              invoke("get").withArgs(ConstantStatement.of(idx)).on(tmpRef.lookup()),
+              assignment.isDeclaring()));
+      }
+      idx++;
+    }
+    block.prepend(AssignmentStatement.create(tmpRef,
           invoke("__$$_destruct")
           .withArgs(
             ConstantStatement.of(assignment.getReferencesCount()),
-            ConstantStatement.of(assignment.isVarargs()))
+            ConstantStatement.of(assignment.isVarargs()),
+            CollectionLiteral.create(CollectionLiteral.Type.array, toSkip))
           .on(assignment.expression()),
         true));
-    int idx = 0;
-    for (LocalReference ref : assignment.getReferences()) {
-      block.add(
-          AssignmentStatement.create(
-            ref,
-            invoke("get").withArgs(ConstantStatement.of(idx)).on(tmpRef.lookup()),
-            assignment.isDeclaring()));
-      idx++;
-    }
     return block;
   }
 

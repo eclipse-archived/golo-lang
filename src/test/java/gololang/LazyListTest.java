@@ -207,5 +207,6 @@ public class LazyListTest {
   @Test
   public void destruct() throws Throwable {
     resultFor("test_destruct");
+    resultFor("test_destruct_skip");
   }
 }

@@ -225,6 +225,21 @@ function test_destruct = {
   } catch(e) {
     assertThat(e, isA(InvalidDestructuringException.class))
   }
+}
+
+function test_destruct_skip = {
+  let s11, _, _, _, s12 = longLL()
+  assertThat(s11, `is(1))
+  assertThat(s12, `is(5))
+
+  let s21, _, _, s22... = longLL()
+  assertThat(s21, `is(1))
+  assertThat(s22: head(), `is(4))
+  assertThat(s22: tail():head(), `is(5))
+  assertThat(s22: tail():tail(), `is(empty()))
+
+  let _, s3, _... = longLL()
+  assertThat(s3, `is(2))
 
 }
 

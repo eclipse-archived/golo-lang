@@ -256,25 +256,26 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return an array containing the values to assign.
    */
-  public Object[] __$$_destruct(int number, boolean substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
     Object[] destruct = new Object[number];
     LazyList current = this;
     for (int i = 0; i < number - 1; i++) {
       if (current.isEmpty()) {
         throw InvalidDestructuringException.tooManyValues(number);
       }
-      destruct[i] = current.head();
+      if (Boolean.valueOf(false).equals(toSkip[i])) {
+        destruct[i] = current.head();
+      }
       current = current.tail();
     }
-    if (substruct) {
+    if (substruct && Boolean.valueOf(false).equals(toSkip[number - 1])) {
       destruct[number - 1] = current;
     } else if (current.isEmpty()) {
       throw InvalidDestructuringException.tooManyValues(number);
-    } else {
+    } else if (!current.tail().isEmpty() && Boolean.valueOf(false).equals(toSkip[number - 1])) {
+      throw InvalidDestructuringException.notEnoughValues(number, substruct);
+    } else if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
       destruct[number - 1] = current.head();
-      if (!current.tail().isEmpty()) {
-        throw InvalidDestructuringException.notEnoughValues(number, substruct);
-      }
     }
     return destruct;
   }

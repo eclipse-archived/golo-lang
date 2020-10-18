@@ -160,26 +160,34 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return an array containing the values to assign.
    */
-  public Object[] __$$_destruct(int number, boolean substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
     if (number < size() && !substruct) {
       throw InvalidDestructuringException.notEnoughValues(number, size(), substruct);
     }
     if (number == size() && !substruct) {
-      return toArray();
+      return org.eclipse.golo.runtime.ArrayHelper.nullify(toArray(), toSkip);
     }
     if (number <= size() && substruct) {
       Object[] d = new Object[number];
       Iterator<T> it = this.iterator();
       for (int i = 0; i < number - 1; i++) {
-        d[i] = it.next();
+        if (Boolean.valueOf(true).equals(toSkip[i])) {
+          it.next();
+        } else {
+          d[i] = it.next();
+        }
       }
-      d[number - 1] = newStartingFrom(it.next());
+      if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
+        d[number - 1] = newStartingFrom(it.next());
+      }
       return d;
     }
     if (number == size() + 1 && substruct) {
       Object[] d = Arrays.copyOf(toArray(), number);
-      d[number - 1] = newStartingFrom(to());
-      return d;
+      if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
+        d[number - 1] = newStartingFrom(to());
+      }
+      return org.eclipse.golo.runtime.ArrayHelper.nullify(d, toSkip);
     }
     throw InvalidDestructuringException.tooManyValues(number);
   }

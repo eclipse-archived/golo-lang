@@ -98,6 +98,23 @@ function test_tuple_many_more = {
   }
 }
 
+function test_tuple_skip_1 = {
+  let a, _, _, b = tuple[1, 2, 3, 4]
+  assertThat(a, `is(1))
+  assertThat(b, `is(4))
+}
+
+function test_tuple_skip_2 = {
+  let a, _, _, c... = tuple[1, 2, 3, 4, 5]
+  assertThat(a, `is(1))
+  assertThat(c, `is(tuple[4, 5]))
+}
+
+function test_tuple_skip_3 = {
+  let _, b, _... = tuple[1, 2, 3, 4, 5]
+  assertThat(b, `is(2))
+}
+
 
 function test_struct = {
   let p = Point(3, 4)
@@ -190,6 +207,24 @@ function test_list_7 = {
   }
 }
 
+function test_list_skip_1 = {
+  let a, _, _, b = list[1, 2, 3, 4]
+  assertThat(a, `is(1))
+  assertThat(b, `is(4))
+}
+
+function test_list_skip_2 = {
+  let a, _, _, c... = list[1, 2, 3, 4, 5]
+  assertThat(a, `is(1))
+  assertThat(c, `is(list[4, 5]))
+}
+
+function test_list_skip_3 = {
+  let _, b, _... = list[1, 2, 3, 4, 5]
+  assertThat(b, `is(2))
+}
+
+
 function test_iter_1 = {
   let a, b, c... = list[1, 2, 3, 4, 5]: iterator()
   assertThat(a, `is(1))
@@ -253,6 +288,25 @@ function test_iter_7 = {
   }
 }
 
+function test_iter_skip_1 = {
+  let a, _, _, b = list[1, 2, 3, 4]:iterator()
+  assertThat(a, `is(1))
+  assertThat(b, `is(4))
+}
+
+function test_iter_skip_2 = {
+  let a, _, _, c... = list[1, 2, 3, 4, 5]: iterator()
+  assertThat(a, `is(1))
+  assertThat(c: next(), `is(4))
+  assertThat(c: next(), `is(5))
+  assertThat(c: hasNext(), `is(false))
+}
+
+function test_iter_skip_3 = {
+  let _, b, _... = list[1, 2, 3, 4, 5]: iterator()
+  assertThat(b, `is(2))
+}
+
 function test_iterable_1 = {
   let a, b, c... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3, 4, 5]: iterator())
   assertThat(a, `is(1))
@@ -312,6 +366,23 @@ function test_iterable_7 = {
   }
 }
 
+function test_iterable_skip_1 = {
+  let a, _, _, b = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3, 4]:iterator())
+  assertThat(a, `is(1))
+  assertThat(b, `is(4))
+}
+
+function test_iterable_skip_2 = {
+  let a, _, _, c... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3, 4, 5]: iterator())
+  assertThat(a, `is(1))
+  assertThat(c, contains(4, 5))
+}
+
+function test_iterable_skip_3 = {
+  let _, b, _... = asInterfaceInstance(java.lang.Iterable.class, -> list[1, 2, 3, 4, 5]: iterator())
+  assertThat(b, `is(2))
+}
+
 
 function test_array_less = {
   try {
@@ -336,11 +407,28 @@ function test_array_exact = {
   assertThat(c, `is(3))
 }
 
+function test_array_exact_skip = {
+  let a, _, _, b = array[1, 2, 3, 4]
+  assertThat(a, `is(1))
+  assertThat(b, `is(4))
+}
+
 function test_array_exact_with_sub = {
   let a, b, c... = array[1, 2, 3]
   assertThat(a, `is(1))
   assertThat(b, `is(2))
   assertThat(c, `is(arrayContaining(3)))
+}
+
+function test_array_with_sub_skip = {
+  let a, _, _, c... = array[1, 2, 3, 4, 5]
+  assertThat(a, `is(1))
+  assertThat(c, `is(arrayContaining(4, 5)))
+}
+
+function test_array_with_sub_skip2 = {
+  let _, b, _... = array[1, 2, 3, 4, 5]
+  assertThat(b, `is(2))
 }
 
 function test_array_more = {
@@ -413,20 +501,45 @@ function test_range_6 = {
   }
 }
 
+function test_range_skip_1 = {
+  let a, _, _, b = [1..5]
+  assertThat(a, `is(1))
+  assertThat(b, `is(4))
+}
+
+function test_range_skip_2 = {
+  let a, _, _, c... = [1..6]
+  assertThat(a, `is(1))
+  assertThat(c, `is([4..6]))
+}
+
+function test_range_skip_3 = {
+  let _, b, _... = [1..6]
+  assertThat(b, `is(2))
+}
+
+
+
 function test_foreach = {
   let l = list[ [1, 2, 3], [3, 4, 5] ]
   var i = 0
   foreach a, b, c in l {
-    require(a == l: get(i): get(0), "err")
-    require(b == l: get(i): get(1), "err")
-    require(c == l: get(i): get(2), "err")
+    assertThat(a, `is(l: get(i): get(0)))
+    assertThat(b, `is(l: get(i): get(1)))
+    assertThat(c, `is(l: get(i): get(2)))
     i = i + 1
   }
 
   i = 0
   foreach a, b... in l {
-    require(a == l: get(i): head(), "err")
-    require(b == l: get(i): tail(), "err")
+    assertThat(a, `is(l: get(i): head()))
+    assertThat(b, `is(l: get(i): tail()))
+    i = i + 1
+  }
+
+  i = 0
+  foreach _, b, _ in l {
+    assertThat(b, `is(l: get(i): get(1)))
     i = i + 1
   }
 }

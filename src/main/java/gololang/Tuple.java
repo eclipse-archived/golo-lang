@@ -214,9 +214,9 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * @param substruct whether the destructuring is complete or should contains a sub structure.
    * @return an array containing the values to assign.
    */
-  public Object[] __$$_destruct(int number, boolean substruct) {
-    Object[] destruct = ArrayHelper.newStyleDestruct(this.data, number, substruct);
-    if (number <= this.data.length + 1 && substruct) {
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    Object[] destruct = ArrayHelper.newStyleDestruct(this.data, number, substruct, toSkip);
+    if (number <= this.data.length + 1 && substruct && destruct[number - 1] != null) {
       destruct[number - 1] = fromArray((Object[]) destruct[number - 1]);
     }
     return destruct;

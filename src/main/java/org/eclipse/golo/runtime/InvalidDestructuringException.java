@@ -33,7 +33,8 @@ public class InvalidDestructuringException extends IllegalArgumentException {
 
   public static InvalidDestructuringException notEnoughValues(int expected, boolean sub) {
     return new InvalidDestructuringException(String.format(
-          "not enough values (expecting %d).",
+          "not enough values (expecting%s %d).",
+            sub ? " at least" : "",
             sub ? expected - 1 : expected));
   }
 
