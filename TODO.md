@@ -22,10 +22,10 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
     - [x] ranges
     - [x] When IR
   - [x] mark the old one deprecated (may depend on PR #551 to annotate golo code)
-    - [x] use the real deprecated macro when #551 is merged
-- [ ] ~~provides augmentations to adapt both ways ?~~
-- [ ] update the doc
-  - [ ] describe new style destruct
-  - [ ] rationale
-  - [ ] document feature flag
+    - ~~use the real deprecated macro when #551 is merged~~ (not possible, compilation dependency)
+- ~~provides augmentations to adapt both ways ?~~ (not needed)
+- [x] Adds a feature flag using property / macro to switch old/new style
+- update the doc
+  - [x] describe new style destruct
+  - [x] document feature flag
 
