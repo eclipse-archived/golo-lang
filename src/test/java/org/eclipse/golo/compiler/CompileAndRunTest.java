@@ -1771,15 +1771,8 @@ public class CompileAndRunTest {
     if (bootstraping()) {
       return;
     }
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "destruct.golo");
-    for (Method testMethod : getTestMethods(moduleClass)) {
-      try {
-        testMethod.invoke(null);
-      } catch (InvocationTargetException e) {
-        fail("method " + testMethod.getName() + " in " + SRC + "destruct.golo failed: " +
-              e.getCause());
-      }
-    }
+    runTests(SRC, "destruct.golo", classLoader(this));
+    runTests(SRC, "destruct-old.golo", classLoader(this));
   }
 
   @Test

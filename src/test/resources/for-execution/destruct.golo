@@ -48,13 +48,6 @@ function test_tuple_rest = {
   assertThat(c, `is([3, 4, 5]))
 }
 
-# ignored, old version. Should fail now.
-function _tuple_less_old = {
-  let fst, scd = [1, 2, 3, 4]
-  require(fst == 1, "err")
-  require(scd == 2, "err")
-}
-
 function test_tuple_less_new = {
   try {
     let fst, scd = [1, 2, 3, 4]

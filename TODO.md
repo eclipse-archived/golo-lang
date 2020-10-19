@@ -7,7 +7,7 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
 ## TODO
 
 - [x] implement the new desugarization
-  - [ ] allows to explicitly skip the rest (e.g. with special arg `_`) to avoid generating an unused (recursive) member
+  - [x] allows to explicitly skip the rest (e.g. with special arg `_`) to avoid generating an unused (recursive) member
 - [x] Adds a custom exception to signal invalid destructuring
 - update the known `destruct()` method in the stdlib
   - provides a new destructuring method
@@ -22,8 +22,8 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
     - [x] ranges
     - [x] When IR
   - [x] mark the old one deprecated (may depend on PR #551 to annotate golo code)
-    - [ ] use the real deprecated macro when #551 is merged
-- [ ] provides augmentations to adapt both ways ?
+    - [x] use the real deprecated macro when #551 is merged
+- [ ] ~~provides augmentations to adapt both ways ?~~
 - [ ] update the doc
   - [ ] describe new style destruct
   - [ ] rationale

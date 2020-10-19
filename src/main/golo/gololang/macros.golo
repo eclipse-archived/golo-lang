@@ -140,3 +140,16 @@ macro deprecated = |args...| {
       named: get("comment")?: value(),
       positional)
 }
+
+----
+Use old-style destructuring for the current module.
+
+This macro customize the behavior of the destructuring feature by forcing the use of the `destruct` method instead of
+`_$$_destruct`.
+
+This is a toplevel macro.
+----
+@contextual
+macro useOldstyleDestruct = |self| {
+  self: enclosingModule(): metadata("golo.destruct.newstyle", false)
+}
