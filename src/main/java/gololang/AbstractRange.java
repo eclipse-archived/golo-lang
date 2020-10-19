@@ -14,7 +14,6 @@ import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Arrays;
 import java.util.Objects;
-import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 import static java.util.Objects.requireNonNull;
 
@@ -149,54 +148,4 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     }
     return Tuple.fromArray(data);
   }
-
-  /**
-   * New style destructuring helper.
-   *
-   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-   * members of the structure.
-   *
-   * @param number number of variable that will be affected.
-   * @param substruct whether the destructuring is complete or should contains a sub structure.
-   * @return an array containing the values to assign.
-   */
-  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
-    if (number < size() && !substruct) {
-      throw InvalidDestructuringException.notEnoughValues(number, size(), substruct);
-    }
-    if (number == size() && !substruct) {
-      return org.eclipse.golo.runtime.ArrayHelper.nullify(toArray(), toSkip);
-    }
-    if (number <= size() && substruct) {
-      Object[] d = new Object[number];
-      Iterator<T> it = this.iterator();
-      for (int i = 0; i < number - 1; i++) {
-        if (Boolean.valueOf(true).equals(toSkip[i])) {
-          it.next();
-        } else {
-          d[i] = it.next();
-        }
-      }
-      if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
-        d[number - 1] = newStartingFrom(it.next());
-      }
-      return d;
-    }
-    if (number == size() + 1 && substruct) {
-      Object[] d = Arrays.copyOf(toArray(), number);
-      if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
-        d[number - 1] = newStartingFrom(to());
-      }
-      return org.eclipse.golo.runtime.ArrayHelper.nullify(d, toSkip);
-    }
-    throw InvalidDestructuringException.tooManyValues(number);
-  }
-
-  /**
-   * Returns a copy of this range with a new starting value.
-   *
-   * <p>There is no check that the {@code newStart} value is compatible with the current start and increment. It is
-   * therefore possible that the new range yields different values than the original.
-   */
-  public abstract Range<T> newStartingFrom(T newStart);
 }

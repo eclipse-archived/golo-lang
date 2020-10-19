@@ -21,6 +21,8 @@ Trying to reimplement the destructuring feature better (see #524 for a full intr
     - [x] lazy lists
     - [x] ranges
     - [x] When IR
+    - [x] Binary operation IR
+    - [x] NamedArgument
   - [x] mark the old one deprecated (may depend on PR #551 to annotate golo code)
     - ~~use the real deprecated macro when #551 is merged~~ (not possible, compilation dependency)
 - ~~provides augmentations to adapt both ways ?~~ (not needed)

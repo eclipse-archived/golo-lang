@@ -12,6 +12,7 @@ package gololang.ir;
 
 import java.util.Arrays;
 import java.util.List;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * Represents a binary operation.
@@ -106,6 +107,13 @@ public final class BinaryOperation extends ExpressionStatement<BinaryOperation> 
     return this.getType() == OperatorType.METHOD_CALL
       || this.getType() == OperatorType.ELVIS_METHOD_CALL
       || this.getType() == OperatorType.ANON_CALL;
+  }
+
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    if (number == 2 && !substruct) {
+      return new Object[]{leftExpression, rightExpression};
+    }
+    throw new InvalidDestructuringException("A BinaryOperation must destructure to exactly two values");
   }
 
   /**

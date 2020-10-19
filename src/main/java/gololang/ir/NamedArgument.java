@@ -12,6 +12,7 @@ package gololang.ir;
 
 import java.util.Collections;
 import java.util.List;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 import static gololang.Messages.message;
 
@@ -57,6 +58,13 @@ public final class NamedArgument extends ExpressionStatement<NamedArgument> {
    */
   private void setExpression(ExpressionStatement<?> value) {
     this.expression = makeParentOf(value);
+  }
+
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    if (number == 2 && !substruct) {
+      return new Object[]{name, expression};
+    }
+    throw new InvalidDestructuringException("A NamedArgument must destructure to exactly two values");
   }
 
   /**

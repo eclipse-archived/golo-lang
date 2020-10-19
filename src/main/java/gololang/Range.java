@@ -11,6 +11,10 @@
 package gololang;
 
 import java.util.Collection;
+import java.util.Iterator;
+import java.util.Arrays;
+
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * Represents a generic value range.
@@ -81,4 +85,54 @@ public interface Range<T> extends Collection<T>, HeadTail<T> {
    * {@code -increment()}.
    */
   Range<T> reversed();
+
+  /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return an array containing the values to assign.
+   */
+  default Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    if (number < size() && !substruct) {
+      throw InvalidDestructuringException.notEnoughValues(number, size(), substruct);
+    }
+    if (number == size() && !substruct) {
+      return org.eclipse.golo.runtime.ArrayHelper.nullify(toArray(), toSkip);
+    }
+    if (number <= size() && substruct) {
+      Object[] d = new Object[number];
+      Iterator<T> it = this.iterator();
+      for (int i = 0; i < number - 1; i++) {
+        if (Boolean.valueOf(true).equals(toSkip[i])) {
+          it.next();
+        } else {
+          d[i] = it.next();
+        }
+      }
+      if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
+        d[number - 1] = newStartingFrom(it.next());
+      }
+      return d;
+    }
+    if (number == size() + 1 && substruct) {
+      Object[] d = Arrays.copyOf(toArray(), number);
+      if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
+        d[number - 1] = newStartingFrom(to());
+      }
+      return org.eclipse.golo.runtime.ArrayHelper.nullify(d, toSkip);
+    }
+    throw InvalidDestructuringException.tooManyValues(number);
+  }
+
+  /**
+   * Returns a copy of this range with a new starting value.
+   *
+   * <p>There is no check that the {@code newStart} value is compatible with the current start and increment. It is
+   * therefore possible that the new range yields different values than the original.
+   */
+  public Range<T> newStartingFrom(T newStart);
 }

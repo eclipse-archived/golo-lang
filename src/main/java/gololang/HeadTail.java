@@ -10,6 +10,8 @@
 
 package gololang;
 
+import org.eclipse.golo.runtime.InvalidDestructuringException;
+
 /**
  * Structure having a head and a tail.
  * <p>
@@ -75,5 +77,39 @@ public interface HeadTail<E> extends Iterable<E> {
    */
   static <E> Iterable<E> toIterable(HeadTail<E> headTail) {
     return () -> new HeadTailIterator<>(headTail);
+  }
+
+  /**
+   * New style destructuring helper.
+   *
+   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @return an array containing the values to assign.
+   */
+  default Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    Object[] destruct = new Object[number];
+    HeadTail<E> current = this;
+    for (int i = 0; i < number - 1; i++) {
+      if (current.isEmpty()) {
+        throw InvalidDestructuringException.tooManyValues(number);
+      }
+      if (Boolean.valueOf(false).equals(toSkip[i])) {
+        destruct[i] = current.head();
+      }
+      current = current.tail();
+    }
+    if (substruct && Boolean.valueOf(false).equals(toSkip[number - 1])) {
+      destruct[number - 1] = current;
+    } else if (current.isEmpty()) {
+      throw InvalidDestructuringException.tooManyValues(number);
+    } else if (!current.tail().isEmpty() && Boolean.valueOf(false).equals(toSkip[number - 1])) {
+      throw InvalidDestructuringException.notEnoughValues(number, substruct);
+    } else if (Boolean.valueOf(false).equals(toSkip[number - 1])) {
+      destruct[number - 1] = current.head();
+    }
+    return destruct;
   }
 }
