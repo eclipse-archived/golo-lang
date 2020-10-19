@@ -472,7 +472,7 @@ public class ParseTreeToGoloIrVisitor implements GoloParserVisitor {
       ASTBlock astBlock = new ASTBlock(0);
       astBlock.jjtAddChild(astReturn, 0);
       astBlock.jjtAccept(this, data);
-      // XXX
+      // FIXME ?
       // if (function.isSynthetic()) {
       //   context.pop();
       // }

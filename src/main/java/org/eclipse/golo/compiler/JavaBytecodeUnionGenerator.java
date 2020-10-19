@@ -23,6 +23,8 @@ import java.util.Map;
 import java.util.HashMap;
 
 import static org.eclipse.golo.compiler.JavaBytecodeUtils.loadInteger;
+import static org.eclipse.golo.compiler.JavaBytecodeUtils.deprecatedFlag;
+import static org.eclipse.golo.compiler.JavaBytecodeUtils.addAnnotations;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -33,8 +35,9 @@ class JavaBytecodeUnionGenerator {
     LinkedList<CodeGenerationResult> results = new LinkedList<>();
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_ABSTRACT,
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_ABSTRACT | deprecatedFlag(union),
         union.getPackageAndClass().toJVMType(), null, "gololang/Union", null);
+    addAnnotations(union, classWriter::visitAnnotation);
     makeDefaultConstructor(classWriter, "gololang/Union");
     HashMap<String, PackageAndClass> staticFields = new HashMap<>();
     for (UnionValue value : union.getValues()) {
@@ -184,9 +187,10 @@ class JavaBytecodeUnionGenerator {
     String valueType = value.getPackageAndClass().toJVMType();
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL, valueType, null, unionType, null);
-    classWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
-    parentClassWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC);
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL | deprecatedFlag(value), valueType, null, unionType, null);
+    addAnnotations(value, classWriter::visitAnnotation);
+    classWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC | deprecatedFlag(value));
+    parentClassWriter.visitInnerClass(valueType, unionType, value.getName(), ACC_PUBLIC | ACC_FINAL | ACC_STATIC | deprecatedFlag(value));
     for (Member member : value.getMembers()) {
       classWriter.visitField(ACC_PUBLIC | ACC_FINAL, member.getName(), "Ljava/lang/Object;", null, null).visitEnd();
     }
@@ -197,7 +201,7 @@ class JavaBytecodeUnionGenerator {
       makeToArray(classWriter, value);
     } else {
       makeDefaultConstructor(classWriter, unionType);
-      parentClassWriter.visitField(ACC_PUBLIC | ACC_FINAL | ACC_STATIC, value.getName(),
+      parentClassWriter.visitField(ACC_PUBLIC | ACC_FINAL | ACC_STATIC | deprecatedFlag(value), value.getName(),
             value.getUnion().getPackageAndClass().toJVMRef(), null, null).visitEnd();
     }
     makeToString(classWriter, value);
@@ -307,8 +311,9 @@ class JavaBytecodeUnionGenerator {
   }
 
   private void makeValuedConstructor(ClassWriter cw, UnionValue value) {
-    MethodVisitor mv = cw.visitMethod(ACC_PROTECTED, "<init>",
+    MethodVisitor mv = cw.visitMethod(ACC_PROTECTED | deprecatedFlag(value), "<init>",
         argsSignature(value.getMembers().size()) + "V", null, null);
+    addAnnotations(value, mv::visitAnnotation);
     mv.visitCode();
     mv.visitVarInsn(ALOAD, 0);
     mv.visitMethodInsn(INVOKESPECIAL, value.getUnion().getPackageAndClass().toJVMType(), "<init>", "()V", false);

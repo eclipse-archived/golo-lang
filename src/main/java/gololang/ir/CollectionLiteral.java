@@ -84,7 +84,7 @@ public final class CollectionLiteral extends ExpressionStatement<CollectionLiter
   }
 
   public List<ExpressionStatement<?>> getExpressions() {
-    return expressions;
+    return Collections.unmodifiableList(expressions);
   }
 
   @Override
