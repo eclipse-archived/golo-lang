@@ -86,7 +86,6 @@ public class ClasspathOption {
       classpath = getFromEnv(System.getenv(ENV));
     }
     if (classpath.isEmpty()) {
-      // XXX: should "." be used in any case or only if no other path is given?
       classpath = DEFAULT;
     }
     System.setProperty(PROPERTY, String.join(SEP, classpath));

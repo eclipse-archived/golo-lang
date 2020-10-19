@@ -56,7 +56,6 @@ function test_or = {
   assertEquals(err1:`or(err2), Result.fail("err2"))
   assertEquals(err1:`or(nop), Result.empty())
 
-  # XXX: check semantic empty or ok(1)?
   assertEquals(nop:`or(ok1), Result.empty())
   assertEquals(nop:`or(err1), Result.empty())
   assertEquals(nop:`or(nop), Result.empty())

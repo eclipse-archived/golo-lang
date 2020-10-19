@@ -232,7 +232,7 @@ public final class DynamicObject {
         }
       }
     }
-    // XXX: should we try the fallback method here ?
+    // NOTE: should we try the fallback method here ?
     return object.define(property, arg);
   }
 
