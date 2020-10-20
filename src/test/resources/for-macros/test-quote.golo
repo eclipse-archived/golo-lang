@@ -104,40 +104,36 @@ function test_assign = {
 
   assertThat(statements: get(0), isA(AssignmentStatement.class))
   assertThat(statements: get(0): isDeclaring(), `is(true))
-  assertThat(statements: get(0): localReference(): name(),
-              `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_assign_0_a"))
-  assertThat(statements: get(0): localReference(): isConstant(),
-              `is(true))
+  assertThat(statements: get(0): localReference(): isConstant(), `is(true))
   assertThat(statements: get(0): expression(), isA(ConstantStatement.class))
-
   assertThat(statements: get(1), isA(AssignmentStatement.class))
   assertThat(statements: get(1): isDeclaring(), `is(true))
-  assertThat(statements: get(1): localReference(): name(),
-              `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_assign_0_b"))
-  assertThat(statements: get(1): localReference(): isConstant(),
-              `is(false))
+  assertThat(statements: get(1): localReference(): isConstant(), `is(false))
   assertThat(statements: get(1): expression(), isA(ConstantStatement.class))
+
+  let a_name = statements: get(0): localReference(): name()
+  let b_name = statements: get(1): localReference(): name()
+  assertThat(a_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_assign$0_"))
+  assertThat(a_name, endsWith("_a"))
+  assertThat(b_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_assign$0_"))
+  assertThat(b_name, endsWith("_b"))
 
   assertThat(statements: get(2), isA(AssignmentStatement.class))
   assertThat(statements: get(2): isDeclaring(), `is(false))
-  assertThat(statements: get(2): localReference(): name(),
-              `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_assign_0_b"))
+  assertThat(statements: get(2): localReference(): name(), `is(b_name))
   assertThat(statements: get(2): expression(), isA(BinaryOperation.class))
   assertThat(statements: get(2)
               : expression()
               : right()
               : name(),
-    `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_assign_0_a"))
+    `is(a_name))
 
   assertThat(statements: get(3), isA(AssignmentStatement.class))
   assertThat(statements: get(3): isDeclaring(), `is(true))
-  assertThat(statements: get(3): localReference(): name(),
-              `is("c"))
-  assertThat(statements: get(3): localReference(): isConstant(),
-              `is(false))
+  assertThat(statements: get(3): localReference(): name(), `is("c"))
+  assertThat(statements: get(3): localReference(): isConstant(), `is(false))
   assertThat(statements: get(3): expression(), isA(ReferenceLookup.class))
-  assertThat(statements: get(3): expression(): name(),
-              `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_assign_0_b"))
+  assertThat(statements: get(3): expression(): name(), `is(b_name))
 }
 
 function test_collections = {
@@ -209,20 +205,11 @@ function test_unquote = {
   }
 
   assertThat(assign, isA(AssignmentStatement.class))
-  assertThat(assign: localReference(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_unquote_0_a"))
+  assertThat(assign: localReference(): name(), startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_unquote$0_"))
+  assertThat(assign: localReference(): name(), endsWith("_a"))
   assertThat(assign: expression(), isA(ConstantStatement.class))
   assertThat(assign: expression(): value(), `is(42))
 }
-
-# function test_unquoted_assign = {
-#   let f = ReferenceLookup.of("a")
-#   let s = ReferenceLookup.of("b")
-#   let swap = &quote {
-#     var tmp = &unquote(f)
-#     &unquote(f) = &unquote(s)
-#     &unquote(s) = tmp
-#   }
-# }
 
 function test_import = {
   let i = &quote {
@@ -273,9 +260,8 @@ function test_try_catch_finally = {
   assertThat(ir: tryBlock(): statements(): get(0): name(), `is("foo"))
   assertThat(ir: finallyBlock(): statements(): get(0): name(), `is("close"))
   assertThat(ir: catchBlock(): statements(): get(0): name(), `is("println"))
-  assertThat(ir: exceptionId(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_try_catch_finally_0_e"))
-  assertThat(ir: catchBlock(): statements(): get(0): arguments(): get(0): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_try_catch_finally_0_e"))
+
+  assertThat(ir: catchBlock(): statements(): get(0): arguments(): get(0): name(), `is(ir: exceptionId()))
 }
 
 function test_struct = {
@@ -331,23 +317,25 @@ function test_loop = {
 
   assertThat(ir, isA(LoopStatement.class))
   assertThat(ir: init(), isA(AssignmentStatement.class))
-  assertThat(ir: init(): localReference(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_loop_0_i"))
+
+  let i_name = ir: init(): localReference(): name()
+  assertThat(i_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_loop$0_"))
   assertThat(ir: init(): expression(): value(), `is(0))
   assertThat(ir: init(): localReference(): isConstant(), `is(false))
   assertThat(ir: init(): isDeclaring(), `is(true))
 
   assertThat(ir: condition(): type(), `is(OperatorType.LESS()))
-  assertThat(ir: condition(): left(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_loop_0_i"))
+  assertThat(ir: condition(): left(): name(), `is(i_name))
   assertThat(ir: condition(): right(): value(), `is(10))
 
-  assertThat(ir: post(): localReference(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_loop_0_i"))
+  assertThat(ir: post(): localReference(): name(), `is(i_name))
   assertThat(ir: post(): expression(): type(), `is(OperatorType.PLUS()))
-  assertThat(ir: post(): expression(): left(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_loop_0_i"))
+  assertThat(ir: post(): expression(): left(): name(), `is(i_name))
   assertThat(ir: post(): expression(): right(): value(), `is(1))
 
   assertThat(ir: block(): statements(): get(0): name(), `is("println"))
   assertThat(ir: block(): statements(): get(0): arguments(): get(0): name(),
-    `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_loop_0_i"))
+    `is(i_name))
 
   var b = ir: block(): statements(): get(1) : trueBlock(): statements(): get(0)
   assertThat(b, isA(LoopBreakFlowStatement.class))
@@ -365,16 +353,20 @@ function test_foreachloop = {
     }
   }
 
+  let x_name = ir: references(): get(0): name()
+  let y_name = ir: references(): get(1): name()
+
   assertThat(ir, isA(ForEachLoopStatement.class))
-  assertThat(ir: references(): get(0): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_foreachloop_0_x"))
-  assertThat(ir: references(): get(1): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_foreachloop_0_y"))
+  assertThat(x_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_foreachloop$0_"))
+  assertThat(y_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_foreachloop$0_"))
+  assertThat(x_name, endsWith("_x"))
+  assertThat(y_name, endsWith("_y"))
   assertThat(ir: iterable(): name(), `is("f"))
   assertThat(ir: whenClause(): type(), `is(OperatorType.LESS()))
-  assertThat(ir: whenClause(): left(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_foreachloop_0_x"))
-  assertThat(ir: whenClause(): right(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_foreachloop_0_y"))
+  assertThat(ir: whenClause(): left(): name(), `is(x_name))
+  assertThat(ir: whenClause(): right(): name(), `is(y_name))
   assertThat(ir: block(): statements(): get(0): name(), `is("g"))
-  assertThat(ir: block(): statements(): get(0): arguments(): get(0): name(),
-    `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_foreachloop_0_x"))
+  assertThat(ir: block(): statements(): get(0): arguments(): get(0): name(), `is(x_name))
 }
 
 function test_match = {
@@ -496,7 +488,8 @@ function test_closure = {
   let r = c: target(): block(): statements(): get(0): expression()
   assertThat(r: left(): left(): name(), `is("a"))
   assertThat(r: left(): right(): name(), `is("b"))
-  assertThat(r: right(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_closure_0_c"))
+  assertThat(r: right(): name(), startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_closure$0_"))
+  assertThat(r: right(): name(), endsWith("_c"))
 }
 
 function test_function = {
@@ -535,8 +528,9 @@ function test_destruct = {
   assertThat(ir, isA(DestructuringAssignment.class))
   assertThat(ir: isDeclaring(), `is(true))
   assertThat(ir: isConstant(), `is(false))
-  assertThat(list[r: name() foreach r in ir: references()],
-      contains("__$$gololang$ir$Quote_golo$test$quoteTest_test_destruct_0_a", "__$$gololang$ir$Quote_golo$test$quoteTest_test_destruct_0_b"))
+  foreach r in ir: references() {
+    assertThat(r: name(), startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_destruct$0_"))
+  }
   assertThat(ir: expression(): name(), `is("foo"))
 
   let ir2 = &quote {
@@ -556,36 +550,32 @@ function test_coll_comprehension = {
   assertThat(ir: type(), `is(gololang.ir.CollectionLiteral$Type.list()))
   assertThat(ir: expression(), isA(BinaryOperation.class))
   assertThat(ir: expression(): type(), `is(OperatorType.PLUS()))
-  assertThat(ir: expression(): left(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_i"))
-  assertThat(ir: expression(): right(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_a"))
+
+  let i_name = ir: expression(): left(): name()
+  let a_name = ir: expression(): right(): name()
+  assertThat(i_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_coll_comprehension$0_"))
+  assertThat(a_name, startsWith("__$$_gololang$ir$Quote_golo$test$quoteTest$test_coll_comprehension$0_"))
 
   assertThat(ir: loops(): get(0), isA(LoopStatement.class))
-  assertThat(ir: loops(): get(0): init(): localReference(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_i"))
+  assertThat(ir: loops(): get(0): init(): localReference(): name(), `is(i_name))
   assertThat(ir: loops(): get(0): init(): expression(): value(), `is(0))
   assertThat(ir: loops(): get(0): condition(): type(), `is(OperatorType.LESS()))
-  assertThat(ir: loops(): get(0): condition(): left(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_i"))
+  assertThat(ir: loops(): get(0): condition(): left(): name(), `is(i_name))
   assertThat(ir: loops(): get(0): condition(): right(): value(), `is(10))
 
-  assertThat(ir: loops(): get(0): post(): localReference(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_i"))
+  assertThat(ir: loops(): get(0): post(): localReference(): name(), `is(i_name))
   assertThat(ir: loops(): get(0): post(): expression(): type(), `is(OperatorType.PLUS()))
-  assertThat(ir: loops(): get(0): post(): expression(): left(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_i"))
+  assertThat(ir: loops(): get(0): post(): expression(): left(): name(), `is(i_name))
   assertThat(ir: loops(): get(0): post(): expression(): right(): value(), `is(1))
 
   assertThat(ir: loops(): get(1), isA(ForEachLoopStatement.class))
-  assertThat(ir: loops(): get(1): references(): get(0): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_a"))
+  assertThat(ir: loops(): get(1): references(): get(0): name(), `is(a_name))
   assertThat(ir: loops(): get(1): iterable(): name(), `is("range"))
   assertThat(ir: loops(): get(1): iterable(): arguments(): get(0): value(),
       `is(10))
   assertThat(ir: loops(): get(1): whenClause(): right(): value(), `is(0))
-  assertThat(ir: loops(): get(1): whenClause(): left(): left(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_i"))
-  assertThat(ir: loops(): get(1): whenClause(): left(): right(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_coll_comprehension_0_a"))
+  assertThat(ir: loops(): get(1): whenClause(): left(): left(): name(), `is(i_name))
+  assertThat(ir: loops(): get(1): whenClause(): left(): right(): name(), `is(a_name))
 }
 
 function test_local_declaration = {
@@ -596,14 +586,10 @@ function test_local_declaration = {
     }
   }
   assertThat(ir, isA(BinaryOperation.class))
-  assertThat(ir: left(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_local_declaration_0_a"))
-  assertThat(ir: right(): name(), `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_local_declaration_0_b"))
-  assertThat(ir: declarations(): get(0): localReference(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_local_declaration_0_a"))
+  assertThat(ir: declarations(): get(0): localReference(): name(), `is(ir: left(): name()))
   assertThat(ir: declarations(): get(0): expression(): value(), `is(21))
   assertThat(ir: declarations(): get(0): isDeclaring(), `is(true))
-  assertThat(ir: declarations(): get(1): localReference(): name(),
-      `is("__$$gololang$ir$Quote_golo$test$quoteTest_test_local_declaration_0_b"))
+  assertThat(ir: declarations(): get(1): localReference(): name(), `is(ir: right(): name()))
   assertThat(ir: declarations(): get(1): expression(): value(), `is(2))
   assertThat(ir: declarations(): get(1): isDeclaring(), `is(true))
 }
@@ -619,7 +605,6 @@ function main = |args| {
   test_assign()
   test_collections()
   test_unquote()
-  # test_unquoted_assign()
   test_import()
   test_invoke_with_named_arguments()
   test_macro()
