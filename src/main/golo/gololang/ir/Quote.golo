@@ -476,7 +476,7 @@ This helps to make unique names when calling the same macro several times.
 local function manglePrefix = |invocation| {
   let mod = invocation: enclosingModule()
   let fun = invocation: ancestorOfType(GoloFunction.class)
-  return "%s_%s_%d": format(
+  return "%s$%s$%d": format(
     mod: packageAndClass(): toString(),
     fun?: name() orIfNull "",
     fun?: arity() orIfNull 0)
