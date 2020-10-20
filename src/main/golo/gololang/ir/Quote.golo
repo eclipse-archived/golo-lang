@@ -472,8 +472,36 @@ macro quote = |self, nodes...| {
 Generate a mangle prefix from the macro call parameters.
 
 This helps to make unique names when calling the same macro several times.
+For instance, one can generate a namespace from the `self` parameter of a contextual macro and use it as a `SymbolGenerator` scope.
+
+Given the macro
+```golo
+@contextual
+macro example = |self| {
+  enterSymScope(manglePrefix(self))
+  let node = &quote {
+    let tmp = 42
+  }
+  exitSymScope()
+  return node
+}
+```
+
+When used in
+```golo
+module my.test
+
+function foo = {
+  &example()
+}
+```
+
+will expand to
+
+```golo
+let __$$_gololang$ir$Quote_my$test$foo$0_tmp = 42
 ----
-local function manglePrefix = |invocation| {
+function manglePrefix = |invocation| {
   let mod = invocation: enclosingModule()
   let fun = invocation: ancestorOfType(GoloFunction.class)
   return "%s$%s$%d": format(
