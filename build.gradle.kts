@@ -11,10 +11,12 @@
 import ca.coglinc.gradle.plugins.javacc.CompileJavaccTask
 import ca.coglinc.gradle.plugins.javacc.CompileJjTreeTask
 import org.apache.tools.ant.filters.ReplaceTokens
+import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
 
 plugins {
   id("com.github.ben-manes.versions") version "0.29.0"
   id("net.nemerosa.versioning") version "2.8.2"
+  id("com.adarshr.test-logger") version "2.1.0"
 
   `java-library`
   application
@@ -124,6 +126,13 @@ tasks.test {
   systemProperty("java.awt.headless", "true")
   environment("golo.bootstrapped", "yes")
   classpath = files(sourceSets["test"].runtimeClasspath, goloClasses)
+}
+
+testlogger {
+  theme = MOCHA
+  slowThreshold = 5000
+  showStandardStreams = true
+  showFullStackTraces = true
 }
 
 val clean by tasks.named<Delete>("clean") {
