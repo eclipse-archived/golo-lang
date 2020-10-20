@@ -203,4 +203,10 @@ public class LazyListTest {
   public void dropWhile() throws Throwable {
     evalTest("test_dropWhile");
   }
+
+  @Test
+  public void destruct() throws Throwable {
+    resultFor("test_destruct");
+    resultFor("test_destruct_skip");
+  }
 }

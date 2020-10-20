@@ -97,4 +97,12 @@ final class LongRange extends AbstractRange<Long> {
       }
     };
   }
+
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Range<Long> newStartingFrom(Long newStart) {
+    return new LongRange(newStart, this.to()).incrementBy(this.increment());
+  }
 }

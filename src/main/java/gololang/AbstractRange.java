@@ -13,6 +13,7 @@ package gololang;
 import java.util.AbstractCollection;
 import java.util.Iterator;
 import java.util.Arrays;
+import java.util.Objects;
 
 import static java.util.Objects.requireNonNull;
 
@@ -110,18 +111,14 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     }
     @SuppressWarnings("rawtypes")
     Range otherRange = (Range) other;
-    return this.from().equals(otherRange.from())
-           && this.to().equals(otherRange.to())
-           && this.increment() == otherRange.increment();
+    return this.from.equals(otherRange.from())
+           && this.to.equals(otherRange.to())
+           && this.increment == otherRange.increment();
   }
 
   @Override
   public int hashCode() {
-    return Arrays.hashCode(new int[]{
-      this.from().hashCode(),
-      this.to().hashCode(),
-      this.increment()}
-    );
+    return Objects.hash(this.from, this.to, this.increment);
   }
 
   @Override
@@ -137,6 +134,11 @@ abstract class AbstractRange<T extends Comparable<T>> extends AbstractCollection
     return from.compareTo(to) >= 0;
   }
 
+  /**
+   * Destructuring helper.
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
+   */
+  @Deprecated
   public Tuple destruct() {
     Object[] data = new Object[this.size()];
     int i = 0;

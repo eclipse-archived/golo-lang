@@ -289,6 +289,25 @@ augment java.lang.Iterable {
     }
     return false
   }
+
+  ----
+  New style destructuring helper
+
+  If a remainer is included, it will be an iterable reusing the underlying iterator.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
+  ----
+  function __$$_destruct = |this, number, substruct, toSkip| {
+    let it = this: iterator()
+    let d = destructIterator(it, number, substruct, toSkip)
+    if substruct and not toSkip: get(number - 1) {
+      d: set(number - 1, asInterfaceInstance(java.lang.Iterable.class, -> it))
+    }
+    return d
+  }
 }
 
 # ............................................................................................... #
@@ -306,9 +325,66 @@ augment java.util.Collection {
   ----
   Destructuration helper.
 
-  * return a tuple of the values
+  - returns a tuple of the values
+
+  *Deprecated since 3.4. This method should not be called directly and is no more used by new style destructuring.
   ----
-  function destruct = |this| -> Tuple.fromArray(this: toArray())
+  function destruct = |this| {
+    org.eclipse.golo.runtime.Warnings.deprecatedElement("destruct", "gololang.StandardAugmentations.Collection")
+    return Tuple.fromArray(this: toArray())
+  }
+
+  ----
+  New style destructuring helper
+
+  If a remainer is included, it will be a collection of the same type.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
+  ----
+  function __$$_destruct = |this, number, substruct, toSkip| {
+    if number < this: size() and not substruct {
+      throw org.eclipse.golo.runtime.InvalidDestructuringException.notEnoughValues(number, this: size(), substruct)
+    }
+    if number == this: size() and not substruct {
+      return org.eclipse.golo.runtime.ArrayHelper.nullify(this: toArray(), toSkip)
+    }
+    let d = newTypedArray(Object.class, number)
+    let col = match {
+      when toSkip: get(number - 1) then null
+      otherwise _newWithSameType(this)
+    }
+    d: set(number - 1, col)
+    if number <= this: size() and substruct {
+      let it = this: iterator()
+      for (var i = 0, i < number - 1, i = i + 1) {
+        if not toSkip: get(i) {
+          d: set(i, it: next())
+        } else {
+          it: next()
+        }
+      }
+      if col isnt null {
+        while it: hasNext() {
+          col: add(it: next())
+        }
+      }
+      return d
+    }
+    if number == this: size() + 1 and substruct {
+      var i = 0
+      foreach v in this {
+        if not toSkip: get(i) {
+          d: set(i, v)
+        }
+        i = i + 1
+      }
+      return d
+    }
+    throw org.eclipse.golo.runtime.InvalidDestructuringException.tooManyValues(number)
+  }
 
   ----
   Maps a function returning a collection and flatten the result (a.k.a bind)
@@ -320,7 +396,7 @@ augment java.util.Collection {
   - *param* `func`: a mapping function returning a collection
   ----
   function flatMap = |this, func| {
-    let result = this: newWithSameType()
+    let result = _newWithSameType(this)
     foreach elt in this {
       result: addAll(func(elt))
     }
@@ -859,8 +935,30 @@ augment java.util.Map {
 augment java.util.Map$Entry {
   ----
   Destructurate a map entry in key and value
+
+  *Deprecated since 3.4. This method should not be called directly and is no more used by new style destructuring.
   ----
-  function destruct = |this| -> [ this: getKey(), this: getValue() ]
+  function destruct = |this| {
+    org.eclipse.golo.runtime.Warnings.deprecatedElement("destruct", "gololang.StandardAugmentations.Map.Entry")
+    return [ this: getKey(), this: getValue() ]
+  }
+
+  ----
+  New style destructuring helper
+
+  The destructuring must be to exactly two values. No remainer syntax is allowed.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
+  ----
+  function __$$_destruct = |this, number, substruct, toSkip| {
+    if (number == 2 and not substruct) {
+      return array[this: getKey(), this: getValue()]
+    }
+    throw org.eclipse.golo.runtime.InvalidDestructuringException("A Map.Entry must destructure to exactly two values")
+  }
 
   ----
   Convert then entry into an array containing the key and the value.
@@ -951,4 +1049,49 @@ augment java.io.BufferedReader {
   Makes a `BufferedReader` an Iterable on its lines.
   ----
   function iterator = |this| -> gololang.IO$LinesIterator.of(this)
+}
+
+local function destructIterator = |it, number, substruct, toSkip| {
+  let d = newTypedArray(Object.class, number)
+  if substruct and not toSkip: get(number - 1) {
+    d: set(number - 1, it)
+  }
+  let nbValues = match {
+    when substruct then number - 1
+    otherwise number
+  }
+  try {
+    for (var i = 0, i < nbValues, i = i + 1) {
+      if toSkip: get(i) {
+        it: next()
+      } else {
+        d: set(i, it: next())
+      }
+    }
+  } catch (e) {
+    if e oftype java.util.NoSuchElementException.class {
+      throw org.eclipse.golo.runtime.InvalidDestructuringException.notEnoughValues(number, substruct)
+    }
+    throw e
+  }
+  if (it: hasNext() and not substruct) {
+    throw org.eclipse.golo.runtime.InvalidDestructuringException.tooManyValues(number)
+  }
+  return d
+}
+
+
+augment java.util.Iterator {
+
+  ----
+  New style destructuring helper
+
+  If a remainer is included, it will contain the iterator itself.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
+  ----
+  function __$$_destruct = |this, number, substruct, toSkip| -> destructIterator(this, number, substruct, toSkip)
 }

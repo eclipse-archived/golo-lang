@@ -11,6 +11,7 @@
 package org.eclipse.golo.compiler;
 
 import gololang.ir.*;
+import gololang.Messages;
 import java.util.List;
 import java.util.Deque;
 import java.util.LinkedList;
@@ -30,6 +31,13 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   private final SymbolGenerator symbols = new SymbolGenerator("golo.compiler.sugar");
   private final List<GoloFunction> functionsToAdd = new LinkedList<>();
   private GoloModule module;
+
+  private boolean useNewStyleDestruct() {
+    if (this.module.metadata("golo.destruct.newstyle") != null) {
+      return (boolean) this.module.metadata("golo.destruct.newstyle");
+    }
+    return gololang.Runtime.loadBoolean("true", "golo.destruct.newstyle", "GOLO_DESTRUCT_NEWSTYLE", true);
+  }
 
   @Override
   public void visitModule(GoloModule module) {
@@ -236,6 +244,9 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     }
   }
 
+  /**
+   * Converts a literal function reference into a call to {@Predefined.fun}.
+   */
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
     constantStatement.walk(this);
@@ -373,8 +384,19 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
   /**
    * Destructuring assignment expansion.
+   */
+  @Override
+  public void visitDestructuringAssignment(DestructuringAssignment assignment) {
+    Block replacement = useNewStyleDestruct() ? newDestructuring(assignment) : oldDestructuring(assignment);
+    assignment.replaceInParentBy(replacement);
+    replacement.accept(this);
+  }
+
+  /**
+   * Destructuring assignment expansion.
+   * <p>Old version (before 3.4.0)
    * <p>
-   * convert code like
+   * Converts code like
    * <pre class="listing"><code class="lang-golo" data-lang="golo">
    * let a, b, c... = expr
    * </code></pre>
@@ -386,8 +408,8 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
    * let c = tmp: subTuple(2)
    * </code></pre>
    */
-  @Override
-  public void visitDestructuringAssignment(DestructuringAssignment assignment) {
+  private Block oldDestructuring(DestructuringAssignment assignment) {
+    Messages.warning(Messages.message("oldstyle_destruct", this.module.getPackageAndClass()), assignment);
     LocalReference tmpRef = LocalReference.of(symbols.next("destruct")).synthetic();
     Block block = Block.of(AssignmentStatement.create(tmpRef, invoke("destruct").on(assignment.expression()), true));
     int last = assignment.getReferencesCount() - 1;
@@ -402,8 +424,52 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
             assignment.isDeclaring()));
       idx++;
     }
-    assignment.replaceInParentBy(block);
-    block.accept(this);
+    return block;
+  }
+
+  /**
+   * Destructuring assignment expansion.
+   * <p>Old version (after 3.4.0)
+   * <p>
+   * Converts code like
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let a, b, c... = expr
+   * </code></pre>
+   * into something equivalent to
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let tmp = expr: __$$_destruct(3, true, array[false, false, false])
+   * let a = tmp: get(0)
+   * let b = tmp: get(1)
+   * let c = tmp: get(2)
+   * </code></pre>
+   */
+  private Block newDestructuring(DestructuringAssignment assignment) {
+    LocalReference tmpRef = LocalReference.of(symbols.next("destruct")).synthetic();
+    Block block = Block.empty();
+    Object[] toSkip = new Object[assignment.getReferencesCount()];
+    int idx = 0;
+    for (LocalReference ref : assignment.getReferences()) {
+      if ("_".equals(ref.getName())) {
+        toSkip[idx] = ConstantStatement.of(true);
+      } else {
+        toSkip[idx] = ConstantStatement.of(false);
+        block.add(
+            AssignmentStatement.create(
+              ref,
+              invoke("get").withArgs(ConstantStatement.of(idx)).on(tmpRef.lookup()),
+              assignment.isDeclaring()));
+      }
+      idx++;
+    }
+    block.prepend(AssignmentStatement.create(tmpRef,
+          invoke("__$$_destruct")
+          .withArgs(
+            ConstantStatement.of(assignment.getReferencesCount()),
+            ConstantStatement.of(assignment.isVarargs()),
+            CollectionLiteral.create(CollectionLiteral.Type.array, toSkip))
+          .on(assignment.expression()),
+        true));
+    return block;
   }
 
   /**

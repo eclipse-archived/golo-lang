@@ -13,6 +13,8 @@ package gololang;
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
+import org.eclipse.golo.runtime.ArrayHelper;
 
 /**
  * Represents an tuple object.
@@ -27,6 +29,8 @@ import java.util.NoSuchElementException;
  * </code></pre>
  */
 public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
+
+  private static final Tuple EMPTY = new Tuple();
 
   private final Object[] data;
 
@@ -46,6 +50,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * @return a tuple from the array values.
    */
   public static Tuple fromArray(Object[] values) {
+    if (values.length == 0) { return EMPTY; }
     return new Tuple(values);
   }
 
@@ -181,7 +186,7 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
   }
 
   /**
-   * Returns a new tuple containg the remaining elements.
+   * Returns a new tuple containing the remaining elements.
    *
    * @return a tuple.
    */
@@ -194,8 +199,28 @@ public final class Tuple implements HeadTail<Object>, Comparable<Tuple> {
    * Helper for destructuring.
    *
    * @return the tuple itself
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() { return this; }
+
+  /**
+   * New style destructuring helper.
+   *
+   * <p>If a remainer if included, it will be a new tuple of the remaining values.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
+   * @return an array containing the values to assign.
+   */
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    Object[] destruct = ArrayHelper.newStyleDestruct(this.data, number, substruct, toSkip);
+    if (number <= this.data.length + 1 && substruct && destruct[number - 1] != null) {
+      destruct[number - 1] = fromArray((Object[]) destruct[number - 1]);
+    }
+    return destruct;
+  }
 
   /**
    * Extract a sub-tuple.

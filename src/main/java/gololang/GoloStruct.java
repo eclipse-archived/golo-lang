@@ -11,6 +11,7 @@
 package gololang;
 
 import java.util.Iterator;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * Base class for Golo structure objects.
@@ -60,9 +61,32 @@ public abstract class GoloStruct implements Iterable<Tuple>, Comparable<GoloStru
    * Destructuration helper.
    *
    * @return a tuple with the current values.
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() {
     return Tuple.fromArray(toArray());
+  }
+
+  /**
+   * New style destructuring helper.
+   *
+   * <p>The number of variables to be affected must be the number of members.
+   * No remainer syntax is allowed.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
+   * @return an array containing the values to assign.
+   */
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    if (number == this.members.length && !substruct) {
+      return toArray();
+    }
+    if (number <= this.members.length) {
+      throw InvalidDestructuringException.notEnoughValues(number, this.members.length, substruct);
+    }
+    throw InvalidDestructuringException.tooManyValues(number);
   }
 
   /**

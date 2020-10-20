@@ -14,11 +14,17 @@ import org.eclipse.golo.compiler.PackageAndClass;
 
 import java.util.List;
 import java.util.Collection;
+import java.util.Iterator;
 
 /**
  * Interface for Golo elements that can contain functions (module, augmentations, ...).
  */
-public interface FunctionContainer {
+public interface FunctionContainer extends Iterable<GoloFunction> {
+
+  default Iterator<GoloFunction> iterator() {
+    return getFunctions().iterator();
+  }
+
   List<GoloFunction> getFunctions();
 
   /**
