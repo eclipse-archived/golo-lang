@@ -292,6 +292,13 @@ augment java.lang.Iterable {
 
   ----
   New style destructuring helper
+
+  If a remainer is included, it will be an iterable reusing the underlying iterator.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
   ----
   function __$$_destruct = |this, number, substruct, toSkip| {
     let it = this: iterator()
@@ -328,14 +335,14 @@ augment java.util.Collection {
   }
 
   ----
-  New style destructuring helper.
+  New style destructuring helper
 
-  New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-  members of the structure.
+  If a remainer is included, it will be a collection of the same type.
 
   - *param* `number`: number of variable that will be affected.
-  - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
-  - *return* an array containing the values to assign.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
   ----
   function __$$_destruct = |this, number, substruct, toSkip| {
     if number < this: size() and not substruct {
@@ -937,14 +944,14 @@ augment java.util.Map$Entry {
   }
 
   ----
-  New style destructuring helper.
+  New style destructuring helper
 
-  New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-  members of the structure.
+  The destructuring must be to exactly two values. No remainer syntax is allowed.
 
   - *param* `number`: number of variable that will be affected.
-  - *param* `substruct`: whether the destructuring is complete or should contains a sub structure.
-  - *return* a tuple containing the values to assign.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
   ----
   function __$$_destruct = |this, number, substruct, toSkip| {
     if (number == 2 and not substruct) {
@@ -1075,5 +1082,16 @@ local function destructIterator = |it, number, substruct, toSkip| {
 
 
 augment java.util.Iterator {
+
+  ----
+  New style destructuring helper
+
+  If a remainer is included, it will contain the iterator itself.
+
+  - *param* `number`: number of variable that will be affected.
+  - *param* `substruct`: whether the destructuring is complete or should contains a remainer.
+  - *param* `toSkip`: a boolean array indicating the elements to skip.
+  - *returns* an array containing the values to assign.
+  ----
   function __$$_destruct = |this, number, substruct, toSkip| -> destructIterator(this, number, substruct, toSkip)
 }

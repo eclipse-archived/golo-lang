@@ -91,11 +91,12 @@ public final class WhenClause<T extends GoloElement<?>> extends GoloElement<When
   /**
    * New style destructuring helper.
    *
-   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-   * members of the structure.
+   * <p>The destructuring must be to exactly two values. No remainer syntax is allowed.
+   * <p>The destructured values are the condition and the action.
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
    * @return an array containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {

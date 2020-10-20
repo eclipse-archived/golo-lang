@@ -89,11 +89,12 @@ public interface Range<T> extends Collection<T>, HeadTail<T> {
   /**
    * New style destructuring helper.
    *
-   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-   * members of the structure.
+   * <p>If a remainer if included, it will be a new range with same step and end values, starting to the next available
+   * value.
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
    * @return an array containing the values to assign.
    */
   default Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {

@@ -82,11 +82,11 @@ public interface HeadTail<E> extends Iterable<E> {
   /**
    * New style destructuring helper.
    *
-   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-   * members of the structure.
+   * <p>If a remainer if included, it will be the tail of the last extracted value (even if skipped).
    *
    * @param number number of variable that will be affected.
-   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param substruct whether the destructuring is complete or should contains a remainer.
+   * @param toSkip a boolean array indicating the elements to skip.
    * @return an array containing the values to assign.
    */
   default Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {

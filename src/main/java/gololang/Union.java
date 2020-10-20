@@ -43,11 +43,12 @@ public abstract class Union {
   /**
    * New style destructuring helper.
    *
-   * New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
-   * members of the structure.
+   * The number of variables to be affected must be the number of members.
+   * No remainer syntax is allowed.
    *
    * @param number number of variable that will be affected.
    * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
    * @return an array containing the values to assign.
    */
   public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {

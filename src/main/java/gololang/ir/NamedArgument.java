@@ -60,6 +60,17 @@ public final class NamedArgument extends ExpressionStatement<NamedArgument> {
     this.expression = makeParentOf(value);
   }
 
+  /**
+   * New style destructuring helper.
+   *
+   * <p>The destructuring must be to exactly two values. No remainer syntax is allowed.
+   * <p>The destructured values are the named and the expression.
+   *
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
+   * @return an array containing the values to assign.
+   */
   public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
     if (number == 2 && !substruct) {
       return new Object[]{name, expression};
