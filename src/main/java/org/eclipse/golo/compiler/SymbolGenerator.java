@@ -189,6 +189,20 @@ public final class SymbolGenerator implements Iterator<String> {
     return name == null ? "" : String.valueOf(name).replace('.', '$').replace(' ', '_');
   }
 
+  /**
+   * Mangle a name using the given elements as components.
+   */
+  public static String mangle(Object... elements) {
+    StringBuilder name = new StringBuilder(PREFIX);
+    for (Object elt : elements) {
+      String e = escapeName(elt);
+      if (!"".equals(e)) {
+        name.append(JOIN).append(e);
+      }
+    }
+    return name.toString();
+  }
+
   private String name(String localName, Object suffix) {
     return name(
         (localName == null || "".equals(localName)
@@ -198,7 +212,7 @@ public final class SymbolGenerator implements Iterator<String> {
   }
 
   private String name(String localName) {
-    String name = PREFIX + String.join(JOIN, prefixes);
+    String name = PREFIX + String.join(JOIN, this.prefixes);
     if (localName != null && !"".equals(localName)) {
       name += JOIN + localName;
     }

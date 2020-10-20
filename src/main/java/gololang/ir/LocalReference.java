@@ -10,8 +10,6 @@
 
 package gololang.ir;
 
-import org.eclipse.golo.compiler.SymbolGenerator;
-
 /**
  * Represents a reference.
  *

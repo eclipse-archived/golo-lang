@@ -14,6 +14,8 @@ import java.util.Objects;
 import java.util.LinkedList;
 import java.util.List;
 
+import org.eclipse.golo.compiler.SymbolGenerator;
+
 /**
  * A {@code try catch finally} statement.
  *
@@ -31,7 +33,7 @@ import java.util.List;
 public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
 
   public static final String DUMMY_TRY_RESULT_VARIABLE = "__$$_result";
-  private static final String DUMMY_EXCEPTION_VARIABLE = "__$$_exception";
+  private static final String DUMMY_EXCEPTION_VARIABLE = "dummy_exception";
   private String exceptionId;
   private LocalReference dummyException;
   private Block tryBlock;
@@ -143,7 +145,7 @@ public final class TryCatchFinally extends GoloStatement<TryCatchFinally> {
    * @see Block#of(Object)
    */
   public TryCatchFinally finalizing(Object block) {
-    this.dummyException = LocalReference.generate(DUMMY_EXCEPTION_VARIABLE).synthetic();
+    this.dummyException = LocalReference.of(SymbolGenerator.mangle("dummy_exception", System.identityHashCode(this))).synthetic();
     this.finallyBlock = makeParentOf(Block.of(block));
     this.finallyBlock.getReferenceTable().add(this.dummyException);
     return this;
