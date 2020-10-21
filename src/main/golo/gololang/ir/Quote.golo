@@ -73,8 +73,8 @@ module gololang.ir.Quote
 
 import gololang.ir
 
-let SYMBOLS = DynamicVariable(org.eclipse.golo.compiler.SymbolGenerator("gololang.ir.Quote"):
-withScopes(org.eclipse.golo.compiler.SymbolGenerator.scopeCounter()))
+let SYMBOLS = org.eclipse.golo.compiler.SymbolGenerator("gololang.ir.Quote"):
+withScopes(org.eclipse.golo.compiler.SymbolGenerator.scopeCounter())
 
 local function _mangle = |name, protected| -> match {
   when protected is null then ConstantStatement.of(name)
@@ -82,12 +82,12 @@ local function _mangle = |name, protected| -> match {
   otherwise FunctionInvocation.create("gololang.ir.Quote.mangle", false, false, false, ConstantStatement.of(name))
 }
 
-function mangle = |name| -> SYMBOLS: value(): getFor(name)
-function gensym = -> SYMBOLS: value(): next()
-function gensym =  |name| -> SYMBOLS: value(): next(name)
-function enterSymScope = |scope| { SYMBOLS: value(): enter(scope) }
-function enterSymScope = { SYMBOLS: value(): enter() }
-function exitSymScope = { SYMBOLS: value(): exit() }
+function mangle = |name| -> SYMBOLS: getFor(name)
+function gensym = -> SYMBOLS: next()
+function gensym =  |name| -> SYMBOLS: next(name)
+function enterSymScope = |scope| { SYMBOLS: enter(scope) }
+function enterSymScope = { SYMBOLS: enter() }
+function exitSymScope = { SYMBOLS: exit() }
 
 local function augmentProtected = |p, ns| {
   if p is null {

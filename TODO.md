@@ -2,6 +2,7 @@
 
 ## DOING
 
+
 ## ISSUES
 
 Change Quote to expand *into* symbol generation, instead of generating symbols.
@@ -23,8 +24,8 @@ This allows to symbols to be generated when the macro *using* quote is expanded.
   - [ ] local generator macro
   - [ ] new quote with local scope (see Tests/hyg)
 - [x] expand quote into symbol generation to generate names when the macro is called
-- [ ] See wip/macro-hygiene
+- [x] See wip/macro-hygiene
 
 ## Questions
 
-- Must the global generator added by the macro use a DynamicVariable ?
+- [x] Must the global generator added by the macro use a DynamicVariable ? No
