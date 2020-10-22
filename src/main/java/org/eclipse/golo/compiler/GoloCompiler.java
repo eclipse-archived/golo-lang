@@ -118,7 +118,7 @@ public class GoloCompiler {
     if (goloModule.isEmpty()) {
       return Collections.emptyList();
     }
-    return generate(goloModule, goloSourceFilename);
+    return generate(goloModule);
   }
 
   private void throwIfErrorEncountered() {
@@ -233,6 +233,11 @@ public class GoloCompiler {
     }
   }
 
+  public final ASTCompilationUnit parse(File goloSourceFile) throws GoloCompilationException, IOException {
+    try (FileInputStream in = new FileInputStream(goloSourceFile)) {
+      return parse(goloSourceFile.getPath(), initParser(goloSourceFile.getPath(), in));
+    }
+  }
   /**
    * Checks that the source code is minimally sound by converting a parse tree to an intermediate representation, and
    * running a few classic visitors over it. This is mostly useful to IDEs.
@@ -245,9 +250,9 @@ public class GoloCompiler {
     return refine(expand(transform(compilationUnit)));
   }
 
-  public final List<CodeGenerationResult> generate(GoloModule goloModule, String goloSourceFilename) {
+  public final List<CodeGenerationResult> generate(GoloModule goloModule) {
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
-    return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
+    return bytecodeGenerator.generateBytecode(goloModule);
   }
 
   public final GoloModule transform(ASTCompilationUnit compilationUnit) {

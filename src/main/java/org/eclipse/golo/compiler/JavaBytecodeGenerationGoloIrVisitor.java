@@ -88,8 +88,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     currentMethodVisitor = visitor;
   }
 
-  public List<CodeGenerationResult> generateBytecode(GoloModule module, String sourceFilename) {
-    this.sourceFilename = sourceFilename;
+  public List<CodeGenerationResult> generateBytecode(GoloModule module) {
+    this.sourceFilename = module.sourceFile();
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     this.generationResults = new LinkedList<>();
     this.context = new Context();
@@ -143,7 +143,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitModule(GoloModule module) {
     this.currentModule = module;
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | deprecatedFlag(module), module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
-    classWriter.visitSource(sourceFilename, null);
+    classWriter.visitSource(this.sourceFilename, null);
     addAnnotations(module, classWriter::visitAnnotation);
     writeImportMetaData(module.getImports());
     klass = module.getPackageAndClass().toString();
@@ -313,7 +313,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
-    classWriter.visitSource(sourceFilename, null);
+    classWriter.visitSource(this.sourceFilename, null);
     classWriter.visitOuterClass(outerName, null, null);
     addAnnotations(annotations, classWriter::visitAnnotation);
     for (GoloFunction function : functions) {

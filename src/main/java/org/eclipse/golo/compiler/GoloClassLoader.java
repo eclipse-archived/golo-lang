@@ -65,15 +65,14 @@ public class GoloClassLoader extends ClassLoader {
   /**
    * Compiles and loads the resulting JVM bytecode for a Golo module IR.
    *
-   * @param goloSourceFilename    the source file name.
    * @param module  the Golo module IR to load.
    * @return the class matching the Golo module defined in the IR.
    * @throws GoloCompilationException if either of the compilation phase failed.
    */
-  public synchronized Class<?> load(String goloSourceFilename, GoloModule module) {
+  public synchronized Class<?> load(GoloModule module) {
     compiler.expand(module);
     compiler.refine(module);
-    return load(compiler.generate(module, goloSourceFilename));
+    return load(compiler.generate(module));
   }
 
   private Class<?> load(List<CodeGenerationResult> results) {

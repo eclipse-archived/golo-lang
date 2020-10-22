@@ -158,7 +158,7 @@ public final class Runtime {
     try {
       if (module instanceof GoloModule) {
         GoloModule mod = (GoloModule) module;
-        return classLoader().load(mod.sourceFile(), mod);
+        return classLoader().load(mod);
       }
       URL url = toURL(module);
       try (InputStream is = url.openStream()) {
