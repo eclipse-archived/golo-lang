@@ -22,6 +22,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.List;
+import java.util.stream.Stream;
 import java.util.jar.JarOutputStream;
 import java.util.zip.ZipEntry;
 
@@ -126,6 +127,14 @@ public class GoloCompiler {
     }
   }
 
+  public final List<CodeGenerationResult> compile(File src) {
+    try {
+      return compile(src.getPath(), new FileInputStream(src));
+    } catch (IOException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   /**
    * Returns the list of problems encountered during the last compilation
    *
@@ -159,6 +168,18 @@ public class GoloCompiler {
       try (FileOutputStream out = new FileOutputStream(outputFile)) {
         out.write(result.getBytecode());
       }
+    }
+  }
+
+  public final void compileTo(File src, File dst) throws GoloCompilationException, IOException {
+    try(FileInputStream in = new FileInputStream(src)) {
+      compileTo(src.getPath(), in, dst);
+    }
+  }
+
+  public final void compileTo(File src, JarOutputStream dst) throws IOException {
+    try(FileInputStream in = new FileInputStream(src)) {
+      compileToJar(src.getPath(), in, dst);
     }
   }
 
