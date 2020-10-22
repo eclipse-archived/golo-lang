@@ -31,6 +31,7 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
   private MacroInvocation decoratorMacro = null;
   private GoloFunction moduleStateInitializer = null;
   private boolean hasMain = false;
+  private boolean hasMacros = false;
 
   private static final ModuleImport[] DEFAULT_IMPORTS = {
     ModuleImport.implicit("gololang.Predefined"),
@@ -86,6 +87,9 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
     return this;
   }
 
+  /**
+   * Returns the module imported by this module, including the implicit ones.
+   */
   public Set<ModuleImport> getImports() {
     Set<ModuleImport> imp = new LinkedHashSet<>();
     if (!types.isEmpty()) {
@@ -102,6 +106,24 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
     }
     Collections.addAll(imp, DEFAULT_IMPORTS);
     return imp;
+  }
+
+  /**
+   * Returns the names of the modules used by this module.
+   *
+   * <p>Since the {@code use} macro can inject other dependencies, this list can be not complete.
+   * The macro is not expanded.
+   */
+  public Set<String> getUsedModules() {
+    Set<String> mods = new LinkedHashSet<>();
+    for (MacroInvocation m : topLevelMacroInvocations) {
+      if ("use".equals(m.getName())) {
+        Object name = ((ConstantStatement) m.getArguments().get(0)).value();
+        if (name instanceof String) { mods.add((String) name); }
+        else if (name instanceof ClassReference) { mods.add(((ClassReference) name).getName()); }
+      }
+    }
+    return mods;
   }
 
   public Collection<Augmentation> getAugmentations() {
@@ -133,6 +155,10 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
     return !functions.isEmpty();
   }
 
+  public boolean hasMacros() {
+    return hasMacros;
+  }
+
   public boolean hasMain() {
     return hasMain;
   }
@@ -146,6 +172,9 @@ public final class GoloModule extends GoloElement<GoloModule> implements Functio
     functions.add(makeParentOf(function));
     if (function.isMain()) {
       hasMain = true;
+    }
+    if (function.isMacro()) {
+      hasMacros = true;
     }
   }
 
