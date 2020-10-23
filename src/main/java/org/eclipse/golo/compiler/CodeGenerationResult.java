@@ -51,4 +51,11 @@ public final class CodeGenerationResult {
   public PackageAndClass getPackageAndClass() {
     return packageAndClass;
   }
+
+  /**
+   * @return the relative filename of the corresponding class.
+   */
+  public String getOutputFilename() {
+    return packageAndClass.getFilename();
+  }
 }

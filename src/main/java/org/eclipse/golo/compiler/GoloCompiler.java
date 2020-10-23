@@ -127,12 +127,8 @@ public class GoloCompiler {
     }
   }
 
-  public final List<CodeGenerationResult> compile(File src) {
-    try {
-      return compile(src.getPath(), new FileInputStream(src));
-    } catch (IOException e) {
-      throw new RuntimeException(e);
-    }
+  public final List<CodeGenerationResult> compile(File src) throws IOException {
+    return compile(src.getPath(), new FileInputStream(src));
   }
 
   /**
@@ -145,65 +141,6 @@ public class GoloCompiler {
       return Collections.emptyList();
     }
     return exceptionBuilder.getProblems();
-  }
-
-  /**
-   * Compiles a Golo source file and writes the resulting JVM bytecode {@code .class} files to a target
-   * folder. The class files are written in a directory structure that respects package names.
-   *
-   * @param goloSourceFilename    the source file name.
-   * @param sourceCodeInputStream the source code input stream.
-   * @param targetFolder          the output target folder.
-   * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
-   * @throws IOException              if writing the {@code .class} files fails for some reason.
-   */
-  public final void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
-    List<CodeGenerationResult> results = compile(goloSourceFilename, sourceCodeInputStream);
-    for (CodeGenerationResult result : results) {
-      File outputFolder = new File(targetFolder, result.getPackageAndClass().packageName().replaceAll("\\.", "/"));
-      if (!outputFolder.exists() && !outputFolder.mkdirs()) {
-        throw new IOException(message("directory_not_created", outputFolder));
-      }
-      File outputFile = new File(outputFolder, result.getPackageAndClass().className() + ".class");
-      try (FileOutputStream out = new FileOutputStream(outputFile)) {
-        out.write(result.getBytecode());
-      }
-    }
-  }
-
-  public final void compileTo(File src, File dst) throws GoloCompilationException, IOException {
-    try(FileInputStream in = new FileInputStream(src)) {
-      compileTo(src.getPath(), in, dst);
-    }
-  }
-
-  public final void compileTo(File src, JarOutputStream dst) throws IOException {
-    try(FileInputStream in = new FileInputStream(src)) {
-      compileToJar(src.getPath(), in, dst);
-    }
-  }
-
-  /**
-   * Compiles a Golo source fila and writes the resulting JVM bytecode {@code .class} files to a Jar file stream.
-   * The class files are written in a directory structure that respects package names.
-   *
-   * @param goloSourceFilename the source file name.
-   * @param sourceCodeInputStream the source code input stream.
-   * @param jarOutputStream the output Jar stream
-   * @throws IOException if writing the {@code .class} files fails for some reason.
-   */
-  public final void compileToJar(String goloSourceFilename, InputStream sourceCodeInputStream, JarOutputStream jarOutputStream) throws IOException {
-    List<CodeGenerationResult> results = compile(goloSourceFilename, sourceCodeInputStream);
-    for (CodeGenerationResult result : results) {
-      String entryName = result.getPackageAndClass().packageName().replaceAll("\\.", "/");
-      if (!entryName.isEmpty()) {
-        entryName += "/";
-      }
-      entryName = entryName + result.getPackageAndClass().className() + ".class";
-      jarOutputStream.putNextEntry(new ZipEntry(entryName));
-      jarOutputStream.write(result.getBytecode());
-      jarOutputStream.closeEntry();
-    }
   }
 
   /**

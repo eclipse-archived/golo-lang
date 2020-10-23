@@ -40,7 +40,7 @@ public class CompilationTest {
   @Test(dataProvider = "golo-files")
   public void generate_bytecode(File goloFile) throws IOException, ParseException, ClassNotFoundException {
     GoloCompiler compiler = new GoloCompiler();
-    List<CodeGenerationResult> results = compiler.compile(goloFile.getName(), new FileInputStream(goloFile));
+    List<CodeGenerationResult> results = compiler.compile(goloFile);
 
     if (Tracing.shouldTrace) {
       Tracing.println();

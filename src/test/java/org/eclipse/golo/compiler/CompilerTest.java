@@ -11,6 +11,7 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.parser.ParseException;
+import org.eclipse.golo.cli.GolofilesManager;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -32,12 +33,11 @@ public class CompilerTest {
 
   @Test
   public void verify_compileTo() throws IOException, ParseException {
-    String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
-    FileInputStream sourceInputStream = new FileInputStream(sourceFile);
+    File sourceFile = new File("src/test/resources/for-parsing-and-compilation/simple-returns.golo");
     File temp = temporaryFolder();
 
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compileTo("simple-returns.golo", sourceInputStream, temp);
+    GolofilesManager.withOutputDir(temp).saveAll(compiler.compile(sourceFile));
 
     File expectedOutputFile = new File(temp, "golotest/SimpleReturns.class");
     assertThat(expectedOutputFile.exists(), is(true));
@@ -46,9 +46,9 @@ public class CompilerTest {
 
   @Test
   public void verify_compile_no_errors() throws IOException, ParseException {
-    String okSourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
+    File okSourceFile = new File("src/test/resources/for-parsing-and-compilation/simple-returns.golo");
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compile("simple-returns.golo", new FileInputStream(okSourceFile));
+    compiler.compile(okSourceFile);
   }
 
   @Test
