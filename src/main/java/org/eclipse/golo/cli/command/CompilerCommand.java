@@ -47,27 +47,20 @@ public class CompilerCommand implements CliCommand {
   private File outputDir;
   private JarOutputStream jar;
 
-  private static boolean canReadFile(File file) {
-    if (!file.canRead()) {
-      warning(message("file_not_found", file.getPath()));
-      return false;
-    }
-    return true;
-  }
-
-  private static void saveToJar(CodeGenerationResult result, JarOutputStream jar) throws IOException {
+  private void saveToJar(CodeGenerationResult result) throws IOException {
     String entryName = result.getPackageAndClass().packageName().replaceAll("\\.", "/");
     if (!entryName.isEmpty()) {
       entryName += "/";
     }
     entryName = entryName + result.getPackageAndClass().className() + ".class";
-    jar.putNextEntry(new ZipEntry(entryName));
-    jar.write(result.getBytecode());
-    jar.closeEntry();
+    this.jar.putNextEntry(new ZipEntry(entryName));
+    this.jar.write(result.getBytecode());
+    this.jar.closeEntry();
   }
 
-  private static void saveToClass(CodeGenerationResult result, File targetFolder) throws IOException {
-    File outputFolder = new File(targetFolder, result.getPackageAndClass().packageName().replaceAll("\\.", "/"));
+  private void saveToClass(CodeGenerationResult result) throws IOException {
+    // TODO: Move this logic into the CodeGenerationResult (or PackageAndClass, or both)
+    File outputFolder = new File(this.outputDir, result.getPackageAndClass().packageName().replaceAll("\\.", "/"));
     if (!outputFolder.exists() && !outputFolder.mkdirs()) {
       throw new IOException(message("directory_not_created", outputFolder));
     }
@@ -81,12 +74,12 @@ public class CompilerCommand implements CliCommand {
     for (CodeGenerationResult result : results) {
       try {
         if (compilingToJar()) {
-          saveToJar(result, this.jar);
+          saveToJar(result);
         } else {
-          saveToClass(result, this.outputDir);
+          saveToClass(result);
         }
       } catch (IOException e) {
-        dealWithErrors(e);
+        error(e.getLocalizedMessage());
       }
     }
   }
@@ -110,25 +103,19 @@ public class CompilerCommand implements CliCommand {
       error(message("file_exists", outputDir));
       return;
     }
-    this.sources.stream()
-      .map(File::new)
-      .filter(CompilerCommand::canReadFile)
-      .map((f) -> Result.trying(() -> compiler.compile(f)))
-      .forEach((res) -> {
-        res.either(this::save, this::dealWithErrors);
-      });
-    if (compilingToJar()) {
-      jar.close();
+    for (String source : this.sources) {
+      File sourceFile = new File(source);
+      if (!this.canReadFile(sourceFile)) { continue; }
+      try {
+        this.save(compiler.compile(sourceFile));
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e);
+      } catch (Throwable e) {
+        handleThrowable(e);
+      }
     }
-  }
-
-  private void dealWithErrors(Throwable e) {
-    if (e instanceof IOException) {
-      error(e.getLocalizedMessage());
-    } else if (e instanceof GoloCompilationException) {
-      handleCompilationException((GoloCompilationException) e);
-    } else {
-      handleThrowable(e);
+    if (compilingToJar()) {
+      this.jar.close();
     }
   }
 

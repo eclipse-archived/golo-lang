@@ -14,9 +14,12 @@ import org.eclipse.golo.compiler.GoloCompilationException;
 import gololang.Messages;
 
 import java.lang.invoke.MethodHandle;
+import java.io.File;
 
 import static java.lang.invoke.MethodHandles.publicLookup;
 import static java.lang.invoke.MethodType.methodType;
+
+import static gololang.Messages.*;
 
 
 public interface CliCommand {
@@ -35,6 +38,15 @@ public interface CliCommand {
     }
     main.invoke(arguments);
   }
+
+  default boolean canReadFile(File file) {
+    if (!file.canRead()) {
+      warning(message("file_not_found", file.getPath()));
+      return false;
+    }
+    return true;
+  }
+
 
   default void handleCompilationException(GoloCompilationException e) {
     handleCompilationException(e, true);
