@@ -1,4 +1,4 @@
-name: Gradle CI
+name: Build pull requests
 
 on: pull_request
 
