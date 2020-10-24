@@ -9,7 +9,7 @@ on:
       - master
 
 jobs:
-  build:
+  pipeline:
     runs-on: ubuntu-latest
     steps:
 
@@ -41,6 +41,6 @@ jobs:
         path: build/distributions/*.zip
 
     - name: Deploy
-      if: github.ref == 'refs/heads/main'
+      if: github.ref == 'refs/heads/master'
       run: .build/deploy.sh
 
