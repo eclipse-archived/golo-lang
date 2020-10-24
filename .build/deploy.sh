@@ -18,4 +18,8 @@ echo "📦 Publishing..."
 
 ./gradlew publish
 
+echo "🧹 Cleanup..."
+
+rm gradle.properties golo-dev-sign.asc
+
 echo "✅ Done!"
