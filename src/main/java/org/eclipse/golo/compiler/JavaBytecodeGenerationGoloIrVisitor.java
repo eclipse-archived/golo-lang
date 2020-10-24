@@ -95,7 +95,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     this.context = new Context();
     module.accept(this);
     this.classWriter.visitEnd();
-    this.generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), module.getPackageAndClass()));
+    this.generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), module.getPackageAndClass(), module.sourceFile()));
     return this.generationResults;
   }
 
@@ -325,7 +325,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     writeImportMetaData(imports);
 
     classWriter.visitEnd();
-    generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass));
+    generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), packageAndClass, this.sourceFilename));
     classWriter = mainClassWriter;
   }
 

@@ -51,7 +51,7 @@ class JavaBytecodeUnionGenerator {
     }
     initStaticFields(classWriter, union.getPackageAndClass(), staticFields);
     classWriter.visitEnd();
-    results.addFirst(new CodeGenerationResult(classWriter.toByteArray(), union.getPackageAndClass()));
+    results.addFirst(new CodeGenerationResult(classWriter.toByteArray(), union.getPackageAndClass(), sourceFilename));
     return results;
   }
 
@@ -207,7 +207,7 @@ class JavaBytecodeUnionGenerator {
     makeToString(classWriter, value);
     makeMatchlikeTestMethod(classWriter, value, true);
     classWriter.visitEnd();
-    return new CodeGenerationResult(classWriter.toByteArray(), value.getPackageAndClass());
+    return new CodeGenerationResult(classWriter.toByteArray(), value.getPackageAndClass(), sourceFilename);
   }
 
   private void makeEquals(ClassWriter cw, UnionValue value) {
