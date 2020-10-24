@@ -349,8 +349,8 @@ publishing {
     maven {
       name = "SonatypeOSS"
       credentials {
-        username = if (project.hasProperty("ossrhUsername")) (project.property("ossrhUsername") as String) else (System.getenv("OSSRH_USERNAME") ?: "N/A")
-        password = if (project.hasProperty("ossrhPassword")) (project.property("ossrhPassword") as String) else (System.getenv("OSSRH_PASSWORD") ?: "N/A")
+        username = if (project.hasProperty("ossrhUsername")) (project.property("ossrhUsername") as String) else "N/A"
+        password = if (project.hasProperty("ossrhPassword")) (project.property("ossrhPassword") as String) else "N/A"
       }
 
       val releasesRepoUrl = "https://oss.sonatype.org/service/local/staging/deploy/maven2/"
@@ -367,16 +367,11 @@ tasks.withType<PublishToMavenRepository> {
 }
 
 signing {
+  useGpgCmd()
   sign(publishing.publications["main"])
-}
-
-tasks.withType<Sign>().configureEach {
-  onlyIf {
-    isReleaseVersion
-  }
 }
 
 tasks.wrapper {
   distributionType = Wrapper.DistributionType.ALL
-  gradleVersion = "6.6.1"
+  gradleVersion = "6.7"
 }
