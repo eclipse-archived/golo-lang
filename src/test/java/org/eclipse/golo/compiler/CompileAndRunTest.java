@@ -18,6 +18,7 @@ import org.eclipse.golo.compiler.testing.support.ClassWithOverloadedMethods;
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.*;
 import org.testng.annotations.Test;
+import org.testng.annotations.Ignore;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -668,6 +669,9 @@ public class CompileAndRunTest {
 
     Method first_method = moduleClass.getMethod("first_method");
     assertThat((Integer) first_method.invoke(null), is(1));
+
+    assertThat((Object[]) moduleClass.getMethod("contains_index").invoke(null), arrayContaining(true, false, 2, -1));
+
   }
 
   @Test
@@ -1767,15 +1771,8 @@ public class CompileAndRunTest {
     if (bootstraping()) {
       return;
     }
-    Class<?> moduleClass = compileAndLoadGoloModule(SRC, "destruct.golo");
-    for (Method testMethod : getTestMethods(moduleClass)) {
-      try {
-        testMethod.invoke(null);
-      } catch (InvocationTargetException e) {
-        fail("method " + testMethod.getName() + " in " + SRC + "destruct.golo failed: " +
-              e.getCause());
-      }
-    }
+    runTests(SRC, "destruct.golo", classLoader(this));
+    runTests(SRC, "destruct-old.golo", classLoader(this));
   }
 
   @Test
@@ -1883,6 +1880,11 @@ public class CompileAndRunTest {
       assertThat(e.getCause().getCause().getClass(), equalTo(ClassNotFoundException.class));
     }
 
+  }
+
+  @Test
+  public void test_nested_try() throws Throwable {
+    runTests(SRC, "nested-try.golo", classLoader(this));
   }
 
 }

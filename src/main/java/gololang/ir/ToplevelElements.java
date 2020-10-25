@@ -40,8 +40,28 @@ public final class ToplevelElements extends GoloElement<ToplevelElements> implem
    * Creates a top-level elements container.
    *
    * <p>Mainly used to return several nodes from a top-level macro.
+   * <p>If only a {@code ToplevelElements} instance is given, it is returned unchanged.
    */
   public static ToplevelElements of(Object... elements) {
+    if (elements.length == 1 && elements[0] instanceof ToplevelElements) {
+      return (ToplevelElements) elements[0];
+    }
+    if (elements.length == 1 && elements[0] instanceof Iterable) {
+      return fromIterable((Iterable<Object>) elements[0]);
+    }
+    ToplevelElements tl = new ToplevelElements();
+    for (Object e : elements) {
+      tl.add(e);
+    }
+    return tl;
+  }
+
+/**
+   * Creates a top-level elements container.
+   *
+   * <p>Mainly used to return several nodes from a top-level macro.
+   */
+  public static ToplevelElements fromIterable(Iterable<Object> elements) {
     ToplevelElements tl = new ToplevelElements();
     for (Object e : elements) {
       tl.add(e);

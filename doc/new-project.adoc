@@ -1,6 +1,6 @@
 == Creating new project(s)
 
-The `golo new` command can create new Golo project(s):
+The link:{man}/golo-new.html[`golo new`] command can create new Golo project(s):
 
 [source]
 ----

@@ -20,6 +20,7 @@ import java.util.function.Function;
 import java.util.function.Predicate;
 import gololang.Tuple;
 import gololang.FunctionReference;
+import org.eclipse.golo.runtime.InvalidDestructuringException;
 
 /**
  * A container object which represent the result of a maybe failing operation.
@@ -656,9 +657,40 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    * This allows to deal with error in the same way as Go does for instance.
    *
    * @return a 2-tuple containing the error and the value contained by this {@code Result}
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() {
     return new Tuple(error, value);
+  }
+
+  /**
+   * New style destructuring helper.
+   *
+   * <p>Returns a 2-tuple containing the error and the value contained by this {@code Result}, so
+   * that it can be used in a destructuring golo assignment. The first value is the error, and the
+   * second is the correct value (mnemonic: “right” also means “correct”). For instance:
+   * <pre class="listing"><code class="lang-golo" data-lang="golo">
+   * let e, v = Result.ok(42)        # e is null and v is 42
+   * let e, v = Result.empty()       # e is null and v is null
+   * let e, v = Result.fail("error") # e is RuntimeException("error") and v is null
+   * </code></pre>
+   * <p>This allows to deal with error in the same way as Go does for instance.
+   * <p>New style destructuring must be exact. The number of variables to be affected is thus checked against the number of
+   * members of the structure.
+   *
+   * <p>The destructuring must be to exactly two values. No remainer syntax is allowed.
+
+   * @param number number of variable that will be affected.
+   * @param substruct whether the destructuring is complete or should contains a sub structure.
+   * @param toSkip a boolean array indicating the elements to skip.
+   * @return an array containing the values to assign.
+   */
+  public Object[] __$$_destruct(int number, boolean substruct, Object[] toSkip) {
+    if (number == 2 && !substruct) {
+      return new Object[]{error, value};
+    }
+    throw new InvalidDestructuringException("A Result must destructure to exactly two values");
   }
 
 }

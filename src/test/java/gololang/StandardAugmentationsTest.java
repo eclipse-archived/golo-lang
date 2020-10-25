@@ -581,4 +581,47 @@ public class StandardAugmentationsTest {
     assertThat((Boolean) result, is(false));
   }
 
+  @Test
+  public void oneof_empty() throws Throwable {
+    Method m = moduleClass.getMethod("oneof_empty");
+    Object result = m.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }
+
+  @Test
+  public void oneof_one_ok() throws Throwable {
+    Method m = moduleClass.getMethod("oneof_one_ok");
+    Object result = m.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void oneof_one_gen() throws Throwable {
+    Method m = moduleClass.getMethod("oneof_one_gen");
+    Object result = m.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void oneof_one_bad() throws Throwable {
+    Method m = moduleClass.getMethod("oneof_one_bad");
+    Object result = m.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }
+
+  @Test
+  public void oneof_multi_ok() throws Throwable {
+    Method m = moduleClass.getMethod("oneof_multi_ok");
+    Object result = m.invoke(null);
+    assertThat((Boolean) result, is(true));
+  }
+
+  @Test
+  public void oneof_multi_bad() throws Throwable {
+    Method m = moduleClass.getMethod("oneof_multi_bad");
+    Object result = m.invoke(null);
+    assertThat((Boolean) result, is(false));
+  }
+
+
 }

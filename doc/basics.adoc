@@ -55,7 +55,7 @@ NOTE: Golo identifiers can be non-ascii characters (e.g., Japanese, Emoji, Arabi
 
 Of course, we need to run this incredibly complex application.
 
-Golo comes with a `golo` script found in the distribution `bin/` folder. It provides several
+Golo comes with a link:{man}/golo.html[`golo`] script found in the distribution `bin/` folder. It provides several
 commands, notably:
 
 - `version` to query the Golo version, and
@@ -86,8 +86,8 @@ Hello world!
 $
 ----
 
-`golo golo` takes several Golo source files (*.golo and directories) as input.
-It expects the last one to have a `main` function to call (or use
+link:{man}/golo-golo.html[`golo golo`] takes several Golo source files (*.golo and directories) as input.
+It expects the last one of them to have a `main` function to call (or use
 `--module` to define the golo module with the `main` function).
 The Golo code is compiled on the fly and executed straight into a JVM.
 
@@ -121,11 +121,11 @@ Note that `args` is expected to be an array.
 
 Finally, the `--classpath` flag allows to specify a list of classpath elements, which can be either
 directories or `.jar` files. The system property `golo.class.path` or the environment variable `GOLOPATH` can also be used to specify these elements.
-See the `golo help` command for details on the various Golo commands.
+See the `golo --help` command for details on the various Golo commands.
 
 === Compiling Golo source code
 
-Golo comes with a compiler that generates JVM bytecode in `.class` files. We will give more details
+Golo comes with a compiler (link:{man}/golo-compile.html[`compile`] command) that generates JVM bytecode in `.class` files. We will give more details
 in the chapter on interoperability with Java.
 
 Compiling Golo files is straightforward:
@@ -162,7 +162,7 @@ This would take all `.golo` files from the `sample` folder, and assemble the res
 
 === Running compiled Golo code
 
-Golo provides a `golo` command for running compiled Golo code:
+Golo provides a link:{man}/golo-run.html[`run`] command for running compiled Golo code:
 
 [source]
 ----
@@ -176,7 +176,7 @@ Simple, isn't it?
 
 === Running Golo script
 
-Golo provides a `shebang` command for running a Golo file as a simple script.
+Golo provides a link:{man}/golo-shebang.html[`shebang`] command for running a Golo file as a simple script.
 
 [source,golo]
 ----
@@ -255,7 +255,7 @@ $
 
 === Passing JVM-specific flags
 
-Both `golo` and `run` commands can be given JVM-specific flags using the `JAVA_OPTS` environment
+Both link:{man}/golo-golo.html[`golo`] and link:{man}/golo-run.html[`run`] commands can be given JVM-specific flags using the `JAVA_OPTS` environment
 variable.
 
 As an example, the following runs `fibonacci.golo` and prints JIT compilation along the way:
@@ -720,18 +720,20 @@ let a, b = [1, 2]
 # a = 1, b = 2
 ----
 
-If there are more variables than values, an exception is raised. If there are
-fewer, the remaining values are ignored. A special syntax is available to
-assign the rest of the values, similar to varargs notation. For instance:
+If there are more or fewer variables than values to assign, an exception is raised.
+A special syntax is available to assign the rest of the values, similar to varargs notation. For instance:
 
 [source,golo]
 ----
-let a, b, c = [1, 2]               # raises an exception
-let a, b = [1, 2, 3]               # a = 1, b = 2, 3 ignored
-let a, b, c... = [1, 2, 3, 4, 5]   # a = 1, b = 2, c = [3, 4, 5]
+let a, b, c = list[1, 2]               # raises an exception
+let a, b = list[1, 2, 3]               # raises an exception
+let a, b, c... = list[1, 2, 3, 4, 5]   # a = 1, b = 2, c = list[3, 4, 5]
 ----
 
-Any object having a `destruct()` method returning a tuple can be used in
+The reminder has the same type than the destructured object. Note that some mainly container-like object can be destructured using this syntax.
+For instance, golo structures can't use the rest syntax and raise an exception.
+
+Any object having a `__$$_destruct(number, rest, toSkip)` method returning an array can be used in
 destructuring assignments. Golo specific data structures and some Java native
 ones (arrays, maps, collections) can be destructured. Augmentations can be used to make an existing class
 destructurable.
@@ -749,7 +751,7 @@ as well as java lists:
 [source,golo]
 ----
 let lst = list[1, 2, 3, 4, 5]
-let head, tail... = lst        # head = 1, tail = [2, 3, 4, 5]
+let head, tail... = lst        # head = 1, tail = list[2, 3, 4, 5]
 ----
 
 Already defined variables can also be assigned with destructuring. For
@@ -768,6 +770,64 @@ foreach key, value in myMap: entrySet() {
   # do something...
 }
 ----
+
+It is moreover possible to ignore some of the destructured values by using the special `_` variable name.
+[source,golo]
+----
+let a, _, _, _, b = list[1, 2, 3, 4, 5]
+# a = 1 and b = 5
+----
+
+This name can be used with the remainer syntax, to avoid the creation of a new structure to hold the other values.
+For instance:
+[source,golo]
+----
+let _, a, _, b, _... = [1..500]
+----
+
+Here, `a` is `2` and `b` is `4`. No new range is created for the remaining values.
+
+==== Destructuring method
+
+To be destructurable, an object must have a `__$$_destruct(number, rest, skip)` method, whose parameters are:
+
+- the number of values to be assigned to,
+- whether the assignement has a rest (i.e. if remainer syntax `...` is used)
+- a list describing the positions to skip (`_` special name)
+
+and must return an array containg the values to assign (`null` if skipped).
+
+For instance, the code:
+[source,golo]
+----
+let a, _, b... = [8..20]
+
+let it = list[1, 2, 3, 4, 5]: iterator()
+let _, x, y, _... = it
+----
+
+is equivalent to:
+[source,golo]
+----
+let tmp1 = [8..20]: __$$_destruct(3, true, array[false, true, false])
+let a = tmp: get(0)
+let b = tmp: get(2)
+
+let it = list[1, 2, 3, 4, 5]: iterator()
+let tmp2 = it: __$$_destruct(4, true, array[true, false, false, true])
+let x = it: get(1)
+let y = it: get(2)
+----
+
+where `tmp1` will be `array[8, null, [10..20]]` and `tmp2` will be `array[null, 2, 3, null]`.
+
+
+[WARNING]
+====
+As of version 3.4, the destructuring behavior has changed, particularly when the remainer aspect and when not enough variables are provided.
+To use the old-syle behavior, one can use the `&useOldstyleDestruct()` macro to switch locally, or set the `golo.destruct.newstyle` property or
+`GOLO_DESTRUCT_NEWSTYLE` environment variable to `true` to switch globally.
+====
 
 === Operators
 
@@ -896,7 +956,9 @@ be invoked on arrays:
 - `head()` returns the first element of the array (or `null` if empty),
 - `tail()` returns a copy of the array without its first element (or an empty
   array if empty),
-- `isEmpty()` checks if the array is empty.
+- `isEmpty()` checks if the array is empty,
+- `contains(value)` checks if the array contains the given value,
+- `indexOf(value)` returns the index of the value in the array, or -1 if not present.
 
 Given a reference `a` on some array:
 

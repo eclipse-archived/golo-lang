@@ -14,7 +14,7 @@ public final class Visitors {
   /**
    * Define how to walk the tree.
    */
-  enum Walk {
+  public enum Walk {
     /**
      * Walk the tree <em>before</em> dealing with the current element.
      */

@@ -69,7 +69,7 @@ function test_parseArguments = {
   assertThat(
     parseArguments(array[], false),
   arrayContaining(
-    list[], map[], null
+    array[], map[], null
   ))
 
   assertRaises(
@@ -79,37 +79,37 @@ function test_parseArguments = {
   assertThat(
     parseArguments(array[42], false),
   arrayContaining(
-    list[42], map[], null
+    array[42], map[], null
   ))
 
   assertThat(
     parseArguments(array[42]),
   arrayContaining(
-    list[42], map[], null
+    array[42], map[], null
   ))
 
   assertThat(
     parseArguments(array[42], true),
   arrayContaining(
-    list[], map[], 42
+    array[], map[], 42
   ))
 
   assertThat(
     parseArguments(array[42], null),
   arrayContaining(
-    list[], map[], 42
+    array[], map[], 42
   ))
 
   assertThat(
     parseArguments(array[42], Integer.class),
   arrayContaining(
-    list[], map[], 42
+    array[], map[], 42
   ))
 
   assertThat(
     parseArguments(array[42], String.class),
   arrayContaining(
-    list[42], map[], null
+    array[42], map[], null
   ))
 
   let args = array[
@@ -122,11 +122,11 @@ function test_parseArguments = {
   var l, m, r = [null, null, null]
 
 
-  l, m = parseArguments(args, false)
+  l, m, r = parseArguments(args, false)
   assertThat(
-    l: map(|c| -> c: value()),
+    array[c: value() foreach c in l],
   `is(
-    list["answer", 42, "last"]
+    array["answer", 42, "last"]
   ))
 
   assertThat(
@@ -140,9 +140,9 @@ function test_parseArguments = {
 
   l, m, r = parseArguments(args, true)
   assertThat(
-    l: map(|c| -> c: value()),
+    array[c: value() foreach c in l],
   `is(
-    list["answer", 42]
+    array["answer", 42]
   ))
 
   assertThat(
@@ -216,9 +216,14 @@ function test_toplevel = {
   assertThat(l: get(4), `is(a))
 }
 
+function test_thisModule = {
+  assertThat(&thisModule("plop"), `is("golo.test.MacroUtils.plop"))
+}
+
 function main = |args| {
-  # test_parseArguments()
+  test_parseArguments()
   # test_extractLastArgument()
   # test_namedArgsToMap()
-  test_toplevel()
+  # test_toplevel()
+  # test_thisModule()
 }

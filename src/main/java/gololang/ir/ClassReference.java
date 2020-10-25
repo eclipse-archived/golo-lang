@@ -40,6 +40,10 @@ public final class ClassReference {
     return this.name.replaceAll("\\.", "#");
   }
 
+  public Class<?> dereference() throws ClassNotFoundException {
+    return Class.forName(this.name, true, gololang.Runtime.classLoader());
+  }
+
   @Override
   public String toString() {
     return "Class<" + name + ">";

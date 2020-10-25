@@ -1,0 +1,20 @@
+= Golo Documentation
+:doctype: article
+:docinfo1:
+:stylesheet: readthedocs.css
+
+* link:./golo-guide.html[Golo Language Guide]
+* link:./javadoc/overview-summary.html[Java doc]
+* link:./golodoc/index.html[Golo doc]
+* Golo commands man pages
+** link:./man/man1/golo.html[`golo`]: main tool
+*** link:./man/man1/golo-compile.html[`golo-compile`]: compiles golo source code
+*** link:./man/man1/golo-check.html[`golo-check`]: checks source for correctness
+*** link:./man/man1/golo-diagnose.html[`golo-diagnose`]: displays code internal representation
+*** link:./man/man1/golo-doc.html[`golo-doc`]: generates API documentation
+*** link:./man/man1/golo-golo.html[`golo-golo`]: runs directly source code files
+*** link:./man/man1/golo-new.html[`golo-new`]: creates a new golo project
+*** link:./man/man1/golo-run.html[`golo-run`]: runs a previously compiled program
+*** link:./man/man1/golo-shebang.html[`golo-shebang`]: runs dynamically a program as a script
+** link:./man/man1/golosh.html[`golosh`]: an alias for link:./man/man1/golo-shebang.html[`golo-shebang`] to ease script execution
+** link:./man/man1/golo-debug.html[`golo-debug`]: wrapper script to run an interactive debugger on golo programs

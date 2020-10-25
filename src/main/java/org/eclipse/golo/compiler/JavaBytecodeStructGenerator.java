@@ -18,6 +18,8 @@ import org.objectweb.asm.Label;
 import org.objectweb.asm.MethodVisitor;
 
 import static org.eclipse.golo.compiler.JavaBytecodeUtils.loadInteger;
+import static org.eclipse.golo.compiler.JavaBytecodeUtils.deprecatedFlag;
+import static org.eclipse.golo.compiler.JavaBytecodeUtils.addAnnotations;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
@@ -31,8 +33,9 @@ class JavaBytecodeStructGenerator {
   public CodeGenerationResult compile(Struct struct, String sourceFilename) {
     ClassWriter classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
     classWriter.visitSource(sourceFilename, null);
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL,
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | ACC_FINAL | deprecatedFlag(struct),
         struct.getPackageAndClass().toJVMType(), null, "gololang/GoloStruct", null);
+    addAnnotations(struct, classWriter::visitAnnotation);
     makeFields(classWriter, struct);
     makeAccessors(classWriter, struct);
     makeConstructors(classWriter, struct);
@@ -275,7 +278,8 @@ class JavaBytecodeStructGenerator {
   }
 
   private void makeAllArgsConstructor(ClassWriter classWriter, Struct struct, String owner) {
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", allArgsConstructorSignature(struct), null, null);
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC | deprecatedFlag(struct), "<init>", allArgsConstructorSignature(struct), null, null);
+    addAnnotations(struct, visitor::visitAnnotation);
     for (Member member : struct.getMembers()) {
       visitor.visitParameter(member.getName(), ACC_FINAL);
     }
@@ -303,7 +307,7 @@ class JavaBytecodeStructGenerator {
     String desc = constructorDesc.substring(0, constructorDesc.length() - 1);
     String classType = struct.getPackageAndClass().toJVMType();
     desc = desc + "L" + classType + ";";
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC | ACC_STATIC, IMMUTABLE_FACTORY_METHOD, desc, null, null);
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC | ACC_STATIC | ACC_SYNTHETIC | deprecatedFlag(struct), IMMUTABLE_FACTORY_METHOD, desc, null, null);
     for (Member member : struct.getMembers()) {
       visitor.visitParameter(member.getName(), ACC_FINAL);
     }
@@ -349,7 +353,8 @@ class JavaBytecodeStructGenerator {
 
   private void makeNoArgsConstructor(ClassWriter classWriter, Struct struct) {
     String owner = struct.getPackageAndClass().toJVMType();
-    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC, "<init>", "()V", null, null);
+    MethodVisitor visitor = classWriter.visitMethod(ACC_PUBLIC | deprecatedFlag(struct), "<init>", "()V", null, null);
+    addAnnotations(struct, visitor::visitAnnotation);
     for (Member member : struct.getMembers()) {
       visitor.visitParameter(member.getName(), ACC_FINAL);
     }

@@ -9,4 +9,3 @@
 - There is no class, but...
   - [Structures](structures.md)
   - [DynamicObjects](dynamicobjects.md)
-

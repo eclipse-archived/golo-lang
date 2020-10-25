@@ -47,6 +47,8 @@ will contain the `GoloFunction`.
 - *param* `args`: an array containing the arguments
 - *returns* a tuple containing an array of the arguments but the last, and the
   last argument.
+
+See also [`parseArguments`](#parseArguments_2)
 ----
 function extractLastArgument = |args| -> [
   java.util.Arrays.copyOf(args, args: length() - 1),
@@ -71,6 +73,8 @@ When called as `&foo(a=42, b="hello")`, the `arguments` variable will contains
 `map[["a", constant(42)], ["b", constant("hello")]]`
 
 The elements of the collection that are not `NamedArgument` are ignored.
+
+See also [`parseArguments`](#parseArguments_2)
 ----
 function namedArgsToMap = |args| -> map[
   [arg: name(), arg: expression()]
@@ -98,7 +102,7 @@ macro myMacro = |args...| {
 function plop = -> "daplop"
 ```
 
-In the `myMacro` macro, `positional` will be `list[constant("foo")]`, `named`
+In the `myMacro` macro, `positional` will be `array[constant("foo")]`, `named`
 will be `map[["answer", constant(42)], ["foo", constant("bar")]]` and `last` will
 be the `plop` function IR node.
 ----
@@ -126,13 +130,37 @@ Same as `parseArguments(args, false)`
 See [`parseArguments(args, extractLast)`](#parseArguments_2)
 ----
 function parseArguments = |args| -> array[
-  list[arg foreach arg in args when not (arg oftype NamedArgument.class)],
+  array[arg foreach arg in args when not (arg oftype NamedArgument.class)],
   map[
     [arg: name(), arg: expression()]
     foreach arg in args when arg oftype NamedArgument.class
   ],
   null
 ]
+
+
+----
+Converts a IR node into the corresponding runtime value.
+
+This only works for literal values, classes, enums or arrays of theses values.
+Otherwise the node itself is returned.
+----
+function getLiteralValue = |node| -> match {
+  when node is null then null
+  when node oftype gololang.ir.ConstantStatement.class and node: value() oftype
+    gololang.ir.ClassReference.class then node: value(): dereference()
+  when node oftype gololang.ir.ConstantStatement.class then node: value()
+  when node oftype gololang.ir.CollectionLiteral.class then array[getLiteralValue(e) foreach e in node: children()]
+  when isEnum(node) then loadEnum(node: packageAndClass())
+  otherwise node
+}
+
+local function isEnum = |arg| -> arg oftype gololang.ir.FunctionInvocation.class
+                                and arg: arity() == 0
+                                and Class.forName(arg: packageAndClass(): packageName()): isEnum()
+
+local function loadEnum = |name| -> java.lang.Enum.valueOf(Class.forName(name: packageName()), name: className())
+
 
 local function applyIfTypeMatches = |type, mac| -> |elt| -> match {
   when elt oftype type then mac(elt)
@@ -149,6 +177,18 @@ local function applyToAll = |fun, args| {
     }
   }
   return res
+}
+
+----
+Wrap the given object in a `ToplevelElements`.
+
+If the argument is an array or a collection of more than 1 element, it is wrapped in a `ToplevelElements`.
+Otherwise, the element is returned unchanged.
+----
+function wrapToplevel = |elt| -> match {
+  when (isArray(elt) or elt oftype java.lang.Collection.class) and elt: size() == 1 then elt: get(0)
+  when isArray(elt) or elt oftype java.lang.Collection.class then gololang.ir.ToplevelElements.of(elt)
+  otherwise elt
 }
 
 ----
@@ -229,6 +269,7 @@ function toplevel = |type| -> |mac| -> |args...| -> match {
   otherwise applyToAll(applyIfTypeMatches(type, mac), args)
 }
 
+#== Symbols and scope management =======================================
 
 let SYMBOLS = org.eclipse.golo.compiler.SymbolGenerator()
 
@@ -275,6 +316,9 @@ Exists a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) a
 ----
 function exit = |scope| -> SYMBOLS: exit()
 
+
+#== Misc utilities =====================================================
+
 ----
 Throws a `StopCompilationException` to stop the compilation process.
 
@@ -286,3 +330,29 @@ See `gololang.Messages` for instance to display console messages.
 macro stopCompilation = |args...| -> `throw(call("org.eclipse.golo.compiler.StopCompilationException"): withArgs(args))
 
 
+----
+Generate a name in the current name space.
+
+Useful if a macro generates calls to functions defined in the same module. Instead of relying on the module to be
+imported, one wants to use a fully qualified function name. This macro generate such a name without hard coding the
+current module name in the written macro.
+
+For instance, instead of writing:
+```
+module MyModule
+
+function myFunction = -> null
+
+macro = -> gololang.ir.DSL.call("MyModule.myFunction")
+```
+we can write:
+```
+module MyModule
+
+function myFunction = -> null
+
+macro = -> gololang.ir.DSL.call(&gololang.macros.Utils.thisModule("myFunction")
+```
+----
+@contextual
+macro thisModule = |self, name| -> constant(self: enclosingModule(): packageAndClass(): toString() + "." + name: value())

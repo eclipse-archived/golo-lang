@@ -11,10 +11,12 @@
 import ca.coglinc.gradle.plugins.javacc.CompileJavaccTask
 import ca.coglinc.gradle.plugins.javacc.CompileJjTreeTask
 import org.apache.tools.ant.filters.ReplaceTokens
+import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
 
 plugins {
   id("com.github.ben-manes.versions") version "0.29.0"
   id("net.nemerosa.versioning") version "2.8.2"
+  id("com.adarshr.test-logger") version "2.1.0"
 
   `java-library`
   application
@@ -126,6 +128,13 @@ tasks.test {
   classpath = files(sourceSets["test"].runtimeClasspath, goloClasses)
 }
 
+testlogger {
+  theme = MOCHA
+  slowThreshold = 5000
+  showStandardStreams = true
+  showFullStackTraces = true
+}
+
 val clean by tasks.named<Delete>("clean") {
   delete(generatedSourcesDir)
 }
@@ -222,8 +231,24 @@ tasks.named<org.asciidoctor.gradle.jvm.AsciidoctorTask>("asciidoctor") {
   baseDirFollowsSourceFile()
   sources {
     include("golo-guide.adoc")
+    include("index.adoc")
+    include("man/man1/golo*.adoc")
   }
 }
+
+tasks.create<org.asciidoctor.gradle.jvm.AsciidoctorTask>("manpages") {
+  sourceDir("doc/man")
+  baseDirFollowsSourceFile()
+  setOutputDir(file("build/manpages"))
+  sources {
+    include("**/golo*.adoc")
+  }
+  outputOptions {
+    setBackends(listOf("manpage"))
+    // separateOutputDirs = false
+  }
+}
+
 
 tasks.create<Copy>("assembleAsciidoc") {
   dependsOn("asciidoctor")
@@ -234,7 +259,7 @@ tasks.create<Copy>("assembleAsciidoc") {
 }
 
 tasks.create("doc") {
-  dependsOn("asciidoctor", "golodoc", "javadoc")
+  dependsOn("asciidoctor", "golodoc", "javadoc", "manpages")
 }
 
 distributions {
@@ -261,6 +286,12 @@ distributions {
       }
       from(tasks.named("asciidoctor")) {
         into("docs")
+      }
+      into("docs") {
+        from("doc/highlightjs")
+      }
+      from(tasks.named("manpages")) {
+        into("man")
       }
       from(tasks.named("vanillaScripts")) {
         into("bin")

@@ -19,14 +19,14 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.util.*;
 
-import static gololang.Messages.message;
-import static gololang.Messages.prefixed;
 import static java.lang.invoke.MethodType.genericMethodType;
 import static java.lang.invoke.MethodType.methodType;
 import static org.eclipse.golo.compiler.JavaBytecodeUtils.*;
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
+
+import static gololang.Messages.*;
 
 class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
@@ -142,8 +142,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitModule(GoloModule module) {
     this.currentModule = module;
-    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
+    classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER | deprecatedFlag(module), module.getPackageAndClass().toJVMType(), null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
+    addAnnotations(module, classWriter::visitAnnotation);
     writeImportMetaData(module.getImports());
     klass = module.getPackageAndClass().toString();
     jvmKlass = module.getPackageAndClass().toJVMType();
@@ -154,14 +155,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitModuleImport(ModuleImport moduleImport) {
-    // TODO: deal with metadata here
+    // TODO: deal with import metadata here
   }
 
   @Override
   public void visitLocalReference(LocalReference moduleState) {
     if (moduleState.isModuleState()) {
       String name = moduleState.getName();
-      classWriter.visitField(ACC_PRIVATE | ACC_STATIC, name, "Ljava/lang/Object;", null, null).visitEnd();
+      classWriter.visitField(ACC_PRIVATE | ACC_STATIC | deprecatedFlag(moduleState), name, "Ljava/lang/Object;", null, null).visitEnd();
 
       MethodVisitor mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "()Ljava/lang/Object;", null, null);
       mv.visitCode();
@@ -286,15 +287,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAugmentation(Augmentation augmentation) {
-    generateAugmentationBytecode(augmentation.getTarget(), augmentation.getFunctions());
+    generateAugmentationBytecode(augmentation.getTarget(), augmentation.getFunctions(), augmentation.metadata("annotations"));
   }
 
   @Override
   public void visitNamedAugmentation(NamedAugmentation namedAugmentation) {
-    generateAugmentationBytecode(namedAugmentation.getPackageAndClass(), namedAugmentation.getFunctions());
+    generateAugmentationBytecode(namedAugmentation.getPackageAndClass(), namedAugmentation.getFunctions(), namedAugmentation.metadata("annotations"));
   }
 
-  private void generateAugmentationBytecode(PackageAndClass target, Collection<GoloFunction> functions) {
+  private void generateAugmentationBytecode(PackageAndClass target, Collection<GoloFunction> functions, Object annotations) {
     if (functions.isEmpty()) {
       return;
     }
@@ -314,7 +315,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     classWriter.visit(V1_8, ACC_PUBLIC | ACC_SUPER, augmentationClassInternalName, null, JOBJECT, null);
     classWriter.visitSource(sourceFilename, null);
     classWriter.visitOuterClass(outerName, null, null);
-
+    addAnnotations(annotations, classWriter::visitAnnotation);
     for (GoloFunction function : functions) {
       function.accept(this);
     }
@@ -335,6 +336,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         function.getName(),
         functionSignature(function),
         null, null);
+    // NOTE: Replace hard coded annotations here by annotation metadata when desugaring?
+    //     probably not. Annotations are a back-end specific feature that should not appear until the last step.
+    //     The functions and macros in `gololang.meta.Annotations` purpose is to be compatible with existing java
+    //     frameworks relying on annotations. I think that golo specific features should be back-end independent as long
+    //     as possible.
     if (function.isDecorated()) {
       AnnotationVisitor annotation = currentMethodVisitor.visitAnnotation("Lgololang/annotations/DecoratedBy;", true);
       annotation.visit("value", function.getDecoratorRef());
@@ -350,6 +356,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       }
       returnTypeCast = "gololang/ir/GoloElement";
     }
+    addAnnotations(function, currentMethodVisitor::visitAnnotation);
     for (String parameter: function.getParameterNames()) {
       currentMethodVisitor.visitParameter(parameter, ACC_FINAL);
     }
@@ -374,7 +381,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (function.isVarargs()) {
       accessFlags |= ACC_VARARGS;
     }
-    return accessFlags;
+    return accessFlags | deprecatedFlag(function);
   }
 
   private String functionSignature(GoloFunction function) {
@@ -756,55 +763,87 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
-    Label tryStart = new Label();
-    Label tryEnd = new Label();
-    Label catchStart = new Label();
-    Label catchEnd = new Label();
-
-    Label rethrowStart = null;
-    Label rethrowEnd = null;
-    if (tryCatchFinally.isTryCatchFinally()) {
-      rethrowStart = new Label();
-      rethrowEnd = new Label();
+    if (tryCatchFinally.isTryCatch()) {
+      generateTryCatch(tryCatchFinally);
     }
+    if (tryCatchFinally.isTryFinally()) {
+      generateTryFinally(tryCatchFinally);
+    }
+    if (tryCatchFinally.isTryCatchFinally()) {
+      generateTryCatchFinally(tryCatchFinally);
+    }
+  }
 
+  private void generateTryBlock(TryCatchFinally tryCatchFinally, Label target) {
+    Label tryStart = labelAtPosition(tryCatchFinally.getTryBlock(), currentMethodVisitor);
+    Label tryEnd = new Label();
     currentMethodVisitor.visitLabel(tryStart);
     tryCatchFinally.getTryBlock().accept(this);
-    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
-      currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
-    }
-    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, catchStart, null);
     currentMethodVisitor.visitLabel(tryEnd);
+    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, target, null);
+  }
 
-    if (tryCatchFinally.isTryFinally()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
-    }
-
-    if (tryCatchFinally.isTryCatchFinally()) {
-      currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
-    }
-
+  private void generateCatchBlock(TryCatchFinally tryCatchFinally, Label catchStart, Label catchEnd) {
     currentMethodVisitor.visitLabel(catchStart);
-    if (tryCatchFinally.isTryCatch() || tryCatchFinally.isTryCatchFinally()) {
-      Block catchBlock = tryCatchFinally.getCatchBlock();
-      int exceptionRefIndex = catchBlock.getReferenceTable().get(tryCatchFinally.getExceptionId()).getIndex();
-      currentMethodVisitor.visitVarInsn(ASTORE, exceptionRefIndex);
-      tryCatchFinally.getCatchBlock().accept(this);
-    } else {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitInsn(ATHROW);
-    }
+    currentMethodVisitor.visitVarInsn(ASTORE, tryCatchFinally.getExceptionRefIndex());
+    tryCatchFinally.getCatchBlock().accept(this);
     currentMethodVisitor.visitLabel(catchEnd);
+  }
 
-    if (tryCatchFinally.isTryCatchFinally()) {
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
-      currentMethodVisitor.visitLabel(rethrowStart);
-      tryCatchFinally.getFinallyBlock().accept(this);
-      currentMethodVisitor.visitInsn(ATHROW);
-      currentMethodVisitor.visitLabel(rethrowEnd);
-    }
+  private void generateRethrow(TryCatchFinally tryCatchFinally, Label rethrowStart, Label rethrowEnd) {
+    currentMethodVisitor.visitLabel(rethrowStart);
+    currentMethodVisitor.visitVarInsn(ASTORE, tryCatchFinally.getExceptionRefIndex());
+    tryCatchFinally.getFinallyBlock().accept(this);
+    currentMethodVisitor.visitVarInsn(ALOAD, tryCatchFinally.getExceptionRefIndex());
+    currentMethodVisitor.visitInsn(ATHROW);
+    currentMethodVisitor.visitLabel(rethrowEnd);
+  }
+
+  private void generateTryCatch(TryCatchFinally tryCatchFinally) {
+    Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), currentMethodVisitor);
+    Label catchEnd = new Label();
+
+    // try
+    generateTryBlock(tryCatchFinally, catchStart);
+    currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
+
+    // catch
+    generateCatchBlock(tryCatchFinally, catchStart, catchEnd);
+  }
+
+  private void generateTryFinally(TryCatchFinally tryCatchFinally) {
+    Label rethrowStart = new Label();
+    Label rethrowEnd = new Label();
+
+    // try
+    generateTryBlock(tryCatchFinally, rethrowStart);
+    tryCatchFinally.getFinallyBlock().accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+
+    // rethrow
+    generateRethrow(tryCatchFinally, rethrowStart, rethrowEnd);
+  }
+
+  private void generateTryCatchFinally(TryCatchFinally tryCatchFinally) {
+    Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), currentMethodVisitor);
+    Label catchEnd = new Label();
+    Label rethrowStart = new Label();
+    Label rethrowEnd = new Label();
+
+    // try
+    generateTryBlock(tryCatchFinally, catchStart);
+    tryCatchFinally.getFinallyBlock().accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+
+    // catch
+    generateCatchBlock(tryCatchFinally, catchStart, catchEnd);
+    currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
+
+    tryCatchFinally.getFinallyBlock().accept(this);
+    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+
+    // rethrow
+    generateRethrow(tryCatchFinally, rethrowStart, rethrowEnd);
   }
 
   @Override

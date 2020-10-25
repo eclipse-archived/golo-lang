@@ -1,0 +1,105 @@
+= GOLO(1)
+:doctype: manpage
+
+== NAME
+
+golo - a tool for Golo source code
+
+== SYNOPSIS
+
+*golo* [_options_] _command_ [_arguments_]
+
+== DESCRIPTION
+
+Golo is a simple dynamic, weakly-typed language that favours explicit over implicit.
+For an introduction to programming in Golo, see the Golo Guide. The built-in modules and types are documented in the Golo and Java API documentation. These documents can be viewed at http://golo-lang.org/documentation/.
+
+The `golo` command can be used to compile or run Golo program, generate documentation, and initialize new Golo projects.
+
+== OPTIONS
+
+*--help*::
+    Prints the help message.
+
+*--usage* _command_::
+    Print the usage of the given command.
+
+
+== COMMANDS
+
+Each command is documented in its own manpage. For instance, the `compile` command is documented in golo-compile(1).
+
+*compile*::
+  compiles Golo source files
+*diagnose*::
+  prints compiler internal diagnosis information
+*doc*::
+  generates documentation from Golo source files
+*golo*::
+  dynamically loads and runs from Golo source files
+*new*::
+  generates new Golo projects
+*run*::
+  runs compiled Golo code
+*version*::
+  queries the Golo version
+*check*::
+  checks Golo source files for correctness
+*shebang*::
+  dynamically loads and runs from Golo source files
+
+
+== ENVIRONMENT VARIABLES AND PROPERTIES
+
+The behavior of the golo compiler or runtime can be tuned using some environment variables or java properties.
+
+*GOLO_DEBUG* or *golo.debug*::
+  Activate debug mode. The value must be `true` or `false`
+
+*GOLO_DEBUG_TRACE* or *golo.debug.trace*::
+  Show stack traces when an internal error occurs.
+
+*GOLOPATH* or *golo.class.path*::
+  Defines the search path for golo module files. The format is the same as the Java `CLASSPATH`.
+
+*GOLO_OPTS*::
+  Defines additional JVM options. For instance, to trace the class loaded, one can define
+  `GOLO_OPTS="-verbose:class"`
+
+*JAVA_HOME*::
+  Defines the location of the Java installation to use.
+
+*JAVA_OPTS*::
+  Defines additional JVM options.
+
+*CLASSPATH*::
+  Defines the search path for java classes. Also used for golo modules.
+
+
+== PERFORMANCE TUNING
+
+The `golo` script comes with JVM tuning settings that may not be appropriate to your
+environment. We also provide a `vanilla-golo` script with no tuning. You may use the `JAVA_OPTS` or `GOLO_OPTS`
+environment variable to provide custom JVM tuning to `vanilla-golo`.
+
+== EXECUTING GOLO PROGRAMS
+
+Golo programs can be executed directly from source code (see golo-golo(1))
+[source]
+----
+$ golo golo --files lib1.golo lib2.golo script.golo --args arg1 arg2
+----
+
+or compiled into classes or jar archive (see golo-compile(1) and golo-run(1))
+[source]
+----
+$ golo compile --output bin lib1.golo lib2.golo script.golo
+$ golo run --classpath bin my.script.Module
+----
+
+
+== SEE ALSO
+
+java(1), golo-debug(1)
+
+include::man-footer.adoc[]

@@ -10,6 +10,7 @@
 package gololang;
 
 import java.io.BufferedOutputStream;
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.OutputStream;
@@ -22,6 +23,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardOpenOption;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 
 import static gololang.Predefined.require;
 
@@ -34,6 +37,54 @@ public final class IO {
   }
 
   /**
+   * An iterator on the lines of a {@code java.io.BufferedReader}.
+   */
+  public static final class LinesIterator implements Iterator<String> {
+    private final BufferedReader reader;
+    private String currentLine;
+
+    public static Iterator<String> of(Object source) throws IOException {
+      require(source instanceof BufferedReader, "The source must be a reader");
+      return new LinesIterator((BufferedReader) source);
+    }
+
+    private LinesIterator(BufferedReader reader) throws IOException {
+      require(reader != null, "The reader must not be null");
+      this.reader = reader;
+      this.currentLine = reader.readLine();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return this.currentLine != null;
+    }
+
+    @Override
+    public String next() {
+      if (this.currentLine == null) {
+        throw new NoSuchElementException();
+      }
+      String val = this.currentLine;
+      try {
+        this.currentLine = this.reader.readLine();
+      } catch (IOException e) {
+        this.currentLine = null;
+      }
+      return val;
+    }
+  }
+
+  /**
+   * Opens a file for reading.
+   *
+   * @param file     the file to read from as an instance of either {@link String}, {@link File} or {@link Path}.
+   * @return a {@code java.io.BufferedReader}.
+   */
+  public static BufferedReader openFile(Object file) throws IOException {
+    return Files.newBufferedReader(toPath(file));
+  }
+
+  /**
    * Returns the default charset.
    */
   public static Charset defaultCharset() {
@@ -41,7 +92,7 @@ public final class IO {
   }
 
   /**
-   * Convert the given String or Charset object into a Charset.
+   * Converts the given String or Charset object into a Charset.
    */
   public static Charset toCharset(Object encoding) {
     if (encoding == null) {

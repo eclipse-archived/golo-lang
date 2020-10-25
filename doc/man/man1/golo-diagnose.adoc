@@ -1,0 +1,110 @@
+= GOLO-DIAGNOSE(1)
+:doctype: manpage
+
+== NAME
+
+golo-diagnose - Diagnosis tool for the Golo compiler internals
+
+== SYNOPSIS
+
+*golo* *diagnose* [*--classpath* _path_] [*--stage* _stage_] _file_ ...
+
+== DESCRIPTION
+
+The `golo diagnose` command prints a representation of the internal compiler structure for the given code file.
+
+
+== OPTIONS
+
+*--classpath* _path_::
+      Classpath elements (.jar and directories).
+
+*--stage* _stage_::
+      The compilation stage to diagnose. Can be 'ast', 'raw', 'expanded' or 'refined' which is the default
+
+
+== COMPILATION STAGES
+
+The golo compilation process follows several stages:
+
+1. reads the source code text and parse it, creating an Abstract Syntax Tree (AST),
+2. generates an intermediate representation tree (IR) that reflects the code structure,
+3. expands the macros,
+4. does some checks and magic on the IR (syntactic sugar, closed values in lambda, etc.)
+5. generates JVM bytecode from the final IR.
+
+The AST is a low level representation that mimic the langage grammar and is an artefact of the parser.
+The IR is a higher level representation that reflect the logical code structure.
+The stages 2 and 3 manipulate the IR to expand macros, desugarize the code, checks some properties and constraints and do some simple optimizations.
+
+The *--stage* option indicates which representation is to be printed:
+
+*ast*:: prints the AST as outputed by the parser (stage 1).
+*raw*:: prints the IR before any internal manipulation (stage 2).
+*expanded*:: prints the IR after macro expansion, but before any other manipulation (step 3). Useful to debug macros.
+*refined*:: prints the final IR version, right before bytecode generation (step 4).
+
+== EXAMPLES
+
+Given the golo file `samples/helloworld.golo` containing:
+
+[source,golo]
+....
+module hello.World
+
+function main = |args| {
+  println("Hello world!")
+}
+....
+
+the command
+[source,shell]
+....
+$ golo diagnose samples/helloworld.golo
+....
+
+will print
+[source]
+....
+>>> IR: samples/helloworld.golo
+# hello.World [Local References: 1060830840]
+#    - ModuleImport{packageAndClass=hello, implicit}
+#    - ModuleImport{packageAndClass=gololang.Predefined, implicit}
+#    - ModuleImport{packageAndClass=gololang.StandardAugmentations, implicit}
+#    - ModuleImport{packageAndClass=gololang, implicit}
+#    - ModuleImport{packageAndClass=java.lang, implicit}
+#   Function main = |args|
+#     Block [Local References: 2137211482 -> 1060830840]
+#        - LocalReference{kind=CONSTANT, name='args', index=0}
+#       Function call: println, on reference? -> false, on module state? -> false, anonymous? -> false, constant? -> false, named arguments? -> false
+#         Constant = Hello world! (java.lang.String)
+#       Return
+....
+
+and
+[source,shell]
+....
+$ golo diagnose --stage ast samples/helloworld.golo
+....
+
+gives
+[source]
+....
+>>> AST: samples/helloworld.golo
+% CompilationUnit
+%  ASTModuleDeclaration{name='hello.World'}
+%  ToplevelDeclaration
+%   ASTFunctionDeclaration{name='main', local=false, decorator=false, augmentation=false, macro=false}
+%    ASTFunction{parameters=[args], varargs=false, compactForm=false}
+%     ASTBlock{}
+%      ExpressionStatement
+%       ASTFunctionInvocation{name='println', constant=false}
+%        ASTArgument{name=null, named=false}
+%         ExpressionStatement
+%          ASTLiteral{literalValue=Hello world!}
+....
+
+
+
+include::man-footer.adoc[]
+

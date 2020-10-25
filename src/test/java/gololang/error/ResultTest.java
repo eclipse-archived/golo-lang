@@ -171,6 +171,15 @@ public class ResultTest {
     assertThat(Result.error(e).destruct(), is(new Tuple(e, null)));
   }
 
+  @Test
+  public void destruct_newstyle() {
+    assertThat(Result.ok(42).__$$_destruct(2, false, null), is(gololang.Predefined.array(null, 42)));
+    assertThat(Result.empty().__$$_destruct(2, false, null), is(gololang.Predefined.array(null, null)));
+
+    RuntimeException e = new RuntimeException("err");
+    assertThat(Result.error(e).__$$_destruct(2, false, null), is(gololang.Predefined.array(e, null)));
+  }
+
   @Test(expectedExceptions = java.lang.NullPointerException.class)
   public void mapNull() {
     Function<Integer, Integer> f = null;

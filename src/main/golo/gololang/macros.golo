@@ -15,6 +15,7 @@ This module defines the set of predefined macros. It is `&use`d by default.
 module gololang.macros
 
 import gololang.ir
+import gololang.macros.Utils
 
 ----
 Don't expand the result of a macro.
@@ -103,4 +104,52 @@ macro use = |visitor, mod, args...| {
   if visitor: macroExists(init) {
     return init
   }
+}
+
+----
+Macro to mark an element as deprecated.
+
+Can be used as a toplevel macro decorator.
+For instance, to mark a function as deprecated:
+
+```golo
+@deprecated
+function foo = |a, b| -> a + b
+```
+
+Moreover, some additional informations can be provided. They are used to modify the element documentation.
+
+```golo
+@deprecated(since="3.4", comment="Use `gololang.Functions::add` instead")
+function foo = |a, b| -> a + b
+```
+
+- *param* `since`: the version since the element is deprecated
+- *param* `comment`: a comment explaining the reasons of the deprecation or the element to use instead
+- *returns* the element itself
+
+See also [`gololang.meta.Annotations::makeDeprecated`](meta/Annotations.html#makeDeprecated_3v)
+----
+macro deprecated = |args...| {
+  # TODO: generate a list of deprecated functions and types (a la javadoc) ?
+  # TODO: when swithching to java >= 9, adds the `since` and `forRemoval` arguments to the annotation
+  let positional, named, _ = parseArguments(args)
+  require(positional: size() > 0, "`deprecated` macro must be applied on an element")
+  return gololang.meta.Annotations.makeDeprecated(
+      named: get("since")?: value(),
+      named: get("comment")?: value(),
+      positional)
+}
+
+----
+Use old-style destructuring for the current module.
+
+This macro customize the behavior of the destructuring feature by forcing the use of the `destruct` method instead of
+`_$$_destruct`.
+
+This is a toplevel macro.
+----
+@contextual
+macro useOldstyleDestruct = |self| {
+  self: enclosingModule(): metadata("golo.destruct.newstyle", false)
 }

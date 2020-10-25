@@ -104,5 +104,12 @@ final class BigIntegerRange extends AbstractRange<BigInteger> {
     };
   }
 
+  /**
+   * {@inheritDoc}
+   */
+  @Override
+  public Range<BigInteger> newStartingFrom(BigInteger newStart) {
+    return new BigIntegerRange(newStart, this.to()).incrementBy(this.increment());
+  }
 }
 

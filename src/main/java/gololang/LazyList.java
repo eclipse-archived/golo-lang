@@ -16,6 +16,8 @@ import java.util.List;
 import java.util.LinkedList;
 import java.util.Objects;
 
+import org.eclipse.golo.runtime.InvalidDestructuringException;
+
 /**
  * Represents a lazy list object.
  * <p>
@@ -237,7 +239,9 @@ public class LazyList implements Collection<Object>, HeadTail<Object> {
    * Destructuration helper.
    *
    * @return a tuple of head and tail
+   * @deprecated This method should not be called directly and is no more used by new style destructuring.
    */
+  @Deprecated
   public Tuple destruct() {
     return new Tuple(head(), tail());
   }

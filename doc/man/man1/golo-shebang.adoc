@@ -1,0 +1,85 @@
+= GOLO-shebang(1)
+:doctype: manpage
+
+== NAME
+
+golo-shebang - Dynamically loads and runs from Golo source files
+
+== SYNOPSIS
+
+*golo* *shebang* _main_file_ _arguments_ ...
+
+== DESCRIPTION
+
+This commands ease the use of golo programs as executable simple scripts.
+
+== EXAMPLES
+
+[source,golo]
+----
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+the script above can be executed with:
+
+[source]
+----
+$ golo shebang hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+Naturally the main goal is to use this command to make the script self-executable:
+
+[source,golo]
+----
+#!/path/to/golo shebang
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+Now, we can run the script directly:
+
+----
+$ chmod +x hello.golo
+$ ./hello.golo World
+Hello World from 'hello.golo'!
+$
+----
+
+Golo also provides *golosh(1)* script that is a shortcut for the `golo shebang` command, thus
+a golo script can be hasbanged with `env`:
+
+[source,golo]
+----
+#!/usr/bin/env golosh
+module hello
+
+function main = |args| {
+  require(args: length() > 1, "You should set at least one argument!")
+  println("Hello " + args: get(1) + " from '" + args: get(0) + "'!")
+}
+----
+
+
+== PITFALLS
+
+Each `golo` and `jar` files present in the script file's directory or the sub directories will be scanned.
+This makes it easy to run scripts and have an automatic classpath for libraries, and automatically compile and load other Golo files.
+
+However, be aware that this may lead to surprising errors if you run code from, say, a clone of the Golo source code repository since it contains duplicated type and module definitions, as well as files from the test suite that have errors on purpose.
+
+== SEE ALSO
+
+golo-golo(1), golosh(1)
+
+include::man-footer.adoc[]
