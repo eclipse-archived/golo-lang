@@ -42,7 +42,6 @@ val goloClasses = "$buildDir/golo-classes"
 val goloDocs = file("$buildDir/docs/golodoc")
 
 val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
-val isCalledFromCI = "true" == System.getenv("CI")
 
 dependencies {
   implementation("org.ow2.asm:asm:8.0")
@@ -357,12 +356,6 @@ publishing {
       val snapshotsRepoUrl = "https://oss.sonatype.org/content/repositories/snapshots/"
       url = uri(if (isReleaseVersion) releasesRepoUrl else snapshotsRepoUrl)
     }
-  }
-}
-
-tasks.withType<PublishToMavenRepository> {
-  onlyIf {
-    !isCalledFromCI || (isCalledFromCI && !isReleaseVersion)
   }
 }
 
