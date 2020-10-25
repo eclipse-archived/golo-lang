@@ -32,20 +32,6 @@ keep the code as readable as possible.
 Please provide meaningful commit messages. You can take inspiration from
 [http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html](http://tbaggery.com/2008/04/19/a-note-about-git-commit-messages.html).
 
-Do not forget to mention the related Eclipse Bugzilla issue, if any.
-
-Here is a sample _good_ Git commit log message:
-
-    [666999] Quick summary
-
-    This is a discussion of the change with details on the impact, limitations, etc.
-
-    Write just like if you were discussing with fellows :-)
-
-    Bug: https://github.com/eclipse/golo-lang/issues/69
-    Also-By: Somebody Who Contributed <foo@bar.com>
-    Signed-off-by: Another Person <baz@foobar.org>
-
 Finally, a contribution is not a good contribution unless it comes with unit tests, integration tests and
 documentation.
 
