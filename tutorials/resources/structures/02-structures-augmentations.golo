@@ -23,8 +23,6 @@ function main = |args| {
   let john = Human("John", "Doe")
 
   jane: sayHello()
-  john: saySomething("hey! What's up")
-
-
+  john: saySomething("hey! What's up?")
 
 }

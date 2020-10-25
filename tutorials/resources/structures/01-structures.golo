@@ -10,6 +10,7 @@ struct Human = {
 function main = |args| {
 
   let jane = Human("Jane", "Doe")
+  # or let jane = Human(): firstName("Jane"): lastName("Doe")
   println(jane)
 
   let john = Human()
@@ -19,6 +20,5 @@ function main = |args| {
   println(john)
 
   println("Hello I'm " + jane: firstName() + " " + jane: lastName())
-
 
 }
