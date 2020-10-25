@@ -18,7 +18,6 @@ import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
@@ -78,8 +77,8 @@ public class GoloGoloCommand implements CliCommand {
         return lastClass;
       }
     } else if (file.getName().endsWith(".golo")) {
-      try (FileInputStream in = new FileInputStream(file)) {
-        Class<?> loadedClass = loader.load(file.getName(), in);
+      try {
+        Class<?> loadedClass = loader.load(file);
         if (module == null || loadedClass.getCanonicalName().equals(module)) {
           return loadedClass;
         }

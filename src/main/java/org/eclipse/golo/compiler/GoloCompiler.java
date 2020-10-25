@@ -18,7 +18,6 @@ import org.eclipse.golo.compiler.parser.GoloParser;
 import org.eclipse.golo.compiler.parser.ParseException;
 
 import java.io.*;
-import java.nio.charset.Charset;
 import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.List;
@@ -36,6 +35,8 @@ import static gololang.Messages.message;
  * Several methods are made public while they do not necessarily need so for the needs of the Golo compiler.
  * Such deviations from a "good and clean" design are on-purpose, as this facilitates the implementation of
  * Golo support in IDEs.
+ * <p>
+ *
  */
 public class GoloCompiler {
 
@@ -73,21 +74,6 @@ public class GoloCompiler {
   }
 
   /**
-   * Initializes a parser from an input stream. This method is made public for the requirements of IDEs support.
-   *
-   * @param sourceCodeInputStream the source code input stream.
-   * @return the parser.
-   */
-  public final GoloParser initParser(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    try {
-      return initParser(new InputStreamReader(sourceCodeInputStream, Charset.forName("UTF-8")));
-    } catch (UnsupportedCharsetException e) {
-      getOrCreateExceptionBuilder(goloSourceFilename).report(e).doThrow();
-      return null;
-    }
-  }
-
-  /**
    * Initializes a parser from a reader. This method is made public for the requirements of IDEs support.
    *
    * @param sourceReader the source code reader.
@@ -106,29 +92,24 @@ public class GoloCompiler {
    * Compiles a Golo source file from an input stream, and returns a collection of results.
    *
    * @param goloSourceFilename    the source file name.
-   * @param sourceCodeInputStream the source code input stream.
+   * @param sourceCode the source code reader.
    * @return a list of compilation results.
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
    */
-  public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
+  public final List<CodeGenerationResult> compile(String goloSourceFilename, Reader sourceCode) throws GoloCompilationException {
     resetExceptionBuilder();
-    ASTCompilationUnit compilationUnit = parse(goloSourceFilename,
-                                          initParser(goloSourceFilename, sourceCodeInputStream));
-    GoloModule goloModule = check(compilationUnit);
-    if (goloModule.isEmpty()) {
-      return Collections.emptyList();
-    }
-    return generate(goloModule);
+    return generate(check(parse(goloSourceFilename, initParser(sourceCode))));
+  }
+
+  public final List<CodeGenerationResult> compile(File src) throws IOException {
+    resetExceptionBuilder();
+    return generate(check(parse(src)));
   }
 
   private void throwIfErrorEncountered() {
     if (!getProblems().isEmpty()) {
       exceptionBuilder.doThrow();
     }
-  }
-
-  public final List<CodeGenerationResult> compile(File src) throws IOException {
-    return compile(src.getPath(), new FileInputStream(src));
   }
 
   /**
@@ -165,14 +146,14 @@ public class GoloCompiler {
   }
 
   public final ASTCompilationUnit parse(String goloSourceFilename) throws GoloCompilationException, IOException {
-    try (FileInputStream in = new FileInputStream(goloSourceFilename)) {
-      return parse(goloSourceFilename, initParser(goloSourceFilename, in));
+    try (Reader in = new FileReader(goloSourceFilename)) {
+      return parse(goloSourceFilename, initParser(in));
     }
   }
 
   public final ASTCompilationUnit parse(File goloSourceFile) throws GoloCompilationException, IOException {
-    try (FileInputStream in = new FileInputStream(goloSourceFile)) {
-      return parse(goloSourceFile.getPath(), initParser(goloSourceFile.getPath(), in));
+    try (Reader in = new FileReader(goloSourceFile)) {
+      return parse(goloSourceFile.getPath(), initParser(in));
     }
   }
   /**
@@ -188,6 +169,9 @@ public class GoloCompiler {
   }
 
   public final List<CodeGenerationResult> generate(GoloModule goloModule) {
+    if (goloModule.isEmpty()) {
+      return Collections.emptyList();
+    }
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
     return bytecodeGenerator.generateBytecode(goloModule);
   }

@@ -39,7 +39,7 @@ public interface CliCommand {
     main.invoke(arguments);
   }
 
-  default boolean canReadFile(File file) {
+  default boolean canRead(File file) {
     if (!file.canRead()) {
       warning(message("file_not_found", file.getPath()));
       return false;

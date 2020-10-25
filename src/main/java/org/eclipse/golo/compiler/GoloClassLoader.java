@@ -10,7 +10,9 @@
 
 package org.eclipse.golo.compiler;
 
-import java.io.InputStream;
+import java.io.Reader;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import gololang.ir.GoloModule;
@@ -54,12 +56,16 @@ public class GoloClassLoader extends ClassLoader {
    * Compiles and loads the resulting JVM bytecode for a Golo source file.
    *
    * @param goloSourceFilename    the source file name.
-   * @param sourceCodeInputStream the source input stream.
+   * @param sourceCode  the source reader.
    * @return the class matching the Golo module defined in the source.
    * @throws GoloCompilationException if either of the compilation phase failed.
    */
-  public synchronized Class<?> load(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    return load(compiler.compile(goloSourceFilename, sourceCodeInputStream));
+  public synchronized Class<?> load(String goloSourceFilename, Reader sourceCode) throws GoloCompilationException {
+    return load(compiler.compile(goloSourceFilename, sourceCode));
+  }
+
+  public synchronized Class<?> load(File goloSourceFile) throws GoloCompilationException, IOException {
+    return load(compiler.compile(goloSourceFile));
   }
 
   /**

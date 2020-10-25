@@ -13,9 +13,9 @@ package gololang;
 import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
 
-import java.io.ByteArrayInputStream;
+import java.io.StringReader;
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.lang.reflect.InvocationTargetException;
 import java.util.*;
@@ -134,7 +134,7 @@ public class EvaluationEnvironment {
    * @see gololang.Predefined#fun(Class, Object, Object)
    */
   public Object asModule(String source) {
-    try (InputStream in = new ByteArrayInputStream(source.getBytes(StandardCharsets.UTF_8))) {
+    try (Reader in = new StringReader(source)) {
       return goloClassLoader.load(anonymousFilename(), in);
     } catch (IOException e) {
       throw new RuntimeException(e);

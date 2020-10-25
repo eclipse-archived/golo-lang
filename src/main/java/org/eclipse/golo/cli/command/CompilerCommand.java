@@ -21,17 +21,8 @@ import org.eclipse.golo.cli.GolofilesManager;
 import gololang.error.Result;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
-import java.util.zip.ZipEntry;
 
-import static gololang.Messages.*;
 
 @Parameters(commandNames = {"compile"}, resourceBundle = "commands", commandDescriptionKey = "compile")
 public class CompilerCommand implements CliCommand {
@@ -40,28 +31,34 @@ public class CompilerCommand implements CliCommand {
   String output = ".";
 
   @Parameter(descriptionKey = "source_files")
-  List<String> sources = new LinkedList<>();
+  LinkedList<String> sources = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
+  private GoloCompiler compiler;
 
   @Override
   public void execute() throws Throwable {
-    // TODO: recurse into directories
-    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
+    this.compiler = classpath.initGoloClassLoader().getCompiler();
     try(GolofilesManager fm = GolofilesManager.of(this.output)) {
-      for (String source : this.sources) {
-        File sourceFile = new File(source);
-        if (!this.canReadFile(sourceFile)) { continue; }
-        try {
-          fm.saveAll(compiler.compile(sourceFile));
-        } catch (GoloCompilationException e) {
-          handleCompilationException(e);
-        } catch (Throwable e) {
-          handleThrowable(e);
-        }
+      for (String sourceFilename : this.sources) {
+        File source = new File(sourceFilename);
+        // TODO: recurse into directories
+        compile(fm, source);
       }
     }
+  }
+
+  private void compile(GolofilesManager filesManager, File source) {
+    if (!this.canRead(source)) { return ; }
+    try {
+      filesManager.saveAll(compiler.compile(source));
+    } catch (GoloCompilationException e) {
+      handleCompilationException(e);
+    } catch (Throwable e) {
+      handleThrowable(e);
+    }
+
   }
 }

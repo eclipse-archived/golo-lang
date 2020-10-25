@@ -15,7 +15,7 @@ import org.eclipse.golo.cli.GolofilesManager;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -59,7 +59,7 @@ public class CompilerTest {
 
     String errSourceFile = "undeclared.golo";
     try {
-      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
@@ -79,7 +79,7 @@ public class CompilerTest {
 
     String errSourceFile = "incomplete.golo";
     try {
-      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
@@ -99,7 +99,7 @@ public class CompilerTest {
 
     String errSourceFile = "uninitialized-reference-lookup.golo";
     try {
-      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
@@ -122,7 +122,7 @@ public class CompilerTest {
     String errSourceFileDir = "src/test/resources/for-test/";
     GoloCompiler compiler = new GoloCompiler();
     String errSourceFile = "initialized-closure-args-reference.golo";
-    compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+    compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
   }
 
   @Test
@@ -136,7 +136,7 @@ public class CompilerTest {
                                        "duplicated-union.golo",
                                        "duplicated-union-value.golo")) {
       try {
-        compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+        compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
       } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
         assertThat(e.getSourceCode(), is(errSourceFile));

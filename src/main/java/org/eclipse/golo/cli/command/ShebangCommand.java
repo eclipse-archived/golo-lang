@@ -16,7 +16,7 @@ import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.Reader;
 import java.nio.file.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -73,7 +73,7 @@ public class ShebangCommand implements CliCommand {
   }
 
   private Class<?> loadGoloFile(GoloClassLoader loader, Path path) {
-    try (InputStream is = Files.newInputStream(path)) {
+    try (Reader is = Files.newBufferedReader(path)) {
       Path filename = path.getFileName();
       if (filename != null) {
         return loader.load(filename.toString(), is);

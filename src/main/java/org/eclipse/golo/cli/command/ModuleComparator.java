@@ -28,6 +28,8 @@ class ModuleComparator implements Comparator<GoloModule> {
     if (m2Used.contains(m1.getPackageAndClass().toString())) { return -1; }
     if (m1.getImports().stream().anyMatch((mi) -> mi.getPackageAndClass().equals(m2.getPackageAndClass()))) { return 1; }
     if (m2.getImports().stream().anyMatch((mi) -> mi.getPackageAndClass().equals(m1.getPackageAndClass()))) { return -1; }
+    if (m1.hasMain() && !m2.hasMain()) { return 1; }
+    if (m2.hasMain() && !m1.hasMain()) { return -1; }
     return 0;
   }
 
