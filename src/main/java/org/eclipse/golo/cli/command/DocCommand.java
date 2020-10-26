@@ -17,6 +17,7 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
+import org.eclipse.golo.cli.GolofilesManager;
 import org.eclipse.golo.compiler.GoloCompiler;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.doc.AbstractProcessor;
@@ -62,35 +63,11 @@ public class DocCommand implements CliCommand {
     compiler = classpath.initGoloClassLoader().getCompiler();
     AbstractProcessor processor = FORMATS.get(this.format).get();
     HashSet<ModuleDocumentation> modules = new HashSet<>();
-    for (File source : this.sources) {
-      loadGoloFile(source, modules);
-    }
+    this.executeForEachGoloFile(this.sources, (file) -> { modules.add(ModuleDocumentation.load(file, compiler)); });
     try {
       processor.process(modules, Paths.get(this.output));
     } catch (Throwable throwable) {
       handleThrowable(throwable);
-    }
-  }
-
-  private void loadGoloFile(File file, HashSet<ModuleDocumentation> modules) {
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          loadGoloFile(directoryFile, modules);
-        }
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      try {
-        modules.add(ModuleDocumentation.load(file, compiler));
-      } catch (IOException e) {
-        error(message("file_not_found", file.getAbsolutePath()));
-        return;
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e);
-      } catch (Throwable t) {
-        handleThrowable(t);
-      }
     }
   }
 

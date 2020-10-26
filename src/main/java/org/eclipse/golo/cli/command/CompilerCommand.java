@@ -37,27 +37,13 @@ public class CompilerCommand implements CliCommand {
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
-  private GoloCompiler compiler;
-
   @Override
   public void execute() throws Throwable {
-    this.compiler = classpath.initGoloClassLoader().getCompiler();
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     try(GolofilesManager fm = GolofilesManager.of(this.output)) {
-      for (File source : this.sources) {
-        // TODO: recurse into directories
-        compile(fm, source);
-      }
-    }
-  }
-
-  private void compile(GolofilesManager filesManager, File source) {
-    if (!this.canRead(source)) { return ; }
-    try {
-      filesManager.saveAll(compiler.compile(source));
-    } catch (GoloCompilationException e) {
-      handleCompilationException(e);
-    } catch (Throwable e) {
-      handleThrowable(e);
+      this.executeForEachGoloFile(this.sources, (file) -> {
+        fm.saveAll(compiler.compile(file));
+      });
     }
   }
 }

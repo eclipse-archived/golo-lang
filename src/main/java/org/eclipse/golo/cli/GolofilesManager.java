@@ -13,7 +13,12 @@ package org.eclipse.golo.cli;
 import java.io.IOException;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.util.Arrays;
 import java.util.List;
+import java.util.LinkedList;
+import java.util.Deque;
+import java.util.Iterator;
+import java.util.NoSuchElementException;
 import java.util.jar.Attributes;
 import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
@@ -113,6 +118,66 @@ public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationR
     GolofilesManager fm = new GolofilesManager();
     fm.outputDir = outputDir;
     return fm;
+  }
+
+  public static Iterable<File> findGoloFiles(Iterable<File> candidates) {
+    return findGoloFiles(candidates, true);
+  }
+
+  public static Iterable<File> findGoloFiles(Iterable<File> candidates, boolean recurse) {
+    return () -> new GolofilesIterator(candidates.iterator(), recurse);
+  }
+
+  private static final class GolofilesIterator implements Iterator<File> {
+
+    private File next;
+    private Deque<Iterator<File>> bases = new LinkedList<>();
+    private boolean recurse;
+
+    GolofilesIterator(Iterator<File> bases, boolean recurse) {
+      this.bases.addFirst(bases);
+      this.recurse = recurse;
+      this.advance();
+    }
+
+    @Override
+    public boolean hasNext() {
+      return next != null;
+    }
+
+    @Override
+    public File next() {
+      if (this.next == null) {
+        throw new NoSuchElementException();
+      }
+      File result = this.next;
+      this.advance();
+      return result;
+    }
+
+    private boolean isValidGoloFile(File file) {
+      return file.isFile() && file.getName().endsWith(".golo");
+    }
+
+    private boolean advance() {
+      if (this.bases.isEmpty()) {
+        this.next = null;
+        return false;
+      }
+      if (this.bases.getFirst() == null || !this.bases.getFirst().hasNext()) {
+        this.bases.removeFirst();
+        return this.advance();
+      }
+      File file = this.bases.getFirst().next();
+      if (isValidGoloFile(file)) {
+        this.next = file;
+        return true;
+      }
+      if (file.isDirectory()) {
+        this.bases.push(Arrays.asList(file.listFiles()).iterator());
+      }
+      return this.advance();
+    }
   }
 
 }

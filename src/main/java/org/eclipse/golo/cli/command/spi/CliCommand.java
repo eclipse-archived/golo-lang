@@ -11,8 +11,10 @@
 package org.eclipse.golo.cli.command.spi;
 
 import org.eclipse.golo.compiler.GoloCompilationException;
+import org.eclipse.golo.cli.GolofilesManager;
 import gololang.Messages;
 
+import java.util.function.Consumer;
 import java.lang.invoke.MethodHandle;
 import java.io.File;
 
@@ -27,6 +29,11 @@ public interface CliCommand {
   class NoMainMethodException extends NoSuchMethodException {
   }
 
+  @FunctionalInterface
+  interface GolofileAction {
+    public void accept(File source) throws Throwable;
+  }
+
   void execute() throws Throwable;
 
   default void callRun(Class<?> klass, String[] arguments) throws Throwable {
@@ -39,14 +46,21 @@ public interface CliCommand {
     main.invoke(arguments);
   }
 
-  default boolean canRead(File file) {
-    if (!file.canRead()) {
-      warning(message("file_not_found", file.getPath()));
-      return false;
+  default void executeForEachGoloFile(Iterable<File> candidates, GolofileAction action) {
+    for (File source : GolofilesManager.findGoloFiles(candidates)) {
+      if (!source.canRead()) {
+        warning(message("file_not_found", source.getPath()));
+        continue;
+      }
+      try {
+        action.accept(source);
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e);
+      } catch (Throwable e) {
+        handleThrowable(e);
+      }
     }
-    return true;
   }
-
 
   default void handleCompilationException(GoloCompilationException e) {
     handleCompilationException(e, true);

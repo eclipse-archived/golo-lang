@@ -23,6 +23,7 @@ import java.util.List;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.cli.GolofilesManager;
 
 import static gololang.Messages.*;
 
@@ -44,32 +45,13 @@ public class CheckCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    for (File file : files) {
-      check(file, compiler);
-    }
-  }
-
-  private void check(File file, GoloCompiler compiler) {
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          check(directoryFile, compiler);
-        }
+    this.executeForEachGoloFile(this.files, (file) -> {
+      if (this.verbose) {
+        System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
       }
-    } else if (file.getName().endsWith(".golo")) {
-      try {
-        if (verbose) {
-          System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
-        }
-        compiler.resetExceptionBuilder();
-        compiler.check(compiler.parse(file));
-      } catch (IOException e) {
-        error(message("file_not_found", file));
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e, exit);
-      }
-    }
+      compiler.resetExceptionBuilder();
+      compiler.check(compiler.parse(file));
+    });
   }
 }
 

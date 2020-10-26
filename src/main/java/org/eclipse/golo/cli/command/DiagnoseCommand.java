@@ -22,6 +22,7 @@ import org.eclipse.golo.compiler.GoloCompiler;
 import gololang.ir.GoloModule;
 import gololang.ir.IrTreeDumper;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
+import org.eclipse.golo.cli.GolofilesManager;
 
 import java.io.File;
 import java.io.IOException;
@@ -45,8 +46,6 @@ public class DiagnoseCommand implements CliCommand {
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
-  GoloCompiler compiler;
-
   @Override
   public void execute() throws Throwable {
     if ("ast".equals(this.stage) && !"ast".equals(this.mode)) {
@@ -55,88 +54,45 @@ public class DiagnoseCommand implements CliCommand {
     if ("ast".equals(this.mode) && !"ast".equals(this.stage)) {
       this.stage = "ast";
     }
-    compiler = classpath.initGoloClassLoader().getCompiler();
-    try {
-      switch (this.mode) {
-        case "ast":
-          dumpASTs(this.files);
-          break;
-        case "ir":
-          dumpIRs(this.files);
-          break;
-        default:
-          throw new AssertionError("WTF?");
-      }
-    } catch (GoloCompilationException e) {
-      handleCompilationException(e);
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
+    switch (this.mode) {
+      case "ast":
+        this.executeForEachGoloFile(this.files, (file) -> { dumpAST(compiler, file); });
+        break;
+      case "ir":
+        IrTreeDumper dumper = new IrTreeDumper();
+        this.executeForEachGoloFile(this.files, (file) -> { dumpIR(compiler, file, dumper); });
+        break;
+      default:
+        throw new AssertionError("WTF?");
     }
   }
 
-
-  private void dumpASTs(List<File> files) {
-    for (File file : files) {
-      dumpAST(file);
-    }
+  private void dumpAST(GoloCompiler compiler, File file) throws Throwable {
+    System.out.println(">>> AST: " + file.getAbsolutePath());
+    ASTCompilationUnit ast = compiler.parse(file);
+    ast.dump("% ");
+    System.out.println();
   }
 
-  private void dumpAST(File file) {
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          dumpAST(directoryFile);
-        }
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> AST: " + file.getAbsolutePath());
-      try {
-        ASTCompilationUnit ast = compiler.parse(file);
-        ast.dump("% ");
-        System.out.println();
-      } catch (IOException e) {
-        error(message("file_not_found", file.getAbsolutePath()));
-      }
+  private void dumpIR(GoloCompiler compiler, File file, IrTreeDumper dumper) throws Throwable {
+    System.out.println(">>> IR: " + file.getAbsolutePath());
+    GoloModule module = compiler.transform(compiler.parse(file));
+    switch (this.stage) {
+      case "raw":
+        break;
+      case "expanded":
+        compiler.expand(module);
+        break;
+      case "refined":
+        compiler.expand(module);
+        compiler.refine(module);
+        break;
+      default:
+        break;
     }
-  }
-
-  private void dumpIRs(List<File> files) {
-    IrTreeDumper dumper = new IrTreeDumper();
-    for (File file : files) {
-      dumpIR(file, dumper);
-    }
-  }
-
-  private void dumpIR(File file, IrTreeDumper dumper) {
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          dumpIR(directoryFile, dumper);
-        }
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> IR: " + file.getAbsolutePath());
-      try {
-        GoloModule module = compiler.transform(compiler.parse(file));
-        switch (this.stage) {
-          case "raw":
-            break;
-          case "expanded":
-            compiler.expand(module);
-            break;
-          case "refined":
-            compiler.expand(module);
-            compiler.refine(module);
-            break;
-          default:
-            break;
-        }
-        module.accept(dumper);
-      } catch (IOException e) {
-        error(message("file_not_found", file.getAbsolutePath()));
-      }
-      System.out.println();
-    }
+    module.accept(dumper);
+    System.out.println();
   }
 
   public static final class DiagnoseModeValidator implements IParameterValidator {
