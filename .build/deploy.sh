@@ -2,6 +2,13 @@
 set -euo pipefail
 IFS=$'\n\t'
 
+function cleanup {
+    echo "🧹 Cleanup..."
+    rm -f gradle.properties golo-dev-sign.asc
+}
+
+trap cleanup SIGINT SIGTERM ERR EXIT
+
 echo "🚀 Preparing to deploy..."
 
 echo "🔑 Decrypting files..."
@@ -17,9 +24,5 @@ gpg --fast-import --no-tty --batch --yes golo-dev-sign.asc
 echo "📦 Publishing..."
 
 ./gradlew publish
-
-echo "🧹 Cleanup..."
-
-rm gradle.properties golo-dev-sign.asc
 
 echo "✅ Done!"
