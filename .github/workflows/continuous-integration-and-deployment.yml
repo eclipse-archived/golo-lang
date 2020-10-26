@@ -4,6 +4,9 @@ on:
   push:
     branches:
       - master
+    tags:
+      - 'milestone/*'
+      - 'release/*'
   pull_request:
     branches:
       - master
@@ -34,13 +37,42 @@ jobs:
     - name: Build with Gradle
       run: ./gradlew build
 
-    - name: Upload build distribution
+    - name: Copy build distribution
+      run: cp build/distributions/*.zip golo-distribution.zip
+
+    - name: Attach build distribution from this build
       uses: actions/upload-artifact@v2
       with:
         name: Golo distribution from this build
-        path: build/distributions/*.zip
+        path: ./golo-distribution.zip
 
+    # Only pushes to master trigger a publication to Sonatype OSS
     - name: Deploy
       if: github.ref == 'refs/heads/master'
       run: .build/deploy.sh
+      env:
+        GPG_SECRET: ${{ secrets.GPG_SECRET }}
+
+    # Only pushes of tags trigger a release creation
+    - name: Create the release
+      id: create_release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: true
+        prerelease: startsWith(github.ref, 'refs/tags/milestone/')
+    - name: Attach build distribution to the release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./golo-distribution.zip
+        asset_name: golo-distribution.zip
+        asset_content_type: application/zip
 
