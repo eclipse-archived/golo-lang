@@ -15,6 +15,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
@@ -38,8 +39,8 @@ public class DiagnoseCommand implements CliCommand {
   @Parameter(names = "--stage", descriptionKey = "diagnose.stage", validateWith = DiagnoseStageValidator.class)
   String stage = "refined";
 
-  @Parameter(description = "source_files")
-  List<String> files = new LinkedList<>();
+  @Parameter(description = "source_files", converter = FileConverter.class)
+  List<File> files = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
@@ -72,53 +73,51 @@ public class DiagnoseCommand implements CliCommand {
   }
 
 
-  private void dumpASTs(List<String> files) {
-    for (String file : files) {
+  private void dumpASTs(List<File> files) {
+    for (File file : files) {
       dumpAST(file);
     }
   }
 
-  private void dumpAST(String goloFile) {
-    File file = new File(goloFile);
+  private void dumpAST(File file) {
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
         for (File directoryFile : directoryFiles) {
-          dumpAST(directoryFile.getAbsolutePath());
+          dumpAST(directoryFile);
         }
       }
     } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> AST: " + goloFile);
+      System.out.println(">>> AST: " + file.getAbsolutePath());
       try {
-        ASTCompilationUnit ast = compiler.parse(goloFile);
+        ASTCompilationUnit ast = compiler.parse(file);
         ast.dump("% ");
         System.out.println();
       } catch (IOException e) {
-        error(message("file_not_found", goloFile));
+        error(message("file_not_found", file.getAbsolutePath()));
       }
     }
   }
 
-  private void dumpIRs(List<String> files) {
+  private void dumpIRs(List<File> files) {
     IrTreeDumper dumper = new IrTreeDumper();
-    for (String file : files) {
+    for (File file : files) {
       dumpIR(file, dumper);
     }
   }
 
-  private void dumpIR(String goloFile, IrTreeDumper dumper) {
-    File file = new File(goloFile);
+  private void dumpIR(File file, IrTreeDumper dumper) {
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
         for (File directoryFile : directoryFiles) {
-          dumpIR(directoryFile.getAbsolutePath(), dumper);
+          dumpIR(directoryFile, dumper);
         }
       }
     } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> IR: " + file);
+      System.out.println(">>> IR: " + file.getAbsolutePath());
       try {
-        GoloModule module = compiler.transform(compiler.parse(goloFile));
+        GoloModule module = compiler.transform(compiler.parse(file));
         switch (this.stage) {
           case "raw":
             break;
@@ -134,7 +133,7 @@ public class DiagnoseCommand implements CliCommand {
         }
         module.accept(dumper);
       } catch (IOException e) {
-        error(message("file_not_found", goloFile));
+        error(message("file_not_found", file.getAbsolutePath()));
       }
       System.out.println();
     }

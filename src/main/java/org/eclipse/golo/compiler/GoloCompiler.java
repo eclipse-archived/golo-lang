@@ -80,12 +80,12 @@ public class GoloCompiler {
    * @return the parser.
    */
   public final GoloParser initParser(Reader sourceReader) {
-    if (parser == null) {
-      parser = createGoloParser(sourceReader);
+    if (this.parser == null) {
+      this.parser = createGoloParser(sourceReader);
     } else {
-      parser.ReInit(sourceReader);
+      this.parser.ReInit(sourceReader);
     }
-    return parser;
+    return this.parser;
   }
 
   /**
@@ -143,12 +143,6 @@ public class GoloCompiler {
     }
     throwIfErrorEncountered();
     return compilationUnit;
-  }
-
-  public final ASTCompilationUnit parse(String goloSourceFilename) throws GoloCompilationException, IOException {
-    try (Reader in = new FileReader(goloSourceFilename)) {
-      return parse(goloSourceFilename, initParser(in));
-    }
   }
 
   public final ASTCompilationUnit parse(File goloSourceFile) throws GoloCompilationException, IOException {

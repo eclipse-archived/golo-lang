@@ -13,6 +13,7 @@ package org.eclipse.golo.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
@@ -30,8 +31,8 @@ public class CompilerCommand implements CliCommand {
   @Parameter(names = "--output", descriptionKey = "compile.output")
   String output = ".";
 
-  @Parameter(descriptionKey = "source_files")
-  LinkedList<String> sources = new LinkedList<>();
+  @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
+  LinkedList<File> sources = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
@@ -42,8 +43,7 @@ public class CompilerCommand implements CliCommand {
   public void execute() throws Throwable {
     this.compiler = classpath.initGoloClassLoader().getCompiler();
     try(GolofilesManager fm = GolofilesManager.of(this.output)) {
-      for (String sourceFilename : this.sources) {
-        File source = new File(sourceFilename);
+      for (File source : this.sources) {
         // TODO: recurse into directories
         compile(fm, source);
       }
@@ -59,6 +59,5 @@ public class CompilerCommand implements CliCommand {
     } catch (Throwable e) {
       handleThrowable(e);
     }
-
   }
 }

@@ -15,6 +15,7 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompiler;
 import org.eclipse.golo.compiler.GoloCompilationException;
@@ -41,8 +42,8 @@ public class DocCommand implements CliCommand {
   @Parameter(names = "--output", descriptionKey = "doc.output")
   String output = ".";
 
-  @Parameter(descriptionKey = "source_files")
-  List<String> sources = new LinkedList<>();
+  @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
+  List<File> sources = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
@@ -61,7 +62,7 @@ public class DocCommand implements CliCommand {
     compiler = classpath.initGoloClassLoader().getCompiler();
     AbstractProcessor processor = FORMATS.get(this.format).get();
     HashSet<ModuleDocumentation> modules = new HashSet<>();
-    for (String source : this.sources) {
+    for (File source : this.sources) {
       loadGoloFile(source, modules);
     }
     try {
@@ -71,20 +72,19 @@ public class DocCommand implements CliCommand {
     }
   }
 
-  private void loadGoloFile(String goloFile, HashSet<ModuleDocumentation> modules) {
-    File file = new File(goloFile);
+  private void loadGoloFile(File file, HashSet<ModuleDocumentation> modules) {
     if (file.isDirectory()) {
       File[] directoryFiles = file.listFiles();
       if (directoryFiles != null) {
         for (File directoryFile : directoryFiles) {
-          loadGoloFile(directoryFile.getAbsolutePath(), modules);
+          loadGoloFile(directoryFile, modules);
         }
       }
     } else if (file.getName().endsWith(".golo")) {
       try {
-        modules.add(ModuleDocumentation.load(goloFile, compiler));
+        modules.add(ModuleDocumentation.load(file, compiler));
       } catch (IOException e) {
-        error(message("file_not_found", goloFile));
+        error(message("file_not_found", file.getAbsolutePath()));
         return;
       } catch (GoloCompilationException e) {
         handleCompilationException(e);

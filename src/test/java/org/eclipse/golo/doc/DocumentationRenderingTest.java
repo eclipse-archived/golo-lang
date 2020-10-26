@@ -17,6 +17,7 @@ import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashSet;
@@ -37,13 +38,13 @@ public class DocumentationRenderingTest {
     }
   }
 
-  private static ModuleDocumentation loadDoc(String filename) throws IOException {
-    return ModuleDocumentation.load(filename, new GoloCompiler());
+  private static ModuleDocumentation loadDoc(File file) throws IOException {
+    return ModuleDocumentation.load(file, new GoloCompiler());
   }
 
   @Test
   public void markdown_processor() throws Throwable {
-    ModuleDocumentation doc = loadDoc(SRC + "doc.golo");
+    ModuleDocumentation doc = loadDoc(new File(SRC, "doc.golo"));
 
     MarkdownProcessor processor = new MarkdownProcessor();
     String result = processor.render(doc);
@@ -72,7 +73,7 @@ public class DocumentationRenderingTest {
     assertThat(contents, containsString("# Modules index"));
     assertThat(contents, containsString("* [my.package.Documented](my/package/Documented.markdown"));
 
-    String macrodoc = processor.render(loadDoc(SRC + "docpackage/macros.golo"));
+    String macrodoc = processor.render(loadDoc(new File(SRC, "docpackage/macros.golo")));
     assertThat(macrodoc, containsString("## Macros"));
     assertThat(macrodoc, containsString("### `foo()`"));
     assertThat(macrodoc, containsString("This is a macro"));
@@ -188,9 +189,9 @@ public class DocumentationRenderingTest {
   public void html_processor() throws Throwable {
     Path tempDir = Files.createTempDirectory("foo");
     HashSet<ModuleDocumentation> docs = new HashSet<>();
-    docs.add(loadDoc(SRC + "doc.golo"));
-    docs.add(loadDoc(SRC + "docpackage/MyModule.golo"));
-    docs.add(loadDoc(SRC + "docpackage/macros.golo"));
+    docs.add(loadDoc(new File(SRC, "doc.golo")));
+    docs.add(loadDoc(new File(SRC, "docpackage/MyModule.golo")));
+    docs.add(loadDoc(new File(SRC, "docpackage/macros.golo")));
 
     HtmlProcessor processor = new HtmlProcessor();
     processor.setTargetFolder(tempDir);
@@ -208,7 +209,7 @@ public class DocumentationRenderingTest {
   @Test
   public void ctags_processor() throws Throwable {
     CtagsProcessor processor = new CtagsProcessor();
-    String result = processor.render(loadDoc(SRC + "doc.golo"));
+    String result = processor.render(loadDoc(new File(SRC, "doc.golo")));
     assertThat(result, containsString("my.package.Documented\tfile\t/^module[:blank:]+my\\.package\\.Documented$/;\"\tp\tline:1\tlanguage:golo"));
     assertThat(result, containsString("Point\tfile\t/^struct[:blank:]+Point[:blank:]+=/;\"\ts\tline:67\tlanguage:golo"));
     assertThat(result, containsString("java.lang.String\tfile\t/^augment[:blank:]+java\\.lang\\.String/;\"\ta\tline:47\tlanguage:golo"));
@@ -225,7 +226,7 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("head\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:100\taccess:public\tvalue:Cons\tlanguage:golo"));
     assertThat(result, containsString("tail\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:105\taccess:public\tvalue:Cons\tlanguage:golo"));
 
-    result = processor.render(loadDoc(SRC + "docpackage/macros.golo"));
+    result = processor.render(loadDoc(new File(SRC, "docpackage/macros.golo")));
     assertThat(result, containsString("foo\tfile\t/macro[:blank:]+foo[:blank:]+=/;\"\td\tline:11\taccess:public\tsignature:()\tlanguage:golo"));
   }
 

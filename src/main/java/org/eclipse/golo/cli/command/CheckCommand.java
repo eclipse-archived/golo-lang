@@ -13,6 +13,7 @@ package org.eclipse.golo.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 
 import java.io.File;
 import java.io.IOException;
@@ -34,8 +35,8 @@ public class CheckCommand implements CliCommand {
   @Parameter(names = {"--verbose"}, descriptionKey = "check.verbose")
   boolean verbose = false;
 
-  @Parameter(descriptionKey = "source_files")
-  List<String> files = new LinkedList<>();
+  @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
+  List<File> files = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
@@ -43,8 +44,8 @@ public class CheckCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    for (String file : files) {
-      check(new File(file), compiler);
+    for (File file : files) {
+      check(file, compiler);
     }
   }
 
@@ -62,7 +63,7 @@ public class CheckCommand implements CliCommand {
           System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
         }
         compiler.resetExceptionBuilder();
-        compiler.check(compiler.parse(file.getAbsolutePath()));
+        compiler.check(compiler.parse(file));
       } catch (IOException e) {
         error(message("file_not_found", file));
       } catch (GoloCompilationException e) {

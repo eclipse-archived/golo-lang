@@ -13,6 +13,7 @@ package org.eclipse.golo.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
@@ -27,8 +28,8 @@ import static gololang.Messages.*;
 @Parameters(commandNames = {"golo"}, resourceBundle = "commands", commandDescriptionKey = "golo")
 public class GoloGoloCommand implements CliCommand {
 
-  @Parameter(names = "--files", variableArity = true, descriptionKey = "golo.files", required = true)
-  List<String> files = new LinkedList<>();
+  @Parameter(names = "--files", variableArity = true, descriptionKey = "golo.files", required = true, converter = FileConverter.class)
+  List<File> files = new LinkedList<>();
 
   @Parameter(names = "--module", descriptionKey = "main_module")
   String module;
@@ -43,8 +44,8 @@ public class GoloGoloCommand implements CliCommand {
   public void execute() throws Throwable {
     GoloClassLoader loader = classpath.initGoloClassLoader();
     Class<?> lastClass = null;
-    for (String goloFile : this.files) {
-      lastClass = loadGoloFile(goloFile, this.module, loader);
+    for (File goloFile : this.files) {
+      lastClass = loadGoloFile(goloFile, loader);
     }
     if (lastClass == null && this.module != null) {
       error(message("module_not_found", this.module));
@@ -60,8 +61,7 @@ public class GoloGoloCommand implements CliCommand {
     }
   }
 
-  private Class<?> loadGoloFile(String goloFile, String module, GoloClassLoader loader) throws Throwable {
-    File file = new File(goloFile);
+  private Class<?> loadGoloFile(File file, GoloClassLoader loader) throws Throwable {
     if (!file.exists()) {
       error(message("file_not_found", file));
     } else if (file.isDirectory()) {
@@ -69,8 +69,8 @@ public class GoloGoloCommand implements CliCommand {
       if (directoryFiles != null) {
         Class<?> lastClass = null;
         for (File directoryFile : directoryFiles) {
-          Class<?> loadedClass = loadGoloFile(directoryFile.getAbsolutePath(), module, loader);
-          if (module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(module))) {
+          Class<?> loadedClass = loadGoloFile(directoryFile, loader);
+          if (this.module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(this.module))) {
             lastClass = loadedClass;
           }
         }
@@ -79,7 +79,7 @@ public class GoloGoloCommand implements CliCommand {
     } else if (file.getName().endsWith(".golo")) {
       try {
         Class<?> loadedClass = loader.load(file);
-        if (module == null || loadedClass.getCanonicalName().equals(module)) {
+        if (this.module == null || loadedClass.getCanonicalName().equals(this.module)) {
           return loadedClass;
         }
       } catch (IOException e) {
