@@ -1,14 +1,10 @@
-FROM azul/zulu-openjdk-alpine:8
-MAINTAINER Julien Ponge <julien.ponge@insa-lyon.fr>
-
-RUN apk add --no-cache
-
+FROM azul/zulu-openjdk:8 AS builder
 ADD . /src
+WORKDIR /src
+RUN ./gradlew installDist
 
-RUN cd /src &&\
-  ./gradlew -v &&\
-  ./gradlew installDist &&\
-  mkdir -p /opt/golo &&\
-  cp -R /src/build/install/golo/* /opt/golo &&\
-  ln -s /opt/golo/bin/golo /usr/bin/golo &&\
-  rm -rf /src /root/.gradle
+FROM azul/zulu-openjdk-alpine:8
+COPY --from=builder /src/build/install/golo /opt/golo
+ENV PATH=/opt/golo/bin:/opt/golo/share/shell-completion/:$PATH
+ENV MANPATH=/opt/golo/man:$MANPATH
+CMD [ "golo" ]
