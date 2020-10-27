@@ -69,6 +69,7 @@ public class DiagnoseCommand implements CliCommand {
   }
 
   private void dumpAST(GoloCompiler compiler, File file) throws Throwable {
+    compiler.resetExceptionBuilder();
     System.out.println(">>> AST: " + file.getAbsolutePath());
     ASTCompilationUnit ast = compiler.parse(file);
     ast.dump("% ");
@@ -76,6 +77,7 @@ public class DiagnoseCommand implements CliCommand {
   }
 
   private void dumpIR(GoloCompiler compiler, File file, IrTreeDumper dumper) throws Throwable {
+    compiler.resetExceptionBuilder();
     System.out.println(">>> IR: " + file.getAbsolutePath());
     GoloModule module = compiler.transform(compiler.parse(file));
     switch (this.stage) {

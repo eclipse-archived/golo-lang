@@ -502,7 +502,6 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    *
    * @param mapping the function to apply to the contained value
    * @param recover the function to apply to the contained error
-   * @return the result of applying the corresponding function
    */
   public void either(Consumer<T> mapping, Consumer<E> recover) {
     if (isError()) {

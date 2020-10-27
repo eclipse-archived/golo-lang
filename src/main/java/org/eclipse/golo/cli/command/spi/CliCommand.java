@@ -47,19 +47,30 @@ public interface CliCommand {
   }
 
   default void executeForEachGoloFile(Iterable<File> candidates, GolofileAction action) {
+    executeForEachGoloFile(candidates, action, false);
+  }
+
+  default void executeForEachGoloFile(Iterable<File> candidates, GolofileAction action, boolean exitOnError) {
+    Consumer<File> wrapped = wrappedAction(action, exitOnError);
     for (File source : GolofilesManager.findGoloFiles(candidates)) {
+      wrapped.accept(source);
+    }
+  }
+
+  default Consumer<File> wrappedAction(GolofileAction action, boolean exitOnError) {
+    return (source) -> {
       if (!source.canRead()) {
         warning(message("file_not_found", source.getPath()));
-        continue;
+        return;
       }
       try {
         action.accept(source);
       } catch (GoloCompilationException e) {
-        handleCompilationException(e);
+        handleCompilationException(e, exitOnError);
       } catch (Throwable e) {
-        handleThrowable(e);
+        handleThrowable(e, exitOnError);
       }
-    }
+    };
   }
 
   default void handleCompilationException(GoloCompilationException e) {

@@ -174,7 +174,10 @@ public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationR
         return true;
       }
       if (file.isDirectory()) {
-        this.bases.push(Arrays.asList(file.listFiles()).iterator());
+        File[] content = file.listFiles();
+        if (content != null) {
+          this.bases.push(Arrays.asList(content).iterator());
+        }
       }
       return this.advance();
     }

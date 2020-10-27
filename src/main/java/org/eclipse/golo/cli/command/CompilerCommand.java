@@ -42,6 +42,7 @@ public class CompilerCommand implements CliCommand {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     try(GolofilesManager fm = GolofilesManager.of(this.output)) {
       this.executeForEachGoloFile(this.sources, (file) -> {
+        compiler.resetExceptionBuilder();
         fm.saveAll(compiler.compile(file));
       });
     }

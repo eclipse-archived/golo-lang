@@ -56,11 +56,9 @@ public class DocCommand implements CliCommand {
     FORMATS.put("ctags", CtagsProcessor::new);
   }
 
-  private GoloCompiler compiler;
-
   @Override
   public void execute() throws Throwable {
-    compiler = classpath.initGoloClassLoader().getCompiler();
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     AbstractProcessor processor = FORMATS.get(this.format).get();
     HashSet<ModuleDocumentation> modules = new HashSet<>();
     this.executeForEachGoloFile(this.sources, (file) -> { modules.add(ModuleDocumentation.load(file, compiler)); });
