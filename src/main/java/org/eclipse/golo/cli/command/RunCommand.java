@@ -21,8 +21,8 @@ import java.util.List;
 import static gololang.Messages.error;
 import static gololang.Messages.message;
 
-@Parameters(commandNames = {"run"}, resourceBundle = "commands", commandDescriptionKey = "run")
-public class RunCommand implements CliCommand {
+@Parameters(commandNames = "run", resourceBundle = "commands", commandDescriptionKey = "run")
+public final class RunCommand implements CliCommand {
 
   @Parameter(names = "--module", descriptionKey = "main_module", required = true)
   String module;
@@ -36,8 +36,8 @@ public class RunCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     try {
-      Class<?> module = Class.forName(this.module, true, classpath.initGoloClassLoader());
-      callRun(module, this.arguments.toArray(new String[this.arguments.size()]));
+      Class<?> moduleClass = Class.forName(this.module, true, classpath.initGoloClassLoader());
+      callRun(moduleClass, this.arguments.toArray(new String[this.arguments.size()]));
     } catch (ClassNotFoundException e) {
       error(message("module_not_found", this.module));
     } catch (NoMainMethodException e) {

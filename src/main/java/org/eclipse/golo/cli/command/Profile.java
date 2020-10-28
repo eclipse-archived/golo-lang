@@ -18,7 +18,7 @@ import static java.util.Collections.unmodifiableList;
 import static java.util.Collections.emptyList;
 
 
-class Profile {
+final class Profile {
   private String defaultFileName;
   private String label;
   private boolean runnable = false;

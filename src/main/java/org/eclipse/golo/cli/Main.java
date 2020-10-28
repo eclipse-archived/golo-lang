@@ -34,7 +34,7 @@ public final class Main {
     String usageCommand;
   }
 
-  public static class UsageFormatValidator implements IParameterValidator {
+  public static final class UsageFormatValidator implements IParameterValidator {
     static Set<String> commandNames;
 
     @Override

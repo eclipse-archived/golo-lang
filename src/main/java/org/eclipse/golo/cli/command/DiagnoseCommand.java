@@ -17,22 +17,19 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
 import gololang.ir.GoloModule;
 import gololang.ir.IrTreeDumper;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.cli.GolofilesManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"diagnose"}, resourceBundle = "commands", commandDescriptionKey = "diagnose")
-public class DiagnoseCommand implements CliCommand {
+@Parameters(commandNames = "diagnose", resourceBundle = "commands", commandDescriptionKey = "diagnose")
+public final class DiagnoseCommand implements CliCommand {
 
   @Parameter(names = "--tool", hidden = true, descriptionKey = "diagnose.tool", validateWith = DiagnoseModeValidator.class)
   String mode = "ir";
@@ -57,11 +54,11 @@ public class DiagnoseCommand implements CliCommand {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     switch (this.mode) {
       case "ast":
-        this.executeForEachGoloFile(this.files, (file) -> { dumpAST(compiler, file); });
+        this.executeForEachGoloFile(this.files, file -> { dumpAST(compiler, file); });
         break;
       case "ir":
         IrTreeDumper dumper = new IrTreeDumper();
-        this.executeForEachGoloFile(this.files, (file) -> { dumpIR(compiler, file, dumper); });
+        this.executeForEachGoloFile(this.files, file -> { dumpIR(compiler, file, dumper); });
         break;
       default:
         throw new AssertionError("WTF?");

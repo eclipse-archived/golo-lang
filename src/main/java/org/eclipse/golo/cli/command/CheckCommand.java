@@ -16,24 +16,21 @@ import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
-import org.eclipse.golo.cli.GolofilesManager;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"check"}, resourceBundle = "commands", commandDescriptionKey = "check")
-public class CheckCommand implements CliCommand {
+@Parameters(commandNames = "check", resourceBundle = "commands", commandDescriptionKey = "check")
+public final class CheckCommand implements CliCommand {
 
-  @Parameter(names = {"--exit"}, descriptionKey = "check.exit")
+  @Parameter(names = "--exit", descriptionKey = "check.exit")
   boolean exit = false;
 
-  @Parameter(names = {"--verbose"}, descriptionKey = "check.verbose")
+  @Parameter(names = "--verbose", descriptionKey = "check.verbose")
   boolean verbose = false;
 
   @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
@@ -45,7 +42,7 @@ public class CheckCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    this.executeForEachGoloFile(this.files, (file) -> {
+    this.executeForEachGoloFile(this.files, file -> {
       if (this.verbose) {
         System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
       }

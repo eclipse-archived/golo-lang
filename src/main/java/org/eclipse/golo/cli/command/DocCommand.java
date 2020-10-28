@@ -17,9 +17,7 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.cli.GolofilesManager;
 import org.eclipse.golo.compiler.GoloCompiler;
-import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.doc.AbstractProcessor;
 import org.eclipse.golo.doc.CtagsProcessor;
 import org.eclipse.golo.doc.HtmlProcessor;
@@ -27,15 +25,14 @@ import org.eclipse.golo.doc.MarkdownProcessor;
 import org.eclipse.golo.doc.ModuleDocumentation;
 
 import java.io.File;
-import java.io.IOException;
 import java.nio.file.Paths;
 import java.util.function.Supplier;
 import java.util.*;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"doc"}, commandDescriptionKey = "doc", resourceBundle = "commands")
-public class DocCommand implements CliCommand {
+@Parameters(commandNames = "doc", commandDescriptionKey = "doc", resourceBundle = "commands")
+public final class DocCommand implements CliCommand {
 
   @Parameter(names = "--format", descriptionKey = "doc.format", validateWith = DocFormatValidator.class)
   String format = "html";
@@ -61,7 +58,7 @@ public class DocCommand implements CliCommand {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     AbstractProcessor processor = FORMATS.get(this.format).get();
     HashSet<ModuleDocumentation> modules = new HashSet<>();
-    this.executeForEachGoloFile(this.sources, (file) -> { modules.add(ModuleDocumentation.load(file, compiler)); });
+    this.executeForEachGoloFile(this.sources, file -> { modules.add(ModuleDocumentation.load(file, compiler)); });
     try {
       processor.process(modules, Paths.get(this.output));
     } catch (Throwable throwable) {
@@ -69,7 +66,7 @@ public class DocCommand implements CliCommand {
     }
   }
 
-  public static class DocFormatValidator implements IParameterValidator {
+  public static final class DocFormatValidator implements IParameterValidator {
 
     @Override
     public void validate(String name, String value) throws ParameterException {

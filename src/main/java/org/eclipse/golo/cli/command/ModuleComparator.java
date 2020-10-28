@@ -14,7 +14,7 @@ import java.util.Comparator;
 import java.util.Set;
 import gololang.ir.GoloModule;
 
-class ModuleComparator implements Comparator<GoloModule> {
+final class ModuleComparator implements Comparator<GoloModule> {
 
   @Override
   public int compare(GoloModule m1, GoloModule m2) {

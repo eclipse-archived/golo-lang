@@ -24,6 +24,8 @@ import java.util.jar.JarOutputStream;
 import java.util.jar.Manifest;
 import java.util.zip.ZipEntry;
 import java.util.function.Consumer;
+import java.util.stream.StreamSupport;
+import java.util.stream.Stream;
 
 import org.eclipse.golo.compiler.CodeGenerationResult;
 import org.eclipse.golo.cli.command.Metadata;
@@ -34,14 +36,14 @@ import static gololang.Messages.*;
  *
  * <p>Ease the finding, loading and saving of golo source files and compilation result.
  */
-public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationResult> {
+public final class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationResult> {
 
   private File outputDir;
   private JarOutputStream jar;
   private boolean recurse = false;
   private boolean compilingToJar = false;
 
-  private GolofilesManager() {}
+  private GolofilesManager() { }
 
   private void saveToJar(CodeGenerationResult result) throws IOException {
     this.jar.putNextEntry(new ZipEntry(result.getOutputFilename()));
@@ -103,7 +105,7 @@ public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationR
     return withOutputDir(new File(output));
   }
 
-  public static GolofilesManager withOutputJar(File output) throws IOException{
+  public static GolofilesManager withOutputJar(File output) throws IOException {
     GolofilesManager fm = new GolofilesManager();
     fm.jar = new JarOutputStream(new FileOutputStream(output), manifest());
     fm.compilingToJar = true;
@@ -126,6 +128,14 @@ public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationR
 
   public static Iterable<File> findGoloFiles(Iterable<File> candidates, boolean recurse) {
     return () -> new GolofilesIterator(candidates.iterator(), recurse);
+  }
+
+  public static Stream<File> goloFiles(Iterable<File> candidates, boolean recurse) {
+    return StreamSupport.stream(GolofilesManager.findGoloFiles(candidates, recurse).spliterator(), false);
+  }
+
+  public static Stream<File> goloFiles(Iterable<File> candidates) {
+    return goloFiles(candidates, true);
   }
 
   private static final class GolofilesIterator implements Iterator<File> {
@@ -159,19 +169,19 @@ public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationR
       return file.isFile() && file.getName().endsWith(".golo");
     }
 
-    private boolean advance() {
+    private void advance() {
       if (this.bases.isEmpty()) {
         this.next = null;
-        return false;
+        return;
       }
       if (this.bases.getFirst() == null || !this.bases.getFirst().hasNext()) {
         this.bases.removeFirst();
-        return this.advance();
+        return;
       }
       File file = this.bases.getFirst().next();
       if (isValidGoloFile(file)) {
         this.next = file;
-        return true;
+        return;
       }
       if (file.isDirectory()) {
         File[] content = file.listFiles();
@@ -179,7 +189,6 @@ public class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationR
           this.bases.push(Arrays.asList(content).iterator());
         }
       }
-      return this.advance();
     }
   }
 

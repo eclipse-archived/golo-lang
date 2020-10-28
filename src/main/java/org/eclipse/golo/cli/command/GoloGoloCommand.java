@@ -25,8 +25,8 @@ import java.util.List;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"golo"}, resourceBundle = "commands", commandDescriptionKey = "golo")
-public class GoloGoloCommand implements CliCommand {
+@Parameters(commandNames = "golo", resourceBundle = "commands", commandDescriptionKey = "golo")
+public final class GoloGoloCommand implements CliCommand {
 
   @Parameter(names = "--files", variableArity = true, descriptionKey = "golo.files", required = true, converter = FileConverter.class)
   List<File> files = new LinkedList<>();
@@ -62,6 +62,7 @@ public class GoloGoloCommand implements CliCommand {
   }
 
   private Class<?> loadGoloFile(File file, GoloClassLoader loader) throws Throwable {
+    // TODO: refactor
     if (!file.exists()) {
       error(message("file_not_found", file));
     } else if (file.isDirectory()) {

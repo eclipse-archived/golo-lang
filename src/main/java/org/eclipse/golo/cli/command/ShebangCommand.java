@@ -24,8 +24,8 @@ import java.util.stream.Collectors;
 
 import static gololang.Messages.message;
 
-@Parameters(commandNames = {"shebang"}, resourceBundle = "commands", commandDescriptionKey = "golo")
-public class ShebangCommand implements CliCommand {
+@Parameters(commandNames = "shebang", resourceBundle = "commands", commandDescriptionKey = "golo")
+public final class ShebangCommand implements CliCommand {
 
   @Parameter(descriptionKey = "arguments", required = true)
   List<String> arguments = new LinkedList<>();
