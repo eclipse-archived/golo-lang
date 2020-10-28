@@ -15,6 +15,7 @@ import org.eclipse.golo.cli.GolofilesManager;
 import gololang.Messages;
 
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.lang.invoke.MethodHandle;
 import java.io.File;
 
@@ -25,14 +26,6 @@ import static gololang.Messages.*;
 
 
 public interface CliCommand {
-
-  class NoMainMethodException extends NoSuchMethodException {
-  }
-
-  @FunctionalInterface
-  interface GolofileAction {
-    public void accept(File source) throws Throwable;
-  }
 
   void execute() throws Throwable;
 
@@ -57,20 +50,61 @@ public interface CliCommand {
     }
   }
 
+  default boolean canRead(File source) {
+    if (!source.canRead()) {
+      warning(message("file_not_found", source.getPath()));
+      return false;
+    }
+    return true;
+  }
+
+
   default Consumer<File> wrappedAction(GolofileAction action, boolean exitOnError) {
-    return (source) -> {
-      if (!source.canRead()) {
-        warning(message("file_not_found", source.getPath()));
-        return;
-      }
-      try {
-        action.accept(source);
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e, exitOnError);
-      } catch (Throwable e) {
-        handleThrowable(e, exitOnError);
+    return source -> {
+      if (canRead(source)) {
+        try {
+          action.accept(source);
+        } catch (GoloCompilationException e) {
+          handleCompilationException(e, exitOnError);
+        } catch (Throwable e) {
+          handleThrowable(e, exitOnError);
+        }
       }
     };
+  }
+
+  default Consumer<File> wrappedAction(GolofileAction action) {
+    return wrappedAction(action, false);
+  }
+
+  default <T, R> Function<T, R> wrappedTreatment(GoloCompilationTreatment<T, R> t) {
+    return data -> {
+      if (data == null) {
+        return null;
+      }
+      try {
+        return t.apply(data);
+      } catch (GoloCompilationException e) {
+        handleCompilationException(e, false);
+        return null;
+      } catch (Throwable e) {
+        handleThrowable(e, false);
+        return null;
+      }
+    };
+  }
+
+  default <T> Function<T, T> displayInfo(String message) {
+    return object -> {
+      if (this.verbose()) {
+        info(String.format(message, object));
+      }
+      return object;
+    };
+  }
+
+  default boolean verbose() {
+    return true;
   }
 
   default void handleCompilationException(GoloCompilationException e) {
@@ -117,4 +151,17 @@ public interface CliCommand {
       System.exit(1);
     }
   }
+
+  class NoMainMethodException extends NoSuchMethodException { }
+
+  @FunctionalInterface
+  interface GolofileAction {
+    void accept(File source) throws Throwable;
+  }
+
+  @FunctionalInterface
+  interface GoloCompilationTreatment<T, R> {
+    R apply(T o) throws Throwable;
+  }
+
 }
