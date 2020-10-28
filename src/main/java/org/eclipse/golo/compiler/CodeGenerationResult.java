@@ -75,4 +75,9 @@ public final class CodeGenerationResult {
   public int size() {
     return this.bytecode.length;
   }
+
+  @Override
+  public String toString() {
+    return String.format("CodeGenerationResult{name=%s, src=%s}", getPackageAndClass().toString(), getSourceFilename());
+  }
 }

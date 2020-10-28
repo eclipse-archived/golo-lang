@@ -14,14 +14,17 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
+
+import org.eclipse.golo.cli.GolofilesManager;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloClassLoader;
-import org.eclipse.golo.compiler.GoloCompilationException;
+import org.eclipse.golo.compiler.GoloCompiler;
 
 import java.io.File;
-import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import static gololang.Messages.*;
 
@@ -43,10 +46,21 @@ public final class GoloGoloCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     GoloClassLoader loader = classpath.initGoloClassLoader();
-    Class<?> lastClass = null;
-    for (File goloFile : this.files) {
-      lastClass = loadGoloFile(goloFile, loader);
-    }
+    GoloCompiler compiler = loader.getCompiler();
+    Class<?> lastClass = GolofilesManager.goloFiles(this.files)
+      .filter(this::canRead)
+      .map(wrappedTreatment(compiler::parse))
+      .map(wrappedTreatment(compiler::transform))
+      .sorted(CliCommand.MODULE_COMPARATOR)
+      .map(wrappedTreatment(compiler::expand))
+      .map(wrappedTreatment(compiler::refine))
+      .map(wrappedTreatment(compiler::generate))
+      .filter(Objects::nonNull)
+      .flatMap(Collection::stream)
+      .map(displayInfo("Loading %s"))
+      .map(loader::load)
+      .reduce(null, this::selectMainModule);
+
     if (lastClass == null && this.module != null) {
       error(message("module_not_found", this.module));
       return;
@@ -61,34 +75,10 @@ public final class GoloGoloCommand implements CliCommand {
     }
   }
 
-  private Class<?> loadGoloFile(File file, GoloClassLoader loader) throws Throwable {
-    // TODO: refactor
-    if (!file.exists()) {
-      error(message("file_not_found", file));
-    } else if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        Class<?> lastClass = null;
-        for (File directoryFile : directoryFiles) {
-          Class<?> loadedClass = loadGoloFile(directoryFile, loader);
-          if (this.module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(this.module))) {
-            lastClass = loadedClass;
-          }
-        }
-        return lastClass;
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      try {
-        Class<?> loadedClass = loader.load(file);
-        if (this.module == null || loadedClass.getCanonicalName().equals(this.module)) {
-          return loadedClass;
-        }
-      } catch (IOException e) {
-        error(message("file_not_found", file.getAbsolutePath()));
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e);
-      }
+  private Class<?> selectMainModule(Class<?> old, Class<?> loaded) {
+    if (this.module == null || this.module.equals(loaded.getCanonicalName())) {
+      return loaded;
     }
-    return null;
+    return old;
   }
 }

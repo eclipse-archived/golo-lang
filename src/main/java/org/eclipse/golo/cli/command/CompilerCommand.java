@@ -16,6 +16,7 @@ import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.cli.GolofilesManager;
 
 import java.io.File;
@@ -38,19 +39,24 @@ public final class CompilerCommand implements CliCommand {
 
   @Override
   public void execute() throws Throwable {
-    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
+    GoloClassLoader loader = classpath.initGoloClassLoader();
+    GoloCompiler compiler = loader.getCompiler();
     try (GolofilesManager fm = GolofilesManager.of(this.output)) {
       GolofilesManager.goloFiles(this.sources)
         .filter(this::canRead)
-        .map(displayInfo("Compiling %s"))
         .map(wrappedTreatment(compiler::parse))
         .map(wrappedTreatment(compiler::transform))
+        .sorted(CliCommand.MODULE_COMPARATOR)
+        .map(displayInfo("Compiling %s"))
         .map(wrappedTreatment(compiler::expand))
         .map(wrappedTreatment(compiler::refine))
         .map(wrappedTreatment(compiler::generate))
         .filter(Objects::nonNull)
         .flatMap(Collection::stream)
-        .forEach(fm::save);
+        .forEach(r -> {
+          loader.load(r);
+          fm.save(r);
+        });
     }
   }
 }

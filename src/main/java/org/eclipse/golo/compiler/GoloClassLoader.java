@@ -26,7 +26,7 @@ import gololang.ir.GoloModule;
  * This class loader does not support reloading. Attempts to load source files that may produce the same bytecode
  * definitions will resulting in exceptions.
  */
-public class GoloClassLoader extends ClassLoader {
+public final class GoloClassLoader extends ClassLoader {
 
   private final GoloCompiler compiler;
 
@@ -84,8 +84,12 @@ public class GoloClassLoader extends ClassLoader {
   public synchronized Class<?> load(List<CodeGenerationResult> results) {
     Class<?> lastClassIsModule = null;
     for (CodeGenerationResult result : results) {
-      lastClassIsModule = defineClass(result.getBinaryName(), result.getBytecode(), 0, result.size());
+      lastClassIsModule = load(result);
     }
     return lastClassIsModule;
+  }
+
+  public synchronized Class<?> load(CodeGenerationResult result) {
+    return defineClass(result.getBinaryName(), result.getBytecode(), 0, result.size());
   }
 }

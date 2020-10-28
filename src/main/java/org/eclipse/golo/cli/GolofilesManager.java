@@ -176,6 +176,7 @@ public final class GolofilesManager implements AutoCloseable, Consumer<CodeGener
       }
       if (this.bases.getFirst() == null || !this.bases.getFirst().hasNext()) {
         this.bases.removeFirst();
+        this.advance();
         return;
       }
       File file = this.bases.getFirst().next();
@@ -187,7 +188,10 @@ public final class GolofilesManager implements AutoCloseable, Consumer<CodeGener
         File[] content = file.listFiles();
         if (content != null) {
           this.bases.push(Arrays.asList(content).iterator());
+          this.advance();
         }
+      } else {
+        this.advance();
       }
     }
   }
