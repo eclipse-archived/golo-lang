@@ -17,6 +17,7 @@ import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
 import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
+import org.eclipse.golo.cli.GolofilesManager;
 import org.eclipse.golo.compiler.GoloCompiler;
 import org.eclipse.golo.doc.AbstractProcessor;
 import org.eclipse.golo.doc.CtagsProcessor;
@@ -29,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.function.Supplier;
 import java.util.*;
 
+import static java.util.stream.Collectors.toSet;
 import static gololang.Messages.*;
 
 @Parameters(commandNames = "doc", commandDescriptionKey = "doc", resourceBundle = "commands")
@@ -57,8 +59,10 @@ public final class DocCommand implements CliCommand {
   public void execute() throws Throwable {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     AbstractProcessor processor = FORMATS.get(this.format).get();
-    HashSet<ModuleDocumentation> modules = new HashSet<>();
-    this.executeForEachGoloFile(this.sources, file -> { modules.add(ModuleDocumentation.load(file, compiler)); });
+    Set<ModuleDocumentation> modules = GolofilesManager.goloFiles(this.sources)
+      .map(wrappedTreatment(file -> ModuleDocumentation.load(file, compiler)))
+      .collect(toSet());
+
     try {
       processor.process(modules, Paths.get(this.output));
     } catch (Throwable throwable) {

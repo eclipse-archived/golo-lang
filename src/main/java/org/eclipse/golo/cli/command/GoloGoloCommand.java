@@ -43,6 +43,14 @@ public final class GoloGoloCommand implements CliCommand {
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
+  @Parameter(names = "--verbose", descriptionKey = "verbose")
+  boolean verbose = false;
+
+  @Override
+  public boolean verbose() {
+    return this.verbose;
+  }
+
   @Override
   public void execute() throws Throwable {
     GoloClassLoader loader = classpath.initGoloClassLoader();

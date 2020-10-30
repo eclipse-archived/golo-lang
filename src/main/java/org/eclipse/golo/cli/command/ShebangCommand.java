@@ -16,6 +16,7 @@ import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
 
 import java.io.IOException;
+import java.io.UncheckedIOException;
 import java.io.Reader;
 import java.nio.file.*;
 import java.util.LinkedList;
@@ -81,7 +82,7 @@ public final class ShebangCommand implements CliCommand {
         throw new RuntimeException(message("not_regular_file", path));
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 

@@ -21,6 +21,7 @@ import java.util.List;
 
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.cli.GolofilesManager;
 
 import static gololang.Messages.*;
 
@@ -30,7 +31,7 @@ public final class CheckCommand implements CliCommand {
   @Parameter(names = "--exit", descriptionKey = "check.exit")
   boolean exit = false;
 
-  @Parameter(names = "--verbose", descriptionKey = "check.verbose")
+  @Parameter(names = "--verbose", descriptionKey = "verbose")
   boolean verbose = false;
 
   @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
@@ -40,15 +41,21 @@ public final class CheckCommand implements CliCommand {
   ClasspathOption classpath = new ClasspathOption();
 
   @Override
+  public boolean verbose() {
+    return this.verbose;
+  }
+
+  @Override
   public void execute() throws Throwable {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    this.executeForEachGoloFile(this.files, file -> {
-      if (this.verbose) {
-        System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
-      }
-      compiler.resetExceptionBuilder();
-      compiler.check(compiler.parse(file));
-    });
+    GolofilesManager.goloFiles(this.files)
+      .forEach(wrappedAction(this.exit, file -> {
+        if (this.verbose) {
+          info(message("check_info", file.getAbsolutePath()));
+        }
+        compiler.resetExceptionBuilder();
+        compiler.check(compiler.parse(file));
+      }));
   }
 }
 

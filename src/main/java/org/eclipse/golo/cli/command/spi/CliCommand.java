@@ -11,7 +11,6 @@
 package org.eclipse.golo.cli.command.spi;
 
 import org.eclipse.golo.compiler.GoloCompilationException;
-import org.eclipse.golo.cli.GolofilesManager;
 import gololang.Messages;
 import gololang.ir.GoloModule;
 
@@ -31,6 +30,9 @@ import static gololang.Messages.*;
 public interface CliCommand {
 
   Comparator<GoloModule> MODULE_COMPARATOR = (GoloModule m1, GoloModule m2) -> {
+    if (m1 == null && m2 != null) { return -1; }
+    if (m1 != null && m2 == null) { return 1; }
+    if (m1 == null && m2 == null) { return 0; }
     if (m1.hasMacros() && !m2.hasMacros()) { return -1; }
     if (!m1.hasMacros() && m2.hasMacros()) { return 1; }
     Set<String> m1Used = m1.getUsedModules();
@@ -56,18 +58,8 @@ public interface CliCommand {
     main.invoke(arguments);
   }
 
-  default void executeForEachGoloFile(Iterable<File> candidates, GolofileAction action) {
-    executeForEachGoloFile(candidates, action, false);
-  }
-
-  default void executeForEachGoloFile(Iterable<File> candidates, GolofileAction action, boolean exitOnError) {
-    Consumer<File> wrapped = wrappedAction(action, exitOnError);
-    for (File source : GolofilesManager.findGoloFiles(candidates)) {
-      wrapped.accept(source);
-    }
-  }
-
   default boolean canRead(File source) {
+    if (source == null) { return false; }
     if (!source.canRead()) {
       warning(message("file_not_found", source.getPath()));
       return false;
@@ -75,8 +67,7 @@ public interface CliCommand {
     return true;
   }
 
-
-  default Consumer<File> wrappedAction(GolofileAction action, boolean exitOnError) {
+  default Consumer<File> wrappedAction(boolean exitOnError, GolofileAction action) {
     return source -> {
       if (canRead(source)) {
         try {
@@ -91,7 +82,7 @@ public interface CliCommand {
   }
 
   default Consumer<File> wrappedAction(GolofileAction action) {
-    return wrappedAction(action, false);
+    return wrappedAction(false, action);
   }
 
   default <T, R> Function<T, R> wrappedTreatment(GoloCompilationTreatment<T, R> t) {
@@ -112,16 +103,19 @@ public interface CliCommand {
   }
 
   default <T> Function<T, T> displayInfo(String message) {
-    return object -> {
-      if (this.verbose()) {
-        info(String.format(message, object));
-      }
-      return object;
-    };
+    if (this.verbose()) {
+      return object -> {
+        if (object != null) {
+          info(String.format(message, object));
+        }
+        return object;
+      };
+    }
+    return Function.identity();
   }
 
   default boolean verbose() {
-    return true;
+    return false;
   }
 
   default void handleCompilationException(GoloCompilationException e) {

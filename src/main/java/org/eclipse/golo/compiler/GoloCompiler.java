@@ -92,12 +92,10 @@ public final class GoloCompiler {
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
    */
   public List<CodeGenerationResult> compile(String goloSourceFilename, Reader sourceCode) throws GoloCompilationException {
-    resetExceptionBuilder();
     return generate(check(parse(goloSourceFilename, initParser(sourceCode))));
   }
 
   public List<CodeGenerationResult> compile(File src) throws IOException {
-    resetExceptionBuilder();
     return generate(check(parse(src)));
   }
 
@@ -167,11 +165,14 @@ public final class GoloCompiler {
   }
 
   public GoloModule transform(ASTCompilationUnit compilationUnit) {
-    return new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
+    GoloModule mod = new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
+    throwIfErrorEncountered();
+    return mod;
   }
 
   public GoloModule expand(GoloModule goloModule, boolean recurse) {
-    goloModule.accept(new MacroExpansionIrVisitor(exceptionBuilder, classloader, recurse));
+    resetExceptionBuilder();
+    goloModule.accept(new MacroExpansionIrVisitor(classloader, recurse, getOrCreateExceptionBuilder(goloModule.sourceFile())));
     throwIfErrorEncountered();
     return goloModule;
   }
@@ -188,7 +189,7 @@ public final class GoloCompiler {
     if (goloModule != null) {
       goloModule.accept(new SugarExpansionVisitor());
       goloModule.accept(new ClosureCaptureGoloIrVisitor());
-      goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+      goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(getOrCreateExceptionBuilder(goloModule.sourceFile())));
     }
     throwIfErrorEncountered();
     return goloModule;

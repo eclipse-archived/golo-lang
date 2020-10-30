@@ -21,10 +21,12 @@ import org.eclipse.golo.compiler.GoloCompiler;
 import gololang.ir.GoloModule;
 import gololang.ir.IrTreeDumper;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
+import org.eclipse.golo.cli.GolofilesManager;
 
 import java.io.File;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static gololang.Messages.*;
 
@@ -54,44 +56,48 @@ public final class DiagnoseCommand implements CliCommand {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     switch (this.mode) {
       case "ast":
-        this.executeForEachGoloFile(this.files, file -> { dumpAST(compiler, file); });
+        GolofilesManager.goloFiles(this.files).forEach(dumpAST(compiler));
         break;
       case "ir":
         IrTreeDumper dumper = new IrTreeDumper();
-        this.executeForEachGoloFile(this.files, file -> { dumpIR(compiler, file, dumper); });
+        GolofilesManager.goloFiles(this.files).forEach(dumpIR(compiler, dumper));
         break;
       default:
         throw new AssertionError("WTF?");
     }
   }
 
-  private void dumpAST(GoloCompiler compiler, File file) throws Throwable {
-    compiler.resetExceptionBuilder();
-    System.out.println(">>> AST: " + file.getAbsolutePath());
-    ASTCompilationUnit ast = compiler.parse(file);
-    ast.dump("% ");
-    System.out.println();
+  private Consumer<File> dumpAST(GoloCompiler compiler) throws Throwable {
+    return wrappedAction(file -> {
+      compiler.resetExceptionBuilder();
+      System.out.println(">>> AST: " + file.getAbsolutePath());
+      ASTCompilationUnit ast = compiler.parse(file);
+      ast.dump("% ");
+      System.out.println();
+    });
   }
 
-  private void dumpIR(GoloCompiler compiler, File file, IrTreeDumper dumper) throws Throwable {
-    compiler.resetExceptionBuilder();
-    System.out.println(">>> IR: " + file.getAbsolutePath());
-    GoloModule module = compiler.transform(compiler.parse(file));
-    switch (this.stage) {
-      case "raw":
-        break;
-      case "expanded":
-        compiler.expand(module);
-        break;
-      case "refined":
-        compiler.expand(module);
-        compiler.refine(module);
-        break;
-      default:
-        break;
-    }
-    module.accept(dumper);
-    System.out.println();
+  private Consumer<File> dumpIR(GoloCompiler compiler, IrTreeDumper dumper) throws Throwable {
+    return wrappedAction(file -> {
+      compiler.resetExceptionBuilder();
+      System.out.println(">>> IR: " + file.getAbsolutePath());
+      GoloModule module = compiler.transform(compiler.parse(file));
+      switch (this.stage) {
+        case "raw":
+          break;
+        case "expanded":
+          compiler.expand(module);
+          break;
+        case "refined":
+          compiler.expand(module);
+          compiler.refine(module);
+          break;
+        default:
+          break;
+      }
+      module.accept(dumper);
+      System.out.println();
+    });
   }
 
   public static final class DiagnoseModeValidator implements IParameterValidator {
