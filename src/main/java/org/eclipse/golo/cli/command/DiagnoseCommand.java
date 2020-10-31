@@ -21,7 +21,7 @@ import org.eclipse.golo.compiler.GoloCompiler;
 import gololang.ir.GoloModule;
 import gololang.ir.IrTreeDumper;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
-import org.eclipse.golo.cli.GolofilesManager;
+import org.eclipse.golo.cli.GoloFilesManager;
 
 import java.io.File;
 import java.util.LinkedList;
@@ -56,11 +56,11 @@ public final class DiagnoseCommand implements CliCommand {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
     switch (this.mode) {
       case "ast":
-        GolofilesManager.goloFiles(this.files).forEach(dumpAST(compiler));
+        GoloFilesManager.goloFiles(this.files).forEach(dumpAST(compiler));
         break;
       case "ir":
         IrTreeDumper dumper = new IrTreeDumper();
-        GolofilesManager.goloFiles(this.files).forEach(dumpIR(compiler, dumper));
+        GoloFilesManager.goloFiles(this.files).forEach(dumpIR(compiler, dumper));
         break;
       default:
         throw new AssertionError("WTF?");

@@ -21,7 +21,7 @@ import java.util.List;
 
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloCompiler;
-import org.eclipse.golo.cli.GolofilesManager;
+import org.eclipse.golo.cli.GoloFilesManager;
 
 import static gololang.Messages.*;
 
@@ -48,7 +48,7 @@ public final class CheckCommand implements CliCommand {
   @Override
   public void execute() throws Throwable {
     GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    GolofilesManager.goloFiles(this.files)
+    GoloFilesManager.goloFiles(this.files)
       .forEach(wrappedAction(this.exit, file -> {
         if (this.verbose) {
           info(message("check_info", file.getAbsolutePath()));

@@ -11,7 +11,7 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.parser.ParseException;
-import org.eclipse.golo.cli.GolofilesManager;
+import org.eclipse.golo.cli.GoloFilesManager;
 import org.testng.annotations.Test;
 
 import java.io.File;
@@ -37,7 +37,7 @@ public class CompilerTest {
     File temp = temporaryFolder();
 
     GoloCompiler compiler = new GoloCompiler();
-    GolofilesManager.withOutputDir(temp).saveAll(compiler.compile(sourceFile));
+    GoloFilesManager.withOutputDir(temp).saveAll(compiler.compile(sourceFile));
 
     File expectedOutputFile = new File(temp, "golotest/SimpleReturns.class");
     assertThat(expectedOutputFile.exists(), is(true));

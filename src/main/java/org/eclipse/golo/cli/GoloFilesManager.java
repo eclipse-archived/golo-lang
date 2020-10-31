@@ -36,14 +36,14 @@ import static gololang.Messages.*;
  *
  * <p>Ease the finding, loading and saving of golo source files and compilation result.
  */
-public final class GolofilesManager implements AutoCloseable, Consumer<CodeGenerationResult> {
+public final class GoloFilesManager implements AutoCloseable, Consumer<CodeGenerationResult> {
 
   private File outputDir;
   private JarOutputStream jar;
   private boolean recurse = false;
   private boolean compilingToJar = false;
 
-  private GolofilesManager() { }
+  private GoloFilesManager() { }
 
   private void saveToJar(CodeGenerationResult result) throws IOException {
     this.jar.putNextEntry(new ZipEntry(result.getOutputFilename()));
@@ -98,26 +98,26 @@ public final class GolofilesManager implements AutoCloseable, Consumer<CodeGener
     return manifest;
   }
 
-  public static GolofilesManager of(String output) throws IOException {
+  public static GoloFilesManager of(String output) throws IOException {
     if (output.endsWith(".jar")) {
       return withOutputJar(new File(output));
     }
     return withOutputDir(new File(output));
   }
 
-  public static GolofilesManager withOutputJar(File output) throws IOException {
-    GolofilesManager fm = new GolofilesManager();
+  public static GoloFilesManager withOutputJar(File output) throws IOException {
+    GoloFilesManager fm = new GoloFilesManager();
     fm.jar = new JarOutputStream(new FileOutputStream(output), manifest());
     fm.compilingToJar = true;
     return fm;
 
   }
 
-  public static GolofilesManager withOutputDir(File outputDir) throws IOException {
+  public static GoloFilesManager withOutputDir(File outputDir) throws IOException {
     if (outputDir != null && outputDir.isFile()) {
       throw new IOException(message("file_exists", outputDir));
     }
-    GolofilesManager fm = new GolofilesManager();
+    GoloFilesManager fm = new GoloFilesManager();
     fm.outputDir = outputDir;
     return fm;
   }
@@ -131,7 +131,7 @@ public final class GolofilesManager implements AutoCloseable, Consumer<CodeGener
   }
 
   public static Stream<File> goloFiles(Iterable<File> candidates, boolean recurse) {
-    return StreamSupport.stream(GolofilesManager.findGoloFiles(candidates, recurse).spliterator(), false);
+    return StreamSupport.stream(GoloFilesManager.findGoloFiles(candidates, recurse).spliterator(), false);
   }
 
   public static Stream<File> goloFiles(Iterable<File> candidates) {
