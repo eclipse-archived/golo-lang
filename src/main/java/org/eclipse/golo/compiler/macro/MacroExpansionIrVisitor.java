@@ -56,18 +56,10 @@ public final class MacroExpansionIrVisitor extends AbstractGoloIrVisitor {
   private int recursionLevel = 0;
   private boolean defaultRecurse = true;
 
-  public MacroExpansionIrVisitor(GoloCompilationException.Builder exceptionBuilder, ClassLoader loader, boolean defaultRecurse) {
+  public MacroExpansionIrVisitor(ClassLoader loader, boolean defaultRecurse, GoloCompilationException.Builder exceptionBuilder) {
     this.finder = new MacroFinder(loader);
-    this.exceptionBuilder = exceptionBuilder;
     this.defaultRecurse = defaultRecurse;
-  }
-
-  public MacroExpansionIrVisitor(GoloCompilationException.Builder exceptionBuilder, ClassLoader loader) {
-    this(exceptionBuilder, loader, true);
-  }
-
-  public MacroExpansionIrVisitor() {
-    this.finder = new MacroFinder();
+    this.exceptionBuilder = exceptionBuilder;
   }
 
   private static void debug(String message, Object... args) {
@@ -89,11 +81,7 @@ public final class MacroExpansionIrVisitor extends AbstractGoloIrVisitor {
     this.recursionLimit = RECURSION_LIMIT;
     this.recursionLevel = 0;
     if (this.exceptionBuilder == null) {
-      String moduleName = "unknown";
-      if (module != null) {
-        moduleName = module.getPackageAndClass().toString();
-      }
-      this.exceptionBuilder = new GoloCompilationException.Builder(moduleName);
+      this.exceptionBuilder = new GoloCompilationException.Builder(module == null ? "null" : module.sourceFile());
     }
     debug("reset for module %s", module);
     return this;

@@ -11,10 +11,11 @@
 package org.eclipse.golo.compiler;
 
 import org.eclipse.golo.compiler.parser.ParseException;
+import org.eclipse.golo.cli.GoloFilesManager;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
 import java.nio.file.Files;
 
@@ -32,12 +33,11 @@ public class CompilerTest {
 
   @Test
   public void verify_compileTo() throws IOException, ParseException {
-    String sourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
-    FileInputStream sourceInputStream = new FileInputStream(sourceFile);
+    File sourceFile = new File("src/test/resources/for-parsing-and-compilation/simple-returns.golo");
     File temp = temporaryFolder();
 
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compileTo("simple-returns.golo", sourceInputStream, temp);
+    GoloFilesManager.withOutputDir(temp).saveAll(compiler.compile(sourceFile));
 
     File expectedOutputFile = new File(temp, "golotest/SimpleReturns.class");
     assertThat(expectedOutputFile.exists(), is(true));
@@ -46,9 +46,9 @@ public class CompilerTest {
 
   @Test
   public void verify_compile_no_errors() throws IOException, ParseException {
-    String okSourceFile = "src/test/resources/for-parsing-and-compilation/simple-returns.golo";
+    File okSourceFile = new File("src/test/resources/for-parsing-and-compilation/simple-returns.golo");
     GoloCompiler compiler = new GoloCompiler();
-    compiler.compile("simple-returns.golo", new FileInputStream(okSourceFile));
+    compiler.compile(okSourceFile);
   }
 
   @Test
@@ -59,7 +59,7 @@ public class CompilerTest {
 
     String errSourceFile = "undeclared.golo";
     try {
-      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
@@ -79,7 +79,7 @@ public class CompilerTest {
 
     String errSourceFile = "incomplete.golo";
     try {
-      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
@@ -99,7 +99,7 @@ public class CompilerTest {
 
     String errSourceFile = "uninitialized-reference-lookup.golo";
     try {
-      compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+      compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
     } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
       assertThat(e.getSourceCode(), is(errSourceFile));
@@ -122,7 +122,7 @@ public class CompilerTest {
     String errSourceFileDir = "src/test/resources/for-test/";
     GoloCompiler compiler = new GoloCompiler();
     String errSourceFile = "initialized-closure-args-reference.golo";
-    compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+    compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
   }
 
   @Test
@@ -136,7 +136,7 @@ public class CompilerTest {
                                        "duplicated-union.golo",
                                        "duplicated-union-value.golo")) {
       try {
-        compiler.compile(errSourceFile, new FileInputStream(errSourceFileDir + errSourceFile));
+        compiler.compile(errSourceFile, new FileReader(errSourceFileDir + errSourceFile));
       } catch (GoloCompilationException e) {
       assertThat(e.getMessage(), is(message("in_module", errSourceFile)));
         assertThat(e.getSourceCode(), is(errSourceFile));

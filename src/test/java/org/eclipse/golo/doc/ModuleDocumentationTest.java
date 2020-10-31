@@ -16,7 +16,7 @@ import gololang.ir.GoloModule;
 import org.testng.annotations.Test;
 import org.testng.annotations.BeforeTest;
 
-import java.io.FileInputStream;
+import java.io.File;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.*;
@@ -29,7 +29,7 @@ public class ModuleDocumentationTest {
 
   @BeforeTest
   public void setUp() throws Throwable {
-    doc = ModuleDocumentation.load(SRC + "doc.golo", new GoloCompiler());
+    doc = ModuleDocumentation.load(new File(SRC + "doc.golo"), new GoloCompiler());
   }
 
   @Test

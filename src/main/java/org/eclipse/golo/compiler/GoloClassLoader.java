@@ -10,7 +10,9 @@
 
 package org.eclipse.golo.compiler;
 
-import java.io.InputStream;
+import java.io.Reader;
+import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 import gololang.ir.GoloModule;
@@ -24,7 +26,7 @@ import gololang.ir.GoloModule;
  * This class loader does not support reloading. Attempts to load source files that may produce the same bytecode
  * definitions will resulting in exceptions.
  */
-public class GoloClassLoader extends ClassLoader {
+public final class GoloClassLoader extends ClassLoader {
 
   private final GoloCompiler compiler;
 
@@ -54,34 +56,40 @@ public class GoloClassLoader extends ClassLoader {
    * Compiles and loads the resulting JVM bytecode for a Golo source file.
    *
    * @param goloSourceFilename    the source file name.
-   * @param sourceCodeInputStream the source input stream.
+   * @param sourceCode  the source reader.
    * @return the class matching the Golo module defined in the source.
    * @throws GoloCompilationException if either of the compilation phase failed.
    */
-  public synchronized Class<?> load(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    return load(compiler.compile(goloSourceFilename, sourceCodeInputStream));
+  public synchronized Class<?> load(String goloSourceFilename, Reader sourceCode) throws GoloCompilationException {
+    return load(compiler.compile(goloSourceFilename, sourceCode));
+  }
+
+  public synchronized Class<?> load(File goloSourceFile) throws GoloCompilationException, IOException {
+    return load(compiler.compile(goloSourceFile));
   }
 
   /**
    * Compiles and loads the resulting JVM bytecode for a Golo module IR.
    *
-   * @param goloSourceFilename    the source file name.
    * @param module  the Golo module IR to load.
    * @return the class matching the Golo module defined in the IR.
    * @throws GoloCompilationException if either of the compilation phase failed.
    */
-  public synchronized Class<?> load(String goloSourceFilename, GoloModule module) {
+  public synchronized Class<?> load(GoloModule module) {
     compiler.expand(module);
     compiler.refine(module);
-    return load(compiler.generate(module, goloSourceFilename));
+    return load(compiler.generate(module));
   }
 
-  private Class<?> load(List<CodeGenerationResult> results) {
+  public synchronized Class<?> load(List<CodeGenerationResult> results) {
     Class<?> lastClassIsModule = null;
     for (CodeGenerationResult result : results) {
-      byte[] bytecode = result.getBytecode();
-      lastClassIsModule = defineClass(null, bytecode, 0, bytecode.length);
+      lastClassIsModule = load(result);
     }
     return lastClassIsModule;
+  }
+
+  public synchronized Class<?> load(CodeGenerationResult result) {
+    return defineClass(result.getBinaryName(), result.getBytecode(), 0, result.size());
   }
 }

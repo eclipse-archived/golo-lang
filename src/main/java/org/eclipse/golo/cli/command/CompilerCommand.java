@@ -13,76 +13,58 @@ package org.eclipse.golo.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.compiler.GoloClassLoader;
+import org.eclipse.golo.cli.GoloFilesManager;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
-import java.util.List;
-import java.util.jar.Attributes;
-import java.util.jar.JarOutputStream;
-import java.util.jar.Manifest;
+import java.util.Objects;
 
-import static gololang.Messages.*;
 
-@Parameters(commandNames = {"compile"}, resourceBundle = "commands", commandDescriptionKey = "compile")
-public class CompilerCommand implements CliCommand {
+@Parameters(commandNames = "compile", resourceBundle = "commands", commandDescriptionKey = "compile")
+public final class CompilerCommand implements CliCommand {
 
   @Parameter(names = "--output", descriptionKey = "compile.output")
   String output = ".";
 
-  @Parameter(descriptionKey = "source_files")
-  List<String> sources = new LinkedList<>();
+  @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
+  LinkedList<File> sources = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
+  @Parameter(names = "--verbose", descriptionKey = "verbose")
+  boolean verbose = false;
+
   @Override
-  public void execute() throws Throwable {
-    // TODO: recurse into directories
-    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    final boolean compilingToJar = this.output.endsWith(".jar");
-    File outputDir = compilingToJar ? null : new File(this.output);
-    if (outputDir != null && outputDir.isFile()) {
-      error(message("file_exists", outputDir));
-      return;
-    }
-    JarOutputStream jarOutputStream = compilingToJar ? new JarOutputStream(new FileOutputStream(new File(this.output)), manifest()) : null;
-    for (String source : this.sources) {
-      File file = new File(source);
-      if (!file.canRead()) {
-        error(message("file_not_found", source));
-        break;
-      }
-      try (FileInputStream in = new FileInputStream(file)) {
-        if (compilingToJar) {
-          compiler.compileToJar(file.getName(), in, jarOutputStream);
-        } else {
-          compiler.compileTo(file.getName(), in, outputDir);
-        }
-      } catch (IOException e) {
-        error(e.getLocalizedMessage());
-        break;
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e);
-      } catch (Throwable t) {
-        handleThrowable(t);
-      }
-    }
-    if (compilingToJar) {
-      jarOutputStream.close();
-    }
+  public boolean verbose() {
+    return this.verbose;
   }
 
-  private Manifest manifest() {
-    Manifest manifest = new Manifest();
-    Attributes attributes = manifest.getMainAttributes();
-    attributes.put(Attributes.Name.MANIFEST_VERSION, "1.0");
-    attributes.put(new Attributes.Name("Created-By"), "Eclipse Golo " + Metadata.VERSION);
-    return manifest;
+  @Override
+  public void execute() throws Throwable {
+    GoloClassLoader loader = classpath.initGoloClassLoader();
+    GoloCompiler compiler = loader.getCompiler();
+    try (GoloFilesManager fm = GoloFilesManager.of(this.output)) {
+      GoloFilesManager.goloFiles(this.sources)
+        .filter(this::canRead)
+        .map(wrappedTreatment(compiler::parse))
+        .map(wrappedTreatment(compiler::transform))
+        .sorted(CliCommand.MODULE_COMPARATOR)
+        .map(displayInfo("Compiling %s"))
+        .map(wrappedTreatment(compiler::expand))
+        .map(wrappedTreatment(compiler::refine))
+        .map(wrappedTreatment(compiler::generate))
+        .filter(Objects::nonNull)
+        .flatMap(Collection::stream)
+        .forEach(r -> {
+          loader.load(r);
+          fm.save(r);
+        });
+    }
   }
 }

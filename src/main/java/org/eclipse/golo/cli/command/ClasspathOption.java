@@ -43,7 +43,7 @@ public class ClasspathOption {
   private static final List<String> DEFAULT = Collections.singletonList(".");
   private static final String SEP = System.getProperty("path.separator", ":");
 
-  private static class ClasspathSplitter implements IParameterSplitter {
+  private static final class ClasspathSplitter implements IParameterSplitter {
     private static final String RE = String.format("[,%s]", SEP);
     public List<String> split(String value) {
       return Arrays.asList(value.split(RE));
@@ -68,12 +68,22 @@ public class ClasspathOption {
    * {@code ENV} environment variable if no property is defined. Finally, the current directory is used if no other path
    * is defined.
    * The current thread class loader is set to the created golo class loader.
+   *
+   * @param classpath a list of string representing classpath elements
+   * @return the corresponding class loader
    */
   public static GoloClassLoader initGoloClassLoader(List<String> classpath) throws MalformedURLException {
     URLClassLoader primaryClassLoader = primaryClassLoader(initClassPath(classpath));
     GoloClassLoader loader = new GoloClassLoader(primaryClassLoader);
     Thread.currentThread().setContextClassLoader(loader);
     return loader;
+  }
+
+  /**
+   * Init the class loader using the parsed command line option.
+   */
+  public GoloClassLoader initGoloClassLoader() throws MalformedURLException {
+    return initGoloClassLoader(this.classpath);
   }
 
   private static List<String> initClassPath(List<String> init) {
@@ -97,12 +107,5 @@ public class ClasspathOption {
       return Collections.emptyList();
     }
     return Arrays.asList(value.split(SEP));
-  }
-
-  /**
-   * Init the class loader using the parsed command line option.
-   */
-  public GoloClassLoader initGoloClassLoader() throws MalformedURLException {
-    return initGoloClassLoader(this.classpath);
   }
 }

@@ -16,7 +16,7 @@ import org.eclipse.golo.compiler.parser.ParseException;
 import org.testng.Reporter;
 
 import java.io.File;
-import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.FilenameFilter;
 import java.io.IOException;
 import java.util.Iterator;
@@ -55,7 +55,7 @@ public class TestUtils {
 
   public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, GoloClassLoader goloClassLoader) throws IOException, ParseException, ClassNotFoundException {
     try {
-      return goloClassLoader.load(goloFile, new FileInputStream(sourceFolder + goloFile));
+      return goloClassLoader.load(goloFile, new FileReader(sourceFolder + goloFile));
     } catch (GoloCompilationException e) {
       for (GoloCompilationException.Problem p : e.getProblems()) {
         Reporter.log("In " + goloFile + ": " + p.getDescription(), shouldTestNgReportToConsole());

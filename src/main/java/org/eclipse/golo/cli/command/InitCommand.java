@@ -24,8 +24,8 @@ import java.util.function.Supplier;
 import static gololang.Messages.message;
 import static gololang.Messages.info;
 
-@Parameters(commandNames = {"new"}, resourceBundle = "commands", commandDescriptionKey = "new")
-public class InitCommand implements CliCommand {
+@Parameters(commandNames = "new", resourceBundle = "commands", commandDescriptionKey = "new")
+public final class InitCommand implements CliCommand {
 
   @Parameter(names = "--path", descriptionKey = "new.path")
   String path = ".";
@@ -99,7 +99,7 @@ public class InitCommand implements CliCommand {
         .runCommand("mvn -q package && mvn -q exec:java"));
   }
 
-  public static class ProjectTypeValidator implements IParameterValidator {
+  public static final class ProjectTypeValidator implements IParameterValidator {
     public static final String DEFAULT = "simple";
     @Override
     public void validate(String name, String value) {
@@ -109,7 +109,7 @@ public class InitCommand implements CliCommand {
     }
   }
 
-  public static class VcsValidator implements IParameterValidator {
+  public static final class VcsValidator implements IParameterValidator {
     public static final String DEFAULT = "none";
     @Override
     public void validate(String name, String value) {
@@ -119,7 +119,7 @@ public class InitCommand implements CliCommand {
     }
   }
 
-  public static class ProfileValidator implements IParameterValidator {
+  public static final class ProfileValidator implements IParameterValidator {
     public static final String DEFAULT = "app";
     @Override
     public void validate(String name, String value) {

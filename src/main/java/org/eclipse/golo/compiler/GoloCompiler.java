@@ -18,14 +18,9 @@ import org.eclipse.golo.compiler.parser.GoloParser;
 import org.eclipse.golo.compiler.parser.ParseException;
 
 import java.io.*;
-import java.nio.charset.Charset;
-import java.nio.charset.UnsupportedCharsetException;
 import java.util.Collections;
 import java.util.List;
-import java.util.jar.JarOutputStream;
-import java.util.zip.ZipEntry;
 
-import static gololang.Messages.message;
 
 /**
  * The Golo compiler.
@@ -35,8 +30,10 @@ import static gololang.Messages.message;
  * Several methods are made public while they do not necessarily need so for the needs of the Golo compiler.
  * Such deviations from a "good and clean" design are on-purpose, as this facilitates the implementation of
  * Golo support in IDEs.
+ * <p>
+ *
  */
-public class GoloCompiler {
+public final class GoloCompiler {
 
   private GoloParser parser;
   private GoloCompilationException.Builder exceptionBuilder = null;
@@ -56,7 +53,7 @@ public class GoloCompiler {
    *
    * @param builder the exception builder to add problems into.
    */
-  public final void setExceptionBuilder(GoloCompilationException.Builder builder) {
+  public void setExceptionBuilder(GoloCompilationException.Builder builder) {
     exceptionBuilder = builder;
   }
 
@@ -72,52 +69,34 @@ public class GoloCompiler {
   }
 
   /**
-   * Initializes a parser from an input stream. This method is made public for the requirements of IDEs support.
-   *
-   * @param sourceCodeInputStream the source code input stream.
-   * @return the parser.
-   */
-  public final GoloParser initParser(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    try {
-      return initParser(new InputStreamReader(sourceCodeInputStream, Charset.forName("UTF-8")));
-    } catch (UnsupportedCharsetException e) {
-      getOrCreateExceptionBuilder(goloSourceFilename).report(e).doThrow();
-      return null;
-    }
-  }
-
-  /**
    * Initializes a parser from a reader. This method is made public for the requirements of IDEs support.
    *
    * @param sourceReader the source code reader.
    * @return the parser.
    */
-  public final GoloParser initParser(Reader sourceReader) {
-    if (parser == null) {
-      parser = createGoloParser(sourceReader);
+  public GoloParser initParser(Reader sourceReader) {
+    if (this.parser == null) {
+      this.parser = createGoloParser(sourceReader);
     } else {
-      parser.ReInit(sourceReader);
+      this.parser.ReInit(sourceReader);
     }
-    return parser;
+    return this.parser;
   }
 
   /**
    * Compiles a Golo source file from an input stream, and returns a collection of results.
    *
    * @param goloSourceFilename    the source file name.
-   * @param sourceCodeInputStream the source code input stream.
+   * @param sourceCode the source code reader.
    * @return a list of compilation results.
    * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
    */
-  public final List<CodeGenerationResult> compile(String goloSourceFilename, InputStream sourceCodeInputStream) throws GoloCompilationException {
-    resetExceptionBuilder();
-    ASTCompilationUnit compilationUnit = parse(goloSourceFilename,
-                                          initParser(goloSourceFilename, sourceCodeInputStream));
-    GoloModule goloModule = check(compilationUnit);
-    if (goloModule.isEmpty()) {
-      return Collections.emptyList();
-    }
-    return generate(goloModule, goloSourceFilename);
+  public List<CodeGenerationResult> compile(String goloSourceFilename, Reader sourceCode) throws GoloCompilationException {
+    return generate(check(parse(goloSourceFilename, initParser(sourceCode))));
+  }
+
+  public List<CodeGenerationResult> compile(File src) throws IOException {
+    return generate(check(parse(src)));
   }
 
   private void throwIfErrorEncountered() {
@@ -127,7 +106,7 @@ public class GoloCompiler {
   }
 
   /**
-   * Returns the list of problems encountered during the last compilation
+   * Returns the list of problems encountered during the last compilation.
    *
    * @return a list of compilation problems.
    */
@@ -139,53 +118,6 @@ public class GoloCompiler {
   }
 
   /**
-   * Compiles a Golo source file and writes the resulting JVM bytecode {@code .class} files to a target
-   * folder. The class files are written in a directory structure that respects package names.
-   *
-   * @param goloSourceFilename    the source file name.
-   * @param sourceCodeInputStream the source code input stream.
-   * @param targetFolder          the output target folder.
-   * @throws GoloCompilationException if a problem occurs during any phase of the compilation work.
-   * @throws IOException              if writing the {@code .class} files fails for some reason.
-   */
-  public final void compileTo(String goloSourceFilename, InputStream sourceCodeInputStream, File targetFolder) throws GoloCompilationException, IOException {
-    List<CodeGenerationResult> results = compile(goloSourceFilename, sourceCodeInputStream);
-    for (CodeGenerationResult result : results) {
-      File outputFolder = new File(targetFolder, result.getPackageAndClass().packageName().replaceAll("\\.", "/"));
-      if (!outputFolder.exists() && !outputFolder.mkdirs()) {
-        throw new IOException(message("directory_not_created", outputFolder));
-      }
-      File outputFile = new File(outputFolder, result.getPackageAndClass().className() + ".class");
-      try (FileOutputStream out = new FileOutputStream(outputFile)) {
-        out.write(result.getBytecode());
-      }
-    }
-  }
-
-  /**
-   * Compiles a Golo source fila and writes the resulting JVM bytecode {@code .class} files to a Jar file stream.
-   * The class files are written in a directory structure that respects package names.
-   *
-   * @param goloSourceFilename the source file name.
-   * @param sourceCodeInputStream the source code input stream.
-   * @param jarOutputStream the output Jar stream
-   * @throws IOException if writing the {@code .class} files fails for some reason.
-   */
-  public final void compileToJar(String goloSourceFilename, InputStream sourceCodeInputStream, JarOutputStream jarOutputStream) throws IOException {
-    List<CodeGenerationResult> results = compile(goloSourceFilename, sourceCodeInputStream);
-    for (CodeGenerationResult result : results) {
-      String entryName = result.getPackageAndClass().packageName().replaceAll("\\.", "/");
-      if (!entryName.isEmpty()) {
-        entryName += "/";
-      }
-      entryName = entryName + result.getPackageAndClass().className() + ".class";
-      jarOutputStream.putNextEntry(new ZipEntry(entryName));
-      jarOutputStream.write(result.getBytecode());
-      jarOutputStream.closeEntry();
-    }
-  }
-
-  /**
    * Produces a parse tree for a Golo source file. This is mostly useful to IDEs.
    *
    * @param goloSourceFilename the source file name.
@@ -193,7 +125,8 @@ public class GoloCompiler {
    * @return the resulting parse tree.
    * @throws GoloCompilationException if the parser encounters an error.
    */
-  public final ASTCompilationUnit parse(String goloSourceFilename, GoloParser parser) throws GoloCompilationException {
+  public ASTCompilationUnit parse(String goloSourceFilename, GoloParser parser) throws GoloCompilationException {
+    resetExceptionBuilder();
     ASTCompilationUnit compilationUnit = null;
     parser.exceptionBuilder = getOrCreateExceptionBuilder(goloSourceFilename);
     try {
@@ -206,12 +139,11 @@ public class GoloCompiler {
     return compilationUnit;
   }
 
-  public final ASTCompilationUnit parse(String goloSourceFilename) throws GoloCompilationException, IOException {
-    try (FileInputStream in = new FileInputStream(goloSourceFilename)) {
-      return parse(goloSourceFilename, initParser(goloSourceFilename, in));
+  public ASTCompilationUnit parse(File goloSourceFile) throws GoloCompilationException, IOException {
+    try (Reader in = new FileReader(goloSourceFile)) {
+      return parse(goloSourceFile.getPath(), initParser(in));
     }
   }
-
   /**
    * Checks that the source code is minimally sound by converting a parse tree to an intermediate representation, and
    * running a few classic visitors over it. This is mostly useful to IDEs.
@@ -220,38 +152,44 @@ public class GoloCompiler {
    * @return the intermediate representation of the source.
    * @throws GoloCompilationException if an error exists in the source represented by the input parse tree.
    */
-  public final GoloModule check(ASTCompilationUnit compilationUnit) {
+  public GoloModule check(ASTCompilationUnit compilationUnit) {
     return refine(expand(transform(compilationUnit)));
   }
 
-  public final List<CodeGenerationResult> generate(GoloModule goloModule, String goloSourceFilename) {
+  public List<CodeGenerationResult> generate(GoloModule goloModule) {
+    if (goloModule.isEmpty()) {
+      return Collections.emptyList();
+    }
     JavaBytecodeGenerationGoloIrVisitor bytecodeGenerator = new JavaBytecodeGenerationGoloIrVisitor();
-    return bytecodeGenerator.generateBytecode(goloModule, goloSourceFilename);
+    return bytecodeGenerator.generateBytecode(goloModule);
   }
 
-  public final GoloModule transform(ASTCompilationUnit compilationUnit) {
-    return new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
+  public GoloModule transform(ASTCompilationUnit compilationUnit) {
+    GoloModule mod = new ParseTreeToGoloIrVisitor().transform(compilationUnit, exceptionBuilder);
+    throwIfErrorEncountered();
+    return mod;
   }
 
-  public final GoloModule expand(GoloModule goloModule, boolean recurse) {
-    goloModule.accept(new MacroExpansionIrVisitor(exceptionBuilder, classloader, recurse));
+  public GoloModule expand(GoloModule goloModule, boolean recurse) {
+    resetExceptionBuilder();
+    goloModule.accept(new MacroExpansionIrVisitor(classloader, recurse, getOrCreateExceptionBuilder(goloModule.sourceFile())));
     throwIfErrorEncountered();
     return goloModule;
   }
 
-  public final GoloModule expand(GoloModule goloModule) {
+  public GoloModule expand(GoloModule goloModule) {
     return expand(goloModule, true);
   }
 
-  public final GoloModule expandOnce(GoloModule goloModule) {
+  public GoloModule expandOnce(GoloModule goloModule) {
     return expand(goloModule, false);
   }
 
-  public final GoloModule refine(GoloModule goloModule) {
+  public GoloModule refine(GoloModule goloModule) {
     if (goloModule != null) {
       goloModule.accept(new SugarExpansionVisitor());
       goloModule.accept(new ClosureCaptureGoloIrVisitor());
-      goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(exceptionBuilder));
+      goloModule.accept(new LocalReferenceAssignmentAndVerificationVisitor(getOrCreateExceptionBuilder(goloModule.sourceFile())));
     }
     throwIfErrorEncountered();
     return goloModule;
@@ -263,7 +201,7 @@ public class GoloCompiler {
    * @param sourceReader the reader.
    * @return the parser for <code>sourceReader</code>.
    */
-  protected GoloParser createGoloParser(Reader sourceReader) {
+  private GoloParser createGoloParser(Reader sourceReader) {
     return new GoloOffsetParser(sourceReader);
   }
 }

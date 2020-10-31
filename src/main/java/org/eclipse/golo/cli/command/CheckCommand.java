@@ -13,62 +13,49 @@ package org.eclipse.golo.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
 
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
+import org.eclipse.golo.cli.GoloFilesManager;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"check"}, resourceBundle = "commands", commandDescriptionKey = "check")
-public class CheckCommand implements CliCommand {
+@Parameters(commandNames = "check", resourceBundle = "commands", commandDescriptionKey = "check")
+public final class CheckCommand implements CliCommand {
 
-  @Parameter(names = {"--exit"}, descriptionKey = "check.exit")
+  @Parameter(names = "--exit", descriptionKey = "check.exit")
   boolean exit = false;
 
-  @Parameter(names = {"--verbose"}, descriptionKey = "check.verbose")
+  @Parameter(names = "--verbose", descriptionKey = "verbose")
   boolean verbose = false;
 
-  @Parameter(descriptionKey = "source_files")
-  List<String> files = new LinkedList<>();
+  @Parameter(descriptionKey = "source_files", converter = FileConverter.class)
+  List<File> files = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
   @Override
-  public void execute() throws Throwable {
-    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
-    for (String file : files) {
-      check(new File(file), compiler);
-    }
+  public boolean verbose() {
+    return this.verbose;
   }
 
-  private void check(File file, GoloCompiler compiler) {
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          check(directoryFile, compiler);
-        }
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      try {
-        if (verbose) {
-          System.err.println(">>> " + message("check_info", file.getAbsolutePath()));
+  @Override
+  public void execute() throws Throwable {
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
+    GoloFilesManager.goloFiles(this.files)
+      .forEach(wrappedAction(this.exit, file -> {
+        if (this.verbose) {
+          info(message("check_info", file.getAbsolutePath()));
         }
         compiler.resetExceptionBuilder();
-        compiler.check(compiler.parse(file.getAbsolutePath()));
-      } catch (IOException e) {
-        error(message("file_not_found", file));
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e, exit);
-      }
-    }
+        compiler.check(compiler.parse(file));
+      }));
   }
 }
 

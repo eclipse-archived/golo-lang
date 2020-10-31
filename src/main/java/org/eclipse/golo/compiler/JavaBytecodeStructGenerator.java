@@ -49,7 +49,7 @@ class JavaBytecodeStructGenerator {
     makeGetMethod(classWriter, struct);
     makeSetMethod(classWriter, struct);
     classWriter.visitEnd();
-    return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass());
+    return new CodeGenerationResult(classWriter.toByteArray(), struct.getPackageAndClass(), sourceFilename);
   }
 
   private void makeSetMethod(ClassWriter classWriter, Struct struct) {

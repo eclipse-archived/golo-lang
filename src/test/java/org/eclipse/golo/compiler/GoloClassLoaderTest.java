@@ -12,7 +12,7 @@ package org.eclipse.golo.compiler;
 
 import org.testng.annotations.Test;
 
-import java.io.FileInputStream;
+import java.io.FileReader;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.hamcrest.Matchers.is;
@@ -25,7 +25,7 @@ public class GoloClassLoaderTest {
   @Test
   public void check_load() throws Throwable {
     GoloClassLoader classLoader = new GoloClassLoader();
-    Class<?> clazz = classLoader.load("returns.golo", new FileInputStream(SRC + "returns.golo"));
+    Class<?> clazz = classLoader.load("returns.golo", new FileReader(SRC + "returns.golo"));
     assertThat(clazz, notNullValue());
     assertThat(clazz.getName(), is("golotest.execution.FunctionsWithReturns"));
   }
@@ -33,7 +33,7 @@ public class GoloClassLoaderTest {
   @Test(expectedExceptions = LinkageError.class)
   public void loading_twice_shall_fail() throws Throwable {
     GoloClassLoader classLoader = new GoloClassLoader();
-    classLoader.load("returns.golo", new FileInputStream(SRC + "returns.golo"));
-    classLoader.load("returns.golo", new FileInputStream(SRC + "returns.golo"));
+    classLoader.load("returns.golo", new FileReader(SRC + "returns.golo"));
+    classLoader.load("returns.golo", new FileReader(SRC + "returns.golo"));
   }
 }

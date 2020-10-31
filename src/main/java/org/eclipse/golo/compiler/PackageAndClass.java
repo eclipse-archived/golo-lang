@@ -208,6 +208,13 @@ public final class PackageAndClass {
     return className;
   }
 
+  /**
+   * @return the path of the corresponding class file.
+   */
+  public String getFilename() {
+    return toJVMType() + ".class";
+  }
+
   @Override
   public String toString() {
     if (packageName.isEmpty()) {

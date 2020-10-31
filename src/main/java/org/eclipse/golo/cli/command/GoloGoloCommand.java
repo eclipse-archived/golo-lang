@@ -13,23 +13,26 @@ package org.eclipse.golo.cli.command;
 import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
+
+import org.eclipse.golo.cli.GoloFilesManager;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloClassLoader;
-import org.eclipse.golo.compiler.GoloCompilationException;
+import org.eclipse.golo.compiler.GoloCompiler;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.util.Collection;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Objects;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"golo"}, resourceBundle = "commands", commandDescriptionKey = "golo")
-public class GoloGoloCommand implements CliCommand {
+@Parameters(commandNames = "golo", resourceBundle = "commands", commandDescriptionKey = "golo")
+public final class GoloGoloCommand implements CliCommand {
 
-  @Parameter(names = "--files", variableArity = true, descriptionKey = "golo.files", required = true)
-  List<String> files = new LinkedList<>();
+  @Parameter(names = "--files", variableArity = true, descriptionKey = "golo.files", required = true, converter = FileConverter.class)
+  List<File> files = new LinkedList<>();
 
   @Parameter(names = "--module", descriptionKey = "main_module")
   String module;
@@ -40,13 +43,32 @@ public class GoloGoloCommand implements CliCommand {
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
 
+  @Parameter(names = "--verbose", descriptionKey = "verbose")
+  boolean verbose = false;
+
+  @Override
+  public boolean verbose() {
+    return this.verbose;
+  }
+
   @Override
   public void execute() throws Throwable {
     GoloClassLoader loader = classpath.initGoloClassLoader();
-    Class<?> lastClass = null;
-    for (String goloFile : this.files) {
-      lastClass = loadGoloFile(goloFile, this.module, loader);
-    }
+    GoloCompiler compiler = loader.getCompiler();
+    Class<?> lastClass = GoloFilesManager.goloFiles(this.files)
+      .filter(this::canRead)
+      .map(wrappedTreatment(compiler::parse))
+      .map(wrappedTreatment(compiler::transform))
+      .sorted(CliCommand.MODULE_COMPARATOR)
+      .map(wrappedTreatment(compiler::expand))
+      .map(wrappedTreatment(compiler::refine))
+      .map(wrappedTreatment(compiler::generate))
+      .filter(Objects::nonNull)
+      .flatMap(Collection::stream)
+      .map(displayInfo("Loading %s"))
+      .map(loader::load)
+      .reduce(null, this::selectMainModule);
+
     if (lastClass == null && this.module != null) {
       error(message("module_not_found", this.module));
       return;
@@ -61,34 +83,10 @@ public class GoloGoloCommand implements CliCommand {
     }
   }
 
-  private Class<?> loadGoloFile(String goloFile, String module, GoloClassLoader loader) throws Throwable {
-    File file = new File(goloFile);
-    if (!file.exists()) {
-      error(message("file_not_found", file));
-    } else if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        Class<?> lastClass = null;
-        for (File directoryFile : directoryFiles) {
-          Class<?> loadedClass = loadGoloFile(directoryFile.getAbsolutePath(), module, loader);
-          if (module == null || (loadedClass != null && loadedClass.getCanonicalName().equals(module))) {
-            lastClass = loadedClass;
-          }
-        }
-        return lastClass;
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      try (FileInputStream in = new FileInputStream(file)) {
-        Class<?> loadedClass = loader.load(file.getName(), in);
-        if (module == null || loadedClass.getCanonicalName().equals(module)) {
-          return loadedClass;
-        }
-      } catch (IOException e) {
-        error(message("file_not_found", file.getAbsolutePath()));
-      } catch (GoloCompilationException e) {
-        handleCompilationException(e);
-      }
+  private Class<?> selectMainModule(Class<?> old, Class<?> loaded) {
+    if (this.module == null || this.module.equals(loaded.getCanonicalName())) {
+      return loaded;
     }
-    return null;
+    return old;
   }
 }

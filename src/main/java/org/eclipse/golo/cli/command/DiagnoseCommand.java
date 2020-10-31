@@ -15,22 +15,23 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.ParameterException;
 import com.beust.jcommander.Parameters;
 import com.beust.jcommander.ParametersDelegate;
+import com.beust.jcommander.converters.FileConverter;
 import org.eclipse.golo.cli.command.spi.CliCommand;
-import org.eclipse.golo.compiler.GoloCompilationException;
 import org.eclipse.golo.compiler.GoloCompiler;
 import gololang.ir.GoloModule;
 import gololang.ir.IrTreeDumper;
 import org.eclipse.golo.compiler.parser.ASTCompilationUnit;
+import org.eclipse.golo.cli.GoloFilesManager;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.function.Consumer;
 
 import static gololang.Messages.*;
 
-@Parameters(commandNames = {"diagnose"}, resourceBundle = "commands", commandDescriptionKey = "diagnose")
-public class DiagnoseCommand implements CliCommand {
+@Parameters(commandNames = "diagnose", resourceBundle = "commands", commandDescriptionKey = "diagnose")
+public final class DiagnoseCommand implements CliCommand {
 
   @Parameter(names = "--tool", hidden = true, descriptionKey = "diagnose.tool", validateWith = DiagnoseModeValidator.class)
   String mode = "ir";
@@ -38,13 +39,11 @@ public class DiagnoseCommand implements CliCommand {
   @Parameter(names = "--stage", descriptionKey = "diagnose.stage", validateWith = DiagnoseStageValidator.class)
   String stage = "refined";
 
-  @Parameter(description = "source_files")
-  List<String> files = new LinkedList<>();
+  @Parameter(description = "source_files", converter = FileConverter.class)
+  List<File> files = new LinkedList<>();
 
   @ParametersDelegate
   ClasspathOption classpath = new ClasspathOption();
-
-  GoloCompiler compiler;
 
   @Override
   public void execute() throws Throwable {
@@ -54,90 +53,51 @@ public class DiagnoseCommand implements CliCommand {
     if ("ast".equals(this.mode) && !"ast".equals(this.stage)) {
       this.stage = "ast";
     }
-    compiler = classpath.initGoloClassLoader().getCompiler();
-    try {
-      switch (this.mode) {
-        case "ast":
-          dumpASTs(this.files);
+    GoloCompiler compiler = classpath.initGoloClassLoader().getCompiler();
+    switch (this.mode) {
+      case "ast":
+        GoloFilesManager.goloFiles(this.files).forEach(dumpAST(compiler));
+        break;
+      case "ir":
+        IrTreeDumper dumper = new IrTreeDumper();
+        GoloFilesManager.goloFiles(this.files).forEach(dumpIR(compiler, dumper));
+        break;
+      default:
+        throw new AssertionError("WTF?");
+    }
+  }
+
+  private Consumer<File> dumpAST(GoloCompiler compiler) throws Throwable {
+    return wrappedAction(file -> {
+      compiler.resetExceptionBuilder();
+      System.out.println(">>> AST: " + file.getAbsolutePath());
+      ASTCompilationUnit ast = compiler.parse(file);
+      ast.dump("% ");
+      System.out.println();
+    });
+  }
+
+  private Consumer<File> dumpIR(GoloCompiler compiler, IrTreeDumper dumper) throws Throwable {
+    return wrappedAction(file -> {
+      compiler.resetExceptionBuilder();
+      System.out.println(">>> IR: " + file.getAbsolutePath());
+      GoloModule module = compiler.transform(compiler.parse(file));
+      switch (this.stage) {
+        case "raw":
           break;
-        case "ir":
-          dumpIRs(this.files);
+        case "expanded":
+          compiler.expand(module);
+          break;
+        case "refined":
+          compiler.expand(module);
+          compiler.refine(module);
           break;
         default:
-          throw new AssertionError("WTF?");
+          break;
       }
-    } catch (GoloCompilationException e) {
-      handleCompilationException(e);
-    }
-  }
-
-
-  private void dumpASTs(List<String> files) {
-    for (String file : files) {
-      dumpAST(file);
-    }
-  }
-
-  private void dumpAST(String goloFile) {
-    File file = new File(goloFile);
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          dumpAST(directoryFile.getAbsolutePath());
-        }
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> AST: " + goloFile);
-      try {
-        ASTCompilationUnit ast = compiler.parse(goloFile);
-        ast.dump("% ");
-        System.out.println();
-      } catch (IOException e) {
-        error(message("file_not_found", goloFile));
-      }
-    }
-  }
-
-  private void dumpIRs(List<String> files) {
-    IrTreeDumper dumper = new IrTreeDumper();
-    for (String file : files) {
-      dumpIR(file, dumper);
-    }
-  }
-
-  private void dumpIR(String goloFile, IrTreeDumper dumper) {
-    File file = new File(goloFile);
-    if (file.isDirectory()) {
-      File[] directoryFiles = file.listFiles();
-      if (directoryFiles != null) {
-        for (File directoryFile : directoryFiles) {
-          dumpIR(directoryFile.getAbsolutePath(), dumper);
-        }
-      }
-    } else if (file.getName().endsWith(".golo")) {
-      System.out.println(">>> IR: " + file);
-      try {
-        GoloModule module = compiler.transform(compiler.parse(goloFile));
-        switch (this.stage) {
-          case "raw":
-            break;
-          case "expanded":
-            compiler.expand(module);
-            break;
-          case "refined":
-            compiler.expand(module);
-            compiler.refine(module);
-            break;
-          default:
-            break;
-        }
-        module.accept(dumper);
-      } catch (IOException e) {
-        error(message("file_not_found", goloFile));
-      }
+      module.accept(dumper);
       System.out.println();
-    }
+    });
   }
 
   public static final class DiagnoseModeValidator implements IParameterValidator {

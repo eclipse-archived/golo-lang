@@ -18,6 +18,8 @@ import java.util.Iterator;
 import java.util.Collections;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
+import java.util.function.Consumer;
 import gololang.Tuple;
 import gololang.FunctionReference;
 import org.eclipse.golo.runtime.InvalidDestructuringException;
@@ -161,6 +163,20 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
    */
   public static <T> Result<T, RuntimeException> fail(String message) {
     return error(new RuntimeException(message));
+  }
+
+  /**
+   * Runs a function that can raise an exception and return a Result.
+   *
+   * @param fun the function to run
+   * @return a {@code Result} containing either the raised exception or the value produced by the function.
+   */
+  public static <T> Result<T, Throwable> trying(Supplier<T> fun) {
+    try {
+      return ok(fun.get());
+    } catch (Throwable e) {
+      return error(e);
+    }
   }
 
   /**
@@ -478,7 +494,24 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
     return mapping.invoke(value);
   }
 
-    /**
+  /**
+   * Case analysis for the result.
+   * <p>
+   * If the result is a value, apply the first function to it;
+   * if it is an error, apply the second function to it.
+   *
+   * @param mapping the function to apply to the contained value
+   * @param recover the function to apply to the contained error
+   */
+  public void either(Consumer<T> mapping, Consumer<E> recover) {
+    if (isError()) {
+      recover.accept(error);
+    } else if (isValue()) {
+      mapping.accept(value);
+    }
+  }
+
+  /**
    * Three way case analysis for the result.
    * <p>
    * If the result is a value, apply the first function to it;

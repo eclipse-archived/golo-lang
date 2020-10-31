@@ -16,7 +16,8 @@ import org.eclipse.golo.compiler.GoloClassLoader;
 import org.eclipse.golo.compiler.GoloCompilationException;
 
 import java.io.IOException;
-import java.io.InputStream;
+import java.io.UncheckedIOException;
+import java.io.Reader;
 import java.nio.file.*;
 import java.util.LinkedList;
 import java.util.List;
@@ -24,8 +25,8 @@ import java.util.stream.Collectors;
 
 import static gololang.Messages.message;
 
-@Parameters(commandNames = {"shebang"}, resourceBundle = "commands", commandDescriptionKey = "golo")
-public class ShebangCommand implements CliCommand {
+@Parameters(commandNames = "shebang", resourceBundle = "commands", commandDescriptionKey = "golo")
+public final class ShebangCommand implements CliCommand {
 
   @Parameter(descriptionKey = "arguments", required = true)
   List<String> arguments = new LinkedList<>();
@@ -73,7 +74,7 @@ public class ShebangCommand implements CliCommand {
   }
 
   private Class<?> loadGoloFile(GoloClassLoader loader, Path path) {
-    try (InputStream is = Files.newInputStream(path)) {
+    try (Reader is = Files.newBufferedReader(path)) {
       Path filename = path.getFileName();
       if (filename != null) {
         return loader.load(filename.toString(), is);
@@ -81,7 +82,7 @@ public class ShebangCommand implements CliCommand {
         throw new RuntimeException(message("not_regular_file", path));
       }
     } catch (IOException e) {
-      throw new RuntimeException(e);
+      throw new UncheckedIOException(e);
     }
   }
 

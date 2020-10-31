@@ -13,7 +13,7 @@ import org.eclipse.golo.cli.command.spi.CliCommand;
 import org.eclipse.golo.compiler.GoloClassLoader;
 import gololang.ir.GoloModule;
 
-import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.net.URL;
 
 import static java.util.Objects.requireNonNull;
@@ -158,11 +158,11 @@ public final class Runtime {
     try {
       if (module instanceof GoloModule) {
         GoloModule mod = (GoloModule) module;
-        return classLoader().load(mod.sourceFile(), mod);
+        return classLoader().load(mod);
       }
       URL url = toURL(module);
-      try (InputStream is = url.openStream()) {
-        return classLoader().load(module.toString(), is);
+      try (InputStreamReader in = new InputStreamReader(url.openStream())) {
+        return classLoader().load(module.toString(), in);
       }
     } catch (Exception e) {
       if (failOnException) {

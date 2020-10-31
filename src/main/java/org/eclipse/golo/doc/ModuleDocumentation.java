@@ -15,6 +15,7 @@ import org.eclipse.golo.compiler.PackageAndClass;
 import gololang.ir.*;
 
 import java.util.*;
+import java.io.File;
 
 public class ModuleDocumentation implements DocumentationElement {
 
@@ -48,8 +49,8 @@ public class ModuleDocumentation implements DocumentationElement {
 
   }
 
-  public static ModuleDocumentation load(String filename, GoloCompiler compiler) throws java.io.IOException {
-    return new ModuleDocumentation(compiler.expand(compiler.transform(compiler.parse(filename))));
+  public static ModuleDocumentation load(File file, GoloCompiler compiler) throws java.io.IOException {
+    return new ModuleDocumentation(compiler.expand(compiler.transform(compiler.parse(file))));
   }
 
   public static ModuleDocumentation empty(String name) {

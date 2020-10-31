@@ -14,8 +14,8 @@ import com.beust.jcommander.Parameter;
 import com.beust.jcommander.Parameters;
 import org.eclipse.golo.cli.command.spi.CliCommand;
 
-@Parameters(commandNames = {"version"}, resourceBundle = "commands", commandDescriptionKey = "version")
-public class VersionCommand implements CliCommand {
+@Parameters(commandNames = "version", resourceBundle = "commands", commandDescriptionKey = "version")
+public final class VersionCommand implements CliCommand {
 
   @Parameter(names = "--full", descriptionKey = "version.full")
   boolean full = false;
