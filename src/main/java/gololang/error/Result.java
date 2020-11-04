@@ -494,24 +494,7 @@ public final class Result<T, E extends Throwable> implements Iterable<T> {
     return mapping.invoke(value);
   }
 
-  /**
-   * Case analysis for the result.
-   * <p>
-   * If the result is a value, apply the first function to it;
-   * if it is an error, apply the second function to it.
-   *
-   * @param mapping the function to apply to the contained value
-   * @param recover the function to apply to the contained error
-   */
-  public void either(Consumer<T> mapping, Consumer<E> recover) {
-    if (isError()) {
-      recover.accept(error);
-    } else if (isValue()) {
-      mapping.accept(value);
-    }
-  }
-
-  /**
+    /**
    * Three way case analysis for the result.
    * <p>
    * If the result is a value, apply the first function to it;

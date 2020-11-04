@@ -41,13 +41,18 @@ public final class ToplevelElements extends GoloElement<ToplevelElements> implem
    *
    * <p>Mainly used to return several nodes from a top-level macro.
    * <p>If only a {@code ToplevelElements} instance is given, it is returned unchanged.
+   *
+   * @param elements the Golo Elements to add.
+   * @return a {@code ToplevelElements} containing all the given elements.
    */
   public static ToplevelElements of(Object... elements) {
     if (elements.length == 1 && elements[0] instanceof ToplevelElements) {
       return (ToplevelElements) elements[0];
     }
     if (elements.length == 1 && elements[0] instanceof Iterable) {
-      return fromIterable((Iterable<Object>) elements[0]);
+      @SuppressWarnings("unchecked")
+      Iterable<Object> it = (Iterable<Object>) elements[0];
+      return fromIterable(it);
     }
     ToplevelElements tl = new ToplevelElements();
     for (Object e : elements) {
