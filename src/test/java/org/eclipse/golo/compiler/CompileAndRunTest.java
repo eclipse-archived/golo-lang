@@ -1887,4 +1887,9 @@ public class CompileAndRunTest {
     runTests(SRC, "nested-try.golo", classLoader(this));
   }
 
+  @Test
+  public void test_return_in_try() throws Throwable {
+    runTests(SRC, "return-in-try.golo", classLoader(this));
+  }
+
 }
