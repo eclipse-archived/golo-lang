@@ -500,6 +500,7 @@ will expand to
 
 ```golo
 let __$$_gololang$ir$Quote_my$test$foo$0_tmp = 42
+```
 ----
 function manglePrefix = |invocation| {
   let mod = invocation: enclosingModule()
