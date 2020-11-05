@@ -28,7 +28,7 @@ import static org.objectweb.asm.Opcodes.*;
 
 import static gololang.Messages.*;
 
-class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
+final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private static final String JOBJECT = "java/lang/Object";
   private static final String TOBJECT = "Ljava/lang/Object;";
@@ -53,19 +53,96 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private ClassWriter classWriter;
   private String klass;
   private String jvmKlass;
-  private MethodVisitor currentMethodVisitor;
   private List<CodeGenerationResult> generationResults;
   private String sourceFilename;
   private Context context;
   private GoloModule currentModule;
-  private String returnTypeCast;
-  private GoloFunction currentFunction;
-  private final Map<GoloFunction, Label> functionLabels = new HashMap<>();
 
   private static final class Context {
+    private MethodVisitor currentMethodVisitor;
+    private String returnTypeCast;
+    private GoloFunction currentFunction;
+    private final Map<GoloFunction, Label> functionLabels = new HashMap<>();
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
     private final Map<LoopStatement, Label> loopStartMap = new HashMap<>();
     private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
+
+    Label labelFor(GoloElement<?> element) {
+      return visitLine(element, this.currentMethodVisitor);
+    }
+
+    Label newLabel() {
+      Label l = new Label();
+      this.currentMethodVisitor.visitLabel(l);
+      return l;
+    }
+
+    Label enterBlock(Block block) {
+      referenceTableStack.push(block.getReferenceTable());
+      return labelFor(block);
+    }
+
+    void exitBlock() {
+      referenceTableStack.pop();
+    }
+
+    void enterFunction(GoloFunction function, ClassWriter classWriter) {
+      this.currentMethodVisitor = classWriter.visitMethod(
+        functionFlags(function),
+        function.getName(),
+        function.getMethodType().toMethodDescriptorString(),
+        null, null);
+      this.currentFunction = function;
+      this.functionLabels.put(function, labelFor(function));
+    }
+
+    private int functionFlags(GoloFunction function) {
+      int accessFlags = ACC_STATIC | (function.isLocal() ? ACC_PRIVATE : ACC_PUBLIC);
+      if (function.isSynthetic() || function.isDecorator()) {
+        accessFlags |= ACC_SYNTHETIC;
+      }
+      if (function.isVarargs()) {
+        accessFlags |= ACC_VARARGS;
+      }
+      return accessFlags | deprecatedFlag(function);
+    }
+
+    void exitFunction() {
+      if (this.currentFunction.isModuleInit()) {
+        this.currentMethodVisitor.visitInsn(RETURN);
+      }
+      this.currentMethodVisitor.visitMaxs(0, 0);
+      this.currentMethodVisitor.visitEnd();
+      this.returnTypeCast = null;
+      this.currentFunction = null;
+    }
+
+    void goToCurrentFunction() {
+      this.goTo(this.functionLabels.get(this.currentFunction));
+    }
+
+    void storeObject(int index) {
+      currentMethodVisitor.visitVarInsn(ASTORE, index);
+    }
+
+    void loadObject(int index) {
+      currentMethodVisitor.visitVarInsn(ALOAD, index);
+    }
+
+    void goTo(Label l) {
+      currentMethodVisitor.visitJumpInsn(GOTO, l);
+    }
+
+    void makeReturn(boolean isVoid) {
+      if (isVoid) {
+        currentMethodVisitor.visitInsn(RETURN);
+      } else {
+        if (returnTypeCast != null) {
+          currentMethodVisitor.visitTypeInsn(CHECKCAST, returnTypeCast);
+        }
+        currentMethodVisitor.visitInsn(ARETURN);
+      }
+    }
   }
 
   private static Handle makeHandle(String methodName, String description) {
@@ -80,14 +157,6 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     return new IllegalStateException(prefixed("bug", message("no_element_remains", element.getClass())));
   }
 
-  public MethodVisitor getMethodVisitor() {
-    return currentMethodVisitor;
-  }
-
-  public void setMethodVisitor(MethodVisitor visitor) {
-    currentMethodVisitor = visitor;
-  }
-
   public List<CodeGenerationResult> generateBytecode(GoloModule module) {
     this.sourceFilename = module.sourceFile();
     this.classWriter = new ClassWriter(COMPUTE_FRAMES | COMPUTE_MAXS);
@@ -95,7 +164,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     this.context = new Context();
     module.accept(this);
     this.classWriter.visitEnd();
-    this.generationResults.add(new CodeGenerationResult(classWriter.toByteArray(), module.getPackageAndClass(), module.sourceFile()));
+    this.generationResults.add(new CodeGenerationResult(
+          classWriter.toByteArray(),
+          module.getPackageAndClass(),
+          module.sourceFile()));
     return this.generationResults;
   }
 
@@ -148,8 +220,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     writeImportMetaData(module.getImports());
     klass = module.getPackageAndClass().toString();
     jvmKlass = module.getPackageAndClass().toJVMType();
-    writeAugmentsMetaData();
-    writeAugmentationApplicationsMetaData();
+    writeAugmentsMetaData(module);
+    writeAugmentationApplicationsMetaData(module);
     module.walk(this);
   }
 
@@ -162,11 +234,11 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitLocalReference(LocalReference moduleState) {
     if (moduleState.isModuleState()) {
       String name = moduleState.getName();
-      classWriter.visitField(ACC_PRIVATE | ACC_STATIC | deprecatedFlag(moduleState), name, "Ljava/lang/Object;", null, null).visitEnd();
+      classWriter.visitField(ACC_PRIVATE | ACC_STATIC | deprecatedFlag(moduleState), name, TOBJECT, null, null).visitEnd();
 
       MethodVisitor mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "()Ljava/lang/Object;", null, null);
       mv.visitCode();
-      mv.visitFieldInsn(GETSTATIC, jvmKlass, name, "Ljava/lang/Object;");
+      mv.visitFieldInsn(GETSTATIC, jvmKlass, name, TOBJECT);
       mv.visitInsn(ARETURN);
       mv.visitMaxs(0, 0);
       mv.visitEnd();
@@ -174,7 +246,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       mv = classWriter.visitMethod(ACC_PRIVATE | ACC_STATIC | ACC_SYNTHETIC, name, "(Ljava/lang/Object;)V", null, null);
       mv.visitCode();
       mv.visitVarInsn(ALOAD, 0);
-      mv.visitFieldInsn(PUTSTATIC, jvmKlass, name, "Ljava/lang/Object;");
+      mv.visitFieldInsn(PUTSTATIC, jvmKlass, name, TOBJECT);
       mv.visitInsn(RETURN);
       mv.visitMaxs(0, 0);
       mv.visitEnd();
@@ -201,12 +273,12 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     mv.visitEnd();
   }
 
-  private void writeAugmentationApplicationsMetaData() {
+  private void writeAugmentationApplicationsMetaData(GoloModule module) {
     /* create a metadata method that given a target class name hashcode
      * returns a String array containing the names of applied
      * augmentations
      */
-    List<Augmentation> applications = new ArrayList<>(this.currentModule.getAugmentations());
+    List<Augmentation> applications = new ArrayList<>(module.getAugmentations());
     int applicationsSize = applications.size();
     writeMetaData("augmentationApplications",
         applications.stream()
@@ -262,9 +334,9 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         .toArray(String[]::new));
   }
 
-  private void writeAugmentsMetaData() {
+  private void writeAugmentsMetaData(GoloModule module) {
     writeMetaData("augmentations",
-        currentModule.getAugmentations().stream()
+        module.getAugmentations().stream()
         .map(Augmentation::getTarget)
         .map(PackageAndClass::toString)
         .toArray(String[]::new));
@@ -287,23 +359,31 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitAugmentation(Augmentation augmentation) {
-    generateAugmentationBytecode(augmentation.getTarget(), augmentation.getFunctions(), augmentation.metadata("annotations"));
+    generateAugmentationBytecode(
+        augmentation.enclosingModule(),
+        augmentation.getTarget(),
+        augmentation.getFunctions(),
+        augmentation.metadata("annotations"));
   }
 
   @Override
   public void visitNamedAugmentation(NamedAugmentation namedAugmentation) {
-    generateAugmentationBytecode(namedAugmentation.getPackageAndClass(), namedAugmentation.getFunctions(), namedAugmentation.metadata("annotations"));
+    generateAugmentationBytecode(
+        namedAugmentation.enclosingModule(),
+        namedAugmentation.getPackageAndClass(),
+        namedAugmentation.getFunctions(),
+        namedAugmentation.metadata("annotations"));
   }
 
-  private void generateAugmentationBytecode(PackageAndClass target, Collection<GoloFunction> functions, Object annotations) {
+  private void generateAugmentationBytecode(GoloModule parentModule, PackageAndClass target, Collection<GoloFunction> functions, Object annotations) {
     if (functions.isEmpty()) {
       return;
     }
     ClassWriter mainClassWriter = classWriter;
     String mangledClass = target.mangledName();
-    PackageAndClass packageAndClass = this.currentModule.getPackageAndClass().createInnerClass(mangledClass);
+    PackageAndClass packageAndClass = parentModule.getPackageAndClass().createInnerClass(mangledClass);
     String augmentationClassInternalName = packageAndClass.toJVMType();
-    String outerName = this.currentModule.getPackageAndClass().toJVMType();
+    String outerName = parentModule.getPackageAndClass().toJVMType();
 
     mainClassWriter.visitInnerClass(
         augmentationClassInternalName,
@@ -320,8 +400,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       function.accept(this);
     }
 
-    Set<ModuleImport> imports = new HashSet<>(this.currentModule.getImports());
-    imports.add(ModuleImport.of(this.currentModule.getPackageAndClass()));
+    Set<ModuleImport> imports = new HashSet<>(parentModule.getImports());
+    imports.add(ModuleImport.of(parentModule.getPackageAndClass()));
     writeImportMetaData(imports);
 
     classWriter.visitEnd();
@@ -331,92 +411,39 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitFunction(GoloFunction function) {
-    currentMethodVisitor = classWriter.visitMethod(
-        functionFlags(function),
-        function.getName(),
-        functionSignature(function),
-        null, null);
+    context.enterFunction(function, this.classWriter);
+    addFunctionAnnotations(function);
+    for (String parameter: function.getParameterNames()) {
+      context.currentMethodVisitor.visitParameter(parameter, ACC_FINAL);
+    }
+    context.currentMethodVisitor.visitCode();
+    function.walk(this);
+    context.exitFunction();
+  }
+
+  private void addFunctionAnnotations(GoloFunction function) {
     // NOTE: Replace hard coded annotations here by annotation metadata when desugaring?
     //     probably not. Annotations are a back-end specific feature that should not appear until the last step.
     //     The functions and macros in `gololang.meta.Annotations` purpose is to be compatible with existing java
     //     frameworks relying on annotations. I think that golo specific features should be back-end independent as long
     //     as possible.
     if (function.isDecorated()) {
-      AnnotationVisitor annotation = currentMethodVisitor.visitAnnotation("Lgololang/annotations/DecoratedBy;", true);
+      AnnotationVisitor annotation = context.currentMethodVisitor.visitAnnotation("Lgololang/annotations/DecoratedBy;", true);
       annotation.visit("value", function.getDecoratorRef());
       annotation.visitEnd();
     }
     if (function.isMacro()) {
-      currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/Macro;", true).visitEnd();
+      context.currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/Macro;", true).visitEnd();
       if (function.isSpecialMacro()) {
-        currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/SpecialMacro;", true).visitEnd();
+        context.currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/SpecialMacro;", true).visitEnd();
       }
       if (function.isContextualMacro()) {
-        currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/ContextualMacro;", true).visitEnd();
+        context.currentMethodVisitor.visitAnnotation("Lorg/eclipse/golo/compiler/macro/ContextualMacro;", true).visitEnd();
       }
-      returnTypeCast = "gololang/ir/GoloElement";
+      context.returnTypeCast = "gololang/ir/GoloElement";
     }
-    addAnnotations(function, currentMethodVisitor::visitAnnotation);
-    for (String parameter: function.getParameterNames()) {
-      currentMethodVisitor.visitParameter(parameter, ACC_FINAL);
-    }
-    currentMethodVisitor.visitCode();
-    functionLabels.put(function, visitLine(function, currentMethodVisitor));
-    currentFunction = function;
-    function.walk(this);
-    returnTypeCast = null;
-    currentFunction = null;
-    if (function.isModuleInit()) {
-      currentMethodVisitor.visitInsn(RETURN);
-    }
-    currentMethodVisitor.visitMaxs(0, 0);
-    currentMethodVisitor.visitEnd();
-  }
+    addAnnotations(function, context.currentMethodVisitor::visitAnnotation);
 
-  private int functionFlags(GoloFunction function) {
-    int accessFlags = ACC_STATIC | (function.isLocal() ? ACC_PRIVATE : ACC_PUBLIC);
-    if (function.isSynthetic() || function.isDecorator()) {
-      accessFlags |= ACC_SYNTHETIC;
-    }
-    if (function.isVarargs()) {
-      accessFlags |= ACC_VARARGS;
-    }
-    return accessFlags | deprecatedFlag(function);
-  }
-
-  private String functionSignature(GoloFunction function) {
-    if (function.isMain()) {
-      return "([Ljava/lang/String;)V";
-    }
-    if (function.isModuleInit()) {
-      return "()V";
-    }
-    MethodType signature;
-    if (function.isVarargs()) {
-      signature = MethodType.genericMethodType(function.getArity() - 1, true);
-    } else if (function.isMacro()) {
-      signature = MethodType.methodType(GoloElement.class);
-      int arity = function.getArity() - (function.isVarargs() ? 1 : 0);
-      int i = 0;
-      if (function.isContextualMacro()) {
-        signature = signature.appendParameterTypes(gololang.ir.AbstractInvocation.class);
-        i++;
-      }
-      if (function.isSpecialMacro()) {
-        signature = signature.appendParameterTypes(org.eclipse.golo.compiler.macro.MacroExpansionIrVisitor.class);
-        i++;
-      }
-      while (i < arity) {
-        signature = signature.appendParameterTypes(GoloElement.class);
-        i++;
-      }
-      if (function.isVarargs()) {
-        signature = signature.appendParameterTypes(GoloElement[].class);
-      }
-    } else {
-      signature = MethodType.genericMethodType(function.getArity());
-    }
-    return signature.toMethodDescriptorString();
   }
 
   private String goloFunctionSignature(int arity) {
@@ -430,35 +457,31 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   @Override
   public void visitBlock(Block block) {
-    ReferenceTable referenceTable = block.getReferenceTable();
-    context.referenceTableStack.push(referenceTable);
-    Label blockStart = new Label();
-    Label blockEnd = new Label();
-    currentMethodVisitor.visitLabel(blockStart);
+    Label blockStart = context.enterBlock(block);
     for (GoloStatement<?> statement : block.getStatements()) {
-      visitLine(statement, currentMethodVisitor);
+      context.labelFor(statement);
       statement.accept(this);
       insertMissingPop(statement);
     }
-    currentMethodVisitor.visitLabel(blockEnd);
-    for (LocalReference localReference : referenceTable.ownedReferences()) {
+    Label blockEnd = context.newLabel();
+    for (LocalReference localReference : block.getReferenceTable().ownedReferences()) {
       if (localReference.isModuleState()) {
         continue;
       }
-      currentMethodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
+      context.currentMethodVisitor.visitLocalVariable(localReference.getName(), TOBJECT, null,
           blockStart, blockEnd, localReference.getIndex());
     }
-    context.referenceTableStack.pop();
+    context.exitBlock();
   }
 
   private void insertMissingPop(GoloStatement<?> statement) {
     Class<?> statementClass = statement.getClass();
     if (statementClass == FunctionInvocation.class) {
-      currentMethodVisitor.visitInsn(POP);
+      context.currentMethodVisitor.visitInsn(POP);
     } else if (statementClass == BinaryOperation.class) {
       BinaryOperation operation = (BinaryOperation) statement;
       if (operation.isMethodCall()) {
-        currentMethodVisitor.visitInsn(POP);
+        context.currentMethodVisitor.visitInsn(POP);
       }
     }
   }
@@ -467,99 +490,66 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitConstantStatement(ConstantStatement constantStatement) {
     Object value = constantStatement.value();
     if (value == null) {
-      currentMethodVisitor.visitInsn(ACONST_NULL);
-      return;
-    }
-    if (value instanceof Integer) {
+      context.currentMethodVisitor.visitInsn(ACONST_NULL);
+    } else if (value instanceof Integer) {
       int i = (Integer) value;
-      loadInteger(currentMethodVisitor, i);
-      currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
-      return;
-    }
-    if (value instanceof Long) {
+      loadInteger(context.currentMethodVisitor, i);
+      context.currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Integer", "valueOf", "(I)Ljava/lang/Integer;", false);
+    } else if (value instanceof Long) {
       long l = (Long) value;
-      loadLong(currentMethodVisitor, l);
-      currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
-      return;
-    }
-    if (value instanceof Boolean) {
+      loadLong(context.currentMethodVisitor, l);
+      context.currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Long", "valueOf", "(J)Ljava/lang/Long;", false);
+    } else if (value instanceof Boolean) {
       boolean b = (Boolean) value;
-      loadInteger(currentMethodVisitor, b ? 1 : 0);
-      currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
-      return;
-    }
-    if (value instanceof BigDecimal) {
-      currentMethodVisitor.visitTypeInsn(NEW, "java/math/BigDecimal");
-      currentMethodVisitor.visitInsn(DUP);
-      currentMethodVisitor.visitLdcInsn(value.toString());
-      currentMethodVisitor.visitMethodInsn(INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(Ljava/lang/String;)V", false);
-      return;
-    }
-    if (value instanceof BigInteger) {
-      currentMethodVisitor.visitTypeInsn(NEW, "java/math/BigInteger");
-      currentMethodVisitor.visitInsn(DUP);
-      currentMethodVisitor.visitLdcInsn(value.toString());
-      currentMethodVisitor.visitMethodInsn(INVOKESPECIAL, "java/math/BigInteger", "<init>", "(Ljava/lang/String;)V", false);
-      return;
-    }
-    if (value instanceof String) {
-      currentMethodVisitor.visitLdcInsn(value);
-      return;
-    }
-    if (value instanceof Character) {
-      loadInteger(currentMethodVisitor, (Character) value);
-      currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
-      return;
-    }
-    if (value instanceof ClassReference) {
-      currentMethodVisitor.visitInvokeDynamicInsn(((ClassReference) value).toJVMType(), "()Ljava/lang/Class;", CLASSREF_HANDLE);
-      return;
-    }
-    if (value instanceof Double) {
+      loadInteger(context.currentMethodVisitor, b ? 1 : 0);
+      context.currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Boolean", "valueOf", "(Z)Ljava/lang/Boolean;", false);
+    } else if (value instanceof BigDecimal) {
+      context.currentMethodVisitor.visitTypeInsn(NEW, "java/math/BigDecimal");
+      context.currentMethodVisitor.visitInsn(DUP);
+      context.currentMethodVisitor.visitLdcInsn(value.toString());
+      context.currentMethodVisitor.visitMethodInsn(INVOKESPECIAL, "java/math/BigDecimal", "<init>", "(Ljava/lang/String;)V", false);
+    } else if (value instanceof BigInteger) {
+      context.currentMethodVisitor.visitTypeInsn(NEW, "java/math/BigInteger");
+      context.currentMethodVisitor.visitInsn(DUP);
+      context.currentMethodVisitor.visitLdcInsn(value.toString());
+      context.currentMethodVisitor.visitMethodInsn(INVOKESPECIAL, "java/math/BigInteger", "<init>", "(Ljava/lang/String;)V", false);
+    } else if (value instanceof String) {
+      context.currentMethodVisitor.visitLdcInsn(value);
+    } else if (value instanceof Character) {
+      loadInteger(context.currentMethodVisitor, (Character) value);
+      context.currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Character", "valueOf", "(C)Ljava/lang/Character;", false);
+    } else if (value instanceof ClassReference) {
+      context.currentMethodVisitor.visitInvokeDynamicInsn(((ClassReference) value).toJVMType(), "()Ljava/lang/Class;", CLASSREF_HANDLE);
+    } else if (value instanceof Double) {
       double d = (Double) value;
-      currentMethodVisitor.visitLdcInsn(d);
-      currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
-      return;
-    }
-    if (value instanceof Float) {
+      context.currentMethodVisitor.visitLdcInsn(d);
+      context.currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Double", "valueOf", "(D)Ljava/lang/Double;", false);
+    } else if (value instanceof Float) {
       float f = (Float) value;
-      currentMethodVisitor.visitLdcInsn(f);
-      currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
-      return;
+      context.currentMethodVisitor.visitLdcInsn(f);
+      context.currentMethodVisitor.visitMethodInsn(INVOKESTATIC, "java/lang/Float", "valueOf", "(F)Ljava/lang/Float;", false);
+    } else {
+      throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
     }
-    throw new IllegalArgumentException("Constants of type " + value.getClass() + " cannot be handled.");
   }
 
   @Override
   public void visitReturnStatement(ReturnStatement returnStatement) {
     GoloStatement<?> expr = returnStatement.expression();
     if (isRecursiveTailCall(expr)) {
-      storeInvocationArguments((FunctionInvocation) expr, currentFunction);
-      currentMethodVisitor.visitJumpInsn(GOTO, functionLabels.get(currentFunction));
+      storeInvocationArguments((FunctionInvocation) expr, context.currentFunction);
+      context.goToCurrentFunction();
       return;
     }
     if (expr != null) {
       expr.accept(this);
     }
-    if (returnStatement.isReturningVoid()) {
-      currentMethodVisitor.visitInsn(RETURN);
-    } else {
-      if (returnTypeCast != null) {
-        currentMethodVisitor.visitTypeInsn(CHECKCAST, returnTypeCast);
-      }
-      currentMethodVisitor.visitInsn(ARETURN);
-    }
+    context.makeReturn(returnStatement.isReturningVoid());
   }
 
   private boolean isRecursiveTailCall(GoloStatement<?> statement) {
     if (USE_TCE && statement instanceof FunctionInvocation) {
-      FunctionInvocation invoke = (FunctionInvocation) statement;
-      if (currentFunction.isDecorated()) { return false; }
-      if (invoke.isOnReference()) {
-        return invoke.getName().equals(currentFunction.getSyntheticSelfName())
-          && invoke.getArity() == currentFunction.getArity() - currentFunction.getSyntheticParameterCount();
-      }
-      return invoke.getName().equals(currentFunction.getName()) && invoke.getArity() == currentFunction.getArity();
+      return ((FunctionInvocation) statement).isRecursiveTailCall();
     }
     return false;
   }
@@ -567,8 +557,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   @Override
   public void visitThrowStatement(ThrowStatement throwStatement) {
     throwStatement.walk(this);
-    currentMethodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
-    currentMethodVisitor.visitInsn(ATHROW);
+    context.currentMethodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Throwable");
+    context.currentMethodVisitor.visitInsn(ATHROW);
   }
 
   private List<String> visitInvocationArguments(AbstractInvocation<?> invocation) {
@@ -592,8 +582,8 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private void reloadNextCallArguments(int paramNumber, int tmpOffset, int paramOffset) {
     for (int i = 0; i < paramNumber - paramOffset; i++) {
-      currentMethodVisitor.visitVarInsn(ALOAD, i + tmpOffset);
-      currentMethodVisitor.visitVarInsn(ASTORE, i + paramOffset);
+      context.loadObject(i + tmpOffset);
+      context.storeObject(i + paramOffset);
     }
   }
 
@@ -612,7 +602,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private void storeRegularInvocationArguments(List<GoloElement<?>> arguments, int offset) {
     for (int i = 0; i < arguments.size(); i++) {
       arguments.get(i).accept(this);
-      currentMethodVisitor.visitVarInsn(ASTORE, i + offset);
+      context.storeObject(i + offset);
     }
   }
 
@@ -625,20 +615,20 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapArgs.add(functionInvocation.isConstant() ? 1 : 0);
     if (functionInvocation.isOnReference()) {
       ReferenceTable table = context.referenceTableStack.peek();
-      currentMethodVisitor.visitVarInsn(ALOAD, table.get(functionInvocation.getName()).getIndex());
+      context.loadObject(table.get(functionInvocation.getName()).getIndex());
     }
     if (functionInvocation.isOnModuleState()) {
       ReferenceLookup.of(functionInvocation.getName()).accept(this);
     }
     if (functionInvocation.isAnonymous() || functionInvocation.isOnReference() || functionInvocation.isOnModuleState()) {
-      currentMethodVisitor.visitTypeInsn(CHECKCAST, "gololang/FunctionReference");
+      context.currentMethodVisitor.visitTypeInsn(CHECKCAST, "gololang/FunctionReference");
       MethodType type = genericMethodType(functionInvocation.getArity() + 1).changeParameterType(0, FunctionReference.class);
       typeDef = type.toMethodDescriptorString();
       handle = CLOSURE_INVOCATION_HANDLE;
     }
     List<String> argumentNames = visitInvocationArguments(functionInvocation);
     bootstrapArgs.addAll(argumentNames);
-    currentMethodVisitor.visitInvokeDynamicInsn(name, typeDef, handle, bootstrapArgs.toArray());
+    context.currentMethodVisitor.visitInvokeDynamicInsn(name, typeDef, handle, bootstrapArgs.toArray());
   }
 
   @Override
@@ -647,7 +637,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     bootstrapArgs.add(methodInvocation.isNullSafeGuarded() ? 1 : 0);
     List<String> argumentNames = visitInvocationArguments(methodInvocation);
     bootstrapArgs.addAll(argumentNames);
-    currentMethodVisitor.visitInvokeDynamicInsn(
+    context.currentMethodVisitor.visitInvokeDynamicInsn(
         methodInvocation.getName().replaceAll("\\.", "#"),
         goloFunctionSignature(methodInvocation.getArity() + 1),
         METHOD_INVOCATION_HANDLE,
@@ -664,13 +654,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     assignmentStatement.walk(this);
     LocalReference reference = assignmentStatement.getLocalReference();
     if (reference.isModuleState()) {
-      currentMethodVisitor.visitInvokeDynamicInsn(
+      context.currentMethodVisitor.visitInvokeDynamicInsn(
           (klass + "." + reference.getName()).replaceAll("\\.", "#"),
           "(Ljava/lang/Object;)V",
           FUNCTION_INVOCATION_HANDLE,
           (Object) 0);
     } else {
-      currentMethodVisitor.visitVarInsn(ASTORE, reference.getIndex());
+      context.storeObject(reference.getIndex());
     }
   }
 
@@ -678,13 +668,13 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitReferenceLookup(ReferenceLookup referenceLookup) {
     LocalReference reference = referenceLookup.resolveIn(context.referenceTableStack.peek());
     if (reference.isModuleState()) {
-      currentMethodVisitor.visitInvokeDynamicInsn(
+      context.currentMethodVisitor.visitInvokeDynamicInsn(
           (klass + "." + referenceLookup.getName()).replaceAll("\\.", "#"),
           "()Ljava/lang/Object;",
           FUNCTION_INVOCATION_HANDLE,
           (Object) 0);
     } else {
-      currentMethodVisitor.visitVarInsn(ALOAD, reference.getIndex());
+      context.loadObject(reference.getIndex());
     }
   }
 
@@ -694,24 +684,24 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label branchingExitLabel = new Label();
     conditionalBranching.getCondition().accept(this);
     asmBooleanValue();
-    currentMethodVisitor.visitJumpInsn(IFEQ, branchingElseLabel);
+    context.currentMethodVisitor.visitJumpInsn(IFEQ, branchingElseLabel);
     conditionalBranching.getTrueBlock().accept(this);
     if (conditionalBranching.hasFalseBlock()) {
       if (!conditionalBranching.getTrueBlock().hasReturn()) {
-        currentMethodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
+        context.goTo(branchingExitLabel);
       }
-      currentMethodVisitor.visitLabel(branchingElseLabel);
+      context.currentMethodVisitor.visitLabel(branchingElseLabel);
       conditionalBranching.getFalseBlock().accept(this);
-      currentMethodVisitor.visitLabel(branchingExitLabel);
+      context.currentMethodVisitor.visitLabel(branchingExitLabel);
     } else if (conditionalBranching.hasElseConditionalBranching()) {
       if (!conditionalBranching.getTrueBlock().hasReturn()) {
-        currentMethodVisitor.visitJumpInsn(GOTO, branchingExitLabel);
+        context.goTo(branchingExitLabel);
       }
-      currentMethodVisitor.visitLabel(branchingElseLabel);
+      context.currentMethodVisitor.visitLabel(branchingElseLabel);
       conditionalBranching.getElseConditionalBranching().accept(this);
-      currentMethodVisitor.visitLabel(branchingExitLabel);
+      context.currentMethodVisitor.visitLabel(branchingExitLabel);
     } else {
-      currentMethodVisitor.visitLabel(branchingElseLabel);
+      context.currentMethodVisitor.visitLabel(branchingElseLabel);
     }
   }
 
@@ -725,16 +715,16 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (loopStatement.hasInitStatement()) {
       loopStatement.init().accept(this);
     }
-    currentMethodVisitor.visitLabel(loopStart);
+    context.currentMethodVisitor.visitLabel(loopStart);
     loopStatement.condition().accept(this);
     asmBooleanValue();
-    currentMethodVisitor.visitJumpInsn(IFEQ, loopEnd);
+    context.currentMethodVisitor.visitJumpInsn(IFEQ, loopEnd);
     loopStatement.getBlock().accept(this);
     if (loopStatement.hasPostStatement()) {
       loopStatement.post().accept(this);
     }
-    currentMethodVisitor.visitJumpInsn(GOTO, loopStart);
-    currentMethodVisitor.visitLabel(loopEnd);
+    context.goTo(loopStart);
+    context.currentMethodVisitor.visitLabel(loopEnd);
   }
 
   @Override
@@ -745,10 +735,10 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     } else {
       jumpTarget = context.loopStartMap.get(loopBreakFlowStatement.getEnclosingLoop());
     }
-    currentMethodVisitor.visitLdcInsn(0);
-    currentMethodVisitor.visitJumpInsn(IFEQ, jumpTarget);
+    context.currentMethodVisitor.visitLdcInsn(0);
+    context.currentMethodVisitor.visitJumpInsn(IFEQ, jumpTarget);
     // NOP + ATHROW invalid frames if the GOTO is followed by an else branch code...
-    // currentMethodVisitor.visitJumpInsn(GOTO, jumpTarget);
+    // context.goTo(jumpTarget);
   }
 
   @Override
@@ -775,37 +765,37 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   }
 
   private void generateTryBlock(TryCatchFinally tryCatchFinally, Label target) {
-    Label tryStart = labelAtPosition(tryCatchFinally.getTryBlock(), currentMethodVisitor);
+    Label tryStart = labelAtPosition(tryCatchFinally.getTryBlock(), context.currentMethodVisitor);
     Label tryEnd = new Label();
-    currentMethodVisitor.visitLabel(tryStart);
+    context.currentMethodVisitor.visitLabel(tryStart);
     tryCatchFinally.getTryBlock().accept(this);
-    currentMethodVisitor.visitLabel(tryEnd);
-    currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, target, null);
+    context.currentMethodVisitor.visitLabel(tryEnd);
+    context.currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, target, null);
   }
 
   private void generateCatchBlock(TryCatchFinally tryCatchFinally, Label catchStart, Label catchEnd) {
-    currentMethodVisitor.visitLabel(catchStart);
-    currentMethodVisitor.visitVarInsn(ASTORE, tryCatchFinally.getExceptionRefIndex());
+    context.currentMethodVisitor.visitLabel(catchStart);
+    context.storeObject(tryCatchFinally.getExceptionRefIndex());
     tryCatchFinally.getCatchBlock().accept(this);
-    currentMethodVisitor.visitLabel(catchEnd);
+    context.currentMethodVisitor.visitLabel(catchEnd);
   }
 
   private void generateRethrow(TryCatchFinally tryCatchFinally, Label rethrowStart, Label rethrowEnd) {
-    currentMethodVisitor.visitLabel(rethrowStart);
-    currentMethodVisitor.visitVarInsn(ASTORE, tryCatchFinally.getExceptionRefIndex());
+    context.currentMethodVisitor.visitLabel(rethrowStart);
+    context.storeObject(tryCatchFinally.getExceptionRefIndex());
     tryCatchFinally.getFinallyBlock().accept(this);
-    currentMethodVisitor.visitVarInsn(ALOAD, tryCatchFinally.getExceptionRefIndex());
-    currentMethodVisitor.visitInsn(ATHROW);
-    currentMethodVisitor.visitLabel(rethrowEnd);
+    context.loadObject(tryCatchFinally.getExceptionRefIndex());
+    context.currentMethodVisitor.visitInsn(ATHROW);
+    context.currentMethodVisitor.visitLabel(rethrowEnd);
   }
 
   private void generateTryCatch(TryCatchFinally tryCatchFinally) {
-    Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), currentMethodVisitor);
+    Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), context.currentMethodVisitor);
     Label catchEnd = new Label();
 
     // try
     generateTryBlock(tryCatchFinally, catchStart);
-    currentMethodVisitor.visitJumpInsn(GOTO, catchEnd);
+    context.goTo(catchEnd);
 
     // catch
     generateCatchBlock(tryCatchFinally, catchStart, catchEnd);
@@ -818,14 +808,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     // try
     generateTryBlock(tryCatchFinally, rethrowStart);
     tryCatchFinally.getFinallyBlock().accept(this);
-    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+    context.goTo(rethrowEnd);
 
     // rethrow
     generateRethrow(tryCatchFinally, rethrowStart, rethrowEnd);
   }
 
   private void generateTryCatchFinally(TryCatchFinally tryCatchFinally) {
-    Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), currentMethodVisitor);
+    Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), context.currentMethodVisitor);
     Label catchEnd = new Label();
     Label rethrowStart = new Label();
     Label rethrowEnd = new Label();
@@ -833,14 +823,14 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     // try
     generateTryBlock(tryCatchFinally, catchStart);
     tryCatchFinally.getFinallyBlock().accept(this);
-    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+    context.goTo(rethrowEnd);
 
     // catch
     generateCatchBlock(tryCatchFinally, catchStart, catchEnd);
-    currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
+    context.currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
 
     tryCatchFinally.getFinallyBlock().accept(this);
-    currentMethodVisitor.visitJumpInsn(GOTO, rethrowEnd);
+    context.goTo(rethrowEnd);
 
     // rethrow
     generateRethrow(tryCatchFinally, rethrowStart, rethrowEnd);
@@ -852,7 +842,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     final boolean isVarArgs = target.isVarargs();
     final int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
     final int syntheticCount = target.getSyntheticParameterCount();
-    currentMethodVisitor.visitInvokeDynamicInsn(
+    context.currentMethodVisitor.visitInvokeDynamicInsn(
         target.getName(),
         methodType(FunctionReference.class).toMethodDescriptorString(),
         CLOSUREREF_HANDLE,
@@ -861,24 +851,24 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
         (Boolean) isVarArgs);
     if (syntheticCount > 0) {
       String[] refs = closureReference.getCapturedReferenceNames().toArray(new String[syntheticCount]);
-      loadInteger(currentMethodVisitor, 0);
-      loadInteger(currentMethodVisitor, syntheticCount);
-      currentMethodVisitor.visitTypeInsn(ANEWARRAY, "java/lang/Object");
+      loadInteger(context.currentMethodVisitor, 0);
+      loadInteger(context.currentMethodVisitor, syntheticCount);
+      context.currentMethodVisitor.visitTypeInsn(ANEWARRAY, JOBJECT);
       ReferenceTable table = context.referenceTableStack.peek();
       for (int i = 0; i < syntheticCount; i++) {
-        currentMethodVisitor.visitInsn(DUP);
-        loadInteger(currentMethodVisitor, i);
-        currentMethodVisitor.visitVarInsn(ALOAD, table.get(refs[i]).getIndex());
-        currentMethodVisitor.visitInsn(AASTORE);
+        context.currentMethodVisitor.visitInsn(DUP);
+        loadInteger(context.currentMethodVisitor, i);
+        context.loadObject(table.get(refs[i]).getIndex());
+        context.currentMethodVisitor.visitInsn(AASTORE);
       }
-      currentMethodVisitor.visitMethodInsn(
+      context.currentMethodVisitor.visitMethodInsn(
           INVOKEVIRTUAL,
           "gololang/FunctionReference",
           "insertArguments",
           "(I[Ljava/lang/Object;)Lgololang/FunctionReference;", false);
       if (isVarArgs) {
-        currentMethodVisitor.visitLdcInsn(Type.getType(Object[].class));
-        currentMethodVisitor.visitMethodInsn(
+        context.currentMethodVisitor.visitLdcInsn(Type.getType(Object[].class));
+        context.currentMethodVisitor.visitMethodInsn(
             INVOKEVIRTUAL,
             "gololang/FunctionReference",
             "asVarargsCollector",
@@ -908,7 +898,7 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   private void genericBinaryOperator(BinaryOperation binaryOperation) {
     if (!binaryOperation.isMethodCall()) {
       String name = binaryOperation.getType().name().toLowerCase();
-      currentMethodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, (Integer) 2);
+      context.currentMethodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(2), OPERATOR_HANDLE, (Integer) 2);
     }
   }
 
@@ -917,15 +907,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label nullLabel = new Label();
     Label exitLabel = new Label();
     binaryOperation.left().accept(this);
-    currentMethodVisitor.visitVarInsn(ASTORE, idx);
-    currentMethodVisitor.visitVarInsn(ALOAD, idx);
-    currentMethodVisitor.visitJumpInsn(IFNULL, nullLabel);
-    currentMethodVisitor.visitJumpInsn(GOTO, exitLabel);
-    currentMethodVisitor.visitLabel(nullLabel);
+    context.storeObject(idx);
+    context.loadObject(idx);
+    context.currentMethodVisitor.visitJumpInsn(IFNULL, nullLabel);
+    context.goTo(exitLabel);
+    context.currentMethodVisitor.visitLabel(nullLabel);
     binaryOperation.right().accept(this);
-    currentMethodVisitor.visitVarInsn(ASTORE, idx);
-    currentMethodVisitor.visitLabel(exitLabel);
-    currentMethodVisitor.visitVarInsn(ALOAD, idx);
+    context.storeObject(idx);
+    context.currentMethodVisitor.visitLabel(exitLabel);
+    context.loadObject(idx);
   }
 
   private void orOperator(BinaryOperation binaryOperation) {
@@ -933,15 +923,15 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label trueLabel = new Label();
     binaryOperation.left().accept(this);
     asmBooleanValue();
-    currentMethodVisitor.visitJumpInsn(IFNE, trueLabel);
+    context.currentMethodVisitor.visitJumpInsn(IFNE, trueLabel);
     binaryOperation.right().accept(this);
     asmBooleanValue();
-    currentMethodVisitor.visitJumpInsn(IFNE, trueLabel);
+    context.currentMethodVisitor.visitJumpInsn(IFNE, trueLabel);
     asmFalseObject();
-    currentMethodVisitor.visitJumpInsn(GOTO, exitLabel);
-    currentMethodVisitor.visitLabel(trueLabel);
+    context.goTo(exitLabel);
+    context.currentMethodVisitor.visitLabel(trueLabel);
     asmTrueObject();
-    currentMethodVisitor.visitLabel(exitLabel);
+    context.currentMethodVisitor.visitLabel(exitLabel);
   }
 
   private void andOperator(BinaryOperation binaryOperation) {
@@ -949,35 +939,35 @@ class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label falseLabel = new Label();
     binaryOperation.left().accept(this);
     asmBooleanValue();
-    currentMethodVisitor.visitJumpInsn(IFEQ, falseLabel);
+    context.currentMethodVisitor.visitJumpInsn(IFEQ, falseLabel);
     binaryOperation.right().accept(this);
     asmBooleanValue();
-    currentMethodVisitor.visitJumpInsn(IFEQ, falseLabel);
+    context.currentMethodVisitor.visitJumpInsn(IFEQ, falseLabel);
     asmTrueObject();
-    currentMethodVisitor.visitJumpInsn(GOTO, exitLabel);
-    currentMethodVisitor.visitLabel(falseLabel);
+    context.goTo(exitLabel);
+    context.currentMethodVisitor.visitLabel(falseLabel);
     asmFalseObject();
-    currentMethodVisitor.visitLabel(exitLabel);
+    context.currentMethodVisitor.visitLabel(exitLabel);
   }
 
   private void asmFalseObject() {
-    currentMethodVisitor.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "FALSE", "Ljava/lang/Boolean;");
+    context.currentMethodVisitor.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "FALSE", "Ljava/lang/Boolean;");
   }
 
   private void asmTrueObject() {
-    currentMethodVisitor.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "TRUE", "Ljava/lang/Boolean;");
+    context.currentMethodVisitor.visitFieldInsn(GETSTATIC, "java/lang/Boolean", "TRUE", "Ljava/lang/Boolean;");
   }
 
   private void asmBooleanValue() {
-    currentMethodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
-    currentMethodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
+    context.currentMethodVisitor.visitTypeInsn(CHECKCAST, "java/lang/Boolean");
+    context.currentMethodVisitor.visitMethodInsn(INVOKEVIRTUAL, "java/lang/Boolean", "booleanValue", "()Z", false);
   }
 
   @Override
   public void visitUnaryOperation(UnaryOperation unaryOperation) {
     String name = unaryOperation.getType().name().toLowerCase();
     unaryOperation.walk(this);
-    currentMethodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);
+    context.currentMethodVisitor.visitInvokeDynamicInsn(name, goloFunctionSignature(1), OPERATOR_HANDLE, (Integer) 1);
   }
 
   @Override
