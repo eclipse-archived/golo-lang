@@ -62,7 +62,6 @@ function test_in_try_no_raise = {
   assertThat(lst, contains("add from try", "ret:return from try", "add from finally", "return from try"))
 }
 
-
 function test_in_try_raise = {
   let helper = |lst| {
     try {
@@ -232,7 +231,6 @@ function test_in_catch_finally_raise = {
   assertThat(lst, contains("add from try", "fails", "error", "ret:return from catch", "add from finally", "return from finally"))
 }
 
-
 function test_in_try_catch_no_raise = {
   let helper = |lst| {
     try {
@@ -311,38 +309,46 @@ function test_in_try_catch_finally_raise = {
   assertThat(lst, contains("add from try", "fails", "error", "ret:return from catch", "add from finally", "return from finally"))
 }
 
-# done | return in | fails in |
-#      | t | c | f | t |      |
-# ==============================
-#   X  |   |   |   |   |
-#   X  |   |   |   | x |
-#   X  | x |   |   |   |
-#   X  | x |   |   | x |
-#   X  | x | x |   |   |
-#   X  | x | x |   | x |
-#   X  | x |   | x |   |
-#   X  | x |   | x | x |
-#   X  | x | x | x |   |
-#   X  | x | x | x | x |
-#   X  |   | x |   |   |
-#   X  |   | x |   | x |
-#   X  |   | x | x |   |
-#   X  |   | x | x | x |
-#   X  |   |   | x |   |
-#   X  |   |   | x | x |
+function test_in_nested_finally_no_raise = {
+  let helper = |lst| {
+    try {
+      lst: add("add from try")
+    } finally {
+      lst: add("add from finally")
+      try {
+        lst: add("nested try")
+      } finally {
+        lst: add("nested finally")
+        return "return from nested finally"
+      }
+    }
+    lst: add("add after")
+    return "return after"
+  }
+  let lst = list[]
+  lst: add(helper(lst))
+  assertThat(lst, contains("add from try", "add from finally", "nested try", "nested finally", "return from nested finally"))
+}
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+function test_in_nested_finally_raise = {
+  let helper = |lst| {
+    try {
+      lst: add("add from try")
+      raise("et")
+    } finally {
+      lst: add("add from finally")
+      try {
+        lst: add("nested try")
+        raise("eft")
+      } finally {
+        lst: add("nested finally")
+        return "return from nested finally"
+      }
+    }
+    lst: add("add after")
+    return "return after"
+  }
+  let lst = list[]
+  lst: add(helper(lst))
+  assertThat(lst, contains("add from try", "add from finally", "nested try", "nested finally", "return from nested finally"))
+}

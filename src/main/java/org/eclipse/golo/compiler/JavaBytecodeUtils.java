@@ -68,6 +68,7 @@ final class JavaBytecodeUtils {
   static Label labelAtPosition(GoloElement<?> element, MethodVisitor visitor) {
     Label label = new Label();
     if (element != null && element.hasPosition()) {
+      // FIXME: line number are always 0 !
       visitor.visitLineNumber(element.positionInSourceCode().getStartLine(), label);
     }
     return label;

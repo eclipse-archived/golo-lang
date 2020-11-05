@@ -21,7 +21,7 @@ import static org.eclipse.golo.compiler.GoloCompilationException.Problem.Type.*;
 import static gololang.Messages.message;
 import static gololang.Messages.prefixed;
 
-class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisitor {
+public class LocalReferenceAssignmentAndVerificationVisitor extends AbstractGoloIrVisitor {
 
   private GoloModule module = null;
   private final AssignmentCounter assignmentCounter = new AssignmentCounter();

@@ -284,6 +284,10 @@ public class Block extends ExpressionStatement<Block> implements Iterable<GoloSt
       hasReturn = true;
     } else if (statement instanceof ConditionalBranching) {
       hasReturn = hasReturn || ((ConditionalBranching) statement).returnsFromBothBranches();
+    } else if (statement instanceof LoopStatement) {
+      hasReturn = hasReturn || ((LoopStatement) statement).getBlock().hasReturn();
+    } else if (statement instanceof TryCatchFinally) {
+      hasReturn = hasReturn || ((TryCatchFinally) statement).hasReturn();
     }
   }
 

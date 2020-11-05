@@ -19,6 +19,7 @@ import java.util.function.Function;
 
 import static gololang.ir.MethodInvocation.invoke;
 import static gololang.ir.ConditionalBranching.branch;
+import static gololang.ir.TryCatchFinally.DUMMY_TRY_RESULT_VARIABLE;
 
 /**
  * Visitor to expand some syntactic sugar.
@@ -26,7 +27,7 @@ import static gololang.ir.ConditionalBranching.branch;
  * Modify the IR to transform some nodes, in order to expand syntactic sugar, such as case and match
  * statements, foreach loops, list comprehension, and so on.
  */
-class SugarExpansionVisitor extends AbstractGoloIrVisitor {
+public class SugarExpansionVisitor extends AbstractGoloIrVisitor {
 
   private final SymbolGenerator symbols = new SymbolGenerator("golo.compiler.sugar");
   private final List<GoloFunction> functionsToAdd = new LinkedList<>();
@@ -245,7 +246,7 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
   }
 
   /**
-   * Converts a literal function reference into a call to {@Predefined.fun}.
+   * Converts a literal function reference into a call to {@code Predefined.fun}.
    */
   @Override
   public void visitConstantStatement(ConstantStatement constantStatement) {
@@ -530,4 +531,16 @@ class SugarExpansionVisitor extends AbstractGoloIrVisitor {
     return true;
   }
 
+  public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+    // We add a dummy variable to hold the value to be returned in the try.
+    // The return statement in the try block will indeed be replaced by a store and jump to execute the finally block.
+    // see bug #568.
+    // This happens only at bytecode level, but we however add the variable to know the store index.
+    if (tryCatchFinally.mustJumpToFinally()) {
+      tryCatchFinally.getLocalReferenceTable().ifPresent(table -> {
+        table.add(LocalReference.of(DUMMY_TRY_RESULT_VARIABLE).variable().synthetic());
+      });
+    }
+    tryCatchFinally.walk(this);
+  }
 }
