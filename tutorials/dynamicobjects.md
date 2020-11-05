@@ -121,6 +121,6 @@ function main = |args| {
 
 ✋ **To run it**, type this command: `golo golo --files 03-dynamicobjects-constructors.golo`
 
-ℹ️ more about sinamic objects: https://golo-lang.org/documentation/next/#_dynamic_objects
+ℹ️ more about dynamic objects: https://golo-lang.org/documentation/next/#_dynamic_objects
 
 **This is the end of the "DynamicObjects' tutorial"**. You can retrieve the source code here: [resources/dynamicobjects](resources/dynamicobjects).
