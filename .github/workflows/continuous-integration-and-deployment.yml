@@ -5,133 +5,74 @@ on:
     branches:
       - master
     tags:
-      - "milestone/*"
-      - "release/*"
+      - 'milestone/*'
+      - 'release/*'
   pull_request:
     branches:
       - master
 
 jobs:
-
-  # Run the test suite
-  test:
-    strategy:
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-          - macos-latest
-        jdk:
-          - "1.8"
-
-    runs-on: ${{ matrix.os }}
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-
-      - name: Set up JDK
-        uses: actions/setup-java@v1
-        with:
-          java-version: ${{ matrix.jdk }}
-
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
-
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
-
-      - name: Build with Gradle
-        run: ./gradlew build
-
-      - name: Copy build distribution
-        run: cp build/distributions/*.zip golo-distribution.zip
-
-      - name: Attach build distribution from this build
-        uses: actions/upload-artifact@v2
-        with:
-          name: Golo distribution from this build
-          path: ./golo-distribution.zip
-
-  # Deploy artefacts when pushing to master
-  deploy:
-    if: github.ref == 'refs/heads/master'
-    needs: test
+  pipeline:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout
-        uses: actions/checkout@v2
 
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
+    - name: Checkout
+      uses: actions/checkout@v2
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+    - name: Set up JDK 1.8
+      uses: actions/setup-java@v1
+      with:
+        java-version: 1.8
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+    - name: Cache Gradle packages
+      uses: actions/cache@v2
+      with:
+        path: ~/.gradle/caches
+        key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+        restore-keys: ${{ runner.os }}-gradle
 
-      - name: Deploy
-        run: .build/deploy.sh
-        env:
-          GPG_SECRET: ${{ secrets.GPG_SECRET }}
+    - name: Grant execute permission for gradlew
+      run: chmod +x gradlew
 
-  # Create a GitHub release
-  release:
-    if: startsWith(github.ref, 'refs/tags/')
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
+    - name: Build with Gradle
+      run: ./gradlew build
 
-      - name: Set up JDK 1.8
-        uses: actions/setup-java@v1
-        with:
-          java-version: 1.8
+    - name: Copy build distribution
+      run: cp build/distributions/*.zip golo-distribution.zip
 
-      - name: Cache Gradle packages
-        uses: actions/cache@v2
-        with:
-          path: ~/.gradle/caches
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
-          restore-keys: ${{ runner.os }}-gradle
+    - name: Attach build distribution from this build
+      uses: actions/upload-artifact@v2
+      with:
+        name: Golo distribution from this build
+        path: ./golo-distribution.zip
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+    # Only pushes to master trigger a publication to Sonatype OSS
+    - name: Deploy
+      if: github.ref == 'refs/heads/master'
+      run: .build/deploy.sh
+      env:
+        GPG_SECRET: ${{ secrets.GPG_SECRET }}
 
-      - name: Build with Gradle
-        run: ./gradlew assemble
+    # Only pushes of tags trigger a release creation
+    - name: Create the release
+      id: create_release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: ${{ github.ref }}
+        release_name: Release ${{ github.ref }}
+        draft: true
+        prerelease: startsWith(github.ref, 'refs/tags/milestone/')
+    - name: Attach build distribution to the release
+      if: startsWith(github.ref, 'refs/tags/')
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create_release.outputs.upload_url }}
+        asset_path: ./golo-distribution.zip
+        asset_name: golo-distribution.zip
+        asset_content_type: application/zip
 
-      - name: Copy build distribution
-        run: cp build/distributions/*.zip golo-distribution.zip
-
-      - name: Create the release
-        id: create_release
-        uses: actions/create-release@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          tag_name: ${{ github.ref }}
-          release_name: Release ${{ github.ref }}
-          draft: true
-          prerelease: startsWith(github.ref, 'refs/tags/milestone/')
-
-      - name: Attach build distribution to the release
-        uses: actions/upload-release-asset@v1
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        with:
-          upload_url: ${{ steps.create_release.outputs.upload_url }}
-          asset_path: ./golo-distribution.zip
-          asset_name: golo-distribution.zip
-          asset_content_type: application/zip
