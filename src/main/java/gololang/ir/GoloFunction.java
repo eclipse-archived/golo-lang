@@ -10,6 +10,7 @@
 
 package gololang.ir;
 
+import java.lang.invoke.MethodType;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.HashSet;
@@ -481,11 +482,37 @@ public final class GoloFunction extends ExpressionStatement<GoloFunction> implem
     return this.getArity() == other.getArity();
   }
 
-  public static String uniqueName() {
-    return SYMBOLS.next();
-  }
-
-  public static String uniqueName(Object base) {
-    return SYMBOLS.next(base.toString());
+  public MethodType getMethodType() {
+    if (this.isMain()) {
+      return MethodType.methodType(void.class, String[].class);
+    }
+    if (this.isModuleInit()) {
+      return MethodType.methodType(void.class);
+    }
+    if (this.isMacro()) {
+      MethodType signature = MethodType.methodType(GoloElement.class);
+      int arity = this.getArity() - (this.isVarargs() ? 1 : 0);
+      int i = 0;
+      if (this.isContextualMacro()) {
+        signature = signature.appendParameterTypes(gololang.ir.AbstractInvocation.class);
+        i++;
+      }
+      if (this.isSpecialMacro()) {
+        signature = signature.appendParameterTypes(org.eclipse.golo.compiler.macro.MacroExpansionIrVisitor.class);
+        i++;
+      }
+      while (i < arity) {
+        signature = signature.appendParameterTypes(GoloElement.class);
+        i++;
+      }
+      if (this.isVarargs()) {
+        signature = signature.appendParameterTypes(GoloElement[].class);
+      }
+      return signature;
+    }
+    if (this.isVarargs()) {
+      return MethodType.genericMethodType(this.getArity() - 1, true);
+    }
+    return MethodType.genericMethodType(this.getArity());
   }
 }

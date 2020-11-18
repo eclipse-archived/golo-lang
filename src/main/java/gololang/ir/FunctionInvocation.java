@@ -157,6 +157,18 @@ public final class FunctionInvocation extends AbstractInvocation<FunctionInvocat
     return constant;
   }
 
+  public boolean isRecursiveTailCall() {
+    GoloFunction currentFunction = this.ancestorOfType(GoloFunction.class);
+    if (currentFunction.isDecorated()) {
+      return false;
+    }
+    if (this.isOnReference()) {
+      return this.getName().equals(currentFunction.getSyntheticSelfName())
+        && this.getArity() == currentFunction.getArity() - currentFunction.getSyntheticParameterCount();
+    }
+    return this.getName().equals(currentFunction.getName()) && this.getArity() == currentFunction.getArity();
+  }
+
   protected FunctionInvocation copy() {
     return create(anonymous ? null : getName(),
         onReference, onModuleState, constant, getArguments().toArray());
