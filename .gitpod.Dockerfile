@@ -18,5 +18,5 @@ ENV LANGUAGE en_US:en
 ENV LC_ALL en_US.UTF-8
 
 # GOLO_HOME
-RUN echo "export GOLO_HOME=/build/install/golo" >> ~/.bashrc  && \
+RUN echo "export GOLO_HOME=/workspace/golo-lang/build/install/golo" >> ~/.bashrc  && \
     echo "export PATH=\$PATH:\$GOLO_HOME/bin" >> ~/.bashrc
