@@ -8,3 +8,6 @@ vscode:
     # It's a temporary extension:
     # The Open VSX Registry is being transitioned to the Eclipse Foundation (December 9)
     # Once the publishing process established the Golo extension will be published on the The Open VSX Registry
+
+tasks:
+  - command: unset JAVA_TOOL_OPTIONS

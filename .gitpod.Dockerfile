@@ -2,7 +2,6 @@ FROM ubuntu:latest
 
 RUN apt-get update && \
     apt-get install -y apt-utils && \
-    #apt-get install -y gnupg2 && \
     apt install -y openjdk-8-jdk && \
     apt install -y maven && \
     apt install -y mercurial && \
@@ -19,5 +18,4 @@ ENV LC_ALL en_US.UTF-8
 
 # GOLO_HOME
 RUN echo "export GOLO_HOME=/workspace/golo-lang/build/install/golo" >> ~/.bashrc  && \
-    echo "export PATH=\$PATH:\$GOLO_HOME/bin" >> ~/.bashrc && \
-    unset JAVA_TOOL_OPTIONS
+    echo "export PATH=\$PATH:\$GOLO_HOME/bin" >> ~/.bashrc
