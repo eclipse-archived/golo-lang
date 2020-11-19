@@ -62,6 +62,10 @@ public final class LocalReference extends GoloElement<LocalReference> {
     return new LocalReference(REF_SYMBOLS.next());
   }
 
+  public static LocalReference generate(String prefix) {
+    return new LocalReference(REF_SYMBOLS.next(prefix));
+  }
+
   public static LocalReference create(Object name, Kind kind) {
     return of(name).kind(kind);
   }

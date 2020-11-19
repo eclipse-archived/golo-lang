@@ -180,11 +180,20 @@ public class ClosureCaptureGoloIrVisitor extends AbstractGoloIrVisitor {
 
   @Override
   public void visitTryCatchFinally(TryCatchFinally tryCatchFinally) {
+    if (tryCatchFinally.mustJumpToFinally()) {
+      locallyDeclared(TryCatchFinally.DUMMY_TRY_RESULT_VARIABLE);
+      locallyAssigned(TryCatchFinally.DUMMY_TRY_RESULT_VARIABLE);
+      accessed(TryCatchFinally.DUMMY_TRY_RESULT_VARIABLE);
+    }
     tryCatchFinally.getTryBlock().accept(this);
     if (tryCatchFinally.hasCatchBlock()) {
       locallyAssigned(tryCatchFinally.getExceptionId());
       locallyDeclared(tryCatchFinally.getExceptionId());
       tryCatchFinally.getCatchBlock().accept(this);
+    } else {
+      locallyDeclared(tryCatchFinally.dummyExceptionName());
+      locallyAssigned(tryCatchFinally.dummyExceptionName());
+      accessed(tryCatchFinally.dummyExceptionName());
     }
     if (tryCatchFinally.hasFinallyBlock()) {
       tryCatchFinally.getFinallyBlock().accept(this);

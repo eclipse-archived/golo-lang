@@ -18,7 +18,6 @@ import org.eclipse.golo.compiler.testing.support.ClassWithOverloadedMethods;
 import org.eclipse.golo.runtime.AmbiguousFunctionReferenceException;
 import gololang.*;
 import org.testng.annotations.Test;
-import org.testng.annotations.Ignore;
 
 import java.io.IOException;
 import java.io.Serializable;
@@ -1885,6 +1884,11 @@ public class CompileAndRunTest {
   @Test
   public void test_nested_try() throws Throwable {
     runTests(SRC, "nested-try.golo", classLoader(this));
+  }
+
+  @Test
+  public void test_return_in_try() throws Throwable {
+    runTests(SRC, "return-in-try.golo", classLoader(this));
   }
 
 }

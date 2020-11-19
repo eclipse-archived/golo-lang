@@ -27,6 +27,7 @@ import static org.objectweb.asm.ClassWriter.COMPUTE_MAXS;
 import static org.objectweb.asm.Opcodes.*;
 
 import static gololang.Messages.*;
+import static gololang.ir.TryCatchFinally.DUMMY_TRY_RESULT_VARIABLE;
 
 final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
@@ -64,6 +65,7 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     private GoloFunction currentFunction;
     private final Map<GoloFunction, Label> functionLabels = new HashMap<>();
     private final Deque<ReferenceTable> referenceTableStack = new LinkedList<>();
+    private final Deque<Label> finallyStartLabels = new LinkedList<>();
     private final Map<LoopStatement, Label> loopStartMap = new HashMap<>();
     private final Map<LoopStatement, Label> loopEndMap = new HashMap<>();
 
@@ -88,10 +90,10 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
     void enterFunction(GoloFunction function, ClassWriter classWriter) {
       this.currentMethodVisitor = classWriter.visitMethod(
-        functionFlags(function),
-        function.getName(),
-        function.getMethodType().toMethodDescriptorString(),
-        null, null);
+          functionFlags(function),
+          function.getName(),
+          function.getMethodType().toMethodDescriptorString(),
+          null, null);
       this.currentFunction = function;
       this.functionLabels.put(function, labelFor(function));
     }
@@ -125,12 +127,45 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
       currentMethodVisitor.visitVarInsn(ASTORE, index);
     }
 
+    void storeObject(String variable) {
+      storeObject(this.referenceTableStack.peek().get(variable).getIndex());
+    }
+
     void loadObject(int index) {
       currentMethodVisitor.visitVarInsn(ALOAD, index);
     }
 
+    void loadObject(String variable) {
+      loadObject(referenceTableStack.peek().get(variable).getIndex());
+    }
+
     void goTo(Label l) {
       currentMethodVisitor.visitJumpInsn(GOTO, l);
+    }
+
+    void enterTryCatch(Block block, Block finallyBlock) {
+      if (finallyBlock != null && !finallyBlock.isEmpty()) {
+        finallyStartLabels.push(labelAtPosition(finallyBlock, this.currentMethodVisitor));
+        if (block.hasReturn()) {
+          currentMethodVisitor.visitInsn(ACONST_NULL);
+          storeObject(DUMMY_TRY_RESULT_VARIABLE);
+        }
+      }
+    }
+
+    Label exitTryCatch() {
+      if (finallyStartLabels.isEmpty()) {
+        return null;
+      }
+      return finallyStartLabels.pop();
+    }
+
+    boolean mustGoToFinally() {
+      return !this.finallyStartLabels.isEmpty();
+    }
+
+    void goToFinally() {
+      goTo(finallyStartLabels.peek());
     }
 
     void makeReturn(boolean isVoid) {
@@ -147,10 +182,10 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
 
   private static Handle makeHandle(String methodName, String description) {
     return new Handle(H_INVOKESTATIC,
-      "org/eclipse/golo/runtime/" + methodName,
-      "bootstrap",
-      "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
-      + description + ")Ljava/lang/invoke/CallSite;", false);
+        "org/eclipse/golo/runtime/" + methodName,
+        "bootstrap",
+        "(Ljava/lang/invoke/MethodHandles$Lookup;Ljava/lang/String;Ljava/lang/invoke/MethodType;"
+        + description + ")Ljava/lang/invoke/CallSite;", false);
   }
 
   private static RuntimeException invalidElement(GoloElement<?> element) {
@@ -544,7 +579,14 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     if (expr != null) {
       expr.accept(this);
     }
-    context.makeReturn(returnStatement.isReturningVoid());
+    if (context.mustGoToFinally()) {
+      if (!returnStatement.isReturningVoid()) {
+        context.storeObject(DUMMY_TRY_RESULT_VARIABLE);
+      }
+      context.goToFinally();
+    } else {
+      context.makeReturn(returnStatement.isReturningVoid());
+    }
   }
 
   private boolean isRecursiveTailCall(GoloStatement<?> statement) {
@@ -764,13 +806,13 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     }
   }
 
-  private void generateTryBlock(TryCatchFinally tryCatchFinally, Label target) {
+  private void generateTryBlock(TryCatchFinally tryCatchFinally, Label onExceptionTarget) {
     Label tryStart = labelAtPosition(tryCatchFinally.getTryBlock(), context.currentMethodVisitor);
     Label tryEnd = new Label();
     context.currentMethodVisitor.visitLabel(tryStart);
     tryCatchFinally.getTryBlock().accept(this);
     context.currentMethodVisitor.visitLabel(tryEnd);
-    context.currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, target, null);
+    context.currentMethodVisitor.visitTryCatchBlock(tryStart, tryEnd, onExceptionTarget, null);
   }
 
   private void generateCatchBlock(TryCatchFinally tryCatchFinally, Label catchStart, Label catchEnd) {
@@ -778,6 +820,16 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     context.storeObject(tryCatchFinally.getExceptionRefIndex());
     tryCatchFinally.getCatchBlock().accept(this);
     context.currentMethodVisitor.visitLabel(catchEnd);
+  }
+
+  private void generateFinallyBlock(TryCatchFinally tryCatchFinally, boolean mustReturn, Label next) {
+    tryCatchFinally.getFinallyBlock().accept(this);
+    if (mustReturn) {
+      context.loadObject(DUMMY_TRY_RESULT_VARIABLE);
+      context.makeReturn(false);
+    } else if (next != null) {
+      context.goTo(next);
+    }
   }
 
   private void generateRethrow(TryCatchFinally tryCatchFinally, Label rethrowStart, Label rethrowEnd) {
@@ -793,11 +845,8 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label catchStart = labelAtPosition(tryCatchFinally.getCatchBlock(), context.currentMethodVisitor);
     Label catchEnd = new Label();
 
-    // try
     generateTryBlock(tryCatchFinally, catchStart);
     context.goTo(catchEnd);
-
-    // catch
     generateCatchBlock(tryCatchFinally, catchStart, catchEnd);
   }
 
@@ -805,10 +854,10 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label rethrowStart = new Label();
     Label rethrowEnd = new Label();
 
-    // try
+    context.enterTryCatch(tryCatchFinally.getTryBlock(), tryCatchFinally.getFinallyBlock());
     generateTryBlock(tryCatchFinally, rethrowStart);
-    tryCatchFinally.getFinallyBlock().accept(this);
-    context.goTo(rethrowEnd);
+    context.currentMethodVisitor.visitLabel(this.context.exitTryCatch());
+    generateFinallyBlock(tryCatchFinally, tryCatchFinally.getTryBlock().hasReturn(), rethrowEnd);
 
     // rethrow
     generateRethrow(tryCatchFinally, rethrowStart, rethrowEnd);
@@ -821,16 +870,17 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
     Label rethrowEnd = new Label();
 
     // try
+    context.enterTryCatch(tryCatchFinally.getTryBlock(), tryCatchFinally.getFinallyBlock());
     generateTryBlock(tryCatchFinally, catchStart);
-    tryCatchFinally.getFinallyBlock().accept(this);
-    context.goTo(rethrowEnd);
+    context.currentMethodVisitor.visitLabel(this.context.exitTryCatch());
+    generateFinallyBlock(tryCatchFinally, tryCatchFinally.getTryBlock().hasReturn(), rethrowEnd);
 
     // catch
+    context.enterTryCatch(tryCatchFinally.getCatchBlock(), tryCatchFinally.getFinallyBlock());
     generateCatchBlock(tryCatchFinally, catchStart, catchEnd);
     context.currentMethodVisitor.visitTryCatchBlock(catchStart, catchEnd, rethrowStart, null);
-
-    tryCatchFinally.getFinallyBlock().accept(this);
-    context.goTo(rethrowEnd);
+    context.currentMethodVisitor.visitLabel(this.context.exitTryCatch());
+    generateFinallyBlock(tryCatchFinally, tryCatchFinally.getCatchBlock().hasReturn(), rethrowEnd);
 
     // rethrow
     generateRethrow(tryCatchFinally, rethrowStart, rethrowEnd);
@@ -840,7 +890,7 @@ final class JavaBytecodeGenerationGoloIrVisitor implements GoloIrVisitor {
   public void visitClosureReference(ClosureReference closureReference) {
     GoloFunction target = closureReference.getTarget();
     final boolean isVarArgs = target.isVarargs();
-    final int arity = (isVarArgs) ? target.getArity() - 1 : target.getArity();
+    final int arity = isVarArgs ? target.getArity() - 1 : target.getArity();
     final int syntheticCount = target.getSyntheticParameterCount();
     context.currentMethodVisitor.visitInvokeDynamicInsn(
         target.getName(),
