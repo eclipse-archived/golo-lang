@@ -1,0 +1,10 @@
+# --- GitPod support for Golo ---
+image:
+  file: .gitpod.Dockerfile
+
+vscode:
+  extensions:
+    - phcharriere.golo@0.0.1:bf6+UXZK3QZrq9URAetOHA==
+    # It's a temporary extension:
+    # The Open VSX Registry is being transitioned to the Eclipse Foundation (December 9)
+    # Once the publishing process established the Golo extension will be published on the The Open VSX Registry
