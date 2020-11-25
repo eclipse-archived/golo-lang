@@ -309,12 +309,16 @@ function mangle = |name| -> match {
 ----
 Enters a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) and [`mangle`](#mangle_1)
 ----
-function enter = |scope| -> SYMBOLS: enter(scope)
+function enterSymScope = |scope| {
+  SYMBOLS: enter(scope)
+}
 
 ----
 Exists a scope in the internal `SymbolGenerator` used by [`gensym`](#gensym_0) and [`mangle`](#mangle_1)
 ----
-function exit = |scope| -> SYMBOLS: exit()
+function exitSymScope = {
+  SYMBOLS: exit()
+}
 
 
 #== Misc utilities =====================================================
@@ -356,3 +360,13 @@ macro = -> gololang.ir.DSL.call(&gololang.macros.Utils.thisModule("myFunction")
 ----
 @contextual
 macro thisModule = |self, name| -> constant(self: enclosingModule(): packageAndClass(): toString() + "." + name: value())
+
+----
+Expands to the fully qualified name of the function in which this macro is called.
+
+Can be used for instance to define variable scopes in macro.
+----
+@contextual
+macro thisFunction = |self| -> constant(
+    self: enclosingModule(): packageAndClass(): toString() + "$" + self: ancestorOfType(GoloFunction.class): getName())
+
