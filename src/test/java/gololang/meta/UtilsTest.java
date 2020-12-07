@@ -8,16 +8,12 @@
  * SPDX-License-Identifier: EPL-2.0
  */
 
-package gololang.macros;
+package gololang.meta;
 
 import org.testng.annotations.Test;
 import org.eclipse.golo.internal.testing.GoloTest;
 
-import java.util.function.*;
-
-
 public class UtilsTest extends GoloTest {
-
   @Override
   public String srcDir() {
     return "for-test/";
@@ -25,7 +21,7 @@ public class UtilsTest extends GoloTest {
 
   @Test
   public void test() throws Throwable {
-    run("macro-utils");
+    load("meta-utils-macro");
+    run("meta-utils");
   }
-
 }
