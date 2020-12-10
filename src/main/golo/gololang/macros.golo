@@ -15,6 +15,7 @@ This module defines the set of predefined macros. It is `&use`d by default.
 module gololang.macros
 
 import gololang.ir
+import gololang.ir.DSL
 import gololang.macros.Utils
 
 ----
@@ -153,3 +154,29 @@ This is a toplevel macro.
 macro useOldstyleDestruct = |self| {
   self: enclosingModule(): metadata("golo.destruct.newstyle", false)
 }
+
+
+----
+Anonymous macro with immediate evaluation.
+----
+@special
+@contextual
+macro eval = |self, visitor, statements...| {
+  let fname = gensym()
+  let mname = self: enclosingModule(): packageAndClass(): createInnerClass(gensym())
+  visitor: useMacroModule(mname: toString())
+  Runtime.load(`module(mname)
+    : `with(
+      `import("gololang.ir"),
+      `import("gololang.ir.DSL"),
+      `import("gololang.ir.Quote"),
+      `import("gololang.macros.Utils"))
+    : add(`macro(fname)
+      : contextual(true)
+      : special(true)
+      : withParameters("self", "visitor")
+      : do(statements)))
+
+  return macroCall(fname)
+}
+
