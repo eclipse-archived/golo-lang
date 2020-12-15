@@ -178,6 +178,28 @@ For convenience, the generated module imports some modules useful while creating
 - [`gololang.ir.DSL`](./ir/DSL.html)
 - [`gololang.ir.Quote`](./ir/Quote.html)
 - [`gololang.macros.Utils`](./macros/Utils.html)
+
+For instance, the module
+```golo
+module Foo
+
+&eval {
+  let fn = map[
+    ["answer", 42],
+    ["foo", "bar"],
+    ["hello", "world"]
+  ]
+  foreach name, value in fn: entrySet() {
+    self: enclosingModule(): add(`function(name): returns(constant(value)))
+  }
+}
+```
+will contain three functions, namely:
+```golo
+function answer = -> 42
+function foo = -> "bar"
+function hello = -> "world"
+```
 ----
 @special
 @contextual
