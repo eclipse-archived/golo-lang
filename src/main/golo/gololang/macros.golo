@@ -158,6 +158,26 @@ macro useOldstyleDestruct = |self| {
 
 ----
 Anonymous macro with immediate evaluation.
+
+This macro generates a module with a macro containing the given statements, load it, and call the macro immediately.
+The generated macro is
+[contextual](../../javadoc/gololang/Predefined.html#contextual-gololang.ir.GoloFunction-) and
+[special](../../javadoc/gololang/Predefined.html#special-gololang.ir.GoloFunction-),
+and as such has two parameters:
+
+- `self`: representing the macro call itself
+- `visitor`: representing the macro expansion visitor
+
+that can be used in the statements.
+
+Beware that this is not a closure, since the macro is defined in a separate module. The statements can't reference
+elements defined in the calling module.
+
+For convenience, the generated module imports some modules useful while creating macros, namely:
+- [`gololang.ir`](../../javadoc/gololang/ir/package-summary.html)
+- [`gololang.ir.DSL`](./ir/DSL.html)
+- [`gololang.ir.Quote`](./ir/Quote.html)
+- [`gololang.macros.Utils`](./macros/Utils.html)
 ----
 @special
 @contextual
