@@ -223,3 +223,22 @@ macro eval = |self, visitor, statements...| {
   return macroCall(fname)
 }
 
+
+
+@special
+@contextual
+macro localMacros = |self, visitor, elements...| {
+  let parent = self: enclosingModule()
+  let submodule = createSubmodule(parent, "Macros", elements)
+  foreach elt in elements {
+    if elt: metadata("export") orIfNull false {
+      parent: add(elt)
+    }
+  }
+  Runtime.load(submodule)
+  visitor: useMacroModule(submodule: packageAndClass(): toString())
+}
+
+macro export = |m| -> m: metadata("export", true)
+
+
