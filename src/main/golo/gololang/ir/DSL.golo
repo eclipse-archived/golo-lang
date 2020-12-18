@@ -61,8 +61,33 @@ augment gololang.ir.GoloModule {
     }
     return this
   }
+
+  ----
+  Creates a submodule of the given module.
+
+  See [`createSubmodule`](#createSubmodule_3v)
+  ----
+  function submodule = |this, name, elements...| -> createSubmodule(this, name, elements)
+
 }
 
+----
+Creates a new module as an inner class of the given module.
+
+- *param* `parentModule`: the containing module
+- *param* `submoduleName`: the base name of the new module
+- *param* `elements`: the top-level golo elements to add to the new module
+- *returns* a new `GoloModule`
+----
+function createSubmodule = |parentModule, submoduleName, elements...| {
+  let submodule = `module(parentModule
+                      : packageAndClass()
+                      : createInnerClass(submoduleName))
+  foreach elt in elements {
+    submodule: add(elt)
+  }
+  return submodule
+}
 
 ----
 Creates an IR [`import`](../../javadoc/gololang/ir/ModuleImport.html) node.

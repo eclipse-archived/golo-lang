@@ -273,6 +273,14 @@ public final class MacroExpansionIrVisitor extends AbstractGoloIrVisitor {
     return expandRegularCalls && !invocation.isAnonymous() && !invocation.isConstant();
   }
 
+  public MacroExpansionIrVisitor useMacroModule(Class<?> cls) {
+    return useMacroModule(cls.getName());
+  }
+
+  public MacroExpansionIrVisitor useMacroModule(GoloModule mod) {
+    return useMacroModule(mod.getPackageAndClass().toString());
+  }
+
   public MacroExpansionIrVisitor useMacroModule(String name) {
     this.finder.addMacroClass(name);
     return this;
