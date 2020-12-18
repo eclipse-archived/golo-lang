@@ -93,11 +93,7 @@ public class MacroTest extends GoloTest {
 
   @Test
   public void eval() throws Throwable {
-    GoloClassLoader gcl = gololang.Runtime.classLoader();
-    ClassLoader ccl = Thread.currentThread().getContextClassLoader();
-    Thread.currentThread().setContextClassLoader(gcl);
-    withClassLoader(gcl);
+    withClassLoader(gololang.Runtime.classLoader());
     run("eval");
-    Thread.currentThread().setContextClassLoader(ccl);
   }
 }
