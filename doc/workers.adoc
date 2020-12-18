@@ -72,39 +72,7 @@ To better understand how workers can be used, here is a (fairly useless) example
 
 [source,golo]
 ----
-module SampleWithWorkers
-
-import java.lang.Thread
-import java.util.concurrent
-import gololang.concurrent.workers.WorkerEnvironment
-
-local function pusher = |queue, message| -> queue: offer(message) # <3>
-
-local function generator = |port, message| { # <1>
-  foreach i in range(0, 100) {
-    port: send(message)                      # <2>
-  }
-}
-
-function main = |args| {
-
-  let env = WorkerEnvironment.builder(): withFixedThreadPool()
-  let queue = ConcurrentLinkedQueue()
-
-  let pusherPort = env: spawn(^pusher: bindTo(queue))
-  let generatorPort = env: spawn(^generator: bindTo(pusherPort))
-
-  let finishPort = env: spawn(|any| -> env: shutdown()) # <5>
-
-  foreach i in range(0, 10) {
-    generatorPort: send("[" + i + "]")
-  }
-  Thread.sleep(2000_L)
-  finishPort: send("Die!") # <4>
-
-  env: awaitTermination(2000)
-  println(queue: reduce("", |acc, next| -> acc + " " + next))
-}
+include::{samples-dir}/workers.golo[lines=8..-1]
 ----
 
 In this example, we spawn 3 workers:

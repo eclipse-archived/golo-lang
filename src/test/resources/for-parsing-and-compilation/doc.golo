@@ -81,8 +81,16 @@ let letState = 1
 
 var varState = []
 
+#tag::union[]
 ----
-A *linked list* (cons)
+Encode a *linked list* as cons cells.
+
+# Examples
+
+A list is constructed from cons
+
+    let myList = Cons(1, Cons(2, Cons(3, Empty())))
+
 ----
 union List = {
   ----
@@ -100,11 +108,12 @@ union List = {
     head,
 
     ----
-    The tail of the list
+    The *tail* of the list
     ----
     tail
   }
 }
+#end::union[]
 
 ----
 A named augmentation

@@ -337,7 +337,7 @@ augment java.util.Collection {
   ----
   New style destructuring helper
 
-  If a remainer is included, it will be a collection of the same type.
+  If a remainer is included, it will be a new collection of the same type.
 
   - *param* `number`: number of variable that will be affected.
   - *param* `substruct`: whether the destructuring is complete or should contains a remainer.

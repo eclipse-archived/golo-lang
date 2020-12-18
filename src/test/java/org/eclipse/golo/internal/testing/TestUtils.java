@@ -50,7 +50,7 @@ public class TestUtils {
   }
 
   public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile) throws IOException, ParseException, ClassNotFoundException {
-    return compileAndLoadGoloModule(sourceFolder, goloFile, new GoloClassLoader(TestUtils.class.getClassLoader()));
+    return compileAndLoadGoloModule(sourceFolder, goloFile, classLoader(TestUtils.class));
   }
 
   public static Class<?> compileAndLoadGoloModule(String sourceFolder, String goloFile, GoloClassLoader goloClassLoader) throws IOException, ParseException, ClassNotFoundException {
@@ -86,22 +86,36 @@ public class TestUtils {
   }
 
   public static GoloClassLoader classLoader(Object o) {
-    return new GoloClassLoader(o.getClass().getClassLoader());
+    Class<?> cls;
+    if (o instanceof Class<?>) {
+      cls = (Class<?>) o;
+    } else {
+      cls = o.getClass();
+    }
+    return new GoloClassLoader(cls.getClassLoader());
+  }
+
+  public static void runTestMethod(Method testMethod, String filename) throws Throwable {
+    try {
+      Tuple result = (Tuple) testMethod.invoke(null);
+      if (result != null) {
+        assertEquals(result.get(0), result.get(1));
+      }
+    } catch (InvocationTargetException e) {
+      fail(String.format("method %s in %s failed: %s",
+            testMethod.getName(),
+            filename,
+            e.getCause()));
+    }
+  }
+
+  public static void runTestMethod(Class<?> module, String methodName, String filename) throws Throwable {
+    runTestMethod(module.getMethod(methodName), filename);
   }
 
   public static void runTestsIn(Class<?> testModule, String filename) throws Throwable {
     for (Method testMethod : getTestMethods(testModule)) {
-      try {
-        Tuple result = (Tuple) testMethod.invoke(null);
-        if (result != null) {
-          assertEquals(result.get(0), result.get(1));
-        }
-      } catch (InvocationTargetException e) {
-        fail("method " + testMethod.getName()
-            + " in " + testModule.getName()
-            + "(" + filename + ")"
-            + " failed: " + e.getCause());
-      }
+      runTestMethod(testMethod, filename);
     }
   }
 
@@ -110,5 +124,4 @@ public class TestUtils {
         compileAndLoadGoloModule(sourceFolder, goloModuleName, classLoader),
         sourceFolder + goloModuleName);
   }
-
 }

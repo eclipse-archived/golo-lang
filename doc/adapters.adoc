@@ -60,21 +60,9 @@ checks on them a in: `(foo oftype gololang.GoloAdapter.class)`.
 
 This is as easy as providing a `java.lang.Iterable` as part of the configuration:
 
-[source,golo]
+[source,golo,indent=0]
 ----
-let result = array[1, 2, 3]
-let conf = map[
-  ["interfaces", ["java.io.Serializable", "java.lang.Runnable"]],
-  ["implements", map[
-    ["run", |this| {
-      for (var i = 0, i < result: length(), i = i + 1) {
-        result: set(i, result: get(i) + 10)
-      }
-    }]
-  ]]
-]
-let runner = AdapterFabric(): maker(conf): newInstance()
-runner: run() # <1>
+include::{tests-dir}/for-execution/adapters.golo[tag=runnable]
 ----
 
 <1> As you may guess, this changes the `result` array values to `[11, 12, 13]`.
@@ -87,14 +75,10 @@ method? In Java, you would use a `super` reference, but Golo does not provide th
 Instead, you can override methods, and have the parent class implementation given to you as a
 method handle parameter:
 
-[source,golo]
+[source,golo,indent=0]
 ----
-let conf = map[
-  ["overrides", map[
-    ["toString", |super, this| -> ">>> " + super(this)]
-  ]]
-]
-println(AdapterFabric(): maker(conf): newInstance(): toString()) # <1>
+include::{tests-dir}/for-execution/adapters.golo[tag=overrideToString]
+  println(val: toString()) # <1>
 ----
 
 <1> This prints something like: `>>> $Golo$Adapter$0@12fc7ceb`.
@@ -111,26 +95,7 @@ Let us see a concrete example:
 
 [source,golo]
 ----
-let carbonCopy = list[] # <1>
-let conf = map[
-  ["extends", "java.util.ArrayList"],
-  ["overrides", map[
-    ["*", |super, name, args| { # <2>
-      if name == "add" {
-        if args: length() == 2 {
-          carbonCopy: add(args: get(1))  # <3>
-        } else {
-          carbonCopy: add(args: get(1), args: get(2)) # <4>
-        }
-      }
-      return super: spread(args)  # <5>
-    }
-  ]]
-]]
-let list = AdapterFabric(): maker(conf): newInstance()
-list: add("bar")
-list: add(0, "foo")
-list: add("baz")  # <6>
+include::{tests-dir}/for-execution/adapters.golo[tag=add_arraylist]
 ----
 
 <1> We create an empty list, more on that later.
@@ -200,51 +165,28 @@ function main = |args| {
 
 ==== Implementing interfaces
 
-[source,golo]
+[source,golo,indent=0]
 ----
-let result = array[1, 2, 3]
-let conf = Adapter(): interfaces(["java.io.Serializable", "java.lang.Runnable"])
-  : implements("run", |this| {
-      for (var i = 0, i < result: length(), i = i + 1) {
-        result: set(i, result: get(i) + 10)
-      }
-  })
-let runner = conf: newInstance()
-runner: run() # <1>
+include::{tests-dir}/for-execution/adapters-helper.golo[tag=runnable]
 ----
 
 <1> As you may guess, this changes the `result` array values to `[11, 12, 13]`.
 
 ==== Overrides
 
-[source,golo]
+[source,golo,indent=0]
 ----
-let conf = Adapter(): overrides("toString", |super, this| -> ">>> " + super(this))
-println(conf: newInstance(): toString()) # <1>
+include::{tests-dir}/for-execution/adapters-helper.golo[tag=overrideToString]
+  println(val) # <1>
 ----
 
 <1> This prints something like: `>>> $Golo$Adapter$0@12fc7ceb`.
 
 ==== Star implementations and overrides
 
-[source,golo]
+[source,golo,indent=0]
 ----
-let carbonCopy = list[] # <1>
-let conf = Adapter(): extends("java.util.ArrayList")
-  : overrides("*", |super, name, args| {
-      if name == "add" {
-        if args: length() == 2 {
-          carbonCopy: add(args: get(1))
-        } else {
-          carbonCopy: add(args: get(1), args: get(2))
-        }
-      }
-      return super: invoke(args)
-  })
-let list = conf: newInstance()
-list: add("bar")
-list: add(0, "foo")
-list: add("baz")  # <1>
+include::{tests-dir}/for-execution/adapters-helper.golo[tag=add_arraylist]
 ----
 
 <1> At this point `carbonCopy` contains `["foo", "bar", "baz"]` (and so does `list`, too).

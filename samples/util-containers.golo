@@ -10,12 +10,12 @@ module MoreCoolContainers
 function main = |args| {
 
   println(">>> DynamicVariable")
-
+#tag::dynamicvariable[]
   let dyn = DynamicVariable("Foo")
   println(dyn: value())
 
   let t1 = Thread({
-  dyn: withValue(666, {
+    dyn: withValue(666, {
       println(dyn: value())
     })
   })
@@ -31,9 +31,10 @@ function main = |args| {
   t1: join()
   t2: join()
   println(dyn: value())
+#end::dynamicvariable[]
 
   println(">>> Observable")
-
+#tag::observable[]
   let foo = Observable("Foo")
   foo: onChange(|v| -> println("foo = " + v))
 
@@ -41,4 +42,5 @@ function main = |args| {
   mapped: onChange(|v| -> println("mapped = " + v))
 
   foo: set("69")
+#end::observable[]
 }

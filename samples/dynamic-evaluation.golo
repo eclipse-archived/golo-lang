@@ -10,6 +10,7 @@ module samples.DynamicEvaluation
 import gololang.EvaluationEnvironment
 
 local function test_asModule = |env| {
+#tag::asModule[]
   let code =
 """
 module foo
@@ -23,9 +24,11 @@ function b = -> "b!"
   println(">>> asModule()")
   println(a())
   println(b())
+#end::asModule[]
 }
 
 local function test_anonymousModule = |env| {
+#tag::anonymousModule[]
   let code =
 """
 function a = -> "a."
@@ -37,37 +40,47 @@ function b = -> "b."
   println(">>> anonymousModule()")
   println(a())
   println(b())
+#end::anonymousModule[]
 }
 
 local function test_asFunction = |env| {
+#tag::asFunction[]
   let code = "return (a + b) * 2"
   let f = env: asFunction(code, "a", "b")
   println(">>> asFunction")
   println(f(10, 20))
+#end::asFunction[]
 }
 
 local function test_def = |env| {
+#tag::def[]
   let code = "|a, b| -> (a + b) * 2"
   let f = env: def(code)
   println(">>> def")
   println(f(10, 20))
+#tag::def[]
 }
 
 local function test_run = |env| {
+#tag::run[]
   let code = """println(">>> run")
   foreach (i in range(0, 3)) {
     println("w00t")
-  }"""
-  env: run(code)
+  }
+  return 666"""
+  println(env: run(code)) # => "w00t"x3 and "666"
+#end::run[]
 }
 
 local function test_run_map = |env| {
+#tag::map[]
   let code = """println(">>> run_map")
   println(a)
   println(b)
   """
   let values = java.util.TreeMap(): add("a", 1): add("b", 2)
   env: run(code, values)
+#end::map[]
 }
 
 function main = |args| {

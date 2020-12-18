@@ -23,9 +23,10 @@ http://en.wikipedia.org/wiki/Decorator_pattern[GoF Pattern], with good reason.
 This pattern describe a design that allow an object to be augmented by wrapping
 it in an other object with the same interface, delegating operations to the
 wrapped object. This is exactly what a decorator does here, the interface
-being "function" (more precisely a `gololang.FunctionReference`).
+being “function” (more precisely a link:{javadoc}/gololang/FunctionReference[`gololang.FunctionReference`]).
 
 
+[[deco_principles]]
 === Principles and syntax
 
 As in Python, and similarly to Java annotations, a decorator is used with a
@@ -280,6 +281,8 @@ The `@curry` decorator transform the `add` function that takes two arguments,
 into a function that takes only one argument and returns a function that takes
 the second argument and finally return the result of the addition.
 
+NOTE: A more refined version of this `curry` decorator is available in the link:{golodoc}/gololang/Functions#curry_1[`gololang.Functions`] standard module
+
 NOTE: A decorator is applied only if the decorated function is called from Golo
 code. For example if you try to call a decorated Golo function from Java code
 it will not be the decorated function that will be called but the original one.
@@ -328,10 +331,10 @@ decorator!
 42
 ----
 
-
 Let's now illustrate with some use cases and examples, with a presentation of
 some decorators of the standard module
 link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`].
+
 
 === Use cases and examples
 
@@ -342,10 +345,11 @@ http://en.wikipedia.org/wiki/Decorator_pattern[Decorator design pattern],
 but your imagination is your limit.
 Some are presented here for illustration.
 
+
 ==== Logging
 
 Logging is a classical example use case of AOP. See the
-xref:_principles_and_syntax[Principles and syntax] section for an example.
+<<deco_principles,Principles and syntax>> section for an example.
 
 
 ==== Pre/post conditions checking
@@ -357,7 +361,7 @@ returned values, of a function.
 Indeed, a decorated can execute code before delegating to the decorated
 function, of after the delegation.
 
-The module link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`] provide two
+The module link:{golodoc}/gololang/Decorators.html[`gololang.Decorators`] provides two
 decorators and several utility functions to check pre and post conditions.
 
 `checkResult` is a parametrized decorator taking a checker as parameter. It
@@ -448,8 +452,8 @@ let isPositive = asChecker(|v| -> v > 0, "is not positive")
 let isInteger = isOfType(Integer.class)
 ----
 
-The full set of standard checkers is documented in the generated *golodoc*
-(hint: look for `doc/golodoc` in the Golo distribution).
+The full set of standard checkers is documented in the
+link:{golodoc}/gololang/Decorators[generated _golodoc_].
 
 ==== Locking
 
@@ -541,9 +545,9 @@ function fact = |n| {
 Decorators can be used to define a generic wrapper around a function, that
 extends the previous example (and can be used to implement most of them).
 This functionality is provided by the
-link:{golodoc}/gololang/Decorators.html#withContext_context[`gololang.Decorators.withContext`]
+link:{golodoc}/gololang/Decorators.html#withContext_1[`gololang.Decorators::withContext`]
 standard decorator. This decorator take a context, such as the one returned by
-link:{golodoc}/gololang/Decorators.html#defaultContext_[`gololang.Decorators.defaultContext`]
+link:{golodoc}/gololang/Decorators.html#defaultContext_0[`gololang.Decorators::defaultContext`]
 function.
 
 A context is an object with 4 defined methods:
@@ -556,7 +560,7 @@ A context is an object with 4 defined methods:
          takes the exception as parameter;
 * `finallizer`, that is called in a `finally` clause after function execution.
 
-The context returned by `gololang.Decorators.defaultContext` is a void one, that
+The context returned by link:{golodoc}/gololang/Decorators#defaultContext_0[`gololang.Decorators::defaultContext`] is a void one, that
 is `entry` and `exit` return their parameters unchanged,
 `catcher` rethrow the exception and `finallizer` does nothing.
 
@@ -574,44 +578,7 @@ Here is an usage example:
 
 [source,golo]
 ----
-module samples.ContextDecorator
-
-import gololang.Decorators
-
-let myContext = defaultContext():
-  count(0):
-  define("entry", |this, args| {
-    this: count(this: count() + 1)
-    println("hello:" + this: count())
-    return args
-  }):
-  define("exit", |this, result| {
-    require(result >= 3, "wrong value")
-    println("goobye")
-    return result
-  }):
-  define("catcher", |this, e| {
-    println("Caught " + e)
-    throw e
-  }):
-  define("finallizer", |this| {println("do some cleanup")})
-
-
-@withContext(myContext)
-function foo = |a, b| {
-  println("Hard computation")
-  return a + b
-}
-
-function main = |args| {
-  println(foo(1,2))
-  println("====")
-  println(withContext(myContext)(|a| -> 2*a)(3))
-  println("====")
-  try {
-    println(foo(1, 1))
-  } catch (e) { }
-}
+include::{samples-dir}/context-decorator.golo[lines=8..-1]
 ----
 
 which prints

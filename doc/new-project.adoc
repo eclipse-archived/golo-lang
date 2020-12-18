@@ -2,7 +2,7 @@
 
 The link:{man}/golo-new.html[`golo new`] command can create new Golo project(s):
 
-[source]
+[source,sh]
 ----
 $ golo new Foo
 ----
@@ -21,7 +21,7 @@ NOTE: The default value of the `--type` parameter can be changed by setting the 
 
 As an example if you want to create a Maven-driven project, just add `--type maven`:
 
-[source]
+[source,sh]
 ----
 $ golo new Foo --type maven
 ----
@@ -29,7 +29,7 @@ $ golo new Foo --type maven
 By default we create the project directory where the `golo` command is run. If you need to create
 your project directory elsewhere you can use the `--path` command argument:
 
-[source]
+[source,sh]
 ----
 $ golo new Bar --path /opt/golo
 ----
@@ -40,7 +40,7 @@ This creates the project directory named `Bar` in `/opt/golo`.
 
 The structure of a free-form project is as follows:
 
-[source]
+[source,sh]
 ----
 $ tree Foo
 Foo
@@ -53,7 +53,7 @@ Foo
 
 The structure of a Maven-driven project is as follows:
 
-[source]
+[source,sh]
 ----
 $ tree Foo/
 Foo/
@@ -69,7 +69,7 @@ Foo/
 ----
 
 The project can be built and packaged with Maven using the following command:
-[source]
+[source,sh]
 ----
 $ mvn package
 ----
@@ -78,21 +78,21 @@ You can now run the module `Foo` with:
 
  * `mvn`
 
-[source]
+[source,sh]
 ----
 $ mvn exec:java
 ----
 
  * `java`
 
-[source]
+[source,sh]
 ----
 $ java -jar target/Foo-*-jar-with-dependencies.jar
 ----
 
  * `golo`
 
-[source]
+[source,sh]
 ----
 $ cd target/classes
 $ golo run --module Foo
@@ -102,7 +102,7 @@ $ golo run --module Foo
 
 The structure of a Gradle-driven project is as follows:
 
-[source]
+[source,sh]
 ----
 $ tree Foo/
 Foo/
@@ -118,7 +118,7 @@ Foo/
 ----
 
 The project can be built and packaged with Gradle using the following command:
-[source]
+[source,sh]
 ----
 $ gradle build
 ----
@@ -127,14 +127,14 @@ You can now run the module `Foo` with:
 
  * `gradle`
 
-[source]
+[source,sh]
 ----
 $ gradle run
 ----
 
  * `golo`
 
-[source]
+[source,sh]
 ----
 $ cd build/classes/main
 $ golo run --module Foo

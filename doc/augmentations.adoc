@@ -243,6 +243,7 @@ with the previous `FooBar` augmentation will raise
 `java.lang.NoSuchMethodError: class java.lang.Integer::length`
 at *runtime* when trying to call `1:bar(1)`. Calling `1:foo()` will be OK however.
 
+[[augment_order]]
 === Augmentations Resolution Order
 
 The augmentations resolution order is as follows:
@@ -264,7 +265,8 @@ The augmentations resolution order is as follows:
    using the same order than locally applied ones, in the importation order.
 
 The first matching method found is used. It is thus possible to “override” an
-augmentation with a more higher priority one (in the sens of the previous order). xref:implicit_imports[Implicit modules] are imported after explicit ones to allow to redefine standard augmentations.
+augmentation with a more higher priority one (in the sens of the previous order).
+<<implicit_imports,Implicit modules>> are imported after explicit ones to allow to redefine standard augmentations.
 
 TIP: Since importing a module imports all the applied augmentations, and given
 the somewhat complex resolution order when involving simple and named

@@ -7,6 +7,7 @@ function serializable = {
 }
 
 function runnable = {
+#tag::runnable[]
   let result = array[1, 2, 3]
   let conf = Adapter(): interfaces(["java.io.Serializable", "java.lang.Runnable"])
     : implements("run", |this| {
@@ -15,13 +16,17 @@ function runnable = {
         }
     })
   let runner = conf: newInstance()
-  runner: run()
+  runner: run() # <1>
+#end::runnable[]
   return result
 }
 
 function override_toString = {
+#tag::overrideToString[]
   let conf = Adapter(): overrides("toString", |super, this| -> ">>> " + super(this))
-  return conf: newInstance()
+  let val = conf: newInstance()
+#end::overrideToString[]
+  return val
 }
 
 function construct_arraylist = {
@@ -30,6 +35,7 @@ function construct_arraylist = {
 }
 
 function add_arraylist = {
+#tag::add_arraylist[]
   let carbonCopy = list[]
   let conf = Adapter(): extends("java.util.ArrayList")
     : overrides("*", |super, name, args| {
@@ -45,6 +51,7 @@ function add_arraylist = {
   let list = conf: newInstance()
   list: add("bar")
   list: add(0, "foo")
-  list: add("baz")
+  list: add("baz")    # <1>
+#end::add_arraylist[]
   return carbonCopy
 }

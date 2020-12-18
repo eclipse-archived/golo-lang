@@ -108,7 +108,7 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("<li><a href=\"#List\">List</a>"));
     assertThat(result, containsString("<li><code id=\"List.Cons.head\">head</code>"));
     assertThat(result, containsString("<li><code id=\"List.Cons.tail\">tail</code>"));
-    assertThat(result, containsString("A <em>linked list</em>"));
+    assertThat(result, containsString("Encode a <em>linked list</em> as cons cells"));
     assertThat(result, containsString("A <em>cell</em> in the list"));
     assertThat(result, containsString("The <em>head</em> of the list"));
     assertThat(result, containsString("<a href=\"Documented-src.html#l-67\" rel=\"source\""));
@@ -220,11 +220,11 @@ public class DocumentationRenderingTest {
     assertThat(result, containsString("x\tfile\t/struct[:blank:]+Point[:blank:]+=/;\"\tm\tline:72\taccess:public\tstruct:Point\tlanguage:golo"));
     assertThat(result, containsString("zig\tfile\t/function[:blank:]+zig[:blank:]+=/;\"\tf\tline:58\taccess:public\tsignature:(this, x)\taugment:java.lang.String\tlanguage:golo"));
 
-    assertThat(result, containsString("Cons\tfile\t/[:blank:]+Cons[:blank:]+[:blank:]*=[:blank:]+{;\"\te\tline:96\tunion:List\tlanguage:golo"));
-    assertThat(result, containsString("Empty\tfile\t/[:blank:]+Empty[:blank:]+;\"\te\tline:91\tunion:List\tlanguage:golo"));
-    assertThat(result, containsString("List\tfile\t/^union[:blank:]+List[:blank:]+=[:blank:]+{/;\"\tg\tline:87\tlanguage:golo"));
-    assertThat(result, containsString("head\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:100\taccess:public\tvalue:Cons\tlanguage:golo"));
-    assertThat(result, containsString("tail\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:105\taccess:public\tvalue:Cons\tlanguage:golo"));
+    assertThat(result, containsString("Cons\tfile\t/[:blank:]+Cons[:blank:]+[:blank:]*=[:blank:]+{;\"\te\tline:104\tunion:List\tlanguage:golo"));
+    assertThat(result, containsString("Empty\tfile\t/[:blank:]+Empty[:blank:]+;\"\te\tline:99\tunion:List\tlanguage:golo"));
+    assertThat(result, containsString("List\tfile\t/^union[:blank:]+List[:blank:]+=[:blank:]+{/;\"\tg\tline:95\tlanguage:golo"));
+    assertThat(result, containsString("head\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:108\taccess:public\tvalue:Cons\tlanguage:golo"));
+    assertThat(result, containsString("tail\tfile\t/[:blank:]+Cons[:blank:]+=/;\"\tm\tline:113\taccess:public\tvalue:Cons\tlanguage:golo"));
 
     result = processor.render(loadDoc(new File(SRC, "docpackage/macros.golo")));
     assertThat(result, containsString("foo\tfile\t/macro[:blank:]+foo[:blank:]+=/;\"\td\tline:11\taccess:public\tsignature:()\tlanguage:golo"));

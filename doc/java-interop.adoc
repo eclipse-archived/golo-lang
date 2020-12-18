@@ -21,7 +21,7 @@ function main = |args| {
 
 Once compiled, we may invoke it as follows:
 
-[source]
+[source,sh]
 ----
 $ golo compile mainEntryPoint.golo
 $ java -cp ".:golo.jar" mainEntryPoint GoloRocks
@@ -79,7 +79,7 @@ public class Printer {
 }
 ----
 
-[source]
+[source,sh]
 ----
 $ javac -parameters Printer.java
 ----
@@ -366,26 +366,12 @@ Let us consider the following example:
 
 [source,golo]
 ----
-module sample.EnumsThreadState
-
-import java.lang.Thread$State
-
-function main = |args| {
-
-  # Call the enum entry like a function
-  let new = Thread$State.NEW()
-  println("name=" + new: name() + ", ordinal=" + new: ordinal())
-
-  # Walk through all enum entries
-  foreach element in Thread$State.values() {
-    println("name=" + element: name() + ", ordinal=" + element: ordinal())
-  }
-}
+include::{samples-dir}/enums-thread-state.golo[lines=8..-1]
 ----
 
 Running it yields the following console output:
 
-[source]
+[source,sh]
 ----
 $ golo golo --files samples/enums-thread-state.golo
 name=NEW, ordinal=0

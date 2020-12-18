@@ -5,9 +5,11 @@
 # conditions of the Eclipse Distribution License v1.0 which is available
 # at http://www.eclipse.org/org/documents/edl-v10.php
 
+#tag::def[]
 module StructDemo
 
 struct Point = { x, y }
+#end::def[]
 
 augment StructDemo.types.Point {
 
@@ -20,16 +22,13 @@ augment StructDemo.types.Point {
   function relative = |this, offsetX, offsetY| -> Point(this: x() + offsetX, this: y() + offsetY)
 }
 
+#tag::main[]
 function main = |args| {
 
   let p1 = Point(1, 2)
   let p2 = Point(): x(1): y(2)
   let p3 = p1: frozenCopy()
   let p4 = p1: frozenCopy()
-
-  println(p1)
-  println("x = " + p1: x())
-  println("y = " + p1: y())
 
   println("p1 == p2 " + (p1 == p2))
   println("p1 == p3 " + (p1 == p3))
@@ -39,6 +38,11 @@ function main = |args| {
   println("#p2 " + p2: hashCode())
   println("#p3 " + p3: hashCode())
   println("#p4 " + p4: hashCode())
+#end::main[]
+
+  println(p1)
+  println("x = " + p1: x())
+  println("y = " + p1: y())
 
   println("p1: members() " + p1: members())
   println("p1: values() " + p1: values())

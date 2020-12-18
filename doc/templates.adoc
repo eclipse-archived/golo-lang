@@ -9,29 +9,7 @@ Consider the following example.
 
 [source,golo]
 ----
-let template = """
-<%@params posts %>
-<!DOCTYPE html>
-<html>
-  <head>
-    <title>Golo Chat</title>
-  </head>
-  <body>
-  <form action="/" method="post">
-    <input type="text" name="msg">
-    <input type="submit" value="Send">
-  </form>
-  <div>
-    <h3>Last posts</h3>
-    <% foreach post in posts { %>
-      <div>
-        <%= post %>
-      </div>
-    <% } %>
-  </div>
-  </body>
-</html>
-"""
+include::{samples-dir}/templates-chat-webapp.golo[tag=template]
 ----
 
 This multi-line string has a Golo template. It can be compiled into a function as follows:

@@ -49,7 +49,9 @@ local function index = |posts, template, exchange| {
   }
 }
 
-local function index_template = -> """
+local function index_template = {
+#tag::template[]
+  let template = """
 <%@params posts %>
 <!DOCTYPE html>
 <html>
@@ -72,6 +74,9 @@ local function index_template = -> """
   </body>
 </html>
 """
+#end::template[]
+  return template
+}
 
 function main = |args| {
   let index_tpl = gololang.TemplateEngine(): compile(index_template())

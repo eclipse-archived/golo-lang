@@ -1,3 +1,4 @@
+[[structs]]
 == Structs
 
 Golo allows the definition of simple structures using the `struct` keyword. They resemble structures
@@ -194,25 +195,9 @@ Consider the following program:
 
 [source,golo]
 ----
-module test
+include::{samples-dir}/structs.golo[tag=def]
 
-struct Point = { x, y }
-
-function main = |args| {
-
-  let p1 = Point(1, 2)
-  let p2 = Point(1, 2)
-  let p3 = p1: frozenCopy()
-  let p4 = p1: frozenCopy()
-
-  println("p1 == p2 " + (p1 == p2))
-  println("p1 == p3 " + (p1 == p3))
-  println("p3 == p4 " + (p3 == p4))
-
-  println("#p1 " + p1: hashCode())
-  println("#p2 " + p2: hashCode())
-  println("#p3 " + p3: hashCode())
-  println("#p4 " + p4: hashCode())
+include::{samples-dir}/structs.golo[tag=main]
 }
 ----
 
