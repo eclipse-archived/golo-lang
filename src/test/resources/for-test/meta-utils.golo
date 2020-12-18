@@ -26,14 +26,21 @@ function test_inherit = {
   assertThat(a: answer(), `is(42))
 }
 
-@makeTest
-@withMetadata("themeta", 42)
+@makeTest("the.meta data")
+@withMetadata("the.meta data", 42)
 function f = {
+
+}
+
+@makeTest("themeta")
+@meta(themeta="ab")
+function g = {
 
 }
 
 function test_macro = {
   assertThat(f(), `is(42))
+  assertThat(g(), `is("ab"))
 }
 
 function main = |args| {

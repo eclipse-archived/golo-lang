@@ -14,24 +14,6 @@ Utilities to deal with meta-programming.
 ----
 module gololang.meta.Utils
 
-----
-Adds metadata to an element.
-
-The metadata can be used by another macro, for instance to conditionally deal with the marked element.
-
-The metadata value must be a value convertible by
-[`gololang.macros.Utils::getLiteralValue`](../macros/Utils.html#getLiteralValue_1)
-
-- *param* `key`: the metadata key (as a String)
-- *param* `value`: the metadata value
-- *param* `element`: the element to which add the metadata
-- *returns* the element itself, with metadata added.
-----
-macro withMetadata = |key, value, element| -> element: metadata(
-  key: value(),
-  gololang.macros.Utils.getLiteralValue(value))
-
-
 
 augment gololang.ir.GoloElement {
 
