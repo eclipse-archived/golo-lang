@@ -15,6 +15,7 @@ This module defines the set of predefined macros. It is `&use`d by default.
 module gololang.macros
 
 import gololang.ir
+import gololang.ir.DSL
 import gololang.macros.Utils
 
 ----
@@ -153,3 +154,91 @@ This is a toplevel macro.
 macro useOldstyleDestruct = |self| {
   self: enclosingModule(): metadata("golo.destruct.newstyle", false)
 }
+
+
+----
+Anonymous macro with immediate evaluation.
+
+This macro generates a module with a macro containing the given statements, load it, and call the macro immediately.
+The generated macro is
+[contextual](../../javadoc/gololang/Predefined.html#contextual-gololang.ir.GoloFunction-) and
+[special](../../javadoc/gololang/Predefined.html#special-gololang.ir.GoloFunction-),
+and as such has two parameters:
+
+- `self`: representing the macro call itself
+- `visitor`: representing the macro expansion visitor
+
+that can be used in the statements.
+
+Beware that this is not a closure, since the macro is defined in a separate module. The statements can't reference
+elements defined in the calling module.
+
+For convenience, the generated module imports some modules useful while creating macros, namely:
+- [`gololang.ir`](../../javadoc/gololang/ir/package-summary.html)
+- [`gololang.ir.DSL`](./ir/DSL.html)
+- [`gololang.ir.Quote`](./ir/Quote.html)
+- [`gololang.macros.Utils`](./macros/Utils.html)
+
+For instance, the module
+```golo
+module Foo
+
+&eval {
+  let fn = map[
+    ["answer", 42],
+    ["foo", "bar"],
+    ["hello", "world"]
+  ]
+  foreach name, value in fn: entrySet() {
+    self: enclosingModule(): add(`function(name): returns(constant(value)))
+  }
+}
+```
+will contain three functions, namely:
+```golo
+function answer = -> 42
+function foo = -> "bar"
+function hello = -> "world"
+```
+----
+@special
+@contextual
+macro eval = |self, visitor, statements...| {
+  let fname = gensym()
+  visitor: useMacroModule(
+    Runtime.load(
+      createSubmodule(self: enclosingModule(), gensym(),
+        `import("gololang.ir"),
+        `import("gololang.ir.DSL"),
+        `import("gololang.ir.Quote"),
+        `import("gololang.macros.Utils"),
+        `macro(fname)
+          : contextual(true)
+          : special(true)
+          : withParameters("self", "visitor")
+          : do(statements)
+      )
+    )
+  )
+  return macroCall(fname)
+}
+
+
+
+@special
+@contextual
+macro localMacros = |self, visitor, elements...| {
+  let parent = self: enclosingModule()
+  let submodule = createSubmodule(parent, "Macros", elements)
+  foreach elt in elements {
+    if elt: metadata("export") orIfNull false {
+      parent: add(elt)
+    }
+  }
+  Runtime.load(submodule)
+  visitor: useMacroModule(submodule: packageAndClass(): toString())
+}
+
+macro export = |m| -> m: metadata("export", true)
+
+

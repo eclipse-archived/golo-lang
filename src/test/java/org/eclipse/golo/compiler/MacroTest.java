@@ -90,4 +90,10 @@ public class MacroTest extends GoloTest {
     load("with-init-macros2");
     run("with-init");
   }
+
+  @Test
+  public void eval() throws Throwable {
+    withClassLoader(gololang.Runtime.classLoader());
+    run("eval");
+  }
 }

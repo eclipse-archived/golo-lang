@@ -118,12 +118,18 @@ public final class Runtime {
     return command;
   }
 
+  private static final ThreadLocal<GoloClassLoader> currentClassLoader = ThreadLocal.withInitial(Runtime::initClassLoader);
+
   /**
    * Returns the current thread class loader.
    * <p>
    * Possibly wrapped in a {@code GoloClassLoader} if necessary.
    */
   public static GoloClassLoader classLoader() {
+    return currentClassLoader.get();
+  }
+
+  private static GoloClassLoader initClassLoader() {
     ClassLoader cl = Thread.currentThread().getContextClassLoader();
     if (cl instanceof GoloClassLoader) {
       return (GoloClassLoader) cl;

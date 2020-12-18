@@ -211,6 +211,8 @@ $ golo golo --files app.golo
 
 As a consequence, a macro can't be used in the module that defines it.
 
+However, the link:{golodoc}/gololang/macros.html#eval_3v[eval macro] allows to execute anonymous statements in the current module.
+
 ===============
 
 [[substituting_macros]]

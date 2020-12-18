@@ -44,6 +44,10 @@ public abstract class GoloTest {
     return RESOURCES + srcDir() + moduleName + ".golo";
   }
 
+  public void withClassLoader(GoloClassLoader loader) {
+    this.loader = loader;
+  }
+
   public abstract String srcDir();
 
   @BeforeMethod

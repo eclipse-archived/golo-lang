@@ -1000,6 +1000,7 @@ public final class Predefined {
    *   ...
    * }
    * </code></pre>
+   * <p>See also the <a href="../../golo-guide.html#special_macros">Golo Guide</a>
    */
   @Macro
   public static GoloElement<?> special(GoloFunction fun) {
@@ -1026,6 +1027,8 @@ public final class Predefined {
    *   ...
    * }
    * </code></pre>
+   *
+   * <p>See also the <a href="../../golo-guide.html#contextual_macros">Golo Guide</a>
    */
   @Macro
   public static GoloElement<?> contextual(GoloFunction fun) {
