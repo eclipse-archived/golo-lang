@@ -256,6 +256,17 @@ public abstract class GoloElement<T extends GoloElement<T>> {
   }
 
   /**
+   * Retrieve metadata, searching all element hierarchy.
+   */
+  public final Object inheritedMetadata(String name) {
+    Object m = this.meta.get(name);
+    if (m != null || this.parent == null || this.parent == this) {
+      return m;
+    }
+    return this.parent.inheritedMetadata(name);
+  }
+
+  /**
    * Stores a meta-data in this element.
    * <p>
    * A meta-data can be any object. The main purpose is to allow visitors or macros to store some generic informations in the IR

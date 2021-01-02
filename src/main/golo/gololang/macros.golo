@@ -153,3 +153,57 @@ This is a toplevel macro.
 macro useOldstyleDestruct = |self| {
   self: enclosingModule(): metadata("golo.destruct.newstyle", false)
 }
+
+----
+Adds metadata to an element.
+
+The metadata can be used by another macro, for instance to conditionally deal with the marked element.
+
+The metadata value must be a value convertible by
+[`gololang.macros.Utils::getLiteralValue`](../macros/Utils.html#getLiteralValue_1)
+
+This macro is called with named parameters for metadata followed with the element to annotate, as in:
+
+```golo
+@meta(foo="bar", answer=42)
+function example = -> null
+```
+
+It is similar to [`withMetadata`](#withMetadata_3), but with a more convenient syntax, and allows to add several
+metadata at once.
+
+- *param* `key=value` sequence
+- *param* `element`: the element to which add the metadata
+- *returns* the element itself, with metadata added.
+
+See also [`withMetadata`](#withMetadata_3)
+----
+macro meta = |args...| {
+  let _, n, elt = parseArguments(args, true)
+  foreach k, v in n: entrySet() {
+    elt: metadata(k, getLiteralValue(v))
+  }
+  return elt
+}
+
+----
+Adds metadata to an element.
+
+The metadata can be used by another macro, for instance to conditionally deal with the marked element.
+
+The metadata value must be a value convertible by
+[`gololang.macros.Utils::getLiteralValue`](../macros/Utils.html#getLiteralValue_1)
+
+This macro is similar to [`meta`](#meta_1v), but allows to use a key with a name not allowed by the named parameter
+syntax (for instance `"foo.bar Bz"`.
+
+- *param* `key`: the metadata key (as a String)
+- *param* `value`: the metadata value
+- *param* `element`: the element to which add the metadata
+- *returns* the element itself, with metadata added.
+
+See also [`meta`](#meta_1v)
+----
+macro withMetadata = |key, value, element| -> element: metadata(key: value(), getLiteralValue(value))
+
+
