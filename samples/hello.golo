@@ -1,5 +1,5 @@
 #!/usr/bin/env golosh
-# Copyright (c) 2012-2020 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
+# Copyright (c) 2012-2021 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
 #
 # All rights reserved. This Example Content is intended to demonstrate
 # usage of Eclipse technology. It is provided to you under the terms and

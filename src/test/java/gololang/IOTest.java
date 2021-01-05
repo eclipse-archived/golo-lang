@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2012-2020 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
+ * Copyright (c) 2012-2021 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
  *
  * This program and the accompanying materials are made available under the
  * terms of the Eclipse Public License 2.0 which is available at
@@ -30,7 +30,7 @@ public class IOTest {
     assertThat(text, containsString("ASM"));
     assertThat(text, containsString("INRIA"));
     assertThat(text, containsString("DAMAGE"));
-    assertThat(text, containsString("INSA-Lyon"));
+    assertThat(text, containsString("INSA Lyon"));
   }
 
   @Test

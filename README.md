@@ -16,7 +16,7 @@ Eclipse Golo was originally created by [Julien Ponge](https://julien.ponge.org/)
 and developed as part of the research activities of the
 [DynaMid](http://dynamid.citi-lab.fr/) group of the
 [CITI Laboratory](http://www.citi-lab.fr/) at
-[INSA-Lyon](http://www.insa-lyon.fr/).
+[INSA Lyon](http://www.insa-lyon.fr/).
 
 Eclipse Golo is a _mature_ Eclipse Technology Project.
 
@@ -72,7 +72,7 @@ The complete list of tasks is available by running `./gradlew tasks`.
 
 ## License
 
-    Copyright (c) 2012-2020 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
+    Copyright (c) 2012-2021 Institut National des Sciences Appliquées de Lyon (INSA Lyon) and others
 
     This program and the accompanying materials are made available under the
     terms of the Eclipse Public License 2.0 which is available at
