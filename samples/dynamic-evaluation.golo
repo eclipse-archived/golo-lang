@@ -58,7 +58,7 @@ local function test_def = |env| {
   let f = env: def(code)
   println(">>> def")
   println(f(10, 20))
-#tag::def[]
+#end::def[]
 }
 
 local function test_run = |env| {
