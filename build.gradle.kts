@@ -14,9 +14,9 @@ import org.apache.tools.ant.filters.ReplaceTokens
 import com.adarshr.gradle.testlogger.theme.ThemeType.MOCHA
 
 plugins {
-  id("com.github.ben-manes.versions") version "0.29.0"
-  id("net.nemerosa.versioning") version "2.8.2"
-  id("com.adarshr.test-logger") version "2.1.0"
+  id("com.github.ben-manes.versions") version "0.36.0"
+  id("net.nemerosa.versioning") version "2.14.0"
+  id("com.adarshr.test-logger") version "2.1.1"
 
   `java-library`
   application
@@ -24,11 +24,11 @@ plugins {
   signing
 
   id("ca.coglinc.javacc") version "2.4.0"
-  id("org.asciidoctor.jvm.convert") version "3.1.0"
+  id("org.asciidoctor.jvm.convert") version "3.3.0"
 }
 
 repositories {
-  jcenter()
+  mavenCentral()
 }
 
 group = "org.eclipse.golo"
@@ -45,7 +45,7 @@ val isReleaseVersion = !version.toString().endsWith("SNAPSHOT")
 
 dependencies {
   implementation("org.ow2.asm:asm:8.0")
-  implementation("com.beust:jcommander:1.71")
+  implementation("com.beust:jcommander:1.72")
   implementation("com.github.rjeschke:txtmark:0.13")
   implementation("com.googlecode.json-simple:json-simple:1.1.1")
 
@@ -366,5 +366,5 @@ signing {
 
 tasks.wrapper {
   distributionType = Wrapper.DistributionType.ALL
-  gradleVersion = "6.7"
+  gradleVersion = "6.8.1"
 }
