@@ -32,7 +32,7 @@ repositories {
 }
 
 group = "org.eclipse.golo"
-version = "3.4.0-SNAPSHOT"
+version = "3.4.0"
 
 val generatedSourcesDir = "$projectDir/src/main/generated"
 val goloCliMain = "org.eclipse.golo.cli.Main"
